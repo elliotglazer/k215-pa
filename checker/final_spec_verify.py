@@ -49,10 +49,10 @@ PA = os.path.join(ROOT, 'pa-mm0')
 DEFAULT_PINS = {
     'name': 'targets/final.mm0 (built in)',
     'frozen': 'pa-mm0/targets/final.mm0',
-    'frozen_sha256': '522671fcefcbacf90b9a0442b380b36eaffa6b844032b8d5c1bbaef6f5becb15',
+    'frozen_sha256': '8f531d23514e962931ba6c041cb15f08045e86d6414863ac249f02f34bd26c5d',
     'manifest': 'manifests/final-spec-closure.sha256',
-    'manifest_sha256': 'bd8202cb79ace30608e54ac4158e22683f8b0248b972c8f920b47378795e74be',
-    'manifest_commit': '24e19626',
+    'manifest_sha256': 'a7021d3c518993ae6f4f048fd4025138e0bbf872e81bef29a58e18c862d1a911',
+    'manifest_commit': 'k215-pa',
     'checker_kind': 'capacity2',
     'checker_sha256': 'bba77622e7540e3f68eb1cc0c202c1cfcdaa2c5bed01754eb0b86d143e4f6371',
     'compiler_sha256': 'c3be4fd028d3590a384f499c1a8e1ac762bcca957f6b20fb1a44794f54479412',

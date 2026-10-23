@@ -10,7 +10,7 @@ theorem K215_halts_iff_ZFC_inconsistent:
 ```
 
 The statement is copied verbatim from [`pa-mm0/targets/final.mm0`](pa-mm0/targets/final.mm0)
-(sha256 `522671fcefcbacf90b9a0442b380b36eaffa6b844032b8d5c1bbaef6f5becb15`):
+(sha256 `8f531d23514e962931ba6c041cb15f08045e86d6414863ac249f02f34bd26c5d`):
 
 - `k215LiteralHalts` ([`pa-mm0/k215_literal_tm.mm0`](pa-mm0/k215_literal_tm.mm0)) is
   `E. n k215TMQ (k215TMRun n k215TMInitial) = k215Num215`: the literal K215 transition table, run from the blank
@@ -20,7 +20,7 @@ The statement is copied verbatim from [`pa-mm0/targets/final.mm0`](pa-mm0/target
 
 It is proved, with no hypotheses, as `K215_halts_iff_ZFC_inconsistent_final` in
 [`pa-mm0/k215_final_thm1.mm0`](pa-mm0/k215_final_thm1.mm0); its binders and statement text are exactly the ones
-above. `final.mm0` also states two further theorems (about BB(215)); **they are not claimed here.** Only theorem 1 is.
+above.
 
 ## What you have to trust
 
@@ -34,7 +34,7 @@ the specification). Nothing in a `.mm1` file needs to be trusted.
    schema `peano5`, and the recursion equations for `+` and `*`). The project sources add no axioms:
    `pa-mm0/check.py` refuses any project file containing `axiom`.
 2. **The meaning of the statement**: the definitions behind `k215LiteralHalts` and `zfcInconsistent`, i.e. the
-   `.mm0` import closure of `targets/final.mm0`. Its 121 files are listed with their sha256 in
+   `.mm0` import closure of `targets/final.mm0`. Its 23 files are listed with their sha256 in
    [`manifests/final-spec-closure.sha256`](manifests/final-spec-closure.sha256); `checker/r0_check.py` verifies
    that the receipt used exactly these files.
 3. **The checking tools** (pinned by sha256; the receipt records these hashes):
