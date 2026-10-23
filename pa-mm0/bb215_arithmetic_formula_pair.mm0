@@ -1,0 +1,23 @@
+import "bb215_arithmetic_formula_qf_sat.mm0";
+
+import "pa_formula_source_bound.mm0";
+
+def bb215ArithmeticFormulaPairGraph (a b p: nat): wff = $ 2 * p = (a + b) * suc (a + b) + 2 * b $;
+
+def bb215ArithmeticFormulaPairCode: nat = $ paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 2)) (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable 0) (paTermVariable 1)) (paTermSuccessor (paTermAddition (paTermVariable 0) (paTermVariable 1)))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 1))) $;
+
+def bb215ArithmeticFormulaPairSource: nat = $ paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 2)) (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable 0) (paSourceTermVariable 1)) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable 0) (paSourceTermVariable 1)))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 1))) $;
+
+theorem bb215ArithmeticFormulaPairGraph_double (a b: nat): $ 2 * (a, b) = (a + b) * suc (a + b) + 2 * b $;
+
+theorem bb215ArithmeticFormulaPairGraph_correct (a b p: nat): $ bb215ArithmeticFormulaPairGraph a b p <-> p = (a, b) $;
+
+theorem bb215ArithmeticFormulaPairCode_bound: $ paFormulaBound 3 bb215ArithmeticFormulaPairCode $;
+
+theorem bb215ArithmeticFormulaPairCode_satisfies (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaPairCode <-> bb215ArithmeticFormulaPairGraph (E @ 0) (E @ 1) (E @ 2) $;
+
+theorem bb215ArithmeticFormulaPairCode_represents (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaPairCode <-> E @ 2 = (E @ 0, E @ 1) $;
+
+theorem bb215ArithmeticFormulaPairSource_exact: $ paFormulaSource bb215ArithmeticFormulaPairCode = bb215ArithmeticFormulaPairSource $;
+
+theorem bb215ArithmeticFormulaPairSource_bound: $ sfBound 3 bb215ArithmeticFormulaPairSource $;

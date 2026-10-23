@@ -1,0 +1,77 @@
+import "source_l_pair_common2_syntax.mm1";
+import "source_l_pair_shell_replay.mm1";
+
+@_ def slPEF0: nat = $ sfMem 0 1 $;
+
+@_ def slPEF1: nat = $ sfEq 0 3 $;
+
+@_ def slPEF2: nat = $ sfEq 0 2 $;
+
+@_ def slPEF3: nat = $ sfOr slPEF1 slPEF2 $;
+
+@_ def slPEF4: nat = $ sfImp slPEF0 slPEF3 $;
+
+@_ def slPEF5: nat = $ sfImp slPEF3 slPEF0 $;
+
+@_ def slPEF6: nat = $ sfAnd slPEF4 slPEF5 $;
+
+@_ def slPEF7: nat = $ sfAll slPEF6 $;
+
+@_ def slPEF8: nat = $ sfImp sfLDomain slPEF6 $;
+
+@_ def slPEF9: nat = $ sfAll slPEF8 $;
+
+@_ def slPEF10: nat = $ sfEx slPEF7 $;
+
+@_ def slPEF11: nat = $ sfAnd sfLDomain slPEF9 $;
+
+@_ def slPEF12: nat = $ sfEx slPEF11 $;
+
+@_ def slPEF13: nat = $ sfAll slPEF10 $;
+
+@_ def slPEF14: nat = $ sfImp sfLDomain slPEF12 $;
+
+@_ def slPEF15: nat = $ sfAll slPEF14 $;
+
+theorem slPERel0: $ sfRelativize sfLDomain slPEF0 = slPEF0 $ = 'sfRelativize_sfMem;
+
+theorem slPERel1: $ sfRelativize sfLDomain slPEF1 = slPEF1 $ = 'sfRelativize_sfEq;
+
+theorem slPERel2: $ sfRelativize sfLDomain slPEF2 = slPEF2 $ = 'sfRelativize_sfEq;
+
+theorem slPERel3: $ sfRelativize sfLDomain slPEF3 = slPEF3 $ = '(eqtr sfRelativize_sfOr (nsOr_eq slPERel1 slPERel2));
+
+theorem slPERel4: $ sfRelativize sfLDomain slPEF4 = slPEF4 $ = '(eqtr sfRelativize_sfImp (nsImp_eq slPERel0 slPERel3));
+
+theorem slPERel5: $ sfRelativize sfLDomain slPEF1 = slPEF1 $ = 'sfRelativize_sfEq;
+
+theorem slPERel6: $ sfRelativize sfLDomain slPEF2 = slPEF2 $ = 'sfRelativize_sfEq;
+
+theorem slPERel7: $ sfRelativize sfLDomain slPEF3 = slPEF3 $ = '(eqtr sfRelativize_sfOr (nsOr_eq slPERel5 slPERel6));
+
+theorem slPERel8: $ sfRelativize sfLDomain slPEF0 = slPEF0 $ = 'sfRelativize_sfMem;
+
+theorem slPERel9: $ sfRelativize sfLDomain slPEF5 = slPEF5 $ = '(eqtr sfRelativize_sfImp (nsImp_eq slPERel7 slPERel8));
+
+theorem slPERel10: $ sfRelativize sfLDomain slPEF6 = slPEF6 $ = '(eqtr sfRelativize_sfAnd (nsAnd_eq slPERel4 slPERel9));
+
+theorem slPERel11: $ sfRelativize sfLDomain slPEF7 = slPEF9 $ = '(eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid slPERel10)));
+
+theorem slPERel12: $ sfRelativize sfLDomain slPEF10 = slPEF12 $ = '(eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid slPERel11)));
+
+theorem slPERel13: $ sfRelativize sfLDomain slPEF13 = slPEF15 $ = '(eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid slPERel12)));
+
+theorem slPERel14: $ sfRelativize sfLDomain zfcPair = slPFF2780 $ = '(eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid slPERel13)));
+
+@_ def sfLPairNextLevel: nat = $ slPFF817 $;
+
+
+pub theorem sfLPairShell_context: $ slPFContext = sfLBackground $ = 'eqid;
+
+pub theorem sfLPairShell_formula: $ slPFFormula = sfImp sfLDefPair (sfImp sfLPairNextLevel (sfImp sfLPairCommon2 (sfRelativize sfLDomain zfcPair))) $ = '(nsImp_eq eqid (nsImp_eq eqid (nsImp_eq eqid (eqcom slPERel14))));
+
+pub theorem sfLPairShell_local: $ nsLocal sfLBackground (sfImp sfLDefPair (sfImp sfLPairNextLevel (sfImp sfLPairCommon2 (sfRelativize sfLDomain zfcPair)))) $ = '(mpbi (nsLocal_context_eq sfLPairShell_context) (mpbi (nsLocal_formula_eq sfLPairShell_formula) slPFCertificate));
+
+pub theorem sfLPairShell_zfr: $ sfTheoryProvable zfrAxioms (sfImp sfLDefPair (sfImp sfLPairNextLevel (sfImp sfLPairCommon2 (sfRelativize sfLDomain zfcPair)))) $ = '(ax_mp (sfTheory_local sfLBackground_zfr) sfLPairShell_local);
+
+pub theorem sfLPair_from_levels: $ sfTheoryProvable zfrAxioms sfLPairNextLevel -> sfTheoryProvable zfrAxioms sfLPairCommon2 -> sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $ = '(syl sfTheoryProvable_mp (ax_mp sfTheoryProvable_mp (ax_mp (ax_mp sfTheoryProvable_mp sfLPairShell_zfr) sfLDefPair_zfr)));

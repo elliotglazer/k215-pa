@@ -1,0 +1,35 @@
+import "k218_equality_laws.mm0";
+
+def k218TranslateBody (c h: nat): nat =
+$ if (rawTag c = 1) (kMem (rawLeft c) (rawRight c))
+  (if (rawTag c = 3) (k218EqInd (rawLeft c) (rawRight c))
+  (if (rawTag c = 2) (kAll (rawLeft c) (h @ rawRight c))
+  (if (0 < c) (kImp (h @ rawLeft c) (h @ rawRight c)) 0))) $;
+def k218TranslateStep (.h: nat): set =
+  $ \ h, k218TranslateBody (sfHistoryLength h) h $;
+def k218Translate (c: nat): nat = $ srec k218TranslateStep c $;
+def k218TranslateHistory (c .i: nat): nat =
+  $ \. i e. upto c, srec k218TranslateStep i $;
+
+theorem k218TranslateStep_apply (h: nat):
+  $ k218TranslateStep @ h = k218TranslateBody (sfHistoryLength h) h $;
+theorem k218TranslateHistory_size (c: nat):
+  $ sfHistoryLength (k218TranslateHistory c) = c $;
+theorem k218TranslateHistory_lookup (c a: nat):
+  $ a < c -> k218TranslateHistory c @ a = k218Translate a $;
+theorem k218Translate_unfold (c: nat):
+  $ k218Translate c = k218TranslateBody c (k218TranslateHistory c) $;
+theorem k218Translate_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> k218Translate a = k218Translate b $;
+theorem k218Translate_zero: $ k218Translate 0 = 0 $;
+theorem k218Translate_kMem (a b: nat):
+  $ k218Translate (kMem a b) = kMem a b $;
+theorem k218Translate_kEq (a b: nat):
+  $ k218Translate (kEq a b) = k218EqInd a b $;
+theorem k218Translate_kAll (x a: nat):
+  $ k218Translate (kAll x a) = kAll x (k218Translate a) $;
+theorem k218Translate_kImp_nonzero (a b: nat):
+  $ kImp a b != 0 -> k218Translate (kImp a b) = kImp (k218Translate a) (k218Translate b) $;
+theorem k218Translate_kImp (a b: nat):
+  $ k218Translate (kImp a b) = kImp (k218Translate a) (k218Translate b) $;
+theorem k218Translate_kF: $ k218Translate kF = kF $;

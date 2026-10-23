@@ -1,0 +1,50 @@
+import "source_piece_pcf_syntax.mm0";
+
+import "source_substitution_renaming.mm0";
+
+import "source_renaming_extensional.mm0";
+
+import "quotation_binders.mm0";
+
+def sfPieceEnvironment (E: set) (d X: nat): set =
+ $ sqEnvCons d (sqEnvCons X E) $;
+
+theorem sfPieceEnvironment_zero (E: set) (d X: nat):
+ $ sfPieceEnvironment E d X @ 0 = d $;
+
+theorem sfPieceEnvironment_one (E: set) (d X: nat):
+ $ sfPieceEnvironment E d X @ 1 = X $;
+
+theorem sfPieceEnvironment_tail (E: set) (d X i: nat):
+ $ sfPieceEnvironment E d X @ suc (suc i) = E @ i $;
+
+theorem sfPieceRotate_zero: $ sfPieceRotate @ 0 = 1 $;
+
+theorem sfPieceRotate_one: $ sfPieceRotate @ 1 = 2 $;
+
+theorem sfPieceRotate_two: $ sfPieceRotate @ 2 = 0 $;
+
+theorem sfPieceRotate_tail (i: nat):
+ $ sfPieceRotate @ suc (suc (suc i)) = suc (suc (suc i)) $;
+
+def sfPieceDnInstantiateMap (E: set) (d X v: nat): set =
+ $ sfComposeMap (sfSubstDepthMap 0 v)
+    (sfComposeMap (sfRenameDepthMap (sfPieceEnvironment E d X) 1) sfPieceRotate) $;
+
+theorem sfPieceDnInstantiateMap_at (E: set) (d X v i: nat):
+ $ sfPieceDnInstantiateMap E d X v @ i = sfPieceEnvironment (sqEnvCons v E) d X @ i $;
+
+theorem sfPieceDn_instantiate (E: set) (d X v body: nat) (hf: $ sfWf body $):
+ $ sfSubst 0 v (sfRename (sfPieceEnvironment E d X) 1 (sfRename sfPieceRotate 0 body)) =
+   sfRename (sfPieceEnvironment (sqEnvCons v E) d X) 0 body $;
+
+theorem sfPieceDn_instance_step (E: set) (d X v body: nat) (hf: $ sfWf body $):
+ $ sfSubst 0 v (sfRename (sfPieceEnvironment E d X) 1
+    (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 body))) =
+   sfImp (sfMem v X) (sfRename (sfPieceEnvironment (sqEnvCons v E) d X) 0 body) $;
+
+theorem sfPieceDn_step_eliminate (E: set) (G d X v body: nat) (hf: $ sfWf body $):
+ $ nsLocal G (sfRename (sfPieceEnvironment E d X) 0
+    (sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 body)))) ->
+   nsLocal G (sfMem v X) ->
+   nsLocal G (sfRename (sfPieceEnvironment (sqEnvCons v E) d X) 0 body) $;

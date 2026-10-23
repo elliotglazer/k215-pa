@@ -1,0 +1,30 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_equality.mm0";
+
+theorem k218ITransport_imp_lemma (h a ap b bp: nat): $ k218QProvable (kImp (kImp h (kImp ap a)) (kImp (kImp h (kImp b bp)) (kImp h (kImp (kImp a b) (kImp ap bp))))) $;
+
+theorem k218ITransport_imp (h a ap b bp: nat)
+  (ha: $ k218QProvable (kImp h (kImp ap a)) $)
+  (hb: $ k218QProvable (kImp h (kImp b bp)) $):
+  $ k218QProvable (kImp h (kImp (kImp a b) (kImp ap bp))) $;
+
+theorem k218ITransport_combine_lemma (h r s a b: nat): $ k218QProvable (kImp (kImp h r) (kImp (kImp h s) (kImp (kImp r (kImp s (kImp a b))) (kImp h (kImp a b))))) $;
+
+theorem k218ITransport_combine (h r s a b: nat)
+  (hr: $ k218QProvable (kImp h r) $)
+  (hs: $ k218QProvable (kImp h s) $)
+  (ht: $ k218QProvable (kImp r (kImp s (kImp a b))) $):
+  $ k218QProvable (kImp h (kImp a b)) $;
+
+theorem k218IEquality_member_transport (a ap b bp: nat): $ k218QProvable (kImp (kEq a ap) (kImp (kEq b bp) (kImp (kMem a b) (kMem ap bp)))) $;
+
+theorem k218IEquality_equal_transport (a ap b bp: nat): $ k218QProvable (kImp (kEq a ap) (kImp (kEq b bp) (kImp (kEq a b) (kEq ap bp)))) $;
+
+theorem k218ITransport_refl (h a: nat):
+  $ k218QProvable (kImp h (kImp a a)) $;
+
+theorem k218ITransport_all (h z a b: nat)
+  (hv: $ k218QProvable (kImp h (kAll z h)) $)
+  (hab: $ k218QProvable (kImp h (kImp a b)) $):
+  $ k218QProvable (kImp h (kImp (kAll z a) (kAll z b))) $;

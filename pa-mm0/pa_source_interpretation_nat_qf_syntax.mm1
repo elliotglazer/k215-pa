@@ -1,0 +1,42 @@
+import "pa_formula_syntax.mm1";
+
+@_ abstract def paNatQFBoundAllowed (n c h: nat): wff = $ ifp (c = 0) (0 = 0)
+ (ifp (sfTag c = 1) (paTermBound n (sfLeft c) /\ paTermBound n (sfRight c))
+ (ifp (sfTag c = 3) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 4) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 5) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (0 != 0))))) $;
+
+@_ abstract def paNatQFBoundStep (.k .h: nat): set = $ S\ k, {h | paNatQFBoundAllowed (fst k) (snd k) h} $;
+
+@_ abstract def paNatQFBound (n c: nat): wff = $ srecp paNatQFBoundStep (n, c) $;
+
+@_ abstract def paNatQFBoundPrevious (n c .i: nat): nat = $ sep (upto (n, c)) {i | srecp paNatQFBoundStep i} $;
+
+pub theorem paNatQFBoundStep_value (k h: nat): $ (k, h) e. paNatQFBoundStep <-> paNatQFBoundAllowed (fst k) (snd k) h $ = (named '(elsabe @ elabed ,eqtac));
+
+pub theorem paNatQFBoundPrevious_value (n c m a: nat): $ (m, a) e. paNatQFBoundPrevious n c <-> (m, a) < (n, c) /\ paNatQFBound m a $ = (named '(bitr elsep @ bitr (aneq1i elupto) (aneq2i (elabe ,eqtac))));
+
+pub theorem paNatQFBound_unfold (n c: nat): $ paNatQFBound n c <-> paNatQFBoundAllowed n c (paNatQFBoundPrevious n c) $ = (named '(bitr srecpval @ bitr paNatQFBoundStep_value (paNatQFBoundAllowedeq fstpr sndpr eqid)));
+
+theorem paNatQFBoundAllowed_Equal (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ paNatQFBoundAllowed n c h <-> paTermBound n (sfLeft c) /\ paTermBound n (sfRight c) $ = (named '(bitr (ifpneg h0) (ifppos ht)));
+
+theorem paNatQFBoundAllowed_And (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ paNatQFBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (ifppos ht))));
+
+theorem paNatQFBoundAllowed_Or (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ paNatQFBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht)))));
+
+theorem paNatQFBoundAllowed_Imp (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $): $ paNatQFBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht))))));
+
+theorem paNatQFBoundPrevious_child (n c a: nat) (h: $ sfLeft c = a $) (ha: $ a < c $): $ (n, sfLeft c) e. paNatQFBoundPrevious n c <-> paNatQFBound n a $ = (named '(bitr (eleq1 (preq2 h)) @ bitr paNatQFBoundPrevious_value (bian1 (sfKey_lt ha))));
+
+theorem paNatQFBoundPrevious_right (n c a: nat) (h: $ sfRight c = a $) (ha: $ a < c $): $ (n, sfRight c) e. paNatQFBoundPrevious n c <-> paNatQFBound n a $ = (named '(bitr (eleq1 (preq2 h)) @ bitr paNatQFBoundPrevious_value (bian1 (sfKey_lt ha))));
+
+pub theorem paNatQFBound_false (n: nat): $ paNatQFBound n paFormulaFalse $ = (named '(mpbir paNatQFBound_unfold @ mpbir (ifppos eqid) eqid));
+
+pub theorem paNatQFBound_equal (n a b: nat): $ paNatQFBound n (paFormulaEqual a b) <-> paTermBound n a /\ paTermBound n b $ = (named '(bitr paNatQFBound_unfold @ bitr (paNatQFBoundAllowed_Equal sfMem_ne_sfBot sfMem_tag) @ aneq (paTermBoundeq2 sfMem_left) (paTermBoundeq2 sfMem_right)));
+
+pub theorem paNatQFBound_and (n a b: nat): $ paNatQFBound n (paFormulaAnd a b) <-> paNatQFBound n a /\ paNatQFBound n b $ = (named '(bitr paNatQFBound_unfold @ bitr (paNatQFBoundAllowed_And sfAnd_ne_sfBot sfAnd_tag) @ aneq (paNatQFBoundPrevious_child sfAnd_left sfAnd_left_lt) (paNatQFBoundPrevious_right sfAnd_right sfAnd_right_lt)));
+
+pub theorem paNatQFBound_or (n a b: nat): $ paNatQFBound n (paFormulaOr a b) <-> paNatQFBound n a /\ paNatQFBound n b $ = (named '(bitr paNatQFBound_unfold @ bitr (paNatQFBoundAllowed_Or sfOr_ne_sfBot sfOr_tag) @ aneq (paNatQFBoundPrevious_child sfOr_left sfOr_left_lt) (paNatQFBoundPrevious_right sfOr_right sfOr_right_lt)));
+
+pub theorem paNatQFBound_imp (n a b: nat): $ paNatQFBound n (paFormulaImp a b) <-> paNatQFBound n a /\ paNatQFBound n b $ = (named '(bitr paNatQFBound_unfold @ bitr (paNatQFBoundAllowed_Imp sfImp_ne_sfBot sfImp_tag) @ aneq (paNatQFBoundPrevious_child sfImp_left sfImp_left_lt) (paNatQFBoundPrevious_right sfImp_right sfImp_right_lt)));

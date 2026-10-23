@@ -1,0 +1,61 @@
+import "source_l_replacement_definable_law.mm1";
+
+theorem lrdb_addone(n:nat): $ 1 + n = suc n $ =
+ '(eqtr addS1 (suceq add01));
+
+theorem lrdb_addtwo(n:nat): $ n + 2 = suc (suc n) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq add02))));
+
+theorem lrdb_names_at(m i:nat): $ i < m -> i + 2 < suc (suc m) $ =
+ '(mpbird (a1i (lteq1 lrdb_addtwo)) (syl (bi1 ltsuc) (bi1 ltsuc)));
+
+theorem lrdb_names(m:nat): $ sfCLNamesBound 2 m (suc (suc m)) $ =
+ (named '(ax_gen lrdb_names_at));
+
+theorem lrdb_map_at(i:nat):
+ $ sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2) @ i = suc (suc (suc i)) $ =
+ '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+  (suceq (eqtr sfLReplacementStartMap_at lrdb_addtwo))));
+
+theorem lrdb_map_range(m i:nat):
+ $ i < m -> sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2) @ i < suc (suc (suc m)) $ =
+ '(mpbird (a1i (lteq1 lrdb_map_at)) (syl (bi1 ltsuc) (syl (bi1 ltsuc) (bi1 ltsuc))));
+
+theorem lrdb_map_below{i:nat}(m:nat):
+ $ A. i (i < m -> sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2) @ i < suc (suc (suc m))) $ =
+ (named '(ax_gen lrdb_map_range));
+
+theorem lrdb_renamed(m psi:nat)(hb:$ sfBound (suc m) psi $):
+ $ sfBound (suc (suc (suc (suc m))))
+  (sfRename (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) 1 psi) $ =
+ (named '(mpbi (sfBoundeq1 lrdb_addone)
+   (ax_mp (ax_mp sfRename_bound lrdb_map_below) (mpbir (sfBoundeq1 lrdb_addone) hb))));
+
+theorem lrdb_memone(m:nat): $ sfBound (suc (suc (suc (suc m)))) (sfMem 0 1) $ =
+ '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem lrdb_memtwo(m:nat): $ sfBound (suc (suc (suc (suc m)))) (sfMem 0 2) $ =
+ '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+theorem lrdb_image(m psi:nat)(hb:$ sfBound (suc m) psi $):
+ $ sfBound (suc (suc m)) (sfLReplacementImageDefinable (sfLReplacementStartMap 2) sfLDomain psi 0) $ =
+ '(mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian
+  (ax_mp (ax_mp sfBound_mono sfLDomain_bound) (mpbi lesuc le01))
+  (mpbir sfBound_sfAll (mpbir sfBound_iff (ian lrdb_memone
+   (mpbir sfBound_sfAnd (ian lrdb_memtwo
+    (ax_mp (ax_mp sfCLSetRel_bound (lrdb_renamed hb)) (mpbi ltsuc (mpbi ltsuc lt01S)))))))))));
+
+theorem lrdb_antecedent(m:nat):
+ $ sfBound (suc (suc m)) (sfLReplacementDefinableAntecedent m) $ =
+ '(mpbir sfBound_sfAnd (ian (sfCLOrdinalAt_bound (mpbi ltsuc lt01S))
+  (mpbir sfBound_sfAnd (ian (sfCLHierarchyAt_bound (mpbi ltsuc lt01S) lt01S)
+   (ax_mp (sfCLMembership_bound lt01S) lrdb_names)))));
+
+pub theorem sfLReplacementDefinableBody_bound(m psi:nat)(hb:$ sfBound (suc m) psi $):
+ $ sfBound (m + 2) (sfLReplacementDefinableBody m psi) $ =
+ '(mpbir (sfBoundeq1 lrdb_addtwo)
+  (mpbir sfBound_sfImp (ian lrdb_antecedent (lrdb_image hb))));
+
+pub theorem sfLReplacementDefinableLaw_bound(m psi:nat)(hb:$ sfBound (suc m) psi $):
+ $ sfBound 0 (sfLReplacementDefinableLaw m psi) $ =
+ '(mpbir sfBound_allPrefix_closed (sfLReplacementDefinableBody_bound hb));

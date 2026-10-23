@@ -1,0 +1,74 @@
+import "k218q_parameter_names.mm1";
+
+@_ def k218ParameterTemplate (S k a: nat): nat =
+ $ sfNamedTemplate (sqNumericEnvironment S) k 0 a $;
+@_ def k218ParameterFormula (n a: nat): nat =
+ $ k218ParameterTemplate (k218ParameterNames n) (4 + n) a $;
+@_ abstract def k218ParameterClosure (n .a: nat): wff =
+ $ A. a (sfWf a -> k218QProvable (k218ParameterFormula n a) ->
+   k218QProvable (k218ParameterFormula 0 (sfAllPrefix n a))) $;
+
+theorem k218PClose_body (n a: nat):
+ $ sfWf a -> k218ParameterFormula (suc n) a =
+   sfNamedTemplate (sqEnvCons (4 + n) (sqNumericEnvironment (k218ParameterNames n)))
+     (suc (4 + n)) 0 a $ =
+'(eqtrd (a1i (k218ParameterTemplateeq1 k218ParameterNames_suc))
+  (eqtrd (a1i (k218ParameterTemplateeq2 addS)) k218INamed_numeric_cons));
+
+pub theorem k218ParameterFormula_close_one (n a: nat):
+ $ sfWf a -> k218QProvable (k218ParameterFormula (suc n) a) ->
+   k218QProvable (k218ParameterFormula n (sfAll a)) $ =
+'(exp (mpbird
+  (k218QProvableeqd (syl sfNamedTemplate_all_cons anl))
+  (syl k218QProvable_gen
+    (mpbid (k218QProvableeqd (syl k218PClose_body anl)) anr))));
+
+theorem k218PClose_commute_zero (a: nat):
+ $ sfAllPrefix 0 (sfAll a) = sfAll (sfAllPrefix 0 a) $ =
+'(eqtr sfAllPrefix_zero (eqcom (sfAlleq sfAllPrefix_zero)));
+
+theorem k218PClose_commute_step (n a: nat):
+ $ sfAllPrefix n (sfAll a) = sfAll (sfAllPrefix n a) ->
+   sfAllPrefix (suc n) (sfAll a) = sfAll (sfAllPrefix (suc n) a) $ =
+'(eqtrd (a1i sfAllPrefix_suc)
+  (eqtrd (sfAlleqd id) (a1i (eqcom (sfAlleq sfAllPrefix_suc)))));
+
+theorem k218PClose_commute_raw (n a: nat):
+ $ sfAllPrefix n (sfAll a) = sfAll (sfAllPrefix n a) $ =
+(named @ induct '(ind) 'n 'k218PClose_commute_zero 'k218PClose_commute_step);
+
+theorem k218PClose_commute (n a: nat):
+ $ sfAllPrefix n (sfAll a) = sfAllPrefix (suc n) a $ =
+'(eqtr k218PClose_commute_raw (eqcom sfAllPrefix_suc));
+
+theorem k218PClose_use (n a: nat):
+ $ k218ParameterClosure n -> sfWf a ->
+   k218QProvable (k218ParameterFormula n a) ->
+   k218QProvable (k218ParameterFormula 0 (sfAllPrefix n a)) $ =
+(named '(!! ealie t @ bi1d ,eqtac));
+
+theorem k218PClose_zero: $ k218ParameterClosure 0 $ =
+(named '(ax_gen (a1i (bi2 (k218QProvableeq (k218ParameterFormulaeq2 sfAllPrefix_zero))))));
+
+theorem k218PClose_step_at (n a: nat):
+ $ k218ParameterClosure n -> sfWf a ->
+   k218QProvable (k218ParameterFormula (suc n) a) ->
+   k218QProvable (k218ParameterFormula 0 (sfAllPrefix (suc n) a)) $ =
+(begin
+ (have 'previous '(mpd anr (syl k218ParameterFormula_close_one anlr)))
+ (have 'closed '(mpd previous (mpd (syl sfWf_all anlr) (syl k218PClose_use anll))))
+ (refine '(exp (exp (mpbid (a1i (k218QProvableeq
+   (k218ParameterFormulaeq2 k218PClose_commute))) closed))))
+);
+
+theorem k218PClose_step (n: nat):
+ $ k218ParameterClosure n -> k218ParameterClosure (suc n) $ =
+(named '(!! iald a @ k218PClose_step_at));
+
+theorem k218PClose_all (n: nat): $ k218ParameterClosure n $ =
+(named @ induct '(ind) 'n 'k218PClose_zero 'k218PClose_step);
+
+pub theorem k218ParameterFormula_close (n a: nat) (ha: $ sfWf a $):
+ $ k218QProvable (k218ParameterFormula n a) ->
+   k218QProvable (k218ParameterFormula 0 (sfAllPrefix n a)) $ =
+'(ax_mp (ax_mp k218PClose_use k218PClose_all) ha);

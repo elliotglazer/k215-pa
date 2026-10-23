@@ -1,0 +1,147 @@
+-- k215_final_thm1 (L10, audit E8): the theorem-1 root. It is the former body of k215_final_full
+-- without the G3 parts (no k215_assembly_g3_parts, no L07 modules in the closure). It proves
+-- K215_halts_iff_ZFC_inconsistent_final with no hypotheses. k215_final_full imports it.
+-- Unstaged final assembly (L10). Same composition as the staged chain
+-- (k215_final_staged + k215_assembly_g1_staged + k215_assembly_levels_staged), but every
+-- receipt-backed hypothesis is discharged by importing the module that proves it:
+--   hm  k215ZFC_refutation_from_Limages            k215_comparison_completed_schemas
+--   hn  sfLNonempty_zfr                            source_l_nonempty
+--   hN  k215PActualNativeLaw                       k215_literal_runtime_native_assembled_full
+--   hE hU hS hL hM  hierarchy facts                source_l_universal_hierarchy_{exists,unique,limit},
+--                                                  source_l_compact_hierarchy_{subset,stage}
+--   hK  sfLPowerLevelBound_from_hierarchy_zfr      source_l_power_collection_kernel
+--   hT  sfLSeparationStageTrans_zfr                source_l_separation_image_transitive_producer
+--   hZ  sfCLZero_zfr                               source_l_common_level_zero_lift
+--   hLaw uniform definable Replacement law         source_l_replacement_final_law (L02,
+--                                                  sfLReplacementDefinableLaws_closed)
+--   hlv k215BLvl (k215FinalFull_levels)            source_l_clstage_levels via k215_assembly_blvl
+--                                                  applied to sfLReplacementDefinableLaw_zfr at psi = (z = z)
+--   hSep Separation images in L                    source_l_separation_image_definable_final
+--        (k215FinalFull_separation)               (sfLSeparationImage_schema_from_definable_law) with the
+--                                                  law (sfLReplacementDefinableLaw_zfr), uniform by if-bound
+-- Remaining open premise (rule hypothesis): hF Fixed images in L; and the BB bridge as antecedent.
+-- Needs the capacity2 checker (exclusive host) and the staged large sources.
+import "k215_final_staged.mm0";
+import "k215_assembly_g1_staged.mm0";
+import "k215_assembly_levels_staged.mm0";
+import "k215_comparison_completed_schemas.mm0";
+import "source_l_nonempty.mm0";
+import "k215_literal_runtime_native_assembled_full.mm0";
+import "source_l_universal_hierarchy_exists.mm0";
+import "source_l_universal_hierarchy_unique.mm0";
+import "source_l_compact_hierarchy_subset.mm0";
+import "source_l_universal_hierarchy_limit.mm0";
+import "source_l_compact_hierarchy_stage.mm0";
+import "source_l_power_collection_kernel.mm0";
+import "source_l_separation_image_transitive_producer.mm0";
+import "source_l_common_level_zero_lift.mm0";
+import "source_l_replacement_final_law.mm0";
+import "source_l_clstage_levels.mm0";
+import "k215_assembly_blvl.mm0";
+import "source_piece_pcf_separation_maps.mm0";
+import "source_l_separation_image_definable_final.mm0";
+import "source_l_wellorder_final.mm0";
+import "source_l_replacement_next_bridge.mm0";
+import "source_l_wellorder_outcond.mm0";
+import "extracted_ltrans_weak.mm0";
+import "source_l_power_final.mm0";
+import "source_reflection_transfer_tv_images.mm0";
+import "source_l_common_level_two.mm0";
+import "source_l_pair_next.mm0";
+import "source_l_pair_next_union.mm0";
+import "source_l_omega_shell.mm0";
+import "source_omega_ordinals_in_l_zfr.mm0";
+import "source_l_ac_images.mm0";
+import "source_l_ac_ordl.mm0";
+
+-- Separation images in L (formerly the open premise hSep).
+theorem k215FinalFull_separation: $ sfZFCSeparationImages zfrAxioms sfLDomain $;
+
+-- Every level L_a is in L (formerly the open premise hlv).
+theorem k215FinalFull_levels: $ zfcProvable k215BLvl $;
+
+-- T2 of Choice^L (sfLWOChoiceT2_cond, source_l_wellorder_outcond, L03), from the discharged
+-- sfLUniversalHierarchy{Exists,Unique}_zfr, sfLNextLevelLaw_zfr (L02 next_bridge) and
+-- sfLWellorder{RankLaw,LevelTrans}_zfr (L03 wellorder_final). Input to hChoice inside hF.
+theorem k215FinalFull_choiceT2: $ sfTheoryProvable zfrAxioms sfLChoiceT2 $;
+
+theorem k215FinalFull_G1
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $):
+ $ sfZFCImageFamilies zfrAxioms sfLDomain $;
+
+theorem k215FinalFull_coreL
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $):
+ $ k215CoreImagesL $;
+
+theorem K215_halts_iff_ZFC_inconsistent_full
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $):
+ $ k215LiteralHalts <-> zfcInconsistent $;
+
+theorem K215_full_consistency_BB215_nonprovability_full_bridge {b: nat}
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $):
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $;
+
+-- hF reduced to its four still-open parts: Transitivity^L (sfLTransitivity_weak_zfr) and
+-- Power^L (sfLPower_image_zfr, L02-050 PASSED) are discharged here.
+theorem k215FinalFull_fixed
+ (hPair: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $)
+ (hUnion: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $)
+ (hOmega: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) $)
+ (hChoice: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $):
+ $ sfZFCFixedImages zfrAxioms sfLDomain $;
+
+theorem K215_halts_iff_ZFC_inconsistent_parts
+ (hPair: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $)
+ (hUnion: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $)
+ (hOmega: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) $)
+ (hChoice: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $):
+ $ k215LiteralHalts <-> zfcInconsistent $;
+
+theorem K215_full_consistency_BB215_nonprovability_parts_bridge {b: nat}
+ (hPair: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $)
+ (hUnion: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $)
+ (hOmega: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) $)
+ (hChoice: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $):
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $;
+
+-- Replacement images in L (uniform definable law, L02's sfLReplacementDefinableLaws_closed).
+theorem k215FinalFull_replacement: $ sfZFCReplacementImages zfrAxioms sfLDomain $;
+
+-- hF with every part discharged except hOL = sfLChoiceOrdL (every ordinal is in L, in L03's
+-- choice vocabulary; L08's sfLOrdinalsInL_zfr states it in another vocabulary, bridge pending).
+-- L03's sfLACFixed_cond on: sfLTransitivity_weak_zfr, sfLPair_from_common2 sfLPairCommon2_zfr,
+-- sfLUnion_zfr, sfLPower_image_zfr, sfLOmega_from_ordinals sfLOrdinalsInL_zfr,
+-- k215FinalFull_separation, k215FinalFull_replacement, sfLNonempty_zfr, hierarchy, choiceT2.
+theorem k215FinalFull_fixed_ordl
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ sfZFCFixedImages zfrAxioms sfLDomain $;
+
+theorem K215_halts_iff_ZFC_inconsistent_ordl
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ k215LiteralHalts <-> zfcInconsistent $;
+
+theorem K215_full_consistency_BB215_nonprovability_ordl_bridge {b: nat}
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $;
+
+-- hOL from L08's sfLOrdinalsInL_zfr through L03's vocabulary bridge (source_l_ac_ordl): every
+-- fixed image is now discharged, so theorem 1 of final.mm0 holds with no hypotheses.
+theorem k215FinalFull_fixed_closed: $ sfZFCFixedImages zfrAxioms sfLDomain $;
+
+theorem K215_halts_iff_ZFC_inconsistent_final:
+ $ k215LiteralHalts <-> zfcInconsistent $;
+
+theorem K215_full_consistency_BB215_nonprovability_final_bridge {b: nat}:
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $;
+
+-- Hypothesis-free last theorem (keeps check.py's false-final control well formed).
+theorem k215FinalFull_native_law:
+ $ k215PNativeLaw $;

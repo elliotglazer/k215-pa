@@ -1,0 +1,53 @@
+import "k230_freshness.mm0";
+
+import "quotation_binders.mm0";
+
+def sqEnvAvoid (E: set) (n x .i: nat): wff =
+ $ A. i (i < n -> x != E @ i) $;
+
+theorem sqEnvAvoid_at (E: set) (n x i: nat):
+ $ sqEnvAvoid E n x -> i < n -> x != E @ i $;
+
+theorem sqEnvAvoid_zero (E: set) (x: nat): $ sqEnvAvoid E 0 x $;
+
+theorem sfNamedIndex_avoid (E: set) (k d n x i: nat) (hk: $ x < k $):
+ $ sqEnvAvoid E n x -> i < d + n -> x != sfNamedIndex E k d i $;
+
+def ntFreshClass (E: set) (k n x: nat) (.c .d: nat): set =
+$ {c | A. d (sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sfNamedTemplate E k d c) x)} $;
+
+theorem ntFresh_value {d: nat} (E: set) (k n x c: nat):
+ $ c e. ntFreshClass E k n x <->
+ A. d (sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sfNamedTemplate E k d c) x) $;
+
+theorem sfNamedTemplate_fresh (E: set) (k n x d c: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sfNamedTemplate E k d c) x $;
+
+theorem sqAtomEnv_avoid (t a b x: nat):
+ $ x != t -> x != a -> x != b -> sqEnvAvoid (sqAtomEnvironment t a b) 3 x $;
+
+theorem sqEqual_fresh (t a b k x: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ x != t -> x != a -> x != b -> kFresh (sqEqual t a b k) x $;
+
+theorem sqMember_fresh (t a b k x: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ x != t -> x != a -> x != b -> kFresh (sqMember t a b k) x $;
+
+def qqFreshClass (E: set) (t k n x: nat) (.c .d: nat): set =
+$ {c | A. d (sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sqQuote E t k d c) x)} $;
+
+theorem qqFresh_value {d: nat} (E: set) (t k n x c: nat):
+ $ c e. qqFreshClass E t k n x <->
+ A. d (sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sqQuote E t k d c) x) $;
+
+theorem sqQuote_fresh (E: set) (t k n x d c: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sqQuote E t k d c) x $;
+
+theorem sfNamedTemplate_closed_fresh (E: set) (k x c: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfBound 0 c -> kFresh (sfNamedTemplate E k 0 c) x $;
+
+theorem sqQuote_closed_fresh (E: set) (t k x c: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ sfBound 0 c -> kFresh (sqQuote E t k 0 c) x $;

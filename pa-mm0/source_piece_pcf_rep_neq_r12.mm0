@@ -1,0 +1,17 @@
+import "source_piece_pcf_rep_order_r11.mm0";
+
+import "source_formula_equality_transport_atomic.mm0";
+
+def sfPieceRepNoSelfLaw:nat = $ (sfAll (sfImp (sfMem 0 0) sfBot)) $;
+
+theorem sfPieceMember_neq_forward(G x y:nat):
+ $ sfContextWf G -> sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepNoSelfLaw) -> (nsLocal G (sfMem x y)) -> (nsLocal G (sfImp (sfEq x y) sfBot)) $;
+
+theorem sfPieceMember_neq_reverse(G x y:nat):
+ $ sfContextWf G -> sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepNoSelfLaw) -> (nsLocal G (sfMem y x)) -> (nsLocal G (sfImp (sfEq x y) sfBot)) $;
+
+theorem sfPieceNumeral_neq_law_rule(G k l x y:nat):
+ $ sfContextWf G -> sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G sfPieceRepNoSelfLaw) -> k != l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfImp (sfEq x y) sfBot)) $;
+
+theorem sfPieceNumeral_neq_from_laws(G k l x y:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfFormulaEqualityContext G $)(he:$ (nsLocal G sfPieceRepEmptyUniqueLaw) $)(hu:$ (nsLocal G sfPieceRepSuccessorUniqueLaw) $)(hl:$ (nsLocal G sfPieceRepSuccessorLiftLaw) $)(hn:$ (nsLocal G sfPieceRepNoSelfLaw) $)(hne:$ k != l $)(hx:$ (nsLocal G (sfPieceNumeral k x)) $)(hy:$ (nsLocal G (sfPieceNumeral l y)) $):
+ $ (nsLocal G (sfImp (sfEq x y) sfBot)) $;

@@ -1,0 +1,37 @@
+import "source_piece_pcf_definable_context_transport.mm0";
+
+import "source_piece_pcf_definable_and.mm0";
+
+def sfPieceDefinableConjunctionDifference(a b r:nat): nat = $ sfAll (sfIff (sfMem 0 (suc r)) (sfAnd (sfMem 0 (suc a)) (sfImp (sfMem 0 (suc b)) sfBot))) $;
+
+def sfPieceDefinableConjunctionPointContext(n G:nat): nat = $ (sfPieceDefinableRecipeEnvironment n) : sfContextShift (sfPieceDefinableParametersContext n G) $;
+
+theorem sfPieceDefinableConjunctionDifference_wf(a b r:nat): $ sfWf (sfPieceDefinableConjunctionDifference a b r) $;
+
+theorem sfPieceDefinableConjunctionDifference_rename(R:set)(a b r:nat): $ sfRename R 0 (sfPieceDefinableConjunctionDifference a b r) = sfPieceDefinableConjunctionDifference (R @ a) (R @ b) (R @ r) $;
+
+theorem sfPieceDefinableConjunctionDifference_congr(a b r aa bb rr:nat)(ha:$ a = aa $)(hb:$ b = bb $)(hr:$ r = rr $): $ sfPieceDefinableConjunctionDifference a b r = sfPieceDefinableConjunctionDifference aa bb rr $;
+
+theorem sfPieceDefinableConjunctionDifference_open(e a b r:nat): $ sfSubst 0 e (sfIff (sfMem 0 (suc r)) (sfAnd (sfMem 0 (suc a)) (sfImp (sfMem 0 (suc b)) sfBot))) = sfIff (sfMem e r) (sfAnd (sfMem e a) (sfImp (sfMem e b) sfBot)) $;
+
+theorem sfPieceDefinableConjunctionDifference_member(G a b r e:nat)(hp:$ nsLocal G (sfPieceDefinableConjunctionDifference a b r) $): $ nsLocal G (sfIff (sfMem e r) (sfAnd (sfMem e a) (sfImp (sfMem e b) sfBot))) $;
+
+theorem sfPieceDefinableConjunctionDifference_shift(a b r:nat): $ sfShift 0 (sfPieceDefinableConjunctionDifference a b r) = sfPieceDefinableConjunctionDifference (suc a) (suc b) (suc r) $;
+
+theorem sfPieceDefinableConjunctionDifference_context(n G a b r:nat)(hp:$ nsLocal G (sfPieceDefinableConjunctionDifference a b r) $): $ nsLocal (sfPieceDefinableParametersContext n G) (sfPieceDefinableConjunctionDifference (sfPieceDefinableContextTransportMap n @ a) (sfPieceDefinableContextTransportMap n @ b) (sfPieceDefinableContextTransportMap n @ r)) $;
+
+theorem sfPieceDefinableConjunction_named_shift_code(n phi r A:nat)(hb:$ sfBound n phi $): $ sfShift 0 (sfPieceDefinableNamed n phi r A) = sfPieceDefinableNamed n phi (suc r) (suc A) $;
+
+theorem sfPieceDefinableConjunction_named_shift(G n phi r A:nat)(hb:$ sfBound n phi $)(hp:$ nsLocal G (sfPieceDefinableNamed n phi r A) $): $ nsLocal (sfContextShift G) (sfPieceDefinableNamed n phi (suc r) (suc A)) $;
+
+theorem sfPieceDefinableConjunction_shifted_members(n G:nat): $ sfReflectionDnMembers sfPieceDefinableRecipeMap (sfContextShift (sfPieceDefinableParametersContext n G)) 2 n $;
+
+theorem sfPieceDefinableConjunctionPointContext_wf(n G:nat): $ sfContextWf (sfPieceDefinableConjunctionPointContext n G) $;
+
+theorem sfPieceDefinableConjunction_members(n G:nat): $ sfReflectionDnMembers sfPieceDefinableRecipeMap (sfPieceDefinableConjunctionPointContext n G) 2 n $;
+
+theorem sfPieceDefinableConjunction_environment(n G:nat): $ nsLocal (sfPieceDefinableConjunctionPointContext n G) (sfPieceDefinableRecipeEnvironment n) $;
+
+theorem sfPieceDefinableConjunction_point(G n phi psi l r d:nat)(hl:$ sfBound n phi $)(hr:$ sfBound n psi $)(hL:$ nsLocal G (sfPieceDefinableNamed n phi l 1) $)(hR:$ nsLocal G (sfPieceDefinableNamed n psi r 1) $)(hD:$ nsLocal G (sfPieceDefinableConjunctionDifference l r d) $)(hN:$ nsLocal G (sfPieceDefinableConjunctionDifference l d 0) $): $ nsLocal (sfPieceDefinableParametersContext n G) (sfPieceDefinableRecipePoint n (sfAnd phi psi)) $;
+
+theorem sfPieceDefinableConjunction_recipe(G n phi psi l r d:nat)(hl:$ sfBound n phi $)(hr:$ sfBound n psi $)(hL:$ nsLocal G (sfPieceDefinableNamed n phi l 1) $)(hR:$ nsLocal G (sfPieceDefinableNamed n psi r 1) $)(hD:$ nsLocal G (sfPieceDefinableConjunctionDifference l r d) $)(hN:$ nsLocal G (sfPieceDefinableConjunctionDifference l d 0) $): $ nsLocal G (sfPieceDefinableRecipe n (sfAnd phi psi)) $;

@@ -1,0 +1,57 @@
+
+import "source_reflection_least_cond_ord_maps.mm1";
+import "source_l_common_level_syntax.mm1";
+import "source_l_universal_hierarchy_interface.mm1";
+import "source_renaming_agreement.mm1";
+
+theorem pcpl_or_zero(x y:nat): $ sfORBinaryMap x y @ 0 = x $ =
+'(eqtr sfORBinaryMap_value (ifneg (ltnei d0lt1)));
+theorem pcpl_or_one(x y:nat): $ sfORBinaryMap x y @ 1 = y $ =
+'(eqtr sfORBinaryMap_value (ifpos eqid));
+theorem pcpl_map_zero(x y z:nat):
+ $ sfLCBinaryMap x y z @ 0 = sfORBinaryMap x y @ 0 $ =
+'(eqtr sfLCB_zero (eqcom pcpl_or_zero));
+theorem pcpl_map_one(x y z:nat):
+ $ sfLCBinaryMap x y z @ 1 = sfORBinaryMap x y @ 1 $ =
+'(eqtr sfLCB_one (eqcom pcpl_or_one));
+theorem pcpl_map_at_zero(x y z i:nat):
+ $ i = 0 -> sfLCBinaryMap x y z @ i = sfORBinaryMap x y @ i $ =
+'(eqtrd (appeq2d id) (eqtrd (a1i pcpl_map_zero) (eqcomd (appeq2d id))));
+theorem pcpl_map_at_one(x y z i:nat):
+ $ i = 1 -> sfLCBinaryMap x y z @ i = sfORBinaryMap x y @ i $ =
+'(eqtrd (appeq2d id) (eqtrd (a1i pcpl_map_one) (eqcomd (appeq2d id))));
+pub theorem sfPieceLevel_binary_agree(x y z:nat):
+ $ sfRenameMapAgree (sfLCBinaryMap x y z) (sfORBinaryMap x y) 2 $ =
+(named '(ax_gen (syl (eor pcpl_map_at_zero pcpl_map_at_one) (bi1 bool01))));
+pub theorem sfPieceLevel_binary(phi x y z:nat)(hb:$ sfBound 2 phi $):
+ $ sfLCBinary phi x y z = sfORBinary phi x y $ =
+'(ax_mp (ax_mp sfRename_bounded_agreement sfPieceLevel_binary_agree)
+ (mpbir (sfSchema_bound_index_eq add01) hb));
+
+pub theorem sfCLHierarchy_hierarchy_eq:
+ $ sfCLHierarchy = sfLUniversalHierarchyRelation $ = 'eqid;
+pub theorem sfPieceCanonicalLevel_hierarchy:
+ $ sfLCBinary sfCLHierarchy 1 0 2 = sfORBinary sfLUniversalHierarchyRelation 1 0 $ =
+'(eqtr (sfPieceLevel_binary sfCLHierarchy_bound)
+ (trud (sfRename_congr_formula (a1i sfCLHierarchy_hierarchy_eq))));
+pub theorem sfPieceCanonicalLevel_at(d y:nat):
+ $ sfORBinary (sfLCBinary sfCLHierarchy 1 0 2) y d = sfORBinary sfLUniversalHierarchyRelation d y $ =
+'(eqtr (trud (sfRename_congr_formula (a1i sfPieceCanonicalLevel_hierarchy)))
+ (eqtr (sfORBinary_rename sfLUniversalHierarchyRelation_wf)
+ (sfORBinary_congr sfLUniversalHierarchyRelation_wf pcpl_or_one pcpl_or_zero)));
+
+pub theorem sfPieceHierarchyExists_reflection_eq:
+ $ sfReflectionCondLevelExists sfCLHierarchy = sfLUniversalHierarchyExists $ =
+'(eqtr (trud (rcondExCongeqd (a1i sfCLHierarchy_hierarchy_eq))) sfLUniversalHierarchyExists_consumer_eq);
+pub theorem sfPieceHierarchyUnique_reflection_eq:
+ $ sfReflectionCondLevelUnique sfCLHierarchy = sfLUniversalHierarchyUnique $ =
+'(eqtr (trud (rcondUniqueCongeqd (a1i sfCLHierarchy_hierarchy_eq))) sfLUniversalHierarchyUnique_consumer_eq);
+pub theorem sfPieceHierarchyExists_reflection
+ (he:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $):
+ $ sfTheoryProvable zfrAxioms (sfReflectionCondLevelExists sfCLHierarchy) $ =
+'(mpbir (sfTheoryProvableeq2 sfPieceHierarchyExists_reflection_eq) he);
+pub theorem sfPieceHierarchyUnique_reflection
+ (hu:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $):
+ $ sfTheoryProvable zfrAxioms (sfReflectionCondLevelUnique sfCLHierarchy) $ =
+'(mpbir (sfTheoryProvableeq2 sfPieceHierarchyUnique_reflection_eq) hu);
+

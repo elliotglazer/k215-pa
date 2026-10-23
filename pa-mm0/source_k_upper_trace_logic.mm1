@@ -1,0 +1,39 @@
+import "source_k_upper_trace_normalize.mm1";
+
+import "source_wf_separation_logic.mm1";
+
+theorem sfUTL_empty_sub (G: nat):
+ $ sfContextSub 0 G $ =
+(named '(ax_gen @ absurd lmem0));
+
+pub theorem sfLocal_all_from_pure_imp (G a b: nat) (hg: $ sfContextWf G $) (h: $ nsLocal 0 (sfImp a b) $):
+ $ nsLocal G (sfAll a) -> nsLocal G (sfAll b) $ =
+'(syl (ax_mp sfSepLocal_allI hg) @ syl (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken sfContextShift_wf) sfUTL_empty_sub) h)) sfSepLocal_open);
+
+pub theorem sfTracePoint_parent (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal 0 (sfImp (sfIff a (sfAnd b c)) (sfImp a b)) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha (mpbir sfContextWf_cons (ian (mpbir sfWf_iff (ian ha (ax_mp (ax_mp sfWf_and hb) hc))) sfContextWf_nil))))) (ax_mp sfContext_member_tail sfContext_member_head)))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha (mpbir sfContextWf_cons (ian (mpbir sfWf_iff (ian ha (ax_mp (ax_mp sfWf_and hb) hc))) sfContextWf_nil))))) sfContext_member_head)))));
+
+pub theorem sfTracePoint_relation (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal 0 (sfImp (sfIff a (sfAnd b c)) (sfImp a c)) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha (mpbir sfContextWf_cons (ian (mpbir sfWf_iff (ian ha (ax_mp (ax_mp sfWf_and hb) hc))) sfContextWf_nil))))) (ax_mp sfContext_member_tail sfContext_member_head)))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha (mpbir sfContextWf_cons (ian (mpbir sfWf_iff (ian ha (ax_mp (ax_mp sfWf_and hb) hc))) sfContextWf_nil))))) sfContext_member_head)))));
+
+pub theorem sfTracePoint_admit (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal 0 (sfImp (sfIff a (sfAnd b c)) (sfImp b (sfImp c a))) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian hc (mpbir sfContextWf_cons (ian hb (mpbir sfContextWf_cons (ian (mpbir sfWf_iff (ian ha (ax_mp (ax_mp sfWf_and hb) hc))) sfContextWf_nil))))))) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))) (ax_mp (ax_mp sfLocal_and (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian hc (mpbir sfContextWf_cons (ian hb (mpbir sfContextWf_cons (ian (mpbir sfWf_iff (ian ha (ax_mp (ax_mp sfWf_and hb) hc))) sfContextWf_nil))))))) (ax_mp sfContext_member_tail sfContext_member_head))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian hc (mpbir sfContextWf_cons (ian hb (mpbir sfContextWf_cons (ian (mpbir sfWf_iff (ian ha (ax_mp (ax_mp sfWf_and hb) hc))) sfContextWf_nil))))))) sfContext_member_head))))));
+
+pub theorem sfUpperTraceBody_wf (phi: nat):
+ $ sfWf (sfUpperTraceBody phi) $ =
+'(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfRename_wf));
+
+pub theorem sfUpperTrace_profile_parent (G phi: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfUpperTraceProfile phi) -> nsLocal G (sfAll (sfImp (sfMem 0 1) (sfMem 0 2))) $ =
+'(sfLocal_all_from_pure_imp hg (sfTracePoint_parent sfWf_mem sfWf_mem sfUpperTraceBody_wf));
+
+pub theorem sfUpperTrace_profile_relation (G phi: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfUpperTraceProfile phi) -> nsLocal G (sfAll (sfImp (sfMem 0 1) (sfUpperTraceBody phi))) $ =
+'(sfLocal_all_from_pure_imp hg (sfTracePoint_relation sfWf_mem sfWf_mem sfUpperTraceBody_wf));
+
+pub theorem sfUpperTrace_profile_admit (G phi: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfUpperTraceProfile phi) -> nsLocal G (sfAll (sfImp (sfMem 0 2) (sfImp (sfUpperTraceBody phi) (sfMem 0 1)))) $ =
+'(sfLocal_all_from_pure_imp hg (sfTracePoint_admit sfWf_mem sfWf_mem sfUpperTraceBody_wf));

@@ -1,0 +1,43 @@
+import "source_piece_pcf_definable_recipe.mm1";
+
+import "source_renaming_extensional.mm1";
+
+import "source_l_common_level_setrel_bounds.mm1";
+
+@_ abstract def sfPieceDefinableRecipeCutoffMap: set = $ sfRenameDepthMap sfSuccessorMap 1 $;
+
+@_ abstract def sfPieceDefinableRecipeDoubleCutoffMap: set = $ sfComposeMap sfPieceDefinableRecipeCutoffMap sfPieceDefinableRecipeCutoffMap $;
+
+theorem sfPieceDefinableRecipeCutoffMap_zero: $ sfPieceDefinableRecipeCutoffMap @ 0 = 0 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S)));
+
+theorem sfPieceDefinableRecipeCutoffMap_suc (i:nat): $ sfPieceDefinableRecipeCutoffMap @ suc i = suc (suc i) $ = (named '(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)))));
+
+pub theorem sfPieceDefinableRecipeMap_at (i:nat): $ sfPieceDefinableRecipeMap @ i = 3 + i $ = (named '(applame ,eqtac));
+
+theorem sfPieceDefinableRecipe_add3 (i:nat): $ 3 + i = suc (suc (suc i)) $ = (named '(eqtr addS1 (suceq (eqtr addS1 (suceq (eqtr addS1 (suceq add01)))))));
+
+theorem sfPieceDefinableRecipeDoubleCutoffMap_zero: $ sfPieceDefinableRecipeDoubleCutoffMap @ 0 = (sqEnvCons 0 sfPieceDefinableRecipeMap) @ 0 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceDefinableRecipeCutoffMap_zero) (eqtr sfPieceDefinableRecipeCutoffMap_zero (eqcom sqEnvCons_zero)))));
+
+theorem sfPieceDefinableRecipeDoubleCutoffMap_suc (i:nat): $ sfPieceDefinableRecipeDoubleCutoffMap @ suc i = (sqEnvCons 0 sfPieceDefinableRecipeMap) @ suc i $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceDefinableRecipeCutoffMap_suc) (eqtr sfPieceDefinableRecipeCutoffMap_suc (eqcom (eqtr sqEnvCons_suc (eqtr sfPieceDefinableRecipeMap_at sfPieceDefinableRecipe_add3)))))));
+
+pub theorem sfPieceDefinableRecipeDoubleCutoffMap_at (i:nat): $ sfPieceDefinableRecipeDoubleCutoffMap @ i = (sqEnvCons 0 sfPieceDefinableRecipeMap) @ i $ = (named @ induct '(ind) 'i 'sfPieceDefinableRecipeDoubleCutoffMap_zero '(a1i sfPieceDefinableRecipeDoubleCutoffMap_suc));
+
+theorem sfPieceDefinableRecipe_cutoff_one (c:nat) (hc:$ sfWf c $): $ sfShift 1 c = sfRename sfPieceDefinableRecipeCutoffMap 0 c $ = (named '(eqtr (eqcom (ax_mp sfRename_successor hc)) (ax_mp sfRename_as_map hc)));
+
+theorem sfPieceDefinableRecipe_cutoff_two (c:nat) (hc:$ sfWf c $): $ sfShift 1 (sfShift 1 c) = sfRename sfPieceDefinableRecipeDoubleCutoffMap 0 c $ = (named '(eqtr (sfPieceDefinableRecipe_cutoff_one sfShift_wf) (eqtr (trud (sfRename_congr_formula (a1i (sfPieceDefinableRecipe_cutoff_one hc)))) (ax_mp sfRename_compose hc))));
+
+pub theorem sfPieceDefinableRecipe_environment_exact (n:nat): $ sfPieceDefinableRecipeEnvironment n = sfShift 1 (sfShift 1 (sfPieceEnvCore n)) $ = (named '(eqcom (eqtr (sfPieceDefinableRecipe_cutoff_two sfPieceEnvCore_wf) (ax_mp (sfRename_extensional (ax_gen sfPieceDefinableRecipeDoubleCutoffMap_at)) sfPieceEnvCore_wf))));
+
+pub theorem sfPieceDefinableRecipe_environment_bound (n:nat): $ sfBound (suc (suc (suc n))) (sfPieceDefinableRecipeEnvironment n) $ = (named '(mpbir (pcpb_bformula sfPieceDefinableRecipe_environment_exact) (trud (pcpb_shift1_cond (pcpb_shift1_cond (a1i sfPieceEnvCore_bound))))));
+
+theorem sfPieceDefinableRecipeMap_bound (i n:nat): $ i < n -> sfPieceDefinableRecipeMap @ i < suc (suc (suc n)) $ = (named '(mpbird (a1i (lteq1 (eqtr sfPieceDefinableRecipeMap_at sfPieceDefinableRecipe_add3))) (syl (bi1 ltsuc) (syl (bi1 ltsuc) (bi1 ltsuc)))));
+
+theorem sfPieceDefinableRecipe_matrix_bound (n phi:nat): $ sfBound n phi -> sfBound (suc (suc (suc n))) (sfRename sfPieceDefinableRecipeMap 0 phi) $ = (named '(syl (bi1 (pcpb_bindex add01)) (syl (ax_mp sfRename_bound (ax_gen sfPieceDefinableRecipeMap_bound)) (bi2 (pcpb_bindex add01)))));
+
+theorem sfPieceDefinableRecipe_carrier_lt (n:nat): $ 2 < suc (suc (suc n)) $ = (named '(mpbi ltsuc (mpbi ltsuc lt01S)));
+
+theorem sfPieceDefinableRecipe_relative_bound (n phi:nat): $ sfBound n phi -> sfBound (suc (suc (suc n))) (sfCLSetRel 2 (sfRename sfPieceDefinableRecipeMap 0 phi)) $ = (named '(mpd (a1i sfPieceDefinableRecipe_carrier_lt) (syl sfCLSetRel_bound sfPieceDefinableRecipe_matrix_bound)));
+
+pub theorem sfPieceDefinableRecipe_point_bound (n phi:nat): $ sfBound n phi -> sfBound (suc (suc n)) (sfPieceDefinableRecipePoint n phi) $ = (named '(syl (bi2 sfBound_sfAll) (syl (bi2 sfBound_sfImp) (iand (a1i sfPieceDefinableRecipe_environment_bound) (syl (bi2 sfBound_sfAnd) (iand (syl (bi2 sfBound_sfImp) (iand (a1i pcpb_ew_atom) sfPieceDefinableRecipe_relative_bound)) (syl (bi2 sfBound_sfImp) (iand sfPieceDefinableRecipe_relative_bound (a1i pcpb_ew_atom)))))))));
+
+pub theorem sfPieceDefinableRecipe_bound (n phi:nat): $ sfBound n phi -> sfBound 2 (sfPieceDefinableRecipe n phi) $ = (named '(syl sfPieceDn_bound (mpbird (a1i (pcpb_bindex pcpb_count2)) sfPieceDefinableRecipe_point_bound)));

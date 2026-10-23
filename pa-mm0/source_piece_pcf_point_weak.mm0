@@ -1,0 +1,35 @@
+import "source_reflection_least_cond_parameters_maps.mm0";
+
+import "source_local_extra.mm0";
+
+import "source_theory_local.mm0";
+
+def pcpgF0 (phi:nat):nat = $ sfLeastParam phi 0 2 $;
+
+def pcpgF1 (phi:nat):nat = $ sfAll (pcpgF0 phi) $;
+
+def pcpgG2 (phi:nat):nat = $ (pcpgF1 phi) : 0 $;
+
+def pcpgF3 (phi:nat):nat = $ sfMem 0 1 $;
+
+def pcpgG4 (phi:nat):nat = $ (pcpgF3 phi) : (pcpgG2 phi) $;
+
+def pcpgF5 (phi:nat):nat = $ sfLeastParam phi 0 1 $;
+
+def pcpgF6 (phi:nat):nat = $ sfImp (pcpgF3 phi) (pcpgF5 phi) $;
+
+def pcpgF7 (phi:nat):nat = $ sfAll (pcpgF5 phi) $;
+
+def pcpgG8 (phi:nat):nat = $ (pcpgF7 phi) : 0 $;
+
+def pcpgF9 (phi:nat):nat = $ sfAll (pcpgF6 phi) $;
+
+def pcpgF10 (phi:nat):nat = $ sfImp (pcpgF7 phi) (pcpgF9 phi) $;
+
+def sfPieceAllGuardLaw(a:nat):nat = $ sfImp (sfAll a) (sfAll (sfImp (sfMem 0 1) a)) $;
+
+theorem sfPieceAllGuard_literal(phi:nat)(hf:$ sfWf phi $): $ (pcpgF10 phi) = sfPieceAllGuardLaw phi $;
+
+theorem sfPieceAllGuard_nd(phi:nat)(hf:$ sfWf phi $): $ nsLocal 0 (sfPieceAllGuardLaw phi) $;
+
+theorem sfPieceAllGuard_rule(T:set)(phi:nat)(hf:$ sfWf phi $): $ sfTheoryProvable T (sfAll phi) -> sfTheoryProvable T (sfAll (sfImp (sfMem 0 1) phi)) $;

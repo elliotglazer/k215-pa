@@ -1,0 +1,52 @@
+import "source_piece_pcf_rep_order_r11.mm1";
+import "source_formula_equality_transport_atomic.mm1";
+
+@_ def sfPieceRepNoSelfLaw:nat = $ (sfAll (sfImp (sfMem 0 0) sfBot)) $;
+
+theorem pcrn_noself_wf:
+ $ sfWf sfPieceRepNoSelfLaw $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_bot));
+
+theorem pcrn_noself_shift:
+ $ sfShift 0 sfPieceRepNoSelfLaw = sfPieceRepNoSelfLaw $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor pcrn_noself_wf)) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound lt01S))) sfRename_bot)))));
+
+theorem pcrn_noself_open(x:nat):
+ $ sfSubst 0 x (sfImp (sfMem 0 0) sfBot) = (sfImp (sfMem x x) sfBot) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_zero)) sfSubst_bot));
+
+theorem pcrn_noself_use(G x:nat):
+ $ (nsLocal G sfPieceRepNoSelfLaw) -> (nsLocal G (sfMem x x)) -> (nsLocal G sfBot) $ =
+ '(syl nsLocal_mp (syl (bi1 (nsLocal_formula_eq pcrn_noself_open)) nsLocal_AllE));
+
+theorem pcrn_context_wf(G x y:nat):
+ $ sfContextWf G -> sfContextWf (sfEq x y : G) $ =
+ '(syl (bi2 sfContextWf_cons) (ax_mp ian sfWf_eq));
+
+theorem pcrn_eq_in(G x y:nat):
+ $ sfContextWf G -> (nsLocal (sfEq x y : G) (sfEq x y)) $ =
+ '(mpd (a1i sfContext_member_head) (mpd (mpd id (a1i pcrn_context_wf)) (a1i nsLocal_hyp)));
+
+pub theorem sfPieceMember_neq_forward(G x y:nat):
+ $ sfContextWf G -> sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepNoSelfLaw) -> (nsLocal G (sfMem x y)) -> (nsLocal G (sfImp (sfEq x y) sfBot)) $ =
+ '(exp (exp (exp (mpd (mpd (mpd (mpd anr (mpd (a1i sfContextSub_cons) (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_context_wf)) (a1i nsLocal_weaken)))) (mpd (mpd (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_eq_in)) (mpd (mpd (a1i sfFormulaEquality_sym_local) (mpd (mpd (a1i sfContextSub_cons) (mpd (anwl (anwl anr)) (a1i sfContextSub_trans))) (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_context_wf)) (a1i nsLocal_weaken)))) (a1i nsLocal_mp))) (mpd (mpd (mpd (a1i sfFormulaEquality_refl_local) (mpd (mpd (a1i sfContextSub_cons) (mpd (anwl (anwl anr)) (a1i sfContextSub_trans))) (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_context_wf)) (a1i nsLocal_weaken)))) (mpd (mpd (a1i sfFormulaEquality_element_local) (mpd (mpd (a1i sfContextSub_cons) (mpd (anwl (anwl anr)) (a1i sfContextSub_trans))) (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_context_wf)) (a1i nsLocal_weaken)))) (a1i nsLocal_mp))) (a1i nsLocal_mp))) (a1i nsLocal_mp))) (mpd (mpd (anwl anr) (mpd (a1i sfContextSub_cons) (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_context_wf)) (a1i nsLocal_weaken)))) (a1i pcrn_noself_use))) (a1i nsLocal_II)))));
+
+pub theorem sfPieceMember_neq_reverse(G x y:nat):
+ $ sfContextWf G -> sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepNoSelfLaw) -> (nsLocal G (sfMem y x)) -> (nsLocal G (sfImp (sfEq x y) sfBot)) $ =
+ '(exp (exp (exp (mpd (mpd (mpd (mpd anr (mpd (a1i sfContextSub_cons) (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_context_wf)) (a1i nsLocal_weaken)))) (mpd (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_eq_in)) (mpd (mpd (mpd (a1i sfFormulaEquality_refl_local) (mpd (mpd (a1i sfContextSub_cons) (mpd (anwl (anwl anr)) (a1i sfContextSub_trans))) (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_context_wf)) (a1i nsLocal_weaken)))) (mpd (mpd (a1i sfFormulaEquality_element_local) (mpd (mpd (a1i sfContextSub_cons) (mpd (anwl (anwl anr)) (a1i sfContextSub_trans))) (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_context_wf)) (a1i nsLocal_weaken)))) (a1i nsLocal_mp))) (a1i nsLocal_mp))) (a1i nsLocal_mp))) (mpd (mpd (anwl anr) (mpd (a1i sfContextSub_cons) (mpd (mpd (anwl (anwl (anwl id))) (a1i pcrn_context_wf)) (a1i nsLocal_weaken)))) (a1i pcrn_noself_use))) (a1i nsLocal_II)))));
+
+theorem pcrn_case_forward(G k l x y:nat):
+ $ sfContextWf G -> sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G sfPieceRepNoSelfLaw) -> k != l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> k < l -> (nsLocal G (sfImp (sfEq x y) sfBot)) $ =
+ '(exp (exp (exp (exp (exp (exp (exp (exp (exp (mpd (mpd (anwl anr) (mpd (anwl (anwl anr)) (mpd anr (mpd (anwl (anwl (anwl (anwl (anwl anr))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl anr)))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl anr))))))) (a1i (ax_mp pcrl_good_at sfPieceNumeral_lt_induction)))))))) (mpd (anwl (anwl (anwl (anwl anr)))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl (anwl anr)))))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl (anwl (anwl id))))))))) (a1i sfPieceMember_neq_forward))))))))))))));
+
+theorem pcrn_case_reverse(G k l x y:nat):
+ $ sfContextWf G -> sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G sfPieceRepNoSelfLaw) -> k != l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> l < k -> (nsLocal G (sfImp (sfEq x y) sfBot)) $ =
+ '(exp (exp (exp (exp (exp (exp (exp (exp (exp (mpd (mpd (anwl (anwl anr)) (mpd (anwl anr) (mpd anr (mpd (anwl (anwl (anwl (anwl (anwl anr))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl anr)))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl anr))))))) (a1i (ax_mp pcrl_good_at sfPieceNumeral_lt_induction)))))))) (mpd (anwl (anwl (anwl (anwl anr)))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl (anwl anr)))))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl (anwl (anwl id))))))))) (a1i sfPieceMember_neq_reverse))))))))))))));
+
+pub theorem sfPieceNumeral_neq_law_rule(G k l x y:nat):
+ $ sfContextWf G -> sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G sfPieceRepNoSelfLaw) -> k != l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfImp (sfEq x y) sfBot)) $ =
+ '(exp (exp (exp (exp (exp (exp (exp (exp (mpd (mpd (anwl (anwl anr)) (a1i (bi1 neltlt))) (eord (mpd anr (mpd (anwl anr) (mpd (anwl (anwl anr)) (mpd (anwl (anwl (anwl anr))) (mpd (anwl (anwl (anwl (anwl anr)))) (mpd (anwl (anwl (anwl (anwl (anwl anr))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl anr)))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl anr))))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl (anwl id)))))))) (a1i pcrn_case_forward)))))))))) (mpd anr (mpd (anwl anr) (mpd (anwl (anwl anr)) (mpd (anwl (anwl (anwl anr))) (mpd (anwl (anwl (anwl (anwl anr)))) (mpd (anwl (anwl (anwl (anwl (anwl anr))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl anr)))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl anr))))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl (anwl (anwl id)))))))) (a1i pcrn_case_reverse))))))))))))))))))));
+
+pub theorem sfPieceNumeral_neq_from_laws(G k l x y:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfFormulaEqualityContext G $)(he:$ (nsLocal G sfPieceRepEmptyUniqueLaw) $)(hu:$ (nsLocal G sfPieceRepSuccessorUniqueLaw) $)(hl:$ (nsLocal G sfPieceRepSuccessorLiftLaw) $)(hn:$ (nsLocal G sfPieceRepNoSelfLaw) $)(hne:$ k != l $)(hx:$ (nsLocal G (sfPieceNumeral k x)) $)(hy:$ (nsLocal G (sfPieceNumeral l y)) $):
+ $ (nsLocal G (sfImp (sfEq x y) sfBot)) $ =
+ '(ax_mp (ax_mp (ax_mp (ax_mp (ax_mp (ax_mp (ax_mp (ax_mp (ax_mp sfPieceNumeral_neq_law_rule hg) hb) he) hu) hl) hn) hne) hx) hy);

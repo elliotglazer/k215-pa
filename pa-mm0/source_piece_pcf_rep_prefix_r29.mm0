@@ -1,0 +1,29 @@
+import "source_piece_pcf_rep_cover_syntax_r27.mm0";
+
+def sfPieceRepRotate3 (.i:nat): set = $ \ i, if (i = 0) 1 (if (i = 1) 2 (if (i = 2) 3 (if (i = 3) 0 i))) $;
+
+def sfPieceRepDn3Step (.a:nat): set = $ \ a, sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRepRotate3 0 a)) $;
+
+def sfPieceRepDn3Core (n a:nat): nat = $ rec a sfPieceRepDn3Step n $;
+
+theorem sfPieceRepDn3Step_at (a:nat): $ sfPieceRepDn3Step @ a = sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRepRotate3 0 a)) $;
+
+theorem sfPieceRepDn3Core_zero (a:nat): $ sfPieceRepDn3Core 0 a = a $;
+
+theorem sfPieceRepDn3Core_suc (n a:nat): $ sfPieceRepDn3Core (suc n) a = sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRepRotate3 0 (sfPieceRepDn3Core n a))) $;
+
+def sfPieceRepDn3Box (a:nat): nat = $ sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRepRotate3 0 a)) $;
+
+theorem sfPieceRepDn3Box_wf (a:nat): $ sfWf (sfPieceRepDn3Box a) $;
+
+theorem sfPieceRepDn3Box_intro (a:nat): $ nsLocal 0 a -> nsLocal 0 (sfPieceRepDn3Box a) $;
+
+theorem sfPieceRepDn3Box_imp (a b:nat): $ nsLocal 0 (sfImp a b) -> nsLocal 0 (sfImp (sfPieceRepDn3Box a) (sfPieceRepDn3Box b)) $;
+
+theorem sfPieceRepDn3Box_apply (a b:nat): $ nsLocal 0 (sfImp (sfPieceRepDn3Box (sfImp a b)) (sfImp (sfPieceRepDn3Box a) (sfPieceRepDn3Box b))) $;
+
+theorem sfPieceRepDn3_intro (n a:nat): $ nsLocal 0 a -> nsLocal 0 (sfPieceRepDn3Core n a) $;
+
+theorem sfPieceRepDn3_apply_pure (n a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $): $ nsLocal 0 (sfImp (sfPieceRepDn3Core n (sfImp a b)) (sfImp (sfPieceRepDn3Core n a) (sfPieceRepDn3Core n b))) $;
+
+theorem sfPieceRepDn3_apply (G n a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hi:$ nsLocal G (sfPieceRepDn3Core n (sfImp a b)) $)(hp:$ nsLocal G (sfPieceRepDn3Core n a) $): $ nsLocal G (sfPieceRepDn3Core n b) $;

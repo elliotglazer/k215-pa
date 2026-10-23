@@ -1,0 +1,88 @@
+import "k218q_source_core_at.mm1";
+import "k218q_named_support.mm1";
+
+@_ abstract def k218QSafeUniversal (n a .S .k: nat): wff =
+ $ A. S A. k (3 < k -> sqEnvAvoid (sqNumericEnvironment S) n 1 ->
+   sqEnvAvoid (sqNumericEnvironment S) n 3 ->
+   sqEnvBelow (sqNumericEnvironment S) n k ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment S) k 0 a)) $;
+
+pub theorem k218QSafeUniversal_use (n a S k: nat):
+ $ k218QSafeUniversal n a -> 3 < k ->
+   sqEnvAvoid (sqNumericEnvironment S) n 1 ->
+   sqEnvAvoid (sqNumericEnvironment S) n 3 ->
+   sqEnvBelow (sqNumericEnvironment S) n k ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $ =
+(named '(!! ealie s @ !! ealde t @ bi1d ,eqtac));
+
+theorem k218SP_avoid_zero (S n x y: nat):
+ $ x != y -> sqEnvAvoid (sqNumericEnvironment S) n x -> 0 < suc n ->
+   x != sqNumericEnvironment (y : S) @ 0 $ =
+'(a1d @ a1d @ mpbird (a1i (noteqi (eqeq2 sqNumericEnvironment_cons_zero))) id);
+
+theorem k218SP_avoid_suc (S n x y i: nat):
+ $ x != y -> sqEnvAvoid (sqNumericEnvironment S) n x -> suc i < suc n ->
+   x != sqNumericEnvironment (y : S) @ suc i $ =
+'(a1i @ syl6 (bi2 (noteqi (eqeq2 sqNumericEnvironment_cons_suc))) @
+ syl5 (bi2 ltsuc) sqEnvAvoid_at);
+
+theorem k218SP_avoid_at (S n x y i: nat):
+ $ x != y -> sqEnvAvoid (sqNumericEnvironment S) n x -> i < suc n ->
+   x != sqNumericEnvironment (y : S) @ i $ =
+(named @ induct '(ind) 'i 'k218SP_avoid_zero '(a1i k218SP_avoid_suc));
+
+theorem k218SP_avoid_cons (S n x y: nat):
+ $ x != y -> sqEnvAvoid (sqNumericEnvironment S) n x ->
+   sqEnvAvoid (sqNumericEnvironment (y : S)) (suc n) x $ =
+(named '(exp @ !! iald i @ mpd anr (syl k218SP_avoid_at anl)));
+
+theorem k218SP_below_zero (S n k y: nat):
+ $ y < k -> sqEnvBelow (sqNumericEnvironment S) n k -> 0 < suc n ->
+   sqNumericEnvironment (y : S) @ 0 < k $ =
+'(a1d @ a1d @ mpbird (a1i (lteq1 sqNumericEnvironment_cons_zero)) id);
+
+theorem k218SP_below_suc (S n k y i: nat):
+ $ y < k -> sqEnvBelow (sqNumericEnvironment S) n k -> suc i < suc n ->
+   sqNumericEnvironment (y : S) @ suc i < k $ =
+'(a1i @ syl6 (bi2 (lteq1 sqNumericEnvironment_cons_suc)) @
+ syl5 (bi2 ltsuc) sqSQ_below_at);
+
+theorem k218SP_below_at (S n k y i: nat):
+ $ y < k -> sqEnvBelow (sqNumericEnvironment S) n k -> i < suc n ->
+   sqNumericEnvironment (y : S) @ i < k $ =
+(named @ induct '(ind) 'i 'k218SP_below_zero '(a1i k218SP_below_suc));
+
+theorem k218SP_below_cons (S n k y: nat):
+ $ y < k -> sqEnvBelow (sqNumericEnvironment S) n k ->
+   sqEnvBelow (sqNumericEnvironment (y : S)) (suc n) k $ =
+(named '(exp @ !! iald i @ mpd anr (syl k218SP_below_at anl)));
+
+theorem k218SP_all_point_d (G: wff) (n a S k: nat)
+ (hu: $ G -> k218QSafeUniversal (suc n) a $) (hk: $ G -> 3 < k $)
+ (h1: $ G -> sqEnvAvoid (sqNumericEnvironment S) n 1 $)
+ (h3: $ G -> sqEnvAvoid (sqNumericEnvironment S) n 3 $)
+ (he: $ G -> sqEnvBelow (sqNumericEnvironment S) n k $)
+ (ha: $ G -> sfWf a $):
+ $ G -> k218QProvable (sfNamedTemplate (sqNumericEnvironment S) k 0 (sfAll a)) $ =
+(begin
+ (have 'new1 '(mpd h1 (syl k218SP_avoid_cons (syl ltne (syl (lttr (mpbi ltsuc lt01S)) hk)))))
+ (have 'new3 '(mpd h3 (syl k218SP_avoid_cons (syl ltne hk))))
+ (have 'newbelow '(mpd (syl sqEnvBelow_successor he) (a1i (ax_mp k218SP_below_cons ltsucid))))
+ (have 'body '(mpd newbelow (mpd new3 (mpd new1
+   (mpd (lttrd hk (a1i ltsucid)) (syl k218QSafeUniversal_use hu))))))
+ (have 'renamed '(mpbid (k218QProvableeqd (syl k218INamed_numeric_cons ha)) body))
+ (have 'generalized '(syl k218QProvable_gen renamed))
+ (refine '(mpbird (k218QProvableeqd (syl sfNamedTemplate_all_cons ha)) generalized))
+);
+
+theorem k218SP_all_ready (n a S k: nat) (ha: $ sfWf a $):
+ $ k218QSafeUniversal (suc n) a -> 3 < k ->
+   sqEnvAvoid (sqNumericEnvironment S) n 1 ->
+   sqEnvAvoid (sqNumericEnvironment S) n 3 ->
+   sqEnvBelow (sqNumericEnvironment S) n k ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment S) k 0 (sfAll a)) $ =
+(named '(exp (exp (exp (exp (k218SP_all_point_d (syl (syl (syl anl anl) anl) anl) (syl (syl (syl anr anl) anl) anl) (syl (syl anr anl) anl) (syl anr anl) anr (a1i ha)))))));
+
+pub theorem k218QSafeUniversal_all (n a: nat) (ha: $ sfWf a $):
+ $ k218QSafeUniversal (suc n) a -> k218QSafeUniversal n (sfAll a) $ =
+(named '(!! iald S @ !! iald k @ k218SP_all_ready ha));

@@ -1,0 +1,54 @@
+import "quotation_supported_environment.mm0";
+import "k230_bootstrap_discharge.mm0";
+
+-- Finite environments of any required size are available under the actual
+-- marker/domain context. This closes the existential adequacy cutoff in
+-- whole-proof quotation without assuming a bound on hidden rule witnesses.
+
+theorem sqBootstrap_repeat_length (a n: nat): $ len (repeat a n) = n $;
+
+theorem sqBootstrap_repeat_below (a n k: nat):
+ $ a < k -> sqEnvironmentBelow (repeat a n) k $;
+
+theorem sqBootstrap_repeat_domain (H t a n: nat):
+ $ kHypProvable H (kMem t a) -> sqDomainSupport H (repeat a n) t $;
+
+theorem sqBootstrap_repeat_safe (a n t k: nat):
+ $ a < k -> 0 < k -> t < k -> sqEnvironmentSafe (repeat a n) n t k $;
+
+theorem sqBootstrap_default_safe (n: nat):
+ $ sqEnvironmentSafe (repeat 3 n) n 1 4 $;
+
+theorem sqBootstrap_default_domain (n: nat):
+ $ sqDomainSupport kQuotientContext (repeat 3 n) 1 $;
+
+theorem sqBootstrap_default_source (n: nat):
+ $ sqSourceSupport kQuotientContext (repeat 3 n) 1 4 0 $;
+
+def sqBootstrapConsequence (n a .S .k: nat): wff =
+ $ A. S A. k (sqEnvironmentSafe S n 1 k ->
+   sqDomainSupport kQuotientContext S 1 ->
+   kHypProvable kQuotientContext (sqQuote (sqNumericEnvironment S) 1 k 0 a)) $;
+
+theorem sqBootstrapConsequence_at (n a S k: nat):
+ $ sqBootstrapConsequence n a -> sqEnvironmentSafe S n 1 k ->
+   sqDomainSupport kQuotientContext S 1 ->
+   kHypProvable kQuotientContext (sqQuote (sqNumericEnvironment S) 1 k 0 a) $;
+
+theorem sqBootstrapConsequence_default (n a: nat):
+ $ sqBootstrapConsequence n a ->
+   kHypProvable kQuotientContext (sqQuote (sqNumericEnvironment (repeat 3 n)) 1 4 0 a) $;
+
+theorem sqBootstrapConsequence_closed (n a: nat):
+ $ sfBound 0 a -> sqBootstrapConsequence n a ->
+   kHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $;
+
+theorem sqBootstrapConsequence_exists_closed {n: nat} (a: nat):
+ $ sfBound 0 a -> (E. n sqBootstrapConsequence n a) ->
+   kHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $;
+
+theorem sqBootstrapConsequence_false (n: nat):
+ $ sqBootstrapConsequence n sfBot -> kHypProvable kQuotientContext kF $;
+
+theorem sqBootstrapConsequence_refutation {n: nat}:
+ $ (E. n sqBootstrapConsequence n sfBot) -> kProvable kF $;

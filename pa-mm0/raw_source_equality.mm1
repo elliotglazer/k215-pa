@@ -1,0 +1,204 @@
+import "raw_source_prop_transfer.mm1";
+
+
+theorem eqZfcProvable_congr (H: wff) (a b: nat) (h: $ H -> a = b $):
+  $ H -> (zfcProvable a <-> zfcProvable b) $ =
+(named '(exeqd @ exeqd @ aneq2d @ aneq2d @ lmemeqd
+  (sfSequent_congr (a1i eqid) h) (a1i eqid)));
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+do (apply (register-eqd 'sfEq) '(sfEq_congr sfEq_congr_left sfEq_congr_right));
+do (apply (register-eqd 'sfMem) '(sfMem_congr sfMem_congr_left sfMem_congr_right));
+do (apply (register-eqd 'sfAll) '(sfAll_congr));
+
+theorem eqMem_congr (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfMem a c = sfMem b d $ =
+'(trud @ sfMem_congr (a1i h1) (a1i h2));
+
+theorem eqEq_congr (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfEq a c = sfEq b d $ =
+'(trud @ sfEq_congr (a1i h1) (a1i h2));
+
+theorem eqImp_congr (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfImp a c = sfImp b d $ =
+'(trud @ sfImp_congr (a1i h1) (a1i h2));
+
+theorem eqAll_congr (a b: nat) (h: $ a = b $):
+  $ sfAll a = sfAll b $ =
+'(trud @ sfAll_congr (a1i h));
+
+theorem zfcEquality_refl_axiom:
+  $ zfcProvable zfcRefl $ =
+'(ax_mp zfcAxiom_provable (ax_mp zfcFixed_member (ax_mp orl eqid)));
+
+theorem zfcEquality_refl_subst0 (a: nat):
+  $ sfSubst 0 a (sfEq 0 0) = (sfEq a a) $ =
+'(eqtr sfSubst_sfEq (eqEq_congr sfSubstIndex_zero sfSubstIndex_zero));
+
+pub theorem zfcEquality_refl (a: nat):
+  $ zfcProvable (sfEq a a) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_refl_subst0))) (ax_mp zfcProvable_allE zfcEquality_refl_axiom));
+
+theorem zfcEquality_sym_axiom:
+  $ zfcProvable zfcSym $ =
+'(ax_mp zfcAxiom_provable (ax_mp zfcFixed_member (ax_mp orr (ax_mp orl eqid))));
+
+theorem zfcEquality_sym_subst0 (a: nat):
+  $ sfSubst 0 a (sfAll (sfImp (sfEq 1 0) (sfEq 0 1))) = (sfAll (sfImp (sfEq (suc a) 0) (sfEq 0 (suc a)))) $ =
+'(eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfEq (eqEq_congr (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero))))))));
+
+theorem zfcEquality_sym_step0 (a: nat):
+  $ zfcProvable (sfAll (sfImp (sfEq (suc a) 0) (sfEq 0 (suc a)))) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_sym_subst0))) (ax_mp zfcProvable_allE zfcEquality_sym_axiom));
+
+theorem zfcEquality_sym_subst1 (a b: nat):
+  $ sfSubst 0 b (sfImp (sfEq (suc a) 0) (sfEq 0 (suc a))) = (sfImp (sfEq a b) (sfEq b a)) $ =
+'(eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr sfSubstIndex_successor sfSubstIndex_zero)) (eqtr sfSubst_sfEq (eqEq_congr sfSubstIndex_zero sfSubstIndex_successor))));
+
+pub theorem zfcEquality_sym (a b: nat):
+  $ zfcProvable (sfImp (sfEq a b) (sfEq b a)) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_sym_subst1))) (ax_mp zfcProvable_allE zfcEquality_sym_step0));
+
+theorem zfcEquality_trans_axiom:
+  $ zfcProvable zfcTrans $ =
+'(ax_mp zfcAxiom_provable (ax_mp zfcFixed_member (ax_mp orr (ax_mp orr (ax_mp orl eqid)))));
+
+theorem zfcEquality_trans_subst0 (a: nat):
+  $ sfSubst 0 a (sfAll (sfAll (sfImp (sfEq 2 1) (sfImp (sfEq 1 0) (sfEq 2 0))))) = (sfAll (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq 1 0) (sfEq (suc (suc a)) 0))))) $ =
+'(eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (ax_mp sfSubstIndex_bound lt01S)))))))))));
+
+theorem zfcEquality_trans_step0 (a: nat):
+  $ zfcProvable (sfAll (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq 1 0) (sfEq (suc (suc a)) 0))))) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_trans_subst0))) (ax_mp zfcProvable_allE zfcEquality_trans_axiom));
+
+theorem zfcEquality_trans_subst1 (a b: nat):
+  $ sfSubst 0 b (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq 1 0) (sfEq (suc (suc a)) 0)))) = (sfAll (sfImp (sfEq (suc a) (suc b)) (sfImp (sfEq (suc b) 0) (sfEq (suc a) 0)))) $ =
+'(eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (ax_mp sfSubstIndex_bound lt01S)))))))));
+
+theorem zfcEquality_trans_step1 (a b: nat):
+  $ zfcProvable (sfAll (sfImp (sfEq (suc a) (suc b)) (sfImp (sfEq (suc b) 0) (sfEq (suc a) 0)))) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_trans_subst1))) (ax_mp zfcProvable_allE zfcEquality_trans_step0));
+
+theorem zfcEquality_trans_subst2 (a b c: nat):
+  $ sfSubst 0 c (sfImp (sfEq (suc a) (suc b)) (sfImp (sfEq (suc b) 0) (sfEq (suc a) 0))) = (sfImp (sfEq a b) (sfImp (sfEq b c) (sfEq a c))) $ =
+'(eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr sfSubstIndex_successor sfSubstIndex_zero)) (eqtr sfSubst_sfEq (eqEq_congr sfSubstIndex_successor sfSubstIndex_zero))))));
+
+pub theorem zfcEquality_trans (a b c: nat):
+  $ zfcProvable (sfImp (sfEq a b) (sfImp (sfEq b c) (sfEq a c))) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_trans_subst2))) (ax_mp zfcProvable_allE zfcEquality_trans_step1));
+
+theorem zfcEquality_element_axiom:
+  $ zfcProvable zfcEqElem $ =
+'(ax_mp zfcAxiom_provable (ax_mp zfcFixed_member (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))));
+
+theorem zfcEquality_element_subst0 (a: nat):
+  $ sfSubst 0 a (sfAll (sfAll (sfAll (sfImp (sfEq 3 1) (sfImp (sfEq 2 0) (sfImp (sfMem 3 2) (sfMem 1 0))))))) = (sfAll (sfAll (sfAll (sfImp (sfEq (suc (suc (suc a))) 1) (sfImp (sfEq 2 0) (sfImp (sfMem (suc (suc (suc a))) 2) (sfMem 1 0))))))) $ =
+'(eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfMem (eqMem_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))))) (eqtr sfSubst_sfMem (eqMem_congr (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))) (ax_mp sfSubstIndex_bound lt01S)))))))))))))));
+
+theorem zfcEquality_element_step0 (a: nat):
+  $ zfcProvable (sfAll (sfAll (sfAll (sfImp (sfEq (suc (suc (suc a))) 1) (sfImp (sfEq 2 0) (sfImp (sfMem (suc (suc (suc a))) 2) (sfMem 1 0))))))) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_element_subst0))) (ax_mp zfcProvable_allE zfcEquality_element_axiom));
+
+theorem zfcEquality_element_subst1 (a b: nat):
+  $ sfSubst 0 b (sfAll (sfAll (sfImp (sfEq (suc (suc (suc a))) 1) (sfImp (sfEq 2 0) (sfImp (sfMem (suc (suc (suc a))) 2) (sfMem 1 0)))))) = (sfAll (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq (suc (suc b)) 0) (sfImp (sfMem (suc (suc a)) (suc (suc b))) (sfMem 1 0)))))) $ =
+'(eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfMem (eqMem_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubst_sfMem (eqMem_congr (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))) (ax_mp sfSubstIndex_bound lt01S)))))))))))));
+
+theorem zfcEquality_element_step1 (a b: nat):
+  $ zfcProvable (sfAll (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq (suc (suc b)) 0) (sfImp (sfMem (suc (suc a)) (suc (suc b))) (sfMem 1 0)))))) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_element_subst1))) (ax_mp zfcProvable_allE zfcEquality_element_step0));
+
+theorem zfcEquality_element_subst2 (a b c: nat):
+  $ sfSubst 0 c (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq (suc (suc b)) 0) (sfImp (sfMem (suc (suc a)) (suc (suc b))) (sfMem 1 0))))) = (sfAll (sfImp (sfEq (suc a) (suc c)) (sfImp (sfEq (suc b) 0) (sfImp (sfMem (suc a) (suc b)) (sfMem (suc c) 0))))) $ =
+'(eqtr sfSubst_sfAll (eqAll_congr (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfMem (eqMem_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubst_sfMem (eqMem_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S)))))))))));
+
+theorem zfcEquality_element_step2 (a b c: nat):
+  $ zfcProvable (sfAll (sfImp (sfEq (suc a) (suc c)) (sfImp (sfEq (suc b) 0) (sfImp (sfMem (suc a) (suc b)) (sfMem (suc c) 0))))) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_element_subst2))) (ax_mp zfcProvable_allE zfcEquality_element_step1));
+
+theorem zfcEquality_element_subst3 (a b c d: nat):
+  $ sfSubst 0 d (sfImp (sfEq (suc a) (suc c)) (sfImp (sfEq (suc b) 0) (sfImp (sfMem (suc a) (suc b)) (sfMem (suc c) 0)))) = (sfImp (sfEq a c) (sfImp (sfEq b d) (sfImp (sfMem a b) (sfMem c d)))) $ =
+'(eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfEq (eqEq_congr sfSubstIndex_successor sfSubstIndex_zero)) (eqtr sfSubst_sfImp (eqImp_congr (eqtr sfSubst_sfMem (eqMem_congr sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfMem (eqMem_congr sfSubstIndex_successor sfSubstIndex_zero))))))));
+
+pub theorem zfcEquality_element (a b c d: nat):
+  $ zfcProvable (sfImp (sfEq a c) (sfImp (sfEq b d) (sfImp (sfMem a b) (sfMem c d)))) $ =
+'(mpbi (trud (eqZfcProvable_congr (a1i zfcEquality_element_subst3))) (ax_mp zfcProvable_allE zfcEquality_element_step2));
+
+@_ abstract def eqSwapContext (a b c: nat): nat = $ a : (b : (sfImp a (sfImp b c) : 0)) $;
+
+@_ abstract def eqSwapBody (a b c: nat): nat = $ zfcNDMp (eqSwapContext a b c) (zfcNDMp (eqSwapContext a b c) (zfcNDHyp (eqSwapContext a b c) (sfImp a (sfImp b c))) (zfcNDHyp (eqSwapContext a b c) a) (sfImp b c)) (zfcNDHyp (eqSwapContext a b c) b) c $;
+
+@_ abstract def eqSwapProof (a b c: nat): nat = $ zfcNDIntro 0 (zfcNDIntro (sfImp a (sfImp b c) : 0) (zfcNDIntro (b : (sfImp a (sfImp b c) : 0)) (eqSwapBody a b c) a c) b (sfImp a c)) (sfImp a (sfImp b c)) (sfImp b (sfImp a c)) $;
+
+theorem eqSwap_context (a b c: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfContextWf (eqSwapContext a b c) $ =
+'(exp @ exp @ syl (bi2 sfContextWf_cons) @ iand anll @
+      syl (bi2 sfContextWf_cons) @ iand anlr @
+      syl (bi2 sfContextWf_cons) @ iand
+        (sylc sfWf_imp anll (sylc sfWf_imp anlr anr)) (a1i sfContextWf_nil));
+
+theorem eqSwap_body (a b c: nat):
+  $ sfContextWf (eqSwapContext a b c) -> sfNDFullDerives (eqSwapBody a b c) (sfSequent (eqSwapContext a b c) c) $ =
+'(sylc zfcNDMp_derives
+      (sylc zfcNDMp_derives
+        (mpi (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)) zfcNDHyp_derives)
+        (mpi sfContext_member_head zfcNDHyp_derives))
+      (mpi (ax_mp sfContext_member_tail sfContext_member_head) zfcNDHyp_derives));
+
+theorem eqSwap_derives (a b c: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfNDFullDerives (eqSwapProof a b c) (sfSequent 0 (sfImp (sfImp a (sfImp b c)) (sfImp b (sfImp a c)))) $ =
+'(exp @ exp @ syl zfcNDIntro_derives @ syl zfcNDIntro_derives @ syl zfcNDIntro_derives @ syl eqSwap_body @ imp @ imp eqSwap_context);
+
+theorem eqSwap_provable (a b c: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> zfcProvable (sfImp (sfImp a (sfImp b c)) (sfImp b (sfImp a c))) $ =
+'(exp @ exp @ syl zfcProvable_intro @ iand (a1i zfcContext_nil) (imp (imp eqSwap_derives)));
+
+pub theorem zfcEquality_row3 (a b c: nat):
+  $ zfcProvable (sfImp (sfEq a b) (sfImp (sfMem c a) (sfMem c b))) $ =
+'(ax_mp (ax_mp zfcProvable_mp zfcEquality_element) zfcEquality_refl);
+
+theorem zfcEquality_row5_permute (a b c: nat):
+  $ zfcProvable (sfImp (sfImp (sfEq c a) (sfImp (sfEq b b) (sfImp (sfMem c b) (sfMem a b)))) (sfImp (sfEq b b) (sfImp (sfEq c a) (sfImp (sfMem c b) (sfMem a b))))) $ =
+'(ax_mp (ax_mp (ax_mp eqSwap_provable sfWf_eq) sfWf_eq) (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem));
+
+pub theorem zfcEquality_row5 (a b c: nat):
+  $ zfcProvable (sfImp (sfEq c a) (sfImp (sfMem c b) (sfMem a b))) $ =
+'(ax_mp (ax_mp zfcProvable_mp (ax_mp (ax_mp zfcProvable_mp zfcEquality_row5_permute) zfcEquality_element)) zfcEquality_refl);
+
+pub theorem rawEquality_eq_equiv (a b: nat):
+  $ rawPropIff (rawDecode (kEq a b)) (sfEq a b) $ =
+'(iani (mpbir (trud (eqZfcProvable_congr (sfImp_congr_left (a1i rawDecode_kEq)))) (ax_mp zfcProvable_identity sfWf_eq)) (mpbir (trud (eqZfcProvable_congr (sfImp_congr_right (a1i rawDecode_kEq)))) (ax_mp zfcProvable_identity sfWf_eq)));
+
+pub theorem rawEquality_mem_equiv (a b: nat):
+  $ rawPropIff (rawDecode (kMem a b)) (sfMem a b) $ =
+'(iani (mpbir (trud (eqZfcProvable_congr (sfImp_congr_left (a1i rawDecode_kMem)))) (ax_mp zfcProvable_identity sfWf_mem)) (mpbir (trud (eqZfcProvable_congr (sfImp_congr_right (a1i rawDecode_kMem)))) (ax_mp zfcProvable_identity sfWf_mem)));
+
+pub theorem rawEquality_sym_equiv (a b: nat):
+  $ rawPropIff (rawDecode (kEq a b)) (sfEq b a) $ =
+'(iani (mpbir (trud (eqZfcProvable_congr (sfImp_congr_left (a1i rawDecode_kEq)))) zfcEquality_sym) (mpbir (trud (eqZfcProvable_congr (sfImp_congr_right (a1i rawDecode_kEq)))) zfcEquality_sym));
+
+theorem rawEquality_from_equiv (a b: nat) (h: $ rawPropIff a b $) (p: $ zfcProvable b $):
+  $ zfcProvable a $ =
+'(ax_mp (ax_mp zfcProvable_mp (ax_mp anr h)) p);
+
+pub theorem rawEquality_rho3_equiv (a b c: nat):
+  $ rawPropIff (rawDecode (kRho3 a b c)) (sfImp (sfEq a b) (sfImp (sfMem c a) (sfMem c b))) $ =
+'(ax_mp (ax_mp rawSource_imp_transport rawEquality_eq_equiv) (ax_mp (ax_mp rawSource_imp_transport rawEquality_mem_equiv) rawEquality_mem_equiv));
+
+pub theorem rawSource_rho3 (a b c: nat):
+  $ zfcProvable (rawDecode (kRho3 a b c)) $ =
+'(rawEquality_from_equiv rawEquality_rho3_equiv zfcEquality_row3);
+
+pub theorem rawEquality_rho5_equiv (a b c: nat):
+  $ rawPropIff (rawDecode (kRho5 a b c)) (sfImp (sfEq c a) (sfImp (sfMem c b) (sfMem a b))) $ =
+'(ax_mp (ax_mp rawSource_imp_transport rawEquality_eq_equiv) (ax_mp (ax_mp rawSource_imp_transport rawEquality_mem_equiv) rawEquality_mem_equiv));
+
+pub theorem rawSource_rho5 (a b c: nat):
+  $ zfcProvable (rawDecode (kRho5 a b c)) $ =
+'(rawEquality_from_equiv rawEquality_rho5_equiv zfcEquality_row5);
+
+pub theorem rawEquality_rho7_equiv (a b c: nat):
+  $ rawPropIff (rawDecode (kRho7 a b c)) (sfImp (sfEq a c) (sfImp (sfEq c b) (sfEq a b))) $ =
+'(ax_mp (ax_mp rawSource_imp_transport rawEquality_sym_equiv) (ax_mp (ax_mp rawSource_imp_transport rawEquality_eq_equiv) rawEquality_eq_equiv));
+
+pub theorem rawSource_rho7 (a b c: nat):
+  $ zfcProvable (rawDecode (kRho7 a b c)) $ =
+'(rawEquality_from_equiv rawEquality_rho7_equiv zfcEquality_trans);

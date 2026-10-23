@@ -1,0 +1,240 @@
+import "quotation_substitution.mm1";
+
+pub theorem qsSubst_kF_when (x y: nat): $ x != 0 -> kSubst kF x y = kF $ =
+'(syl kSubst_fresh_identity (bi2 kFresh_kF));
+pub theorem qsSubst_kNot_when (a x y: nat):
+ $ x != 0 -> kSubst (kNot a) x y = kNot (kSubst a x y) $ =
+'(eqtrd (a1i kSubst_kImp) (kImpeq2d qsSubst_kF_when));
+pub theorem qsSubst_kAnd_when (a b x y: nat):
+ $ x != 0 -> kSubst (kAnd a b) x y = kAnd (kSubst a x y) (kSubst b x y) $ =
+'(eqtrd qsSubst_kNot_when (kNoteqd (eqtrd (a1i kSubst_kImp) (kImpeq2d qsSubst_kNot_when))));
+pub theorem qsSubst_kDisj_when (a b x y: nat):
+ $ x != 0 -> kSubst (kDisj a b) x y = kDisj (kSubst a x y) (kSubst b x y) $ =
+'(eqtrd (a1i kSubst_kImp) (kImpeq1d qsSubst_kNot_when));
+pub theorem qsSubst_kExists_when (a b x y: nat):
+ $ x != 0 -> a != x -> kSubst (kExists a b) x y = kExists a (kSubst b x y) $ =
+'(exp @ eqtrd (syl qsSubst_kNot_when anl) (kNoteqd
+ (eqtrd (syl kSubst_kAll_open anr) (kAlleq2d (syl qsSubst_kNot_when anl)))));
+
+-- BEGIN CONDITIONAL STRUCTURAL PROOFS
+
+@_ abstract def ntSubWhenClass (E: set) (k x y .c .d: nat): set =
+$ {c | A. d (x != 0 -> kSubst (sfNamedTemplate E k d c) x y =
+ sfNamedTemplate (kReplaceEnvironment x y E) k d c)} $;
+
+pub theorem ntSW_value {d: nat} (E: set) (k x y: nat) (c: nat):
+ $ c e. ntSubWhenClass E k x y <-> A. d (x != 0 -> kSubst (sfNamedTemplate E k d c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k d c) $ =
+(named '(elabe ,eqtac));
+
+theorem ntSW_depth (E: set) (k x y: nat) (d c: nat):
+ $ A. j (x != 0 -> kSubst (sfNamedTemplate E k j c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k j c) -> x != 0 -> kSubst (sfNamedTemplate E k d c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k d c $ =
+(named '(!! eale j ,eqtac));
+
+theorem ntSW_at (E: set) (k x y: nat) (d c: nat):
+ $ c e. ntSubWhenClass E k x y -> x != 0 -> kSubst (sfNamedTemplate E k d c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k d c $ =
+(named '(syl ntSW_depth {(bi1 ntSW_value) : $ c e. ntSubWhenClass E k x y -> A. j (x != 0 -> kSubst (sfNamedTemplate E k j c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k j c) $}));
+
+theorem ntSW_bot (E: set) (k x y: nat): $ sfBot e. ntSubWhenClass E k x y $ =
+(named '(mpbir ntSW_value @ ax_gen @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_bot)) @ eqtrd qsSubst_kF_when (a1i (eqcom sfNamedTemplate_bot))));
+
+theorem ntSW_mem (E: set) (k x y: nat) (a b: nat) (hk: $ x < k $): $ sfMem a b e. ntSubWhenClass E k x y $ =
+(named '(mpbir ntSW_value @ ax_gen @ a1i @ eqtr (qsSubst_eq sfNamedTemplate_sfMem) @ eqtr kSubst_kMem @ eqtr (kMemeq (sfNamedIndex_replace hk) (sfNamedIndex_replace hk)) (eqcom sfNamedTemplate_sfMem)));
+
+theorem ntSW_eq (E: set) (k x y: nat) (a b: nat) (hk: $ x < k $): $ sfEq a b e. ntSubWhenClass E k x y $ =
+(named '(mpbir ntSW_value @ ax_gen @ a1i @ eqtr (qsSubst_eq sfNamedTemplate_sfEq) @ eqtr kSubst_kEq @ eqtr (kEqeq (sfNamedIndex_replace hk) (sfNamedIndex_replace hk)) (eqcom sfNamedTemplate_sfEq)));
+
+theorem ntSW_atomic (E: set) (k x y: nat) (hk: $ x < k $): $ sfAtomicClosed (ntSubWhenClass E k x y) $ =
+(named '(ax_gen @ ax_gen @ ian (ntSW_mem hk) (ntSW_eq hk)));
+
+theorem ntSW_and (E: set) (k x y: nat) (a b: nat):
+ $ a e. ntSubWhenClass E k x y /\ b e. ntSubWhenClass E k x y -> sfAnd a b e. ntSubWhenClass E k x y $ =
+(named '(mpbird (a1i ntSW_value) @ !! iald d @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfAnd)) @ eqtrd (syl qsSubst_kAnd_when anr) @
+ eqtrd (kAndeqd (mpd anr (syl ntSW_at anll)) (mpd anr (syl ntSW_at anlr))) (a1i (eqcom sfNamedTemplate_sfAnd))));
+
+theorem ntSW_or (E: set) (k x y: nat) (a b: nat):
+ $ a e. ntSubWhenClass E k x y /\ b e. ntSubWhenClass E k x y -> sfOr a b e. ntSubWhenClass E k x y $ =
+(named '(mpbird (a1i ntSW_value) @ !! iald d @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfOr)) @ eqtrd (syl qsSubst_kDisj_when anr) @
+ eqtrd (kDisjeqd (mpd anr (syl ntSW_at anll)) (mpd anr (syl ntSW_at anlr))) (a1i (eqcom sfNamedTemplate_sfOr))));
+
+theorem ntSW_imp (E: set) (k x y: nat) (a b: nat):
+ $ a e. ntSubWhenClass E k x y /\ b e. ntSubWhenClass E k x y -> sfImp a b e. ntSubWhenClass E k x y $ =
+(named '(mpbird (a1i ntSW_value) @ !! iald d @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfImp)) @ eqtrd (a1i kSubst_kImp) @
+ eqtrd (kImpeqd (mpd anr (syl ntSW_at anll)) (mpd anr (syl ntSW_at anlr))) (a1i (eqcom sfNamedTemplate_sfImp))));
+
+theorem ntSW_binary (E: set) (k x y: nat): $ sfBinaryClosed (ntSubWhenClass E k x y) $ =
+(named '(ax_gen @ ax_gen @ iand (iand ntSW_and ntSW_or) ntSW_imp));
+
+theorem ntSW_all (E: set) (k x y: nat) (a: nat) (hk: $ x < k $):
+ $ a e. ntSubWhenClass E k x y -> sfAll a e. ntSubWhenClass E k x y $ =
+(named '(mpbird (a1i ntSW_value) @ !! iald d @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfAll)) @ eqtrd (a1i (kSubst_kAll_open (ltneri (ltletr hk leaddid1)))) @
+ eqtrd (kAlleq2d (mpd anr (syl ntSW_at anl))) (a1i (eqcom sfNamedTemplate_sfAll))));
+
+theorem ntSW_ex (E: set) (k x y: nat) (a: nat) (hk: $ x < k $):
+ $ a e. ntSubWhenClass E k x y -> sfEx a e. ntSubWhenClass E k x y $ =
+(named '(mpbird (a1i ntSW_value) @ !! iald d @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfEx)) @ eqtrd (syl (mpi (ltneri (ltletr hk leaddid1)) qsSubst_kExists_when) anr) @
+ eqtrd (kExistseq2d (mpd anr (syl ntSW_at anl))) (a1i (eqcom sfNamedTemplate_sfEx))));
+
+theorem ntSW_quantifier (E: set) (k x y: nat) (hk: $ x < k $): $ sfQuantifierClosed (ntSubWhenClass E k x y) $ =
+(named '(ax_gen @ iand (ntSW_all hk) (ntSW_ex hk)));
+
+theorem ntSW_closed (E: set) (k x y: nat) (hk: $ x < k $): $ sfConstructionClosed (ntSubWhenClass E k x y) $ =
+'(ian (ian (ian ntSW_bot (ntSW_atomic hk)) ntSW_binary) (ntSW_quantifier hk));
+
+pub theorem sfNamedTemplate_substitution_when (E: set) (k d c x y: nat) (hk: $ x < k $):
+ $ x != 0 -> sfWf c -> kSubst (sfNamedTemplate E k d c) x y =
+ sfNamedTemplate (kReplaceEnvironment x y E) k d c $ =
+'(com12 (syl ntSW_at (ax_mp sfWf_induction (ntSW_closed hk))));
+
+pub theorem sqEqual_substitution_when (t a b k x y: nat) (hk: $ x < k $):
+ $ x != 0 -> kSubst (sqEqual t a b k) x y = sqEqual (kReplace x y t) (kReplace x y a) (kReplace x y b) k $ =
+'(eqtrd (mpi sqEqualSource_wf (sfNamedTemplate_substitution_when hk))
+ (a1i (ax_mp (sfNamedTemplate_environment qsAtom_replace_agree) (mpbir (srecpeq2 (preq1 add01)) sqEqualSource_bound))));
+
+pub theorem sqMember_substitution_when (t a b k x y: nat) (hk: $ x < k $):
+ $ x != 0 -> kSubst (sqMember t a b k) x y = sqMember (kReplace x y t) (kReplace x y a) (kReplace x y b) k $ =
+'(eqtrd (mpi sqMemberSource_wf (sfNamedTemplate_substitution_when hk))
+ (a1i (ax_mp (sfNamedTemplate_environment qsAtom_replace_agree) (mpbir (srecpeq2 (preq1 add01)) sqMemberSource_bound))));
+
+theorem qSC_index (E: set) (n k d y j: nat):
+ $ sqEnvAvoid E n k -> j < d + suc n ->
+ kReplace k y (sfNamedIndex (sqEnvCons k E) (suc k) d j) =
+ sfNamedIndex (sqEnvCons y E) (suc k) d j $ =
+'(exp @ eqtrd (a1i (sfNamedIndex_replace ltsucid)) @ mpd anr (syl sqEnvAgree_index (syl kReplaceEnvironment_cons_agree anl)));
+
+@_ abstract def ntSCClass (E: set) (n k y .c .d: nat): set =
+ $ {c | A. d ((k != 0 /\ sqEnvAvoid E n k) -> sfBound (d + suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) d (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) d (c))} $;
+
+pub theorem ntSC_value {d: nat} (E: set) (n k y: nat) (c: nat):
+ $ c e. ntSCClass E n k y <-> A. d ((k != 0 /\ sqEnvAvoid E n k) -> sfBound (d + suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) d (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) d (c)) $ =
+(named '(elabe ,eqtac));
+
+theorem ntSC_depth (E: set) (n k y: nat) (d c: nat):
+ $ A. j ((k != 0 /\ sqEnvAvoid E n k) -> sfBound (j + suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) j (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) j (c)) -> (k != 0 /\ sqEnvAvoid E n k) -> sfBound (d + suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) d (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) d (c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem ntSC_at (E: set) (n k y: nat) (d c: nat):
+ $ c e. ntSCClass E n k y -> (k != 0 /\ sqEnvAvoid E n k) -> sfBound (d + suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) d (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) d (c) $ =
+(named '(syl ntSC_depth {(bi1 ntSC_value) : $ c e. ntSCClass E n k y -> A. j ((k != 0 /\ sqEnvAvoid E n k) -> sfBound (j + suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) j (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) j (c)) $}));
+
+theorem ntSC_use (E: set) (n k y: nat) (G: wff) (d c: nat)
+ (hm: $ G -> c e. ntSCClass E n k y $) (hc: $ G -> k != 0 /\ sqEnvAvoid E n k $) (hb: $ G -> sfBound (d + suc n) c $):
+ $ G -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) d (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) d (c) $ =
+'(mpd hb (mpd hc (syl ntSC_at hm)));
+
+theorem ntSC_bot (E: set) (n k y: nat): $ sfBot e. ntSCClass E n k y $ =
+(named '(mpbir ntSC_value @ ax_gen @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_bot)) @ eqtrd (syl qsSubst_kF_when anll) (a1i (eqcom sfNamedTemplate_bot))));
+
+theorem ntSC_mem (E: set) (n k y: nat) (a b: nat): $ sfMem a b e. ntSCClass E n k y $ =
+(named '(mpbir ntSC_value @ ax_gen @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfMem)) @ eqtrd (a1i kSubst_kMem) @ eqtrd (kMemeqd (mpd (syl anl (syl (bi1 sfBound_sfMem) anr)) (syl qSC_index (syl anr anl))) (mpd (syl anr (syl (bi1 sfBound_sfMem) anr)) (syl qSC_index (syl anr anl)))) (a1i (eqcom sfNamedTemplate_sfMem))));
+
+theorem ntSC_eq (E: set) (n k y: nat) (a b: nat): $ sfEq a b e. ntSCClass E n k y $ =
+(named '(mpbir ntSC_value @ ax_gen @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfEq)) @ eqtrd (a1i kSubst_kEq) @ eqtrd (kEqeqd (mpd (syl anl (syl (bi1 sfBound_sfEq) anr)) (syl qSC_index (syl anr anl))) (mpd (syl anr (syl (bi1 sfBound_sfEq) anr)) (syl qSC_index (syl anr anl)))) (a1i (eqcom sfNamedTemplate_sfEq))));
+
+theorem ntSC_atomic (E: set) (n k y: nat): $ sfAtomicClosed (ntSCClass E n k y) $ =
+(named '(ax_gen @ ax_gen @ ian ntSC_mem ntSC_eq));
+
+theorem ntSC_and (E: set) (n k y: nat) (a b: nat):
+ $ a e. ntSCClass E n k y /\ b e. ntSCClass E n k y -> sfAnd a b e. ntSCClass E n k y $ =
+(named '(mpbird (a1i ntSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfAnd)) @ eqtrd (syl qsSubst_kAnd_when (syl anl anlr)) @ eqtrd (kAndeqd (ntSC_use (syl anl (syl anl anl)) anlr (syl anl (syl (bi1 sfBound_sfAnd) anr))) (ntSC_use (syl anr (syl anl anl)) anlr (syl anr (syl (bi1 sfBound_sfAnd) anr)))) (a1i (eqcom sfNamedTemplate_sfAnd))));
+
+theorem ntSC_or (E: set) (n k y: nat) (a b: nat):
+ $ a e. ntSCClass E n k y /\ b e. ntSCClass E n k y -> sfOr a b e. ntSCClass E n k y $ =
+(named '(mpbird (a1i ntSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfOr)) @ eqtrd (syl qsSubst_kDisj_when (syl anl anlr)) @ eqtrd (kDisjeqd (ntSC_use (syl anl (syl anl anl)) anlr (syl anl (syl (bi1 sfBound_sfOr) anr))) (ntSC_use (syl anr (syl anl anl)) anlr (syl anr (syl (bi1 sfBound_sfOr) anr)))) (a1i (eqcom sfNamedTemplate_sfOr))));
+
+theorem ntSC_imp (E: set) (n k y: nat) (a b: nat):
+ $ a e. ntSCClass E n k y /\ b e. ntSCClass E n k y -> sfImp a b e. ntSCClass E n k y $ =
+(named '(mpbird (a1i ntSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfImp)) @ eqtrd (a1i kSubst_kImp) @ eqtrd (kImpeqd (ntSC_use (syl anl (syl anl anl)) anlr (syl anl (syl (bi1 sfBound_sfImp) anr))) (ntSC_use (syl anr (syl anl anl)) anlr (syl anr (syl (bi1 sfBound_sfImp) anr)))) (a1i (eqcom sfNamedTemplate_sfImp))));
+
+theorem ntSC_binary (E: set) (n k y: nat): $ sfBinaryClosed (ntSCClass E n k y) $ =
+(named '(ax_gen @ ax_gen @ iand (iand ntSC_and ntSC_or) ntSC_imp));
+
+theorem ntSC_all (E: set) (n k y: nat) (a: nat):
+ $ a e. ntSCClass E n k y -> sfAll a e. ntSCClass E n k y $ =
+(named '(mpbird (a1i ntSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfAll)) @ eqtrd (a1i (kSubst_kAll_open (ltneri (ltletr ltsucid leaddid1)))) @ eqtrd (kAlleq2d (ntSC_use anll anlr (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfAll) anr)))) (a1i (eqcom sfNamedTemplate_sfAll))));
+
+theorem ntSC_ex (E: set) (n k y: nat) (a: nat):
+ $ a e. ntSCClass E n k y -> sfEx a e. ntSCClass E n k y $ =
+(named '(mpbird (a1i ntSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfEx)) @ eqtrd (syl (mpi (ltneri (ltletr ltsucid leaddid1)) qsSubst_kExists_when) (syl anl anlr)) @ eqtrd (kExistseq2d (ntSC_use anll anlr (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfEx) anr)))) (a1i (eqcom sfNamedTemplate_sfEx))));
+
+theorem ntSC_quantifier (E: set) (n k y: nat): $ sfQuantifierClosed (ntSCClass E n k y) $ =
+(named '(ax_gen @ iand ntSC_all ntSC_ex));
+
+theorem ntSC_closed (E: set) (n k y: nat): $ sfConstructionClosed (ntSCClass E n k y) $ =
+'(ian (ian (ian ntSC_bot ntSC_atomic) ntSC_binary) ntSC_quantifier);
+
+theorem ntSC_bounded (E: set) (n k y: nat) (d c: nat):
+ $ (k != 0 /\ sqEnvAvoid E n k) -> sfBound (d + suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) d (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) d (c) $ =
+'(com12 (mpd id (syl (com23 ntSC_at) (syl (ax_mp sfWf_induction ntSC_closed) sfBound_wf))));
+
+pub theorem sfNamedTemplate_substitution_cons_when (E: set) (n k y: nat) (c: nat):
+ $ k != 0 -> sqEnvAvoid E n k -> sfBound (suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) 0 (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) 0 (c) $ =
+(named '(exp @ syl5 (bi2 (srecpeq2 (preq1 add01))) ntSC_bounded));
+
+@_ abstract def qqSCClass (E: set) (n t k y .c .d: nat): set =
+ $ {c | A. d ((k != 0 /\ (k != t /\ sqEnvAvoid E n k)) -> sfBound (d + suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) d (c)) k y = sqQuote (sqEnvCons y E) t (suc k) d (c))} $;
+
+pub theorem qqSC_value {d: nat} (E: set) (n t k y: nat) (c: nat):
+ $ c e. qqSCClass E n t k y <-> A. d ((k != 0 /\ (k != t /\ sqEnvAvoid E n k)) -> sfBound (d + suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) d (c)) k y = sqQuote (sqEnvCons y E) t (suc k) d (c)) $ =
+(named '(elabe ,eqtac));
+
+theorem qqSC_depth (E: set) (n t k y: nat) (d c: nat):
+ $ A. j ((k != 0 /\ (k != t /\ sqEnvAvoid E n k)) -> sfBound (j + suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) j (c)) k y = sqQuote (sqEnvCons y E) t (suc k) j (c)) -> (k != 0 /\ (k != t /\ sqEnvAvoid E n k)) -> sfBound (d + suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) d (c)) k y = sqQuote (sqEnvCons y E) t (suc k) d (c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem qqSC_at (E: set) (n t k y: nat) (d c: nat):
+ $ c e. qqSCClass E n t k y -> (k != 0 /\ (k != t /\ sqEnvAvoid E n k)) -> sfBound (d + suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) d (c)) k y = sqQuote (sqEnvCons y E) t (suc k) d (c) $ =
+(named '(syl qqSC_depth {(bi1 qqSC_value) : $ c e. qqSCClass E n t k y -> A. j ((k != 0 /\ (k != t /\ sqEnvAvoid E n k)) -> sfBound (j + suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) j (c)) k y = sqQuote (sqEnvCons y E) t (suc k) j (c)) $}));
+
+theorem qqSC_use (E: set) (n t k y: nat) (G: wff) (d c: nat)
+ (hm: $ G -> c e. qqSCClass E n t k y $) (hc: $ G -> k != 0 /\ (k != t /\ sqEnvAvoid E n k) $) (hb: $ G -> sfBound (d + suc n) c $):
+ $ G -> kSubst (sqQuote (sqEnvCons k E) t (suc k) d (c)) k y = sqQuote (sqEnvCons y E) t (suc k) d (c) $ =
+'(mpd hb (mpd hc (syl qqSC_at hm)));
+
+theorem qqSC_bot (E: set) (n t k y: nat): $ sfBot e. qqSCClass E n t k y $ =
+(named '(mpbir qqSC_value @ ax_gen @ exp @ eqtrd (a1i (qsSubst_eq sqQuote_bot)) @ eqtrd (syl qsSubst_kF_when anll) (a1i (eqcom sqQuote_bot))));
+
+theorem qqSC_mem (E: set) (n t k y: nat) (a b: nat): $ sfMem a b e. qqSCClass E n t k y $ =
+(named '(mpbir qqSC_value @ ax_gen @ exp @ eqtrd (a1i (qsSubst_eq sqQuote_sfMem)) @ eqtrd (syl (sqMember_substitution_when (ltletr ltsucid leaddid1)) anll) @ eqtrd (sqMembereqd (syl kReplace_miss (syl necom (syl anl (syl anr anl)))) (mpd (syl anl (syl (bi1 sfBound_sfMem) anr)) (syl qSC_index (syl anr (syl anr anl)))) (mpd (syl anr (syl (bi1 sfBound_sfMem) anr)) (syl qSC_index (syl anr (syl anr anl)))) eqidd) (a1i (eqcom sqQuote_sfMem))));
+
+theorem qqSC_eq (E: set) (n t k y: nat) (a b: nat): $ sfEq a b e. qqSCClass E n t k y $ =
+(named '(mpbir qqSC_value @ ax_gen @ exp @ eqtrd (a1i (qsSubst_eq sqQuote_sfEq)) @ eqtrd (syl (sqEqual_substitution_when (ltletr ltsucid leaddid1)) anll) @ eqtrd (sqEqualeqd (syl kReplace_miss (syl necom (syl anl (syl anr anl)))) (mpd (syl anl (syl (bi1 sfBound_sfEq) anr)) (syl qSC_index (syl anr (syl anr anl)))) (mpd (syl anr (syl (bi1 sfBound_sfEq) anr)) (syl qSC_index (syl anr (syl anr anl)))) eqidd) (a1i (eqcom sqQuote_sfEq))));
+
+theorem qqSC_atomic (E: set) (n t k y: nat): $ sfAtomicClosed (qqSCClass E n t k y) $ =
+(named '(ax_gen @ ax_gen @ ian qqSC_mem qqSC_eq));
+
+theorem qqSC_and (E: set) (n t k y: nat) (a b: nat):
+ $ a e. qqSCClass E n t k y /\ b e. qqSCClass E n t k y -> sfAnd a b e. qqSCClass E n t k y $ =
+(named '(mpbird (a1i qqSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sqQuote_sfAnd)) @ eqtrd (syl qsSubst_kAnd_when (syl anl anlr)) @ eqtrd (kAndeqd (qqSC_use (syl anl (syl anl anl)) anlr (syl anl (syl (bi1 sfBound_sfAnd) anr))) (qqSC_use (syl anr (syl anl anl)) anlr (syl anr (syl (bi1 sfBound_sfAnd) anr)))) (a1i (eqcom sqQuote_sfAnd))));
+
+theorem qqSC_or (E: set) (n t k y: nat) (a b: nat):
+ $ a e. qqSCClass E n t k y /\ b e. qqSCClass E n t k y -> sfOr a b e. qqSCClass E n t k y $ =
+(named '(mpbird (a1i qqSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sqQuote_sfOr)) @ eqtrd (syl qsSubst_kDisj_when (syl anl anlr)) @ eqtrd (kDisjeqd (qqSC_use (syl anl (syl anl anl)) anlr (syl anl (syl (bi1 sfBound_sfOr) anr))) (qqSC_use (syl anr (syl anl anl)) anlr (syl anr (syl (bi1 sfBound_sfOr) anr)))) (a1i (eqcom sqQuote_sfOr))));
+
+theorem qqSC_imp (E: set) (n t k y: nat) (a b: nat):
+ $ a e. qqSCClass E n t k y /\ b e. qqSCClass E n t k y -> sfImp a b e. qqSCClass E n t k y $ =
+(named '(mpbird (a1i qqSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sqQuote_sfImp)) @ eqtrd (a1i kSubst_kImp) @ eqtrd (kImpeqd (qqSC_use (syl anl (syl anl anl)) anlr (syl anl (syl (bi1 sfBound_sfImp) anr))) (qqSC_use (syl anr (syl anl anl)) anlr (syl anr (syl (bi1 sfBound_sfImp) anr)))) (a1i (eqcom sqQuote_sfImp))));
+
+theorem qqSC_binary (E: set) (n t k y: nat): $ sfBinaryClosed (qqSCClass E n t k y) $ =
+(named '(ax_gen @ ax_gen @ iand (iand qqSC_and qqSC_or) qqSC_imp));
+
+theorem qqSC_all (E: set) (n t k y: nat) (a: nat):
+ $ a e. qqSCClass E n t k y -> sfAll a e. qqSCClass E n t k y $ =
+(named '(mpbird (a1i qqSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sqQuote_sfAll)) @ eqtrd (a1i (eqtr (kSubst_kAll_open (ltneri (ltletr ltsucid leaddid1))) (kAlleq2 kSubst_kImp))) @ eqtrd (kAlleq2d (kImpeqd (eqtrd (a1i (qsSubst_guard (ltneri (ltletr ltsucid leaddid1)))) (kMemeq1d (syl kReplace_miss (syl necom (syl anl (syl anr anlr)))))) (qqSC_use anll anlr (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfAll) anr))))) (a1i (eqcom sqQuote_sfAll))));
+
+theorem qqSC_ex (E: set) (n t k y: nat) (a: nat):
+ $ a e. qqSCClass E n t k y -> sfEx a e. qqSCClass E n t k y $ =
+(named '(mpbird (a1i qqSC_value) @ !! iald d @ exp @ exp @ eqtrd (a1i (qsSubst_eq sqQuote_sfEx)) @ eqtrd (eqtrd (syl (mpi (ltneri (ltletr ltsucid leaddid1)) qsSubst_kExists_when) (syl anl anlr)) (kExistseq2d (syl qsSubst_kAnd_when (syl anl anlr)))) @ eqtrd (kExistseq2d (kAndeqd (eqtrd (a1i (qsSubst_guard (ltneri (ltletr ltsucid leaddid1)))) (kMemeq1d (syl kReplace_miss (syl necom (syl anl (syl anr anlr)))))) (qqSC_use anll anlr (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfEx) anr))))) (a1i (eqcom sqQuote_sfEx))));
+
+theorem qqSC_quantifier (E: set) (n t k y: nat): $ sfQuantifierClosed (qqSCClass E n t k y) $ =
+(named '(ax_gen @ iand qqSC_all qqSC_ex));
+
+theorem qqSC_closed (E: set) (n t k y: nat): $ sfConstructionClosed (qqSCClass E n t k y) $ =
+'(ian (ian (ian qqSC_bot qqSC_atomic) qqSC_binary) qqSC_quantifier);
+
+theorem qqSC_bounded (E: set) (n t k y: nat) (d c: nat):
+ $ (k != 0 /\ (k != t /\ sqEnvAvoid E n k)) -> sfBound (d + suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) d (c)) k y = sqQuote (sqEnvCons y E) t (suc k) d (c) $ =
+'(com12 (mpd id (syl (com23 qqSC_at) (syl (ax_mp sfWf_induction qqSC_closed) sfBound_wf))));
+
+pub theorem sqQuote_substitution_cons_when (E: set) (n t k y: nat) (c: nat):
+ $ k != 0 -> k != t -> sqEnvAvoid E n k -> sfBound (suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) 0 (c)) k y = sqQuote (sqEnvCons y E) t (suc k) 0 (c) $ =
+(named '(expd @ exp @ syl5 (bi2 (srecpeq2 (preq1 add01))) qqSC_bounded));

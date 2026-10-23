@@ -1,0 +1,47 @@
+import "source_l_replacement_seed.mm1";
+import "source_l_replacement_range_source.mm1";
+import "source_l_power_collection_syntax.mm1";
+
+@_ def sfLReplacementSeedMetadata:nat = $ slPQF778 $;
+@_ def sfLReplacementSeedMatrix(phi:nat):nat =
+ $ sfRelativize sfLDomain (sfRename sfRepCMap 0 phi) $;
+
+theorem lrepSeedSource_zero:
+ $ sfSubstDepthMap 0 0 @ 0 = sfIdentityMap @ 0 $ = '(eqtr sfSubstDepthMap_value (eqtr sfSubstIndex_zero (eqcom sfIdentityMap_value)));
+theorem lrepSeedSource_at(i:nat):
+ $ i < 1 -> sfSubstDepthMap 0 0 @ i = sfIdentityMap @ i $ = '(syl (eqtrd (appeq2d id) (eqtrd (a1i lrepSeedSource_zero) (eqcomd (appeq2d id)))) (bi1 lt12));
+theorem lrepSeedSource_subst(c:nat)(hb:$ sfBound 1 c $):
+ $ sfSubst 0 0 c = c $ = '(eqtr (ax_mp sfSubst_as_map (ax_mp sfBound_wf hb)) (eqtr (ax_mp (ax_mp sfRename_agreement (!! ax_gen i @ ! lrepSeedSource_at i)) (mpbir (sfBoundeq1 add01) hb)) (ax_mp sfRename_identity (ax_mp sfBound_wf hb))));
+
+pub theorem sfLReplacement_seed_bound_exact(c:nat):
+ $ sfLPowerLevelBound = sfAll (sfLReplacementSeedBound c sfLReplacementSeedMetadata) $ =
+ '(nsAll_eq (nsEx_eq (nsEx_eq (nsAnd_eq eqid (nsAll_eq (nsImp_eq eqid (nsImp_eq (eqcom (ax_mp sfDomainAt_zero sfLDomain_bound)) eqid)))))));
+
+pub theorem sfLReplacement_seed_metadata_wf:
+ $ sfWf sfLReplacementSeedMetadata $ = '(ax_mp sfBound_wf (anli (mpbi sfBound_sfAnd (mpbi sfBound_sfEx (mpbi sfBound_sfEx (mpbi sfBound_sfAll sfLPowerLevelBound_bound))))));
+
+theorem lrepSeedSource_bound(c:nat):
+ $ sfBound 1 (sfLReplacementSeedBound c sfLReplacementSeedMetadata) $ =
+ '(mpbi sfBound_sfAll (mpbi (sfBoundeq2 (! sfLReplacement_seed_bound_exact c)) sfLPowerLevelBound_bound));
+
+pub theorem sfLReplacement_seed_bound_open(G c:nat)
+ (hp:$ nsLocal G sfLPowerLevelBound $):
+ $ nsLocal G (sfLReplacementSeedBound c sfLReplacementSeedMetadata) $ =
+ '(sfRQ_rewrite (lrepSeedSource_subst (! lrepSeedSource_bound c))
+  (ax_mp nsLocal_AllE (sfRQ_rewrite (! sfLReplacement_seed_bound_exact c) hp)));
+
+pub theorem sfLReplacement_ambient_seed_exact(phi:nat)(hf:$ sfWf phi $):
+ $ sfLReplacementAmbientBody phi =
+ sfLReplacementAmbientBase (sfLReplacementSeedMatrix phi) sfLReplacementSeedMetadata $ =
+ '(nsAll_eq (sfIffeq eqid (nsEx_eq (nsAnd_eq eqid (lrepRangeSource_matrix_C hf)))));
+
+pub theorem sfLReplacement_seed_from_L_bound(G phi:nat)(hf:$ sfWf phi $)
+ (hi:$ nsLocal G (sfLReplacementAmbientBody phi) $)
+ (hb:$ nsLocal G sfLPowerLevelBound $):
+ $ nsLocal G (sfLReplacementSeedRange (sfLReplacementSeedMatrix phi) sfLReplacementSeedMetadata) $ =
+ '(ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp nsLocal_mp
+   (ax_mp (ax_mp (ax_mp sfLocal_hypothesis_replacement (ax_mp nsLocal_context_wf hi)) sfLocalCoverage_nil)
+    (sfLReplacement_seed_range_pure (ax_mp sfRelativize_wf sfLDomain_wf) sfLReplacement_seed_metadata_wf)))
+   (sfRQ_rewrite (sfLReplacement_ambient_seed_exact hf) hi)))
+  (sfLReplacement_seed_bound_open hb));

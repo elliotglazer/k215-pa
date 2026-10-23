@@ -1,0 +1,35 @@
+import "source_piece_pcf_definable_introduction_step.mm0";
+
+def sfPieceDefinableParametersUndo: set = $ sfComposeMap sfPieceRotate sfPieceRotate $;
+
+theorem sfPieceDefinableParametersUndoForward_from2(i:nat): $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ suc (suc (i)) = suc (suc (i)) $;
+
+theorem sfPieceDefinableParametersUndoForward_from1(i:nat): $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ suc (i) = suc (i) $;
+
+theorem sfPieceDefinableParametersUndoForward_at(i:nat): $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ i = i $;
+
+theorem sfPieceDefinableParameters_formula_cancel(a:nat)(ha:$ sfWf a $): $ sfRename sfPieceRotate 0 (sfRename sfPieceDefinableParametersUndo 0 a) = a $;
+
+theorem sfPieceDefinableParameters_context_cancel(G:nat): $ (sfContextWf G -> sfContextRename sfPieceRotate 0 (sfContextRename sfPieceDefinableParametersUndo 0 G) = G) $;
+
+def sfPieceDefinableParametersStep(.G:nat): set = $ \ G, sfContextRename sfPieceDefinableParametersUndo 0 ((sfMem 0 2) : sfContextShift G) $;
+
+def sfPieceDefinableParametersContext(n G:nat): nat = $ rec G sfPieceDefinableParametersStep n $;
+
+theorem sfPieceDefinableParametersStep_at(G:nat): $ sfPieceDefinableParametersStep @ G = sfContextRename sfPieceDefinableParametersUndo 0 ((sfMem 0 2) : sfContextShift G) $;
+
+theorem sfPieceDefinableParametersStep_wf(G:nat): $ sfContextWf (sfPieceDefinableParametersStep @ G) $;
+
+theorem sfPieceDefinableParametersStep_cancel(G:nat): $ sfContextRename sfPieceRotate 0 (sfPieceDefinableParametersStep @ G) = (sfMem 0 2) : sfContextShift G $;
+
+theorem sfPieceDefinableParametersContext_zero(G:nat): $ sfPieceDefinableParametersContext 0 G = G $;
+
+theorem sfPieceDefinableParametersContext_suc(n G:nat): $ sfPieceDefinableParametersContext (suc n) G = sfPieceDefinableParametersStep @ (sfPieceDefinableParametersContext n G) $;
+
+theorem sfPieceDefinableParametersContext_commute(n G:nat): $ sfPieceDefinableParametersContext n (sfPieceDefinableParametersStep @ G) = sfPieceDefinableParametersStep @ (sfPieceDefinableParametersContext n G) $;
+
+def sfPieceDefinableParametersCloseLaw(n .G .a:nat): wff = $ A. G A. a (sfContextWf G -> nsLocal (sfPieceDefinableParametersContext n G) a -> nsLocal G (sfPieceDn n a)) $;
+
+theorem sfPieceDefinableParametersCloseLaw_all(n:nat): $ sfPieceDefinableParametersCloseLaw n $;
+
+theorem sfPieceDefinableParameters_introduce(n G a:nat)(hg:$ sfContextWf G $)(hp:$ nsLocal (sfPieceDefinableParametersContext n G) a $): $ nsLocal G (sfPieceDn n a) $;

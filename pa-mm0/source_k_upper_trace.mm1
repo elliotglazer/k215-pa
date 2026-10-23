@@ -1,0 +1,57 @@
+import "source_core_theory.mm1";
+
+import "source_theory_prefix.mm1";
+
+@_ abstract def sfUpperTraceMap (.i: nat): set = $ \ i, if (i = 0) 1 (if (i = 1) 0 (suc i)) $;
+
+@_ def sfUpperTracePredicate (phi: nat): nat = $ sfEx (sfAnd (sfMem 0 2) (sfRename sfUpperTraceMap 0 phi)) $;
+
+@_ def sfUpperTraceSeparation (phi: nat): nat = $ sfSeparation (sfRename sfSepMap 0 (sfUpperTracePredicate phi)) $;
+
+pub theorem sfUpperTraceMap_value (i: nat):
+ $ sfUpperTraceMap @ i = if (i = 0) 1 (if (i = 1) 0 (suc i)) $ =
+(named '(!! applame j ,eqtac));
+
+theorem sfUT_if_upper (P: wff) (a b c: nat) (ha: $ a <= c $) (hb: $ b <= c $):
+ $ if P a b <= c $ =
+'(cases (mpbird (leeq1d ifpos) (a1i ha)) (mpbird (leeq1d ifneg) (a1i hb)));
+
+pub theorem sfUpperTraceMap_upper (i: nat):
+ $ sfUpperTraceMap @ i <= suc i $ =
+'(mpbir (leeq1 sfUpperTraceMap_value) (sfUT_if_upper le11S (sfUT_if_upper le01 leid)));
+
+pub theorem sfUpperTraceMap_bound (i n: nat):
+ $ i < suc (suc n) -> sfUpperTraceMap @ i < suc (suc (suc n)) $ =
+'(syl (ax_mp lelttr sfUpperTraceMap_upper) (bi1 ltsuc));
+
+theorem sfUpperTraceMap_range (n: nat):
+ $ A. i (i < suc (suc n) -> sfUpperTraceMap @ i < suc (suc (suc n))) $ =
+(named '(ax_gen sfUpperTraceMap_bound));
+
+pub theorem sfUpperTrace_rename_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc (suc n))) (sfRename sfUpperTraceMap 0 phi) $ =
+(named '(syl (bi1 (sfBoundeq1 add01)) (syl (ax_mp sfRename_bound {sfUpperTraceMap_range : $ A. i (i < suc (suc n) -> sfUpperTraceMap @ i < suc (suc (suc n))) $}) (bi2 (sfBoundeq1 add01)))));
+
+pub theorem sfUpperTracePredicate_wf (phi: nat):
+ $ sfWf (sfUpperTracePredicate phi) $ =
+'(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfRename_wf));
+
+pub theorem sfUpperTracePredicate_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc n)) (sfUpperTracePredicate phi) $ =
+'(syl (bi2 sfBound_sfEx) @ syl (bi2 sfBound_sfAnd) @ iand (a1i (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))))) sfUpperTrace_rename_bound);
+
+pub theorem sfUpperTraceSeparation_axiom (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> zfcSeparationCode (sfUpperTracePredicate phi) (suc n) e. zfrAxioms $ =
+'(syl zfrSeparationCode_member sfUpperTracePredicate_bound);
+
+pub theorem sfUpperTraceSeparation_closed (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound 0 (zfcSeparationCode (sfUpperTracePredicate phi) (suc n)) $ =
+'(syl zfcSeparationCode_closed sfUpperTracePredicate_bound);
+
+pub theorem sfUpperTraceSeparation_zfr_closed (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (zfcSeparationCode (sfUpperTracePredicate phi) (suc n)) $ =
+'(syl (ax_mp sfTheoryAxiom_provable_closed zfrAxioms_closed) sfUpperTraceSeparation_axiom);
+
+pub theorem sfUpperTraceSeparation_zfr (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (sfUpperTraceSeparation phi) $ =
+'(syl (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) sfUpperTraceSeparation_zfr_closed);

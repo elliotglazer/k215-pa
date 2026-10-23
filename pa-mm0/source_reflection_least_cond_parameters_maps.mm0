@@ -1,0 +1,31 @@
+import "source_theory_prefix.mm0";
+
+import "source_substitution_renaming.mm0";
+
+import "source_renaming_extensional.mm0";
+
+import "zfc_schema_maps.mm0";
+
+def sfLeastParamMap (x y .i:nat):set = $ \ i, if (i = 0) x ((i - 1) + y) $;
+
+def sfLeastParam (phi x y:nat):nat = $ sfRename (sfLeastParamMap x y) 0 phi $;
+
+theorem sfLPM_value (x y i:nat): $ sfLeastParamMap x y @ i = if (i = 0) x ((i - 1) + y) $;
+
+theorem sfLPM_zero (x y:nat): $ sfLeastParamMap x y @ 0 = x $;
+
+theorem sfLPM_suc (x y i:nat): $ sfLeastParamMap x y @ suc i = i + y $;
+
+theorem sfLeastParam_congr (phi x y xx yy:nat)(hf:$ sfWf phi $)(hx:$ x = xx $)(hy:$ y = yy $): $ sfLeastParam phi x y = sfLeastParam phi xx yy $;
+
+theorem sfLeastParam_wf (phi x y:nat): $ sfWf (sfLeastParam phi x y) $;
+
+theorem sfLeastParam_shift (phi x y d:nat)(hf:$ sfWf phi $)(hd:$ d <= y $): $ sfShift d (sfLeastParam phi x y) = sfLeastParam phi (sfShiftIndex d x) (suc y) $;
+
+theorem sfLeastParam_subst (phi x y d t:nat)(hf:$ sfWf phi $)(hd:$ d < suc y $): $ sfSubst d t (sfLeastParam phi x (suc y)) = sfLeastParam phi (sfSubstIndex d t x) y $;
+
+theorem sfLeastParam_identity (phi:nat)(hf:$ sfWf phi $): $ sfLeastParam phi 0 1 = phi $;
+
+theorem sfLeastParam_separation (phi:nat)(hf:$ sfWf phi $): $ sfLeastParam phi 0 3 = sfRename sfSepMap 0 phi $;
+
+theorem sfLeastParam_shift_one (phi:nat)(hf:$ sfWf phi $): $ sfLeastParam phi 0 2 = sfShift 1 phi $;

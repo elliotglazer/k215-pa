@@ -1,0 +1,31 @@
+import "source_piece_pcf_definable_witness.mm0";
+
+import "source_piece_pcf_opening.mm0";
+
+def sfPieceDefinableNamed(n phi r A:nat): nat = $ sfORBinary (sfPieceDefinableRecipe n phi) r A $;
+
+def sfPieceDefinableNamedWitness(A C n phi:nat): nat = $ sfEx (sfAnd (sfMem 0 (suc C)) (sfPieceDefinableNamed n phi 0 (suc A))) $;
+
+theorem sfPieceDefinableNamed_recipe_wf(n phi:nat)(hb:$ sfBound n phi $): $ sfWf (sfPieceDefinableRecipe n phi) $;
+
+theorem sfPieceDefinableNamed_open(n phi r A:nat)(hb:$ sfBound n phi $): $ sfPieceDefinableNamed n phi r A = sfRename (sfPieceOpenMap r A) 0 (sfPieceDefinableRecipe n phi) $;
+
+theorem sfPieceDefinableNamed_witness_eq(A C n phi:nat)(hb:$ sfBound n phi $): $ sfPieceDefinableWitness A C n phi = sfPieceDefinableNamedWitness A C n phi $;
+
+theorem sfPieceDefinableNamed_rename(R:set)(k n phi r A:nat)(hb:$ sfBound n phi $): $ sfRename R k (sfPieceDefinableNamed n phi r A) = sfPieceDefinableNamed n phi (sfRenameIndex R k r) (sfRenameIndex R k A) $;
+
+theorem sfPieceDefinableNamed_subst(k t n phi r A:nat)(hb:$ sfBound n phi $): $ sfSubst k t (sfPieceDefinableNamed n phi r A) = sfPieceDefinableNamed n phi (sfSubstIndex k t r) (sfSubstIndex k t A) $;
+
+theorem sfPieceDefinableNamed_congr(n phi r A s B:nat)(hb:$ sfBound n phi $)(hr:$ r = s $)(hA:$ A = B $): $ sfPieceDefinableNamed n phi r A = sfPieceDefinableNamed n phi s B $;
+
+theorem sfPieceDefinableNamedWitness_rename(R:set)(k A C n phi:nat)(hb:$ sfBound n phi $): $ sfRename R k (sfPieceDefinableNamedWitness A C n phi) = sfPieceDefinableNamedWitness (sfRenameIndex R k A) (sfRenameIndex R k C) n phi $;
+
+theorem sfPieceDefinableNamedWitness_subst(k t A C n phi:nat)(hb:$ sfBound n phi $): $ sfSubst k t (sfPieceDefinableNamedWitness A C n phi) = sfPieceDefinableNamedWitness (sfSubstIndex k t A) (sfSubstIndex k t C) n phi $;
+
+theorem sfPieceDefinableWitness_rename(R:set)(k A C n phi:nat)(hb:$ sfBound n phi $): $ sfRename R k (sfPieceDefinableWitness A C n phi) = sfPieceDefinableWitness (sfRenameIndex R k A) (sfRenameIndex R k C) n phi $;
+
+theorem sfPieceDefinableWitness_subst(k t A C n phi:nat)(hb:$ sfBound n phi $): $ sfSubst k t (sfPieceDefinableWitness A C n phi) = sfPieceDefinableWitness (sfSubstIndex k t A) (sfSubstIndex k t C) n phi $;
+
+theorem sfPieceDefinableWitness_instance(A C n phi r:nat)(hb:$ sfBound n phi $): $ sfSubst 0 r (sfPieceDefinableWitnessBody A C n phi) = sfAnd (sfMem r C) (sfPieceDefinableNamed n phi r A) $;
+
+theorem sfPieceDefinableWitness_intro(G A C n phi r:nat)(hb:$ sfBound n phi $)(hm:$ nsLocal G (sfMem r C) $)(hr:$ nsLocal G (sfPieceDefinableNamed n phi r A) $): $ nsLocal G (sfPieceDefinableWitness A C n phi) $;

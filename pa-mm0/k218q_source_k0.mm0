@@ -1,0 +1,42 @@
+import "k218q_source_theory.mm0";
+import "k218q_source_equality.mm0";
+
+-- Exact numerical form of OldK230S/KP0.v:K0.  The source matrix binder
+-- ranges over form, so sfWf f is required in its numerical encoding.
+-- Empty, extensionality, infinity and irreflexivity are not extra axioms.
+def sfK218K0Equality (a: nat): wff =
+ $ a = zfcRefl \/ (a = zfcSym \/ (a = zfcTrans \/ a = zfcEqElem)) $;
+def sfK218K0Schema (a n f: nat): wff =
+ $ sfWf f /\ (a = sfAllPrefix n (sfK218Kp0 f) /\ sfBound 0 a) $;
+def sfK218K0Axioms (.a .n .f: nat): set =
+ $ {a | sfK218K0Equality a \/ E. n E. f sfK218K0Schema a n f} $;
+
+theorem sfK218K0Axioms_value {n f: nat} (a: nat):
+ $ a e. sfK218K0Axioms <-> sfK218K0Equality a \/ E. n E. f sfK218K0Schema a n f $;
+theorem sfK218K0Equality_member (a: nat):
+ $ sfK218K0Equality a -> a e. sfK218K0Axioms $;
+theorem sfK218K0Schema_member (a n f: nat):
+ $ sfK218K0Schema a n f -> a e. sfK218K0Axioms $;
+theorem sfK218K0Instance_member (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218Kp0 f)) ->
+   sfAllPrefix n (sfK218Kp0 f) e. sfK218K0Axioms $;
+theorem sfK218K0Equality_image (a: nat):
+ $ sfK218K0Equality a ->
+   (sfBound 0 a /\ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a)) $;
+theorem sfK218K0Schema_image (a n f: nat):
+ $ sfK218K0Schema a n f ->
+   (sfBound 0 a /\ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a)) $;
+theorem sfK218K0Axioms_member_image (a: nat):
+ $ a e. sfK218K0Axioms -> a e. k218QClosedImageClass $;
+theorem sfK218K0Axioms_subset_image:
+ $ sfK218K0Axioms C_ k218QClosedImageClass $;
+theorem sfK218K0Axioms_closed: $ sfTheoryClosed sfK218K0Axioms $;
+
+theorem sfK218K0_closed_proof (a: nat):
+ $ sfBound 0 a -> sfTheoryProvable sfK218K0Axioms a ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $;
+
+theorem sfK218K0_refutation:
+ $ sfTheoryProvable sfK218K0Axioms sfBot -> k218QProvable kF $;
+theorem sfK218K0_inconsistency_forward:
+ $ sfTheoryProvable sfK218K0Axioms sfBot -> k218Inconsistent $;

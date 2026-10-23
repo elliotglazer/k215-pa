@@ -1,0 +1,52 @@
+import "k218_equality_base.mm0";
+import "k218_raw_fresh.mm0";
+
+-- Explicit finite construction certificates for the equality-free named
+-- language. This is an arithmetic predicate over ordinary numeric lists.
+def k218MemBaseRules (.c .l .a .b: nat): set =
+  $ S\ c, {l | c = 0 \/ E. a E. b c = kMem a b} $;
+def k218MemImpRules (.c .l .a .b: nat): set =
+  $ S\ c, {l | E. a E. b (a IN l /\ b IN l /\ c = kImp a b)} $;
+def k218MemSyntaxRules: set = $ k218MemBaseRules u. (k218MemImpRules u. k218GenRules) $;
+def k218MemSyntax (c .p: nat): wff = $ E. p traceDerives k218MemSyntaxRules p c $;
+
+def k218MemAtomicClosed (P: set) (.a .b: nat): wff = $ A. a A. b kMem a b e. P $;
+def k218MemConstructionClosed (P: set): wff =
+  $ 0 e. P /\ k218MemAtomicClosed P /\ kRawImpClosed P /\ kRawAllClosed P $;
+
+theorem k218MemBaseRules_value {a b: nat} (c l: nat):
+  $ (c, l) e. k218MemBaseRules <-> c = 0 \/ E. a E. b c = kMem a b $;
+theorem k218MemImpRules_value {a b: nat} (c l: nat):
+  $ (c, l) e. k218MemImpRules <-> E. a E. b (a IN l /\ b IN l /\ c = kImp a b) $;
+
+theorem k218MemConstruction_ruleSound (P: set):
+  $ k218MemConstructionClosed P -> traceRuleSound k218MemSyntaxRules P $;
+theorem k218MemSyntax_induction (P: set) (c: nat):
+  $ k218MemConstructionClosed P -> k218MemSyntax c -> c e. P $;
+
+theorem k218MemSyntax_zero: $ k218MemSyntax 0 $;
+theorem k218MemSyntax_mem (a b: nat): $ k218MemSyntax (kMem a b) $;
+theorem k218MemSyntax_false: $ k218MemSyntax kF $;
+theorem k218MemSyntax_imp (a b: nat):
+  $ k218MemSyntax a -> k218MemSyntax b -> k218MemSyntax (kImp a b) $;
+theorem k218MemSyntax_all (a b: nat):
+  $ k218MemSyntax b -> k218MemSyntax (kAll a b) $;
+
+theorem k218MemSyntax_not (a: nat) (h: $ k218MemSyntax a $):
+  $ k218MemSyntax (kNot a) $;
+theorem k218MemSyntax_and (a b: nat) (ha: $ k218MemSyntax a $) (hb: $ k218MemSyntax b $):
+  $ k218MemSyntax (kAnd a b) $;
+theorem k218MemSyntax_iff (a b: nat) (ha: $ k218MemSyntax a $) (hb: $ k218MemSyntax b $):
+  $ k218MemSyntax (k218Iff a b) $;
+theorem k218MemSyntax_ev (v x y: nat): $ k218MemSyntax (k218EqEv v x y) $;
+theorem k218MemSyntax_ind (x y: nat): $ k218MemSyntax (k218EqInd x y) $;
+
+def k218MemVacuousClass (x .c: nat): set =
+  $ {c | kFresh c x -> k218Provable (kImp c (kAll x c))} $;
+theorem k218MemVacuousClass_value (c x: nat):
+  $ c e. k218MemVacuousClass x <-> (kFresh c x -> k218Provable (kImp c (kAll x c))) $;
+theorem k218MemVacuousClass_closed (x: nat):
+  $ k218MemConstructionClosed (k218MemVacuousClass x) $;
+
+theorem k218Membership_fresh_vacuity (c x: nat):
+  $ k218MemSyntax c -> kFresh c x -> k218Provable (kImp c (kAll x c)) $;

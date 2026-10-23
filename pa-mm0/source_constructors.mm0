@@ -1,0 +1,375 @@
+import "fol_kernel.mm0";
+
+-- Exact eight-tag set-formula encoding from SetFormulaCodes.v.
+-- The payload uses the pinned Peano library's right-oriented Cantor pairing.
+
+def sfBot: nat = $ 0 $;
+def sfNode (t a b: nat): nat = $ 8 * (a, b) + t $;
+def sfMem (a b: nat): nat = $ sfNode 1 a b $;
+def sfEq (a b: nat): nat = $ sfNode 2 a b $;
+def sfAnd (a b: nat): nat = $ sfNode 3 a b $;
+def sfOr (a b: nat): nat = $ sfNode 4 a b $;
+def sfImp (a b: nat): nat = $ sfNode 5 a b $;
+def sfAll (a: nat): nat = $ sfNode 6 a 0 $;
+def sfEx (a: nat): nat = $ sfNode 7 a 0 $;
+def sfTag (a: nat): nat = $ a % 8 $;
+def sfLeft (a: nat): nat = $ fst (a // 8) $;
+def sfRight (a: nat): nat = $ snd (a // 8) $;
+
+theorem sfNode_tag (t a b: nat):
+  $ t < 8 -> sfTag (sfNode t a b) = t $;
+
+theorem sfNode_quot (t a b: nat):
+  $ t < 8 -> sfNode t a b // 8 = (a, b) $;
+
+theorem sfNode_left (t a b: nat):
+  $ t < 8 -> sfLeft (sfNode t a b) = a $;
+
+theorem sfNode_right (t a b: nat):
+  $ t < 8 -> sfRight (sfNode t a b) = b $;
+
+theorem sfMem_tag (a b: nat):
+  $ sfTag (sfMem a b) = 1 $;
+
+theorem sfMem_left (a b: nat):
+  $ sfLeft (sfMem a b) = a $;
+
+theorem sfMem_right (a b: nat):
+  $ sfRight (sfMem a b) = b $;
+
+theorem sfEq_tag (a b: nat):
+  $ sfTag (sfEq a b) = 2 $;
+
+theorem sfEq_left (a b: nat):
+  $ sfLeft (sfEq a b) = a $;
+
+theorem sfEq_right (a b: nat):
+  $ sfRight (sfEq a b) = b $;
+
+theorem sfAnd_tag (a b: nat):
+  $ sfTag (sfAnd a b) = 3 $;
+
+theorem sfAnd_left (a b: nat):
+  $ sfLeft (sfAnd a b) = a $;
+
+theorem sfAnd_right (a b: nat):
+  $ sfRight (sfAnd a b) = b $;
+
+theorem sfOr_tag (a b: nat):
+  $ sfTag (sfOr a b) = 4 $;
+
+theorem sfOr_left (a b: nat):
+  $ sfLeft (sfOr a b) = a $;
+
+theorem sfOr_right (a b: nat):
+  $ sfRight (sfOr a b) = b $;
+
+theorem sfImp_tag (a b: nat):
+  $ sfTag (sfImp a b) = 5 $;
+
+theorem sfImp_left (a b: nat):
+  $ sfLeft (sfImp a b) = a $;
+
+theorem sfImp_right (a b: nat):
+  $ sfRight (sfImp a b) = b $;
+
+theorem sfAll_tag (a: nat):
+  $ sfTag (sfAll a) = 6 $;
+
+theorem sfAll_left (a: nat):
+  $ sfLeft (sfAll a) = a $;
+
+theorem sfAll_right (a: nat):
+  $ sfRight (sfAll a) = 0 $;
+
+theorem sfEx_tag (a: nat):
+  $ sfTag (sfEx a) = 7 $;
+
+theorem sfEx_left (a: nat):
+  $ sfLeft (sfEx a) = a $;
+
+theorem sfEx_right (a: nat):
+  $ sfRight (sfEx a) = 0 $;
+
+theorem sfMem_positive (a b: nat):
+  $ 0 < sfMem a b $;
+
+theorem sfMem_ne_sfBot (a b: nat):
+  $ sfMem a b != sfBot $;
+
+theorem sfMem_injective (a b c d: nat):
+  $ sfMem a b = sfMem c d <-> a = c /\ b = d $;
+
+theorem sfMem_left_lt (a b: nat):
+  $ a < sfMem a b $;
+
+theorem sfMem_right_lt (a b: nat):
+  $ b < sfMem a b $;
+
+theorem sfEq_positive (a b: nat):
+  $ 0 < sfEq a b $;
+
+theorem sfEq_ne_sfBot (a b: nat):
+  $ sfEq a b != sfBot $;
+
+theorem sfEq_injective (a b c d: nat):
+  $ sfEq a b = sfEq c d <-> a = c /\ b = d $;
+
+theorem sfEq_left_lt (a b: nat):
+  $ a < sfEq a b $;
+
+theorem sfEq_right_lt (a b: nat):
+  $ b < sfEq a b $;
+
+theorem sfAnd_positive (a b: nat):
+  $ 0 < sfAnd a b $;
+
+theorem sfAnd_ne_sfBot (a b: nat):
+  $ sfAnd a b != sfBot $;
+
+theorem sfAnd_injective (a b c d: nat):
+  $ sfAnd a b = sfAnd c d <-> a = c /\ b = d $;
+
+theorem sfAnd_left_lt (a b: nat):
+  $ a < sfAnd a b $;
+
+theorem sfAnd_right_lt (a b: nat):
+  $ b < sfAnd a b $;
+
+theorem sfOr_positive (a b: nat):
+  $ 0 < sfOr a b $;
+
+theorem sfOr_ne_sfBot (a b: nat):
+  $ sfOr a b != sfBot $;
+
+theorem sfOr_injective (a b c d: nat):
+  $ sfOr a b = sfOr c d <-> a = c /\ b = d $;
+
+theorem sfOr_left_lt (a b: nat):
+  $ a < sfOr a b $;
+
+theorem sfOr_right_lt (a b: nat):
+  $ b < sfOr a b $;
+
+theorem sfImp_positive (a b: nat):
+  $ 0 < sfImp a b $;
+
+theorem sfImp_ne_sfBot (a b: nat):
+  $ sfImp a b != sfBot $;
+
+theorem sfImp_injective (a b c d: nat):
+  $ sfImp a b = sfImp c d <-> a = c /\ b = d $;
+
+theorem sfImp_left_lt (a b: nat):
+  $ a < sfImp a b $;
+
+theorem sfImp_right_lt (a b: nat):
+  $ b < sfImp a b $;
+
+theorem sfAll_positive (a: nat):
+  $ 0 < sfAll a $;
+
+theorem sfAll_ne_sfBot (a: nat):
+  $ sfAll a != sfBot $;
+
+theorem sfAll_injective (a b: nat):
+  $ sfAll a = sfAll b <-> a = b $;
+
+theorem sfAll_body_lt (a: nat):
+  $ a < sfAll a $;
+
+theorem sfEx_positive (a: nat):
+  $ 0 < sfEx a $;
+
+theorem sfEx_ne_sfBot (a: nat):
+  $ sfEx a != sfBot $;
+
+theorem sfEx_injective (a b: nat):
+  $ sfEx a = sfEx b <-> a = b $;
+
+theorem sfEx_body_lt (a: nat):
+  $ a < sfEx a $;
+
+theorem sfMem_ne_sfEq (a b c d: nat):
+  $ sfMem a b != sfEq c d $;
+
+theorem sfMem_ne_sfAnd (a b c d: nat):
+  $ sfMem a b != sfAnd c d $;
+
+theorem sfMem_ne_sfOr (a b c d: nat):
+  $ sfMem a b != sfOr c d $;
+
+theorem sfMem_ne_sfImp (a b c d: nat):
+  $ sfMem a b != sfImp c d $;
+
+theorem sfMem_ne_sfAll (a b c: nat):
+  $ sfMem a b != sfAll c $;
+
+theorem sfMem_ne_sfEx (a b c: nat):
+  $ sfMem a b != sfEx c $;
+
+theorem sfEq_ne_sfAnd (a b c d: nat):
+  $ sfEq a b != sfAnd c d $;
+
+theorem sfEq_ne_sfOr (a b c d: nat):
+  $ sfEq a b != sfOr c d $;
+
+theorem sfEq_ne_sfImp (a b c d: nat):
+  $ sfEq a b != sfImp c d $;
+
+theorem sfEq_ne_sfAll (a b c: nat):
+  $ sfEq a b != sfAll c $;
+
+theorem sfEq_ne_sfEx (a b c: nat):
+  $ sfEq a b != sfEx c $;
+
+theorem sfAnd_ne_sfOr (a b c d: nat):
+  $ sfAnd a b != sfOr c d $;
+
+theorem sfAnd_ne_sfImp (a b c d: nat):
+  $ sfAnd a b != sfImp c d $;
+
+theorem sfAnd_ne_sfAll (a b c: nat):
+  $ sfAnd a b != sfAll c $;
+
+theorem sfAnd_ne_sfEx (a b c: nat):
+  $ sfAnd a b != sfEx c $;
+
+theorem sfOr_ne_sfImp (a b c d: nat):
+  $ sfOr a b != sfImp c d $;
+
+theorem sfOr_ne_sfAll (a b c: nat):
+  $ sfOr a b != sfAll c $;
+
+theorem sfOr_ne_sfEx (a b c: nat):
+  $ sfOr a b != sfEx c $;
+
+theorem sfImp_ne_sfAll (a b c: nat):
+  $ sfImp a b != sfAll c $;
+
+theorem sfImp_ne_sfEx (a b c: nat):
+  $ sfImp a b != sfEx c $;
+
+theorem sfAll_ne_sfEx (a c: nat):
+  $ sfAll a != sfEx c $;
+
+theorem sfTag_bound (a: nat):
+  $ sfTag a < 8 $;
+
+theorem sf_reconstruct (a: nat):
+  $ sfNode (sfTag a) (sfLeft a) (sfRight a) = a $;
+
+theorem sfQuot_lt (a: nat):
+  $ 0 < a -> a // 8 < a $;
+
+theorem sfLeft_lt (a: nat):
+  $ 0 < a -> sfLeft a < a $;
+
+theorem sfRight_lt (a: nat):
+  $ 0 < a -> sfRight a < a $;
+
+theorem sfBot_tag:
+  $ sfTag sfBot = 0 $;
+
+theorem sfBot_left:
+  $ sfLeft sfBot = 0 $;
+
+theorem sfBot_right:
+  $ sfRight sfBot = 0 $;
+
+theorem sfMem_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfMem a c = sfMem b d $;
+
+theorem sfMem_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfMem a c = sfMem b c $;
+
+theorem sfMem_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfMem a b = sfMem a c $;
+
+theorem sfMem_eq_left (a b c: nat):
+  $ a = b -> sfMem a c = sfMem b c $;
+
+theorem sfMem_eq_right (a b c: nat):
+  $ b = c -> sfMem a b = sfMem a c $;
+
+theorem sfEq_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfEq a c = sfEq b d $;
+
+theorem sfEq_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfEq a c = sfEq b c $;
+
+theorem sfEq_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfEq a b = sfEq a c $;
+
+theorem sfEq_eq_left (a b c: nat):
+  $ a = b -> sfEq a c = sfEq b c $;
+
+theorem sfEq_eq_right (a b c: nat):
+  $ b = c -> sfEq a b = sfEq a c $;
+
+theorem sfAnd_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfAnd a c = sfAnd b d $;
+
+theorem sfAnd_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfAnd a c = sfAnd b c $;
+
+theorem sfAnd_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfAnd a b = sfAnd a c $;
+
+theorem sfAnd_eq_left (a b c: nat):
+  $ a = b -> sfAnd a c = sfAnd b c $;
+
+theorem sfAnd_eq_right (a b c: nat):
+  $ b = c -> sfAnd a b = sfAnd a c $;
+
+theorem sfOr_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfOr a c = sfOr b d $;
+
+theorem sfOr_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfOr a c = sfOr b c $;
+
+theorem sfOr_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfOr a b = sfOr a c $;
+
+theorem sfOr_eq_left (a b c: nat):
+  $ a = b -> sfOr a c = sfOr b c $;
+
+theorem sfOr_eq_right (a b c: nat):
+  $ b = c -> sfOr a b = sfOr a c $;
+
+theorem sfImp_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfImp a c = sfImp b d $;
+
+theorem sfImp_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfImp a c = sfImp b c $;
+
+theorem sfImp_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfImp a b = sfImp a c $;
+
+theorem sfImp_eq_left (a b c: nat):
+  $ a = b -> sfImp a c = sfImp b c $;
+
+theorem sfImp_eq_right (a b c: nat):
+  $ b = c -> sfImp a b = sfImp a c $;
+
+theorem sfAll_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> sfAll a = sfAll b $;
+
+theorem sfAll_eq (a b: nat):
+  $ a = b -> sfAll a = sfAll b $;
+
+theorem sfEx_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> sfEx a = sfEx b $;
+
+theorem sfEx_eq (a b: nat):
+  $ a = b -> sfEx a = sfEx b $;
+
+
+
+
+

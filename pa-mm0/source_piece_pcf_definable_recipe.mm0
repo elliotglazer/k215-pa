@@ -1,0 +1,19 @@
+import "source_piece_pcf_definable_bot.mm0";
+
+import "source_piece_pcf_rep_environment.mm0";
+
+import "source_piece_pcf_bounds.mm0";
+
+def sfPieceDefinableEmptyContext: nat = $ sfPieceRepEmpty 0 : 0 $;
+
+theorem sfPieceDefinableRecipe_dn_intro (n a:nat): $ nsLocal sfPieceDefinableEmptyContext a -> nsLocal sfPieceDefinableEmptyContext (sfPieceDn n a) $;
+
+def sfPieceDefinableRecipeMap (.i:nat): set = $ \ i, 3 + i $;
+
+def sfPieceDefinableRecipeEnvironment (n:nat): nat = $ sfPieceEnv sfPieceDefinableRecipeMap n 0 $;
+
+def sfPieceDefinableRecipePoint (n phi:nat): nat = $ sfAll (sfImp (sfPieceDefinableRecipeEnvironment n) (sfIff (sfMem 0 1) (sfCLSetRel 2 (sfRename sfPieceDefinableRecipeMap 0 phi)))) $;
+
+def sfPieceDefinableRecipe (n phi:nat): nat = $ sfPieceDn n (sfPieceDefinableRecipePoint n phi) $;
+
+theorem sfPieceDefinableRecipe_bot (n:nat): $ nsLocal 0 (sfImp (sfPieceRepEmpty 0) (sfPieceDefinableRecipe n sfBot)) $;

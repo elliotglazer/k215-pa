@@ -1,0 +1,23 @@
+import "source_k_upper_ex_logic.mm0";
+
+import "source_l_common_level_members.mm0";
+
+import "source_piece_pcf_syntax.mm0";
+
+import "source_theory_local.mm0";
+
+def sfReflectionEwAt(domain matrix z:nat):nat = $ sfImp (sfEx (sfAnd domain matrix)) (sfEx (sfAnd (sfMem 0 (suc z)) matrix)) $;
+
+def sfReflectionEwMonoLaw(domain matrix z w:nat):nat = $ sfImp (sfCLSubset z w) (sfImp (sfReflectionEwAt domain matrix z) (sfReflectionEwAt domain matrix w)) $;
+
+theorem sfReflectionWitness_exists_mono(G matrix z w:nat)(hg:$ sfContextWf G $)(hm:$ sfWf matrix $)(hs:$ nsLocal G (sfCLSubset z w) $): $ nsLocal G (sfEx (sfAnd (sfMem 0 (suc z)) matrix)) -> nsLocal G (sfEx (sfAnd (sfMem 0 (suc w)) matrix)) $;
+
+theorem sfReflectionEw_mono_local(G domain matrix z w:nat)(hg:$ sfContextWf G $)(hd:$ sfWf domain $)(hm:$ sfWf matrix $)(hs:$ nsLocal G (sfCLSubset z w) $)(he:$ nsLocal G (sfReflectionEwAt domain matrix z) $): $ nsLocal G (sfReflectionEwAt domain matrix w) $;
+
+theorem sfReflectionEwMono_pure_meta(domain matrix z w:nat)(hd:$ sfWf domain $)(hm:$ sfWf matrix $): $ nsLocal 0 (sfReflectionEwMonoLaw domain matrix z w) $;
+
+theorem sfReflectionEwMono_zfr_meta(domain matrix z w:nat)(hd:$ sfWf domain $)(hm:$ sfWf matrix $): $ sfTheoryProvable zfrAxioms (sfReflectionEwMonoLaw domain matrix z w) $;
+
+theorem sfReflectionEwAt_zero(domain matrix:nat): $ sfReflectionEwAt domain matrix 0 = sfPieceEw domain matrix $;
+
+theorem sfReflectionEwMono_zfr(domain matrix z w:nat): $ (sfWf domain /\ sfWf matrix) -> sfTheoryProvable zfrAxioms (sfReflectionEwMonoLaw domain matrix z w) $;

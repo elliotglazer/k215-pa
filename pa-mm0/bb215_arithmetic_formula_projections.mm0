@@ -1,0 +1,55 @@
+import "bb215_arithmetic_formula_pair.mm0";
+
+import "bb215_arithmetic_formula_ex_qf_sat.mm0";
+
+def bb215ArithmeticFormulaFstGraph (p a .z: nat): wff = $ E. z bb215ArithmeticFormulaPairGraph a z p $;
+
+theorem bb215ArithmeticFormulaFstGraph_witness (p a: nat): $ fst p = a -> p = (a, snd p) $;
+
+theorem bb215ArithmeticFormulaFstGraph_exists (p a: nat) {z: nat}: $ fst p = a -> E. z p = (a, z) $;
+
+theorem bb215ArithmeticFormulaFstGraph_correct (p a: nat) {z: nat}: $ bb215ArithmeticFormulaFstGraph p a <-> fst p = a $;
+
+def bb215ArithmeticFormulaSndGraph (p a .z: nat): wff = $ E. z bb215ArithmeticFormulaPairGraph z a p $;
+
+theorem bb215ArithmeticFormulaSndGraph_witness (p a: nat): $ snd p = a -> p = (fst p, a) $;
+
+theorem bb215ArithmeticFormulaSndGraph_exists (p a: nat) {z: nat}: $ snd p = a -> E. z p = (z, a) $;
+
+theorem bb215ArithmeticFormulaSndGraph_correct (p a: nat) {z: nat}: $ bb215ArithmeticFormulaSndGraph p a <-> snd p = a $;
+
+def bb215ArithmeticFormulaFstBody: nat = $ paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 1)) (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable 2) (paTermVariable 0)) (paTermSuccessor (paTermAddition (paTermVariable 2) (paTermVariable 0)))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 0))) $;
+
+def bb215ArithmeticFormulaFstCode: nat = $ paFormulaEx bb215ArithmeticFormulaFstBody $;
+
+def bb215ArithmeticFormulaFstSource: nat = $ paSourceFormulaEx (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 1)) (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable 2) (paSourceTermVariable 0)) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable 2) (paSourceTermVariable 0)))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 0)))) $;
+
+theorem bb215ArithmeticFormulaFstCode_bound: $ paFormulaBound 2 bb215ArithmeticFormulaFstCode $;
+
+theorem bb215ArithmeticFormulaFstBody_instance (E: set) (x: nat): $ bb215ArithmeticFormulaQFSat (paNatTermConsEnvironment E x) bb215ArithmeticFormulaFstBody <-> bb215ArithmeticFormulaPairGraph ((paNatTermConsEnvironment E x) @ 2) ((paNatTermConsEnvironment E x) @ 0) ((paNatTermConsEnvironment E x) @ 1) $;
+
+theorem bb215ArithmeticFormulaFstBody_satisfies (E: set) (x: nat): $ bb215ArithmeticFormulaQFSat (paNatTermConsEnvironment E x) bb215ArithmeticFormulaFstBody <-> bb215ArithmeticFormulaPairGraph (E @ 1) x (E @ 0) $;
+
+theorem bb215ArithmeticFormulaFstCode_represents (E: set) {x: nat}: $ bb215ArithmeticFormulaExQFSat E bb215ArithmeticFormulaFstCode <-> fst (E @ 0) = E @ 1 $;
+
+theorem bb215ArithmeticFormulaFstSource_exact: $ paFormulaSource bb215ArithmeticFormulaFstCode = bb215ArithmeticFormulaFstSource $;
+
+theorem bb215ArithmeticFormulaFstSource_bound: $ sfBound 2 bb215ArithmeticFormulaFstSource $;
+
+def bb215ArithmeticFormulaSndBody: nat = $ paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 1)) (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable 0) (paTermVariable 2)) (paTermSuccessor (paTermAddition (paTermVariable 0) (paTermVariable 2)))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 2))) $;
+
+def bb215ArithmeticFormulaSndCode: nat = $ paFormulaEx bb215ArithmeticFormulaSndBody $;
+
+def bb215ArithmeticFormulaSndSource: nat = $ paSourceFormulaEx (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 1)) (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable 0) (paSourceTermVariable 2)) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable 0) (paSourceTermVariable 2)))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 2)))) $;
+
+theorem bb215ArithmeticFormulaSndCode_bound: $ paFormulaBound 2 bb215ArithmeticFormulaSndCode $;
+
+theorem bb215ArithmeticFormulaSndBody_instance (E: set) (x: nat): $ bb215ArithmeticFormulaQFSat (paNatTermConsEnvironment E x) bb215ArithmeticFormulaSndBody <-> bb215ArithmeticFormulaPairGraph ((paNatTermConsEnvironment E x) @ 0) ((paNatTermConsEnvironment E x) @ 2) ((paNatTermConsEnvironment E x) @ 1) $;
+
+theorem bb215ArithmeticFormulaSndBody_satisfies (E: set) (x: nat): $ bb215ArithmeticFormulaQFSat (paNatTermConsEnvironment E x) bb215ArithmeticFormulaSndBody <-> bb215ArithmeticFormulaPairGraph x (E @ 1) (E @ 0) $;
+
+theorem bb215ArithmeticFormulaSndCode_represents (E: set) {x: nat}: $ bb215ArithmeticFormulaExQFSat E bb215ArithmeticFormulaSndCode <-> snd (E @ 0) = E @ 1 $;
+
+theorem bb215ArithmeticFormulaSndSource_exact: $ paFormulaSource bb215ArithmeticFormulaSndCode = bb215ArithmeticFormulaSndSource $;
+
+theorem bb215ArithmeticFormulaSndSource_bound: $ sfBound 2 bb215ArithmeticFormulaSndSource $;

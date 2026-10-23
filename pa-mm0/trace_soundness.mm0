@@ -1,0 +1,23 @@
+import "proof_sequence.mm0";
+
+-- P is an arithmetic formula class, not a quantified second-order object.
+def traceClassAll (P: set) (p: nat) (.a: nat): wff =
+$ A. a (a IN p -> a e. P) $;
+
+def traceRuleSound (R P: set) (.a .l: nat): wff =
+$ A. a A. l (traceClassAll P l -> (a, l) e. R -> a e. P) $;
+
+theorem traceClassAll_nil (P: set): $ traceClassAll P 0 $;
+theorem traceClassAll_get (P: set) (p a: nat):
+  $ traceClassAll P p -> a IN p -> a e. P $;
+theorem traceClassAll_cons (P: set) (a l: nat):
+  $ a e. P -> traceClassAll P l -> traceClassAll P (a : l) $;
+
+theorem traceRuleSound_apply (R P: set) (a l: nat):
+  $ traceRuleSound R P -> traceClassAll P l -> (a, l) e. R -> a e. P $;
+
+theorem traceValid_classAll (R P: set) (p: nat):
+  $ traceRuleSound R P -> traceValid R p -> traceClassAll P p $;
+
+theorem traceDerives_class (R P: set) (p a: nat):
+  $ traceRuleSound R P -> traceDerives R p a -> a e. P $;

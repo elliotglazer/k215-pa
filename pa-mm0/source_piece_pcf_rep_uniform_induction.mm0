@@ -1,0 +1,58 @@
+import "source_piece_pcf_definable_bot_use_r2.mm0";
+import "source_structural_induction.mm0";
+
+-- Uniform representation theorem (Rocq OldZFC/Z_cl.v, rep_ex), induction skeleton.
+-- For a fixed context G, carrier A, successor B of A and closure C of B,
+-- W n phi := sfPieceDefinableWitness A C n phi says: some r in C represents phi on A^n.
+-- The theorem below proves W n phi for every formula code phi bounded by n, by PA induction
+-- over formula codes, from one step law per constructor. The bottom case is discharged by
+-- sfPieceDefinableBot_witness. The other seven laws are stated here and left as hypotheses.
+
+def sfPieceRepMemLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n (sfMem a b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfMem a b))) $;
+
+def sfPieceRepEqLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n (sfEq a b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfEq a b))) $;
+
+def sfPieceRepAndLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n a -> sfBound n b ->
+  nsLocal G (sfPieceDefinableWitness A C n a) ->
+  nsLocal G (sfPieceDefinableWitness A C n b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfAnd a b))) $;
+
+def sfPieceRepOrLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n a -> sfBound n b ->
+  nsLocal G (sfPieceDefinableWitness A C n a) ->
+  nsLocal G (sfPieceDefinableWitness A C n b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfOr a b))) $;
+
+def sfPieceRepImpLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n a -> sfBound n b ->
+  nsLocal G (sfPieceDefinableWitness A C n a) ->
+  nsLocal G (sfPieceDefinableWitness A C n b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfImp a b))) $;
+
+def sfPieceRepAllLaw (G A C: nat) (.n .a: nat): wff =
+$ A. n A. a (sfBound (suc n) a ->
+  nsLocal G (sfPieceDefinableWitness A C (suc n) a) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfAll a))) $;
+
+def sfPieceRepExLaw (G A C: nat) (.n .a: nat): wff =
+$ A. n A. a (sfBound (suc n) a ->
+  nsLocal G (sfPieceDefinableWitness A C (suc n) a) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfEx a))) $;
+
+def sfPieceRepUniformClass (G A C .c .n: nat): set =
+$ {c | A. n (sfBound n c -> nsLocal G (sfPieceDefinableWitness A C n c))} $;
+
+theorem sfPieceRepUniform (G A B C n phi: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hm: $ sfPieceRepMemLaw G A C $) (he: $ sfPieceRepEqLaw G A C $)
+  (ha: $ sfPieceRepAndLaw G A C $) (ho: $ sfPieceRepOrLaw G A C $)
+  (hi: $ sfPieceRepImpLaw G A C $) (hl: $ sfPieceRepAllLaw G A C $)
+  (hx: $ sfPieceRepExLaw G A C $):
+  $ sfBound n phi -> nsLocal G (sfPieceDefinableWitness A C n phi) $;

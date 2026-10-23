@@ -1,0 +1,31 @@
+import "source_piece_pcf_definable_witness.mm1";
+
+import "source_piece_pcf_opening.mm1";
+
+@_ abstract def sfPieceDefinableNamed(n phi r A:nat): nat = $ sfORBinary (sfPieceDefinableRecipe n phi) r A $;
+
+@_ abstract def sfPieceDefinableNamedWitness(A C n phi:nat): nat = $ sfEx (sfAnd (sfMem 0 (suc C)) (sfPieceDefinableNamed n phi 0 (suc A))) $;
+
+pub theorem sfPieceDefinableNamed_recipe_wf(n phi:nat)(hb:$ sfBound n phi $): $ sfWf (sfPieceDefinableRecipe n phi) $ = (named '(ax_mp sfBound_wf (ax_mp sfPieceDefinableRecipe_bound hb)));
+
+pub theorem sfPieceDefinableNamed_open(n phi r A:nat)(hb:$ sfBound n phi $): $ sfPieceDefinableNamed n phi r A = sfRename (sfPieceOpenMap r A) 0 (sfPieceDefinableRecipe n phi) $ = (named '(ax_mp (ax_mp sfRename_bounded_agreement sfPieceOpenMap_binary_agree) (mpbir (sfSchema_bound_index_eq add01) (ax_mp sfPieceDefinableRecipe_bound hb))));
+
+pub theorem sfPieceDefinableNamed_witness_eq(A C n phi:nat)(hb:$ sfBound n phi $): $ sfPieceDefinableWitness A C n phi = sfPieceDefinableNamedWitness A C n phi $ = (named '(sfExeq (sfAndeq eqid (eqcom (sfPieceDefinableNamed_open hb)))));
+
+pub theorem sfPieceDefinableNamed_rename(R:set)(k n phi r A:nat)(hb:$ sfBound n phi $): $ sfRename R k (sfPieceDefinableNamed n phi r A) = sfPieceDefinableNamed n phi (sfRenameIndex R k r) (sfRenameIndex R k A) $ = (named '(eqtr (sfORBinary_rename_depth (sfPieceDefinableNamed_recipe_wf hb)) (sfORBinary_congr (sfPieceDefinableNamed_recipe_wf hb) sfRenameDepthMap_value sfRenameDepthMap_value)));
+
+pub theorem sfPieceDefinableNamed_subst(k t n phi r A:nat)(hb:$ sfBound n phi $): $ sfSubst k t (sfPieceDefinableNamed n phi r A) = sfPieceDefinableNamed n phi (sfSubstIndex k t r) (sfSubstIndex k t A) $ = (named '(sfORBinary_subst (sfPieceDefinableNamed_recipe_wf hb)));
+
+pub theorem sfPieceDefinableNamed_congr(n phi r A s B:nat)(hb:$ sfBound n phi $)(hr:$ r = s $)(hA:$ A = B $): $ sfPieceDefinableNamed n phi r A = sfPieceDefinableNamed n phi s B $ = (named '(sfORBinary_congr (sfPieceDefinableNamed_recipe_wf hb) hr hA));
+
+pub theorem sfPieceDefinableNamedWitness_rename(R:set)(k A C n phi:nat)(hb:$ sfBound n phi $): $ sfRename R k (sfPieceDefinableNamedWitness A C n phi) = sfPieceDefinableNamedWitness (sfRenameIndex R k A) (sfRenameIndex R k C) n phi $ = (named '(eqtr sfRename_sfEx (sfExeq (eqtr sfRename_sfAnd (sfAndeq (eqtr sfRename_sfMem (sfMemeq (ax_mp sfRenameIndex_bound lt01S) sfRenameIndex_lift)) (eqtr (sfPieceDefinableNamed_rename hb) (sfPieceDefinableNamed_congr hb (ax_mp sfRenameIndex_bound lt01S) sfRenameIndex_lift)))))));
+
+pub theorem sfPieceDefinableNamedWitness_subst(k t A C n phi:nat)(hb:$ sfBound n phi $): $ sfSubst k t (sfPieceDefinableNamedWitness A C n phi) = sfPieceDefinableNamedWitness (sfSubstIndex k t A) (sfSubstIndex k t C) n phi $ = (named '(eqtr sfSubst_sfEx (sfExeq (eqtr sfSubst_sfAnd (sfAndeq (eqtr sfSubst_sfMem (sfMemeq (ax_mp sfSubstIndex_bound lt01S) sfSubstIndex_lift)) (eqtr (sfPieceDefinableNamed_subst hb) (sfPieceDefinableNamed_congr hb (ax_mp sfSubstIndex_bound lt01S) sfSubstIndex_lift)))))));
+
+pub theorem sfPieceDefinableWitness_rename(R:set)(k A C n phi:nat)(hb:$ sfBound n phi $): $ sfRename R k (sfPieceDefinableWitness A C n phi) = sfPieceDefinableWitness (sfRenameIndex R k A) (sfRenameIndex R k C) n phi $ = (named '(eqtr (trud (sfRename_congr_formula (a1i (sfPieceDefinableNamed_witness_eq hb)))) (eqtr (sfPieceDefinableNamedWitness_rename hb) (eqcom (sfPieceDefinableNamed_witness_eq hb)))));
+
+pub theorem sfPieceDefinableWitness_subst(k t A C n phi:nat)(hb:$ sfBound n phi $): $ sfSubst k t (sfPieceDefinableWitness A C n phi) = sfPieceDefinableWitness (sfSubstIndex k t A) (sfSubstIndex k t C) n phi $ = (named '(eqtr (trud (sfSubst_congr (a1i eqid) (a1i eqid) (a1i (sfPieceDefinableNamed_witness_eq hb)))) (eqtr (sfPieceDefinableNamedWitness_subst hb) (eqcom (sfPieceDefinableNamed_witness_eq hb)))));
+
+pub theorem sfPieceDefinableWitness_instance(A C n phi r:nat)(hb:$ sfBound n phi $): $ sfSubst 0 r (sfPieceDefinableWitnessBody A C n phi) = sfAnd (sfMem r C) (sfPieceDefinableNamed n phi r A) $ = (named '(eqtr (trud (sfSubst_congr (a1i eqid) (a1i eqid) (a1i (sfAndeq eqid (eqcom (sfPieceDefinableNamed_open hb)))))) (eqtr sfSubst_sfAnd (sfAndeq (eqtr sfSubst_sfMem (sfMemeq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr (sfPieceDefinableNamed_subst hb) (sfPieceDefinableNamed_congr hb sfSubstIndex_zero sfSubstIndex_successor))))));
+
+pub theorem sfPieceDefinableWitness_intro(G A C n phi r:nat)(hb:$ sfBound n phi $)(hm:$ nsLocal G (sfMem r C) $)(hr:$ nsLocal G (sfPieceDefinableNamed n phi r A) $): $ nsLocal G (sfPieceDefinableWitness A C n phi) $ = (named '(ax_mp (ax_mp nsLocal_ExI sfPieceDefinableWitnessBody_wf) (sfRQ_rewrite (eqcom (sfPieceDefinableWitness_instance hb)) (ax_mp (ax_mp sfLocal_and hm) hr))));

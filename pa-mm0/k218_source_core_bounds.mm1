@@ -1,0 +1,221 @@
+import "k218_source_core.mm1";
+import "zfc_schemas.mm1";
+
+
+theorem sfK218If_upper (P: wff) (a b c: nat)
+ (ha: $ a <= c $) (hb: $ b <= c $): $ if P a b <= c $ =
+'(cases (mpbird (leeq1d ifpos) (a1i ha))
+        (mpbird (leeq1d ifneg) (a1i hb)));
+
+theorem sfK218Rename_zero_bound (R: set) (b c phi: nat)
+ (hm: $ A. i (i < b -> R @ i < c) $) (hf: $ sfBound b phi $):
+ $ sfBound c (sfRename R 0 phi) $ =
+'(mpbi (sfBoundeq1 add01)
+  (ax_mp (ax_mp sfRename_bound hm) (mpbir (sfBoundeq1 add01) hf)));
+
+pub theorem sfK218RequestMap_upper (i: nat): $ sfK218RequestMap @ i <= i + 1 $ =
+'(mpbir (leeq1 sfK218RequestMap_value) (sfK218If_upper le01 (mpbir (leeq2 add12) leid)));
+
+pub theorem sfK218RequestMap_bound (n i: nat): $ i < (suc (suc n)) -> sfK218RequestMap @ i < (suc (suc (suc n))) $ =
+'(syl (bi1 (lteq2 (eqtr addS (suceq add0)))) (syl (lelttr sfK218RequestMap_upper) (bi1 ltadd1)));
+
+theorem sfK218RequestMap_range (n: nat): $ A. i (i < (suc (suc n)) -> sfK218RequestMap @ i < (suc (suc (suc n)))) $ =
+(named '(ax_gen {sfK218RequestMap_bound : $ i < (suc (suc n)) -> sfK218RequestMap @ i < (suc (suc (suc n))) $}));
+
+pub theorem sfK218SupportMap_upper (i: nat): $ sfK218SupportMap @ i <= i + 2 $ =
+'(mpbir (leeq1 sfK218SupportMap_value) (sfK218If_upper (letr (ltle (mpbi ltsuc lt01S)) leaddid2) (sfK218If_upper le01 leid)));
+
+pub theorem sfK218SupportMap_bound (n i: nat): $ i < (suc (suc n)) -> sfK218SupportMap @ i < (suc (suc (suc (suc n)))) $ =
+'(syl (bi1 (lteq2 (eqtr addS (suceq (eqtr addS (suceq add0)))))) (syl (lelttr sfK218SupportMap_upper) (bi1 ltadd1)));
+
+theorem sfK218SupportMap_range (n: nat): $ A. i (i < (suc (suc n)) -> sfK218SupportMap @ i < (suc (suc (suc (suc n))))) $ =
+(named '(ax_gen {sfK218SupportMap_bound : $ i < (suc (suc n)) -> sfK218SupportMap @ i < (suc (suc (suc (suc n)))) $}));
+
+pub theorem sfK218ClosureInputMap_upper (i: nat): $ sfK218ClosureInputMap @ i <= i + 4 $ =
+'(mpbir (leeq1 sfK218ClosureInputMap_value) (sfK218If_upper leaddid1 leid));
+
+pub theorem sfK218ClosureInputMap_bound (n i: nat): $ i < (suc (suc n)) -> sfK218ClosureInputMap @ i < (suc (suc (suc (suc (suc (suc n)))))) $ =
+'(syl (bi1 (lteq2 (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0)))))))))) (syl (lelttr sfK218ClosureInputMap_upper) (bi1 ltadd1)));
+
+theorem sfK218ClosureInputMap_range (n: nat): $ A. i (i < (suc (suc n)) -> sfK218ClosureInputMap @ i < (suc (suc (suc (suc (suc (suc n))))))) $ =
+(named '(ax_gen {sfK218ClosureInputMap_bound : $ i < (suc (suc n)) -> sfK218ClosureInputMap @ i < (suc (suc (suc (suc (suc (suc n)))))) $}));
+
+pub theorem sfK218ClosureOutputMap_upper (i: nat): $ sfK218ClosureOutputMap @ i <= i + 5 $ =
+'(mpbir (leeq1 sfK218ClosureOutputMap_value) (sfK218If_upper le01 (sfK218If_upper (letr (ltle (mpbi ltsuc (mpbi ltsuc lt01S))) leaddid2) leid)));
+
+pub theorem sfK218ClosureOutputMap_bound (n i: nat): $ i < (suc (suc n)) -> sfK218ClosureOutputMap @ i < (suc (suc (suc (suc (suc (suc (suc n))))))) $ =
+'(syl (bi1 (lteq2 (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0)))))))))))) (syl (lelttr sfK218ClosureOutputMap_upper) (bi1 ltadd1)));
+
+theorem sfK218ClosureOutputMap_range (n: nat): $ A. i (i < (suc (suc n)) -> sfK218ClosureOutputMap @ i < (suc (suc (suc (suc (suc (suc (suc n)))))))) $ =
+(named '(ax_gen {sfK218ClosureOutputMap_bound : $ i < (suc (suc n)) -> sfK218ClosureOutputMap @ i < (suc (suc (suc (suc (suc (suc (suc n))))))) $}));
+
+pub theorem sfK218KpRequestMap_upper (i: nat): $ sfK218KpRequestMap @ i <= i + 2 $ =
+'(mpbir (leeq1 sfK218KpRequestMap_value) (sfK218If_upper leaddid1 leid));
+
+pub theorem sfK218KpRequestMap_bound (n i: nat): $ i < (suc (suc n)) -> sfK218KpRequestMap @ i < (suc (suc (suc (suc n)))) $ =
+'(syl (bi1 (lteq2 (eqtr addS (suceq (eqtr addS (suceq add0)))))) (syl (lelttr sfK218KpRequestMap_upper) (bi1 ltadd1)));
+
+theorem sfK218KpRequestMap_range (n: nat): $ A. i (i < (suc (suc n)) -> sfK218KpRequestMap @ i < (suc (suc (suc (suc n))))) $ =
+(named '(ax_gen {sfK218KpRequestMap_bound : $ i < (suc (suc n)) -> sfK218KpRequestMap @ i < (suc (suc (suc (suc n)))) $}));
+
+theorem sfK218SB0 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfMem 0 1) $ =
+(named '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))));
+
+theorem sfK218SB1 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc n)))) (sfRename sfK218SupportMap 0 phi) $ =
+(named '(sfK218Rename_zero_bound {sfK218SupportMap_range : $ A. i (i < (suc (suc n)) -> sfK218SupportMap @ i < (suc (suc (suc (suc n))))) $} hf));
+
+theorem sfK218SB2 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc (suc n)))))) (sfMem 0 1) $ =
+(named '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))));
+
+theorem sfK218SB3 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc (suc n)))))) (sfMem 0 3) $ =
+(named '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))));
+
+theorem sfK218SB4 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc (suc n)))))) (sfImp (sfMem 0 1) (sfMem 0 3)) $ =
+(named '(mpbir sfBound_sfImp (ian (sfK218SB2 hf) (sfK218SB3 hf))));
+
+theorem sfK218SB5 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc n))))) (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) $ =
+(named '(mpbir sfBound_sfAll (sfK218SB4 hf)));
+
+theorem sfK218SB6 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc (suc n)))))) (sfRename sfK218ClosureInputMap 0 phi) $ =
+(named '(sfK218Rename_zero_bound {sfK218ClosureInputMap_range : $ A. i (i < (suc (suc n)) -> sfK218ClosureInputMap @ i < (suc (suc (suc (suc (suc (suc n))))))) $} hf));
+
+theorem sfK218SB7 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc (suc (suc n))))))) (sfRename sfK218ClosureOutputMap 0 phi) $ =
+(named '(sfK218Rename_zero_bound {sfK218ClosureOutputMap_range : $ A. i (i < (suc (suc n)) -> sfK218ClosureOutputMap @ i < (suc (suc (suc (suc (suc (suc (suc n)))))))) $} hf));
+
+theorem sfK218SB8 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc (suc (suc n))))))) (sfMem 0 5) $ =
+(named '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))));
+
+theorem sfK218SB9 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc (suc (suc n))))))) (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5)) $ =
+(named '(mpbir sfBound_sfAnd (ian (sfK218SB7 hf) (sfK218SB8 hf))));
+
+theorem sfK218SB10 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc (suc n)))))) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5))) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB9 hf)));
+
+theorem sfK218SB11 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc (suc n)))))) (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5)))) $ =
+(named '(mpbir sfBound_sfImp (ian (sfK218SB6 hf) (sfK218SB10 hf))));
+
+theorem sfK218SB12 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc n))))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5))))) $ =
+(named '(mpbir sfBound_sfAll (sfK218SB11 hf)));
+
+theorem sfK218SB13 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc n))))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5)))))) $ =
+(named '(mpbir sfBound_sfImp (ian (sfK218SB5 hf) (sfK218SB12 hf))));
+
+theorem sfK218SB14 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc n)))) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5))))))) $ =
+(named '(mpbir sfBound_sfAll (sfK218SB13 hf)));
+
+theorem sfK218SB15 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc n)))) (sfAnd (sfRename sfK218SupportMap 0 phi) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5)))))))) $ =
+(named '(mpbir sfBound_sfAnd (ian (sfK218SB1 hf) (sfK218SB14 hf))));
+
+theorem sfK218SB16 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfEx (sfAnd (sfRename sfK218SupportMap 0 phi) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5))))))))) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB15 hf)));
+
+theorem sfK218SB17 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfImp (sfMem 0 1) (sfEx (sfAnd (sfRename sfK218SupportMap 0 phi) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5)))))))))) $ =
+(named '(mpbir sfBound_sfImp (ian (sfK218SB0 hf) (sfK218SB16 hf))));
+
+theorem sfK218SB18 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc n)) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfRename sfK218SupportMap 0 phi) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5))))))))))) $ =
+(named '(mpbir sfBound_sfAll (sfK218SB17 hf)));
+
+pub theorem sfK218EmittedClosure_bound (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc n)) (sfK218EmittedClosure phi) $ =
+'(sfK218SB18 hf);
+
+theorem sfK218SB19 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfRename sfK218RequestMap 0 phi) $ =
+(named '(sfK218Rename_zero_bound {sfK218RequestMap_range : $ A. i (i < (suc (suc n)) -> sfK218RequestMap @ i < (suc (suc (suc n)))) $} hf));
+
+theorem sfK218SB20 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc n)) (sfEx (sfRename sfK218RequestMap 0 phi)) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB19 hf)));
+
+theorem sfK218SB21 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfAnd (sfMem 0 1) (sfRename sfK218RequestMap 0 phi)) $ =
+(named '(mpbir sfBound_sfAnd (ian (sfK218SB0 hf) (sfK218SB19 hf))));
+
+theorem sfK218SB22 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc n)) (sfEx (sfAnd (sfMem 0 1) (sfRename sfK218RequestMap 0 phi))) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB21 hf)));
+
+theorem sfK218SB23 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc n)) (sfImp (sfEx (sfRename sfK218RequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 1) (sfRename sfK218RequestMap 0 phi)))) $ =
+(named '(mpbir sfBound_sfImp (ian (sfK218SB20 hf) (sfK218SB22 hf))));
+
+theorem sfK218SB24 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc n)) (sfAnd (sfImp (sfEx (sfRename sfK218RequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 1) (sfRename sfK218RequestMap 0 phi)))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfRename sfK218SupportMap 0 phi) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5)))))))))))) $ =
+(named '(mpbir sfBound_sfAnd (ian (sfK218SB23 hf) (sfK218SB18 hf))));
+
+theorem sfK218SB25 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc n) (sfEx (sfAnd (sfImp (sfEx (sfRename sfK218RequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 1) (sfRename sfK218RequestMap 0 phi)))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfRename sfK218SupportMap 0 phi) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5))))))))))))) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB24 hf)));
+
+theorem sfK218SB26 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound n (sfAll (sfEx (sfAnd (sfImp (sfEx (sfRename sfK218RequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 1) (sfRename sfK218RequestMap 0 phi)))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfRename sfK218SupportMap 0 phi) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5)))))))))))))) $ =
+(named '(mpbir sfBound_sfAll (sfK218SB25 hf)));
+
+pub theorem sfK218SeededCore_bound (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound n (sfK218SeededCore phi) $ =
+'(sfK218SB26 hf);
+
+theorem sfK218SB27 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfEq 0 2) $ =
+(named '(mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+theorem sfK218SB28 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc n)))) (sfMem 0 2) $ =
+(named '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+theorem sfK218SB29 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc n))))) (sfMem 0 2) $ =
+(named '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+theorem sfK218SB30 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc n))))) (sfMem 0 1) $ =
+(named '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))));
+
+theorem sfK218SB31 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc (suc n))))) (sfImp (sfMem 0 2) (sfMem 0 1)) $ =
+(named '(mpbir sfBound_sfImp (ian (sfK218SB29 hf) (sfK218SB30 hf))));
+
+theorem sfK218SB32 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc n)))) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1))) $ =
+(named '(mpbir sfBound_sfAll (sfK218SB31 hf)));
+
+theorem sfK218SB33 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc n)))) (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))) $ =
+(named '(mpbir sfBound_sfAnd (ian (sfK218SB28 hf) (sfK218SB32 hf))));
+
+theorem sfK218SB34 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfEx (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1))))) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB33 hf)));
+
+theorem sfK218SB35 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfOr (sfEq 0 2) (sfEx (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))))) $ =
+(named '(mpbir sfBound_sfOr (ian (sfK218SB27 hf) (sfK218SB34 hf))));
+
+theorem sfK218SB36 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc n)))) (sfRename sfK218KpRequestMap 0 phi) $ =
+(named '(sfK218Rename_zero_bound {sfK218KpRequestMap_range : $ A. i (i < (suc (suc n)) -> sfK218KpRequestMap @ i < (suc (suc (suc (suc n))))) $} hf));
+
+theorem sfK218SB37 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfEx (sfRename sfK218KpRequestMap 0 phi)) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB36 hf)));
+
+theorem sfK218SB38 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc (suc n)))) (sfAnd (sfMem 0 2) (sfRename sfK218KpRequestMap 0 phi)) $ =
+(named '(mpbir sfBound_sfAnd (ian (sfK218SB28 hf) (sfK218SB36 hf))));
+
+theorem sfK218SB39 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfEx (sfAnd (sfMem 0 2) (sfRename sfK218KpRequestMap 0 phi))) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB38 hf)));
+
+theorem sfK218SB40 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfImp (sfEx (sfRename sfK218KpRequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 2) (sfRename sfK218KpRequestMap 0 phi)))) $ =
+(named '(mpbir sfBound_sfImp (ian (sfK218SB37 hf) (sfK218SB39 hf))));
+
+theorem sfK218SB41 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfImp (sfOr (sfEq 0 2) (sfEx (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))))) (sfImp (sfEx (sfRename sfK218KpRequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 2) (sfRename sfK218KpRequestMap 0 phi))))) $ =
+(named '(mpbir sfBound_sfImp (ian (sfK218SB35 hf) (sfK218SB40 hf))));
+
+theorem sfK218SB42 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc n)) (sfAll (sfImp (sfOr (sfEq 0 2) (sfEx (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))))) (sfImp (sfEx (sfRename sfK218KpRequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 2) (sfRename sfK218KpRequestMap 0 phi)))))) $ =
+(named '(mpbir sfBound_sfAll (sfK218SB41 hf)));
+
+theorem sfK218SB43 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfEx (sfRename sfK218SupportMap 0 phi)) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB1 hf)));
+
+theorem sfK218SB44 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc (suc n))) (sfImp (sfMem 0 1) (sfEx (sfRename sfK218SupportMap 0 phi))) $ =
+(named '(mpbir sfBound_sfImp (ian (sfK218SB0 hf) (sfK218SB43 hf))));
+
+theorem sfK218SB45 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc n)) (sfAll (sfImp (sfMem 0 1) (sfEx (sfRename sfK218SupportMap 0 phi)))) $ =
+(named '(mpbir sfBound_sfAll (sfK218SB44 hf)));
+
+theorem sfK218SB46 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc (suc n)) (sfAnd (sfAll (sfImp (sfOr (sfEq 0 2) (sfEx (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))))) (sfImp (sfEx (sfRename sfK218KpRequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 2) (sfRename sfK218KpRequestMap 0 phi)))))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfRename sfK218SupportMap 0 phi))))) $ =
+(named '(mpbir sfBound_sfAnd (ian (sfK218SB42 hf) (sfK218SB45 hf))));
+
+theorem sfK218SB47 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound (suc n) (sfEx (sfAnd (sfAll (sfImp (sfOr (sfEq 0 2) (sfEx (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))))) (sfImp (sfEx (sfRename sfK218KpRequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 2) (sfRename sfK218KpRequestMap 0 phi)))))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfRename sfK218SupportMap 0 phi)))))) $ =
+(named '(mpbir sfBound_sfEx (sfK218SB46 hf)));
+
+theorem sfK218SB48 (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound n (sfAll (sfEx (sfAnd (sfAll (sfImp (sfOr (sfEq 0 2) (sfEx (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))))) (sfImp (sfEx (sfRename sfK218KpRequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 2) (sfRename sfK218KpRequestMap 0 phi)))))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfRename sfK218SupportMap 0 phi))))))) $ =
+(named '(mpbir sfBound_sfAll (sfK218SB47 hf)));
+
+pub theorem sfK218Kp0_bound (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound n (sfK218Kp0 phi) $ =
+'(sfK218SB48 hf);
+
+pub theorem sfK218SeededCore_closed (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound 0 (sfAllPrefix n (sfK218SeededCore phi)) $ =
+'(mpbir sfBound_allPrefix_closed (sfK218SeededCore_bound hf));
+
+pub theorem sfK218Kp0_closed (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $): $ sfBound 0 (sfAllPrefix n (sfK218Kp0 phi)) $ =
+'(mpbir sfBound_allPrefix_closed (sfK218Kp0_bound hf));

@@ -1,0 +1,57 @@
+import "source_k0_qsep_carrier.mm1";
+
+@_ abstract def qscSafeEnvironment (P: wff) (E: set) (.i: nat): set = $ {i | ifp P (i e. E) (i e. sqZeroEnvironment)} $;
+
+@_ abstract def qscResult (E: set) (k phi: nat): nat = $ kImp kEmptyMarker (sqQuote E 1 k 0 (sfSeparation (sfRename sfSepMap 0 phi))) $;
+
+theorem qscEnvironment_positive (P: wff) (E: set):
+ $ P -> qscSafeEnvironment P E == E $ =
+(named '(!! eqab1d i ifppos));
+
+theorem qscEnvironment_negative (P: wff) (E: set):
+ $ ~P -> qscSafeEnvironment P E == sqZeroEnvironment $ =
+(named '(!! eqab1d i ifpneg));
+
+theorem qscSafe_base (P: wff) (k: nat) (hp: $ P -> 2 < k $):
+ $ 2 < if P k 3 $ =
+'(cases (mpbird (lteq2d ifpos) hp) (mpbird (lteq2d ifneg) (a1i ltsucid)));
+
+theorem qscSafe_bound (P: wff) (n phi: nat) (hp: $ P -> sfBound n phi $):
+ $ sfBound n (if P phi sfBot) $ =
+'(cases (mpbird (srecpeq2d (preq2d ifpos)) hp) (mpbird (srecpeq2d (preq2d ifneg)) (a1i sfBound_bot)));
+
+theorem qscZeroEnvironment_below (n: nat):
+ $ sqEnvBelow sqZeroEnvironment n 3 $ =
+(named '(ax_gen (a1i (mpbir (lteq1 sqZeroEnvironment_value) lt01S))));
+
+theorem qscEnvironment_below_positive (P: wff) (E: set) (n k: nat):
+ $ P -> (sqEnvBelow (qscSafeEnvironment P E) n (if P k 3) <-> sqEnvBelow E n k) $ =
+(named '(!! aleqd i @ imeq2d (lteqd (appeq1d qscEnvironment_positive) ifpos)));
+
+theorem qscEnvironment_below_negative (P: wff) (E: set) (n k: nat):
+ $ ~P -> (sqEnvBelow (qscSafeEnvironment P E) n (if P k 3) <-> sqEnvBelow sqZeroEnvironment n 3) $ =
+(named '(!! aleqd i @ imeq2d (lteqd (appeq1d qscEnvironment_negative) ifneg)));
+
+theorem qscSafe_environment (P: wff) (E: set) (n k: nat) (hp: $ P -> sqEnvBelow E n k $):
+ $ sqEnvBelow (qscSafeEnvironment P E) n (if P k 3) $ =
+'(cases (mpbird qscEnvironment_below_positive hp) (mpbird qscEnvironment_below_negative (a1i qscZeroEnvironment_below)));
+
+theorem qscResult_recover (P: wff) (E: set) (k phi: nat):
+ $ P -> qscResult (qscSafeEnvironment P E) (if P k 3) (if P phi sfBot) = qscResult E k phi $ =
+'(qscResulteqd qscEnvironment_positive ifpos ifpos);
+
+theorem qscSafe_image (P: wff) (E: set) (n k phi: nat)
+ (hf: $ P -> sfBound (suc n) phi $) (hk: $ P -> 2 < k $)
+ (he: $ P -> sqEnvBelow E n k $):
+ $ k218QProvable (qscResult (qscSafeEnvironment P E) (if P k 3) (if P phi sfBot)) $ =
+'(sfK0QSepCarrier_image (qscSafe_bound hf) (qscSafe_base hk) (qscSafe_environment he));
+
+pub theorem sfK0QSepCarrier_image_d (G: wff) (E: set) (n k phi: nat)
+ (hf: $ G -> sfBound (suc n) phi $) (hk: $ G -> 2 < k $)
+ (he: $ G -> sqEnvBelow E n k $):
+ $ G -> k218QProvable (kImp kEmptyMarker (sqQuote E 1 k 0 (sfSeparation (sfRename sfSepMap 0 phi)))) $ =
+'(mpbid (k218QProvableeqd qscResult_recover) (a1i (qscSafe_image hf hk he)));
+
+pub theorem sfK0QSepCarrier_image_curried (E: set) (n k phi: nat):
+ $ sfBound (suc n) phi -> 2 < k -> sqEnvBelow E n k -> k218QProvable (kImp kEmptyMarker (sqQuote E 1 k 0 (sfSeparation (sfRename sfSepMap 0 phi)))) $ =
+'(exp (exp (sfK0QSepCarrier_image_d anll (syl anr anl) anr)));

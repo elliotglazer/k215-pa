@@ -1,0 +1,35 @@
+import "pa_source_interpretation_nat_qf_induction.mm1";
+
+import "pa_formula_substitution.mm1";
+
+import "pa_source_interpretation_term_numerals.mm1";
+
+@_ abstract def paNatQFSubstBoundClass (d m a .n .c: nat): set = $ S\ n, {c | n = d + suc m /\ paTermBound m a -> paNatQFBound (d + m) (paFormulaSubst d a c)} $;
+
+theorem paNQSB_value (d m a n c: nat): $ (n, c) e. paNatQFSubstBoundClass d m a <-> (n = d + suc m /\ paTermBound m a -> paNatQFBound (d + m) (paFormulaSubst d a c)) $ = (named '(elsabe @ elabed ,eqtac));
+
+theorem paNQSB_false (d m a n: nat): $ (n, paFormulaFalse) e. paNatQFSubstBoundClass d m a $ = (named '(mpbir paNQSB_value @ a1i @ mpbir (paNatQFBoundeq2 paFormulaSubst_false) paNatQFBound_false));
+
+theorem paNQSB_equal (d m a n u v: nat): $ paTermBound n u /\ paTermBound n v -> (n, paFormulaEqual u v) e. paNatQFSubstBoundClass d m a $ = (named '(mpbird (a1i paNQSB_value) @ exp (mpbird (a1i (paNatQFBoundeq2 paFormulaSubst_equal)) (syl (bi2 paNatQFBound_equal) (iand (mpd (mpbid (paTermBoundeq1d (syl anl anr)) (syl anl anl)) (syl paTermSubst_bound (syl anr anr))) (mpd (mpbid (paTermBoundeq1d (syl anl anr)) (syl anr anl)) (syl paTermSubst_bound (syl anr anr))))))));
+
+theorem paNQSB_and (d m a n u v: nat): $ (n, u) e. paNatQFSubstBoundClass d m a /\ (n, v) e. paNatQFSubstBoundClass d m a -> (n, paFormulaAnd u v) e. paNatQFSubstBoundClass d m a $ = (named '(mpbird (a1i paNQSB_value) @ exp (mpbird (a1i (paNatQFBoundeq2 paFormulaSubst_and)) (syl (bi2 paNatQFBound_and) (iand (mpd anr (syl (bi1 paNQSB_value) (syl anl anl))) (mpd anr (syl (bi1 paNQSB_value) (syl anr anl))))))));
+
+theorem paNQSB_or (d m a n u v: nat): $ (n, u) e. paNatQFSubstBoundClass d m a /\ (n, v) e. paNatQFSubstBoundClass d m a -> (n, paFormulaOr u v) e. paNatQFSubstBoundClass d m a $ = (named '(mpbird (a1i paNQSB_value) @ exp (mpbird (a1i (paNatQFBoundeq2 paFormulaSubst_or)) (syl (bi2 paNatQFBound_or) (iand (mpd anr (syl (bi1 paNQSB_value) (syl anl anl))) (mpd anr (syl (bi1 paNQSB_value) (syl anr anl))))))));
+
+theorem paNQSB_imp (d m a n u v: nat): $ (n, u) e. paNatQFSubstBoundClass d m a /\ (n, v) e. paNatQFSubstBoundClass d m a -> (n, paFormulaImp u v) e. paNatQFSubstBoundClass d m a $ = (named '(mpbird (a1i paNQSB_value) @ exp (mpbird (a1i (paNatQFBoundeq2 paFormulaSubst_imp)) (syl (bi2 paNatQFBound_imp) (iand (mpd anr (syl (bi1 paNQSB_value) (syl anl anl))) (mpd anr (syl (bi1 paNQSB_value) (syl anr anl))))))));
+
+theorem paNQSB_falses (d m a: nat): $ paNatQFFalseClosed (paNatQFSubstBoundClass d m a) $ = (named '(ax_gen paNQSB_false));
+
+theorem paNQSB_equals (d m a: nat): $ paNatQFEqualClosed (paNatQFSubstBoundClass d m a) $ = (named '(ax_gen @ ax_gen @ ax_gen paNQSB_equal));
+
+theorem paNQSB_binaries (d m a: nat): $ paNatQFBinaryClosed (paNatQFSubstBoundClass d m a) $ = (named '(ax_gen @ ax_gen @ ax_gen @ iand (iand paNQSB_and paNQSB_or) paNQSB_imp));
+
+theorem paNQSB_closed (d m a: nat): $ paNatQFConstructionClosed (paNatQFSubstBoundClass d m a) $ = (named '(ian (ian paNQSB_falses paNQSB_equals) paNQSB_binaries));
+
+theorem paNQSB_at (d m a c: nat): $ paNatQFBound (d + suc m) c -> (d + suc m = d + suc m /\ paTermBound m a) -> paNatQFBound (d + m) (paFormulaSubst d a c) $ = (named '(syl (bi1 paNQSB_value) (paNatQFBound_induction paNQSB_closed)));
+
+pub theorem paNatQFBound_substitution (d n a c: nat): $ paTermBound n a -> paNatQFBound (d + suc n) c -> paNatQFBound (d + n) (paFormulaSubst d a c) $ = (named '(exp @ mpd (iand (a1i eqid) anl) (syl paNQSB_at anr)));
+
+pub theorem paNatTermNumeral_bound (n b: nat): $ paTermBound n (paTermNumeral b) $ = (named @ induct '(ind) 'b '(mpbir (paTermBoundeq2 paTermNumeral_zero) paTermBound_zero) '(mpbird (paTermBoundeq2d (a1i paTermNumeral_succ)) (syl (bi2 paTermBound_successor) id)));
+
+pub theorem paNatQFBound_numeral_substitution (b n c: nat): $ paNatQFBound (suc n) c -> paNatQFBound n (paFormulaSubst 0 (paTermNumeral b) c) $ = (named '(syl (bi1 (paNatQFBoundeq1 add01)) (syl (paNatQFBound_substitution paNatTermNumeral_bound) (bi2 (paNatQFBoundeq1 add01)))));

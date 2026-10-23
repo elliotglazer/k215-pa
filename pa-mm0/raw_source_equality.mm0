@@ -1,0 +1,52 @@
+import "raw_source_prop_transfer.mm0";
+
+theorem zfcEquality_refl (a: nat):
+  $ zfcProvable (sfEq a a) $;
+
+theorem zfcEquality_sym (a b: nat):
+  $ zfcProvable (sfImp (sfEq a b) (sfEq b a)) $;
+
+theorem zfcEquality_trans (a b c: nat):
+  $ zfcProvable (sfImp (sfEq a b) (sfImp (sfEq b c) (sfEq a c))) $;
+
+theorem zfcEquality_element (a b c d: nat):
+  $ zfcProvable (sfImp (sfEq a c) (sfImp (sfEq b d) (sfImp (sfMem a b) (sfMem c d)))) $;
+
+def eqSwapContext (a b c: nat): nat = $ a : (b : (sfImp a (sfImp b c) : 0)) $;
+
+def eqSwapBody (a b c: nat): nat = $ zfcNDMp (eqSwapContext a b c) (zfcNDMp (eqSwapContext a b c) (zfcNDHyp (eqSwapContext a b c) (sfImp a (sfImp b c))) (zfcNDHyp (eqSwapContext a b c) a) (sfImp b c)) (zfcNDHyp (eqSwapContext a b c) b) c $;
+
+def eqSwapProof (a b c: nat): nat = $ zfcNDIntro 0 (zfcNDIntro (sfImp a (sfImp b c) : 0) (zfcNDIntro (b : (sfImp a (sfImp b c) : 0)) (eqSwapBody a b c) a c) b (sfImp a c)) (sfImp a (sfImp b c)) (sfImp b (sfImp a c)) $;
+
+theorem zfcEquality_row3 (a b c: nat):
+  $ zfcProvable (sfImp (sfEq a b) (sfImp (sfMem c a) (sfMem c b))) $;
+
+theorem zfcEquality_row5 (a b c: nat):
+  $ zfcProvable (sfImp (sfEq c a) (sfImp (sfMem c b) (sfMem a b))) $;
+
+theorem rawEquality_eq_equiv (a b: nat):
+  $ rawPropIff (rawDecode (kEq a b)) (sfEq a b) $;
+
+theorem rawEquality_mem_equiv (a b: nat):
+  $ rawPropIff (rawDecode (kMem a b)) (sfMem a b) $;
+
+theorem rawEquality_sym_equiv (a b: nat):
+  $ rawPropIff (rawDecode (kEq a b)) (sfEq b a) $;
+
+theorem rawEquality_rho3_equiv (a b c: nat):
+  $ rawPropIff (rawDecode (kRho3 a b c)) (sfImp (sfEq a b) (sfImp (sfMem c a) (sfMem c b))) $;
+
+theorem rawSource_rho3 (a b c: nat):
+  $ zfcProvable (rawDecode (kRho3 a b c)) $;
+
+theorem rawEquality_rho5_equiv (a b c: nat):
+  $ rawPropIff (rawDecode (kRho5 a b c)) (sfImp (sfEq c a) (sfImp (sfMem c b) (sfMem a b))) $;
+
+theorem rawSource_rho5 (a b c: nat):
+  $ zfcProvable (rawDecode (kRho5 a b c)) $;
+
+theorem rawEquality_rho7_equiv (a b c: nat):
+  $ rawPropIff (rawDecode (kRho7 a b c)) (sfImp (sfEq a c) (sfImp (sfEq c b) (sfEq a b))) $;
+
+theorem rawSource_rho7 (a b c: nat):
+  $ zfcProvable (rawDecode (kRho7 a b c)) $;

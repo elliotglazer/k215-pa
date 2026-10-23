@@ -1,0 +1,25 @@
+import "k218q_quotient_mixed_formula.mm1";
+
+theorem k218QMFN_lookup (S i x: nat): $ nth i S = suc x -> sqNumericEnvironment S @ i = x $ = '(eqtrd (a1i sqStackEnv_value) (eqtrd (syl ifneg (syl (bi2 nthne0) nthSlt)) (eqtrd (subeq1d id) (a1i sucsub1))));
+
+theorem k218QMFN_at (E: set) (n i: nat): $ i < n -> sqNumericEnvironment (lfn E n) @ i = E @ i $ = '(syl k218QMFN_lookup nthlfn);
+
+theorem k218QMFN_agree (E: set) (n: nat): $ sqEnvAgree (sqNumericEnvironment (lfn E n)) E n $ = (named '(ax_gen k218QMFN_at));
+
+theorem k218QMFN_below_at (E: set) (n k i: nat): $ sqEnvBelow E n k -> i < n -> E @ i < k $ = (named '(!! eale j ,eqtac));
+
+theorem k218QMFN_below (G: wff) (E: set) (n k: nat) (he: $ G -> sqEnvBelow E n k $): $ G -> sqEnvironmentBelow (lfn E n) k $ = (named '(!! iald i @ exp @ mpbird (lteq1d (syl k218QMFN_at (mpbid (a1i (lteq2 lenlfn)) anr))) (mpd (mpbid (a1i (lteq2 lenlfn)) anr) (syl k218QMFN_below_at (syl he anl)))));
+
+theorem k218QMFN_safe (G: wff) (E: set) (n t k: nat) (hk: $ G -> 0 < k $) (ht: $ G -> t < k $) (he: $ G -> sqEnvBelow E n k $): $ G -> sqEnvironmentSafe (lfn E n) n t k $ = '(iand (a1i (mpbir (leeq2 lenlfn) leid)) (iand hk (iand ht (k218QMFN_below he))));
+
+@_ abstract def k218QMixedEnvironments (E F: set) (H n t k .i: nat): wff = $ A. i (i < n -> k218QMixed H t k (E @ i) (F @ i)) $;
+
+theorem k218QMFN_relation_at (E F: set) (H n t k i: nat): $ k218QMixedEnvironments E F H n t k -> i < n -> k218QMixed H t k (E @ i) (F @ i) $ = (named '(!! eale j ,eqtac));
+
+theorem k218QMFN_mixed (G: wff) (E F: set) (H n t k: nat) (hr: $ G -> k218QMixedEnvironments E F H n t k $): $ G -> k218QMixedEnv H (lfn E n) (lfn F n) n t k $ = (named '(!! iald i @ exp @ mpbird (k218QMixedeqd eqidd eqidd eqidd (syl k218QMFN_at anr) (syl k218QMFN_at anr)) (mpd anr (syl k218QMFN_relation_at (syl hr anl)))));
+
+theorem k218QMFN_quote (E: set) (n t k c: nat): $ sfBound n c -> sqQuote (sqNumericEnvironment (lfn E n)) t k 0 c = sqQuote E t k 0 c $ = '(syl (sqQuote_environment k218QMFN_agree) (bi2 (sfBoundeq1 add01)));
+
+theorem k218QMFN_core (G: wff) (E F: set) (H n t k c: nat) (hb: $ G -> sfBound n c $) (hk: $ G -> 0 < k $) (ht: $ G -> t < k $) (he: $ G -> sqEnvBelow E n k $) (hf: $ G -> sqEnvBelow F n k $) (hz: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218QMixedEnvironments E F H n t k $): $ G -> k218QHEquiv H (sqQuote E t k 0 c) (sqQuote F t k 0 c) $ = '(k218QMF_transport (eqcomd (syl k218QMFN_quote hb)) (eqcomd (syl k218QMFN_quote hb)) (mpd (k218QMFN_mixed hr) (mpd hz (mpd (k218QMFN_safe hk ht hf) (mpd (k218QMFN_safe hk ht he) (syl k218QM_formula_invariance hb))))));
+
+pub theorem k218QM_formula_invariance_arbitrary (E F: set) (H n t k c: nat): $ sfBound n c -> 0 < k -> t < k -> sqEnvBelow E n k -> sqEnvBelow F n k -> k218IHypProvable H (k218QAEmpty t k) -> (k218QMixedEnvironments E F H n t k) -> k218QHEquiv H (sqQuote E t k 0 c) (sqQuote F t k 0 c) $ = (named '(exp @ exp @ exp @ exp @ exp @ exp @ k218QMFN_core (syl (syl (syl (syl (syl (syl id anl) anl) anl) anl) anl) anl) (syl (syl (syl (syl (syl anr anl) anl) anl) anl) anl) (syl (syl (syl (syl anr anl) anl) anl) anl) (syl (syl (syl anr anl) anl) anl) (syl (syl anr anl) anl) (syl anr anl) anr));

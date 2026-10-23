@@ -1,0 +1,117 @@
+import "source_relativization.mm1";
+import "source_renaming_laws.mm1";
+import "source_syntax_laws.mm1";
+
+theorem sfRB_transport (G: wff) (d n c u: nat)
+  (he: $ G -> c = u $) (hb: $ G -> sfBound n (sfRelativize d u) $):
+  $ G -> sfBound n (sfRelativize d c) $ =
+'(mpbird (srecpeq2d (preqd eqidd (sfRelativizeeq2d he))) hb);
+theorem sfRB_bot (d n: nat): $ sfBound n (sfRelativize d sfBot) $ =
+'(mpbir (srecpeq2 (preq2 sfRelativize_bot)) sfBound_bot);
+theorem sfRB_mem (G: wff) (d n a b: nat)
+  (ha: $ G -> a < n $) (hb: $ G -> b < n $):
+  $ G -> sfBound n (sfRelativize d (sfMem a b)) $ =
+'(mpbird (a1i (srecpeq2 (preq2 sfRelativize_sfMem)))
+  (syl (bi2 sfBound_sfMem) (iand ha hb)));
+theorem sfRB_eq (G: wff) (d n a b: nat)
+  (ha: $ G -> a < n $) (hb: $ G -> b < n $):
+  $ G -> sfBound n (sfRelativize d (sfEq a b)) $ =
+'(mpbird (a1i (srecpeq2 (preq2 sfRelativize_sfEq)))
+  (syl (bi2 sfBound_sfEq) (iand ha hb)));
+theorem sfRB_and (G: wff) (d n a b: nat)
+  (ha: $ G -> sfBound n (sfRelativize d a) $)
+  (hb: $ G -> sfBound n (sfRelativize d b) $):
+  $ G -> sfBound n (sfRelativize d (sfAnd a b)) $ =
+'(mpbird (a1i (srecpeq2 (preq2 sfRelativize_sfAnd)))
+  (syl (bi2 sfBound_sfAnd) (iand ha hb)));
+theorem sfRB_or (G: wff) (d n a b: nat)
+  (ha: $ G -> sfBound n (sfRelativize d a) $)
+  (hb: $ G -> sfBound n (sfRelativize d b) $):
+  $ G -> sfBound n (sfRelativize d (sfOr a b)) $ =
+'(mpbird (a1i (srecpeq2 (preq2 sfRelativize_sfOr)))
+  (syl (bi2 sfBound_sfOr) (iand ha hb)));
+theorem sfRB_imp (G: wff) (d n a b: nat)
+  (ha: $ G -> sfBound n (sfRelativize d a) $)
+  (hb: $ G -> sfBound n (sfRelativize d b) $):
+  $ G -> sfBound n (sfRelativize d (sfImp a b)) $ =
+'(mpbird (a1i (srecpeq2 (preq2 sfRelativize_sfImp)))
+  (syl (bi2 sfBound_sfImp) (iand ha hb)));
+theorem sfRB_all (G: wff) (d n a: nat)
+  (hd: $ G -> sfBound 1 d $)
+  (ha: $ G -> sfBound (suc n) (sfRelativize d a) $):
+  $ G -> sfBound n (sfRelativize d (sfAll a)) $ =
+'(mpbird (a1i (srecpeq2 (preq2 sfRelativize_sfAll)))
+  (syl (bi2 sfBound_sfAll) (syl (bi2 sfBound_sfImp)
+    (iand (syl (sfBound_mono_le (mpbi lesuc le01)) hd) ha))));
+theorem sfRB_ex (G: wff) (d n a: nat)
+  (hd: $ G -> sfBound 1 d $)
+  (ha: $ G -> sfBound (suc n) (sfRelativize d a) $):
+  $ G -> sfBound n (sfRelativize d (sfEx a)) $ =
+'(mpbird (a1i (srecpeq2 (preq2 sfRelativize_sfEx)))
+  (syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd)
+    (iand (syl (sfBound_mono_le (mpbi lesuc le01)) hd) ha))));
+
+theorem sfRB_ind_at (d c a: nat):
+  $ A. j (j < c -> A. n (sfBound n j -> sfBound n (sfRelativize d j))) ->
+    a < c -> A. n (sfBound n a -> sfBound n (sfRelativize d a)) $ =
+(named '(!! eale j ,eqtac));
+theorem sfRB_depth (d n a: nat):
+  $ A. m (sfBound m a -> sfBound m (sfRelativize d a)) ->
+    sfBound n a -> sfBound n (sfRelativize d a) $ =
+(named '(!! eale m ,eqtac));
+theorem sfRB_child {j m: nat} (G: wff j m) (d n c a: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfBound m j -> sfBound m (sfRelativize d j))) $):
+  $ G -> (n, a) e. sfBoundPrevious n c -> sfBound n (sfRelativize d a) $ =
+'(exp @ mpd (syl anr (syl (bi1 sfBoundPrevious_value) anr)) @
+  syl sfRB_depth @
+  mpd (syl (bi2 ltpr2) (syl anl (syl (bi1 sfBoundPrevious_value) anr)))
+    (syl sfRB_ind_at (syl hi anl)));
+theorem sfRB_binder_child {j m: nat} (G: wff j m) (d n c a: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfBound m j -> sfBound m (sfRelativize d j))) $):
+  $ G -> (suc n, a) e. sfBoundPrevious n c -> sfBound (suc n) (sfRelativize d a) $ =
+'(exp @ mpd (syl anr (syl (bi1 sfBoundPrevious_value) anr)) @
+  syl sfRB_depth @
+  mpd (syl sfRL_bound_child_lt (syl anl (syl (bi1 sfBoundPrevious_value) anr)))
+    (syl sfRB_ind_at (syl hi anl)));
+
+theorem sfRB_allowed {j m: nat} (G: wff j m) (d n c: nat)
+  (hd: $ G -> sfBound 1 d $)
+  (hi: $ G -> A. j (j < c -> A. m (sfBound m j -> sfBound m (sfRelativize d j))) $):
+  $ G -> sfBoundAllowed n c (sfBoundPrevious n c) -> sfBound n (sfRelativize d c) $ =
+'(sfRL_ifp_sound
+  (exp @ exp @ sfRB_transport anlr (a1i sfRB_bot))
+  (sfRL_ifp_sound
+    (exp @ exp @ sfRB_transport (sfRL_rebuild anlr) (sfRB_mem (syl anl anr) (syl anr anr)))
+    (sfRL_ifp_sound
+      (exp @ exp @ sfRB_transport (sfRL_rebuild anlr) (sfRB_eq (syl anl anr) (syl anr anr)))
+      (sfRL_ifp_sound
+        (exp @ exp @ sfRB_transport (sfRL_rebuild anlr) (sfRB_and (mpd (syl anl anr) (sfRB_child (syl hi anll))) (mpd (syl anr anr) (sfRB_child (syl hi anll)))))
+        (sfRL_ifp_sound
+          (exp @ exp @ sfRB_transport (sfRL_rebuild anlr) (sfRB_or (mpd (syl anl anr) (sfRB_child (syl hi anll))) (mpd (syl anr anr) (sfRB_child (syl hi anll)))))
+          (sfRL_ifp_sound
+            (exp @ exp @ sfRB_transport (sfRL_rebuild anlr) (sfRB_imp (mpd (syl anl anr) (sfRB_child (syl hi anll))) (mpd (syl anr anr) (sfRB_child (syl hi anll)))))
+            (sfRL_ifp_sound
+              (exp @ exp @ sfRB_transport (sfRL_rebuild_quantifier (syl anl anlr) (syl anr anlr)) (sfRB_all (syl hd anll) (mpd anr (sfRB_binder_child (syl hi anll)))))
+              (sfRL_ifp_sound
+                (exp @ exp @ sfRB_transport (sfRL_rebuild_quantifier (syl anl anlr) (syl anr anlr)) (sfRB_ex (syl hd anll) (mpd anr (sfRB_binder_child (syl hi anll)))))
+                (a1i (absurdr eqid))))))))));
+
+theorem sfRB_alpha (d c: nat):
+  $ A. k (sfBound k c -> sfBound k (sfRelativize d c)) <->
+    A. n (sfBound n c -> sfBound n (sfRelativize d c)) $ =
+(named '(cbval ,eqtac));
+theorem sfRB_step {j m: nat} (G: wff j m) (d c: nat)
+  (hd: $ G -> sfBound 1 d $)
+  (hi: $ G -> A. j (j < c -> A. m (sfBound m j -> sfBound m (sfRelativize d j))) $):
+  $ G -> A. m (sfBound m c -> sfBound m (sfRelativize d c)) $ =
+'(sylib sfRB_alpha @ !! iald k @ syl5bi sfBound_unfold (sfRB_allowed hd hi));
+theorem sfRB_uniform (d c: nat):
+  $ sfBound 1 d -> A. n (sfBound n c -> sfBound n (sfRelativize d c)) $ =
+(named '(!! indstr j y
+  {,eqtac : $ j = c -> ((A. n (sfBound n j -> sfBound n (sfRelativize d j))) <-> (A. n (sfBound n c -> sfBound n (sfRelativize d c)))) $}
+  ,eqtac (sfRB_step anl anr)));
+pub theorem sfRelativize_bound (d n c: nat):
+  $ sfBound 1 d -> sfBound n c -> sfBound n (sfRelativize d c) $ =
+(named '(syl sfRB_depth sfRB_uniform));
+pub theorem sfRelativize_closed (d c: nat):
+  $ sfBound 1 d -> sfBound 0 c -> sfBound 0 (sfRelativize d c) $ = 'sfRelativize_bound;

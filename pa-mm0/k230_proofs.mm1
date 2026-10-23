@@ -1,0 +1,86 @@
+import "k230_axioms.mm1";
+
+theorem kImp_congr (G: wff) (a b c d: nat)
+  (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> kImp a c = kImp b d $ = '(muleq2d (preqd h1 h2));
+theorem kImp_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> kImp a c = kImp b c $ = '(kImp_congr h eqidd);
+theorem kImp_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> kImp a b = kImp a c $ = '(kImp_congr eqidd h);
+theorem kAll_congr (G: wff) (a b c d: nat)
+  (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> kAll a c = kAll b d $ = '(addeq1d (muleq2d (preqd h1 h2)));
+theorem kAll_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> kAll a c = kAll b c $ = '(kAll_congr h eqidd);
+theorem kAll_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> kAll a b = kAll a c $ = '(kAll_congr eqidd h);
+do (apply (register-eqd 'kImp) '(kImp_congr kImp_congr_left kImp_congr_right));
+do (apply (register-eqd 'kAll) '(kAll_congr kAll_congr_left kAll_congr_right));
+
+@_ abstract def kMpRules (.c .l .b: nat): set =
+$ S\ c, {l | c e. kAxioms \/ E. b (b IN l /\ kImp b c IN l)} $;
+@_ abstract def kGenRules (.c .l .a .b: nat): set =
+$ S\ c, {l | E. a E. b (b IN l /\ c = kAll a b)} $;
+@_ def kRules: set = $ kMpRules u. kGenRules $;
+@_ def kDerives (p a: nat): wff = $ traceDerives kRules p a $;
+@_ def kInconsistent (.p: nat): wff = $ E. p kDerives p kF $;
+
+pub theorem kMpRules_value {b: nat} (c l: nat):
+  $ (c, l) e. kMpRules <-> c e. kAxioms \/ E. b (b IN l /\ kImp b c IN l) $ =
+(named '(elsabe @ elabed ,eqtac));
+pub theorem kGenRules_value {a b: nat} (c l: nat):
+  $ (c, l) e. kGenRules <-> E. a E. b (b IN l /\ c = kAll a b) $ =
+(named '(elsabe @ elabed ,eqtac));
+
+theorem kList_append_left (a p q: nat): $ a IN p -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orl);
+theorem kList_append_right (a p q: nat): $ a IN q -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orr);
+
+theorem kMpRules_extend (c l r: nat):
+  $ (c, l) e. kMpRules -> (c, l ++ r) e. kMpRules $ =
+(named '(syl (bi2 kMpRules_value) @ syl
+  (orim2 @ eximi @ iand (syl kList_append_left anl) (syl kList_append_left anr))
+  (bi1 kMpRules_value)));
+theorem kGenRules_extend (c l r: nat):
+  $ (c, l) e. kGenRules -> (c, l ++ r) e. kGenRules $ =
+(named '(syl (bi2 kGenRules_value) @ syl
+  (eximi @ eximi @ iand (syl kList_append_left anl) anr)
+  (bi1 kGenRules_value)));
+theorem kRules_extend (c l r: nat):
+  $ (c, l) e. kRules -> (c, l ++ r) e. kRules $ =
+'(syl (bi2 elun) @ syl (orim kMpRules_extend kGenRules_extend) (bi1 elun));
+pub theorem kRules_stable: $ traceAppendStable kRules $ =
+(named '(ax_gen @ ax_gen @ ax_gen kRules_extend));
+
+theorem kRules_axiom (a l: nat): $ a e. kAxioms -> (a, l) e. kRules $ =
+(named '(syl elun1 @ syl (bi2 kMpRules_value) orl));
+pub theorem kDerives_axiom (a: nat): $ a e. kAxioms -> kDerives (a : 0) a $ =
+'(syl traceDerives_head @ iand (a1i traceValid_nil) kRules_axiom);
+pub theorem kDerives_true: $ kDerives (0 : 0) 0 $ = '(kDerives_axiom kAxioms_true);
+
+theorem kRules_mp (a b l: nat):
+  $ a IN l /\ kImp a b IN l -> (b, l) e. kRules $ =
+(named '(syl elun1 @ syl (bi2 kMpRules_value) @ syl orr (iexe ,eqtac)));
+theorem kValid_append (p q: nat):
+  $ traceValid kRules p -> traceValid kRules q -> traceValid kRules (p ++ q) $ =
+'(traceValid_append kRules_stable);
+pub theorem kDerives_mp (p q a b: nat):
+  $ kDerives p a -> kDerives q (kImp a b) -> kDerives (b : (p ++ q)) b $ =
+'(exp @ syl traceDerives_head @ iand
+  (mpd (syl anl anr) (syl kValid_append (syl anl anl)))
+  (syl kRules_mp @ iand
+    (syl kList_append_left (syl anr anl))
+    (syl kList_append_right (syl anr anr))));
+
+theorem kGenRules_intro (a b p: nat):
+  $ b IN p -> (kAll a b, p) e. kGenRules $ =
+(named '(syl (bi2 kGenRules_value) @ syl (iexe ,eqtac) @ syl (iexe ,eqtac)
+  (iand id (a1i eqid))));
+pub theorem kDerives_gen (p a b: nat):
+  $ kDerives p b -> kDerives (kAll a b : p) (kAll a b) $ =
+'(syl traceDerives_head @ iand anl (syl (syl elun2 kGenRules_intro) anr));
+
+pub theorem kDerives_bundle (a b c: nat):
+  $ c != a /\ c != b -> kDerives (kBundle a b c : 0) (kBundle a b c) $ =
+'(syl kDerives_axiom kAxioms_bundle);

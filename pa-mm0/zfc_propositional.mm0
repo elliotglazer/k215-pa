@@ -1,0 +1,59 @@
+import "zfc_quantified_proofs.mm0";
+
+def zfcNDHyp (G a: nat): nat = $ sfSequent G a : 0 $;
+def zfcNDMp (G p q b: nat): nat = $ sfSequent G b : (p ++ q) $;
+def zfcNDIntro (G p a b: nat): nat = $ sfSequent G (sfImp a b) : p $;
+def zfcNDPeirce (G a b: nat): nat =
+$ sfSequent G (sfImp (sfImp (sfImp a b) a) a) : 0 $;
+
+theorem zfcNDHyp_derives (G a: nat):
+  $ sfContextWf G -> a IN G -> sfNDFullDerives (zfcNDHyp G a) (sfSequent G a) $;
+theorem zfcNDMp_derives (G p q a b: nat):
+  $ sfNDFullDerives p (sfSequent G (sfImp a b)) -> sfNDFullDerives q (sfSequent G a) ->
+    sfNDFullDerives (zfcNDMp G p q b) (sfSequent G b) $;
+theorem zfcNDIntro_derives (G p a b: nat):
+  $ sfNDFullDerives p (sfSequent (a : G) b) ->
+    sfNDFullDerives (zfcNDIntro G p a b) (sfSequent G (sfImp a b)) $;
+theorem zfcNDPeirce_derives (G a b: nat):
+  $ sfContextWf G -> sfWf a -> sfWf b ->
+    sfNDFullDerives (zfcNDPeirce G a b) (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) $;
+
+def sfRho8 (a b c u: nat): nat =
+$ sfImp (sfImp (sfImp c u) a) (sfImp (sfImp a c) (sfImp b c)) $;
+def zfcRho8H (a c u: nat): nat = $ sfImp (sfImp c u) a $;
+def zfcRho8Context (a b c u: nat): nat =
+$ b : (sfImp a c : (zfcRho8H a c u : 0)) $;
+def zfcRho8DeepContext (a b c u: nat): nat =
+$ sfImp c u : zfcRho8Context a b c u $;
+def zfcRho8AProof (a b c u: nat): nat =
+$ zfcNDMp (zfcRho8DeepContext a b c u)
+    (zfcNDHyp (zfcRho8DeepContext a b c u) (zfcRho8H a c u))
+    (zfcNDHyp (zfcRho8DeepContext a b c u) (sfImp c u)) a $;
+def zfcRho8DeepCProof (a b c u: nat): nat =
+$ zfcNDMp (zfcRho8DeepContext a b c u)
+    (zfcNDHyp (zfcRho8DeepContext a b c u) (sfImp a c))
+    (zfcRho8AProof a b c u) c $;
+def zfcRho8CProof (a b c u: nat): nat =
+$ zfcNDMp (zfcRho8Context a b c u)
+    (zfcNDPeirce (zfcRho8Context a b c u) c u)
+    (zfcNDIntro (zfcRho8Context a b c u) (zfcRho8DeepCProof a b c u) (sfImp c u) c) c $;
+def zfcRho8Proof (a b c u: nat): nat =
+$ zfcNDIntro 0
+    (zfcNDIntro (zfcRho8H a c u : 0)
+      (zfcNDIntro (sfImp a c : (zfcRho8H a c u : 0))
+        (zfcRho8CProof a b c u) b c)
+      (sfImp a c) (sfImp b c))
+    (zfcRho8H a c u) (sfImp (sfImp a c) (sfImp b c)) $;
+
+theorem zfcRho8_derives (a b c u: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfWf u ->
+    sfNDFullDerives (zfcRho8Proof a b c u) (sfSequent 0 (sfRho8 a b c u)) $;
+theorem zfcProvable_rho8 (a b c u: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfWf u -> zfcProvable (sfRho8 a b c u) $;
+
+def zfcNDIdentityProof (a: nat): nat =
+$ zfcNDIntro 0 (zfcNDHyp (a : 0) a) a a $;
+theorem zfcNDIdentity_derives (a: nat):
+  $ sfWf a -> sfNDFullDerives (zfcNDIdentityProof a) (sfSequent 0 (sfImp a a)) $;
+theorem zfcProvable_identity (a: nat): $ sfWf a -> zfcProvable (sfImp a a) $;
+theorem zfcProvable_truth: $ zfcProvable (sfImp sfBot sfBot) $;

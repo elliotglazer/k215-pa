@@ -1,0 +1,36 @@
+import "k215_literal_scans.mm1";
+
+do (apply (register-eqd 'k215TMRun) '(k215TMRuneqd));
+do (apply (register-eqd 'k215TMStep) '(k215TMStepeqd));
+do (apply (register-eqd 'k215TMState) '(k215TMStateeqd));
+do (apply (register-eqd 'k215TmLeftState) '(k215TmLeftStateeqd));
+do (apply (register-eqd 'k215TmPush) '(k215TmPusheqd));
+do (apply (register-eqd 'k215TmRepeat) '(k215TmRepeateqd));
+
+pub theorem k215TmControl_reach_eq (s t: nat) (h: $ s = t $): $ k215TMReach s t $ =
+ '(ax_mp k215TMReach_intro (eqtr k215TMRun_zero h));
+pub theorem k215TmControl_reach_step (s t: nat) (h: $ k215TMStep s = t $): $ k215TMReach s t $ =
+ '(ax_mp k215TMReach_intro (eqtr k215TmRun_one h));
+pub theorem k215TmControl_chain (s t u: nat) (h1: $ k215TMReach s t $) (h2: $ k215TMReach t u $):
+ $ k215TMReach s u $ = '(ax_mp (ax_mp k215TMReach_trans h1) h2);
+pub theorem k215TmControl_left_empty (q r: nat):
+ $ k215TmLeftState q 0 r = k215TMState q 0 (k215TmPush 0 r) $ =
+ '(k215TMStateeq eqid k215TmTail_zero (k215TmPusheq1 k215TmHead_zero));
+pub theorem k215TmControl_peel (b a n c r: nat):
+ $ k215TmRepeat b (a * n + suc c) r = k215TmPush b (k215TmRepeat b (a * n + c) r) $ =
+ '(eqtr (k215TmRepeateq2 addS2) k215TmRepeat_succ);
+pub theorem k215TmControl_peel_n (b n c r: nat):
+ $ k215TmRepeat b (n + suc c) r = k215TmPush b (k215TmRepeat b (n + c) r) $ =
+ '(eqtr (k215TmRepeateq2 addS2) k215TmRepeat_succ);
+
+@_ abstract def k215TmControlProgress (s t: nat) (.n: nat): wff =
+ $ E. n k215TMRun (suc n) s = t $;
+pub theorem k215TmControl_progress_intro (n s t: nat):
+ $ k215TMRun (suc n) s = t -> k215TmControlProgress s t $ =
+ (named '(iexe ,eqtac));
+theorem k215TmControl_progress_start_at (n s u t: nat):
+ $ k215TMStep s = u -> k215TMRun n u = t -> k215TmControlProgress s t $ =
+ '(exp @ syl k215TmControl_progress_intro (eqtrd (syl k215TmRun_after_step anl) anr));
+pub theorem k215TmControl_progress_start (s u t: nat):
+ $ k215TMStep s = u -> k215TMReach u t -> k215TmControlProgress s t $ =
+ (named '(eexd k215TmControl_progress_start_at));

@@ -1,0 +1,35 @@
+import "source_piece_pcf_rep_cover_step_r36.mm0";
+
+theorem sfPieceRepEnvironmentCoverAt_congr(n A X B Y:nat)(hA:$ A = B $)(hX:$ X = Y $): $ sfPieceRepEnvironmentCoverAt A X n = sfPieceRepEnvironmentCoverAt B Y n $;
+
+theorem sfPieceRepEnvironmentCoverAt_rename_depth(R:set)(d A X n:nat): $ sfRename R d (sfPieceRepEnvironmentCoverAt A X n) = sfPieceRepEnvironmentCoverAt (sfRenameIndex R d A) (sfRenameIndex R d X) n $;
+
+theorem sfPieceRepEnvironmentCoverAt_subst(d t A X n:nat): $ sfSubst d t (sfPieceRepEnvironmentCoverAt A X n) = sfPieceRepEnvironmentCoverAt (sfSubstIndex d t A) (sfSubstIndex d t X) n $;
+
+theorem sfPieceRepEnvironmentCoverAt_shift(A X n:nat): $ sfShift 0 (sfPieceRepEnvironmentCoverAt A X n) = sfPieceRepEnvironmentCoverAt (suc A) (suc X) n $;
+
+theorem sfPieceRepEnvironmentCoverStep_rename_depth(R:set)(d A X Y:nat): $ sfRename R d (sfPieceRepEnvironmentCoverStep A X Y) = sfPieceRepEnvironmentCoverStep (sfRenameIndex R d A) (sfRenameIndex R d X) (sfRenameIndex R d Y) $;
+
+theorem sfPieceRepEnvironmentCoverStep_subst(d t A X Y:nat): $ sfSubst d t (sfPieceRepEnvironmentCoverStep A X Y) = sfPieceRepEnvironmentCoverStep (sfSubstIndex d t A) (sfSubstIndex d t X) (sfSubstIndex d t Y) $;
+
+def pcr38SuccBody(A C x:nat):nat = $ sfAnd (sfMem 0 (suc C)) (sfPieceRepEnvironmentCoverStep (suc A) (suc x) 0) $;
+
+def pcr38SuccAt(A C x:nat):nat = $ sfEx (pcr38SuccBody A C x) $;
+
+def sfPieceRepCoverSuccessorClosed(A C:nat):nat = $ sfAll (sfImp (sfMem 0 (suc C)) (pcr38SuccAt (suc A) (suc C) 0)) $;
+
+def pcr38First(G A C n:nat):nat = $ sfPieceRepEnvironmentCoverBody A C n : sfContextShift G $;
+
+def pcr38Second(G A C n:nat):nat = $ pcr38SuccBody (suc A) (suc C) 0 : sfContextShift (pcr38First G A C n) $;
+
+theorem sfPieceRepCoverSuccessorClosed_wf(A C:nat): $ sfWf (sfPieceRepCoverSuccessorClosed A C) $;
+
+theorem sfPieceRepEnvironmentCover_intro(G A C n x:nat)(hm:$ nsLocal G (sfMem x C) $)(hp:$ nsLocal G (sfPieceRepEnvironmentCoverAt A x n) $): $ nsLocal G (sfPieceRepEnvironmentCover A C n) $;
+
+theorem sfPieceRepEnvironmentCover_shift(A C n:nat): $ sfShift 0 (sfPieceRepEnvironmentCover A C n) = sfPieceRepEnvironmentCover (suc A) (suc C) n $;
+
+theorem sfPieceRepCoverSuccessorClosed_shift(A C:nat): $ sfShift 0 (sfPieceRepCoverSuccessorClosed A C) = sfPieceRepCoverSuccessorClosed (suc A) (suc C) $;
+
+theorem sfPieceRepEnvironmentCover_successor(G A C n:nat)(hs:$ nsLocal G (sfPieceRepCoverSuccessorClosed A C) $): $ nsLocal G (sfPieceRepEnvironmentCover A C n) -> nsLocal G (sfPieceRepEnvironmentCover A C (suc n)) $;
+
+theorem sfPieceRepEnvironmentCover_from_base_closed(G A C n:nat)(h0:$ nsLocal G (sfPieceRepEnvironmentCover A C 0) $)(hs:$ nsLocal G (sfPieceRepCoverSuccessorClosed A C) $): $ nsLocal G (sfPieceRepEnvironmentCover A C n) $;

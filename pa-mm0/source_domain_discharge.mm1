@@ -1,0 +1,120 @@
+import "source_theory_prefix.mm1";
+
+@_ def sfZeroMap (.i: nat): set = $ \ i, 0 $;
+@_ def sfDomainCovered (D G H .a .i: nat): wff =
+$ A. a (a IN H -> a IN G \/ E. i a = sfSubst 0 i D) $;
+@_ def sfDomainDischargeReady (D G H f: nat): wff =
+$ sfBound 1 D /\ (all sfClosedFormulaClass G /\ (sfBound 0 f /\ sfDomainCovered D G H)) $;
+
+pub theorem sfZeroMap_value (i: nat): $ sfZeroMap @ i = 0 $ =
+(named '(!! applame j eqidd));
+pub theorem sfSubst_bound_top_identity (d c: nat):
+  $ sfBound (suc d) c -> sfSubst d 0 c = c $ =
+'(eqtr3d (sfSubst_congr eqidd eqidd sfShift_bound_identity)
+  (syl sfSubst_shift_up_identity sfBound_wf));
+pub theorem sfZero_domain_guard (D i: nat):
+  $ sfBound 1 D -> sfRename sfZeroMap 0 (sfSubst 0 i D) = D $ =
+'(eqtrd (syl sfRename_subst sfBound_wf) @
+  eqtrd (sfSubst_congr eqidd (a1i sfZeroMap_value) sfRename_bound_identity)
+    sfSubst_bound_top_identity);
+pub theorem sfDomainCovered_member {i: nat} (D G H a: nat):
+  $ sfDomainCovered D G H -> a IN H -> a IN G \/ E. i a = sfSubst 0 i D $ =
+(named '(!! eale j ,eqtac));
+
+theorem sfDD_domain (D G H f: nat): $ sfDomainDischargeReady D G H f -> sfBound 1 D $ = 'anl;
+theorem sfDD_context (D G H f: nat): $ sfDomainDischargeReady D G H f -> all sfClosedFormulaClass G $ =
+'(syl anl anr);
+theorem sfDD_formula (D G H f: nat): $ sfDomainDischargeReady D G H f -> sfBound 0 f $ =
+'(syl anl (syl anr anr));
+theorem sfDD_coverage (D G H f: nat): $ sfDomainDischargeReady D G H f -> sfDomainCovered D G H $ =
+'(syl anr (syl anr anr));
+theorem sfDD_context_wf (D G H f: nat): $ sfDomainDischargeReady D G H f -> sfContextWf G $ =
+'(syl (mpi sfClosedFormulaClass_wf sstr) sfDD_context);
+theorem sfDD_formula_wf (D G H f: nat): $ sfDomainDischargeReady D G H f -> sfWf f $ =
+'(syl sfBound_wf sfDD_formula);
+theorem sfDD_domain_wf (D G H f: nat): $ sfDomainDischargeReady D G H f -> sfWf D $ =
+'(syl sfBound_wf sfDD_domain);
+theorem sfDD_closed_member (D G H f a: nat):
+  $ sfDomainDischargeReady D G H f -> a IN G -> sfRename sfZeroMap 0 a IN (D : G) $ =
+'(exp @ mpbird (lmemeq1d (syl sfRename_closed_identity @
+    mpd anr (syl (syl6 (bi1 sfClosedFormulaClass_value) elall) (syl sfDD_context anl))))
+  (syl sfContext_member_tail anr));
+theorem sfDD_guard_member_at (D G H f a i: nat):
+  $ sfDomainDischargeReady D G H f -> a = sfSubst 0 i D ->
+    sfRename sfZeroMap 0 a IN (D : G) $ =
+'(exp @ mpbiri sfContext_member_head @ lmemeq1d @
+  eqtrd (sfRename_congr_formula anr) (syl sfZero_domain_guard (syl sfDD_domain anl)));
+theorem sfDD_guard_member (D G H f a: nat):
+  $ sfDomainDischargeReady D G H f -> (E. i a = sfSubst 0 i D) ->
+    sfRename sfZeroMap 0 a IN (D : G) $ =
+(named '(eexd sfDD_guard_member_at));
+theorem sfDD_renamed_member (D G H f a: nat):
+  $ sfDomainDischargeReady D G H f -> a IN H ->
+    sfRename sfZeroMap 0 a IN (D : G) $ =
+(named '(exp @ mpd (mpd anr (syl sfDomainCovered_member (syl sfDD_coverage anl)))
+  (syl (eord sfDD_closed_member sfDD_guard_member) anl)));
+theorem sfDD_map_member_at (D G H f a b: nat):
+  $ sfDomainDischargeReady D G H f ->
+    (a IN H /\ b = sfRenameFormulaMap sfZeroMap 0 @ a) -> b IN (D : G) $ =
+'(exp @ mpbird (lmemeq1d (eqtrd anrr (a1i sfRenameFormulaMap_value)))
+  (mpd anrl (syl sfDD_renamed_member anl)));
+theorem sfDD_map_member (D G H f b: nat):
+  $ sfDomainDischargeReady D G H f -> b IN sfContextRename sfZeroMap 0 H -> b IN (D : G) $ =
+(named '(syl5bi lmemmap (eexd sfDD_map_member_at)));
+pub theorem sfDomainCovered_context_sub (D G H f: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfContextSub (sfContextRename sfZeroMap 0 H) (D : G) $ =
+(named '(iald sfDD_map_member));
+
+@_ def sfDomainDischargeProof (D G f r q: nat): nat =
+$ sfSequent G f : (q ++ (sfSequent (D : G) f : r)) $;
+
+theorem sfDD_renamed_row (D G H f: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfRenameRow sfZeroMap 0 (sfSequent H f) =
+    sfSequent (sfContextRename sfZeroMap 0 H) f $ =
+'(eqtrd (a1i sfRenameRow_sequent)
+  (sfNR_Sequent_congr eqidd (syl sfRename_closed_identity sfDD_formula)));
+theorem sfDD_weaken (D G H f r: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfNDFullDerives r (sfRenameRow sfZeroMap 0 (sfSequent H f)) ->
+    sfNDFullDerives (sfSequent (D : G) f : r) (sfSequent (D : G) f) $ =
+'(exp @ mpd
+  (mpbid (sfNR_Full_congr eqidd (syl sfDD_renamed_row anl)) anr) @
+  mpd (syl sfDomainCovered_context_sub anl) @ syl zfcProof_weaken @
+  syl (bi2 sfContextWf_cons) @ iand (syl sfDD_domain_wf anl) (syl sfDD_context_wf anl));
+theorem sfDD_ex_row (D G H f: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfSequent (D : sfContextShift G) (sfShift 0 f) = sfSequent (D : G) f $ =
+'(sfNR_Sequent_congr
+  (conseqd eqidd (syl sfClosedContext_shift_identity sfDD_context))
+  (syl sfShift_closed_identity sfDD_formula));
+pub theorem sfDomainDischarge_renamed (D G H f r q: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfNDFullDerives r (sfRenameRow sfZeroMap 0 (sfSequent H f)) ->
+    sfNDFullDerives q (sfSequent G (sfEx D)) ->
+    sfNDFullDerives (sfDomainDischargeProof D G f r q) (sfSequent G f) $ =
+'(exp @ exp @ mpd
+  (mpbird (sfNR_Full_congr eqidd (syl sfDD_ex_row anll))
+    (mpd anlr (syl sfDD_weaken anll))) @
+  mpd anr @ syl sfNDFullDerives_ExE @
+  sylc sfRowWf_sequent_intro (syl sfDD_context_wf anll) (syl sfDD_formula_wf anll));
+
+theorem sfDD_exists_intro (D G H f r q: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfNDFullDerives q (sfSequent G (sfEx D)) ->
+    sfNDFullDerives r (sfRenameRow sfZeroMap 0 (sfSequent H f)) ->
+    E. s sfNDFullDerives s (sfSequent G f) $ =
+(named '(exp @ exp @ syl (iexe ,eqtac) @ imp @ imp @ com23 sfDomainDischarge_renamed));
+theorem sfDD_renamed_exists (D G H f q: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfNDFullDerives q (sfSequent G (sfEx D)) ->
+    sfNDRenameExists sfZeroMap 0 (sfSequent H f) ->
+    E. r sfNDFullDerives r (sfSequent G f) $ =
+(named '(exp @ eexd @ imp sfDD_exists_intro));
+pub theorem sfDomainDischarge {r: nat} (D G H f p q: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfNDFullDerives p (sfSequent H f) ->
+    sfNDFullDerives q (sfSequent G (sfEx D)) ->
+    E. r sfNDFullDerives r (sfSequent G f) $ =
+'(syl5 sfNDFullDerives_rename (com23 sfDD_renamed_exists));

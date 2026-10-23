@@ -1,0 +1,27 @@
+import "source_l_clstage_final_rep.mm1";
+import "source_l_replacement_matrix.mm1";
+
+do { (set-timeout 5000) };
+
+-- Lane L02: the replacement definability law in implication form and as a closed family.
+-- Weak deduction trick: psi' = if (bound) psi sfBot always satisfies the bound (sfBound_bot), so the
+-- rule form sfLReplacementDefinableLaw_zfr applies to psi'; under the bound psi' = psi (ifpos).
+pub theorem sfLRFL_if_bound (m psi: nat):
+ $ sfBound (suc m) (if (sfBound (suc m) psi) psi sfBot) $ =
+ '(trud @ ifbothd sfBoundeq2 sfBoundeq2 anr (a1i sfBound_bot));
+
+pub theorem sfLRFL_transport (x psi m: nat):
+ $ x = psi ->
+   (sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m x) <->
+    sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m psi)) $ =
+ (named ',eqtac);
+
+pub theorem sfLReplacementDefinableLaw_imp (m psi: nat):
+ $ sfBound (suc m) psi -> sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m psi) $ =
+ '(mpbid (syl sfLRFL_transport ifpos) (a1i (sfLReplacementDefinableLaw_zfr sfLRFL_if_bound)));
+
+-- The closed uniform law that k215AssemblyRep_images_from_definable_laws (L10) takes as hypothesis.
+pub theorem sfLReplacementDefinableLaws_closed {phi n: nat}:
+ $ A. phi A. n (sfBound (suc (suc n)) phi ->
+     sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi))) $ =
+ (named '(ax_gen @ ax_gen @ syl sfLReplacementDefinableLaw_imp sfLReplacementPsi_bound));

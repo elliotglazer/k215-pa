@@ -1,0 +1,454 @@
+import "k218q_equivalence.mm1";
+import "k218q_alpha.mm1";
+import "k218_role_substitution.mm1";
+import "quotation_binders_absent.mm1";
+import "k230_fresh_allocation.mm1";
+import "k218_seed_normalize.mm1";
+
+
+theorem k218CR_matrix_fresh (E: set) (n B q r z f: nat)
+ (hzB: $ z < B $) (hz0: $ z != 0 $)
+ (hzq: $ z != q $) (hzr: $ z != r $)
+ (he: $ sqEnvAvoid E n z $) (hf: $ sfBound (suc (suc n)) f $):
+ $ kFresh (sfNamedTemplate (sqEnvCons q (sqEnvCons r E)) B 0 f) z $ =
+'(ax_mp (ax_mp (sfNamedTemplate_fresh hzB hz0)
+    (mpbir (sfBoundeq1 add01) hf))
+  (ax_mp (ax_mp k218RoleAvoid_cons hzq)
+    (ax_mp (ax_mp k218RoleAvoid_cons hzr) he)));
+
+@_ def k218ClosurePhase0 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kAll b (kImp (kMem b c) (kExists a (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll a (kImp (kAll c (kImp (kMem c a) (kMem c b))) (kAll b (kImp (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kExists b (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kMem b c))))))))))) $;
+
+@_ def k218ClosureAlphaBody0 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kMem b c)) $;
+
+theorem k218CR_substitution0 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (k218ClosureAlphaBody0 E n B a b c u v p w x y f) b y = (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c)) $ =
+'(eqtr (qsSubst_kAnd (ltneri (lttr ha0 ho0))) (kAndeq (k218RoleOutput_substitution hbB (ltneri (lttr ha0 ho0)) (ltneri ho0) heB hf) (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (ltneri ho1))))));
+
+theorem k218CR_absent0 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kBinderAbsent (k218ClosureAlphaBody0 E n B a b c u v p w x y f) b $ =
+'(ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (sfNamedTemplate_binder_absent hbB) (ax_mp sfBound_wf hf))) kBinderAbsent_kMem);
+
+theorem k218CR_phase0 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $)
+ (hFresh: $ kFresh (k218ClosureAlphaBody0 E n B a b c u v p w x y f) y $):
+ $ k218IEquivalent (k218ClosurePhase0 E n B a b c u v p w x y f) (kAll b (kImp (kMem b c) (kExists a (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll a (kImp (kAll c (kImp (kMem c a) (kMem c b))) (kAll b (kImp (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c))))))))))) $ =
+'(ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_exists (ax_mp k218IEquivalent_and (ian k218IEquivalent_refl (ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ian (mpbi (k218QProvableeq (kImpeq2 (kExistseq2 (k218CR_substitution0 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_exists_forward (ltne (lttr ho1 ho2))) (k218CR_absent0 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh)) (mpbi (k218QProvableeq (kImpeq1 (kExistseq2 (k218CR_substitution0 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_exists_backward (ltne (lttr ho1 ho2))) (k218CR_absent0 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh)))))))))))))));
+
+@_ def k218ClosurePhase1 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kAll b (kImp (kMem b c) (kExists a (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll a (kImp (kAll c (kImp (kMem c a) (kMem c b))) (kAll b (kImp (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c))))))))))) $;
+
+@_ def k218ClosureAlphaBody1 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kImp (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c)))) $;
+
+theorem k218CR_substitution1 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (k218ClosureAlphaBody1 E n B a b c u v p w x y f) b x = (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons a E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c)))) $ =
+'(eqtr kSubst_kImp (kImpeq (k218RoleOutput_substitution hbB (ltneri (lttr ha0 ho0)) (ltneri ho0) heB hf) (eqtr (ax_mp (qsSubst_kExists (ltneri (lttr ha0 ho0))) (ltneri (lttr ho1 ho2))) (kExistseq2 (eqtr (qsSubst_kAnd (ltneri (lttr ha0 ho0))) (kAndeq (ax_mp kSubst_fresh_identity (k218CR_matrix_fresh hbB (ltneri (lttr ha0 ho0)) (ltne (lttr ho1 ho2)) (ltneri ho0) heB hf)) (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr ho1 ho2))) (ax_mp kReplace_miss (ltneri ho1))))))))));
+
+theorem k218CR_absent1 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kBinderAbsent (k218ClosureAlphaBody1 E n B a b c u v p w x y f) b $ =
+'(mpbir kBinderAbsent_kImp (ian (ax_mp (sfNamedTemplate_binder_absent hbB) (ax_mp sfBound_wf hf)) (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne (lttr ho1 ho2))) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (sfNamedTemplate_binder_absent hbB) (ax_mp sfBound_wf hf))) kBinderAbsent_kMem))));
+
+theorem k218CR_phase1 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $)
+ (hFresh: $ kFresh (k218ClosureAlphaBody1 E n B a b c u v p w x y f) x $):
+ $ k218IEquivalent (k218ClosurePhase1 E n B a b c u v p w x y f) (kAll b (kImp (kMem b c) (kExists a (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll a (kImp (kAll c (kImp (kMem c a) (kMem c b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons a E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c))))))))))) $ =
+'(ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_exists (ax_mp k218IEquivalent_and (ian k218IEquivalent_refl (ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ian (mpbi (k218QProvableeq (kImpeq2 (kAlleq2 (k218CR_substitution1 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_all_forward (ltne (lttr (lttr ho1 ho2) ho3))) (k218CR_absent1 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh)) (mpbi (k218QProvableeq (kImpeq1 (kAlleq2 (k218CR_substitution1 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_all_backward (ltne (lttr (lttr ho1 ho2) ho3))) (k218CR_absent1 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh))))))))))));
+
+@_ def k218ClosurePhase2 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kAll b (kImp (kMem b c) (kExists a (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll a (kImp (kAll c (kImp (kMem c a) (kMem c b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons a E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c))))))))))) $;
+
+@_ def k218ClosureAlphaBody2 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kImp (kMem c a) (kMem c b)) $;
+
+theorem k218CR_substitution2 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (k218ClosureAlphaBody2 E n B a b c u v p w x y f) c w = (kImp (kMem w a) (kMem w b)) $ =
+'(eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (ltne (lttr ho0 ho1))))) (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (ltne ho1))))));
+
+theorem k218CR_absent2 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kBinderAbsent (k218ClosureAlphaBody2 E n B a b c u v p w x y f) c $ =
+'(mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kMem));
+
+theorem k218CR_phase2 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $)
+ (hFresh: $ kFresh (k218ClosureAlphaBody2 E n B a b c u v p w x y f) w $):
+ $ k218IEquivalent (k218ClosurePhase2 E n B a b c u v p w x y f) (kAll b (kImp (kMem b c) (kExists a (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll a (kImp (kAll w (kImp (kMem w a) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons a E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c))))))))))) $ =
+'(ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_exists (ax_mp k218IEquivalent_and (ian k218IEquivalent_refl (ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian (ian (mpbi (k218QProvableeq (kImpeq2 (kAlleq2 (k218CR_substitution2 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_all_forward (ltne (lttr (lttr ho2 ho3) ho4))) (k218CR_absent2 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh)) (mpbi (k218QProvableeq (kImpeq1 (kAlleq2 (k218CR_substitution2 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_all_backward (ltne (lttr (lttr ho2 ho3) ho4))) (k218CR_absent2 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh))) k218IEquivalent_refl)))))))));
+
+@_ def k218ClosurePhase3 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kAll b (kImp (kMem b c) (kExists a (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll a (kImp (kAll w (kImp (kMem w a) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons a E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c))))))))))) $;
+
+@_ def k218ClosureAlphaBody3 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kImp (kAll w (kImp (kMem w a) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons a E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) B 0 f) (kMem y c)))))) $;
+
+theorem k218CR_substitution3 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (k218ClosureAlphaBody3 E n B a b c u v p w x y f) a p = (kImp (kAll w (kImp (kMem w p) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c)))))) $ =
+'(eqtr kSubst_kImp (kImpeq (eqtr (kSubst_kAll_open (ltneri (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4))) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4))) kReplace_hit)) (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4))) (ax_mp kReplace_miss (ltneri ho0)))))))) (eqtr (kSubst_kAll_open (ltneri (lttr (lttr (lttr ho0 ho1) ho2) ho3))) (kAlleq2 (eqtr kSubst_kImp (kImpeq (k218RoleInput_substitution haB (ltneri ha0) (ltne (lttr (lttr (lttr ho0 ho1) ho2) ho3)) heA hf) (eqtr (ax_mp (qsSubst_kExists (ltneri ha0)) (ltneri (lttr (lttr ho0 ho1) ho2))) (kExistseq2 (eqtr (qsSubst_kAnd (ltneri ha0)) (kAndeq (k218RoleInput_substitution haB (ltneri ha0) (ltne (lttr (lttr ho0 ho1) ho2)) heA hf) (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr (lttr ho0 ho1) ho2))) (ax_mp kReplace_miss (ltneri (lttr ho0 ho1)))))))))))))));
+
+theorem k218CR_absent3 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kBinderAbsent (k218ClosureAlphaBody3 E n B a b c u v p w x y f) a $ =
+'(mpbir kBinderAbsent_kImp (ian (ax_mp (ax_mp kBinderAbsent_all_intro (ltne (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4))) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kMem))) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne (lttr (lttr (lttr ho0 ho1) ho2) ho3))) (mpbir kBinderAbsent_kImp (ian (ax_mp (sfNamedTemplate_binder_absent haB) (ax_mp sfBound_wf hf)) (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne (lttr (lttr ho0 ho1) ho2))) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (sfNamedTemplate_binder_absent haB) (ax_mp sfBound_wf hf))) kBinderAbsent_kMem)))))));
+
+theorem k218CR_phase3 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $)
+ (hFresh: $ kFresh (k218ClosureAlphaBody3 E n B a b c u v p w x y f) p $):
+ $ k218IEquivalent (k218ClosurePhase3 E n B a b c u v p w x y f) (kAll b (kImp (kMem b c) (kExists a (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c))))))))))) $ =
+'(ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_exists (ax_mp k218IEquivalent_and (ian k218IEquivalent_refl (ian (mpbi (k218QProvableeq (kImpeq2 (kAlleq2 (k218CR_substitution3 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_all_forward (ltne (lttr (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4) ho5))) (k218CR_absent3 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh)) (mpbi (k218QProvableeq (kImpeq1 (kAlleq2 (k218CR_substitution3 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_all_backward (ltne (lttr (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4) ho5))) (k218CR_absent3 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh)))))))));
+
+@_ def k218ClosurePhase4 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kAll b (kImp (kMem b c) (kExists a (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c))))))))))) $;
+
+@_ def k218ClosureAlphaBody4 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c)))))))) $;
+
+theorem k218CR_substitution4 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (k218ClosureAlphaBody4 E n B a b c u v p w x y f) a v = (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons v E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c)))))))) $ =
+'(eqtr (qsSubst_kAnd (ltneri ha0)) (kAndeq (k218RoleInput_substitution haB (ltneri ha0) (ltne ho0) heA hf) (eqtr (kSubst_kAll_open (ltneri (lttr (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4) ho5))) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr (kSubst_kAll_open (ltneri (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4))) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4))) (ax_mp kReplace_miss (ltneri (lttr (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4) ho5))))) (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4))) (ax_mp kReplace_miss (ltneri ho0)))))))) (eqtr (kSubst_kAll_open (ltneri (lttr (lttr (lttr ho0 ho1) ho2) ho3))) (kAlleq2 (eqtr kSubst_kImp (kImpeq (ax_mp kSubst_fresh_identity (k218CR_matrix_fresh haB (ltneri ha0) (ltne (lttr (lttr (lttr ho0 ho1) ho2) ho3)) (ltne (lttr (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4) ho5)) heA hf)) (eqtr (ax_mp (qsSubst_kExists (ltneri ha0)) (ltneri (lttr (lttr ho0 ho1) ho2))) (kExistseq2 (eqtr (qsSubst_kAnd (ltneri ha0)) (kAndeq (ax_mp kSubst_fresh_identity (k218CR_matrix_fresh haB (ltneri ha0) (ltne (lttr (lttr ho0 ho1) ho2)) (ltne (lttr (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4) ho5)) heA hf)) (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr (lttr ho0 ho1) ho2))) (ax_mp kReplace_miss (ltneri (lttr ho0 ho1)))))))))))))))))));
+
+theorem k218CR_absent4 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kBinderAbsent (k218ClosureAlphaBody4 E n B a b c u v p w x y f) a $ =
+'(ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (sfNamedTemplate_binder_absent haB) (ax_mp sfBound_wf hf))) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne (lttr (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4) ho5))) (mpbir kBinderAbsent_kImp (ian (ax_mp (ax_mp kBinderAbsent_all_intro (ltne (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4))) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kMem))) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne (lttr (lttr (lttr ho0 ho1) ho2) ho3))) (mpbir kBinderAbsent_kImp (ian (ax_mp (sfNamedTemplate_binder_absent haB) (ax_mp sfBound_wf hf)) (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne (lttr (lttr ho0 ho1) ho2))) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (sfNamedTemplate_binder_absent haB) (ax_mp sfBound_wf hf))) kBinderAbsent_kMem)))))))));
+
+theorem k218CR_phase4 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $)
+ (hFresh: $ kFresh (k218ClosureAlphaBody4 E n B a b c u v p w x y f) v $):
+ $ k218IEquivalent (k218ClosurePhase4 E n B a b c u v p w x y f) (kAll b (kImp (kMem b c) (kExists v (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons v E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c))))))))))) $ =
+'(ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ian (mpbi (k218QProvableeq (kImpeq2 (kExistseq2 (k218CR_substitution4 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_exists_forward (ltne (lttr (lttr (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4) ho5) ho6))) (k218CR_absent4 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh)) (mpbi (k218QProvableeq (kImpeq1 (kExistseq2 (k218CR_substitution4 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_exists_backward (ltne (lttr (lttr (lttr (lttr (lttr (lttr ho0 ho1) ho2) ho3) ho4) ho5) ho6))) (k218CR_absent4 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh))))));
+
+@_ def k218ClosurePhase5 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kAll b (kImp (kMem b c) (kExists v (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons v E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c))))))))))) $;
+
+@_ def k218ClosureAlphaBody5 (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kImp (kMem b c) (kExists v (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons v E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w b))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c)))))))))) $;
+
+theorem k218CR_substitution5 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (k218ClosureAlphaBody5 E n B a b c u v p w x y f) b u = (kImp (kMem u c) (kExists v (kAnd (sfNamedTemplate (sqEnvCons u (sqEnvCons v E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w u))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c)))))))))) $ =
+'(eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (ltneri ho1)))) (eqtr (ax_mp (qsSubst_kExists (ltneri (lttr ha0 ho0))) (ltneri (lttr (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5) ho6))) (kExistseq2 (eqtr (qsSubst_kAnd (ltneri (lttr ha0 ho0))) (kAndeq (k218RoleOutput_substitution hbB (ltneri (lttr ha0 ho0)) (ltne (lttr (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5) ho6)) heB hf) (eqtr (kSubst_kAll_open (ltneri (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5))) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr (kSubst_kAll_open (ltneri (lttr (lttr (lttr ho1 ho2) ho3) ho4))) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr (lttr (lttr ho1 ho2) ho3) ho4))) (ax_mp kReplace_miss (ltneri (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5))))) (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr (lttr (lttr ho1 ho2) ho3) ho4))) kReplace_hit)))))) (eqtr (kSubst_kAll_open (ltneri (lttr (lttr ho1 ho2) ho3))) (kAlleq2 (eqtr kSubst_kImp (kImpeq (ax_mp kSubst_fresh_identity (k218CR_matrix_fresh hbB (ltneri (lttr ha0 ho0)) (ltne (lttr (lttr ho1 ho2) ho3)) (ltne (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5)) heB hf)) (eqtr (ax_mp (qsSubst_kExists (ltneri (lttr ha0 ho0))) (ltneri (lttr ho1 ho2))) (kExistseq2 (eqtr (qsSubst_kAnd (ltneri (lttr ha0 ho0))) (kAndeq (ax_mp kSubst_fresh_identity (k218CR_matrix_fresh hbB (ltneri (lttr ha0 ho0)) (ltne (lttr ho1 ho2)) (ltne (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5)) heB hf)) (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltneri (lttr ho1 ho2))) (ax_mp kReplace_miss (ltneri ho1))))))))))))))))))))));
+
+theorem k218CR_absent5 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ kBinderAbsent (k218ClosureAlphaBody5 E n B a b c u v p w x y f) b $ =
+'(mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne (lttr (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5) ho6))) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (sfNamedTemplate_binder_absent hbB) (ax_mp sfBound_wf hf))) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5))) (mpbir kBinderAbsent_kImp (ian (ax_mp (ax_mp kBinderAbsent_all_intro (ltne (lttr (lttr (lttr ho1 ho2) ho3) ho4))) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kMem))) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne (lttr (lttr ho1 ho2) ho3))) (mpbir kBinderAbsent_kImp (ian (ax_mp (sfNamedTemplate_binder_absent hbB) (ax_mp sfBound_wf hf)) (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne (lttr ho1 ho2))) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (sfNamedTemplate_binder_absent hbB) (ax_mp sfBound_wf hf))) kBinderAbsent_kMem))))))))))));
+
+theorem k218CR_phase5 (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $)
+ (hFresh: $ kFresh (k218ClosureAlphaBody5 E n B a b c u v p w x y f) u $):
+ $ k218IEquivalent (k218ClosurePhase5 E n B a b c u v p w x y f) (kAll u (kImp (kMem u c) (kExists v (kAnd (sfNamedTemplate (sqEnvCons u (sqEnvCons v E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w u))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c))))))))))) $ =
+'(ian (mpbi (k218QProvableeq (kImpeq2 (kAlleq2 (k218CR_substitution5 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_all_forward (ltne (lttr (lttr (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5) ho6) ho7))) (k218CR_absent5 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh)) (mpbi (k218QProvableeq (kImpeq1 (kAlleq2 (k218CR_substitution5 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)))) (ax_mp (ax_mp (ax_mp k218IAlpha_all_backward (ltne (lttr (lttr (lttr (lttr (lttr (lttr ho1 ho2) ho3) ho4) ho5) ho6) ho7))) (k218CR_absent5 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf)) hFresh)));
+
+@_ def k218ClosureSeparated (E: set) (n B a b c u v p w x y f: nat): nat =
+ $ (kAll u (kImp (kMem u c) (kExists v (kAnd (sfNamedTemplate (sqEnvCons u (sqEnvCons v E)) B 0 f) (kAll p (kImp (kAll w (kImp (kMem w p) (kMem w u))) (kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c))))))))))) $;
+
+pub theorem k218QClosure_relabel (E: set) (n B a b c u v p w x y f: nat)
+ (ha0: $ 0 < a $)
+ (ho0: $ a < b $)
+ (ho1: $ b < c $)
+ (ho2: $ c < y $)
+ (ho3: $ y < x $)
+ (ho4: $ x < w $)
+ (ho5: $ w < p $)
+ (ho6: $ p < v $)
+ (ho7: $ v < u $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $)
+ (hf0: $ kFresh (k218ClosureAlphaBody0 E n B a b c u v p w x y f) y $)
+ (hf1: $ kFresh (k218ClosureAlphaBody1 E n B a b c u v p w x y f) x $)
+ (hf2: $ kFresh (k218ClosureAlphaBody2 E n B a b c u v p w x y f) w $)
+ (hf3: $ kFresh (k218ClosureAlphaBody3 E n B a b c u v p w x y f) p $)
+ (hf4: $ kFresh (k218ClosureAlphaBody4 E n B a b c u v p w x y f) v $)
+ (hf5: $ kFresh (k218ClosureAlphaBody5 E n B a b c u v p w x y f) u $):
+ $ k218IEquivalent
+   (k218Closure a b c (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f))
+   (k218ClosureSeparated E n B a b c u v p w x y f) $ =
+'(ax_mp k218IEquivalent_trans (ian (ax_mp k218IEquivalent_trans (ian (ax_mp k218IEquivalent_trans (ian (ax_mp k218IEquivalent_trans (ian (ax_mp k218IEquivalent_trans (ian (k218CR_phase0 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf hf0) (k218CR_phase1 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf hf1))) (k218CR_phase2 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf hf2))) (k218CR_phase3 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf hf3))) (k218CR_phase4 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf hf4))) (k218CR_phase5 ha0 ho0 ho1 ho2 ho3 ho4 ho5 ho6 ho7 haB hbB heA heB hf hf5)));
+
+@_ def k218ClosureChosen_y (E: set) (B a b c f: nat): nat =
+ $ kFreshAllocate 0 (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kMem b c)) 0 (c + (B + suc f)) $;
+
+@_ def k218ClosureChosen_x (E: set) (B a b c f: nat): nat =
+ $ kFreshAllocate 0 (kImp (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kExists (k218ClosureChosen_y E B a b c f) (kAnd (sfNamedTemplate (sqEnvCons (k218ClosureChosen_y E B a b c f) (sqEnvCons a E)) B 0 f) (kMem (k218ClosureChosen_y E B a b c f) c)))) 0 (k218ClosureChosen_y E B a b c f) $;
+
+@_ def k218ClosureChosen_w (E: set) (B a b c f: nat): nat =
+ $ kFreshAllocate 0 (kImp (kMem c a) (kMem c b)) 0 (k218ClosureChosen_x E B a b c f) $;
+
+@_ def k218ClosureChosen_p (E: set) (B a b c f: nat): nat =
+ $ kFreshAllocate 0 (kImp (kAll (k218ClosureChosen_w E B a b c f) (kImp (kMem (k218ClosureChosen_w E B a b c f) a) (kMem (k218ClosureChosen_w E B a b c f) b))) (kAll (k218ClosureChosen_x E B a b c f) (kImp (sfNamedTemplate (sqEnvCons (k218ClosureChosen_x E B a b c f) (sqEnvCons a E)) B 0 f) (kExists (k218ClosureChosen_y E B a b c f) (kAnd (sfNamedTemplate (sqEnvCons (k218ClosureChosen_y E B a b c f) (sqEnvCons a E)) B 0 f) (kMem (k218ClosureChosen_y E B a b c f) c)))))) 0 (k218ClosureChosen_w E B a b c f) $;
+
+@_ def k218ClosureChosen_v (E: set) (B a b c f: nat): nat =
+ $ kFreshAllocate 0 (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f) (kAll (k218ClosureChosen_p E B a b c f) (kImp (kAll (k218ClosureChosen_w E B a b c f) (kImp (kMem (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_p E B a b c f)) (kMem (k218ClosureChosen_w E B a b c f) b))) (kAll (k218ClosureChosen_x E B a b c f) (kImp (sfNamedTemplate (sqEnvCons (k218ClosureChosen_x E B a b c f) (sqEnvCons (k218ClosureChosen_p E B a b c f) E)) B 0 f) (kExists (k218ClosureChosen_y E B a b c f) (kAnd (sfNamedTemplate (sqEnvCons (k218ClosureChosen_y E B a b c f) (sqEnvCons (k218ClosureChosen_p E B a b c f) E)) B 0 f) (kMem (k218ClosureChosen_y E B a b c f) c)))))))) 0 (k218ClosureChosen_p E B a b c f) $;
+
+@_ def k218ClosureChosen_u (E: set) (B a b c f: nat): nat =
+ $ kFreshAllocate 0 (kImp (kMem b c) (kExists (k218ClosureChosen_v E B a b c f) (kAnd (sfNamedTemplate (sqEnvCons b (sqEnvCons (k218ClosureChosen_v E B a b c f) E)) B 0 f) (kAll (k218ClosureChosen_p E B a b c f) (kImp (kAll (k218ClosureChosen_w E B a b c f) (kImp (kMem (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_p E B a b c f)) (kMem (k218ClosureChosen_w E B a b c f) b))) (kAll (k218ClosureChosen_x E B a b c f) (kImp (sfNamedTemplate (sqEnvCons (k218ClosureChosen_x E B a b c f) (sqEnvCons (k218ClosureChosen_p E B a b c f) E)) B 0 f) (kExists (k218ClosureChosen_y E B a b c f) (kAnd (sfNamedTemplate (sqEnvCons (k218ClosureChosen_y E B a b c f) (sqEnvCons (k218ClosureChosen_p E B a b c f) E)) B 0 f) (kMem (k218ClosureChosen_y E B a b c f) c)))))))))) 0 (k218ClosureChosen_v E B a b c f) $;
+
+theorem k218CR_chosen_above0 (E: set) (B a b c f: nat):
+ $ c < (k218ClosureChosen_y E B a b c f) $ =
+'(lelttr leaddid1 kFreshAllocate_above_reserved);
+
+theorem k218CR_chosen_fresh0 (E: set) (n B a b c f: nat):
+ $ kFresh (k218ClosureAlphaBody0 E n B a b c (k218ClosureChosen_u E B a b c f) (k218ClosureChosen_v E B a b c f) (k218ClosureChosen_p E B a b c f) (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_x E B a b c f) (k218ClosureChosen_y E B a b c f) f) (k218ClosureChosen_y E B a b c f) $ =
+'kFreshAllocate_left;
+
+theorem k218CR_chosen_above1 (E: set) (B a b c f: nat):
+ $ (k218ClosureChosen_y E B a b c f) < (k218ClosureChosen_x E B a b c f) $ =
+'kFreshAllocate_above_reserved;
+
+theorem k218CR_chosen_fresh1 (E: set) (n B a b c f: nat):
+ $ kFresh (k218ClosureAlphaBody1 E n B a b c (k218ClosureChosen_u E B a b c f) (k218ClosureChosen_v E B a b c f) (k218ClosureChosen_p E B a b c f) (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_x E B a b c f) (k218ClosureChosen_y E B a b c f) f) (k218ClosureChosen_x E B a b c f) $ =
+'kFreshAllocate_left;
+
+theorem k218CR_chosen_above2 (E: set) (B a b c f: nat):
+ $ (k218ClosureChosen_x E B a b c f) < (k218ClosureChosen_w E B a b c f) $ =
+'kFreshAllocate_above_reserved;
+
+theorem k218CR_chosen_fresh2 (E: set) (n B a b c f: nat):
+ $ kFresh (k218ClosureAlphaBody2 E n B a b c (k218ClosureChosen_u E B a b c f) (k218ClosureChosen_v E B a b c f) (k218ClosureChosen_p E B a b c f) (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_x E B a b c f) (k218ClosureChosen_y E B a b c f) f) (k218ClosureChosen_w E B a b c f) $ =
+'kFreshAllocate_left;
+
+theorem k218CR_chosen_above3 (E: set) (B a b c f: nat):
+ $ (k218ClosureChosen_w E B a b c f) < (k218ClosureChosen_p E B a b c f) $ =
+'kFreshAllocate_above_reserved;
+
+theorem k218CR_chosen_fresh3 (E: set) (n B a b c f: nat):
+ $ kFresh (k218ClosureAlphaBody3 E n B a b c (k218ClosureChosen_u E B a b c f) (k218ClosureChosen_v E B a b c f) (k218ClosureChosen_p E B a b c f) (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_x E B a b c f) (k218ClosureChosen_y E B a b c f) f) (k218ClosureChosen_p E B a b c f) $ =
+'kFreshAllocate_left;
+
+theorem k218CR_chosen_above4 (E: set) (B a b c f: nat):
+ $ (k218ClosureChosen_p E B a b c f) < (k218ClosureChosen_v E B a b c f) $ =
+'kFreshAllocate_above_reserved;
+
+theorem k218CR_chosen_fresh4 (E: set) (n B a b c f: nat):
+ $ kFresh (k218ClosureAlphaBody4 E n B a b c (k218ClosureChosen_u E B a b c f) (k218ClosureChosen_v E B a b c f) (k218ClosureChosen_p E B a b c f) (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_x E B a b c f) (k218ClosureChosen_y E B a b c f) f) (k218ClosureChosen_v E B a b c f) $ =
+'kFreshAllocate_left;
+
+theorem k218CR_chosen_above5 (E: set) (B a b c f: nat):
+ $ (k218ClosureChosen_v E B a b c f) < (k218ClosureChosen_u E B a b c f) $ =
+'kFreshAllocate_above_reserved;
+
+theorem k218CR_chosen_fresh5 (E: set) (n B a b c f: nat):
+ $ kFresh (k218ClosureAlphaBody5 E n B a b c (k218ClosureChosen_u E B a b c f) (k218ClosureChosen_v E B a b c f) (k218ClosureChosen_p E B a b c f) (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_x E B a b c f) (k218ClosureChosen_y E B a b c f) f) (k218ClosureChosen_u E B a b c f) $ =
+'kFreshAllocate_left;
+
+pub theorem k218ClosureChosen_range (E: set) (B a b c f: nat):
+ $ B + suc f < (k218ClosureChosen_y E B a b c f) $ =
+'(lelttr leaddid2 kFreshAllocate_above_reserved);
+
+pub theorem k218QClosure_separate (E: set) (n B a b c f: nat)
+ (ha0: $ 0 < a $) (hab: $ a < b $) (hbc: $ b < c $)
+ (haB: $ a < B $) (hbB: $ b < B $)
+ (heA: $ sqEnvAvoid E n a $) (heB: $ sqEnvAvoid E n b $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218IEquivalent
+   (k218Closure a b c (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f))
+   (k218ClosureSeparated E n B a b c (k218ClosureChosen_u E B a b c f) (k218ClosureChosen_v E B a b c f) (k218ClosureChosen_p E B a b c f) (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_x E B a b c f) (k218ClosureChosen_y E B a b c f) f) $ =
+'(k218QClosure_relabel ha0 hab hbc k218CR_chosen_above0 k218CR_chosen_above1 k218CR_chosen_above2 k218CR_chosen_above3 k218CR_chosen_above4 k218CR_chosen_above5 haB hbB heA heB hf k218CR_chosen_fresh0 k218CR_chosen_fresh1 k218CR_chosen_fresh2 k218CR_chosen_fresh3 k218CR_chosen_fresh4 k218CR_chosen_fresh5);

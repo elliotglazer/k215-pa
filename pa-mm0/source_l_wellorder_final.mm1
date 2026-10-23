@@ -1,0 +1,35 @@
+import "source_l_wellorder_rankrepo.mm1";
+import "source_l_universal_hierarchy_exists.mm1";
+import "source_l_universal_hierarchy_unique.mm1";
+import "source_l_universal_hierarchy_limit.mm1";
+import "source_l_compact_hierarchy_subset.mm1";
+import "source_l_nonempty.mm1";
+import "extracted_ltrans_weak.mm1";
+
+-- Choice in L and T2 with the hierarchy laws discharged by the (replayed) hierarchy modules.
+-- Remaining premises: the ZFR axiom images in L, OrdinalsInL, and the successor-level orders.
+
+pub theorem sfLChoiceUp_zfr: $ sfTheoryProvable zfrAxioms sfLChoiceUp $ =
+'(sfLChoiceUp_from_transitivity sfLTransitivity_weak_zfr);
+
+pub theorem sfLWellorderLevelTrans_zfr: $ sfTheoryProvable zfrAxioms sfLWellorderLevelTrans $ =
+'(ax_mp sfLWellorderLevelTrans_from_stage sfLWeakStageTrans_zfr);
+
+pub theorem sfLWellorderRankLaw_zfr: $ sfTheoryProvable zfrAxioms sfLWellorderRankLaw $ =
+'(sfLWellorderRankLaw_from_repo sfLUniversalHierarchyLimit_zfr sfLPowerHierarchySubset_zfr);
+
+pub theorem sfLChoiceT2_from_level_orders
+ (hO: $ sfTheoryProvable zfrAxioms sfLWellorderLevelOrders $):
+ $ sfTheoryProvable zfrAxioms sfLChoiceT2 $ =
+'(sfLChoiceT2_from_wellorder
+  (ax_mp (ax_mp sfTheoryProvable_mp (ax_mp (ax_mp sfTheoryProvable_mp sfLWellorderLevels_from_orders_zfr)
+    sfLWellorderRankLaw_zfr)) hO)
+  sfLWellorderLevelTrans_zfr);
+
+pub theorem sfLChoice_from_level_orders
+ (hi: $ sfRelativeAxiomImages zfrAxioms zfrAxioms sfLDomain $)
+ (hO: $ sfTheoryProvable zfrAxioms sfLWellorderLevelOrders $)
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $ =
+'(sfLChoice_from_orders_repo hi sfLNonempty_zfr sfLUniversalHierarchyExists_zfr sfLUniversalHierarchyUnique_zfr
+  sfLUniversalHierarchyLimit_zfr sfLPowerHierarchySubset_zfr hO sfLWeakStageTrans_zfr sfLTransitivity_weak_zfr hOL);

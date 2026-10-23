@@ -1,0 +1,48 @@
+import "k230_quantifier_derived.mm1";
+
+def kEmptyMarker: nat = $ kAll 2 (kImp (kMem 2 1) kF) $;
+
+def kEmptyObject: nat = $ kExists 1 kEmptyMarker $;
+
+pub theorem kImp_mono_right (a b c: nat)
+  (h: $ kProvable (kImp a b) $):
+  $ kProvable (kImp (kImp c a) (kImp c b)) $ =
+'(kProvable_mp (kProvable_mp h kPropK) kPropS);
+
+pub theorem kExists_and_left (x a b: nat)
+  (hv: $ kProvable (kImp a (kAll x a)) $):
+  $ kProvable (kImp (kExists x (kAnd a b)) a) $ =
+'(kProvable_syl (kExists_mono kPropAndLeft) (kExists_collapse hv));
+
+theorem kEmpty_matrix (a b x: nat)
+  (hv: $ kProvable (kImp kF (kAll a kF)) $):
+  $ kProvable (kImp (kAnd (kImp kF (kMem b x)) (kAll b (kImp (kMem b x) (kExists a (kAnd kF (kAll a (kImp (kSubset a b x) (kRequest b x kF)))))))) (kAll b (kImp (kMem b x) kF))) $ =
+'(kProvable_syl kPropAndRight
+  (kAll_mono (kImp_mono_right (kExists_and_left hv))));
+
+pub theorem kCore_empty (a b x: nat)
+  (hv: $ kProvable (kImp kF (kAll a kF)) $)
+  (hc: $ kProvable (kCore a b x kF) $):
+  $ kProvable (kExists x (kAll b (kImp (kMem b x) kF))) $ =
+'(kProvable_mp hc (kExists_mono (kEmpty_matrix hv)));
+
+theorem kEmpty_ne30: $ 3 != 0 $ =
+'(ltneri lt01S);
+
+theorem kEmpty_mem_vacuity:
+  $ kProvable (kImp (kMem 0 0) (kAll 3 (kMem 0 0))) $ =
+'(kAnd_left (kBundle_vacuity (ian kEmpty_ne30 kEmpty_ne30)));
+
+theorem kEmpty_false_vacuity:
+  $ kProvable (kImp kF (kAll 3 kF)) $ =
+'(mpbi (kProvableeq (kImpeq kMem_zero (kAlleq2 kMem_zero))) kEmpty_mem_vacuity);
+
+theorem kEmpty_ne13: $ 1 != 3 $ =
+'(ltnei (mpbi ltsuc lt01S));
+
+theorem kEmpty_ne12: $ 1 != 2 $ =
+'(ltnei ltsucid);
+
+pub theorem kBootstrap_empty: $ kProvable kEmptyObject $ =
+'(kCore_empty kEmpty_false_vacuity
+  (kBundle_core (ian kEmpty_ne13 kEmpty_ne12)));

@@ -1,0 +1,26 @@
+import "k215_calculus_source_mp_reader.mm0";
+import "k215_calculus_source_mp_push4605.mm0";
+import "k215_calculus_source_mp_push4671.mm0";
+import "k215_calculus_source_mp_binary.mm0";
+import "k215_calculus_source_mp_comparison.mm0";
+
+theorem k215MPMissBody (u t w d h v: nat):
+ $ h != kImp t d -> k215PReach (k215PState k215PNum4605 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState 0 (k215PVector u 0 w 0 d 0 0 0 v)) $;
+
+theorem k215MPHitBody (u t w d h v: nat):
+ $ h = kImp t d -> k215PReach (k215PState k215PNum4605 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState 0 (k215PVector u d (0, w) 0 d 0 0 0 v)) $;
+
+theorem k215MPMissSource (u t w d h v: nat):
+ $ h != kImp t (d + fst v) ->
+   k215PReach (k215PState k215Num23 (k215PVector u t w 2 d h 0 0 v))
+     (k215PState 0 (k215PVector u 0 w 0 (d + fst v) 0 0 0 (snd v))) $;
+
+theorem k215MPHitSource (u t w d h v: nat):
+ $ h = kImp t (d + fst v) ->
+   k215PReach (k215PState k215Num23 (k215PVector u t w 2 d h 0 0 v))
+     (k215PState 0 (k215PVector u (d + fst v) (0, w) 0 (d + fst v) 0 0 0 (snd v))) $;
+
+theorem k215PCommandMP (s fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s 2 fields next) (k215EnumCommand s 2 fields next) $;

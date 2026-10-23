@@ -1,0 +1,26 @@
+import "k218q_quotient_mixed_rebase.mm1";
+
+@_ def sfK0QSepQuotientBody (E: set) (t a c z M K phi: nat): nat =
+ $ kAnd (kMem t c) (kAll z (kImp (kMem t z)
+   (kAnd (kImp (sqMember t z c M) (kAnd (sqMember t z a M) (sqQuote (sqEnvCons z E) t K 0 phi)))
+         (kImp (kAnd (sqMember t z a M) (sqQuote (sqEnvCons z E) t K 0 phi)) (sqMember t z c M))))) $;
+
+theorem qsepMatrixRebase (E: set) (n t a c z M R phi: nat) (hf: $ sfBound (suc n) phi $) (hM0: $ 0 < M $)
+ (htM: $ t < M $) (hzM: $ z < M $) (hMR: $ M < R $)
+ (heM: $ sqEnvBelow E n M $) (heR: $ sqEnvBelow E n R $):
+ $ k218IEquivalent (sqQuote (sqEnvCons z E) t R 0 phi) (sqQuote (sqEnvCons z E) t M 0 phi) $ =
+'(ax_mp (! k218QM_quote_rebase $ 0 = 0 $ $ (sqEnvCons z E) $ $ (suc n) $ $ t $ $ R $ $ M $ $ phi $
+ (a1i hf) (a1i (lttr hM0 hMR)) (a1i hM0) (a1i (lttr htM hMR)) (a1i htM)
+ (a1i (ax_mp (ax_mp sqEnvBelow_cons (lttr hzM hMR)) heR)) (a1i (ax_mp (ax_mp sqEnvBelow_cons hzM) heM))) eqid);
+
+pub theorem sfK0QSepQuotient_body_rebase (E: set) (n t a c z M R phi: nat) (hf: $ sfBound (suc n) phi $) (hM0: $ 0 < M $)
+ (htM: $ t < M $) (hzM: $ z < M $) (hMR: $ M < R $)
+ (heM: $ sqEnvBelow E n M $) (heR: $ sqEnvBelow E n R $):
+ $ k218IEquivalent (sfK0QSepQuotientBody E t a c z M R phi) (sfK0QSepQuotientBody E t a c z M M phi) $ =
+(named '(ax_mp k218IEquivalent_and (ian k218IEquivalent_refl (ax_mp k218IEquivalent_guarded_all (ax_mp k218IEquivalent_and (ian (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_and (ian k218IEquivalent_refl (! qsepMatrixRebase $ E $ $ n $ $ t $ $ a $ $ c $ $ z $ $ M $ $ R $ $ phi $ hf hM0 htM hzM hMR heM heR))))) (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_and (ian k218IEquivalent_refl (! qsepMatrixRebase $ E $ $ n $ $ t $ $ a $ $ c $ $ z $ $ M $ $ R $ $ phi $ hf hM0 htM hzM hMR heM heR))) k218IEquivalent_refl))))))));
+
+pub theorem sfK0QSepQuotient_exists_rebase (E: set) (n t a c z M R phi: nat) (hf: $ sfBound (suc n) phi $) (hM0: $ 0 < M $)
+ (htM: $ t < M $) (hzM: $ z < M $) (hMR: $ M < R $)
+ (heM: $ sqEnvBelow E n M $) (heR: $ sqEnvBelow E n R $):
+ $ k218IEquivalent (kExists c (sfK0QSepQuotientBody E t a c z M R phi)) (kExists c (sfK0QSepQuotientBody E t a c z M M phi)) $ =
+'(ax_mp k218IEquivalent_exists (! sfK0QSepQuotient_body_rebase $ E $ $ n $ $ t $ $ a $ $ c $ $ z $ $ M $ $ R $ $ phi $ hf hM0 htM hzM hMR heM heR));

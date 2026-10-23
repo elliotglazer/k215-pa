@@ -1,0 +1,180 @@
+import "k230_freshness.mm1";
+import "k230_contextual_quantifiers.mm1";
+
+@_ abstract def kRawAtomicClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (kMem a b e. P /\ kEq a b e. P) $;
+@_ abstract def kRawImpClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (a e. P /\ b e. P -> kImp a b e. P) $;
+@_ abstract def kRawAllClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (b e. P -> kAll a b e. P) $;
+@_ def kRawConstructionClosed (P: set): wff =
+$ 0 e. P /\ kRawAtomicClosed P /\ kRawImpClosed P /\ kRawAllClosed P $;
+
+pub theorem kRaw_reconstruct (c: nat):
+ $ 4 * (rawLeft c, rawRight c) + rawTag c = c $ =
+'(eqtr (addeq1 (muleq2 fstsnd)) divmod);
+pub theorem kRaw_rebuild (G: wff) (c k: nat) (ht: $ G -> rawTag c = k $):
+ $ G -> c = 4 * (rawLeft c, rawRight c) + k $ =
+'(eqtrd (a1i (eqcom kRaw_reconstruct)) (addeq2d ht));
+
+theorem kRI_lt2 (a: nat): $ a < 2 -> a = 0 \/ a = 1 $ =
+'(syl (eor (syl orl (bi1 lt12)) orr) (syl (bi1 leloe) (bi2 leltsuc)));
+theorem kRI_lt3 (a: nat): $ a < 3 -> (a = 0 \/ a = 1) \/ a = 2 $ =
+'(syl (eor (syl orl kRI_lt2) orr) (syl (bi1 leloe) (bi2 leltsuc)));
+theorem kRI_lt4 (a: nat): $ a < 4 -> ((a = 0 \/ a = 1) \/ a = 2) \/ a = 3 $ =
+'(syl (eor (syl orl kRI_lt3) orr) (syl (bi1 leloe) (bi2 leltsuc)));
+theorem kRI_tags (c: nat):
+ $ ((rawTag c = 0 \/ rawTag c = 1) \/ rawTag c = 2) \/ rawTag c = 3 $ =
+'(kRI_lt4 (modlt peano1));
+
+theorem kRI_atomic_at (P: set) (a b: nat):
+ $ kRawAtomicClosed P -> kMem a b e. P /\ kEq a b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+theorem kRI_imp_at (P: set) (a b: nat):
+ $ kRawImpClosed P -> a e. P /\ b e. P -> kImp a b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+theorem kRI_all_at (P: set) (a b: nat):
+ $ kRawAllClosed P -> b e. P -> kAll a b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+theorem kRI_ind_at (P: set) (c a: nat):
+ $ A. j (j < c -> j e. P) -> a < c -> a e. P $ =
+(named '(!! eale j ,eqtac));
+theorem kRI_transport (P: set) (G: wff) (a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> b e. P $):
+ $ G -> a e. P $ = '(mpbird (eleq1d he) hp);
+
+theorem kRI_zero (P: set) (G: wff) (c: nat)
+ (hc: $ G -> kRawConstructionClosed P $) (hz: $ G -> c = 0 $):
+ $ G -> c e. P $ =
+'(kRI_transport hz (syl anl (syl anl (syl anl hc))));
+theorem kRI_mem (P: set) (G: wff) (c: nat)
+ (hc: $ G -> kRawConstructionClosed P $) (ht: $ G -> rawTag c = 1 $):
+ $ G -> c e. P $ =
+'(kRI_transport (kRaw_rebuild ht)
+  (syl anl (syl kRI_atomic_at (syl anr (syl anl (syl anl hc))))));
+theorem kRI_eq (P: set) (G: wff) (c: nat)
+ (hc: $ G -> kRawConstructionClosed P $) (ht: $ G -> rawTag c = 3 $):
+ $ G -> c e. P $ =
+'(kRI_transport (kRaw_rebuild ht)
+  (syl anr (syl kRI_atomic_at (syl anr (syl anl (syl anl hc))))));
+theorem kRI_imp {j: nat} (P: set) (G: wff j) (c: nat)
+ (hc: $ G -> kRawConstructionClosed P $)
+ (hi: $ G -> A. j (j < c -> j e. P) $)
+ (hz: $ G -> c != 0 $) (ht: $ G -> rawTag c = 0 $):
+ $ G -> c e. P $ =
+'(kRI_transport (eqtrd (kRaw_rebuild ht) (a1i add0))
+  (mpd
+    (iand (mpd (syl rawLeft_lt (syl (bi2 lt01) hz)) (syl kRI_ind_at hi))
+          (mpd (syl rawRight_lt (syl (bi2 lt01) hz)) (syl kRI_ind_at hi)))
+    (syl kRI_imp_at (syl anr (syl anl hc)))));
+theorem kRI_all {j: nat} (P: set) (G: wff j) (c: nat)
+ (hc: $ G -> kRawConstructionClosed P $)
+ (hi: $ G -> A. j (j < c -> j e. P) $)
+ (hz: $ G -> c != 0 $) (ht: $ G -> rawTag c = 2 $):
+ $ G -> c e. P $ =
+'(kRI_transport (kRaw_rebuild ht)
+  (mpd (mpd (syl rawRight_lt (syl (bi2 lt01) hz)) (syl kRI_ind_at hi))
+       (syl kRI_all_at (syl anr hc))));
+theorem kRI_nonzero {j: nat} (P: set) (G: wff j) (c: nat)
+ (hc: $ G -> kRawConstructionClosed P $)
+ (hi: $ G -> A. j (j < c -> j e. P) $):
+ $ G -> c != 0 -> c e. P $ =
+'(exp @ mpi kRI_tags @ eord
+ (eord
+  (eord
+   (exp @ kRI_imp (syl hc (syl anl anl)) (syl hi (syl anl anl)) (syl anr anl) anr)
+   (exp @ kRI_mem (syl hc (syl anl anl)) anr))
+  (exp @ kRI_all (syl hc (syl anl anl)) (syl hi (syl anl anl)) (syl anr anl) anr))
+ (exp @ kRI_eq (syl hc (syl anl anl)) anr));
+theorem kRI_step {j: nat} (P: set) (G: wff j) (c: nat)
+ (hc: $ G -> kRawConstructionClosed P $)
+ (hi: $ G -> A. j (j < c -> j e. P) $):
+ $ G -> c e. P $ =
+'(casesd (exp @ kRI_zero (syl hc anl) anr) (kRI_nonzero hc hi));
+pub theorem kRaw_induction (P: set) (c: nat):
+ $ kRawConstructionClosed P -> c e. P $ =
+(named '(!! indstr j y
+ {,eqtac : $ j = c -> (j e. P <-> c e. P) $}
+ ,eqtac (kRI_step anl anr)));
+
+-- Implication versions of finite proof macros, used under arithmetic induction.
+theorem kVV_syl (a b c: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp b c) -> kProvable (kImp a c) $ =
+'(exp @ mpd (syl (mpi kPropB kProvable_mp) anl) (syl kProvable_mp anr));
+theorem kVV_all (x a b: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp (kAll x a) (kAll x b)) $ =
+'(syl (mpi (kProvable_axiom kAxioms_rho2) kProvable_mp) kProvable_gen);
+theorem kVV_not (a b: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp (kNot b) (kNot a)) $ =
+'(mpi kPropContra kProvable_mp);
+theorem kVV_neg (x p: nat):
+ $ kProvable (kImp p (kAll x p)) ->
+   kProvable (kImp (kNot p) (kAll x (kNot p))) $ =
+'(syl (ax_mp kVV_syl
+ (kProvable_syl (kNot_mono (kProvable_axiom kAxioms_rho6)) kPropDNE))
+ (syl kVV_all kVV_not));
+theorem kVV_universal (x y p: nat):
+ $ kProvable (kImp p (kAll y p)) ->
+   kProvable (kImp (kAll x p) (kAll y (kAll x p))) $ =
+'(syl (mpi (kProvable_axiom kAxioms_rho4) kVV_syl) kVV_all);
+theorem kVV_implication (G: wff) (x p q: nat)
+ (hp: $ G -> kProvable (kImp p (kAll x p)) $)
+ (hq: $ G -> kProvable (kImp q (kAll x q)) $):
+ $ G -> kProvable (kImp (kImp p q) (kAll x (kImp p q))) $ =
+'(sylc kProvable_mp
+ (sylc kVV_syl hq (a1i (kAll_mono kPropK)))
+ (syl (mpi kPropCasesImplication kProvable_mp)
+   (sylc kVV_syl (syl kVV_neg hp) (a1i (kAll_mono kPropNegativeImplication)))));
+
+@_ abstract def kVacuousClass (x .a: nat): set =
+$ {a | kFresh a x -> kProvable (kImp a (kAll x a))} $;
+pub theorem kVacuousClass_value (x a: nat):
+ $ a e. kVacuousClass x <-> (kFresh a x -> kProvable (kImp a (kAll x a))) $ =
+(named '(elabe ,eqtac));
+theorem kVV_zero (x: nat): $ 0 e. kVacuousClass x $ =
+'(mpbir kVacuousClass_value (a1i kVacuity_truth));
+theorem kVV_mem (x a b: nat): $ kMem a b e. kVacuousClass x $ =
+'(mpbir kVacuousClass_value
+ (syl (syl kAnd_left kBundle_vacuity) (bi1 kFresh_kMem)));
+theorem kVV_eq (x a b: nat): $ kEq a b e. kVacuousClass x $ =
+'(mpbir kVacuousClass_value
+ (syl (syl kAnd_right kBundle_vacuity) (bi1 kFresh_kEq)));
+theorem kVV_imp_class (x a b: nat):
+ $ a e. kVacuousClass x /\ b e. kVacuousClass x -> kImp a b e. kVacuousClass x $ =
+'(syl (bi2 kVacuousClass_value) @ exp @ kVV_implication
+ (mpd (syl anl (syl (bi1 kFresh_kImp) anr))
+      (syl (bi1 kVacuousClass_value) (syl anl anl)))
+ (mpd (syl anr (syl (bi1 kFresh_kImp) anr))
+      (syl (bi1 kVacuousClass_value) (syl anr anl))));
+theorem kVV_all_class (x a b: nat):
+ $ b e. kVacuousClass x -> kAll a b e. kVacuousClass x $ =
+'(syl (bi2 kVacuousClass_value) @ exp @ syl kVV_universal @
+ mpd (syl anr (syl (bi1 kFresh_kAll) anr))
+     (syl (bi1 kVacuousClass_value) anl));
+pub theorem kVacuousClass_closed (x: nat): $ kRawConstructionClosed (kVacuousClass x) $ =
+(named '(ian (ian (ian kVV_zero (ax_gen @ ax_gen @ ian kVV_mem kVV_eq))
+ (ax_gen @ ax_gen kVV_imp_class)) (ax_gen @ ax_gen kVV_all_class)));
+pub theorem kFresh_vacuity (a x: nat):
+ $ kFresh a x -> kProvable (kImp a (kAll x a)) $ =
+'(mpbi kVacuousClass_value (ax_mp kRaw_induction kVacuousClass_closed));
+
+@_ abstract def kContextFresh (G x .a: nat): wff = $ A. a (a IN G -> kFresh a x) $;
+pub theorem kContextFresh_member (G x a: nat):
+ $ kContextFresh G x -> a IN G -> kFresh a x $ =
+(named '(!! eale b ,eqtac));
+pub theorem kContextFresh_nil (x: nat): $ kContextFresh 0 x $ =
+(named '(ax_gen @ absurd lmem0));
+pub theorem kContextFresh_cons (G x a: nat):
+ $ kContextFresh (a : G) x <-> kFresh a x /\ kContextFresh G x $ =
+(named '(ibii
+ (iand (mpi lmemconsid kContextFresh_member)
+  (iald @ syl5 (syl (bi2 lmemS) orr) kContextFresh_member))
+ (iald @ syl5bi lmemS @ eord
+  (exp @ mpbird (kFresh_congr anr eqidd) anll)
+  (syl kContextFresh_member anr))));
+pub theorem kContextFresh_vacuous (G x: nat):
+ $ kContextFresh G x -> kContextVacuous G x $ =
+(named '(iald @ syl6 kFresh_vacuity kContextFresh_member));
+pub theorem kHypProvable_gen_fresh (G x a: nat) (hf: $ kContextFresh G x $):
+ $ kHypProvable G a -> kHypProvable G (kAll x a) $ =
+'(kHypProvable_gen (ax_mp kContextFresh_vacuous hf));

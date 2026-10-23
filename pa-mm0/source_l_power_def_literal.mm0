@@ -1,0 +1,18 @@
+import "source_l_replacement_uniform_definability.mm0";
+
+-- psi(z, x) = z is a subset of x (free variables z = 0, x = 1).
+def sfLPowerSubsetFormula: nat = $ sfAll (sfImp (sfMem 0 1) (sfMem 0 2)) $;
+
+-- Literal form of sfLDefPower (source_l_power_shell): for all A, D, x, if Def0 A D and
+-- x in A, then some X in D is {z in A | (z subset of x)^A}.
+def sfLDefPowerLiteralBody: nat =
+ $ sfImp (sfLSeparationDef0 2 1) (sfImp (sfMem 0 2)
+   (sfEx (sfAnd (sfMem 0 2) (sfAll (sfIff (sfMem 0 1)
+     (sfAnd (sfMem 0 4) (sfAll (sfImp (sfMem 0 5) (sfImp (sfMem 0 1) (sfMem 0 3)))))))))) $;
+
+def sfLDefPowerLiteral: nat = $ sfAll (sfAll (sfAll sfLDefPowerLiteralBody)) $;
+
+-- The power-set instance of the Definability Lemma.
+theorem sfLDefPowerLiteral_from_definability
+ (hU:$ sfTheoryProvable zfrAxioms (sfLDefinabilityLaw 1 sfLPowerSubsetFormula) $):
+ $ sfTheoryProvable zfrAxioms sfLDefPowerLiteral $;

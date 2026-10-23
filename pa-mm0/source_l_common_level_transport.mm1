@@ -1,0 +1,76 @@
+import "source_l_common_level_syntax.mm1";
+import "source_theory_prefix.mm1";
+import "source_renaming_agreement.mm1";
+import "source_domain_discharge.mm1";
+
+theorem sfCLPairMap_successor (d y i: nat):
+ $ sfComposeMap sfSuccessorMap (sfCLPairMap d y) @ i = sfCLPairMap (suc d) (suc y) @ i $ =
+ '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+   (eqtr (suceq sfCLPairMap_value)
+     (cases
+       (eqtr4d (suceqd ifpos) (eqtrd (a1i sfCLPairMap_value) ifpos))
+       (eqtr4d (suceqd ifneg) (eqtrd (a1i sfCLPairMap_value) ifneg))))));
+theorem sfCLPairMap_successor_agree (d y n: nat):
+ $ sfRenameMapAgree (sfComposeMap sfSuccessorMap (sfCLPairMap d y)) (sfCLPairMap (suc d) (suc y)) n $ =
+ (named '(ax_gen (a1i sfCLPairMap_successor)));
+theorem sfCLRename_agreement_zero (R S: set) (n c: nat):
+ $ sfRenameMapAgree R S n -> sfBound n c -> sfRename R 0 c = sfRename S 0 c $ =
+ '(syl5 (bi2 (sfSchema_bound_index_eq add01)) sfRename_bounded_agreement);
+pub theorem sfCLInstance_shift (c n d y: nat) (hc: $ sfBound n c $):
+ $ sfShift 0 (sfRename (sfCLPairMap d y) 0 c) = sfRename (sfCLPairMap (suc d) (suc y)) 0 c $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfRename_wf))
+   (eqtr (ax_mp sfRename_compose (ax_mp sfBound_wf hc))
+     (ax_mp (ax_mp sfCLRename_agreement_zero sfCLPairMap_successor_agree) hc))));
+pub theorem sfCLOrdinalAt_shift (d: nat):
+ $ sfShift 0 (sfCLOrdinalAt d) = sfCLOrdinalAt (suc d) $ =
+ '(sfCLInstance_shift sfCLOrdinal_bound);
+pub theorem sfCLHierarchyAt_shift (d y: nat):
+ $ sfShift 0 (sfCLHierarchyAt d y) = sfCLHierarchyAt (suc d) (suc y) $ =
+ '(sfCLInstance_shift sfCLHierarchy_bound);
+pub theorem sfCLPoint_shift (start count d y: nat):
+ $ sfShift 0 (sfCLPoint start count d y) = sfCLPoint (suc start) count (suc d) (suc y) $ =
+ '(eqtr sfShift_sfAnd
+   (nsAnd_eq (eqtr sfShift_sfAnd (nsAnd_eq sfCLOrdinalAt_shift sfCLHierarchyAt_shift)) sfCLMembership_shift));
+
+
+theorem sfCLPairMap_zero (d y: nat): $ sfCLPairMap d y @ 0 = d $ =
+ '(eqtr sfCLPairMap_value (ifpos eqid));
+pub theorem sfCLUnary_instance (c d: nat) (hc: $ sfBound 1 c $):
+ $ sfRename (sfCLPairMap d d) 0 c = sfSubst 0 d c $ =
+ '(eqtr (sfRenameeq3 (eqcom (ax_mp sfSubst_bound_top_identity hc)))
+   (eqtr (ax_mp sfRename_subst (ax_mp sfBound_wf hc))
+     (sfSubsteq eqid sfCLPairMap_zero (ax_mp sfRename_bound_identity hc))));
+pub theorem sfCLOrdinalAt_subst (d: nat):
+ $ sfCLOrdinalAt d = sfSubst 0 d sfCLOrdinal $ = '(sfCLUnary_instance sfCLOrdinal_bound);
+
+theorem sfCLUnary_mapzero (d i: nat): $ sfCLPairMap d d @ i = d $ =
+ '(eqtr sfCLPairMap_value (cases ifpos ifneg));
+theorem sfCLUnary_rename_bound (c d k: nat) (hc: $ sfBound 1 c $):
+ $ d < k -> sfBound k (sfRename (sfCLPairMap d d) 0 c) $ =
+ (named '(syl (ax_mp (com12 sfCLRename_bound_zero) hc)
+    (iald (a1d (bi2 (lteq1 sfCLUnary_mapzero))))));
+
+pub theorem sfCLUnary_bound (c d k: nat) (hc: $ sfBound 1 c $):
+ $ d < k -> sfBound k (sfSubst 0 d c) $ =
+ (named '(mpbid (a1i (sfSchema_bound_eq (sfCLUnary_instance hc)))
+    (sfCLUnary_rename_bound hc)));
+
+pub theorem sfCLUnary_shift (c d: nat) (hc: $ sfBound 1 c $):
+ $ sfShift 0 (sfSubst 0 d c) = sfSubst 0 (suc d) c $ =
+ '(eqtr (sfShifteq2 (eqcom (sfCLUnary_instance hc)))
+   (eqtr (sfCLInstance_shift hc) (sfCLUnary_instance hc)));
+theorem sfCLPredicateRows_bounds (c start count k: nat) (hc: $ sfBound 1 c $):
+ $ sfCLNamesBound start count k -> sfCLRowBounds (sfCLPredicateRows c start) k count $ =
+ (named '(alimi (imim2i
+   (syl (bi2 (sfSchema_bound_eq sfCLPredicateRows_value)) (sfCLUnary_bound hc)))));
+pub theorem sfCLPredicates_bound (c start count k: nat) (hc: $ sfBound 1 c $):
+ $ sfCLNamesBound start count k -> sfBound k (sfCLPredicates c start count) $ =
+ '(syl sfCLFold_bound (sfCLPredicateRows_bounds hc));
+pub theorem sfCLPredicates_shift (c start count: nat) (hc: $ sfBound 1 c $):
+ $ sfShift 0 (sfCLPredicates c start count) = sfCLPredicates c (suc start) count $ =
+ (named @ induct '(ind) 'count
+  '(eqtr (sfShifteq2 sfCLPredicates_zero) (eqtr sfCLTrue_shift (eqcom sfCLPredicates_zero)))
+  '(eqtrd (a1i (sfShifteq2 sfCLPredicates_suc))
+    (eqtrd (a1i sfShift_sfAnd)
+      (eqtrd (sfAndeqd id (a1i (eqtr (sfCLUnary_shift hc) (sfSubsteq2 (eqcom addS2)))))
+        (a1i (eqcom sfCLPredicates_suc))))));

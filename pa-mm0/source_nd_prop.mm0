@@ -1,0 +1,181 @@
+import "source_contexts.mm0";
+
+-- Finite-list propositional natural deduction for the exact source formula code.
+-- This is the SourcePropositionalRules rule shape with Peano contexts in
+-- place of beta-coded environments. Wk is the structural rule proved in
+-- SourceProofWeakening.v, included explicitly here. No trace equivalence
+-- with that source representation, and no full first-order calculus, is claimed.
+
+def sfNDCaseCtx (r: nat) (.g .a: nat): wff = $ E. g E. a (r = sfSequent g a /\ a IN g) $;
+
+def sfNDCasePc (r: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfImp (sfImp (sfImp a b) a) a)) $;
+
+def sfNDCaseII (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfImp a b) /\ p = sfSequent (a : g) b) $;
+
+def sfNDCaseExp (r p: nat) (.g .a: nat): wff = $ E. g E. a (r = sfSequent g a /\ p = sfSequent g sfBot) $;
+
+def sfNDCaseCE1 (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g a /\ p = sfSequent g (sfAnd a b)) $;
+
+def sfNDCaseCE2 (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g b /\ p = sfSequent g (sfAnd a b)) $;
+
+def sfNDCaseDI1 (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfOr a b) /\ p = sfSequent g a) $;
+
+def sfNDCaseDI2 (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfOr a b) /\ p = sfSequent g b) $;
+
+def sfNDCaseIE (r p q: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g b /\ (p = sfSequent g (sfImp a b) /\ q = sfSequent g a)) $;
+
+def sfNDCaseCI (r p q: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfAnd a b) /\ (p = sfSequent g a /\ q = sfSequent g b)) $;
+
+def sfNDCaseBranchPair (r p q: nat) (.g .a .b .c: nat): wff = $ E. g E. a E. b E. c (r = sfBranches g a b c /\ (p = sfSequent (a : g) c /\ q = sfSequent (b : g) c)) $;
+
+def sfNDCaseDE (r p q: nat) (.g .a .b .c: nat): wff = $ E. g E. a E. b E. c (r = sfSequent g c /\ (p = sfSequent g (sfOr a b) /\ q = sfBranches g a b c)) $;
+
+def sfNDCaseWk (r p: nat) (.g .h .a: nat): wff = $ E. g E. h E. a (r = sfSequent h a /\ (p = sfSequent g a /\ sfContextSub g h)) $;
+
+theorem sfNDCaseCtx_intro (g a: nat): $ a IN g -> sfNDCaseCtx (sfSequent g a) $;
+
+theorem sfNDCasePc_intro (g a b: nat): $ sfNDCasePc (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) $;
+
+theorem sfNDCaseII_intro (g a b: nat): $ sfNDCaseII (sfSequent g (sfImp a b)) (sfSequent (a : g) b) $;
+
+theorem sfNDCaseExp_intro (g a: nat): $ sfNDCaseExp (sfSequent g a) (sfSequent g sfBot) $;
+
+theorem sfNDCaseCE1_intro (g a b: nat): $ sfNDCaseCE1 (sfSequent g a) (sfSequent g (sfAnd a b)) $;
+
+theorem sfNDCaseCE2_intro (g a b: nat): $ sfNDCaseCE2 (sfSequent g b) (sfSequent g (sfAnd a b)) $;
+
+theorem sfNDCaseDI1_intro (g a b: nat): $ sfNDCaseDI1 (sfSequent g (sfOr a b)) (sfSequent g a) $;
+
+theorem sfNDCaseDI2_intro (g a b: nat): $ sfNDCaseDI2 (sfSequent g (sfOr a b)) (sfSequent g b) $;
+
+theorem sfNDCaseIE_intro (g a b: nat): $ sfNDCaseIE (sfSequent g b) (sfSequent g (sfImp a b)) (sfSequent g a) $;
+
+theorem sfNDCaseCI_intro (g a b: nat): $ sfNDCaseCI (sfSequent g (sfAnd a b)) (sfSequent g a) (sfSequent g b) $;
+
+theorem sfNDCaseBranchPair_intro (g a b c: nat): $ sfNDCaseBranchPair (sfBranches g a b c) (sfSequent (a : g) c) (sfSequent (b : g) c) $;
+
+theorem sfNDCaseDE_intro (g a b c: nat): $ sfNDCaseDE (sfSequent g c) (sfSequent g (sfOr a b)) (sfBranches g a b c) $;
+
+theorem sfNDCaseWk_intro (g h a: nat): $ sfContextSub g h -> sfNDCaseWk (sfSequent h a) (sfSequent g a) $;
+
+def sfNDPropBase (r: nat): wff =
+$ sfRowWf r /\ (sfNDCaseCtx r \/ sfNDCasePc r) $;
+def sfNDPropUnary (r p: nat): wff =
+$ sfRowWf r /\ (sfNDCaseII r p \/ (sfNDCaseExp r p \/
+  (sfNDCaseCE1 r p \/ (sfNDCaseCE2 r p \/
+  (sfNDCaseDI1 r p \/ (sfNDCaseDI2 r p \/ sfNDCaseWk r p)))))) $;
+def sfNDPropBinary (r p q: nat): wff =
+$ sfRowWf r /\ (sfNDCaseIE r p q \/ (sfNDCaseCI r p q \/
+  (sfNDCaseBranchPair r p q \/ sfNDCaseDE r p q))) $;
+def sfNDPropRules (.r .l .p .q: nat): set =
+$ S\ r, {l | sfNDPropBase r \/
+  ((E. p (p IN l /\ sfNDPropUnary r p)) \/
+   E. p E. q (p IN l /\ (q IN l /\ sfNDPropBinary r p q)))} $;
+def sfNDRows (.r: nat): set = $ {r | sfRowWf r} $;
+def sfNDPropDerives (p r: nat): wff = $ traceDerives sfNDPropRules p r $;
+
+theorem sfNDPropRules_value {p q: nat} (r l: nat):
+  $ (r, l) e. sfNDPropRules <-> sfNDPropBase r \/
+    ((E. p (p IN l /\ sfNDPropUnary r p)) \/
+     E. p E. q (p IN l /\ (q IN l /\ sfNDPropBinary r p q))) $;
+theorem sfNDRows_value (r: nat): $ r e. sfNDRows <-> sfRowWf r $;
+
+theorem sfNDPropRules_base (r l: nat): $ sfNDPropBase r -> (r, l) e. sfNDPropRules $;
+theorem sfNDPropRules_unary (r p l: nat):
+  $ p IN l /\ sfNDPropUnary r p -> (r, l) e. sfNDPropRules $;
+theorem sfNDPropRules_binary (r p q l: nat):
+  $ p IN l /\ (q IN l /\ sfNDPropBinary r p q) -> (r, l) e. sfNDPropRules $;
+theorem sfNDPropRules_stable: $ traceAppendStable sfNDPropRules $;
+theorem sfNDPropRules_guard (r l: nat): $ (r, l) e. sfNDPropRules -> sfRowWf r $;
+theorem sfNDPropDerives_wf (p r: nat): $ sfNDPropDerives p r -> sfRowWf r $;
+
+theorem sfNDPropDerives_base (r: nat):
+  $ sfNDPropBase r -> sfNDPropDerives (r : 0) r $;
+theorem sfNDPropDerives_unary (p r a: nat):
+  $ sfNDPropUnary r a -> sfNDPropDerives p a -> sfNDPropDerives (r : p) r $;
+theorem sfNDPropDerives_binary (p q r a b: nat):
+  $ sfNDPropBinary r a b -> sfNDPropDerives p a -> sfNDPropDerives q b ->
+    sfNDPropDerives (r : (p ++ q)) r $;
+
+theorem sfNDPropBase_Ctx (g a: nat):
+  $ sfRowWf (sfSequent g a) -> a IN g -> sfNDPropBase (sfSequent g a) $;
+
+theorem sfNDPropDerives_Ctx (g a: nat):
+  $ sfRowWf (sfSequent g a) -> a IN g -> sfNDPropDerives ((sfSequent g a) : 0) (sfSequent g a) $;
+
+theorem sfNDPropBase_Pc (g a b: nat):
+  $ sfRowWf (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) -> sfNDPropBase (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) $;
+
+theorem sfNDPropDerives_Pc (g a b: nat):
+  $ sfRowWf (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) -> sfNDPropDerives ((sfSequent g (sfImp (sfImp (sfImp a b) a) a)) : 0) (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) $;
+
+theorem sfNDPropUnary_II (g a b: nat):
+  $ sfRowWf (sfSequent g (sfImp a b)) -> sfNDPropUnary (sfSequent g (sfImp a b)) (sfSequent (a : g) b) $;
+
+theorem sfNDPropDerives_II (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g (sfImp a b)) -> sfNDPropDerives u (sfSequent (a : g) b) -> sfNDPropDerives ((sfSequent g (sfImp a b)) : u) (sfSequent g (sfImp a b)) $;
+
+theorem sfNDPropUnary_Exp (g a: nat):
+  $ sfRowWf (sfSequent g a) -> sfNDPropUnary (sfSequent g a) (sfSequent g sfBot) $;
+
+theorem sfNDPropDerives_Exp (u: nat) (g a: nat):
+  $ sfRowWf (sfSequent g a) -> sfNDPropDerives u (sfSequent g sfBot) -> sfNDPropDerives ((sfSequent g a) : u) (sfSequent g a) $;
+
+theorem sfNDPropUnary_CE1 (g a b: nat):
+  $ sfRowWf (sfSequent g a) -> sfNDPropUnary (sfSequent g a) (sfSequent g (sfAnd a b)) $;
+
+theorem sfNDPropDerives_CE1 (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g a) -> sfNDPropDerives u (sfSequent g (sfAnd a b)) -> sfNDPropDerives ((sfSequent g a) : u) (sfSequent g a) $;
+
+theorem sfNDPropUnary_CE2 (g a b: nat):
+  $ sfRowWf (sfSequent g b) -> sfNDPropUnary (sfSequent g b) (sfSequent g (sfAnd a b)) $;
+
+theorem sfNDPropDerives_CE2 (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g b) -> sfNDPropDerives u (sfSequent g (sfAnd a b)) -> sfNDPropDerives ((sfSequent g b) : u) (sfSequent g b) $;
+
+theorem sfNDPropUnary_DI1 (g a b: nat):
+  $ sfRowWf (sfSequent g (sfOr a b)) -> sfNDPropUnary (sfSequent g (sfOr a b)) (sfSequent g a) $;
+
+theorem sfNDPropDerives_DI1 (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g (sfOr a b)) -> sfNDPropDerives u (sfSequent g a) -> sfNDPropDerives ((sfSequent g (sfOr a b)) : u) (sfSequent g (sfOr a b)) $;
+
+theorem sfNDPropUnary_DI2 (g a b: nat):
+  $ sfRowWf (sfSequent g (sfOr a b)) -> sfNDPropUnary (sfSequent g (sfOr a b)) (sfSequent g b) $;
+
+theorem sfNDPropDerives_DI2 (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g (sfOr a b)) -> sfNDPropDerives u (sfSequent g b) -> sfNDPropDerives ((sfSequent g (sfOr a b)) : u) (sfSequent g (sfOr a b)) $;
+
+theorem sfNDPropBinary_IE (g a b: nat):
+  $ sfRowWf (sfSequent g b) -> sfNDPropBinary (sfSequent g b) (sfSequent g (sfImp a b)) (sfSequent g a) $;
+
+theorem sfNDPropDerives_IE (u v: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g b) -> sfNDPropDerives u (sfSequent g (sfImp a b)) -> sfNDPropDerives v (sfSequent g a) -> sfNDPropDerives ((sfSequent g b) : (u ++ v)) (sfSequent g b) $;
+
+theorem sfNDPropBinary_CI (g a b: nat):
+  $ sfRowWf (sfSequent g (sfAnd a b)) -> sfNDPropBinary (sfSequent g (sfAnd a b)) (sfSequent g a) (sfSequent g b) $;
+
+theorem sfNDPropDerives_CI (u v: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g (sfAnd a b)) -> sfNDPropDerives u (sfSequent g a) -> sfNDPropDerives v (sfSequent g b) -> sfNDPropDerives ((sfSequent g (sfAnd a b)) : (u ++ v)) (sfSequent g (sfAnd a b)) $;
+
+theorem sfNDPropBinary_BranchPair (g a b c: nat):
+  $ sfRowWf (sfBranches g a b c) -> sfNDPropBinary (sfBranches g a b c) (sfSequent (a : g) c) (sfSequent (b : g) c) $;
+
+theorem sfNDPropDerives_BranchPair (u v: nat) (g a b c: nat):
+  $ sfRowWf (sfBranches g a b c) -> sfNDPropDerives u (sfSequent (a : g) c) -> sfNDPropDerives v (sfSequent (b : g) c) -> sfNDPropDerives ((sfBranches g a b c) : (u ++ v)) (sfBranches g a b c) $;
+
+theorem sfNDPropBinary_DE (g a b c: nat):
+  $ sfRowWf (sfSequent g c) -> sfNDPropBinary (sfSequent g c) (sfSequent g (sfOr a b)) (sfBranches g a b c) $;
+
+theorem sfNDPropDerives_DE (u v: nat) (g a b c: nat):
+  $ sfRowWf (sfSequent g c) -> sfNDPropDerives u (sfSequent g (sfOr a b)) -> sfNDPropDerives v (sfBranches g a b c) -> sfNDPropDerives ((sfSequent g c) : (u ++ v)) (sfSequent g c) $;
+
+theorem sfNDPropUnary_Wk (g h a: nat):
+  $ sfRowWf (sfSequent h a) -> sfContextSub g h -> sfNDPropUnary (sfSequent h a) (sfSequent g a) $;
+
+theorem sfNDPropDerives_Wk (u: nat) (g h a: nat):
+  $ sfRowWf (sfSequent h a) -> sfContextSub g h -> sfNDPropDerives u (sfSequent g a) -> sfNDPropDerives ((sfSequent h a) : u) (sfSequent h a) $;
+
+theorem sfNDProp_identity (a: nat):
+  $ sfWf a -> sfNDPropDerives
+      ((sfSequent 0 (sfImp a a)) : ((sfSequent (a : 0) a) : 0))
+      (sfSequent 0 (sfImp a a)) $;

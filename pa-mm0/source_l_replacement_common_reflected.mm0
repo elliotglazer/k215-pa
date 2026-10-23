@@ -1,0 +1,42 @@
+import "source_l_replacement_common_reflection.mm0";
+
+def sfLReplacementAbovePoint(count psi a:nat):nat =
+ $ sfAnd (sfCLOrdinalAt 0) (sfAnd (sfMem (suc a) 0) (sfCLReflection sfLDomain count psi 0)) $;
+
+def sfLReplacementAboveAt(count psi a:nat):nat =
+ $ sfEx (sfLReplacementAbovePoint count psi a) $;
+
+def sfLReplacementAboveLaw(count psi:nat):nat =
+ $ sfAll (sfImp (sfCLOrdinalAt 0) (sfLReplacementAboveAt count psi 0)) $;
+
+def sfLReplacementLevelExistsLaw:nat =
+ $ sfAll (sfImp (sfCLOrdinalAt 0) (sfEx (sfCLHierarchyAt 1 0))) $;
+
+def sfLReplacementReflectedRecipe(T:set)(start params count psi:nat):nat =
+ $ sfEx (sfEx (sfAnd (sfCLReflectedPoint (suc (suc start)) params count psi 1 0)
+    (sfLReplacementImageCoverage (sfLReplacementShift2Map T) sfLDomain psi 0))) $;
+
+theorem sfLReplacementAbove_use(G count psi a:nat)(hb:$ sfBound count psi $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw count psi) $)(ha:$ nsLocal G (sfCLOrdinalAt a) $):
+ $ nsLocal G (sfLReplacementAboveAt count psi a) $;
+
+theorem sfLReplacementLevelExists_use(G a:nat)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $)(ha:$ nsLocal G (sfCLOrdinalAt a) $):
+ $ nsLocal G (sfEx (sfCLHierarchyAt (suc a) 0)) $;
+
+theorem sfLReplacementLevelExists_bound: $ sfBound 0 sfLReplacementLevelExistsLaw $;
+
+def lrrAboveFirst(G count psi a:nat):nat =
+ $ sfLReplacementAbovePoint count psi a : sfContextShift G $;
+
+def lrrAboveSecond(G count psi a:nat):nat =
+ $ sfCLHierarchyAt 1 0 : sfContextShift (lrrAboveFirst G count psi a) $;
+
+theorem sfLReplacementReflect_collected(T:set)(G start params count psi a X:nat)
+ (hb:$ sfBound count psi $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw count psi) $)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hp:$ nsLocal G (sfCLPoint start params a X) $)
+ (hc:$ nsLocal G (sfLReplacementImageCoverage T sfLDomain psi X) $):
+ $ nsLocal G (sfLReplacementReflectedRecipe T start params count psi) $;

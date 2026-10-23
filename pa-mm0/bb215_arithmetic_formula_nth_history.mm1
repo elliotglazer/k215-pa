@@ -1,0 +1,31 @@
+import "bb215_arithmetic_formula_list_graph.mm1";
+
+@_ abstract def bb215ArithmeticFormulaNthHistoryCertificate (a l n v .y: nat): wff = $ bb215ArithmeticFormulaHistoryCell a 0 l /\ bb215ArithmeticFormulaRecClosure a bb215ArithmeticFormulaListTailStep n /\ A. y (bb215ArithmeticFormulaHistoryCell a n y -> bb215ArithmeticFormulaListHead y = v) $;
+
+theorem bb215ArithmeticFormulaNthHistoryCertificate_step (a l n v i x: nat): $ bb215ArithmeticFormulaNthHistoryCertificate a l n v -> i < n -> bb215ArithmeticFormulaHistoryCell a i x -> bb215ArithmeticFormulaHistoryCell a (suc i) (bb215ArithmeticFormulaListTailStep @ x) $ = (named '(syl bb215ArithmeticFormulaRecClosure_at anlr));
+
+theorem bb215ArithmeticFormulaNthHistoryCertificate_initial (a l n v: nat): $ bb215ArithmeticFormulaNthHistoryCertificate a l n v -> bb215ArithmeticFormulaHistoryCell a 0 (rec l bb215ArithmeticFormulaListTailStep 0) $ = (named '(mpbid (a1i (bb215ArithmeticFormulaHistoryCelleq3 (eqcom rec0))) anll));
+
+theorem bb215ArithmeticFormulaNthHistoryCertificate_runs (a l n v i: nat): $ bb215ArithmeticFormulaNthHistoryCertificate a l n v -> i <= n -> bb215ArithmeticFormulaHistoryCell a i (rec l bb215ArithmeticFormulaListTailStep i) $ = (named @ induct '(indd) 'i '(a1d bb215ArithmeticFormulaNthHistoryCertificate_initial) '(exp (mpbid (a1i (bb215ArithmeticFormulaHistoryCelleq3 (eqcom recS))) (mpd (mpd (syl ltle anr) (syl anr anl)) (mpd anr (syl bb215ArithmeticFormulaNthHistoryCertificate_step anll))))));
+
+theorem bb215ArithmeticFormulaNthHistoryCertificate_final_index (a l n v: nat) {j: nat}: $ bb215ArithmeticFormulaNthHistoryCertificate a l n v -> A. j (bb215ArithmeticFormulaHistoryCell a n j -> bb215ArithmeticFormulaListHead j = v) $ = (named 'anr);
+
+theorem bb215ArithmeticFormulaNthHistoryCertificate_final (a l n v y: nat): $ bb215ArithmeticFormulaNthHistoryCertificate a l n v -> bb215ArithmeticFormulaHistoryCell a n y -> bb215ArithmeticFormulaListHead y = v $ = (named '(rsyl (!! bb215ArithmeticFormulaNthHistoryCertificate_final_index j) (!! eale j ,eqtac)));
+
+theorem bb215ArithmeticFormulaNthHistoryCertificate_head (a l n v: nat): $ bb215ArithmeticFormulaNthHistoryCertificate a l n v -> bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n l) = v $ = (named '(mpd (mpd (a1i leid) bb215ArithmeticFormulaNthHistoryCertificate_runs) bb215ArithmeticFormulaNthHistoryCertificate_final));
+
+pub theorem bb215ArithmeticFormulaNthHistoryCertificate_sound (a l n v: nat): $ bb215ArithmeticFormulaNthHistoryCertificate a l n v -> nth n l = v $ = (named '(eqtrd (a1i bb215ArithmeticFormulaListNth_iterate) bb215ArithmeticFormulaNthHistoryCertificate_head));
+
+@_ abstract def bb215ArithmeticFormulaNthHistoryGraph (n l v .a: nat): wff = $ E. a bb215ArithmeticFormulaNthHistoryCertificate a l n v $;
+
+pub theorem bb215ArithmeticFormulaNthHistoryGraph_sound (n l v: nat): $ bb215ArithmeticFormulaNthHistoryGraph n l v -> nth n l = v $ = (named '(!! eex a bb215ArithmeticFormulaNthHistoryCertificate_sound));
+
+theorem bb215ArithmeticFormulaNthHistoryCharacterization_final (a l n: nat): $ bb215ArithmeticFormulaRecCharacterization a l bb215ArithmeticFormulaListTailStep n -> A. y (bb215ArithmeticFormulaHistoryCell a n y -> bb215ArithmeticFormulaListHead y = bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n l)) $ = (named '(!! iald y @ syl (imim2i (bb215ArithmeticFormulaListHeadeqd id)) (syl (imim2i anr) (bi1d bb215ArithmeticFormulaRecCharacterization_point))));
+
+theorem bb215ArithmeticFormulaNthHistoryCharacterization_certificate (a l n: nat): $ bb215ArithmeticFormulaRecCharacterization a l bb215ArithmeticFormulaListTailStep n -> bb215ArithmeticFormulaNthHistoryCertificate a l n (bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n l)) $ = (named '(iand (iand bb215ArithmeticFormulaRecCharacterization_initial bb215ArithmeticFormulaRecCharacterization_closure) bb215ArithmeticFormulaNthHistoryCharacterization_final));
+
+theorem bb215ArithmeticFormulaNthHistoryGraph_witness_head (n l: nat): $ bb215ArithmeticFormulaNthHistoryGraph n l (bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n l)) $ = (named '(ax_mp (!! eximi a bb215ArithmeticFormulaNthHistoryCharacterization_certificate) bb215ArithmeticFormulaRecCharacterization_exists));
+
+pub theorem bb215ArithmeticFormulaNthHistoryGraph_witness (n l: nat): $ bb215ArithmeticFormulaNthHistoryGraph n l (nth n l) $ = (named '(mpbir (bb215ArithmeticFormulaNthHistoryGrapheq3 bb215ArithmeticFormulaListNth_iterate) bb215ArithmeticFormulaNthHistoryGraph_witness_head));
+
+pub theorem bb215ArithmeticFormulaNthHistoryGraph_correct (n l v: nat): $ bb215ArithmeticFormulaNthHistoryGraph n l v <-> nth n l = v $ = (named '(ibii bb215ArithmeticFormulaNthHistoryGraph_sound (mpbii bb215ArithmeticFormulaNthHistoryGraph_witness (bb215ArithmeticFormulaNthHistoryGrapheq3d id))));

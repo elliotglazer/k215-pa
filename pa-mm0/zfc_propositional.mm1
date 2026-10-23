@@ -1,0 +1,142 @@
+import "zfc_quantified_proofs.mm1";
+
+theorem zfcPropSequent_congr (H: wff) (a u b v: nat)
+  (h0: $ H -> a = u $) (h1: $ H -> b = v $):
+  $ H -> sfSequent a b = sfSequent u v $ = '(sfSequent_congr h0 h1);
+do (apply (register-eqd 'sfSequent)
+  '(zfcPropSequent_congr sfSequent_congr_context sfSequent_congr_formula));
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+
+@_ def zfcNDHyp (G a: nat): nat = $ sfSequent G a : 0 $;
+@_ def zfcNDMp (G p q b: nat): nat = $ sfSequent G b : (p ++ q) $;
+@_ def zfcNDIntro (G p a b: nat): nat = $ sfSequent G (sfImp a b) : p $;
+@_ def zfcNDPeirce (G a b: nat): nat =
+$ sfSequent G (sfImp (sfImp (sfImp a b) a) a) : 0 $;
+
+pub theorem zfcNDHyp_derives (G a: nat):
+  $ sfContextWf G -> a IN G -> sfNDFullDerives (zfcNDHyp G a) (sfSequent G a) $ =
+'(exp @ syl sfNDFullDerives_prop_base @ mpd anr @
+  syl sfNDPropBase_Ctx @ sylc sfRowWf_sequent_intro anl
+    (mpd anr (syl sfContextWf_member anl)));
+
+theorem zfcNDMp_guard (G p a b: nat):
+  $ sfNDFullDerives p (sfSequent G (sfImp a b)) -> sfRowWf (sfSequent G b) $ =
+'(sylc sfRowWf_sequent_intro
+  (syl anl (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf))
+  (syl anr (syl (bi1 sfWf_imp_iff) zfcProof_formula_wf)));
+pub theorem zfcNDMp_derives (G p q a b: nat):
+  $ sfNDFullDerives p (sfSequent G (sfImp a b)) -> sfNDFullDerives q (sfSequent G a) ->
+    sfNDFullDerives (zfcNDMp G p q b) (sfSequent G b) $ =
+'(exp @ mpd anr @ mpd anl @ syl sfNDFullDerives_prop_binary @
+  syl sfNDPropBinary_IE (syl zfcNDMp_guard anl));
+
+theorem zfcNDIntro_guard (G p a b: nat):
+  $ sfNDFullDerives p (sfSequent (a : G) b) -> sfRowWf (sfSequent G (sfImp a b)) $ =
+'(sylc sfRowWf_sequent_intro
+  (syl anr (syl (bi1 sfContextWf_cons) (syl anl (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf))))
+  (sylc sfWf_imp
+    (syl anl (syl (bi1 sfContextWf_cons) (syl anl (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf))))
+    zfcProof_formula_wf));
+pub theorem zfcNDIntro_derives (G p a b: nat):
+  $ sfNDFullDerives p (sfSequent (a : G) b) ->
+    sfNDFullDerives (zfcNDIntro G p a b) (sfSequent G (sfImp a b)) $ =
+'(mpd id (syl sfNDFullDerives_prop_unary (syl sfNDPropUnary_II zfcNDIntro_guard)));
+
+pub theorem zfcNDPeirce_derives (G a b: nat):
+  $ sfContextWf G -> sfWf a -> sfWf b ->
+    sfNDFullDerives (zfcNDPeirce G a b) (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) $ =
+'(exp @ exp @ syl sfNDFullDerives_prop_base @ syl sfNDPropBase_Pc @
+  sylc sfRowWf_sequent_intro anll
+    (sylc sfWf_imp (sylc sfWf_imp (sylc sfWf_imp anlr anr) anlr) anlr));
+
+@_ def sfRho8 (a b c u: nat): nat =
+$ sfImp (sfImp (sfImp c u) a) (sfImp (sfImp a c) (sfImp b c)) $;
+@_ def zfcRho8H (a c u: nat): nat = $ sfImp (sfImp c u) a $;
+@_ def zfcRho8Context (a b c u: nat): nat =
+$ b : (sfImp a c : (zfcRho8H a c u : 0)) $;
+@_ def zfcRho8DeepContext (a b c u: nat): nat =
+$ sfImp c u : zfcRho8Context a b c u $;
+@_ def zfcRho8AProof (a b c u: nat): nat =
+$ zfcNDMp (zfcRho8DeepContext a b c u)
+    (zfcNDHyp (zfcRho8DeepContext a b c u) (zfcRho8H a c u))
+    (zfcNDHyp (zfcRho8DeepContext a b c u) (sfImp c u)) a $;
+@_ def zfcRho8DeepCProof (a b c u: nat): nat =
+$ zfcNDMp (zfcRho8DeepContext a b c u)
+    (zfcNDHyp (zfcRho8DeepContext a b c u) (sfImp a c))
+    (zfcRho8AProof a b c u) c $;
+@_ def zfcRho8CProof (a b c u: nat): nat =
+$ zfcNDMp (zfcRho8Context a b c u)
+    (zfcNDPeirce (zfcRho8Context a b c u) c u)
+    (zfcNDIntro (zfcRho8Context a b c u) (zfcRho8DeepCProof a b c u) (sfImp c u) c) c $;
+@_ def zfcRho8Proof (a b c u: nat): nat =
+$ zfcNDIntro 0
+    (zfcNDIntro (zfcRho8H a c u : 0)
+      (zfcNDIntro (sfImp a c : (zfcRho8H a c u : 0))
+        (zfcRho8CProof a b c u) b c)
+      (sfImp a c) (sfImp b c))
+    (zfcRho8H a c u) (sfImp (sfImp a c) (sfImp b c)) $;
+
+theorem zfcRho8_H_member (a b c u: nat):
+  $ zfcRho8H a c u IN zfcRho8DeepContext a b c u $ =
+'(ax_mp sfContext_member_tail @ ax_mp sfContext_member_tail @
+  ax_mp sfContext_member_tail sfContext_member_head);
+theorem zfcRho8_AC_member (a b c u: nat):
+  $ sfImp a c IN zfcRho8DeepContext a b c u $ =
+'(ax_mp sfContext_member_tail @ ax_mp sfContext_member_tail sfContext_member_head);
+
+theorem zfcRho8_A_derives (a b c u: nat):
+  $ sfContextWf (zfcRho8DeepContext a b c u) ->
+    sfNDFullDerives (zfcRho8AProof a b c u) (sfSequent (zfcRho8DeepContext a b c u) a) $ =
+'(sylc zfcNDMp_derives
+  (mpi zfcRho8_H_member zfcNDHyp_derives)
+  (mpi sfContext_member_head zfcNDHyp_derives));
+theorem zfcRho8_deepC_derives (a b c u: nat):
+  $ sfContextWf (zfcRho8DeepContext a b c u) ->
+    sfNDFullDerives (zfcRho8DeepCProof a b c u) (sfSequent (zfcRho8DeepContext a b c u) c) $ =
+'(sylc zfcNDMp_derives
+  (mpi zfcRho8_AC_member zfcNDHyp_derives) zfcRho8_A_derives);
+
+theorem zfcRho8_C_derives (a b c u: nat):
+  $ sfContextWf (zfcRho8Context a b c u) -> sfWf c -> sfWf u ->
+    sfNDFullDerives (zfcRho8CProof a b c u) (sfSequent (zfcRho8Context a b c u) c) $ =
+'(exp @ exp @ sylc zfcNDMp_derives
+  (mpd anr (mpd anlr (syl zfcNDPeirce_derives anll)))
+  (syl zfcNDIntro_derives @ syl zfcRho8_deepC_derives @
+    syl (bi2 sfContextWf_cons) (iand (sylc sfWf_imp anlr anr) anll)));
+
+theorem zfcRho8_from_context (a b c u: nat):
+  $ sfContextWf (zfcRho8Context a b c u) -> sfWf c -> sfWf u ->
+    sfNDFullDerives (zfcRho8Proof a b c u) (sfSequent 0 (sfRho8 a b c u)) $ =
+'(exp @ exp @ syl zfcNDIntro_derives @ syl zfcNDIntro_derives @
+  syl zfcNDIntro_derives @ imp @ imp zfcRho8_C_derives);
+
+theorem zfcPropContext_cons (H: wff) (a G: nat)
+  (ha: $ H -> sfWf a $) (hG: $ H -> sfContextWf G $):
+  $ H -> sfContextWf (a : G) $ = '(syl (bi2 sfContextWf_cons) (iand ha hG));
+
+pub theorem zfcRho8_derives (a b c u: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfWf u ->
+    sfNDFullDerives (zfcRho8Proof a b c u) (sfSequent 0 (sfRho8 a b c u)) $ =
+'(exp @ exp @ exp @ mpd anr @ mpd anlr @
+  syl zfcRho8_from_context @
+  zfcPropContext_cons (syl anr anll)
+    (zfcPropContext_cons (sylc sfWf_imp (syl anl anll) anlr)
+      (zfcPropContext_cons
+        (sylc sfWf_imp (sylc sfWf_imp anlr anr) (syl anl anll))
+        (a1i sfContextWf_nil))));
+
+pub theorem zfcProvable_rho8 (a b c u: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfWf u -> zfcProvable (sfRho8 a b c u) $ =
+'(exp @ exp @ exp @ syl zfcProvable_intro @
+  iand (a1i zfcContext_nil) (imp @ imp @ imp zfcRho8_derives));
+
+@_ def zfcNDIdentityProof (a: nat): nat =
+$ zfcNDIntro 0 (zfcNDHyp (a : 0) a) a a $;
+pub theorem zfcNDIdentity_derives (a: nat):
+  $ sfWf a -> sfNDFullDerives (zfcNDIdentityProof a) (sfSequent 0 (sfImp a a)) $ =
+'(syl zfcNDIntro_derives @ mpi sfContext_member_head @
+  syl zfcNDHyp_derives @ syl (bi2 sfContextWf_cons) (iand id (a1i sfContextWf_nil)));
+pub theorem zfcProvable_identity (a: nat): $ sfWf a -> zfcProvable (sfImp a a) $ =
+'(syl zfcProvable_intro (iand (a1i zfcContext_nil) zfcNDIdentity_derives));
+pub theorem zfcProvable_truth: $ zfcProvable (sfImp sfBot sfBot) $ =
+'(ax_mp zfcProvable_identity sfWf_bot);

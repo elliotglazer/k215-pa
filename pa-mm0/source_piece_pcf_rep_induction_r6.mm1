@@ -1,0 +1,116 @@
+import "source_piece_pcf_rep_transport.mm1";
+import "source_wf_separation_logic.mm1";
+
+@_ def sfPieceRepSuccessorClosed(C:nat):nat =
+ $ sfAll (sfImp (sfMem 0 (suc C))
+   (sfEx (sfAnd (sfPieceRepSuccessor 1 0) (sfMem 0 (suc (suc C)))))) $;
+@_ def sfPieceRepNumeralExists(C k:nat):nat =
+ $ sfEx (sfAnd (sfPieceNumeral k 0) (sfMem 0 (suc C))) $;
+@_ def pcriBody(C k:nat):nat =
+ $ sfAnd (sfPieceNumeral k 0) (sfMem 0 (suc C)) $;
+@_ def pcriSuccBody(C x:nat):nat =
+ $ sfAnd (sfPieceRepSuccessor (suc x) 0) (sfMem 0 (suc C)) $;
+@_ def pcriSuccessorAt(C x:nat):nat = $ sfEx (pcriSuccBody C x) $;
+@_ def pcriFirstContext(G C k:nat):nat = $ pcriBody C k : sfContextShift G $;
+@_ def pcriSecondContext(G C k:nat):nat =
+ $ pcriSuccBody (suc C) 0 : sfContextShift (pcriFirstContext G C k) $;
+
+theorem pcri_num_eq(k x y:nat)(h:$ x = y $):
+ $ sfPieceNumeral k x = sfPieceNumeral k y $ =
+ '(trud (sfSubst_congr (a1i eqid) (a1i h) (a1i eqid)));
+theorem pcri_num_shift(k x:nat):
+ $ sfShift 0 (sfPieceNumeral k x) = sfPieceNumeral k (suc x) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceNumeral_wf))
+   (eqtr sfPieceNumeral_rename (pcri_num_eq sfSuccessorMap_value)));
+theorem pcri_body_wf(C k:nat): $ sfWf (pcriBody C k) $ =
+ '(ax_mp (ax_mp sfWf_and sfPieceNumeral_wf) sfWf_mem);
+pub theorem sfPieceRepNumeralExists_wf(C k:nat):
+ $ sfWf (sfPieceRepNumeralExists C k) $ = '(ax_mp sfWf_ex pcri_body_wf);
+theorem pcri_succbody_wf(C x:nat): $ sfWf (pcriSuccBody C x) $ =
+ '(ax_mp (ax_mp sfWf_and sfPieceRepSuccessor_wf) sfWf_mem);
+theorem pcri_successorat_wf(C x:nat): $ sfWf (pcriSuccessorAt C x) $ =
+ '(ax_mp sfWf_ex pcri_succbody_wf);
+pub theorem sfPieceRepSuccessorClosed_wf(C:nat):
+ $ sfWf (sfPieceRepSuccessorClosed C) $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) pcri_successorat_wf));
+theorem pcri_body_subst(C k x:nat):
+ $ sfSubst 0 x (pcriBody C k) = sfAnd (sfPieceNumeral k x) (sfMem x C) $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq
+   (eqtr sfPieceNumeral_subst (pcri_num_eq sfSubstIndex_zero))
+   (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))));
+pub theorem sfPieceRepNumeralExists_intro(G C k x:nat)
+ (hn:$ nsLocal G (sfPieceNumeral k x) $)(hm:$ nsLocal G (sfMem x C) $):
+ $ nsLocal G (sfPieceRepNumeralExists C k) $ =
+ '(ax_mp (ax_mp nsLocal_ExI pcri_body_wf)
+   (mpbir (nsLocal_formula_eq pcri_body_subst) (sfLocal_and hn hm)));
+theorem pcri_exists_zero(C:nat):
+ $ sfPieceRepNumeralExists C 0 = sfEx (sfAnd (sfPieceRepEmpty 0) (sfMem 0 (suc C))) $ =
+ '(nsEx_eq (nsAnd_eq sfPieceNumeral_zero eqid));
+
+theorem pcri_exists_shift(C k:nat):
+ $ sfShift 0 (sfPieceRepNumeralExists C k) = sfPieceRepNumeralExists (suc C) k $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepNumeralExists_wf)) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfPieceNumeral_rename_depth (pcri_num_eq (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))))))))));
+
+theorem pcri_closed_shift(C:nat):
+ $ sfShift 0 (sfPieceRepSuccessorClosed C) = sfPieceRepSuccessorClosed (suc C) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepSuccessorClosed_wf)) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))))) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfPieceRepSuccessor_rename (sfPieceRepSuccessor_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))))))))))))))));
+
+theorem pcri_closed_open(C x:nat):
+ $ sfSubst 0 x (sfImp (sfMem 0 (suc C)) (pcriSuccessorAt (suc C) 0)) = sfImp (sfMem x C) (pcriSuccessorAt C x) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_hit add02) sfSubstIndex_successor)) (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq (eqtr sfSubstIndex_hit (eqtr addS (suceq add02))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor))))))))));
+
+theorem pcri_closed_use(G C x:nat)(hs:$ nsLocal G (sfPieceRepSuccessorClosed C) $):
+ $ nsLocal G (sfMem x C) -> nsLocal G (pcriSuccessorAt C x) $ =
+ '(ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq pcri_closed_open) (ax_mp nsLocal_AllE hs)));
+theorem pcri_first_wf(G C k:nat): $ sfContextWf (pcriFirstContext G C k) $ =
+ '(mpbir sfContextWf_cons (ian pcri_body_wf sfContextShift_wf));
+theorem pcri_first_hyp(G C k:nat): $ nsLocal (pcriFirstContext G C k) (pcriBody C k) $ =
+ '(ax_mp (ax_mp nsLocal_hyp pcri_first_wf) sfContext_member_head);
+theorem pcri_first_num(G C k:nat): $ nsLocal (pcriFirstContext G C k) (sfPieceNumeral k 0) $ =
+ '(ax_mp nsLocal_CE1 pcri_first_hyp);
+theorem pcri_first_mem(G C k:nat): $ nsLocal (pcriFirstContext G C k) (sfMem 0 (suc C)) $ =
+ '(ax_mp nsLocal_CE2 pcri_first_hyp);
+theorem pcri_second_wf(G C k:nat): $ sfContextWf (pcriSecondContext G C k) $ =
+ '(mpbir sfContextWf_cons (ian pcri_succbody_wf sfContextShift_wf));
+theorem pcri_second_hyp(G C k:nat):
+ $ nsLocal (pcriSecondContext G C k) (pcriSuccBody (suc C) 0) $ =
+ '(ax_mp (ax_mp nsLocal_hyp pcri_second_wf) sfContext_member_head);
+theorem pcri_second_num(G C k:nat):
+ $ nsLocal (pcriSecondContext G C k) (sfPieceNumeral k 1) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken pcri_second_wf) sfContextSub_cons)
+   (mpbi (nsLocal_formula_eq pcri_num_shift) (ax_mp sfSepLocal_shift pcri_first_num)));
+theorem pcri_second_succ(G C k:nat):
+ $ nsLocal (pcriSecondContext G C k) (sfPieceRepSuccessor 1 0) $ =
+ '(ax_mp nsLocal_CE1 pcri_second_hyp);
+theorem pcri_second_mem(G C k:nat):
+ $ nsLocal (pcriSecondContext G C k) (sfMem 0 (suc (suc C))) $ =
+ '(ax_mp nsLocal_CE2 pcri_second_hyp);
+theorem pcri_second_newnum(G C k:nat):
+ $ nsLocal (pcriSecondContext G C k) (sfPieceNumeral (suc k) 0) $ =
+ '(sfPieceNumeral_suc_intro pcri_second_num pcri_second_succ);
+theorem pcri_second_next(G C k:nat):
+ $ nsLocal (pcriSecondContext G C k) (sfShift 0 (sfPieceRepNumeralExists (suc C) (suc k))) $ =
+ '(mpbir (nsLocal_formula_eq pcri_exists_shift)
+   (sfPieceRepNumeralExists_intro pcri_second_newnum pcri_second_mem));
+theorem pcri_first_closed(G C k:nat)(hs:$ nsLocal G (sfPieceRepSuccessorClosed C) $):
+ $ nsLocal (pcriFirstContext G C k) (sfPieceRepSuccessorClosed (suc C)) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken pcri_first_wf) sfContextSub_cons)
+   (mpbi (nsLocal_formula_eq pcri_closed_shift) (ax_mp sfSepLocal_shift hs)));
+theorem pcri_first_successor(G C k:nat)(hs:$ nsLocal G (sfPieceRepSuccessorClosed C) $):
+ $ nsLocal (pcriFirstContext G C k) (pcriSuccessorAt (suc C) 0) $ =
+ '(ax_mp (pcri_closed_use (pcri_first_closed hs)) pcri_first_mem);
+theorem pcri_first_next(G C k:nat)(hs:$ nsLocal G (sfPieceRepSuccessorClosed C) $):
+ $ nsLocal (pcriFirstContext G C k) (sfShift 0 (sfPieceRepNumeralExists C (suc k))) $ =
+ '(mpbir (nsLocal_formula_eq pcri_exists_shift)
+   (ax_mp (ax_mp (sfLocal_exE sfPieceRepNumeralExists_wf) (pcri_first_successor hs)) pcri_second_next));
+pub theorem sfPieceRepNumeralExists_step(G C k:nat)
+ (hs:$ nsLocal G (sfPieceRepSuccessorClosed C) $):
+ $ nsLocal G (sfPieceRepNumeralExists C k) -> nsLocal G (sfPieceRepNumeralExists C (suc k)) $ =
+ '(ax_mp (com12 (sfLocal_exE sfPieceRepNumeralExists_wf)) (pcri_first_next hs));
+pub theorem sfPieceNumeralExists_of_empty_successor(G C k:nat)
+ (h0:$ nsLocal G (sfEx (sfAnd (sfPieceRepEmpty 0) (sfMem 0 (suc C)))) $)
+ (hs:$ nsLocal G (sfPieceRepSuccessorClosed C) $):
+ $ nsLocal G (sfPieceRepNumeralExists C k) $ =
+ (named @ induct '(ind) 'k
+  '(mpbir (nsLocal_formula_eq pcri_exists_zero) h0)
+  '(sfPieceRepNumeralExists_step hs));

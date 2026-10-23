@@ -1,0 +1,32 @@
+import "source_piece_pcf_syntax.mm0";
+
+import "source_theory_prefix.mm0";
+
+import "source_syntax_laws.mm0";
+
+theorem sfPieceD0_bound (domain level count phi: nat):
+ $ sfBound 1 domain -> sfBound 2 level -> sfBound (suc count) phi ->
+   sfBound (suc (suc count)) (sfPieceD0 domain level phi) $;
+
+theorem sfPieceDnStep_bound (n previous: nat):
+ $ sfBound (suc (suc (suc n))) previous ->
+   sfBound (suc (suc n))
+    (sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 previous))) $;
+
+def sfPieceDnBoundLaw (count body .n: nat): wff =
+ $ A. n (sfBound (count + suc (suc n)) body ->
+   sfBound (suc (suc n)) (sfPieceDn count body)) $;
+
+theorem sfPieceDn_bound (count body n: nat):
+ $ sfBound (count + suc (suc n)) body ->
+   sfBound (suc (suc n)) (sfPieceDn count body) $;
+
+theorem sfPieceOpenMap_identity: $ sfPieceOpenMap 0 1 == sfIdentityMap $;
+
+theorem sfPiecePC_binary_bound (domain level count phi: nat):
+ $ sfBound 1 domain -> sfBound 2 level -> sfBound (suc count) phi ->
+   sfBound 2 (sfPiecePC domain level count phi 0 1) $;
+
+theorem sfPieceBinary_bound (domain level sb sc n: nat):
+ $ sfBound 1 domain -> sfBound 2 level -> sfPieceTableValid sb sc n ->
+   sfBound 2 (sfPieceBinary domain level sb sc n) $;

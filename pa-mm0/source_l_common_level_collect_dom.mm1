@@ -1,0 +1,30 @@
+import "source_l_common_level_two_cmp.mm1";
+import "source_l_common_level_two_sub.mm1";
+import "source_l_domain.mm1";
+
+-- The fixed L-domain predicate is the point formula exists alpha exists y. Lev(alpha, y) /\ x e. y.
+theorem cl2k_dom_ordinal: $ srcLF13 = sfCLOrdinalAt 1 $ =
+'(eqtr (eqcom (! sfReflectionOrdinalAt_expanded $ 1 $)) sfCL2_reflection_ordinal);
+
+theorem cl2k_dom_hierarchy: $ srcLF777 = sfCLHierarchyAt 1 0 $ =
+'(eqtr (eqcom srcLHierarchyInterfacePoint2752) (eqcom sfCL2_hierarchy_relation));
+
+pub theorem sfCL2_domain_eq: $ sfLDomain = sfCL2Ex 2 $ =
+'(nsEx_eq (nsEx_eq (nsAnd_eq (nsAnd_eq cl2k_dom_ordinal cl2k_dom_hierarchy) eqid)));
+
+theorem cl2k_lev_subst2 (x: nat): $ sfSubst 2 x (sfCL2Lev 1 0) = sfCL2Lev 1 0 $ =
+'(eqtr sfSubst_sfAnd (nsAnd_eq
+  (eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq (ax_mp sfSubstIndex_bound d1lt2)))
+  (eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq (ax_mp sfSubstIndex_bound d1lt2)
+    (ax_mp sfSubstIndex_bound d0lt2)))));
+
+theorem cl2k_pt_subst2 (x: nat): $ sfSubst 2 x (sfCL2Pt 1 0 2) = sfCL2Pt 1 0 (suc (suc x)) $ =
+'(eqtr sfSubst_sfAnd (nsAnd_eq cl2k_lev_subst2
+  (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_hit (eqtr addS2 (suceq add12)))
+    (ax_mp sfSubstIndex_bound d0lt2)))));
+
+theorem cl2k_ex_subst (x: nat): $ sfSubst 0 x (sfCL2Ex 2) = sfCL2Ex (suc (suc x)) $ =
+'(eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfEx (nsEx_eq cl2k_pt_subst2))));
+
+pub theorem sfCL2_domain_subst (x: nat): $ sfSubst 0 x sfLDomain = sfCL2Ex (suc (suc x)) $ =
+'(eqtr (sfSubsteq eqid eqid sfCL2_domain_eq) cl2k_ex_subst);

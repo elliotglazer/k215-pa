@@ -1,0 +1,27 @@
+import "source_piece_pcf_definable_conjunction.mm0";
+
+import "source_piece_pcf_definable_cover_realization.mm0";
+
+import "source_piece_pcf_rep_cover_use_r42.mm0";
+
+def sfPieceRepImplicationNamedUnion(a b r:nat):nat = $ sfAll (sfIff (sfMem 0 (suc r)) (sfOr (sfMem 0 (suc a)) (sfMem 0 (suc b)))) $;
+
+theorem sfPieceRepImplicationNamedUnion_wf(a b r:nat): $ sfWf (sfPieceRepImplicationNamedUnion a b r) $;
+
+theorem sfPieceRepImplicationNamedUnion_rename(R:set)(a b r:nat): $ sfRename R 0 (sfPieceRepImplicationNamedUnion a b r) = sfPieceRepImplicationNamedUnion (R @ a) (R @ b) (R @ r) $;
+
+theorem sfPieceRepImplicationNamedUnion_congr(a b r aa bb rr:nat)(ha:$ a = aa $)(hb:$ b = bb $)(hr:$ r = rr $): $ sfPieceRepImplicationNamedUnion a b r = sfPieceRepImplicationNamedUnion aa bb rr $;
+
+theorem sfPieceRepImplicationNamedUnion_open(e a b r:nat): $ sfSubst 0 e (sfIff (sfMem 0 (suc r)) (sfOr (sfMem 0 (suc a)) (sfMem 0 (suc b)))) = sfIff (sfMem e r) (sfOr (sfMem e a) (sfMem e b)) $;
+
+theorem sfPieceRepImplicationNamedUnion_member(G a b r e:nat)(hp:$ nsLocal G (sfPieceRepImplicationNamedUnion a b r) $): $ nsLocal G (sfIff (sfMem e r) (sfOr (sfMem e a) (sfMem e b))) $;
+
+theorem sfPieceRepImplicationNamedUnion_shift(a b r:nat): $ sfShift 0 (sfPieceRepImplicationNamedUnion a b r) = sfPieceRepImplicationNamedUnion (suc a) (suc b) (suc r) $;
+
+theorem sfPieceRepImplicationNamedUnion_context(n G a b r:nat)(hp:$ nsLocal G (sfPieceRepImplicationNamedUnion a b r) $): $ nsLocal (sfPieceDefinableParametersContext n G) (sfPieceRepImplicationNamedUnion (sfPieceDefinableContextTransportMap n @ a) (sfPieceDefinableContextTransportMap n @ b) (sfPieceDefinableContextTransportMap n @ r)) $;
+
+theorem sfPieceRepImplicationNamed_represents(T:set)(G A universe left right difference result phi psi e:nat)(hN:$ nsLocal G (sfIff (sfMem e difference) (sfAnd (sfMem e universe) (sfImp (sfMem e left) sfBot))) $)(hR:$ nsLocal G (sfIff (sfMem e result) (sfOr (sfMem e difference) (sfMem e right))) $)(hA:$ sfPieceRepresentationAt T G A left phi e $)(hB:$ sfPieceRepresentationAt T G A right psi e $)(hD:$ nsLocal G (sfMem e universe) $): $ sfPieceRepresentationAt T G A result (sfImp phi psi) e $;
+
+theorem sfPieceRepImplicationNamed_point(G n phi psi universe left right difference:nat)(hl:$ sfBound n phi $)(hr:$ sfBound n psi $)(hL:$ nsLocal G (sfPieceDefinableNamed n phi left 1) $)(hR:$ nsLocal G (sfPieceDefinableNamed n psi right 1) $)(hD:$ nsLocal G (sfPieceDefinableConjunctionDifference universe left difference) $)(hU:$ nsLocal G (sfPieceRepImplicationNamedUnion difference right 0) $)(hC:$ nsLocal G (sfPieceRepEnvironmentCoverAt 1 universe n) $): $ nsLocal (sfPieceDefinableParametersContext n G) (sfPieceDefinableRecipePoint n (sfImp phi psi)) $;
+
+theorem sfPieceRepImplicationNamed_recipe(G n phi psi universe left right difference:nat)(hl:$ sfBound n phi $)(hr:$ sfBound n psi $)(hL:$ nsLocal G (sfPieceDefinableNamed n phi left 1) $)(hR:$ nsLocal G (sfPieceDefinableNamed n psi right 1) $)(hD:$ nsLocal G (sfPieceDefinableConjunctionDifference universe left difference) $)(hU:$ nsLocal G (sfPieceRepImplicationNamedUnion difference right 0) $)(hC:$ nsLocal G (sfPieceRepEnvironmentCoverAt 1 universe n) $): $ nsLocal G (sfPieceDefinableRecipe n (sfImp phi psi)) $;

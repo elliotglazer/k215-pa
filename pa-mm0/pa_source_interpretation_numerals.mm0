@@ -1,0 +1,17 @@
+import "pa_source_interpretation_builders.mm0";
+
+import "source_renaming_agreement.mm0";
+
+theorem paSourceTermSuccessor_closed_input (a: nat): $ sfBound 1 a -> paSourceTermSuccessor a = bb215SFNumeralStep a $;
+
+def paSourceNumeralGraph (v .a: nat): nat = $ rec paSourceTermZero (\ a, paSourceTermSuccessor a) v $;
+
+theorem paSourceNumeralGraph_zero: $ paSourceNumeralGraph 0 = paSourceTermZero $;
+
+theorem paSourceNumeralGraph_succ (v: nat): $ paSourceNumeralGraph (suc v) = paSourceTermSuccessor (paSourceNumeralGraph v) $;
+
+theorem paSourceNumeralGraph_exact (v: nat): $ paSourceNumeralGraph v = bb215SFNumeral v $;
+
+theorem paSourceNumeralGraph_bound (v: nat): $ sfBound 1 (paSourceNumeralGraph v) $;
+
+theorem paSourceNumeralGraph_instance (v a: nat): $ sfEx (sfAnd (paSourceNumeralGraph v) a) = bb215SFNumeralInstance v a $;

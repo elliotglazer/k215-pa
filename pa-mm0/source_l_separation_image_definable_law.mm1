@@ -1,0 +1,132 @@
+import "source_l_separation_image_producer_context.mm1";
+import "source_l_replacement_definable_instances.mm1";
+
+-- The reflected context is P : shift (Ex Ex P : shift (input context)), where
+-- P = sfCLReflectedPoint 2 (suc n) (suc n) phi 1 0 (beta = 1, Y = 0, x = 2).
+theorem slSepLaw_reflected_wf(G n phi:nat):
+ $ sfContextWf (sfLSeparationReflectedContext G n phi) $ =
+ '(mpbir sfContextWf_cons (ian sfCLReflectedPoint_wf sfContextShift_wf));
+
+theorem slSepLaw_reflected_point(G n phi:nat):
+ $ nsLocal (sfLSeparationReflectedContext G n phi)
+   (sfCLReflectedPoint 2 (suc n) (suc n) phi 1 0) $ =
+ '(ax_mp (ax_mp nsLocal_hyp slSepLaw_reflected_wf) sfContext_member_head);
+
+theorem slSepLaw_law_bound(n phi:nat)(hb:$ sfBound (suc n) phi $):
+ $ sfBound 0 (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $ =
+ '(sfLReplacementDefinableLaw_bound (ax_mp sfPieceSeparationPredicate_bound hb));
+
+-- The closed law is carried from G through the input context and the two witness binders.
+theorem slSepLaw_law_in_reflected(G n phi:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hD:$ nsLocal G (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $):
+ $ nsLocal (sfLSeparationReflectedContext (sfLSeparationImageInputContext G n) n phi)
+   (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $ =
+ '(slSepWitnessClosed sfCLReflectedPoint_wf (slSepLaw_law_bound hb)
+   (sfLSeparationImageInput_lift (ax_mp sfShift_closed_identity (slSepLaw_law_bound hb)) hD));
+
+pub theorem sfLSeparationImage_candidate_from_law(G n phi:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hD:$ nsLocal G (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $):
+ $ nsLocal (sfLSeparationReflectedContext (sfLSeparationImageInputContext G n) n phi)
+   (sfLSeparationImageCandidate (sfLSeparationImageParameterMap 2) sfLDomain phi 0 2) $ =
+ '(sfLReplacementDefinableLaw_separation hb (slSepLaw_law_in_reflected hb hD)
+   (ax_mp nsLocal_CE1 (ax_mp sfCLPoint_pair (ax_mp sfCLReflectedPoint_forget slSepLaw_reflected_point)))
+   (ax_mp nsLocal_CE2 (ax_mp sfCLPoint_pair (ax_mp sfCLReflectedPoint_forget slSepLaw_reflected_point)))
+   (sfLSeparationImageReflected_target slSepLaw_reflected_point)
+   (sfLSeparationImageReflected_rows slSepLaw_reflected_point));
+
+-- Producer context extended by the law at its head.
+local def slSepLawContext(n phi:nat):nat =
+ $ sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi) :
+   sfLSeparationProducerContext n phi $;
+
+theorem slSepLaw_context_wf(n phi:nat)
+ (hE:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExtension $)
+ (hA:$ sfTheoryProvable zfrAxioms (sfLReplacementAboveLaw (suc n) phi) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExistsLaw $)
+ (hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hT:$ sfTheoryProvable zfrAxioms sfLSeparationStageTransNormal $)
+ (hZ:$ sfTheoryProvable zfrAxioms (sfCLRecipe 0 0) $)
+ (hD:$ sfTheoryProvable zfrAxioms
+   (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $):
+ $ sfContextWf (slSepLawContext n phi) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hD)
+   (slSepProducer_context_wf hE hA hL hS hT hZ)));
+
+theorem slSepLaw_context_proved(n phi:nat)
+ (hE:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExtension $)
+ (hA:$ sfTheoryProvable zfrAxioms (sfLReplacementAboveLaw (suc n) phi) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExistsLaw $)
+ (hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hT:$ sfTheoryProvable zfrAxioms sfLSeparationStageTransNormal $)
+ (hZ:$ sfTheoryProvable zfrAxioms (sfCLRecipe 0 0) $)
+ (hD:$ sfTheoryProvable zfrAxioms
+   (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $):
+ $ all (sfTheoryProofClass zfrAxioms) (slSepLawContext n phi) $ =
+ '(mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hD)
+   (slSepProducer_context_proved hE hA hL hS hT hZ)));
+
+theorem slSepLaw_hD(n phi:nat)(hg:$ sfContextWf (slSepLawContext n phi) $):
+ $ nsLocal (slSepLawContext n phi)
+   (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) sfContext_member_head);
+
+theorem slSepLaw_hE(n phi:nat)(hg:$ sfContextWf (slSepLawContext n phi) $):
+ $ nsLocal (slSepLawContext n phi) sfLReplacementLevelExtension $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem slSepLaw_hA(n phi:nat)(hg:$ sfContextWf (slSepLawContext n phi) $):
+ $ nsLocal (slSepLawContext n phi) (sfLReplacementAboveLaw (suc n) phi) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem slSepLaw_hL(n phi:nat)(hg:$ sfContextWf (slSepLawContext n phi) $):
+ $ nsLocal (slSepLawContext n phi) sfLReplacementLevelExistsLaw $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem slSepLaw_hS(n phi:nat)(hg:$ sfContextWf (slSepLawContext n phi) $):
+ $ nsLocal (slSepLawContext n phi) (sfReflectionHierarchySubsetNormal sfCLHierarchy) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem slSepLaw_hT(n phi:nat)(hg:$ sfContextWf (slSepLawContext n phi) $):
+ $ nsLocal (slSepLawContext n phi) sfLSeparationStageTransNormal $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+     (ax_mp sfContext_member_tail sfContext_member_head))))));
+
+theorem slSepLaw_hZ(n phi:nat)(hg:$ sfContextWf (slSepLawContext n phi) $):
+ $ nsLocal (slSepLawContext n phi) (sfCLRecipe 0 0) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+     (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))))));
+
+theorem slSepLaw_schema(n phi:nat)(hb:$ sfBound (suc n) phi $)
+ (hg:$ sfContextWf (slSepLawContext n phi) $)
+ (hp:$ all (sfTheoryProofClass zfrAxioms) (slSepLawContext n phi) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcSeparationCode phi n)) $ =
+ '(ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed) hp)
+   (sfLSeparationImage_schema_kernel hg hb
+    (sfLSeparationImageInput_lift (ax_mp sfShift_closed_identity slSepProducerInitial_bound) (slSepLaw_hZ hg))
+    (sfLSeparationImageInput_lift (ax_mp sfShift_closed_identity sfLReplacementLevelExtension_bound) (slSepLaw_hE hg))
+    (sfLSeparationImageInput_lift (ax_mp sfShift_closed_identity (slSepAboveLaw_bound hb)) (slSepLaw_hA hg))
+    (sfLSeparationImageInput_lift (ax_mp sfShift_closed_identity sfLReplacementLevelExists_bound) (slSepLaw_hL hg))
+    (sfLSeparationImageInput_lift (rfmc_subnormal_shift sfCLHierarchy_bound) (slSepLaw_hS hg))
+    (sfLSeparationImageInput_lift (ax_mp sfShift_closed_identity sfLSeparationStageTransNormal_bound) (slSepLaw_hT hg))
+    (sfLSeparationImage_candidate_from_law hb (slSepLaw_hD hg))));
+
+pub theorem sfLSeparationImage_schema_from_law_and_source_proofs(n phi:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hE:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExtension $)
+ (hA:$ sfTheoryProvable zfrAxioms (sfLReplacementAboveLaw (suc n) phi) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExistsLaw $)
+ (hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hT:$ sfTheoryProvable zfrAxioms sfLSeparationStageTransNormal $)
+ (hZ:$ sfTheoryProvable zfrAxioms (sfCLRecipe 0 0) $)
+ (hD:$ sfTheoryProvable zfrAxioms
+   (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcSeparationCode phi n)) $ =
+ '(slSepLaw_schema hb (slSepLaw_context_wf hE hA hL hS hT hZ hD)
+   (slSepLaw_context_proved hE hA hL hS hT hZ hD));

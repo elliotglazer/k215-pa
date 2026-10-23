@@ -1,0 +1,27 @@
+import "source_reflection_transfer_tv_canonical.mm0";
+
+import "source_l_common_level_setrel_renaming.mm0";
+
+def sfTVCanonicalPiece(n c:nat):nat = $ sfPieceFunctionBinary sfLDomain (sfReflectionPCLevel sfLUniversalHierarchyRelation) (sfTVEnumRows sfLDomain) (sfTVEnumLength (n + c) c) $;
+
+theorem sfTVCanonicalPiece_bound(n c:nat): $ sfBound 2 (sfTVCanonicalPiece n c) $;
+
+theorem sfTVCanonicalProfile_bound(n c:nat): $ sfBound 3 (sfReflectionLimitProfile sfLUniversalHierarchyRelation (sfTVCanonicalPiece n c)) $;
+
+def sfTVLevelBinderMap(.i:nat):set = $ \ i, if (i < 3) (suc i) 0 $;
+
+theorem sfTVLevelBinderMap_at(i:nat): $ sfTVLevelBinderMap @ i = if (i < 3) (suc i) 0 $;
+
+theorem sfTVLevelBinderMap_zero: $ sfTVLevelBinderMap @ 0 = 1 $;
+
+theorem sfTVLevelBinderMap_three: $ sfTVLevelBinderMap @ 3 = 0 $;
+
+theorem sfTVLevelBinderMap_small(a:nat)(ha:$ sfBound 3 a $): $ sfRename sfTVLevelBinderMap 0 a = sfShift 0 a $;
+
+theorem sfTVLevelBinderMap_index(n:nat): $ sfRenameIndex sfTVLevelBinderMap n (3 + n) = n $;
+
+theorem sfTVLevelBinderMap_block(n c:nat)(hb:$ sfBound n c $): $ sfRename sfTVLevelBinderMap 0 (sfCLBall n 3 (sfIff (sfRelativize sfLDomain c) (sfCLSetRel (3 + n) c))) = (sfCLBall n 0 (sfIff (sfRelativize sfLDomain c) (sfCLSetRel n c))) $;
+
+def sfTVReflectionOpen(G n c:nat):nat = $ (sfORBinary sfLUniversalHierarchyRelation 0 3) : ((sfReflectionLimitProfile sfLUniversalHierarchyRelation (sfTVCanonicalPiece n c)) : G) $;
+
+theorem sfTV_reflection_from_profile(G n c:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $)(hb:$ sfBound n c $)(he:$ nsLocal G zfcRefl $)(hs:$ sfContextSub (sfReflectionPHProducerContext sfLUniversalHierarchyRelation) G $): $ nsLocal G (sfImp (sfReflectionLimitProfile sfLUniversalHierarchyRelation (sfTVCanonicalPiece n c)) (sfCLReflection sfLDomain n c 0)) $;

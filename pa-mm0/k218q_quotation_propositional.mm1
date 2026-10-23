@@ -1,0 +1,79 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_propositional.mm1";
+import "k218q_bootstrap.mm1";
+import "quotient_quotation.mm1";
+import "k218q_contexts.mm1";
+import "k218q_disjunction.mm1";
+
+@_ def k218SQ_sqLocal (H: nat) (E: set) (t k d c: nat): wff =
+ $ k218IHypProvable H (sqQuote E t k d c) $;
+
+pub theorem k218SQ_sqLocal_assumption (H: nat) (E: set) (t k d a: nat):
+ $ sqQuote E t k d a IN H -> k218SQ_sqLocal H E t k d a $ =
+'k218IHypProvable_assumption;
+
+pub theorem k218SQ_sqLocal_peirce (H: nat) (E: set) (t k d a b: nat):
+ $ k218SQ_sqLocal H E t k d (sfImp (sfImp (sfImp a b) a) a) $ =
+'(mpbir (k218IHypProvableeq2 (eqtr sqQuote_sfImp
+  (kImpeq1 (eqtr sqQuote_sfImp (kImpeq1 sqQuote_sfImp)))))
+  (k218IHypProvable_seed k218IPropP));
+
+pub theorem k218SQ_sqLocal_impI (H: nat) (E: set) (t k d a b: nat):
+ $ k218SQ_sqLocal ((sqQuote E t k d a) : H) E t k d b ->
+   k218SQ_sqLocal H E t k d (sfImp a b) $ =
+'(syl (bi2 (k218IHypProvableeq2 sqQuote_sfImp)) k218IHypProvable_deduction);
+
+pub theorem k218SQ_sqLocal_impE (H: nat) (E: set) (t k d a b: nat):
+ $ k218SQ_sqLocal H E t k d a -> k218SQ_sqLocal H E t k d (sfImp a b) ->
+   k218SQ_sqLocal H E t k d b $ =
+'(syl5bi (k218IHypProvableeq2 sqQuote_sfImp) k218IHypProvable_mp);
+
+pub theorem k218SQ_sqLocal_botE (H: nat) (E: set) (t k d a: nat):
+ $ k218SQ_sqLocal H E t k d sfBot -> k218SQ_sqLocal H E t k d a $ =
+'(syl (mpi (k218IHypProvable_seed k218IPropF) k218IHypProvable_mp)
+  (bi1 (k218IHypProvableeq2 sqQuote_bot)));
+
+theorem k218SQ_kHyp_andI (H a b: nat):
+ $ k218IHypProvable H a -> k218IHypProvable H b -> k218IHypProvable H (kAnd a b) $ =
+'(syl (com12 k218IHypProvable_mp)
+  (mpi (ax_mp k218IHypProvable_seed k218IPropAndIntro) k218IHypProvable_mp));
+
+pub theorem k218SQ_sqLocal_andI (H: nat) (E: set) (t k d a b: nat):
+ $ k218SQ_sqLocal H E t k d a -> k218SQ_sqLocal H E t k d b ->
+   k218SQ_sqLocal H E t k d (sfAnd a b) $ =
+'(syl6 (bi2 (k218IHypProvableeq2 sqQuote_sfAnd)) k218SQ_kHyp_andI);
+
+pub theorem k218SQ_sqLocal_andE1 (H: nat) (E: set) (t k d a b: nat):
+ $ k218SQ_sqLocal H E t k d (sfAnd a b) -> k218SQ_sqLocal H E t k d a $ =
+'(syl (mpi (k218IHypProvable_seed k218IPropAndLeft) k218IHypProvable_mp)
+  (bi1 (k218IHypProvableeq2 sqQuote_sfAnd)));
+
+pub theorem k218SQ_sqLocal_andE2 (H: nat) (E: set) (t k d a b: nat):
+ $ k218SQ_sqLocal H E t k d (sfAnd a b) -> k218SQ_sqLocal H E t k d b $ =
+'(syl (mpi (k218IHypProvable_seed k218IPropAndRight) k218IHypProvable_mp)
+  (bi1 (k218IHypProvableeq2 sqQuote_sfAnd)));
+
+pub theorem k218SQ_sqLocal_orI1 (H: nat) (E: set) (t k d a b: nat):
+ $ k218SQ_sqLocal H E t k d a -> k218SQ_sqLocal H E t k d (sfOr a b) $ =
+'(syl (bi2 (k218IHypProvableeq2 sqQuote_sfOr))
+  (mpi (k218IHypProvable_seed k218IPropB3) k218IHypProvable_mp));
+
+pub theorem k218SQ_sqLocal_orI2 (H: nat) (E: set) (t k d a b: nat):
+ $ k218SQ_sqLocal H E t k d b -> k218SQ_sqLocal H E t k d (sfOr a b) $ =
+'(syl (bi2 (k218IHypProvableeq2 sqQuote_sfOr))
+  (mpi (k218IHypProvable_seed k218IPropK) k218IHypProvable_mp));
+
+theorem k218SQ_kHyp_orE (H a b c: nat):
+ $ k218IHypProvable H (kImp (kNot a) b) ->
+   k218IHypProvable (a : H) c -> k218IHypProvable (b : H) c -> k218IHypProvable H c $ =
+'(exp @ exp @ sylc k218IHypProvable_mp (syl anl anl)
+  (sylc k218IHypProvable_mp (syl k218IHypProvable_deduction anr)
+    (sylc k218IHypProvable_mp (syl k218IHypProvable_deduction (syl anr anl))
+      (a1i (ax_mp k218IHypProvable_seed k218IPropOrElim)))));
+
+pub theorem k218SQ_sqLocal_orE (H: nat) (E: set) (t k d a b c: nat):
+ $ k218SQ_sqLocal H E t k d (sfOr a b) ->
+   k218SQ_sqLocal ((sqQuote E t k d a) : H) E t k d c ->
+   k218SQ_sqLocal ((sqQuote E t k d b) : H) E t k d c ->
+   k218SQ_sqLocal H E t k d c $ =
+'(sylbi (k218IHypProvableeq2 sqQuote_sfOr) k218SQ_kHyp_orE);

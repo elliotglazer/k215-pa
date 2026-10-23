@@ -1,0 +1,261 @@
+import "source_l_domain.mm1";
+import "source_relative_contexts.mm1";
+import "source_wf_separation_logic.mm1";
+import "source_hypothesis_replacement.mm1";
+import "source_theory_local.mm1";
+
+@_ def lrepFunctionalF0 (a b c: nat): nat = $ sfImp b (sfEq 1 0) $;
+
+@_ def lrepFunctionalF1 (a b c: nat): nat = $ sfImp a (lrepFunctionalF0 a b c) $;
+
+@_ def lrepFunctionalF2 (a b c: nat): nat = $ sfImp (sfDomainAt sfLDomain 0) (lrepFunctionalF1 a b c) $;
+
+@_ def lrepFunctionalF3 (a b c: nat): nat = $ sfAll (lrepFunctionalF2 a b c) $;
+
+@_ def lrepFunctionalF4 (a b c: nat): nat = $ sfImp (sfDomainAt sfLDomain 0) (lrepFunctionalF3 a b c) $;
+
+@_ def lrepFunctionalF5 (a b c: nat): nat = $ sfAll (lrepFunctionalF4 a b c) $;
+
+@_ def lrepFunctionalF6 (a b c: nat): nat = $ sfImp (sfDomainAt sfLDomain 0) (lrepFunctionalF5 a b c) $;
+
+@_ def lrepFunctionalF7 (a b c: nat): nat = $ sfAll (lrepFunctionalF6 a b c) $;
+
+@_ def lrepFunctionalG8 (a b c: nat): nat = $ (lrepFunctionalF7 a b c) : 0 $;
+
+@_ def lrepFunctionalG9 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG8 a b c) $;
+
+@_ def lrepFunctionalG10 (a b c: nat): nat = $ (sfDomainAt sfLDomain 0) : (lrepFunctionalG9 a b c) $;
+
+@_ def lrepFunctionalG11 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG10 a b c) $;
+
+@_ def lrepFunctionalG12 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG9 a b c) $;
+
+@_ def lrepFunctionalG13 (a b c: nat): nat = $ (sfDomainAt sfLDomain 1) : (lrepFunctionalG12 a b c) $;
+
+@_ def lrepFunctionalG14 (a b c: nat): nat = $ (sfDomainAt sfLDomain 0) : (lrepFunctionalG13 a b c) $;
+
+@_ def lrepFunctionalG15 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG14 a b c) $;
+
+@_ def lrepFunctionalG16 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG12 a b c) $;
+
+@_ def lrepFunctionalG17 (a b c: nat): nat = $ (sfDomainAt sfLDomain 2) : (lrepFunctionalG16 a b c) $;
+
+@_ def lrepFunctionalG18 (a b c: nat): nat = $ (sfDomainAt sfLDomain 1) : (lrepFunctionalG17 a b c) $;
+
+@_ def lrepFunctionalG19 (a b c: nat): nat = $ (sfDomainAt sfLDomain 0) : (lrepFunctionalG18 a b c) $;
+
+@_ def lrepFunctionalF20 (a b c: nat): nat = $ sfAnd (sfDomainAt sfLDomain 2) (sfDomainAt sfLDomain 0) $;
+
+@_ def lrepFunctionalF21 (a b c: nat): nat = $ sfAnd (lrepFunctionalF20 a b c) b $;
+
+@_ def lrepFunctionalF22 (a b c: nat): nat = $ sfAnd (sfDomainAt sfLDomain 2) (sfDomainAt sfLDomain 1) $;
+
+@_ def lrepFunctionalF23 (a b c: nat): nat = $ sfAnd (lrepFunctionalF22 a b c) a $;
+
+@_ def lrepFunctionalG24 (a b c: nat): nat = $ (lrepFunctionalF23 a b c) : (lrepFunctionalG16 a b c) $;
+
+@_ def lrepFunctionalG25 (a b c: nat): nat = $ (lrepFunctionalF21 a b c) : (lrepFunctionalG24 a b c) $;
+
+@_ def lrepFunctionalF26 (a b c: nat): nat = $ sfImp (lrepFunctionalF21 a b c) (sfEq 1 0) $;
+
+@_ def lrepFunctionalF27 (a b c: nat): nat = $ sfImp (lrepFunctionalF23 a b c) (lrepFunctionalF26 a b c) $;
+
+@_ def lrepFunctionalF28 (a b c: nat): nat = $ sfAll (lrepFunctionalF27 a b c) $;
+
+@_ def lrepFunctionalF29 (a b c: nat): nat = $ sfAll (lrepFunctionalF28 a b c) $;
+
+@_ def lrepFunctionalF30 (a b c: nat): nat = $ sfAll (lrepFunctionalF29 a b c) $;
+
+@_ def lrepFunctionalF31 (a b c: nat): nat = $ sfImp (lrepFunctionalF7 a b c) (lrepFunctionalF30 a b c) $;
+
+@_ def sfLReplacementGuardedFunctional (a b c: nat): nat = $ (lrepFunctionalF7 a b c) $;
+
+@_ def sfLReplacementRawFunctional (a b c: nat): nat = $ (lrepFunctionalF30 a b c) $;
+
+theorem lrepFunctionalWf1 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF0 a b c) $ =
+'(ax_mp (ax_mp sfWf_imp hb) sfWf_eq);
+
+theorem lrepFunctionalWf2 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF1 a b c) $ =
+'(ax_mp (ax_mp sfWf_imp ha) (lrepFunctionalWf1 ha hb hc));
+
+theorem lrepFunctionalWf3 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF2 a b c) $ =
+'(ax_mp (ax_mp sfWf_imp sfDomainAt_wf) (lrepFunctionalWf2 ha hb hc));
+
+theorem lrepFunctionalWf4 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF3 a b c) $ =
+'(ax_mp sfWf_all (lrepFunctionalWf3 ha hb hc));
+
+theorem lrepFunctionalWf5 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF4 a b c) $ =
+'(ax_mp (ax_mp sfWf_imp sfDomainAt_wf) (lrepFunctionalWf4 ha hb hc));
+
+theorem lrepFunctionalWf6 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF5 a b c) $ =
+'(ax_mp sfWf_all (lrepFunctionalWf5 ha hb hc));
+
+theorem lrepFunctionalWf7 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF6 a b c) $ =
+'(ax_mp (ax_mp sfWf_imp sfDomainAt_wf) (lrepFunctionalWf6 ha hb hc));
+
+theorem lrepFunctionalWf8 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF7 a b c) $ =
+'(ax_mp sfWf_all (lrepFunctionalWf7 ha hb hc));
+
+theorem lrepFunctionalP9 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG8 a b c) (lrepFunctionalF7 a b c) $ =
+'(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (lrepFunctionalWf8 ha hb hc) sfContextWf_nil))) sfContext_member_head);
+
+theorem lrepFunctionalP10 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG9 a b c) (lrepFunctionalF6 a b c) $ =
+'(ax_mp sfSepLocal_open (lrepFunctionalP9 ha hb hc));
+
+theorem lrepFunctionalP11 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG10 a b c) (lrepFunctionalF6 a b c) $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))) sfContextSub_cons) (lrepFunctionalP10 ha hb hc));
+
+theorem lrepFunctionalP12 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG10 a b c) (sfDomainAt sfLDomain 0) $ =
+'(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))) sfContext_member_head);
+
+theorem lrepFunctionalP13 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG10 a b c) (lrepFunctionalF5 a b c) $ =
+'(ax_mp (ax_mp nsLocal_mp (lrepFunctionalP11 ha hb hc)) (lrepFunctionalP12 ha hb hc));
+
+theorem lrepFunctionalP14 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG11 a b c) (lrepFunctionalF4 a b c) $ =
+'(ax_mp sfSepLocal_open (lrepFunctionalP13 ha hb hc));
+
+theorem lrepFunctionalP15 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG13 a b c) (lrepFunctionalF4 a b c) $ =
+'(mpbi (nsLocal_context_eq (eqtr sfContextShift_cons (conseq (ax_mp sfDomainAt_shift sfLDomain_bound) eqid))) (lrepFunctionalP14 ha hb hc));
+
+theorem lrepFunctionalP16 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG14 a b c) (lrepFunctionalF4 a b c) $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfDomainAt_wf (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))))) sfContextSub_cons) (lrepFunctionalP15 ha hb hc));
+
+theorem lrepFunctionalP17 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG14 a b c) (sfDomainAt sfLDomain 0) $ =
+'(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfDomainAt_wf (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))))) sfContext_member_head);
+
+theorem lrepFunctionalP18 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG14 a b c) (lrepFunctionalF3 a b c) $ =
+'(ax_mp (ax_mp nsLocal_mp (lrepFunctionalP16 ha hb hc)) (lrepFunctionalP17 ha hb hc));
+
+theorem lrepFunctionalP19 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG15 a b c) (lrepFunctionalF2 a b c) $ =
+'(ax_mp sfSepLocal_open (lrepFunctionalP18 ha hb hc));
+
+theorem lrepFunctionalP20 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG18 a b c) (lrepFunctionalF2 a b c) $ =
+'(mpbi (nsLocal_context_eq (eqtr sfContextShift_cons (conseq (ax_mp sfDomainAt_shift sfLDomain_bound) (eqtr sfContextShift_cons (conseq (ax_mp sfDomainAt_shift sfLDomain_bound) eqid))))) (lrepFunctionalP19 ha hb hc));
+
+theorem lrepFunctionalP21 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG19 a b c) (lrepFunctionalF2 a b c) $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfDomainAt_wf (mpbir sfContextWf_cons (ian sfDomainAt_wf (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))))))) sfContextSub_cons) (lrepFunctionalP20 ha hb hc));
+
+theorem lrepFunctionalP22 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG19 a b c) (sfDomainAt sfLDomain 0) $ =
+'(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfDomainAt_wf (mpbir sfContextWf_cons (ian sfDomainAt_wf (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))))))) sfContext_member_head);
+
+theorem lrepFunctionalP23 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG19 a b c) (lrepFunctionalF1 a b c) $ =
+'(ax_mp (ax_mp nsLocal_mp (lrepFunctionalP21 ha hb hc)) (lrepFunctionalP22 ha hb hc));
+
+theorem lrepFunctionalWf24 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF20 a b c) $ =
+'(ax_mp (ax_mp sfWf_and sfDomainAt_wf) sfDomainAt_wf);
+
+theorem lrepFunctionalWf25 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF21 a b c) $ =
+'(ax_mp (ax_mp sfWf_and (lrepFunctionalWf24 ha hb hc)) hb);
+
+theorem lrepFunctionalWf26 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF22 a b c) $ =
+'(ax_mp (ax_mp sfWf_and sfDomainAt_wf) sfDomainAt_wf);
+
+theorem lrepFunctionalWf27 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ sfWf (lrepFunctionalF23 a b c) $ =
+'(ax_mp (ax_mp sfWf_and (lrepFunctionalWf26 ha hb hc)) ha);
+
+theorem lrepFunctionalP28 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (lrepFunctionalF23 a b c) $ =
+'(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (lrepFunctionalWf25 ha hb hc) (mpbir sfContextWf_cons (ian (lrepFunctionalWf27 ha hb hc) sfContextShift_wf))))) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem lrepFunctionalP29 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (lrepFunctionalF21 a b c) $ =
+'(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (lrepFunctionalWf25 ha hb hc) (mpbir sfContextWf_cons (ian (lrepFunctionalWf27 ha hb hc) sfContextShift_wf))))) sfContext_member_head);
+
+theorem lrepFunctionalP30 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (lrepFunctionalF20 a b c) $ =
+'(ax_mp nsLocal_CE1 (lrepFunctionalP29 ha hb hc));
+
+theorem lrepFunctionalP31 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (sfDomainAt sfLDomain 0) $ =
+'(ax_mp nsLocal_CE2 (lrepFunctionalP30 ha hb hc));
+
+theorem lrepFunctionalP32 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (lrepFunctionalF22 a b c) $ =
+'(ax_mp nsLocal_CE1 (lrepFunctionalP28 ha hb hc));
+
+theorem lrepFunctionalP33 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (sfDomainAt sfLDomain 1) $ =
+'(ax_mp nsLocal_CE2 (lrepFunctionalP32 ha hb hc));
+
+theorem lrepFunctionalP34 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (lrepFunctionalF22 a b c) $ =
+'(ax_mp nsLocal_CE1 (lrepFunctionalP28 ha hb hc));
+
+theorem lrepFunctionalP35 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (sfDomainAt sfLDomain 2) $ =
+'(ax_mp nsLocal_CE1 (lrepFunctionalP34 ha hb hc));
+
+theorem lrepFunctionalP36 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (lrepFunctionalF1 a b c) $ =
+'(ax_mp (ax_mp (ax_mp sfLocal_hypothesis_replacement (mpbir sfContextWf_cons (ian (lrepFunctionalWf25 ha hb hc) (mpbir sfContextWf_cons (ian (lrepFunctionalWf27 ha hb hc) sfContextShift_wf))))) (mpbir sfLocalCoverage_cons (ian (lrepFunctionalP31 ha hb hc) (mpbir sfLocalCoverage_cons (ian (lrepFunctionalP33 ha hb hc) (mpbir sfLocalCoverage_cons (ian (lrepFunctionalP35 ha hb hc) (ax_mp (ax_mp (ax_mp sfLocalCoverage_mono (mpbir sfContextWf_cons (ian (lrepFunctionalWf25 ha hb hc) (mpbir sfContextWf_cons (ian (lrepFunctionalWf27 ha hb hc) sfContextShift_wf))))) (ax_mp (ax_mp sfContextSub_trans sfContextSub_cons) sfContextSub_cons)) (ax_mp sfLocalCoverage_self sfContextShift_wf))))))))) (lrepFunctionalP23 ha hb hc));
+
+theorem lrepFunctionalP37 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) a $ =
+'(ax_mp nsLocal_CE2 (lrepFunctionalP28 ha hb hc));
+
+theorem lrepFunctionalP38 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (lrepFunctionalF0 a b c) $ =
+'(ax_mp (ax_mp nsLocal_mp (lrepFunctionalP36 ha hb hc)) (lrepFunctionalP37 ha hb hc));
+
+theorem lrepFunctionalP39 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) b $ =
+'(ax_mp nsLocal_CE2 (lrepFunctionalP29 ha hb hc));
+
+theorem lrepFunctionalP40 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG25 a b c) (sfEq 1 0) $ =
+'(ax_mp (ax_mp nsLocal_mp (lrepFunctionalP38 ha hb hc)) (lrepFunctionalP39 ha hb hc));
+
+theorem lrepFunctionalP41 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG24 a b c) (lrepFunctionalF26 a b c) $ =
+'(ax_mp nsLocal_II (lrepFunctionalP40 ha hb hc));
+
+theorem lrepFunctionalP42 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG16 a b c) (lrepFunctionalF27 a b c) $ =
+'(ax_mp nsLocal_II (lrepFunctionalP41 ha hb hc));
+
+theorem lrepFunctionalP43 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG12 a b c) (lrepFunctionalF28 a b c) $ =
+'(ax_mp (ax_mp sfSepLocal_allI sfContextShift_wf) (lrepFunctionalP42 ha hb hc));
+
+theorem lrepFunctionalP44 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG9 a b c) (lrepFunctionalF29 a b c) $ =
+'(ax_mp (ax_mp sfSepLocal_allI sfContextShift_wf) (lrepFunctionalP43 ha hb hc));
+
+theorem lrepFunctionalP45 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal (lrepFunctionalG8 a b c) (lrepFunctionalF30 a b c) $ =
+'(ax_mp (ax_mp sfSepLocal_allI (mpbir sfContextWf_cons (ian (lrepFunctionalWf8 ha hb hc) sfContextWf_nil))) (lrepFunctionalP44 ha hb hc));
+
+theorem lrepFunctionalP46 (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal 0 (lrepFunctionalF31 a b c) $ =
+'(ax_mp nsLocal_II (lrepFunctionalP45 ha hb hc));
+
+pub theorem sfLReplacement_functionality_local (a b c: nat)
+ (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal 0 (sfImp (sfLReplacementGuardedFunctional a b c) (sfLReplacementRawFunctional a b c)) $ = '(lrepFunctionalP46 ha hb hc);

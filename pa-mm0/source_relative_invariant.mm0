@@ -1,0 +1,58 @@
+import "source_relative_contexts.mm0";
+import "source_relative_propositional.mm0";
+
+theorem sfRI_Local_congr (F: wff) (G H a b: nat)
+  (hg: $ F -> G = H $) (ha: $ F -> a = b $):
+  $ F -> (nsLocal G a <-> nsLocal H b) $;
+
+-- The guard bound is existential. Rule witnesses can enlarge it, so no
+-- unstated bound on a vacuous universal-instantiation parameter is needed.
+def sfRelativeAt (D k r: nat): wff =
+$ ifp (fst r = 0)
+  (nsLocal (sfRelativeContext D (fst (snd r)) k)
+    (sfRelativize D (snd (snd r))))
+  (fst r = 1 /\
+    (nsLocal (sfRelativize D (fst (snd (snd r))) : sfRelativeContext D (fst (snd r)) k)
+      (sfRelativize D (snd (snd (snd (snd r))))) /\
+     nsLocal (sfRelativize D (fst (snd (snd (snd r)))) : sfRelativeContext D (fst (snd r)) k)
+      (sfRelativize D (snd (snd (snd (snd r))))))) $;
+def sfRelativeGood (D r .k: nat): wff = $ sfRowWf r /\ E. k sfRelativeAt D k r $;
+def sfRelativeClass (D .r: nat): set = $ {r | sfRelativeGood D r} $;
+
+theorem sfRelativeAt_sequent (D k G a: nat):
+  $ sfRelativeAt D k (sfSequent G a) <->
+    nsLocal (sfRelativeContext D G k) (sfRelativize D a) $;
+theorem sfRelativeAt_branches (D k G a b c: nat):
+  $ sfRelativeAt D k (sfBranches G a b c) <->
+    nsLocal (sfRelativize D a : sfRelativeContext D G k) (sfRelativize D c) /\
+    nsLocal (sfRelativize D b : sfRelativeContext D G k) (sfRelativize D c) $;
+theorem sfRelativeGood_wf (D r: nat): $ sfRelativeGood D r -> sfRowWf r $;
+theorem sfRelativeGood_intro (D k r: nat):
+  $ sfRowWf r -> sfRelativeAt D k r -> sfRelativeGood D r $;
+theorem sfRelativeClass_value (D r: nat):
+  $ r e. sfRelativeClass D <-> sfRelativeGood D r $;
+theorem sfRelativeAt_congr (F: wff) (D k r s: nat) (h: $ F -> r = s $):
+  $ F -> (sfRelativeAt D k r <-> sfRelativeAt D k s) $;
+theorem sfRelativeGood_congr (F: wff) (D r s: nat) (h: $ F -> r = s $):
+  $ F -> (sfRelativeGood D r <-> sfRelativeGood D s) $;
+
+theorem sfRelativeLocal_mono (D G a k m: nat):
+  $ sfWf D -> k <= m ->
+    nsLocal (sfRelativeContext D G k) (sfRelativize D a) ->
+    nsLocal (sfRelativeContext D G m) (sfRelativize D a) $;
+theorem sfRelativeBranch_mono (D G a c k m: nat):
+  $ sfWf D -> k <= m ->
+    nsLocal (sfRelativize D a : sfRelativeContext D G k) (sfRelativize D c) ->
+    nsLocal (sfRelativize D a : sfRelativeContext D G m) (sfRelativize D c) $;
+theorem sfRelativeAt_mono (D r k m: nat):
+  $ sfWf D -> k <= m -> sfRelativeAt D k r -> sfRelativeAt D m r $;
+
+theorem sfRelativeGood_sequent_intro (D k G a: nat):
+  $ sfContextWf G -> sfWf a ->
+    nsLocal (sfRelativeContext D G k) (sfRelativize D a) ->
+    sfRelativeGood D (sfSequent G a) $;
+theorem sfRelativeGood_branches_intro (D k G a b c: nat):
+  $ sfRowWf (sfBranches G a b c) ->
+    nsLocal (sfRelativize D a : sfRelativeContext D G k) (sfRelativize D c) ->
+    nsLocal (sfRelativize D b : sfRelativeContext D G k) (sfRelativize D c) ->
+    sfRelativeGood D (sfBranches G a b c) $;

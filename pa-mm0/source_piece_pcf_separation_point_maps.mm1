@@ -1,0 +1,37 @@
+
+import "source_piece_pcf_definable_membership.mm1";
+import "source_piece_pcf_separation_maps.mm1";
+
+pub theorem sfPieceSeparationPredicate_setrel_at(T:set)(phi Y x z:nat)(hf:$ sfWf phi $):
+ $ sfCLSetRel Y (sfRename (sqEnvCons z (sqEnvCons x T)) 0 (sfPieceSeparationPredicate phi)) =
+   sfAnd (sfMem z x) (sfCLSetRel Y (sfRename (sqEnvCons z T) 0 phi)) $ =
+ '(eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i (sfPieceSeparationPredicate_at hf))))
+  (eqtr sfCLSetRel_sfAnd (nsAnd_eq sfCLSetRel_sfMem eqid)));
+
+pub theorem sfPieceDefinableSeparation_member(T:set)(G phi Y X x z:nat)(hf:$ sfWf phi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile (sqEnvCons x T) (sfPieceSeparationPredicate phi) Y X) $):
+ $ nsLocal G (sfIff (sfMem z X)
+   (sfAnd (sfMem z Y) (sfAnd (sfMem z x) (sfCLSetRel Y (sfRename (sqEnvCons z T) 0 phi))))) $ =
+ '(sfRQ_rewrite
+  (nsAnd_eq
+   (nsImp_eq eqid (nsAnd_eq eqid (sfPieceSeparationPredicate_setrel_at hf)))
+   (nsImp_eq (nsAnd_eq eqid (sfPieceSeparationPredicate_setrel_at hf)) eqid))
+  (sfPieceDefinableProfile_member sfPieceSeparationPredicate_wf hp));
+
+@_ def sfPieceSeparationLocalBody(T:set)(D phi X x:nat):nat =
+ $ sfAll (sfImp D (sfIff (sfMem 0 (suc X))
+    (sfAnd (sfMem 0 (suc x)) (sfRelativize D (sfRename T 1 phi))))) $;
+
+pub theorem sfPieceSeparationLocalBody_open(T:set)(D phi X x z:nat)(hd:$ sfBound 1 D $)(hf:$ sfWf phi $):
+ $ sfSubst 0 z (sfImp D (sfIff (sfMem 0 (suc X))
+    (sfAnd (sfMem 0 (suc x)) (sfRelativize D (sfRename T 1 phi))))) =
+   sfImp (sfSubst 0 z D) (sfIff (sfMem z X)
+    (sfAnd (sfMem z x) (sfRelativize D (sfRename (sqEnvCons z T) 0 phi)))) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq eqid
+  (eqtr pcdm_iff_subst (nsAnd_eq
+   (nsImp_eq pcdm_mem_open (eqtr sfSubst_sfAnd (nsAnd_eq pcdm_mem_open
+    (eqtr (ax_mp (ax_mp sfRelativize_subst hd) sfRename_wf)
+     (sfRelativizeeq2 (sfReflectionTransfer_open hf))))))
+   (nsImp_eq (eqtr sfSubst_sfAnd (nsAnd_eq pcdm_mem_open
+    (eqtr (ax_mp (ax_mp sfRelativize_subst hd) sfRename_wf)
+     (sfRelativizeeq2 (sfReflectionTransfer_open hf))))) pcdm_mem_open)))));

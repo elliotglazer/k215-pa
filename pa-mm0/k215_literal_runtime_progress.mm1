@@ -1,0 +1,53 @@
+import "k215_literal_runtime_reach.mm1";
+@_ def k215PStatus (s: nat): nat = $ k215PETag (k215PLookup (k215PPC s)) $;
+do (apply (register-eqd 'k215PStatus) '(k215PStatuseqd));
+@_ abstract def k215PProgress (s t: nat) (.n: nat): wff = $ E. n k215PIter (suc n) s = t $;
+do (apply (register-eqd 'k215PProgress) '(k215PProgresseqd));
+pub theorem k215PIter_one (s: nat): $ k215PIter 1 s = k215PStep s $ =
+ '(eqtr k215PIter_succ (k215PStepeq k215PIter_zero));
+pub theorem k215PIter_after_step (n s t: nat):
+ $ k215PStep s = t -> k215PIter (suc n) s = k215PIter n t $ =
+ '(eqtrd (a1i (k215PItereq1 (eqcom add11)))
+   (eqtrd (a1i k215PIter_add) (k215PItereq2d (eqtrd (a1i k215PIter_one) id))));
+pub theorem k215PProgress_intro (n s t: nat):
+ $ k215PIter (suc n) s = t -> k215PProgress s t $ = (named '(iexe ,eqtac));
+theorem k215PProgress_start_at (n s u t: nat):
+ $ k215PStep s = u -> k215PIter n u = t -> k215PProgress s t $ =
+ '(exp @ syl k215PProgress_intro (eqtrd (syl k215PIter_after_step anl) anr));
+pub theorem k215PProgress_start (s u t: nat):
+ $ k215PStep s = u -> k215PReach u t -> k215PProgress s t $ =
+ (named '(eexd k215PProgress_start_at));
+pub theorem k215PProgress_reach (s t: nat):
+ $ k215PProgress s t -> k215PReach s t $ = (named '(eex k215PReach_intro));
+theorem k215PProgress_comp_at (m n s t u: nat):
+ $ k215PIter (suc m) s = t -> k215PIter n t = u -> k215PProgress s u $ =
+ '(exp @ syl k215PProgress_intro
+   (eqtrd (a1i (k215PItereq1 (eqcom addS1)))
+     (eqtrd (syl k215PIter_splice anl) anr)));
+pub theorem k215PProgress_comp (s t u: nat):
+ $ k215PProgress s t -> k215PReach t u -> k215PProgress s u $ =
+ (named '(eex @ eexd k215PProgress_comp_at));
+pub theorem k215PStep_stopped (s: nat):
+ $ k215PStatus s = 4 -> k215PStep s = s $ = 'ifpos;
+pub theorem k215PIter_stopped (n s: nat):
+ $ k215PStatus s = 4 -> k215PIter n s = s $ =
+ (named @ induct '(indd) 'n '(a1i k215PIter_zero)
+  '(eqtrd (a1i k215PIter_succ) (eqtrd (k215PStepeqd anr) (syl k215PStep_stopped anl))));
+pub theorem k215PHaltsFrom_intro (n s: nat):
+ $ k215PStatus (k215PIter n s) = 4 -> k215PHaltsFrom s $ = (named '(iexe ,eqtac));
+theorem k215PReach_halts_at (m n s t: nat):
+ $ k215PIter m s = t -> k215PStatus (k215PIter n t) = 4 -> k215PHaltsFrom s $ =
+ '(exp @ syl k215PHaltsFrom_intro
+   (eqtrd (k215PStatuseqd (syl k215PIter_splice anl)) anr));
+pub theorem k215PReach_halts (s t: nat):
+ $ k215PReach s t -> k215PHaltsFrom t -> k215PHaltsFrom s $ =
+ (named '(eex @ eexd k215PReach_halts_at));
+theorem k215PProgress_budget_at (m n s t: nat):
+ $ k215PIter (suc m) s = t -> k215PStatus (k215PIter (suc n) s) = 4 -> k215PStatus (k215PIter n t) = 4 $ =
+ '(exp @ eqtrd
+   (k215PStatuseqd @ eqtrd (eqcomd (syl k215PIter_splice anl)) @
+     eqtrd (a1i (k215PItereq1 (eqtr addcom (eqtr addS (eqcom addS1))))) @
+     eqtrd (a1i k215PIter_add) (syl k215PIter_stopped anr)) anr);
+pub theorem k215PProgress_budget (s t n: nat):
+ $ k215PProgress s t -> k215PStatus (k215PIter (suc n) s) = 4 -> k215PStatus (k215PIter n t) = 4 $ =
+ (named '(eex k215PProgress_budget_at));

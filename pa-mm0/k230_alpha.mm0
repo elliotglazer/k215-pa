@@ -1,0 +1,24 @@
+import "k230_specialization.mm0";
+import "k230_substitution_inverse.mm0";
+
+-- Alpha conversion in the fixed named K calculus, with explicit freshness.
+theorem kAlpha_all_forward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kAll x f) (kAll y (kSubst f x y))) $;
+theorem kAlpha_exists_backward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $;
+theorem kAlpha_all_backward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $;
+theorem kAlpha_exists_forward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kExists x f) (kExists y (kSubst f x y))) $;
+theorem kAlpha_all (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kAll x f) (kAll y (kSubst f x y))) /\
+   kProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $;
+theorem kAlpha_exists (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kExists x f) (kExists y (kSubst f x y))) /\
+   kProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $;

@@ -1,0 +1,19 @@
+import "bb215_table_arithmetic_valid_graph.mm1";
+
+import "bb215_table_arithmetic_guards.mm1";
+
+import "bb215_arithmetic_formula_nth_scalar.mm1";
+
+@_ abstract def bb215TableArithmeticStoredActionValid (v .a: nat): wff = $ E. a (bb215ArithmeticFormulaPredecessorGraph v a /\ bb215TableArithmeticActionGraph a) $;
+
+pub theorem bb215TableArithmeticStoredActionValid_correct (v: nat) {a r t k: nat}: $ bb215TableArithmeticStoredActionValid v <-> k215TMValidAction (v - 1) $ = (named '(bitr (!! exeqi a (bitr (aneq bb215ArithmeticFormulaPredecessorGraph_correct bb215TableArithmeticActionGraph_correct) (aneq1i eqcomb))) (!! exeqe a (k215TMValidActioneqd id))));
+
+@_ abstract def bb215TableArithmeticUniversalEntry (T q b .i .v: nat): wff = $ A. i A. v (bb215ArithmeticFormulaPairGraph q b i /\ bb215ArithmeticFormulaNthScalarGraph i T v -> bb215TableArithmeticStoredActionValid v) $;
+
+theorem bbTAU_value (T q b i: nat) {v: nat}: $ (A. v ((i = (q, b) /\ nth i T = v) -> k215TMValidAction (v - 1))) <-> (i = (q, b) -> k215TMValidAction (nth i T - 1)) $ = (named '(bitr (!! aleqi v impexp) (bitr alim1 (imeq2i (bitr (!! aleqi v (imeq1i eqcomb)) (!! aleqe v (k215TMValidActioneqd (subeq1d id))))))));
+
+pub theorem bb215TableArithmeticUniversalEntry_correct (T q b: nat) {i v a r t k: nat}: $ bb215TableArithmeticUniversalEntry T q b <-> k215TMValidAction (bb215Action T q b) $ = (named '(bitr (!! aleqi i (bitr (!! aleqi v (imeqi (aneq bb215ArithmeticFormulaPairGraph_correct bb215ArithmeticFormulaNthScalarGraph_correct) bb215TableArithmeticStoredActionValid_correct)) bbTAU_value)) (!! aleqe i (k215TMValidActioneqd (subeq1d (ntheq1d id))))));
+
+@_ abstract def bb215TableArithmeticValidPolynomial (T .q .b: nat): wff = $ A. q A. b ((bb215TableArithmeticWorkingGraph q /\ (b = 0 \/ b = 1)) -> bb215TableArithmeticUniversalEntry T q b) $;
+
+pub theorem bb215TableArithmeticValidPolynomial_correct (T: nat) {q b i v a r t k h: nat}: $ bb215TableArithmeticValidPolynomial T <-> bb215Valid T $ = (named '(!! aleqi q @ !! aleqi b @ bitr (imeqi (aneq bb215TableArithmeticWorkingGraph_correct (bicom bool01)) bb215TableArithmeticUniversalEntry_correct) impexp));

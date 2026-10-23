@@ -1,0 +1,70 @@
+import "k215_calculus_programs.mm0";
+
+theorem k215ReadMP_first (s x r: nat):
+ $ k218EnumPL s = 0 -> k218EnumNP s = k215CmdMP x r ->
+   k215EnumStep s = k218DoMP s r (suc (k218EnumNP s)) x $;
+
+theorem k215ReadMP_continue (s x r: nat):
+ $ k218EnumPL s = suc (k215CmdMP x r) ->
+   k215EnumStep s = k218DoMP s r (k218EnumNP s) x $;
+
+theorem k215ReadDROP_first (s r: nat):
+ $ k218EnumPL s = 0 -> k218EnumNP s = k215CmdDROP r ->
+   k215EnumStep s = k218DoDROP s r (suc (k218EnumNP s)) $;
+
+theorem k215ReadDROP_continue (s r: nat):
+ $ k218EnumPL s = suc (k215CmdDROP r) ->
+   k215EnumStep s = k218DoDROP s r (k218EnumNP s) $;
+
+theorem k215ReadNIP_first (s r: nat):
+ $ k218EnumPL s = 0 -> k218EnumNP s = k215CmdNIP r ->
+   k215EnumStep s = k218DoNIP s r (suc (k218EnumNP s)) $;
+
+theorem k215ReadNIP_continue (s r: nat):
+ $ k218EnumPL s = suc (k215CmdNIP r) ->
+   k215EnumStep s = k218DoNIP s r (k218EnumNP s) $;
+
+theorem k215ReadAX_first (s c y x r: nat):
+ $ k218EnumPL s = 0 -> k218EnumNP s = k215CmdAX c y x r ->
+   k215EnumStep s = k215AXResult s r (suc (k218EnumNP s)) c y x $;
+
+theorem k215ReadAX_continue (s c y x r: nat):
+ $ k218EnumPL s = suc (k215CmdAX c y x r) ->
+   k215EnumStep s = k215AXResult s r (k218EnumNP s) c y x $;
+
+theorem k215StepMP_continue (x r np t w d h: nat):
+ $ k215EnumStep (k218EnumState (suc (k215CmdMP x r)) np t w d h) =
+   if (kImp t (d + x) = h) (suc (k218EnumState r np (d + x) (0, w) (d + x) 0)) (suc (k218EnumState r np 0 w (d + x) 0)) $;
+
+theorem k215StepDROP_continue (r np t w d h: nat):
+ $ k215EnumStep (k218EnumState (suc (k215CmdDROP r)) np t w d h) =
+   suc (k218EnumState r np h (t, w) d h) $;
+
+theorem k215StepNIP_continue (r np t w d h: nat):
+ $ k215EnumStep (k218EnumState (suc (k215CmdNIP r)) np t w d h) =
+   if (h = 1) 0 (suc (k218EnumState r np t (snd w) d (fst w))) $;
+
+theorem k215StepAX_continue (c y x r np t w d h: nat):
+ $ k215EnumStep (k218EnumState (suc (k215CmdAX c y x r)) np t w d h) =
+   suc (k218EnumState r np (k218Gate (d + x) (h + y) c)
+     (k215AxStack (d + x) h (h + y) c d t w) 0 0) $;
+
+def k215NipPrefixStep (.z: nat): set = $ \ z, suc (k215CmdNIP z) $;
+
+def k215NipPrefix (n r: nat): nat = $ rec r k215NipPrefixStep n $;
+
+def k215DiscardPrefix (r: nat): nat =
+ $ k215CmdMP 1 (suc (k215CmdAX 1 0 0 (k215NipPrefix 10 r))) $;
+
+theorem k215NipPrefix_zero (r: nat): $ k215NipPrefix 0 r = r $;
+
+theorem k215NipPrefix_succ (n r: nat):
+ $ k215NipPrefix (suc n) r = suc (k215CmdNIP (k215NipPrefix n r)) $;
+
+theorem k215Discard_run (r np t w: nat):
+ $ k215EnumIter (suc (suc 10)) (k218EnumState (suc (k215DiscardPrefix r)) np t w 0 0) =
+   suc (k218EnumState r np 0 w 0 0) $;
+
+theorem k215Discard_run_first (r t w: nat):
+ $ k215EnumIter (suc (suc 10)) (k218EnumState 0 (k215DiscardPrefix r) t w 0 0) =
+   suc (k218EnumState r (suc (k215DiscardPrefix r)) 0 w 0 0) $;

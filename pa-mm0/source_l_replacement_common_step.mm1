@@ -1,0 +1,93 @@
+import "source_l_replacement_common_geometry.mm1";
+
+@_ def sfLReplacementCollectInput (start n: nat): nat = $ sfSubst 0 (n + start) sfLDomain $;
+@_ def sfLReplacementCollectContext (G start n seed: nat): nat = $ sfLReplacementCollectInput start n : (sfLReplacementSeededRecipe start n seed : G) $;
+@_ def sfLReplacementCollectOldPoint (start n seed: nat): nat = $ sfLReplacementSeededPoint (suc (suc start)) n (suc (suc seed)) 1 0 $;
+@_ def sfLReplacementCollectOldWitness (G start n seed: nat): nat = $ sfCLWitnessContext (sfLReplacementCollectContext G start n seed) (sfLReplacementCollectOldPoint start n seed) $;
+@_ def sfLReplacementCollectNewMatrix (start n: nat): nat = $ sfAnd (sfAnd (sfCLOrdinalAt 1) (sfCLHierarchyAt 1 0)) (sfAnd (sfCLSubset 2 0) (sfMem (suc (suc (suc (suc (n + start))))) 0)) $;
+@_ def sfLReplacementCollectNewWitness (G start n seed: nat): nat = $ sfCLWitnessContext (sfLReplacementCollectOldWitness G start n seed) (sfLReplacementCollectNewMatrix start n) $;
+
+theorem lrcStep_hyp (G a: nat) (hg: $ sfContextWf G $) (ha: $ a IN G $): $ nsLocal G a $ = '(ax_mp (ax_mp nsLocal_hyp hg) ha);
+theorem lrcStep_cons_wf (G a: nat) (hg: $ sfContextWf G $) (ha: $ sfWf a $): $ sfContextWf (a : G) $ = '(mpbir sfContextWf_cons (ian ha hg));
+theorem lrcStep_witness_wf (G point: nat) (hp: $ sfWf point $): $ sfContextWf (sfCLWitnessContext G point) $ = '(lrcStep_cons_wf sfContextShift_wf hp);
+
+theorem lrcStep_shift_member (G a: nat): $ a IN G -> sfShift 0 a IN sfContextShift G $ =
+ '(mpbid (a1i (trud (lmemeqd (a1i sfShiftMap_value) eqidd))) lmemmapi);
+
+theorem lrcStep_witness_member (G point a: nat) (ha: $ a IN G $):
+ $ sfShift 0 (sfShift 0 a) IN sfCLWitnessContext G point $ =
+ '(ax_mp sfContext_member_tail (ax_mp lrcStep_shift_member (ax_mp sfContext_member_tail (ax_mp lrcStep_shift_member ha))));
+
+theorem lrcStep_member_rewrite (G a b: nat) (he: $ a = b $) (ha: $ a IN G $): $ b IN G $ =
+ '(mpbi (trud (lmemeqd (a1i he) eqidd)) ha);
+
+theorem lrcStep_extension_shift: $ sfShift 0 sfLReplacementLevelExtension = sfLReplacementLevelExtension $ = '(ax_mp sfShift_bound_identity sfLReplacementLevelExtension_bound);
+theorem lrcStep_extension_shift2: $ sfShift 0 (sfShift 0 sfLReplacementLevelExtension) = sfLReplacementLevelExtension $ = '(eqtr (sfShifteq2 lrcStep_extension_shift) lrcStep_extension_shift);
+theorem lrcStep_domain_shift2 (t: nat): $ sfShift 0 (sfShift 0 (sfSubst 0 t sfLDomain)) = sfSubst 0 (suc (suc t)) sfLDomain $ =
+ '(eqtr (sfShifteq2 (sfCLUnary_shift sfLDomain_bound)) (sfCLUnary_shift sfLDomain_bound));
+theorem lrcStep_recipe_shift2 (start n seed: nat): $ sfShift 0 (sfShift 0 (sfLReplacementSeededRecipe start n seed)) = sfLReplacementSeededRecipe (suc (suc start)) n (suc (suc seed)) $ =
+ '(eqtr (sfShifteq2 sfLReplacementSeededRecipe_shift) sfLReplacementSeededRecipe_shift);
+theorem lrcStep_point_shift2 (start n seed beta y: nat): $ sfShift 0 (sfShift 0 (sfLReplacementSeededPoint start n seed beta y)) = sfLReplacementSeededPoint (suc (suc start)) n (suc (suc seed)) (suc (suc beta)) (suc (suc y)) $ =
+ '(eqtr (sfShifteq2 sfLReplacementSeededPoint_shift) sfLReplacementSeededPoint_shift);
+theorem lrcStep_addfour (a b: nat): $ a + suc (suc (suc (suc b))) = suc (suc (suc (suc (a + b)))) $ =
+ '(eqtr addS2 (suceq (eqtr addS2 (suceq (eqtr addS2 (suceq addS2))))));
+
+theorem lrcStep_context_wf (G start n seed: nat) (hg: $ sfContextWf G $): $ sfContextWf (sfLReplacementCollectContext G start n seed) $ =
+ '(lrcStep_cons_wf (lrcStep_cons_wf hg sfLReplacementSeededRecipe_wf) sfSubst_wf);
+theorem lrcStep_old_wf (G start n seed: nat): $ sfContextWf (sfLReplacementCollectOldWitness G start n seed) $ = '(lrcStep_witness_wf sfLReplacementSeededPoint_wf);
+theorem lrcStep_subset_wf (a b: nat): $ sfWf (sfCLSubset a b) $ = '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem));
+theorem lrcStep_matrix_wf (start n: nat): $ sfWf (sfLReplacementCollectNewMatrix start n) $ =
+ '(ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfCLOrdinalAt_wf) sfCLHierarchyAt_wf)) (ax_mp (ax_mp sfWf_and lrcStep_subset_wf) sfWf_mem));
+theorem lrcStep_new_wf (G start n seed: nat): $ sfContextWf (sfLReplacementCollectNewWitness G start n seed) $ = '(lrcStep_witness_wf lrcStep_matrix_wf);
+
+theorem lrcStep_oldpoint (G start n seed: nat): $ nsLocal (sfLReplacementCollectOldWitness G start n seed) (sfLReplacementCollectOldPoint start n seed) $ =
+ '(lrcStep_hyp lrcStep_old_wf sfContext_member_head);
+
+theorem lrcStep_law (G start n seed: nat) (he: $ sfLReplacementLevelExtension IN G $):
+ $ nsLocal (sfLReplacementCollectOldWitness G start n seed) sfLReplacementLevelExtension $ =
+ '(lrcStep_hyp lrcStep_old_wf
+   (lrcStep_member_rewrite lrcStep_extension_shift2
+     (lrcStep_witness_member (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail he)))));
+
+theorem lrcStep_newdomain (G start n seed: nat):
+ $ nsLocal (sfLReplacementCollectOldWitness G start n seed) (sfSubst 0 (suc (suc (n + start))) sfLDomain) $ =
+ '(sfRQ_rewrite lrcStep_domain_shift2 (lrcStep_hyp lrcStep_old_wf (lrcStep_witness_member sfContext_member_head)));
+
+theorem lrcStep_newexists (G start n seed: nat) (he: $ sfLReplacementLevelExtension IN G $):
+ $ nsLocal (sfLReplacementCollectOldWitness G start n seed) (sfEx (sfEx (sfLReplacementCollectNewMatrix start n))) $ =
+ '(sfLReplacementLevelExtension_use (lrcStep_law he)
+   (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 lrcStep_oldpoint)))
+   (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 lrcStep_oldpoint))) lrcStep_newdomain);
+
+theorem lrcStep_newmatrix (G start n seed: nat):
+ $ nsLocal (sfLReplacementCollectNewWitness G start n seed) (sfLReplacementCollectNewMatrix start n) $ =
+ '(lrcStep_hyp lrcStep_new_wf sfContext_member_head);
+
+theorem lrcStep_shifted_oldpoint (G start n seed: nat):
+ $ nsLocal (sfLReplacementCollectNewWitness G start n seed) (sfLReplacementSeededPoint (suc (suc (suc (suc start)))) n (suc (suc (suc (suc seed)))) 3 2) $ =
+ '(sfRQ_rewrite lrcStep_point_shift2 (lrcStep_hyp lrcStep_new_wf (lrcStep_witness_member sfContext_member_head)));
+
+theorem lrcStep_newpoint (G start n seed: nat):
+ $ nsLocal (sfLReplacementCollectNewWitness G start n seed)
+   (sfLReplacementSeededPoint (suc (suc (suc (suc start)))) (suc n)
+      (suc (suc (suc (suc seed)))) 1 0) $ =
+ '(sfLReplacementSeededPoint_append
+   (sfLReplacementSeededPoint_extend lrcStep_shifted_oldpoint
+     (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE2 lrcStep_newmatrix))
+     (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 lrcStep_newmatrix))
+     (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE1 lrcStep_newmatrix)))
+   (sfRQ_rewrite (nsMem_eq (eqcom lrcStep_addfour) eqid)
+     (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 lrcStep_newmatrix))));
+
+theorem lrcStep_oldbranch (G start n seed: nat) (he: $ sfLReplacementLevelExtension IN G $):
+ $ nsLocal (sfLReplacementCollectOldWitness G start n seed) (sfLReplacementSeededRecipe (suc (suc start)) (suc n) (suc (suc seed))) $ =
+ '(ax_mp (sfCLDoubleEx_eliminate lrcStep_old_wf lrcStep_matrix_wf sfLReplacementSeededRecipe_wf (lrcStep_newexists he))
+   (sfRQ_rewrite (eqcom lrcStep_recipe_shift2) (sfLReplacementSeededRecipe_intro lrcStep_newpoint)));
+
+pub theorem sfLReplacementCollect_step (G start n seed: nat)
+ (hg: $ sfContextWf G $) (he: $ sfLReplacementLevelExtension IN G $):
+ $ nsLocal G (sfImp (sfLReplacementSeededRecipe start n seed) (sfImp (sfLReplacementCollectInput start n) (sfLReplacementSeededRecipe start (suc n) seed))) $ =
+ '(ax_mp nsLocal_II (ax_mp nsLocal_II
+   (ax_mp (sfCLDoubleEx_eliminate (lrcStep_context_wf hg) sfLReplacementSeededPoint_wf sfLReplacementSeededRecipe_wf
+     (lrcStep_hyp (lrcStep_context_wf hg) (ax_mp sfContext_member_tail sfContext_member_head)))
+     (sfRQ_rewrite (eqcom lrcStep_recipe_shift2) (lrcStep_oldbranch he)))));

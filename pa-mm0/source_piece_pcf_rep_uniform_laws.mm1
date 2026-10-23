@@ -1,0 +1,111 @@
+import "source_piece_pcf_rep_uniform_induction.mm1";
+
+-- Introduction rules for the step laws of sfPieceRepUniform (weak deduction theorem).
+
+@_ def sfPieceRepIfWitness (G A C n a: nat): nat =
+$ if (sfBound n a /\ nsLocal G (sfPieceDefinableWitness A C n a)) a sfBot $;
+@_ def sfPieceRepIfDepth (n a b: nat): nat = $ if (a < n /\ b < n) n 1 $;
+@_ def sfPieceRepIfLeft (n a b: nat): nat = $ if (a < n /\ b < n) a 0 $;
+@_ def sfPieceRepIfRight (n a b: nat): nat = $ if (a < n /\ b < n) b 0 $;
+
+-- Four implication premises from two paired ones.
+theorem pcrl_curry (a b c d r: wff) (h: $ a /\ c -> b /\ d -> r $):
+  $ a -> b -> c -> d -> r $ =
+'(exp @ exp @ exp @ sylc h (iand (syl anll anl) anlr) (iand (syl anlr anl) anr));
+
+theorem sfPieceRepIfWitness_pos (G A C n a: nat):
+  $ sfBound n a /\ nsLocal G (sfPieceDefinableWitness A C n a) ->
+    sfPieceRepIfWitness G A C n a = a $ = 'ifpos;
+
+pub theorem sfPieceRepIfWitness_bound (G A C n a: nat):
+  $ sfBound n (sfPieceRepIfWitness G A C n a) $ =
+'(trud @ ifbothd sfBoundeq2 sfBoundeq2 (syl anl anr) (a1i sfBound_bot));
+
+pub theorem sfPieceRepIfWitness_witness (G A B C n a: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ nsLocal G (sfPieceDefinableWitness A C n (sfPieceRepIfWitness G A C n a)) $ =
+'(trud @ ifbothd
+  (nsLocaleq2d (sfPieceDefinableWitnesseq4d id))
+  (nsLocaleq2d (sfPieceDefinableWitnesseq4d id))
+  (syl anr anr) (a1i (sfPieceDefinableBot_witness hg hbg hs hc)));
+
+pub theorem sfPieceRepIfAtom_mem_bound (n a b: nat):
+  $ sfBound (sfPieceRepIfDepth n a b)
+      (sfMem (sfPieceRepIfLeft n a b) (sfPieceRepIfRight n a b)) $ =
+'(cases
+  (mpbird (sfBoundeqd ifpos (sfMemeqd ifpos ifpos)) (bi2 sfBound_sfMem))
+  (mpbird (sfBoundeqd ifneg (sfMemeqd ifneg ifneg))
+    (a1i (mpbir sfBound_sfMem (ian lt01S lt01S)))));
+
+pub theorem sfPieceRepIfAtom_eq_bound (n a b: nat):
+  $ sfBound (sfPieceRepIfDepth n a b)
+      (sfEq (sfPieceRepIfLeft n a b) (sfPieceRepIfRight n a b)) $ =
+'(cases
+  (mpbird (sfBoundeqd ifpos (sfEqeqd ifpos ifpos)) (bi2 sfBound_sfEq))
+  (mpbird (sfBoundeqd ifneg (sfEqeqd ifneg ifneg))
+    (a1i (mpbir sfBound_sfEq (ian lt01S lt01S)))));
+
+pub theorem sfPieceRepMemLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C (sfPieceRepIfDepth n a b)
+        (sfMem (sfPieceRepIfLeft n a b) (sfPieceRepIfRight n a b))) $):
+  $ sfPieceRepMemLaw G A C $ =
+(named '(ax_gen @ ax_gen @ ax_gen @
+  mpbid (nsLocaleq2d (sfPieceDefinableWitnesseqd (a1i eqid) (a1i eqid)
+    (syl ifpos (bi1 sfBound_sfMem))
+    (sfMemeqd (syl ifpos (bi1 sfBound_sfMem)) (syl ifpos (bi1 sfBound_sfMem)))))
+  (a1i h)));
+
+pub theorem sfPieceRepEqLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C (sfPieceRepIfDepth n a b)
+        (sfEq (sfPieceRepIfLeft n a b) (sfPieceRepIfRight n a b))) $):
+  $ sfPieceRepEqLaw G A C $ =
+(named '(ax_gen @ ax_gen @ ax_gen @
+  mpbid (nsLocaleq2d (sfPieceDefinableWitnesseqd (a1i eqid) (a1i eqid)
+    (syl ifpos (bi1 sfBound_sfEq))
+    (sfEqeqd (syl ifpos (bi1 sfBound_sfEq)) (syl ifpos (bi1 sfBound_sfEq)))))
+  (a1i h)));
+
+pub theorem sfPieceRepAndLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfAnd (sfPieceRepIfWitness G A C n a) (sfPieceRepIfWitness G A C n b))) $):
+  $ sfPieceRepAndLaw G A C $ =
+(named '(ax_gen @ ax_gen @ ax_gen @ pcrl_curry @ exp @
+  mpbid (nsLocaleq2d (sfPieceDefinableWitnesseq4d
+    (sfAndeqd (syl sfPieceRepIfWitness_pos anl) (syl sfPieceRepIfWitness_pos anr))))
+  (a1i h)));
+
+pub theorem sfPieceRepOrLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfOr (sfPieceRepIfWitness G A C n a) (sfPieceRepIfWitness G A C n b))) $):
+  $ sfPieceRepOrLaw G A C $ =
+(named '(ax_gen @ ax_gen @ ax_gen @ pcrl_curry @ exp @
+  mpbid (nsLocaleq2d (sfPieceDefinableWitnesseq4d
+    (sfOreqd (syl sfPieceRepIfWitness_pos anl) (syl sfPieceRepIfWitness_pos anr))))
+  (a1i h)));
+
+pub theorem sfPieceRepImpLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfImp (sfPieceRepIfWitness G A C n a) (sfPieceRepIfWitness G A C n b))) $):
+  $ sfPieceRepImpLaw G A C $ =
+(named '(ax_gen @ ax_gen @ ax_gen @ pcrl_curry @ exp @
+  mpbid (nsLocaleq2d (sfPieceDefinableWitnesseq4d
+    (sfImpeqd (syl sfPieceRepIfWitness_pos anl) (syl sfPieceRepIfWitness_pos anr))))
+  (a1i h)));
+
+pub theorem sfPieceRepAllLaw_intro {n a: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfAll (sfPieceRepIfWitness G A C (suc n) a))) $):
+  $ sfPieceRepAllLaw G A C $ =
+(named '(ax_gen @ ax_gen @ exp @
+  mpbid (nsLocaleq2d (sfPieceDefinableWitnesseq4d (sfAlleqd sfPieceRepIfWitness_pos)))
+  (a1i h)));
+
+pub theorem sfPieceRepExLaw_intro {n a: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfEx (sfPieceRepIfWitness G A C (suc n) a))) $):
+  $ sfPieceRepExLaw G A C $ =
+(named '(ax_gen @ ax_gen @ exp @
+  mpbid (nsLocaleq2d (sfPieceDefinableWitnesseq4d (sfExeqd sfPieceRepIfWitness_pos)))
+  (a1i h)));

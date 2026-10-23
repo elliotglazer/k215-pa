@@ -1,0 +1,39 @@
+import "quotation_rebase.mm0";
+import "quotation_quote_hygiene.mm0";
+import "quotation_quantifiers.mm0";
+
+def qqBaseClass (E: set) (.c .S .n .t .k .l: nat): set =
+ $ {c | A. S A. n A. t A. k A. l (sfBound n c ->
+ sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqQuoteHygiene (sqStackEnv S E) n t l c ->
+ kEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+             (sqQuote (sqStackEnv S E) t l 0 c))} $;
+
+theorem sqQuote_bot_rebase (E: set) (t k l: nat):
+ $ kEquivalent (sqQuote E t k 0 sfBot) (sqQuote E t l 0 sfBot) $;
+
+def qqBaseBody (E: set) (S t k c: nat): nat =
+ $ sqQuote (sqEnvCons k (sqStackEnv S E)) t (suc k) 0 c $;
+
+def qqBaseGuardAll (E: set) (S t k c: nat): nat =
+ $ kImp (kMem t k) (qqBaseBody E S t k c) $;
+
+def qqBaseGuardEx (E: set) (S t k c: nat): nat =
+ $ kAnd (kMem t k) (qqBaseBody E S t k c) $;
+
+def qqBaseCommonAll (E: set) (S t k l c p: nat): nat =
+ $ sqCommonName (qqBaseGuardAll E S t k c) (qqBaseGuardAll E S t l c) k l (suc (p + sqAllocationMargin)) $;
+
+def qqBaseCommonEx (E: set) (S t k l c p: nat): nat =
+ $ sqCommonName (qqBaseGuardEx E S t k c) (qqBaseGuardEx E S t l c) k l (suc (p + sqAllocationMargin)) $;
+
+theorem sqQuote_rebase_stack (E: set) (S n t k l c: nat):
+ $ sfBound n c -> sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqQuoteHygiene (sqStackEnv S E) n t l c ->
+ kEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+             (sqQuote (sqStackEnv S E) t l 0 c) $;
+
+theorem sqQuote_fresh_base_equivalent (E: set) (n t k l c: nat):
+ $ sfBound n c -> sqQuoteHygiene E n t k c -> sqQuoteHygiene E n t l c ->
+ kEquivalent (sqQuote E t k 0 c) (sqQuote E t l 0 c) $;
+

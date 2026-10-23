@@ -1,0 +1,43 @@
+import "k218q_quotient_mixed_arbitrary.mm1";
+
+theorem qsepMixedHeadBase (H t x y k: nat):
+ $ k218IHypProvable H (sqEqual t x y k) -> k218QMixed H t k x y $ =
+'orr;
+
+theorem qsepMixedZeroEq (E: set) (H t x y k: nat):
+ $ k218QMixed H t k ((sqEnvCons x E) @ 0) ((sqEnvCons y E) @ 0) <-> k218QMixed H t k x y $ =
+'(k218QMixedeq eqid eqid eqid sqEnvCons_zero sqEnvCons_zero);
+
+theorem qsepMixedHeadZero (E: set) (H n t x y k: nat):
+ $ k218IHypProvable H (sqEqual t x y k) -> 0 < suc n -> k218QMixed H t k ((sqEnvCons x E) @ 0) ((sqEnvCons y E) @ 0) $ =
+'(a1d (syl (bi2 qsepMixedZeroEq) qsepMixedHeadBase));
+
+theorem qsepMixedHeadSuc (E: set) (H n t x y k: nat) (i: nat):
+ $ k218IHypProvable H (sqEqual t x y k) -> suc i < suc n -> k218QMixed H t k ((sqEnvCons x E) @ (suc i)) ((sqEnvCons y E) @ (suc i)) $ =
+'(a1i (a1i (mpbir (k218QMixedeq eqid eqid eqid sqEnvCons_suc sqEnvCons_suc) k218QMixed_same)));
+
+theorem qsepMixedHeadAt (E: set) (H n t x y k: nat) (i: nat):
+ $ k218IHypProvable H (sqEqual t x y k) -> i < suc n -> k218QMixed H t k ((sqEnvCons x E) @ i) ((sqEnvCons y E) @ i) $ =
+(named @ induct '(ind) 'i 'qsepMixedHeadZero '(a1i qsepMixedHeadSuc));
+
+pub theorem sfK0QSepMixed_head (E: set) (H n t x y k: nat):
+ $ k218IHypProvable H (sqEqual t x y k) -> k218QMixedEnvironments (sqEnvCons x E) (sqEnvCons y E) H (suc n) t k $ =
+(named '(!! iald i @ qsepMixedHeadAt));
+
+pub theorem sfK0QSep_quotient_head_invariance (E: set) (H n t x y k phi: nat) (hf: $ sfBound (suc n) phi $) (hk: $ 0 < k $) (ht: $ t < k $)
+ (hx: $ x < k $) (hy: $ y < k $) (he: $ sqEnvBelow E n k $)
+ (hemp: $ k218IHypProvable H (k218QAEmpty t k) $)
+ (heq: $ k218IHypProvable H (sqEqual t x y k) $):
+ $ k218QHEquiv H (sqQuote (sqEnvCons x E) t k 0 phi) (sqQuote (sqEnvCons y E) t k 0 phi) $ =
+'(ax_mp (ax_mp (ax_mp (ax_mp (ax_mp (ax_mp (ax_mp k218QM_formula_invariance_arbitrary hf) hk) ht)
+ (ax_mp (ax_mp sqEnvBelow_cons hx) he)) (ax_mp (ax_mp sqEnvBelow_cons hy) he)) hemp) (ax_mp sfK0QSepMixed_head heq));
+
+pub theorem sfK0QSep_quotient_head_forward (E: set) (n t x y k phi: nat) (hf: $ sfBound (suc n) phi $) (hk: $ 0 < k $) (ht: $ t < k $)
+ (hx: $ x < k $) (hy: $ y < k $) (he: $ sqEnvBelow E n k $):
+ $ k218QProvable (kImp (k218QAEmpty t k) (kImp (sqEqual t x y k) (kImp (sqQuote (sqEnvCons x E) t k 0 phi) (sqQuote (sqEnvCons y E) t k 0 phi)))) $ =
+'(ax_mp k218IHypProvable_empty (ax_mp k218IHypProvable_deduction (ax_mp k218IHypProvable_deduction (ax_mp anl (! sfK0QSep_quotient_head_invariance $ E $ $ ((sqEqual t x y k) : ((k218QAEmpty t k) : 0)) $ $ n $ $ t $ $ x $ $ y $ $ k $ $ phi $ hf hk ht hx hy he (ax_mp k218IHypProvable_assumption (mpbir lmemS (ax_mp orr lmemconsid))) (ax_mp k218IHypProvable_assumption lmemconsid))))));
+
+pub theorem sfK0QSep_quotient_head_backward (E: set) (n t x y k phi: nat) (hf: $ sfBound (suc n) phi $) (hk: $ 0 < k $) (ht: $ t < k $)
+ (hx: $ x < k $) (hy: $ y < k $) (he: $ sqEnvBelow E n k $):
+ $ k218QProvable (kImp (k218QAEmpty t k) (kImp (sqEqual t x y k) (kImp (sqQuote (sqEnvCons y E) t k 0 phi) (sqQuote (sqEnvCons x E) t k 0 phi)))) $ =
+'(ax_mp k218IHypProvable_empty (ax_mp k218IHypProvable_deduction (ax_mp k218IHypProvable_deduction (ax_mp anr (! sfK0QSep_quotient_head_invariance $ E $ $ ((sqEqual t x y k) : ((k218QAEmpty t k) : 0)) $ $ n $ $ t $ $ x $ $ y $ $ k $ $ phi $ hf hk ht hx hy he (ax_mp k218IHypProvable_assumption (mpbir lmemS (ax_mp orr lmemconsid))) (ax_mp k218IHypProvable_assumption lmemconsid))))));

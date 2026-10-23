@@ -1,0 +1,19 @@
+import "k215_induction.mm0";
+def kr8MP (D: set) (.a .b: nat): wff =
+ $ A. a A. b (a e. D -> kImp a b e. D -> b e. D) $;
+def kr8Dominated (D: set) (.a .b .c .u: nat): wff =
+ $ A. a A. b A. c A. u (u <= a -> kRho8 a b c u e. D) $;
+def kr8Closed (D: set): wff = $ 0 e. D /\ (kr8MP D /\ kr8Dominated D) $;
+theorem kr8ImpZero: $ kImp 0 0 = 0 $;
+theorem kr8PairScale (a: nat): $ a <= 4 * a $;
+theorem kr8ImpLeft (a b: nat): $ a <= kImp a b $;
+theorem kr8ImpRight (a b: nat): $ b <= kImp a b $;
+theorem kr8MP_use (D: set) (a b: nat):
+ $ kr8MP D -> a e. D -> kImp a b e. D -> b e. D $;
+theorem kr8Dominated_use (D: set) (a b c u: nat):
+ $ kr8Dominated D -> u <= a -> kRho8 a b c u e. D $;
+theorem kr8Truth (D: set) (h: $ kr8Closed D $): $ 0 e. D $;
+theorem kr8Apply (D: set) (a b: nat) (h: $ kr8Closed D $)
+ (ha: $ a e. D $) (hi: $ kImp a b e. D $): $ b e. D $;
+theorem kr8Leaf (D: set) (a b c u: nat) (h: $ kr8Closed D $)
+ (hu: $ u <= a $): $ kRho8 a b c u e. D $;

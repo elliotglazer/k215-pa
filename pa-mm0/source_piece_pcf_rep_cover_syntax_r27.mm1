@@ -1,0 +1,25 @@
+import "source_piece_pcf_rep_implication_recipe_r25.mm1";
+
+@_ abstract def sfPieceRepEnvironmentCoverAt(A X n:nat):nat = $ sfRename (sfPieceOpenMap X A) 0 (sfPieceRepImplicationRecipeCover n 1) $;
+
+@_ abstract def sfPieceRepEnvironmentCoverStep(A X Y:nat):nat = $ sfAll (sfAll (sfAll (sfImp (sfMem 2 (suc (suc (suc X)))) (sfImp (sfMem 1 (suc (suc (suc A)))) (sfImp (sfPieceRepExtension 2 1 0) (sfMem 0 (suc (suc (suc Y))))))))) $;
+
+pub theorem sfPieceRepEnvironmentCoverAt_wf(A X n:nat): $ sfWf (sfPieceRepEnvironmentCoverAt A X n) $ = (named 'sfRename_wf);
+
+pub theorem sfPieceRepEnvironmentCoverStep_wf(A X Y:nat): $ sfWf (sfPieceRepEnvironmentCoverStep A X Y) $ = (named '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfPieceRepExtension_wf) sfWf_mem)))))));
+
+@_ abstract def sfPieceRepEnvironmentCoverBody(A C n:nat):nat = $ sfAnd (sfMem 0 (suc C)) (sfRename (sfPieceOpenMap 0 (suc A)) 0 (sfPieceRepImplicationRecipeCover n 1)) $;
+
+@_ abstract def sfPieceRepEnvironmentCover(A C n:nat):nat = $ sfEx (sfPieceRepEnvironmentCoverBody A C n) $;
+
+pub theorem sfPieceRepEnvironmentCoverBody_wf(A C n:nat): $ sfWf (sfPieceRepEnvironmentCoverBody A C n) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) sfRename_wf));
+
+pub theorem sfPieceRepEnvironmentCover_wf(A C n:nat): $ sfWf (sfPieceRepEnvironmentCover A C n) $ = (named '(ax_mp sfWf_ex sfPieceRepEnvironmentCoverBody_wf));
+
+pub theorem sfPieceRepEnvironmentCover_zero_code(universe:nat): $ sfPieceRepImplicationRecipeCover 0 universe = sfAll (sfImp (sfPieceRepEmpty 0) (sfMem 0 universe)) $ = (named '(eqtr sfPieceDn_zero (nsAll_eq (nsImp_eq sfPieceEnv_zero eqid))));
+
+pub theorem sfPieceRepEnvironmentCover_zero_carrier(A:nat): $ sfRename (sfPieceOpenMap 0 (suc A)) 0 (sfPieceRepImplicationRecipeCover 0 1) = sfAll (sfImp (sfPieceRepEmpty 0) (sfMem 0 1)) $ = (named '(eqtr (trud (sfRename_congr_formula (a1i sfPieceRepEnvironmentCover_zero_code))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfPieceRepEmpty_rename (sfPieceRepEmpty_eq (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero (eqtr sfPieceOpenMap_value (ifpos eqid)))))))))))));
+
+pub theorem sfPieceRepEnvironmentCover_zero(A C:nat): $ sfPieceRepEnvironmentCover A C 0 = sfEx (sfAnd (sfMem 0 (suc C)) (sfAll (sfImp (sfPieceRepEmpty 0) (sfMem 0 1)))) $ = (named '(nsEx_eq (nsAnd_eq eqid sfPieceRepEnvironmentCover_zero_carrier)));
+
+pub theorem sfPieceRepEnvironmentCover_zero_from_actual(G A C:nat)(h:$ nsLocal G (sfEx (sfAnd (sfMem 0 (suc C)) (sfAll (sfImp (sfPieceRepEmpty 0) (sfMem 0 1))))) $): $ nsLocal G (sfPieceRepEnvironmentCover A C 0) $ = (named '(sfRQ_rewrite (eqcom sfPieceRepEnvironmentCover_zero) h));

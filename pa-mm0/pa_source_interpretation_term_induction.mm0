@@ -1,0 +1,13 @@
+import "pa_source_interpretation_terms.mm0";
+
+import "source_renaming_laws.mm0";
+
+def paTermVariableClosed (P: set) (n .i: nat): wff = $ A. i (i < n -> paTermVariable i e. P) $;
+
+def paTermSuccessorClosed (P: set) (.a: nat): wff = $ A. a (a e. P -> paTermSuccessor a e. P) $;
+
+def paTermBinaryClosed (P: set) (.a .b: nat): wff = $ A. a A. b (a e. P /\ b e. P -> (paTermAddition a b e. P /\ paTermMultiplication a b e. P)) $;
+
+def paTermConstructionClosed (P: set) (n: nat): wff = $ paTermZero e. P /\ (paTermVariableClosed P n /\ (paTermSuccessorClosed P /\ paTermBinaryClosed P)) $;
+
+theorem paTermBound_induction (P: set) (n c: nat): $ paTermConstructionClosed P n -> paTermBound n c -> c e. P $;

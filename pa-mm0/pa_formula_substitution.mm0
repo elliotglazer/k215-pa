@@ -1,0 +1,33 @@
+import "pa_formula_syntax.mm0";
+
+import "pa_source_interpretation_term_subst_bound.mm0";
+
+def paFormulaSubstBody (d a c h: nat): nat = $ if (c = 0) 0 (if (sfTag c = 1) (paFormulaEqual (paTermSubst d a (sfLeft c)) (paTermSubst d a (sfRight c))) (if (sfTag c = 3) (paFormulaAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c))) (if (sfTag c = 4) (paFormulaOr (h @ (d, sfLeft c)) (h @ (d, sfRight c))) (if (sfTag c = 5) (paFormulaImp (h @ (d, sfLeft c)) (h @ (d, sfRight c))) (if (sfTag c = 6 /\ sfRight c = 0) (paFormulaAll (h @ (suc d, sfLeft c))) (if (sfTag c = 7 /\ sfRight c = 0) (paFormulaEx (h @ (suc d, sfLeft c))) 0)))))) $;
+
+def paFormulaSubstStep (a .h: nat): set = $ \ h, paFormulaSubstBody (fst (sfHistoryLength h)) a (snd (sfHistoryLength h)) h $;
+
+def paFormulaSubst (d a c: nat): nat = $ srec (paFormulaSubstStep a) (d, c) $;
+
+def paFormulaSubstHistory (d a c .i: nat): nat = $ \. i e. upto (d, c), srec (paFormulaSubstStep a) i $;
+
+theorem paFormulaSubstStep_apply (a h: nat): $ paFormulaSubstStep a @ h = paFormulaSubstBody (fst (sfHistoryLength h)) a (snd (sfHistoryLength h)) h $;
+
+theorem paFormulaSubstHistory_size (d a c: nat): $ sfHistoryLength (paFormulaSubstHistory d a c) = (d, c) $;
+
+theorem paFormulaSubstHistory_lookup (d a c e b: nat): $ (e, b) < (d, c) -> paFormulaSubstHistory d a c @ (e, b) = paFormulaSubst e a b $;
+
+theorem paFormulaSubst_unfold (d a c: nat): $ paFormulaSubst d a c = paFormulaSubstBody d a c (paFormulaSubstHistory d a c) $;
+
+theorem paFormulaSubst_false (d a: nat): $ paFormulaSubst d a paFormulaFalse = 0 $;
+
+theorem paFormulaSubst_equal (d a b c: nat): $ paFormulaSubst d a (paFormulaEqual b c) = paFormulaEqual (paTermSubst d a b) (paTermSubst d a c) $;
+
+theorem paFormulaSubst_and (d a b c: nat): $ paFormulaSubst d a (paFormulaAnd b c) = paFormulaAnd (paFormulaSubst d a b) (paFormulaSubst d a c) $;
+
+theorem paFormulaSubst_or (d a b c: nat): $ paFormulaSubst d a (paFormulaOr b c) = paFormulaOr (paFormulaSubst d a b) (paFormulaSubst d a c) $;
+
+theorem paFormulaSubst_imp (d a b c: nat): $ paFormulaSubst d a (paFormulaImp b c) = paFormulaImp (paFormulaSubst d a b) (paFormulaSubst d a c) $;
+
+theorem paFormulaSubst_all (d a b: nat): $ paFormulaSubst d a (paFormulaAll b) = paFormulaAll (paFormulaSubst (suc d) a b) $;
+
+theorem paFormulaSubst_ex (d a b: nat): $ paFormulaSubst d a (paFormulaEx b) = paFormulaEx (paFormulaSubst (suc d) a b) $;

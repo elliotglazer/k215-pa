@@ -1,0 +1,34 @@
+import "source_piece_pcf_rep_uniform_laws.mm1";
+
+import "source_piece_pcf_rep_case_or.mm1";
+
+import "source_piece_pcf_rep_case_and.mm1";
+
+pub theorem sfPieceRepOrLaw_holds (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ sfPieceRepOrLaw G A C $ =
+(named '(sfPieceRepOrLaw_intro
+  (sfPieceRepCaseOr hg hbg hc sfPieceRepIfWitness_bound sfPieceRepIfWitness_bound
+    (sfPieceRepIfWitness_witness hg hbg hs hc) (sfPieceRepIfWitness_witness hg hbg hs hc))));
+
+pub theorem sfPieceRepAndLaw_holds (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ sfPieceRepAndLaw G A C $ =
+(named '(sfPieceRepAndLaw_intro
+  (sfPieceRepCaseAnd hg hbg hc sfPieceRepIfWitness_bound sfPieceRepIfWitness_bound
+    (sfPieceRepIfWitness_witness hg hbg hs hc) (sfPieceRepIfWitness_witness hg hbg hs hc))));
+
+pub theorem sfPieceRepUniform_from_remaining (G A B C n phi: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hm: $ sfPieceRepMemLaw G A C $) (he: $ sfPieceRepEqLaw G A C $)
+  (hi: $ sfPieceRepImpLaw G A C $) (hl: $ sfPieceRepAllLaw G A C $)
+  (hx: $ sfPieceRepExLaw G A C $):
+  $ sfBound n phi -> nsLocal G (sfPieceDefinableWitness A C n phi) $ =
+'(sfPieceRepUniform hg hbg hs hc hm he
+  (sfPieceRepAndLaw_holds hg hbg hs hc) (sfPieceRepOrLaw_holds hg hbg hs hc) hi hl hx);

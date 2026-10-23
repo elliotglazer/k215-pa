@@ -1,0 +1,61 @@
+import "k215_calculus_source_mp_reader.mm1";
+import "k215_calculus_source_mp_push4605.mm1";
+import "k215_calculus_source_mp_push4671.mm1";
+import "k215_calculus_source_mp_binary.mm1";
+import "k215_calculus_source_mp_comparison.mm1";
+
+theorem k215MPBuildImp (u t w d h v: nat): $ k215PReach (k215PState k215PNum4631 (k215PVector u d (t, w) 0 d h 0 0 v)) (k215PState k215PNum4658 (k215PVector u (kImp t d) w 0 d h 0 0 v)) $ = '(mpbi (k215PReacheq2 (k215PStateeq2 (k215PVectoreq eqid (kImpeq1 fstpr) sndpr eqid eqid eqid eqid eqid eqid))) k215BinaryConstructor4631);
+
+theorem k215MPClearImp (u t w d h v: nat): $ k215PReach (k215PState k215PNum4658 (k215PVector u (kImp t d) w 0 d h 0 0 v)) (k215PState k215PNum4661 (k215PVector u 0 w 0 d h (kImp t d) 0 v)) $ = '(k215PReach_intro (eqtr k215Loop4658Vector (k215PStateeq2 (k215PVectoreq7 add0))));
+
+
+theorem k215MPBodyPrefix (u t w d h v: nat):
+ $ k215PReach (k215PState k215PNum4605 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState k215PNum4661 (k215PVector u 0 w 0 d h (kImp t d) 0 v)) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215PushParam4605)
+   (ax_mp (ax_mp k215PReach_trans k215MPBuildImp) k215MPClearImp));
+theorem k215MPMissToReturn (u t w d h v: nat):
+ $ h != kImp t d -> k215PReach (k215PState k215PNum4605 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState k215PNum4697 (k215PVector u 0 w 0 d 0 0 0 v)) $ =
+ '(syl (ax_mp k215PReach_trans k215MPBodyPrefix) k215Comparison4661Different);
+theorem k215MPHitToPush (u t w d h v: nat):
+ $ h = kImp t d -> k215PReach (k215PState k215PNum4605 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState k215PNum4671 (k215PVector u 0 w 0 d 0 0 0 v)) $ =
+ '(syl (ax_mp k215PReach_trans k215MPBodyPrefix) k215Comparison4661Equal);
+theorem k215MPReturn (u t w d h v: nat):
+ $ k215PReach (k215PState k215PNum4697 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState 0 (k215PVector u t w 0 d h 0 0 v)) $ =
+ '(ax_mp (ax_mp k215PReach_trans (k215PReach_step (k215PAtCB k215PLookupMP_4697)))
+   (k215PReach_step (k215PAtCB k215PLookupMP_4724)));
+pub theorem k215MPMissBody (u t w d h v: nat):
+ $ h != kImp t d -> k215PReach (k215PState k215PNum4605 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState 0 (k215PVector u 0 w 0 d 0 0 0 v)) $ =
+ '(mpd (a1i k215MPReturn) (syl k215PReach_trans k215MPMissToReturn));
+pub theorem k215MPHitBody (u t w d h v: nat):
+ $ h = kImp t d -> k215PReach (k215PState k215PNum4605 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState 0 (k215PVector u d (0, w) 0 d 0 0 0 v)) $ =
+ '(mpd (a1i (ax_mp (ax_mp k215PReach_trans k215PushParam4671) k215MPReturn))
+   (syl k215PReach_trans k215MPHitToPush));
+pub theorem k215MPMissSource (u t w d h v: nat):
+ $ h != kImp t (d + fst v) ->
+   k215PReach (k215PState k215Num23 (k215PVector u t w 2 d h 0 0 v))
+     (k215PState 0 (k215PVector u 0 w 0 (d + fst v) 0 0 0 (snd v))) $ =
+ '(syl (ax_mp k215PReach_trans k215MPLocalReader) k215MPMissBody);
+pub theorem k215MPHitSource (u t w d h v: nat):
+ $ h = kImp t (d + fst v) ->
+   k215PReach (k215PState k215Num23 (k215PVector u t w 2 d h 0 0 v))
+     (k215PState 0 (k215PVector u (d + fst v) (0, w) 0 (d + fst v) 0 0 0 (snd v))) $ =
+ '(syl (ax_mp k215PReach_trans k215MPLocalReader) k215MPHitBody);
+theorem k215PCommandMPHit (s fields next: nat):
+ $ kImp (k218EnumTW s) (k218EnumD s + fst fields) = k218EnumH s ->
+   k215PCommandResult (k215PCommandInput s 2 fields next) (k215EnumCommand s 2 fields next) $ =
+ '(mpbird (k215PCommandResulteq2d (eqtrd (a1i k215EnumCommand_mp) ifpos))
+   (syl k215PCommandResult_vector (syl k215MPHitSource eqcom)));
+theorem k215PCommandMPMiss (s fields next: nat):
+ $ kImp (k218EnumTW s) (k218EnumD s + fst fields) != k218EnumH s ->
+   k215PCommandResult (k215PCommandInput s 2 fields next) (k215EnumCommand s 2 fields next) $ =
+ '(mpbird (k215PCommandResulteq2d (eqtrd (a1i k215EnumCommand_mp) ifneg))
+   (syl k215PCommandResult_vector (syl k215MPMissSource (bi1 (noteq eqcomb)))));
+pub theorem k215PCommandMP (s fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s 2 fields next) (k215EnumCommand s 2 fields next) $ =
+ '(cases k215PCommandMPHit k215PCommandMPMiss);

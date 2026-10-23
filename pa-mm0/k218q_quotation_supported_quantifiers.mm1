@@ -1,0 +1,122 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_supported_quantifiers.mm1";
+import "k218q_bootstrap.mm1";
+import "k218q_quotation_supported_environment.mm1";
+import "quotation_source_substitution.mm1";
+
+theorem k218SQ_sqSQ_hyp_transport (G: wff) (H a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> k218IHypProvable H b $):
+ $ G -> k218IHypProvable H a $ = '(mpbird (k218IHypProvableeq2d he) hp);
+
+theorem k218SQ_sqSQ_prov_transport (G: wff) (a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> k218QProvable b $):
+ $ G -> k218QProvable a $ = '(mpbird (k218QProvableeqd he) hp);
+
+theorem k218SQ_sqSQ_hyp_mp (G: wff) (H a b: nat)
+ (ha: $ G -> k218IHypProvable H a $) (hi: $ G -> k218IHypProvable H (kImp a b) $):
+ $ G -> k218IHypProvable H b $ = '(sylc k218IHypProvable_mp ha hi);
+
+theorem k218SQ_sqSQ_equiv_forward (G: wff) (H a b: nat)
+ (he: $ G -> k218IEquivalent a b $) (ha: $ G -> k218IHypProvable H a $):
+ $ G -> k218IHypProvable H b $ =
+'(k218SQ_sqSQ_hyp_mp ha (syl k218IHypProvable_seed (syl anl he)));
+
+theorem k218SQ_sqSQ_equiv_backward (G: wff) (H a b: nat)
+ (he: $ G -> k218IEquivalent a b $) (hb: $ G -> k218IHypProvable H b $):
+ $ G -> k218IHypProvable H a $ =
+'(k218SQ_sqSQ_hyp_mp hb (syl k218IHypProvable_seed (syl anr he)));
+
+theorem k218SQ_sqSQ_and_intro (G: wff) (H a b: nat)
+ (ha: $ G -> k218IHypProvable H a $) (hb: $ G -> k218IHypProvable H b $):
+ $ G -> k218IHypProvable H (kAnd a b) $ =
+'(k218SQ_sqSQ_hyp_mp hb (k218SQ_sqSQ_hyp_mp ha (a1i (k218IHypProvable_seed k218IPropAndIntro))));
+
+theorem k218SQ_sqSQ_allE_scoped (G: wff) (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ G -> k != 0 $) (ht: $ G -> k != t $) (hy: $ G -> y < k $)
+ (he: $ G -> sqEnvAvoid E n k $) (ha: $ G -> sfBound (suc n) a $)
+ (hp: $ G -> k218IHypProvable H (sqQuote E t k 0 (sfAll a)) $)
+ (hd: $ G -> k218IHypProvable H (kMem t y) $):
+ $ G -> k218IHypProvable H (sqQuote (sqEnvCons y E) t (suc k) 0 a) $ =
+'(k218SQ_sqSQ_hyp_mp hd @ k218SQ_sqSQ_hyp_mp hp @ syl k218IHypProvable_seed @
+ k218SQ_sqSQ_prov_transport
+ (kImpeqd (syl sqQuote_all_cons (syl sfBound_wf ha)) (eqcomd (sqSQ_subst_all hz ht he ha)))
+ (mpd (sqSQ_scope_all_absent (syl sfBound_wf ha) (ltletrd hy (a1i lesucid)))
+  (mpd (sqSQ_scope_all_absent (syl sfBound_wf ha) (a1i ltsucid))
+    (syl k218INamed_specialization (syl ltner hy)))));
+
+theorem k218SQ_sqSQ_exI_scoped (G: wff) (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ G -> k != 0 $) (ht: $ G -> k != t $) (hy: $ G -> y < k $)
+ (he: $ G -> sqEnvAvoid E n k $) (ha: $ G -> sfBound (suc n) a $)
+ (hp: $ G -> k218IHypProvable H (sqQuote (sqEnvCons y E) t (suc k) 0 a) $)
+ (hd: $ G -> k218IHypProvable H (kMem t y) $):
+ $ G -> k218IHypProvable H (sqQuote E t k 0 (sfEx a)) $ =
+'(k218SQ_sqSQ_hyp_mp (k218SQ_sqSQ_and_intro hd hp) @ syl k218IHypProvable_seed @
+ k218SQ_sqSQ_prov_transport
+ (kImpeqd (eqcomd (sqSQ_subst_ex hz ht he ha)) (syl sqQuote_ex_cons (syl sfBound_wf ha)))
+ (mpd (sqSQ_scope_ex_absent (syl sfBound_wf ha) (ltletrd hy (a1i lesucid)))
+  (mpd (sqSQ_scope_ex_absent (syl sfBound_wf ha) (a1i ltsucid))
+    (syl k218INamed_exists_intro (syl ltner hy)))));
+
+theorem k218SQ_sqSQ_child_rebase (G: wff) (E: set) (n t k y a: nat)
+ (hk: $ G -> 0 < k $) (ht: $ G -> t < k $) (hy: $ G -> y < k $)
+ (he: $ G -> sqEnvBelow E n k $) (ha: $ G -> sfBound (suc n) a $):
+ $ G -> k218IEquivalent (sqQuote (sqEnvCons y E) t k 0 a)
+                       (sqQuote (sqEnvCons y E) t (suc k) 0 a) $ =
+'(mpd (sqSQ_hygiene_use (a1i lt01S) (ltletrd ht (a1i lesucid))
+  (syl sqEnvBelow_successor (mpd he (syl sqEnvBelow_cons hy)))) @
+ mpd (sqSQ_hygiene_use hk ht (mpd he (syl sqEnvBelow_cons hy))) @
+ syl k218SQ_sqQuote_fresh_base_equivalent ha);
+
+theorem k218SQ_sqSQ_allE_rebased (G: wff) (H: nat) (E: set) (n t k i a: nat)
+ (hk: $ G -> 0 < k $) (ht: $ G -> t < k $)
+ (he: $ G -> sqEnvBelow E n k $) (hi: $ G -> i < n $)
+ (ha: $ G -> sfBound (suc n) a $)
+ (hp: $ G -> k218IHypProvable H (sqQuote E t k 0 (sfAll a)) $)
+ (hd: $ G -> k218IHypProvable H (kMem t (E @ i)) $):
+ $ G -> k218IHypProvable H (sqQuote E t k 0 (sfSubst 0 i a)) $ =
+'(k218SQ_sqSQ_hyp_transport (syl sqQuote_source_substitution (syl sfBound_wf ha)) @
+ k218SQ_sqSQ_equiv_backward
+ (k218SQ_sqSQ_child_rebase hk ht (mpd hi (syl sqSQ_below_at he)) he ha)
+ (k218SQ_sqSQ_allE_scoped (syl (bi1 lt01) hk) (syl ltner ht)
+  (mpd hi (syl sqSQ_below_at he)) (syl sqEnvBelow_avoid he) ha hp hd));
+
+theorem k218SQ_sqSQ_exI_rebased (G: wff) (H: nat) (E: set) (n t k i a: nat)
+ (hk: $ G -> 0 < k $) (ht: $ G -> t < k $)
+ (he: $ G -> sqEnvBelow E n k $) (hi: $ G -> i < n $)
+ (ha: $ G -> sfBound (suc n) a $)
+ (hp: $ G -> k218IHypProvable H (sqQuote E t k 0 (sfSubst 0 i a)) $)
+ (hd: $ G -> k218IHypProvable H (kMem t (E @ i)) $):
+ $ G -> k218IHypProvable H (sqQuote E t k 0 (sfEx a)) $ =
+'(k218SQ_sqSQ_exI_scoped (syl (bi1 lt01) hk) (syl ltner ht)
+  (mpd hi (syl sqSQ_below_at he)) (syl sqEnvBelow_avoid he) ha
+ (k218SQ_sqSQ_equiv_forward
+  (k218SQ_sqSQ_child_rebase hk ht (mpd hi (syl sqSQ_below_at he)) he ha)
+  (k218SQ_sqSQ_hyp_transport (eqcomd (syl sqQuote_source_substitution (syl sfBound_wf ha))) hp)) hd);
+
+pub theorem k218SQ_sqSupported_AllE (H S n t k i a: nat):
+ $ sqEnvironmentSafe S n t k -> k218SQ_sqDomainSupport H S t -> i < n -> sfBound (suc n) a ->
+ k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfAll a)) ->
+ k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfSubst 0 i a)) $ =
+'(exp @ exp @ exp @ exp @
+ k218SQ_sqSQ_allE_rebased
+ (syl sqEnvironmentSafe_positive (syl anl (syl anl (syl anl anl))))
+ (syl sqEnvironmentSafe_tag (syl anl (syl anl (syl anl anl))))
+ (syl sqEnvironmentSafe_live_below (syl anl (syl anl (syl anl anl))))
+ (syl anr (syl anl anl)) (syl anr anl) anr
+ (mpd (ltletrd (syl anr (syl anl anl))
+   (syl sqEnvironmentSafe_length (syl anl (syl anl (syl anl anl)))))
+  (syl k218SQ_sqDomainSupport_at (syl anr (syl anl (syl anl anl))))));
+
+pub theorem k218SQ_sqSupported_ExI (H S n t k i a: nat):
+ $ sqEnvironmentSafe S n t k -> k218SQ_sqDomainSupport H S t -> i < n -> sfBound (suc n) a ->
+ k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfSubst 0 i a)) ->
+ k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfEx a)) $ =
+'(exp @ exp @ exp @ exp @
+ k218SQ_sqSQ_exI_rebased
+ (syl sqEnvironmentSafe_positive (syl anl (syl anl (syl anl anl))))
+ (syl sqEnvironmentSafe_tag (syl anl (syl anl (syl anl anl))))
+ (syl sqEnvironmentSafe_live_below (syl anl (syl anl (syl anl anl))))
+ (syl anr (syl anl anl)) (syl anr anl) anr
+ (mpd (ltletrd (syl anr (syl anl anl))
+   (syl sqEnvironmentSafe_length (syl anl (syl anl (syl anl anl)))))
+  (syl k218SQ_sqDomainSupport_at (syl anr (syl anl (syl anl anl))))));

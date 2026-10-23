@@ -1,0 +1,20 @@
+import "source_l_common_level_ball_use.mm0";
+
+import "source_l_common_level_instance_renaming.mm0";
+
+def sfCLMatrixComparison (D count phi: nat): nat =
+ $ sfIff (sfRelativize D phi) (sfCLSetRel count phi) $;
+
+def sfCLReflectedInstance (R: set) (D count phi y: nat): nat =
+ $ sfRename (sfCLBallEnv R count) 0 (sfSubst count y (sfCLMatrixComparison D count phi)) $;
+
+theorem sfCLReflection_use_block (D G count phi beta y: nat)
+ (hp: $ nsLocal G (sfCLReflection D count phi beta) $)
+ (hl: $ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ nsLocal G (sfCLBall count y (sfSubst count y (sfCLMatrixComparison D count phi))) $;
+
+theorem sfCLReflection_use_instance (R: set) (D G count phi beta y: nat)
+ (hp: $ nsLocal G (sfCLReflection D count phi beta) $)
+ (hl: $ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ sfCLRowProofs (sfCLBallMemberRows R y) G count ->
+   nsLocal G (sfCLReflectedInstance R D count phi y) $;

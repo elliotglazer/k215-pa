@@ -1,0 +1,42 @@
+import "source_wf_separation.mm1";
+
+pub theorem sfSepRelativize_eq (theta: nat):
+ $ sfRelativize sfWFDomain (sfSeparation theta) =
+   sfSepGuarded (sfRelativize sfWFDomain theta) $ =
+'(eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid (eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid (eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid (eqtr sfRelativize_sfAnd (nsAnd_eq (eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfMem (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid)))) (eqtr sfRelativize_sfImp (nsImp_eq (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid)) sfRelativize_sfMem)))))))))))));
+
+theorem sfSepGuarded_congr (H: wff) (a b: nat) (h: $ H -> a = b $):
+ $ H -> sfSepGuarded a = sfSepGuarded b $ =
+'(sfSepGuardedeqd h);
+
+theorem sfSepBounded_body_eq (phi n: nat):
+ $ sfBound (suc n) phi ->
+   sfSepGuarded (sfRename sfSepMap 0 (sfRelativize sfWFDomain phi)) =
+   sfRelativize sfWFDomain (sfSeparation (sfRename sfSepMap 0 phi)) $ =
+'(eqtrd (sfSepGuarded_congr
+    (syl (ax_mp sfRelativize_rename sfWFDomain_bound) sfBound_wf))
+  (a1i (eqcom sfSepRelativize_eq)));
+
+theorem sfSepRaw_schema (phi n: nat):
+ $ sfBound (suc n) phi -> sfTheoryProvable zfcCoreAxioms
+    (sfSeparation (sfRename sfSepMap 0 (sfRelativize sfWFDomain phi))) $ =
+'(syl (ax_mp sfTheoryProvable_prefix_elim zfcCoreAxioms_closed) @
+  syl (ax_mp sfTheoryAxiom_provable_closed zfcCoreAxioms_closed) @
+  syl zfcCoreSeparationCode_member (ax_mp sfRelativize_bound sfWFDomain_bound));
+
+theorem sfSepGuarded_schema (phi n: nat):
+ $ sfBound (suc n) phi -> sfTheoryProvable zfcCoreAxioms
+    (sfSepGuarded (sfRename sfSepMap 0 (sfRelativize sfWFDomain phi))) $ =
+'(syl (ax_mp (sfWFSeparation_theory zfcCoreAxioms_closed sfRename_wf)
+    sfWFSubset_core) sfSepRaw_schema);
+
+theorem sfSepRelative_open_schema (phi n: nat):
+ $ sfBound (suc n) phi -> sfTheoryProvable zfcCoreAxioms
+    (sfRelativize sfWFDomain (sfSeparation (sfRename sfSepMap 0 phi))) $ =
+'(mpbid (sfTheoryProvable_congr sfSepBounded_body_eq) sfSepGuarded_schema);
+
+pub theorem sfWFSeparation_schema (phi n: nat):
+ $ sfBound (suc n) phi -> sfTheoryProvable zfcCoreAxioms
+   (sfRelativize sfWFDomain (zfcSeparationCode phi n)) $ =
+'(syl (sfTheory_relative_prefix zfcCoreAxioms_closed sfWFDomain_wf)
+ sfSepRelative_open_schema);

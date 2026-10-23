@@ -1,0 +1,95 @@
+import "source_reflection_transfer_witness_level.mm1";
+
+def sfReflectionPHExistsAt(level d:nat):nat = $ sfEx (sfORBinary level (suc d) 0) $;
+
+theorem rfws_exists_wf(level d:nat): $ sfWf (sfReflectionPHExistsAt level d) $ = (named '(ax_mp sfWf_ex sfORBinary_wf));
+
+theorem rfws_exists_congr(level d dp:nat)(hl:$ sfBound 2 level $)(hd:$ d = dp $): $ sfReflectionPHExistsAt level d = sfReflectionPHExistsAt level dp $ = (named '(nsEx_eq (sfORBinary_congr (ax_mp sfBound_wf hl) (suceq hd) eqid)));
+
+theorem rfws_exists_rename(R:set)(level d:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionPHExistsAt level d) = sfReflectionPHExistsAt level (R @ d) $ = (named '(eqtr sfRename_sfEx (nsEx_eq (eqtr (sfORBinary_rename_depth (ax_mp sfBound_wf hl)) (sfORBinary_congr (ax_mp sfBound_wf hl) rfwl_depth1_tail rfwl_depth1_zero)))));
+
+def sfReflectionPHExistsOnBody(level K d:nat):nat = $ sfImp (sfMem d K) (sfReflectionPHExistsAt level d) $;
+
+theorem rfws_exists_body_wf(level K d:nat): $ sfWf (sfReflectionPHExistsOnBody level K d) $ = (named '(ax_mp (ax_mp sfWf_imp sfWf_mem) rfws_exists_wf));
+
+theorem rfws_exists_body_rename(R:set)(level K d:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionPHExistsOnBody level K d) = sfReflectionPHExistsOnBody level (R @ K) (R @ d) $ = (named '(eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (rfws_exists_rename hl))));
+
+theorem rfws_exists_body_congr(level K KP d dp:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $)(hd:$ d = dp $): $ sfReflectionPHExistsOnBody level K d = sfReflectionPHExistsOnBody level KP dp $ = (named '(nsImp_eq (nsMem_eq hd hK) (rfws_exists_congr hl hd)));
+
+def sfReflectionPHExistsOn(level K:nat):nat = $ sfAll (sfReflectionPHExistsOnBody level (suc K) 0) $;
+
+theorem rfws_exists_on_wf(level K:nat): $ sfWf (sfReflectionPHExistsOn level K) $ = (named '(ax_mp sfWf_all rfws_exists_body_wf));
+
+pub theorem sfReflectionPHExistsOn_rename(R:set)(level K:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionPHExistsOn level K) = sfReflectionPHExistsOn level (R @ K) $ = (named '(eqtr sfRename_sfAll (nsAll_eq (eqtr (ax_mp sfRename_as_map rfws_exists_body_wf) (eqtr (rfws_exists_body_rename hl) (rfws_exists_body_congr hl rfwl_depth1_tail rfwl_depth1_zero))))));
+
+theorem rfws_exists_on_congr(level K KP:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $): $ sfReflectionPHExistsOn level K = sfReflectionPHExistsOn level KP $ = (named '(nsAll_eq (rfws_exists_body_congr hl (suceq hK) eqid)));
+
+pub theorem sfReflectionPHExistsOn_shift(level K:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionPHExistsOn level K) = sfReflectionPHExistsOn level (suc K) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor rfws_exists_on_wf)) (eqtr (sfReflectionPHExistsOn_rename hl) (rfws_exists_on_congr hl sfSuccessorMap_value))));
+
+pub theorem sfReflectionPHExistsOn_use(G level K d:nat)(hl:$ sfBound 2 level $)(hLaw:$ nsLocal G (sfReflectionPHExistsOn level K) $)(hd:$ nsLocal G (sfMem d K) $): $ nsLocal G (sfReflectionPHExistsAt level d) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr (rfws_exists_body_rename hl) (rfws_exists_body_congr hl rfcc_cons_suc rfcc_cons_zero))) (ax_mp (rfcl_all_cons rfws_exists_body_wf) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity rfws_exists_on_wf)) hLaw)))) hd));
+
+def sfReflectionPHSubsetOnBody(level K z d:nat):nat = $ sfImp (sfMem d K) (sfReflectionPHSubsetAt level d z) $;
+
+theorem rfws_subset_body_wf(level K z d:nat): $ sfWf (sfReflectionPHSubsetOnBody level K z d) $ = (named '(ax_mp (ax_mp sfWf_imp sfWf_mem) rfwl_subset_wf));
+
+theorem rfws_subset_body_rename(R:set)(level K z d:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionPHSubsetOnBody level K z d) = sfReflectionPHSubsetOnBody level (R @ K) (R @ z) (R @ d) $ = (named '(eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (sfReflectionPHSubsetAt_rename hl))));
+
+theorem rfws_subset_body_congr(level K KP d dp z zp:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $)(hd:$ d = dp $)(hz:$ z = zp $): $ sfReflectionPHSubsetOnBody level K z d = sfReflectionPHSubsetOnBody level KP zp dp $ = (named '(nsImp_eq (nsMem_eq hd hK) (rfwl_subset_congr hl hd hz)));
+
+def sfReflectionPHSubsetOn(level K z:nat):nat = $ sfAll (sfReflectionPHSubsetOnBody level (suc K) (suc z) 0) $;
+
+theorem rfws_subset_on_wf(level K z:nat): $ sfWf (sfReflectionPHSubsetOn level K z) $ = (named '(ax_mp sfWf_all rfws_subset_body_wf));
+
+pub theorem sfReflectionPHSubsetOn_rename(R:set)(level K z:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionPHSubsetOn level K z) = sfReflectionPHSubsetOn level (R @ K) (R @ z) $ = (named '(eqtr sfRename_sfAll (nsAll_eq (eqtr (ax_mp sfRename_as_map rfws_subset_body_wf) (eqtr (rfws_subset_body_rename hl) (rfws_subset_body_congr hl rfwl_depth1_tail rfwl_depth1_zero rfwl_depth1_tail))))));
+
+theorem rfws_subset_on_congr(level K KP z zp:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $)(hz:$ z = zp $): $ sfReflectionPHSubsetOn level K z = sfReflectionPHSubsetOn level KP zp $ = (named '(nsAll_eq (rfws_subset_body_congr hl (suceq hK) eqid (suceq hz))));
+
+pub theorem sfReflectionPHSubsetOn_shift(level K z:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionPHSubsetOn level K z) = sfReflectionPHSubsetOn level (suc K) (suc z) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor rfws_subset_on_wf)) (eqtr (sfReflectionPHSubsetOn_rename hl) (rfws_subset_on_congr hl sfSuccessorMap_value sfSuccessorMap_value))));
+
+pub theorem sfReflectionPHSubsetOn_use(G level K z d:nat)(hl:$ sfBound 2 level $)(hLaw:$ nsLocal G (sfReflectionPHSubsetOn level K z) $)(hd:$ nsLocal G (sfMem d K) $): $ nsLocal G (sfReflectionPHSubsetAt level d z) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr (rfws_subset_body_rename hl) (rfws_subset_body_congr hl rfcc_cons_suc rfcc_cons_zero rfcc_cons_suc))) (ax_mp (rfcl_all_cons rfws_subset_body_wf) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity rfws_subset_on_wf)) hLaw)))) hd));
+
+def sfReflectionPHNextGate(level P k w X:nat):nat = $ sfImp (sfORBinary level k X) (sfORBinary P w X) $;
+
+theorem rfws_gate_wf(level P k w X:nat): $ sfWf (sfReflectionPHNextGate level P k w X) $ = (named '(ax_mp (ax_mp sfWf_imp sfORBinary_wf) sfORBinary_wf));
+
+theorem rfws_gate_congr(level P k kp w wp X XP:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hk:$ k = kp $)(hw:$ w = wp $)(hX:$ X = XP $): $ sfReflectionPHNextGate level P k w X = sfReflectionPHNextGate level P kp wp XP $ = (named '(nsImp_eq (sfORBinary_congr (ax_mp sfBound_wf hl) hk hX) (sfORBinary_congr (ax_mp sfBound_wf hp) hw hX)));
+
+theorem rfws_gate_rename(R:set)(level P k w X:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfRename R 0 (sfReflectionPHNextGate level P k w X) = sfReflectionPHNextGate level P (R @ k) (R @ w) (R @ X) $ = (named '(eqtr sfRename_sfImp (nsImp_eq (sfORBinary_rename (ax_mp sfBound_wf hl)) (sfORBinary_rename (ax_mp sfBound_wf hp)))));
+
+def sfReflectionPHNextWitness(level P K k w:nat):nat = $ sfAnd (sfMem w K) (sfAnd (sfMem k w) (sfAll (sfReflectionPHNextGate level P (suc k) (suc w) 0))) $;
+
+theorem rfws_next_wf(level P K k w:nat): $ sfWf (sfReflectionPHNextWitness level P K k w) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all rfws_gate_wf))));
+
+theorem rfws_next_congr(level P K KP k kp w wp:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hK:$ K = KP $)(hk:$ k = kp $)(hw:$ w = wp $): $ sfReflectionPHNextWitness level P K k w = sfReflectionPHNextWitness level P KP kp wp $ = (named '(nsAnd_eq (nsMem_eq hw hK) (nsAnd_eq (nsMem_eq hk hw) (nsAll_eq (rfws_gate_congr hl hp (suceq hk) (suceq hw) eqid)))));
+
+theorem rfws_next_rename(R:set)(level P K k w:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfRename R 0 (sfReflectionPHNextWitness level P K k w) = sfReflectionPHNextWitness level P (R @ K) (R @ k) (R @ w) $ = (named '(eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (eqtr sfRename_sfAll (nsAll_eq (eqtr (ax_mp sfRename_as_map rfws_gate_wf) (eqtr (rfws_gate_rename hl hp) (rfws_gate_congr hl hp rfwl_depth1_tail rfwl_depth1_tail rfwl_depth1_zero))))))))));
+
+def sfReflectionPHNextAt(level P K k:nat):nat = $ sfEx (sfReflectionPHNextWitness level P (suc K) (suc k) 0) $;
+
+theorem rfws_nextat_wf(level P K k:nat): $ sfWf (sfReflectionPHNextAt level P K k) $ = (named '(ax_mp sfWf_ex rfws_next_wf));
+
+theorem rfws_nextat_congr(level P K KP k kp:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hK:$ K = KP $)(hk:$ k = kp $): $ sfReflectionPHNextAt level P K k = sfReflectionPHNextAt level P KP kp $ = (named '(nsEx_eq (rfws_next_congr hl hp (suceq hK) (suceq hk) eqid)));
+
+pub theorem sfReflectionPHNextAt_rename(R:set)(level P K k:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfRename R 0 (sfReflectionPHNextAt level P K k) = sfReflectionPHNextAt level P (R @ K) (R @ k) $ = (named '(eqtr sfRename_sfEx (nsEx_eq (eqtr (ax_mp sfRename_as_map rfws_next_wf) (eqtr (rfws_next_rename hl hp) (rfws_next_congr hl hp rfwl_depth1_tail rfwl_depth1_tail rfwl_depth1_zero))))));
+
+def sfReflectionPHNextOnBody(level P K k:nat):nat = $ sfImp (sfMem k K) (sfReflectionPHNextAt level P K k) $;
+
+theorem rfws_nextbody_wf(level P K k:nat): $ sfWf (sfReflectionPHNextOnBody level P K k) $ = (named '(ax_mp (ax_mp sfWf_imp sfWf_mem) rfws_nextat_wf));
+
+theorem rfws_nextbody_congr(level P K KP k kp:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hK:$ K = KP $)(hk:$ k = kp $): $ sfReflectionPHNextOnBody level P K k = sfReflectionPHNextOnBody level P KP kp $ = (named '(nsImp_eq (nsMem_eq hk hK) (rfws_nextat_congr hl hp hK hk)));
+
+theorem rfws_nextbody_rename(R:set)(level P K k:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfRename R 0 (sfReflectionPHNextOnBody level P K k) = sfReflectionPHNextOnBody level P (R @ K) (R @ k) $ = (named '(eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (sfReflectionPHNextAt_rename hl hp))));
+
+def sfReflectionPHNextOn(level P K:nat):nat = $ sfAll (sfReflectionPHNextOnBody level P (suc K) 0) $;
+
+theorem rfws_nexton_wf(level P K:nat): $ sfWf (sfReflectionPHNextOn level P K) $ = (named '(ax_mp sfWf_all rfws_nextbody_wf));
+
+pub theorem sfReflectionPHNextOn_rename(R:set)(level P K:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfRename R 0 (sfReflectionPHNextOn level P K) = sfReflectionPHNextOn level P (R @ K) $ = (named '(eqtr sfRename_sfAll (nsAll_eq (eqtr (ax_mp sfRename_as_map rfws_nextbody_wf) (eqtr (rfws_nextbody_rename hl hp) (rfws_nextbody_congr hl hp rfwl_depth1_tail rfwl_depth1_zero))))));
+
+theorem rfws_nexton_congr(level P K KP:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hK:$ K = KP $): $ sfReflectionPHNextOn level P K = sfReflectionPHNextOn level P KP $ = (named '(nsAll_eq (rfws_nextbody_congr hl hp (suceq hK) eqid)));
+
+pub theorem sfReflectionPHNextOn_shift(level P K:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfShift 0 (sfReflectionPHNextOn level P K) = sfReflectionPHNextOn level P (suc K) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor rfws_nexton_wf)) (eqtr (sfReflectionPHNextOn_rename hl hp) (rfws_nexton_congr hl hp sfSuccessorMap_value))));
+
+pub theorem sfReflectionPHNextOn_use(G level P K k:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hN:$ nsLocal G (sfReflectionPHNextOn level P K) $)(hk:$ nsLocal G (sfMem k K) $): $ nsLocal G (sfReflectionPHNextAt level P K k) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr (rfws_nextbody_rename hl hp) (rfws_nextbody_congr hl hp rfcc_cons_suc rfcc_cons_zero))) (ax_mp (rfcl_all_cons rfws_nextbody_wf) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity rfws_nexton_wf)) hN)))) hk));
+
+pub theorem sfReflectionPHNextWitness_use(G level P K k w X:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hN:$ nsLocal G (sfReflectionPHNextWitness level P K k w) $)(hL:$ nsLocal G (sfORBinary level k X) $): $ nsLocal G (sfORBinary P w X) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr (rfws_gate_rename hl hp) (rfws_gate_congr hl hp rfcc_cons_suc rfcc_cons_suc rfcc_cons_zero))) (ax_mp (rfcl_all_cons rfws_gate_wf) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all rfws_gate_wf))) (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 hN)))))) hL));

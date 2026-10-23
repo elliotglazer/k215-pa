@@ -1,0 +1,43 @@
+import "source_piece_pcf_definable_difference.mm1";
+
+import "source_piece_pcf_definable_conjunction.mm1";
+
+import "source_piece_pcf_rep_cover_laws_r39.mm1";
+
+import "source_l_replacement_prefix_elimination.mm1";
+
+@_ abstract def sfPieceDefinableDifferenceWitnessBody(a b C:nat): nat = $ sfAnd (sfMem 0 (suc C)) (sfPieceDefinableConjunctionDifference (suc a) (suc b) 0) $;
+
+@_ abstract def sfPieceDefinableDifferenceWitness(a b C:nat): nat = $ sfEx (sfPieceDefinableDifferenceWitnessBody a b C) $;
+
+pub theorem sfPieceDefinableDifferenceWitnessBody_wf(a b C:nat): $ sfWf (sfPieceDefinableDifferenceWitnessBody a b C) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceDefinableConjunctionDifference_wf));
+
+pub theorem sfPieceDefinableDifferenceWitness_wf(a b C:nat): $ sfWf (sfPieceDefinableDifferenceWitness a b C) $ = (named '(ax_mp sfWf_ex sfPieceDefinableDifferenceWitnessBody_wf));
+
+pub theorem pcdUse_profile_depth(T:set)(k a b r:nat): $ sfRename T k (sfPieceDefinableConjunctionDifference a b r) = sfPieceDefinableConjunctionDifference (sfRenameIndex T k a) (sfRenameIndex T k b) (sfRenameIndex T k r) $ = (named '(eqtr (ax_mp sfRename_as_map sfPieceDefinableConjunctionDifference_wf) (eqtr sfPieceDefinableConjunctionDifference_rename (sfPieceDefinableConjunctionDifference_congr sfRenameDepthMap_value sfRenameDepthMap_value sfRenameDepthMap_value))));
+
+pub theorem sfPieceDefinableDifferenceWitness_rename(T:set)(a b C:nat): $ sfRename T 0 (sfPieceDefinableDifferenceWitness a b C) = sfPieceDefinableDifferenceWitness (T @ a) (T @ b) (T @ C) $ = (named '(eqtr sfRename_sfEx (sfExeq (eqtr sfRename_sfAnd (sfAndeq (eqtr sfRename_sfMem (sfMemeq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)))) (eqtr pcdUse_profile_depth (sfPieceDefinableConjunctionDifference_congr (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)) (ax_mp sfRenameIndex_bound lt01S))))))));
+
+pub theorem sfPieceDefinableDifferenceWitness_congr(a b C x y D:nat)(ha:$ a = x $)(hb:$ b = y $)(hc:$ C = D $): $ sfPieceDefinableDifferenceWitness a b C = sfPieceDefinableDifferenceWitness x y D $ = (named '(sfExeq (sfAndeq (sfMemeq eqid (suceq hc)) (sfPieceDefinableConjunctionDifference_congr (suceq ha) (suceq hb) eqid))));
+
+@_ abstract def sfPieceDefinableDifferenceProducerBody: nat = $ sfImp (sfPieceRepClosure 3 2) (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfPieceDefinableDifferenceWitness 1 0 2))) $;
+
+@_ abstract def sfPieceDefinableDifferenceProducerLaw: nat = $ sfAll (sfAll (sfAll (sfAll sfPieceDefinableDifferenceProducerBody))) $;
+
+pub theorem sfPieceDefinableDifference_producer_exact: $ sfPieceDefinableDifferenceFormula = sfPieceDefinableDifferenceProducerLaw $ = (named 'eqid);
+
+pub theorem sfPieceDefinableDifference_producer_prefix: $ sfAllPrefix 4 sfPieceDefinableDifferenceProducerBody = sfPieceDefinableDifferenceProducerLaw $ = (named '(eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq sfAllPrefix_zero)))))))));
+
+@_ abstract def sfPieceDefinableDifferenceProducerMap(B C a b:nat): set = $ sqEnvCons b (sqEnvCons a (sqEnvCons C (sqEnvCons B sfIdentityMap))) $;
+
+pub theorem pcdUse_at0(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4 @ 0 = b $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos lt01S) sqEnvCons_zero)));
+
+pub theorem pcdUse_at1(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4 @ 1 = a $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc lt01S)) (eqtr sqEnvCons_suc sqEnvCons_zero))));
+
+pub theorem pcdUse_at2(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4 @ 2 = C $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc (mpbi ltsuc lt01S))) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+pub theorem pcdUse_at3(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4 @ 3 = B $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))));
+
+pub theorem sfPieceDefinableDifference_producer_open(B C a b:nat): $ sfRename (sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4) 0 sfPieceDefinableDifferenceProducerBody = sfImp (sfPieceRepClosure B C) (sfImp (sfMem a C) (sfImp (sfMem b C) (sfPieceDefinableDifferenceWitness a b C))) $ = (named '(eqtr sfRename_sfImp (sfImpeq (eqtr sfPieceRepClosure_rename (sfPieceRepClosure_eq (eqtr sfRenameIndex_zero pcdUse_at3) (eqtr sfRenameIndex_zero pcdUse_at2))) (eqtr sfRename_sfImp (sfImpeq (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero pcdUse_at1) (eqtr sfRenameIndex_zero pcdUse_at2))) (eqtr sfRename_sfImp (sfImpeq (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero pcdUse_at0) (eqtr sfRenameIndex_zero pcdUse_at2))) (eqtr sfPieceDefinableDifferenceWitness_rename (sfPieceDefinableDifferenceWitness_congr pcdUse_at1 pcdUse_at0 pcdUse_at2)))))))));
+
+pub theorem sfPieceDefinableDifference_produce(G B C a b:nat)(hbg:$ sfContextSub sfLBackground G $)(hc:$ nsLocal G (sfPieceRepClosure B C) $)(ha:$ nsLocal G (sfMem a C) $)(hb:$ nsLocal G (sfMem b C) $): $ nsLocal G (sfEx (sfPieceDefinableDifferenceWitnessBody a b C)) $ = (named '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (sfRQ_rewrite sfPieceDefinableDifference_producer_open (sfLReplacementPrefix_eliminate (sfRQ_rewrite (eqcom sfPieceDefinableDifference_producer_prefix) (sfRQ_rewrite sfPieceDefinableDifference_producer_exact (ax_mp (ax_mp (ax_mp nsLocal_weaken (ax_mp nsLocal_context_wf hc)) hbg) sfPieceDefinableDifference_local)))))) hc)) ha)) hb));

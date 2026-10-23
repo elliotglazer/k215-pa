@@ -1,0 +1,76 @@
+import "k218q_closure_source.mm1";
+import "k218q_seed_padding.mm1";
+
+@_ def k218SourceSeedBase (E: set) (B f: nat): nat =
+ $ k218ClosureSourceBase E B 1 3 (k218QSourceSeedCode E B f) f $;
+@_ def k218SourceMatrixBase (E: set) (B f: nat): nat =
+ $ k218ClosureMatrixBase E B 1 3 (k218QSourceSeedCode E B f) f $;
+@_ def k218SourceRootMatrix (E: set) (B f: nat): nat =
+ $ sfNamedTemplate (sqEnvCons 3 (sqEnvCons 1 E)) (k218SourceMatrixBase E B f) 0 f $;
+@_ def k218SourcePreparedSeed (E: set) (B f: nat): nat =
+ $ kAll 1 (kExists (k218QSourceSeedCode E B f)
+   (kAnd
+     (k218NamedEmittedClosure E (suc (suc (k218SourceSeedBase E B f))) 1
+       (k218QSourceSeedCode E B f) f)
+     (k218QRootRequest 3 (k218QSourceSeedCode E B f) (k218SourceRootMatrix E B f)))) $;
+
+pub theorem k218QRootRequest_equivalent (b c d e: nat)
+ (he: $ k218IEquivalent d e $):
+ $ k218IEquivalent (k218QRootRequest b c d) (k218QRootRequest b c e) $ =
+'(ax_mp k218IEquivalent_imp
+  (ian (ax_mp k218IEquivalent_exists he)
+    (ax_mp k218IEquivalent_exists
+      (ax_mp k218IEquivalent_and (ian he k218IEquivalent_refl)))));
+
+theorem k218PS_C_lt_M (E: set) (B f: nat):
+ $ k218QSourceSeedCode E B f < k218SourceMatrixBase E B f $ =
+'(lttr
+  (lttr k218CR_chosen_above0
+    (lttr k218CR_chosen_above1
+      (lttr k218CR_chosen_above2
+        (lttr k218CR_chosen_above3
+          (lttr k218CR_chosen_above4 k218CR_chosen_above5)))))
+  k218CRB_upper);
+
+theorem k218PS_B_lt_C (E: set) (B f: nat):
+ $ B < k218QSourceSeedCode E B f $ =
+'(lelttr leaddid1 k218QSourceSeedCode_above_range);
+
+theorem k218PS_B_lt_M (E: set) (B f: nat):
+ $ B < k218SourceMatrixBase E B f $ =
+'(lttr k218PS_B_lt_C k218PS_C_lt_M);
+
+pub theorem k218QSourceRootMatrix_equivalent {i j: nat} (E: set) (n B f: nat)
+ (hB: $ 3 < B $) (he: $ A. j (j < n -> E @ j < B) $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218IEquivalent (k218QSourceMatrix E B f) (k218SourceRootMatrix E B f) $ =
+(named '(k218QMatrix_pair_rebase hf
+  (sqRebaseHygiene_below (lttr lt01S hB) he)
+  (sqRebaseHygiene_below (lttr (lttr lt01S hB) k218PS_B_lt_M)
+    {(k218CRB_env_mono k218PS_B_lt_M he) : $ A. i (i < n -> E @ i < k218SourceMatrixBase E B f) $})
+  (sqAllocAvoid_below hB) (sqAllocAvoid_below (lttr (mpbi ltsuc lt01S) hB))
+  (sqAllocAvoid_below (lttr hB k218PS_B_lt_M))
+  (sqAllocAvoid_below (lttr (lttr (mpbi ltsuc lt01S) hB) k218PS_B_lt_M))));
+
+pub theorem k218QSourceSeed_preparation {i j: nat} (E: set) (n B f: nat)
+ (hB: $ 3 < B $) (he1: $ sqEnvAvoid E n 1 $) (he3: $ sqEnvAvoid E n 3 $)
+ (he: $ A. j (j < n -> E @ j < B) $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218IEquivalent
+     (kAll 1 (k218QRootSeed 1 3 (k218QSourceSeedCode E B f) (k218QSourceMatrix E B f)))
+     (k218SourcePreparedSeed E B f) $ =
+(named '(ax_mp k218IEquivalent_all
+  (ax_mp k218IEquivalent_exists
+    (ax_mp k218IEquivalent_and
+      (ian
+        (!! k218QClosure_source i j lt01S (mpbi ltsuc lt01S) k218QPadCode_gt3
+          (lttr (mpbi ltsuc lt01S) hB) hB he1 he3 he hf)
+        (k218QRootRequest_equivalent (!! k218QSourceRootMatrix_equivalent i j hB he hf)))))));
+
+pub theorem k218QSourcePreparedSeed_provable {i j: nat} (E: set) (n B f: nat)
+ (hB: $ 3 < B $) (he1: $ sqEnvAvoid E n 1 $) (he3: $ sqEnvAvoid E n 3 $)
+ (he: $ A. j (j < n -> E @ j < B) $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218QProvable (k218SourcePreparedSeed E B f) $ =
+(named '(ax_mp (ax_mp k218QProvable_mp (k218QSourceSeed hB (ax_mp sfBound_wf hf)))
+  (ax_mp anl (!! k218QSourceSeed_preparation i j hB he1 he3 he hf))));

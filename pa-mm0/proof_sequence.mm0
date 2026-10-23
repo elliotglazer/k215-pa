@@ -1,0 +1,31 @@
+import "../lean-mm0/vendor/peano.mm0";
+
+def traceStep (R: set) (.n: nat): set =
+$ \ n, nat (true (pi22 n) /\ (fst n, pi21 n) e. R) $;
+
+def traceCheck (R: set) (p: nat): nat = $ lrec 1 (traceStep R) p $;
+
+def traceValid (R: set) (p: nat): wff = $ true (traceCheck R p) $;
+
+def traceDerives (R: set) (p a: nat): wff = $ traceValid R p /\ a IN p $;
+
+def traceAppendStable (R: set) (.a .l .r: nat): wff =
+$ A. a A. l A. r ((a, l) e. R -> (a, l ++ r) e. R) $;
+
+theorem traceCheck_nil (R: set): $ traceCheck R 0 = 1 $;
+theorem traceCheck_cons (R: set) (a l: nat):
+  $ traceCheck R (a : l) = nat (traceValid R l /\ (a, l) e. R) $;
+theorem traceValid_nil (R: set): $ traceValid R 0 $;
+theorem traceValid_cons (R: set) (a l: nat):
+  $ traceValid R (a : l) <-> traceValid R l /\ (a, l) e. R $;
+
+theorem traceDerives_head (R: set) (a l: nat):
+  $ traceValid R l /\ (a, l) e. R -> traceDerives R (a : l) a $;
+theorem traceDerives_not_nil (R: set) (a: nat): $ ~traceDerives R 0 a $;
+theorem traceValid_monotone (R S: set) (p: nat):
+  $ R C_ S -> traceValid R p -> traceValid S p $;
+theorem traceDerives_monotone (R S: set) (p a: nat):
+  $ R C_ S -> traceDerives R p a -> traceDerives S p a $;
+
+theorem traceValid_append (R: set) (p q: nat):
+  $ traceAppendStable R -> traceValid R p -> traceValid R q -> traceValid R (p ++ q) $;

@@ -1,0 +1,34 @@
+import "k215_calculus_commands.mm0";
+
+def k215EnumInitial: nat = $ k218EnumState 0 4 0 0 0 0 $;
+
+theorem k215EnumInitial_good: $ k218EnumStateGood k215EnumInitial $;
+
+def k215EnumAdvance (r: nat): nat = $ if (r = 0) 0 (k215EnumStep (r - 1)) $;
+
+def k215EnumIter (n s .r: nat): nat =
+  $ rec (suc s) (\ r, k215EnumAdvance r) n $;
+
+def k215EnumHalts (.n: nat): wff = $ E. n k215EnumIter n k215EnumInitial = 0 $;
+
+theorem k215EnumAdvance_zero: $ k215EnumAdvance 0 = 0 $;
+
+theorem k215EnumAdvance_some (s: nat): $ k215EnumAdvance (suc s) = k215EnumStep s $;
+
+theorem k215EnumIter_zero (s: nat): $ k215EnumIter 0 s = suc s $;
+
+theorem k215EnumIter_succ (n s: nat):
+  $ k215EnumIter (suc n) s = k215EnumAdvance (k215EnumIter n s) $;
+
+theorem k215EnumAdvance_good (r: nat):
+  $ k218EnumOptionGood r -> k218EnumOptionGood (k215EnumAdvance r) $;
+
+theorem k215EnumIter_good (n s: nat):
+  $ k218EnumStateGood s -> k218EnumOptionGood (k215EnumIter n s) $;
+
+theorem k215EnumIter_initial_good (n: nat):
+  $ k218EnumOptionGood (k215EnumIter n k215EnumInitial) $;
+
+theorem k215EnumHalts_sound: $ k215EnumHalts -> k215Inconsistent $;
+
+theorem k215Enum_nonhalting: $ ~k215Inconsistent -> ~k215EnumHalts $;

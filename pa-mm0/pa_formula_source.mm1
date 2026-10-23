@@ -1,0 +1,49 @@
+import "pa_formula_syntax.mm1";
+
+import "pa_source_interpretation_term_source.mm1";
+
+@_ abstract def paFormulaSourceBody (c h: nat): nat = $ if (c = 0) 0 (if (sfTag c = 1) (paSourceFormulaEqual (paTermSource (sfLeft c)) (paTermSource (sfRight c))) (if (sfTag c = 3) (sfAnd (h @ (sfLeft c)) (h @ (sfRight c))) (if (sfTag c = 4) (sfOr (h @ (sfLeft c)) (h @ (sfRight c))) (if (sfTag c = 5) (sfImp (h @ (sfLeft c)) (h @ (sfRight c))) (if (sfTag c = 6 /\ sfRight c = 0) (paSourceFormulaAll (h @ (sfLeft c))) (if (sfTag c = 7 /\ sfRight c = 0) (paSourceFormulaEx (h @ (sfLeft c))) 0)))))) $;
+
+@_ abstract def paFormulaSourceStep (.h: nat): set = $ \ h, paFormulaSourceBody (sfHistoryLength h) h $;
+
+@_ abstract def paFormulaSource (c: nat): nat = $ srec paFormulaSourceStep c $;
+
+@_ abstract def paFormulaSourceHistory (c .i: nat): nat = $ \. i e. upto c, srec paFormulaSourceStep i $;
+
+pub theorem paFormulaSourceStep_apply (h: nat): $ paFormulaSourceStep @ h = paFormulaSourceBody (sfHistoryLength h) h $ = (named '(!! applame j ,eqtac));
+
+pub theorem paFormulaSourceHistory_size (c: nat): $ sfHistoryLength (paFormulaSourceHistory c) = c $ = (named '(sreclem eqid));
+
+pub theorem paFormulaSourceHistory_lookup (c b: nat): $ b < c -> paFormulaSourceHistory c @ b = paFormulaSource b $ = (named '(syl (apprlame sreceq2) (bi2 elupto)));
+
+pub theorem paFormulaSource_unfold (c: nat): $ paFormulaSource c = paFormulaSourceBody c (paFormulaSourceHistory c) $ = (named '(eqtr srecval (eqtr paFormulaSourceStep_apply (paFormulaSourceBodyeq paFormulaSourceHistory_size eqid))));
+
+theorem paFormulaSourceBody_Equal (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ paFormulaSourceBody c h = paSourceFormulaEqual (paTermSource (sfLeft c)) (paTermSource (sfRight c)) $ = (named '(eqtr (ifneg h0) (ifpos ht)));
+
+theorem paFormulaSourceBody_And (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ paFormulaSourceBody c h = sfAnd (h @ (sfLeft c)) (h @ (sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (ifpos ht))));
+
+theorem paFormulaSourceBody_Or (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ paFormulaSourceBody c h = sfOr (h @ (sfLeft c)) (h @ (sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht)))));
+
+theorem paFormulaSourceBody_Imp (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $): $ paFormulaSourceBody c h = sfImp (h @ (sfLeft c)) (h @ (sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))))));
+
+theorem paFormulaSourceBody_All (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $): $ paFormulaSourceBody c h = paSourceFormulaAll (h @ (sfLeft c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos (ian ht hz))))))));
+
+theorem paFormulaSourceBody_Ex (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $): $ paFormulaSourceBody c h = paSourceFormulaEx (h @ (sfLeft c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid)))) (ifpos (ian ht hz)))))))));
+
+theorem paFormulaSourceHistory_child (c b: nat) (h: $ sfLeft c = b $) (hb: $ b < c $): $ paFormulaSourceHistory c @ (sfLeft c) = paFormulaSource b $ = (named '(eqtr (appeq2 h) (paFormulaSourceHistory_lookup hb)));
+
+theorem paFormulaSourceHistory_right (c b: nat) (h: $ sfRight c = b $) (hb: $ b < c $): $ paFormulaSourceHistory c @ (sfRight c) = paFormulaSource b $ = (named '(eqtr (appeq2 h) (paFormulaSourceHistory_lookup hb)));
+
+pub theorem paFormulaSource_false: $ paFormulaSource paFormulaFalse = 0 $ = (named '(eqtr paFormulaSource_unfold (ifpos eqid)));
+
+pub theorem paFormulaSource_equal (b c: nat): $ paFormulaSource (paFormulaEqual b c) = paSourceFormulaEqual (paTermSource b) (paTermSource c) $ = (named '(eqtr paFormulaSource_unfold (eqtr (paFormulaSourceBody_Equal sfMem_ne_sfBot sfMem_tag) (paSourceFormulaEqualeq (paTermSourceeq sfMem_left) (paTermSourceeq sfMem_right)))));
+
+pub theorem paFormulaSource_and (b c: nat): $ paFormulaSource (paFormulaAnd b c) = sfAnd (paFormulaSource b) (paFormulaSource c) $ = (named '(eqtr paFormulaSource_unfold (eqtr (paFormulaSourceBody_And sfAnd_ne_sfBot sfAnd_tag) (sfAndeq (paFormulaSourceHistory_child sfAnd_left sfAnd_left_lt) (paFormulaSourceHistory_right sfAnd_right sfAnd_right_lt)))));
+
+pub theorem paFormulaSource_or (b c: nat): $ paFormulaSource (paFormulaOr b c) = sfOr (paFormulaSource b) (paFormulaSource c) $ = (named '(eqtr paFormulaSource_unfold (eqtr (paFormulaSourceBody_Or sfOr_ne_sfBot sfOr_tag) (sfOreq (paFormulaSourceHistory_child sfOr_left sfOr_left_lt) (paFormulaSourceHistory_right sfOr_right sfOr_right_lt)))));
+
+pub theorem paFormulaSource_imp (b c: nat): $ paFormulaSource (paFormulaImp b c) = sfImp (paFormulaSource b) (paFormulaSource c) $ = (named '(eqtr paFormulaSource_unfold (eqtr (paFormulaSourceBody_Imp sfImp_ne_sfBot sfImp_tag) (sfImpeq (paFormulaSourceHistory_child sfImp_left sfImp_left_lt) (paFormulaSourceHistory_right sfImp_right sfImp_right_lt)))));
+
+pub theorem paFormulaSource_all (b: nat): $ paFormulaSource (paFormulaAll b) = paSourceFormulaAll (paFormulaSource b) $ = (named '(eqtr paFormulaSource_unfold (eqtr (paFormulaSourceBody_All sfAll_ne_sfBot sfAll_tag sfAll_right) (paSourceFormulaAlleq (paFormulaSourceHistory_child sfAll_left sfAll_body_lt)))));
+
+pub theorem paFormulaSource_ex (b: nat): $ paFormulaSource (paFormulaEx b) = paSourceFormulaEx (paFormulaSource b) $ = (named '(eqtr paFormulaSource_unfold (eqtr (paFormulaSourceBody_Ex sfEx_ne_sfBot sfEx_tag sfEx_right) (paSourceFormulaExeq (paFormulaSourceHistory_child sfEx_left sfEx_body_lt)))));

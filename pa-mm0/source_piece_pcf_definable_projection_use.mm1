@@ -1,0 +1,48 @@
+import "source_piece_pcf_definable_projection.mm1";
+
+import "source_piece_pcf_definable_existential_recipe.mm1";
+
+import "source_piece_pcf_rep_cover_laws_r39.mm1";
+
+import "source_l_replacement_prefix_elimination.mm1";
+
+-- Projection producer rule from the checked projection replay; same pattern as
+-- definable_difference_use and definable_union_use.
+
+@_ abstract def sfPieceDefinableProjectionWitnessBody(R X A C:nat): nat = $ sfAnd (sfMem 0 (suc C)) (sfPieceDefinableExistentialProjection (suc R) (suc X) (suc A) 0) $;
+
+@_ abstract def sfPieceDefinableProjectionWitness(R X A C:nat): nat = $ sfEx (sfPieceDefinableProjectionWitnessBody R X A C) $;
+
+pub theorem sfPieceDefinableProjectionWitnessBody_wf(R X A C:nat): $ sfWf (sfPieceDefinableProjectionWitnessBody R X A C) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceDefinableExistentialProjection_wf));
+
+pub theorem sfPieceDefinableProjectionWitness_wf(R X A C:nat): $ sfWf (sfPieceDefinableProjectionWitness R X A C) $ = (named '(ax_mp sfWf_ex sfPieceDefinableProjectionWitnessBody_wf));
+
+pub theorem pcpUse_profile_depth(T:set)(k R X A Y:nat): $ sfRename T k (sfPieceDefinableExistentialProjection R X A Y) = sfPieceDefinableExistentialProjection (sfRenameIndex T k R) (sfRenameIndex T k X) (sfRenameIndex T k A) (sfRenameIndex T k Y) $ = (named '(eqtr (ax_mp sfRename_as_map sfPieceDefinableExistentialProjection_wf) (eqtr sfPieceDefinableExistentialProjection_rename (sfPieceDefinableExistentialProjection_congr sfRenameDepthMap_value sfRenameDepthMap_value sfRenameDepthMap_value sfRenameDepthMap_value))));
+
+pub theorem sfPieceDefinableProjectionWitness_rename(T:set)(R X A C:nat): $ sfRename T 0 (sfPieceDefinableProjectionWitness R X A C) = sfPieceDefinableProjectionWitness (T @ R) (T @ X) (T @ A) (T @ C) $ = (named '(eqtr sfRename_sfEx (sfExeq (eqtr sfRename_sfAnd (sfAndeq (eqtr sfRename_sfMem (sfMemeq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)))) (eqtr pcpUse_profile_depth (sfPieceDefinableExistentialProjection_congr (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)) (ax_mp sfRenameIndex_bound lt01S))))))));
+
+pub theorem sfPieceDefinableProjectionWitness_congr(R X A C R1 X1 A1 C1:nat)(hr:$ R = R1 $)(hx:$ X = X1 $)(ha:$ A = A1 $)(hc:$ C = C1 $): $ sfPieceDefinableProjectionWitness R X A C = sfPieceDefinableProjectionWitness R1 X1 A1 C1 $ = (named '(sfExeq (sfAndeq (sfMemeq eqid (suceq hc)) (sfPieceDefinableExistentialProjection_congr (suceq hr) (suceq hx) (suceq ha) eqid))));
+
+@_ abstract def sfPieceDefinableProjectionProducerBody: nat = $ sfImp (sfPieceRepClosure 4 3) (sfImp (sfMem 2 3) (sfImp (sfMem 1 3) (sfImp (sfMem 0 3) (sfPieceDefinableProjectionWitness 1 2 0 3)))) $;
+
+@_ abstract def sfPieceDefinableProjectionProducerLaw: nat = $ sfAll (sfAll (sfAll (sfAll (sfAll sfPieceDefinableProjectionProducerBody)))) $;
+
+pub theorem sfPieceDefinableProjection_producer_exact: $ sfPieceDefinableProjectionFormula = sfPieceDefinableProjectionProducerLaw $ = (named 'eqid);
+
+pub theorem sfPieceDefinableProjection_producer_prefix: $ sfAllPrefix 5 sfPieceDefinableProjectionProducerBody = sfPieceDefinableProjectionProducerLaw $ = (named '(eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq sfAllPrefix_zero)))))))))));
+
+@_ abstract def sfPieceDefinableProjectionProducerMap(B C X R A:nat): set = $ sqEnvCons A (sqEnvCons R (sqEnvCons X (sqEnvCons C (sqEnvCons B sfIdentityMap)))) $;
+
+pub theorem pcpUse_at0(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 0 = A $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos lt01S) sqEnvCons_zero)));
+
+pub theorem pcpUse_at1(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 1 = R $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc lt01S)) (eqtr sqEnvCons_suc sqEnvCons_zero))));
+
+pub theorem pcpUse_at2(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 2 = X $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc (mpbi ltsuc lt01S))) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+pub theorem pcpUse_at3(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 3 = C $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))));
+
+pub theorem pcpUse_at4(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 4 = B $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))))));
+
+pub theorem sfPieceDefinableProjection_producer_open(B C X R A:nat): $ sfRename (sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5) 0 sfPieceDefinableProjectionProducerBody = sfImp (sfPieceRepClosure B C) (sfImp (sfMem X C) (sfImp (sfMem R C) (sfImp (sfMem A C) (sfPieceDefinableProjectionWitness R X A C)))) $ = (named '(eqtr sfRename_sfImp (sfImpeq (eqtr sfPieceRepClosure_rename (sfPieceRepClosure_eq (eqtr sfRenameIndex_zero pcpUse_at4) (eqtr sfRenameIndex_zero pcpUse_at3))) (eqtr sfRename_sfImp (sfImpeq (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero pcpUse_at2) (eqtr sfRenameIndex_zero pcpUse_at3))) (eqtr sfRename_sfImp (sfImpeq (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero pcpUse_at1) (eqtr sfRenameIndex_zero pcpUse_at3))) (eqtr sfRename_sfImp (sfImpeq (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero pcpUse_at0) (eqtr sfRenameIndex_zero pcpUse_at3))) (eqtr sfPieceDefinableProjectionWitness_rename (sfPieceDefinableProjectionWitness_congr pcpUse_at1 pcpUse_at2 pcpUse_at0 pcpUse_at3)))))))))));
+
+pub theorem sfPieceDefinableProjection_produce(G B C X R A:nat)(hbg:$ sfContextSub sfLBackground G $)(hc:$ nsLocal G (sfPieceRepClosure B C) $)(hx:$ nsLocal G (sfMem X C) $)(hr:$ nsLocal G (sfMem R C) $)(ha:$ nsLocal G (sfMem A C) $): $ nsLocal G (sfEx (sfPieceDefinableProjectionWitnessBody R X A C)) $ = (named '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (sfRQ_rewrite sfPieceDefinableProjection_producer_open (sfLReplacementPrefix_eliminate (sfRQ_rewrite (eqcom sfPieceDefinableProjection_producer_prefix) (sfRQ_rewrite sfPieceDefinableProjection_producer_exact (ax_mp (ax_mp (ax_mp nsLocal_weaken (ax_mp nsLocal_context_wf hc)) hbg) sfPieceDefinableProjection_local)))))) hc)) hx)) hr)) ha));

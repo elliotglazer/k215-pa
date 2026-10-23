@@ -1,0 +1,30 @@
+import "source_l_replacement_definable_reduction.mm0";
+
+import "source_reflection_transfer_tv_domain_literal.mm0";
+
+-- Literal next-level law: for an ordinal a and Y = L_a there are an ordinal s and D = L_s
+-- with Def0 Y D. Free variables: Y = 0, a = 1. Its code is meant to coincide with the
+-- natively extracted sfLPairNextLevel (source_l_pair_shell); that identification is a
+-- separate step whose import closure needs the PC-only source_l_nonempty_replay.
+def sfLNextLevelBody: nat =
+ $ sfImp (sfCLOrdinalAt 1) (sfImp (sfCLHierarchyAt 1 0)
+   (sfEx (sfEx (sfAnd (sfAnd (sfCLOrdinalAt 1) (sfCLHierarchyAt 1 0)) (sfLSeparationDef0 2 0))))) $;
+
+def sfLNextLevelLaw: nat = $ sfAllPrefix 2 sfLNextLevelBody $;
+
+theorem sfLRepDef0_rename(R:set)(k A D:nat):
+ $ sfRename R k (sfLSeparationDef0 A D) =
+   sfLSeparationDef0 (sfRenameIndex R k A) (sfRenameIndex R k D) $;
+
+theorem sfLRepDef0_shift(k A D:nat):
+ $ sfShift k (sfLSeparationDef0 A D) = sfLSeparationDef0 (sfShiftIndex k A) (sfShiftIndex k D) $;
+
+-- Every element of the next level is in L.
+theorem sfLNextDefLaw_from_level_law
+ (hL:$ sfTheoryProvable zfrAxioms sfLNextLevelLaw $):
+ $ sfTheoryProvable zfrAxioms sfLNextDefLaw $;
+
+theorem sfLReplacementDefinableLaw_from_level_next(m psi:nat)
+ (hU:$ sfTheoryProvable zfrAxioms (sfLLevelDefinableLaw m psi) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLNextLevelLaw $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m psi) $;

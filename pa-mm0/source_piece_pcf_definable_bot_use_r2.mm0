@@ -1,0 +1,59 @@
+import "source_piece_pcf_rep_empty.mm0";
+import "source_piece_pcf_definable_witness_transport.mm0";
+import "source_piece_pcf_rep_cover_laws_r39.mm0";
+import "source_l_replacement_prefix_elimination.mm0";
+
+def sfPieceDefinableEmptyInClosure(C:nat):nat =
+ $ sfEx (sfAnd (sfPieceRepEmpty 0) (sfMem 0 (suc C))) $;
+
+def sfPieceDefinableEmptySourceBody:nat =
+ $ sfImp (sfPieceRepSuccessor 2 1)
+   (sfImp (sfPieceRepClosure 1 0) (sfPieceDefinableEmptyInClosure 0)) $;
+
+def sfPieceDefinableEmptySourceMap(A B C:nat):set =
+ $ sqEnvCons C (sqEnvCons B (sqEnvCons A sfIdentityMap)) $;
+
+theorem sfPieceDefinableEmptyInClosure_wf(C:nat):
+ $ sfWf (sfPieceDefinableEmptyInClosure C) $;
+
+theorem sfPieceDefinableEmptyInClosure_congr(C D:nat)(hc:$ C = D $):
+ $ sfPieceDefinableEmptyInClosure C = sfPieceDefinableEmptyInClosure D $;
+
+theorem sfPieceDefinableEmptyInClosure_rename(T:set)(C:nat):
+ $ sfRename T 0 (sfPieceDefinableEmptyInClosure C) =
+   sfPieceDefinableEmptyInClosure (T @ C) $;
+
+theorem sfPieceDefinableEmptySource_exact:
+ $ sfPieceRepEmptyFormula =
+   sfAll (sfAll (sfAll sfPieceDefinableEmptySourceBody)) $;
+
+theorem sfPieceDefinableEmptySource_prefix:
+ $ sfAllPrefix 3 sfPieceDefinableEmptySourceBody =
+   sfAll (sfAll (sfAll sfPieceDefinableEmptySourceBody)) $;
+
+theorem sfPieceDefinableEmptySourceMap_zero(A B C:nat):
+ $ sfCLBallEnv (sfPieceDefinableEmptySourceMap A B C) 3 @ 0 = C $;
+
+theorem sfPieceDefinableEmptySourceMap_one(A B C:nat):
+ $ sfCLBallEnv (sfPieceDefinableEmptySourceMap A B C) 3 @ 1 = B $;
+
+theorem sfPieceDefinableEmptySourceMap_two(A B C:nat):
+ $ sfCLBallEnv (sfPieceDefinableEmptySourceMap A B C) 3 @ 2 = A $;
+
+theorem sfPieceDefinableEmptySource_open(A B C:nat):
+ $ sfRename (sfCLBallEnv (sfPieceDefinableEmptySourceMap A B C) 3) 0
+     sfPieceDefinableEmptySourceBody =
+   sfImp (sfPieceRepSuccessor A B)
+     (sfImp (sfPieceRepClosure B C) (sfPieceDefinableEmptyInClosure C)) $;
+
+theorem sfPieceDefinableEmptySource_produce(G A B C:nat)
+ (hg:$ sfContextWf G $)(hbg:$ sfContextSub sfLBackground G $)
+ (hs:$ nsLocal G (sfPieceRepSuccessor A B) $)
+ (hc:$ nsLocal G (sfPieceRepClosure B C) $):
+ $ nsLocal G (sfPieceDefinableEmptyInClosure C) $;
+
+theorem sfPieceDefinableBot_witness(G A B C n:nat)
+ (hg:$ sfContextWf G $)(hbg:$ sfContextSub sfLBackground G $)
+ (hs:$ nsLocal G (sfPieceRepSuccessor A B) $)
+ (hc:$ nsLocal G (sfPieceRepClosure B C) $):
+ $ nsLocal G (sfPieceDefinableWitness A C n sfBot) $;

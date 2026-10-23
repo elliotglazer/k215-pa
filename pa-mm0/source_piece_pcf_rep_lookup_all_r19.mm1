@@ -1,0 +1,19 @@
+import "source_piece_pcf_rep_lookup_r15.mm1";
+
+@_ def sfPieceRepLookup(e x v:nat):nat = $ sfAll (sfPieceRepIff (sfPieceRepApplication (suc e) (suc x) 0) (sfEq 0 (suc v))) $;
+
+pub theorem sfPieceRepLookup_wf(e x v:nat):
+ $ sfWf (sfPieceRepLookup e x v) $ =
+ '(ax_mp sfWf_all (sfPieceRepIff_wf sfPieceRepApplication_wf sfWf_eq));
+
+theorem pcrq_env_shift(T:set)(n e:nat):
+ $ sfShift 0 (sfPieceEnv T n e) = sfPieceEnv (sfComposeMap sfSuccessorMap T) n (suc e) $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceEnv_wf)) (eqtr sfPieceEnv_rename (sfPieceEnv_eq sfSuccessorMap_value (ax_gen eqid)))));
+
+theorem pcrq_map_value(T:set)(i:nat):
+ $ sfComposeMap sfSuccessorMap T @ i = suc (T @ i) $ =
+ '(eqtr sfComposeMap_value sfSuccessorMap_value);
+
+pub theorem sfPieceEnv_lookup_all_from_laws(T:set)(G n i e x:nat)(hq:$ sfContextSub sfFormulaEqualityContext G $)(hl:$ nsLocal G sfPieceRepLookupLaws $)(hi:$ i < n $)(he:$ nsLocal G (sfPieceEnv T n e) $)(hx:$ nsLocal G (sfPieceNumeral (n - 1 - i) x) $):
+ $ nsLocal G (sfPieceRepLookup e x (T @ i)) $ =
+ '(ax_mp (ax_mp sfSepLocal_allI (ax_mp nsLocal_context_wf he)) (ax_mp (ax_mp pcrv_result_value_local pcrq_map_value) (sfPieceEnv_lookup_from_laws (ax_mp pcrv_equal_sub_shift hq) (mpbi (nsLocal_formula_eq sfPieceRepLookupLaws_shift) (ax_mp sfSepLocal_shift hl)) hi (mpbi (nsLocal_formula_eq pcrq_env_shift) (ax_mp sfSepLocal_shift he)) (mpbi (nsLocal_formula_eq pcri_num_shift) (ax_mp sfSepLocal_shift hx)))));

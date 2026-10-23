@@ -1,0 +1,58 @@
+import "k218_equality_alpha.mm1";
+
+@_ def k218SharedAux (x y z: nat): nat = $ suc (((x + y) + z) + k218EqAux x y) $;
+pub theorem k218SharedAux_above_x (x y z: nat): $ x < k218SharedAux x y z $ =
+'(lelttr (letr leaddid1 (letr leaddid1 leaddid1)) ltsucid);
+pub theorem k218SharedAux_above_y (x y z: nat): $ y < k218SharedAux x y z $ =
+'(lelttr (letr leaddid2 (letr leaddid1 leaddid1)) ltsucid);
+pub theorem k218SharedAux_above_z (x y z: nat): $ z < k218SharedAux x y z $ =
+'(lelttr (letr leaddid2 leaddid1) ltsucid);
+pub theorem k218SharedAux_above_aux (x y z: nat): $ k218EqAux x y < k218SharedAux x y z $ =
+'(lelttr leaddid2 ltsucid);
+
+pub theorem k218EqInd_to_ev (v x y: nat) (hvx: $ v != x $) (hvy: $ v != y $):
+  $ k218Provable (kImp (k218EqInd x y) (k218EqEv v x y)) $ =
+'(k218Provable_syl
+  (k218EqEv_alpha_strict
+    (ltnei k218SharedAux_above_aux)
+    (ltneri k218EqAux_gt_left) (ltneri k218EqAux_gt_right)
+    (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y))
+  (k218EqEv_alpha_strict
+    (ltneri k218SharedAux_above_z)
+    (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y) hvx hvy));
+
+pub theorem k218EqEv_to_ind (v x y: nat) (hvx: $ v != x $) (hvy: $ v != y $):
+  $ k218Provable (kImp (k218EqEv v x y) (k218EqInd x y)) $ =
+'(k218Provable_syl
+  (k218EqEv_alpha_strict
+    (ltnei k218SharedAux_above_z) hvx hvy
+    (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y))
+  (k218EqEv_alpha_strict
+    (ltneri k218SharedAux_above_aux)
+    (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y)
+    (ltneri k218EqAux_gt_left) (ltneri k218EqAux_gt_right)));
+
+pub theorem k218EqEv_vacuity_general (z v x y: nat)
+  (hzv: $ z != v $) (hzx: $ z != x $) (hzy: $ z != y $):
+  $ k218Provable (kImp (k218EqEv v x y) (kAll z (k218EqEv v x y))) $ =
+'(k218Vacuity_and_proved
+  (k218Vacuity_universal (k218In_vacuity hzv hzx hzy))
+  (k218Vacuity_universal (k218Out_vacuity hzv hzx hzy)));
+
+pub theorem k218EqInd_vacuity (z x y: nat) (hzx: $ z != x $) (hzy: $ z != y $):
+  $ k218Provable (kImp (k218EqInd x y) (kAll z (k218EqInd x y))) $ =
+'(k218Provable_syl
+  (k218EqInd_to_ev (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y))
+  (k218Provable_syl
+    (k218EqEv_vacuity_general (ltnei k218SharedAux_above_z) hzx hzy)
+    (k218All_mono (k218EqEv_to_ind
+      (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y)))));
+
+pub theorem k218Equality_implies_ind (x y: nat):
+  $ k218Provable (kImp (kEq x y) (k218EqInd x y)) $ =
+'(k218Provable_syl k218Equality_helper_ev
+  (k218EqEv_to_ind (ltneri k218G_mem_gt_left) (ltneri k218G_mem_gt_right)));
+pub theorem k218EqInd_exists (x y: nat):
+  $ k218Provable (kExists x (k218EqInd x y)) $ =
+'(k218Provable_mp (k218Provable_axiom k218Axioms_rho1)
+  (k218Exists_mono k218Equality_implies_ind));

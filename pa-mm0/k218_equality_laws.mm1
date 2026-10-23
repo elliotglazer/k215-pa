@@ -1,0 +1,104 @@
+import "k218_equality_interpretation.mm1";
+
+theorem k218Hyp_iff_euclid (G a b c: nat)
+  (hab: $ k218HypProvable G (k218Iff a b) $)
+  (hac: $ k218HypProvable G (k218Iff a c) $):
+  $ k218HypProvable G (k218Iff b c) $ =
+'(k218Hyp_and
+  (k218Hyp_syl
+    (ax_mp (ax_mp k218HypProvable_mp hab) (ax_mp k218HypProvable_seed k218PropAndRight))
+    (ax_mp (ax_mp k218HypProvable_mp hac) (ax_mp k218HypProvable_seed k218PropAndLeft)))
+  (k218Hyp_syl
+    (ax_mp (ax_mp k218HypProvable_mp hac) (ax_mp k218HypProvable_seed k218PropAndRight))
+    (ax_mp (ax_mp k218HypProvable_mp hab) (ax_mp k218HypProvable_seed k218PropAndLeft))));
+
+pub theorem k218Iff_euclid (a b c: nat):
+  $ k218Provable (kImp (k218Iff a b) (kImp (k218Iff a c) (k218Iff b c))) $ =
+'(ax_mp k218HypProvable_discharge
+  (ax_mp k218HypProvable_deduction
+    (k218Hyp_iff_euclid
+      (ax_mp k218HypProvable_assumption (mpbir lmemS (orr lmemconsid)))
+      (ax_mp k218HypProvable_assumption lmemconsid))));
+
+pub theorem k218All_mono2 (v p q r: nat)
+  (h: $ k218Provable (kImp p (kImp q r)) $):
+  $ k218Provable (kImp (kAll v p) (kImp (kAll v q) (kAll v r))) $ =
+'(k218Provable_syl (k218All_mono h) (k218Provable_axiom k218Axioms_rho2));
+
+pub theorem k218Imp_binary_map (a b c p q r: nat)
+  (ha: $ k218Provable (kImp a p) $)
+  (hb: $ k218Provable (kImp b q) $)
+  (hc: $ k218Provable (kImp r c) $)
+  (h: $ k218Provable (kImp p (kImp q r)) $):
+  $ k218Provable (kImp a (kImp b c)) $ =
+'(k218Provable_syl ha (k218Provable_syl h (k218Imp_mono_both hb hc)));
+
+theorem k218Hyp_apply2 (G a b c: nat)
+  (ha: $ k218HypProvable G a $) (hb: $ k218HypProvable G b $)
+  (h: $ k218Provable (kImp a (kImp b c)) $):
+  $ k218HypProvable G c $ =
+'(ax_mp (ax_mp k218HypProvable_mp hb)
+  (ax_mp (ax_mp k218HypProvable_mp ha) (ax_mp k218HypProvable_seed h)));
+
+theorem k218Hyp_binary_conjoin (G a b r s: nat)
+  (ha: $ k218HypProvable G a $) (hb: $ k218HypProvable G b $)
+  (hr: $ k218Provable (kImp a (kImp b r)) $)
+  (hs: $ k218Provable (kImp a (kImp b s)) $):
+  $ k218HypProvable G (kAnd r s) $ =
+'(k218Hyp_and (k218Hyp_apply2 ha hb hr) (k218Hyp_apply2 ha hb hs));
+
+pub theorem k218Imp_binary_conjoin (a b r s: nat)
+  (hr: $ k218Provable (kImp a (kImp b r)) $)
+  (hs: $ k218Provable (kImp a (kImp b s)) $):
+  $ k218Provable (kImp a (kImp b (kAnd r s))) $ =
+'(ax_mp k218HypProvable_discharge
+  (ax_mp k218HypProvable_deduction
+    (k218Hyp_binary_conjoin
+      (ax_mp k218HypProvable_assumption (mpbir lmemS (orr lmemconsid)))
+      (ax_mp k218HypProvable_assumption lmemconsid) hr hs)));
+
+pub theorem k218EqEv_euclid (v x y z: nat):
+  $ k218Provable (kImp (k218EqEv v x y)
+    (kImp (k218EqEv v x z) (k218EqEv v y z))) $ =
+'(k218Imp_binary_conjoin
+  (k218Imp_binary_map k218PropAndLeft k218PropAndLeft k218Cd17
+    (k218All_mono2 k218Iff_euclid))
+  (k218Imp_binary_map k218PropAndRight k218PropAndRight k218Cd17
+    (k218All_mono2 k218Iff_euclid)));
+
+pub theorem k218EqInd_euclid (x y z: nat):
+  $ k218Provable (kImp (k218EqInd x y)
+    (kImp (k218EqInd x z) (k218EqInd y z))) $ =
+'(k218Imp_binary_map
+  (k218EqInd_to_ev (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y))
+  (k218EqInd_to_ev (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_z))
+  (k218EqEv_to_ind (ltneri k218SharedAux_above_y) (ltneri k218SharedAux_above_z))
+  k218EqEv_euclid);
+
+pub theorem k218EqOut_specialize (v x y z: nat)
+  (hvx: $ v != x $) (hvy: $ v != y $) (hvz: $ v != z $):
+  $ k218Provable (kImp (k218EqOut v x y)
+    (k218Iff (kMem x z) (kMem y z))) $ =
+'(k218Named_specialize_proved k218Out_transport (k218Out_vacuity hvz hvx hvy));
+pub theorem k218EqIn_specialize (v x y z: nat)
+  (hvx: $ v != x $) (hvy: $ v != y $) (hvz: $ v != z $):
+  $ k218Provable (kImp (k218EqIn v x y)
+    (k218Iff (kMem z x) (kMem z y))) $ =
+'(k218Named_specialize_proved k218In_transport (k218In_vacuity hvz hvx hvy));
+
+pub theorem k218EqInd_el_left (x y z: nat):
+  $ k218Provable (kImp (k218EqInd x y) (kImp (kMem x z) (kMem y z))) $ =
+'(k218Provable_syl
+  (k218EqInd_to_ev (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y))
+  (k218Provable_syl k218PropAndRight
+    (k218Provable_syl
+      (k218EqOut_specialize (ltneri k218SharedAux_above_x)
+        (ltneri k218SharedAux_above_y) (ltneri k218SharedAux_above_z)) k218PropAndLeft)));
+pub theorem k218EqInd_el_right (x y z: nat):
+  $ k218Provable (kImp (k218EqInd x y) (kImp (kMem z x) (kMem z y))) $ =
+'(k218Provable_syl
+  (k218EqInd_to_ev (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y))
+  (k218Provable_syl k218PropAndLeft
+    (k218Provable_syl
+      (k218EqIn_specialize (ltneri k218SharedAux_above_x)
+        (ltneri k218SharedAux_above_y) (ltneri k218SharedAux_above_z)) k218PropAndLeft)));

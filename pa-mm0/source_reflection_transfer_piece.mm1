@@ -1,0 +1,43 @@
+import "source_reflection_transfer_maps.mm1";
+
+import "source_reflection_limit_dn_elimination.mm1";
+
+import "source_reflection_limit_witness_mono.mm1";
+
+import "source_piece_conjunction_proofs.mm1";
+
+theorem rftp_level_zero(P:set)(d X y:nat): $ sqEnvCons y (sfPieceEnvironment P d X) @ 0 = sfORBinaryMap y d @ 0 $ = (named '(eqtr sqEnvCons_zero (eqcom (eqtr sfORBinaryMap_value (ax_mp ifneg (ax_mp necom d1ne0))))));
+
+theorem rftp_level_one(P:set)(d X y:nat): $ sqEnvCons y (sfPieceEnvironment P d X) @ 1 = sfORBinaryMap y d @ 1 $ = (named '(eqtr sqEnvCons_suc (eqtr sfPieceEnvironment_zero (eqcom (eqtr sfORBinaryMap_value (ax_mp ifpos eqid))))));
+
+theorem rftp_level_at_zero(P:set)(d X y i:nat): $ i = 0 -> sqEnvCons y (sfPieceEnvironment P d X) @ i = sfORBinaryMap y d @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i rftp_level_zero) (eqcomd (appeq2d id)))));
+
+theorem rftp_level_at_one(P:set)(d X y i:nat): $ i = 1 -> sqEnvCons y (sfPieceEnvironment P d X) @ i = sfORBinaryMap y d @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i rftp_level_one) (eqcomd (appeq2d id)))));
+
+theorem rftp_level_agree(P:set)(d X y:nat): $ sfRenameMapAgree (sqEnvCons y (sfPieceEnvironment P d X)) (sfORBinaryMap y d) 2 $ = (named '(ax_gen (syl (eor rftp_level_at_zero rftp_level_at_one) (bi1 bool01))));
+
+pub theorem sfReflectionTransfer_level(P:set)(d X y level:nat)(hl:$ sfBound 2 level $): $ sfRename (sqEnvCons y (sfPieceEnvironment P d X)) 0 level = sfORBinary level y d $ = (named '(ax_mp (ax_mp sfRename_bounded_agreement rftp_level_agree) (mpbir (sfSchema_bound_index_eq add01) hl)));
+
+theorem rftp_domain(P:set)(d X y domain:nat)(hd:$ sfBound 1 domain $): $ sfRename (sqEnvCons y (sfPieceEnvironment P d X)) 1 domain = domain $ = (named '(ax_mp sfRename_bound_identity hd));
+
+theorem rftp_guard(P:set)(d X y:nat): $ sfRename (sqEnvCons y (sfPieceEnvironment P d X)) 1 (sfMem 0 1) = sfMem 0 (suc y) $ = (named '(eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound d0lt1) (eqtr sfRenameIndex_lift (eqtr (suceq sfRenameIndex_zero) (suceq sqEnvCons_zero))))));
+
+pub theorem sfReflectionTransfer_Ew(P:set)(d X y domain phi:nat)(hd:$ sfBound 1 domain $)(hf:$ sfWf phi $): $ sfRename (sqEnvCons y (sfPieceEnvironment P d X)) 0 (sfPieceEw domain (sfPieceShift3 phi)) = sfReflectionEwAt domain (sfRename P 1 phi) y $ = (named '(eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (rftp_domain hd) (sfReflectionTransfer_matrix hf))))) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq rftp_guard (sfReflectionTransfer_matrix hf))))))));
+
+theorem rftp_Ew_wf(domain phi:nat)(hd:$ sfBound 1 domain $): $ sfWf (sfPieceEw domain (sfPieceShift3 phi)) $ = (named '(ax_mp (ax_mp sfWf_imp (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) sfShift_wf))) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfShift_wf))));
+
+pub theorem sfReflectionTransfer_D0_open(P:set)(d X y domain level phi:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hf:$ sfWf phi $): $ sfSubst 0 y (sfRename (sfPieceEnvironment P d X) 1 (sfImp level (sfPieceEw domain (sfPieceShift3 phi)))) = sfImp (sfORBinary level y d) (sfReflectionEwAt domain (sfRename P 1 phi) y) $ = (named '(eqtr (sfReflectionTransfer_open (ax_mp (ax_mp sfWf_imp (ax_mp sfBound_wf hl)) (rftp_Ew_wf hd))) (eqtr sfRename_sfImp (nsImp_eq (sfReflectionTransfer_level hl) (sfReflectionTransfer_Ew hd hf)))));
+
+pub theorem sfReflectionTransfer_D0_local(P:set)(G d X y domain level phi:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hf:$ sfWf phi $)(hL:$ nsLocal G (sfORBinary level y d) $)(hD:$ nsLocal G (sfRename (sfPieceEnvironment P d X) 0 (sfPieceD0 domain level phi)) $): $ nsLocal G (sfReflectionEwAt domain (sfRename P 1 phi) y) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (sfReflectionTransfer_D0_open hd hl hf)) (ax_mp nsLocal_AllE (mpbi (nsLocal_formula_eq sfRename_sfAll) hD)))) hL));
+
+theorem rftp_append_agree(T F:set)(count:nat): $ sfRenameMapAgree (sfReflectionDnAppend T F count) T count $ = (named '(ax_gen sfReflectionDnAppend_prefix));
+
+pub theorem sfReflectionTransfer_tuple_matrix(T F:set)(count phi:nat)(hp:$ sfBound (suc count) phi $): $ sfRename (sfReflectionDnAppend T F count) 1 phi = sfRename T 1 phi $ = (named '(ax_mp (ax_mp sfRename_bounded_agreement rftp_append_agree) (mpbir (sfSchema_bound_index_eq add11) hp)));
+
+theorem rftp_Ew_congr(domain a b y:nat)(he:$ a = b $): $ sfReflectionEwAt domain a y = sfReflectionEwAt domain b y $ = (named '(nsImp_eq (nsEx_eq (nsAnd_eq eqid he)) (nsEx_eq (nsAnd_eq eqid he))));
+
+pub theorem sfReflectionPH_PC_tuple(T F:set)(G domain level phi count d X y:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hp:$ sfBound (suc count) phi $)(hm:$ sfReflectionDnMembers T G X count $)(hL:$ nsLocal G (sfORBinary level y d) $)(hPC:$ nsLocal G (sfPiecePC domain level count phi d X) $): $ nsLocal G (sfReflectionEwAt domain (sfRename (sfReflectionDnAppend T F count) 1 phi) y) $ = (named '(sfReflectionTransfer_D0_local hd hl (ax_mp sfBound_wf hp) hL (ax_mp (sfReflectionDn_PC_eliminate hd hl hp hm) hPC)));
+
+pub theorem sfReflectionPH_PC_local(T F:set)(G domain level phi count d X y z:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hp:$ sfBound (suc count) phi $)(hm:$ sfReflectionDnMembers T G X count $)(hL:$ nsLocal G (sfORBinary level y d) $)(hPC:$ nsLocal G (sfPiecePC domain level count phi d X) $)(hS:$ nsLocal G (sfCLSubset y z) $): $ nsLocal G (sfReflectionEwAt domain (sfRename T 1 phi) z) $ = (named '(sfReflectionEw_mono_local (ax_mp nsLocal_context_wf hPC) (ax_mp sfBound_wf hd) sfRename_wf hS (mpbi (nsLocal_formula_eq (rftp_Ew_congr (! sfReflectionTransfer_tuple_matrix $ T $ $ F $ $ count $ $ phi $ hp))) (! sfReflectionPH_PC_tuple $ T $ $ F $ $ G $ $ domain $ $ level $ $ phi $ $ count $ $ d $ $ X $ $ y $ hd hl hp hm hL hPC))));
+
+pub theorem sfReflectionPH_conjunction_local(T F:set)(G domain level sb sc n i d X y z:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hv:$ sfPieceTableValid sb sc n $)(hi:$ i < n $)(hm:$ sfReflectionDnMembers T G X (sfPieceCount sb sc i) $)(hL:$ nsLocal G (sfORBinary level y d) $)(hP:$ nsLocal G (sfPieceConjunction domain level sb sc n d X) $)(hS:$ nsLocal G (sfCLSubset y z) $): $ nsLocal G (sfReflectionEwAt domain (sfRename T 1 (sfPieceMatrix sb sc i)) z) $ = (named '(! sfReflectionPH_PC_local $ T $ $ F $ $ G $ $ domain $ $ level $ $ sfPieceMatrix sb sc i $ $ sfPieceCount sb sc i $ $ d $ $ X $ $ y $ $ z $ hd hl (ax_mp (ax_mp sfPieceTableValid_at hv) hi) hm hL (ax_mp (ax_mp sfPieceConjunction_member hP) hi) hS));

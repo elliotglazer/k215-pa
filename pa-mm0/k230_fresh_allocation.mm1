@@ -1,0 +1,35 @@
+import "k230_substitution_inverse.mm1";
+
+@_ def kFreshAllocate (G a b reserved: nat): nat = $ suc (((G + a) + b) + reserved) $;
+
+theorem kFreshContext_member (G a x: nat):
+ $ G <= x -> a IN G -> kFresh a x $ =
+'(exp @ syl kFresh_above @ syl ltle @ ltletrd (syl lmemlt anr) anl);
+
+pub theorem kContextFresh_above (G x: nat):
+ $ G <= x -> kContextFresh G x $ =
+(named '(iald kFreshContext_member));
+
+pub theorem kFreshAllocate_above_context (G a b reserved: nat):
+ $ G < kFreshAllocate G a b reserved $ =
+'(lelttr (letr leaddid1 (letr leaddid1 leaddid1)) ltsucid);
+pub theorem kFreshAllocate_above_left (G a b reserved: nat):
+ $ a < kFreshAllocate G a b reserved $ =
+'(lelttr (letr leaddid2 (letr leaddid1 leaddid1)) ltsucid);
+pub theorem kFreshAllocate_above_right (G a b reserved: nat):
+ $ b < kFreshAllocate G a b reserved $ =
+'(lelttr (letr leaddid2 leaddid1) ltsucid);
+pub theorem kFreshAllocate_above_reserved (G a b reserved: nat):
+ $ reserved < kFreshAllocate G a b reserved $ =
+'(lelttr leaddid2 ltsucid);
+pub theorem kFreshAllocate_nonzero (G a b reserved: nat):
+ $ kFreshAllocate G a b reserved != 0 $ = 'peano1;
+pub theorem kFreshAllocate_context (G a b reserved: nat):
+ $ kContextFresh G (kFreshAllocate G a b reserved) $ =
+'(ax_mp kContextFresh_above (ltle kFreshAllocate_above_context));
+pub theorem kFreshAllocate_left (G a b reserved: nat):
+ $ kFresh a (kFreshAllocate G a b reserved) $ =
+'(ax_mp kFresh_above (ltle kFreshAllocate_above_left));
+pub theorem kFreshAllocate_right (G a b reserved: nat):
+ $ kFresh b (kFreshAllocate G a b reserved) $ =
+'(ax_mp kFresh_above (ltle kFreshAllocate_above_right));

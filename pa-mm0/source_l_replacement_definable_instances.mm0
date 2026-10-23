@@ -1,0 +1,26 @@
+import "source_l_replacement_definable_use.mm0";
+
+import "source_l_replacement_matrix.mm0";
+
+import "source_l_separation_image_witness.mm0";
+
+-- Both schema callbacks consume the same generic definability law.
+theorem sfLReplacementCandidate_exact(T:set)(D phi Y x:nat):
+ $ sfLSeparationImageCandidate T D phi Y x =
+   sfLReplacementImageDefinable (sqEnvCons x T) D (sfPieceSeparationPredicate phi) Y $;
+
+theorem sfLReplacementDefinableLaw_separation(T:set)(G n phi beta Y x:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hD:$ nsLocal G (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $)
+ (ho:$ nsLocal G (sfCLOrdinalAt beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hx:$ nsLocal G (sfMem x Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal G (sfLSeparationImageCandidate T sfLDomain phi Y x) $;
+
+theorem sfLReplacementDefinableLaw_replacement(G start n phi beta Y:nat)
+ (hb:$ sfBound (suc (suc n)) phi $)
+ (hD:$ nsLocal G (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) $)
+ (hp:$ nsLocal G (sfCLPoint start (suc n) beta Y) $):
+ $ nsLocal G (sfLReplacementImageDefinable (sfLReplacementStartMap start)
+     sfLDomain (sfLReplacementPsi phi) Y) $;

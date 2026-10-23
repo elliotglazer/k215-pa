@@ -1,0 +1,108 @@
+import "source_local_extra.mm0";
+import "zfc_schemas.mm0";
+
+def sfCLTrue: nat = $ sfImp sfBot sfBot $;
+
+def sfCLFoldStep (F: set) (.z: nat): set =
+ $ \ z, (suc (fst z), sfAnd (snd z) (F @ (fst z))) $;
+
+def sfCLFoldRaw (F: set) (n: nat): nat = $ rec (0, sfCLTrue) (sfCLFoldStep F) n $;
+
+def sfCLFold (F: set) (n: nat): nat = $ snd (sfCLFoldRaw F n) $;
+
+def sfCLMemberRows (start y: nat) (.i: nat): set = $ \ i, sfMem (i + start) y $;
+
+def sfCLMembership (start y n: nat): nat = $ sfCLFold (sfCLMemberRows start y) n $;
+
+def sfCLPredicateRows (D start: nat) (.i: nat): set = $ \ i, sfSubst 0 (i + start) D $;
+
+def sfCLPredicates (D start n: nat): nat = $ sfCLFold (sfCLPredicateRows D start) n $;
+
+theorem sfCLFoldRaw_zero (F: set): $ sfCLFoldRaw F 0 = (0, sfCLTrue) $;
+
+theorem sfCLFoldRaw_suc (F: set) (n: nat):
+ $ sfCLFoldRaw F (suc n) = (suc (fst (sfCLFoldRaw F n)), sfAnd (sfCLFold F n) (F @ (fst (sfCLFoldRaw F n)))) $;
+
+theorem sfCLFoldRaw_count (F: set) (n: nat): $ fst (sfCLFoldRaw F n) = n $;
+
+theorem sfCLFold_zero (F: set): $ sfCLFold F 0 = sfCLTrue $;
+
+theorem sfCLFold_suc (F: set) (n: nat):
+ $ sfCLFold F (suc n) = sfAnd (sfCLFold F n) (F @ n) $;
+
+theorem sfCLMemberRows_value (start y i: nat):
+ $ sfCLMemberRows start y @ i = sfMem (i + start) y $;
+
+theorem sfCLPredicateRows_value (D start i: nat):
+ $ sfCLPredicateRows D start @ i = sfSubst 0 (i + start) D $;
+
+theorem sfCLMembership_zero (start y: nat): $ sfCLMembership start y 0 = sfCLTrue $;
+
+theorem sfCLMembership_suc (start y n: nat):
+ $ sfCLMembership start y (suc n) = sfAnd (sfCLMembership start y n) (sfMem (n + start) y) $;
+
+theorem sfCLPredicates_zero (D start: nat): $ sfCLPredicates D start 0 = sfCLTrue $;
+
+theorem sfCLPredicates_suc (D start n: nat):
+ $ sfCLPredicates D start (suc n) = sfAnd (sfCLPredicates D start n) (sfSubst 0 (n + start) D) $;
+
+theorem sfCLMembership_wf (start y n: nat): $ sfWf (sfCLMembership start y n) $;
+
+theorem sfCLPredicates_wf (D start n: nat): $ sfWf (sfCLPredicates D start n) $;
+
+theorem sfCLFold_bound_suc (F: set) (n k: nat):
+ $ sfBound k (sfCLFold F (suc n)) <-> sfBound k (sfCLFold F n) /\ sfBound k (F @ n) $;
+
+theorem sfCLMembership_bound_suc (start y n k: nat):
+ $ sfBound k (sfCLMembership start y (suc n)) <-> sfBound k (sfCLMembership start y n) /\ ((n + start) < k /\ y < k) $;
+
+theorem sfCLPredicates_bound_suc (D start n k: nat):
+ $ sfBound k (sfCLPredicates D start (suc n)) <-> sfBound k (sfCLPredicates D start n) /\ sfBound k (sfSubst 0 (n + start) D) $;
+
+theorem sfCLMembership_shift (start y n: nat):
+ $ sfShift 0 (sfCLMembership start y n) = sfCLMembership (suc start) (suc y) n $;
+
+theorem sfCLFold_prefix_proof (F: set) (G n: nat):
+ $ nsLocal G (sfCLFold F (suc n)) -> nsLocal G (sfCLFold F n) $;
+
+theorem sfCLFold_last_proof (F: set) (G n: nat):
+ $ nsLocal G (sfCLFold F (suc n)) -> nsLocal G (F @ n) $;
+
+theorem sfCLFold_append_proof (F: set) (G n: nat):
+ $ nsLocal G (sfCLFold F n) -> nsLocal G (F @ n) -> nsLocal G (sfCLFold F (suc n)) $;
+
+def sfCLRowProofs (F: set) (G n: nat) (.i: nat): wff =
+ $ A. i (i < n -> nsLocal G (F @ i)) $;
+
+theorem sfCLRowProofs_at (F: set) (G n i: nat):
+ $ sfCLRowProofs F G n -> i < n -> nsLocal G (F @ i) $;
+
+theorem sfCLRowProofs_prefix (F: set) (G n: nat):
+ $ sfCLRowProofs F G (suc n) -> sfCLRowProofs F G n $;
+
+theorem sfCLRowProofs_last (F: set) (G n: nat):
+ $ sfCLRowProofs F G (suc n) -> nsLocal G (F @ n) $;
+
+theorem sfCLFold_proof (F: set) (G n: nat) (hg: $ sfContextWf G $):
+ $ sfCLRowProofs F G n -> nsLocal G (sfCLFold F n) $;
+
+def sfCLRowBounds (F: set) (k n: nat) (.i: nat): wff =
+ $ A. i (i < n -> sfBound k (F @ i)) $;
+
+def sfCLNamesBound (start n k: nat) (.i: nat): wff =
+ $ A. i (i < n -> (i + start) < k) $;
+
+theorem sfCLRowBounds_at (F: set) (k n i: nat):
+ $ sfCLRowBounds F k n -> i < n -> sfBound k (F @ i) $;
+
+theorem sfCLRowBounds_prefix (F: set) (k n: nat):
+ $ sfCLRowBounds F k (suc n) -> sfCLRowBounds F k n $;
+
+theorem sfCLRowBounds_last (F: set) (k n: nat):
+ $ sfCLRowBounds F k (suc n) -> sfBound k (F @ n) $;
+
+theorem sfCLFold_bound (F: set) (k n: nat):
+ $ sfCLRowBounds F k n -> sfBound k (sfCLFold F n) $;
+
+theorem sfCLMembership_bound (start y n k: nat) (hy: $ y < k $):
+ $ sfCLNamesBound start n k -> sfBound k (sfCLMembership start y n) $;

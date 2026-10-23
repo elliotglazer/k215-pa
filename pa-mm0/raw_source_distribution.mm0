@@ -1,0 +1,65 @@
+-- Exact raw K quantifier rows rho2 and rho4, proved through concrete
+-- eight-tag source ND proofs. The same-name and raw zero-code cases are
+-- handled explicitly; no decoder homomorphism is assumed globally.
+import "source_nd_renaming.mm0";
+
+theorem rawDist_reintro_index (d i: nat):
+  $ sfSubstIndex d 0 (sfShiftIndex (suc d) i) = i $;
+theorem sfSubst_shift_up_identity (d c: nat):
+  $ sfWf c -> sfSubst d 0 (sfShift (suc d) c) = c $;
+
+def rawDistAllE (G p a t: nat): nat = $ sfSequent G (sfSubst 0 t a) : p $;
+def rawDistAllI (G p a: nat): nat = $ sfSequent G (sfAll a) : p $;
+def rawDistOpen (G a: nat): nat =
+$ sfSequent (sfContextShift G) a :
+  (sfSequent (sfContextShift G) (sfShift 0 (sfAll a)) : 0) $;
+def rawDistContext (a b: nat): nat = $ sfAll a : (sfAll (sfImp a b) : 0) $;
+def rawDistBody (a b: nat): nat =
+$ zfcNDMp (sfContextShift (rawDistContext a b))
+    (rawDistOpen (rawDistContext a b) (sfImp a b))
+    (rawDistOpen (rawDistContext a b) a) b $;
+def rawDistProof (a b: nat): nat =
+$ zfcNDIntro 0 (zfcNDIntro (sfAll (sfImp a b) : 0)
+  (rawDistAllI (rawDistContext a b) (rawDistBody a b) b) (sfAll a) (sfAll b))
+  (sfAll (sfImp a b)) (sfImp (sfAll a) (sfAll b)) $;
+theorem rawDist_derives (a b: nat):
+  $ sfWf a -> sfWf b -> sfNDFullDerives (rawDistProof a b)
+    (sfSequent 0 (sfImp (sfAll (sfImp a b)) (sfImp (sfAll a) (sfAll b)))) $;
+theorem zfcProvable_all_distribution (a b: nat):
+  $ sfWf a -> sfWf b -> zfcProvable (sfImp (sfAll (sfImp a b)) (sfImp (sfAll a) (sfAll b))) $;
+
+def rawDistKProof (a b: nat): nat =
+$ zfcNDIntro 0 (zfcNDIntro (a : 0) (zfcNDHyp (b : (a : 0)) a) b a) a (sfImp b a) $;
+theorem rawSource_rho2 (a b c: nat): $ zfcProvable (rawDecode (kRho2 a b c)) $;
+
+def rawDistSwapIndex (d i: nat): nat = $ sfSubstIndex d 1 (sfShiftIndex (suc (suc d)) i) $;
+def rawDistSwapA (x y d i: nat): nat =
+$ rawDistSwapIndex d (sfRenameIndex (rawBinderMap x) (suc d) (sfRenameIndex (rawBinderMap y) d i)) $;
+def rawDistSwapB (x y d i: nat): nat =
+$ sfRenameIndex (rawBinderMap y) (suc d) (sfRenameIndex (rawBinderMap x) d i) $;
+
+theorem rawDist_binders_index (x y d i: nat):
+  $ x != y -> rawDistSwapA x y d i = rawDistSwapB x y d i $;
+
+theorem rawDist_binders_formula (x y d c: nat):
+  $ x != y -> sfWf c -> sfSubst d (1) (sfShift (suc (suc d)) (sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap y) d c))) = sfRename (rawBinderMap y) (suc d) (sfRename (rawBinderMap x) d c) $;
+
+def rawSwapBody (a: nat): nat = $ sfSubst 0 1 (sfShift 2 a) $;
+def rawSwapContext (a: nat): nat = $ sfAll (sfAll a) : 0 $;
+def rawSwapDeep (a: nat): nat = $ sfContextShift (sfContextShift (rawSwapContext a)) $;
+def rawSwapHyp (a: nat): nat = $ zfcNDHyp (rawSwapDeep a) (sfShift 0 (sfShift 0 (sfAll (sfAll a)))) $;
+def rawSwapFirst (a: nat): nat = $ rawDistAllE (rawSwapDeep a) (rawSwapHyp a) (sfAll (sfShift 2 (sfShift 2 a))) 0 $;
+def rawSwapSecond (a: nat): nat = $ rawDistAllE (rawSwapDeep a) (rawSwapFirst a) (sfShift 2 a) 1 $;
+def rawSwapProof (a: nat): nat =
+$ zfcNDIntro 0 (rawDistAllI (rawSwapContext a)
+    (rawDistAllI (sfContextShift (rawSwapContext a)) (rawSwapSecond a) (rawSwapBody a))
+    (sfAll (rawSwapBody a))) (sfAll (sfAll a)) (sfAll (sfAll (rawSwapBody a))) $;
+theorem rawSwap_derives (a: nat):
+  $ sfWf a -> sfNDFullDerives (rawSwapProof a)
+    (sfSequent 0 (sfImp (sfAll (sfAll a)) (sfAll (sfAll (rawSwapBody a))))) $;
+theorem zfcProvable_all_exchange (a: nat):
+  $ sfWf a -> zfcProvable (sfImp (sfAll (sfAll a)) (sfAll (sfAll (rawSwapBody a)))) $;
+
+def rawRho4Body (x y c: nat): nat =
+$ sfRename (rawBinderMap x) 1 (sfRename (rawBinderMap y) 0 (rawDecode c)) $;
+theorem rawSource_rho4 (x y c: nat): $ zfcProvable (rawDecode (kRho4 x y c)) $;

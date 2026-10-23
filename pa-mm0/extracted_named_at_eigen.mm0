@@ -1,0 +1,30 @@
+import "extracted_named_at.mm0";
+
+def exNE_name (H S k c: nat): nat =
+ $ kFreshAllocate H (sfNamedTemplate (sqNumericEnvironment S) k 0 c) 0 k $;
+theorem exNE_above (H S k c: nat): $ k < exNE_name H S k c $;
+theorem exNE_context (H S k c: nat): $ kContextFresh H (exNE_name H S k c) $;
+theorem exNE_formula (H S k c: nat):
+ $ kFresh (sfNamedTemplate (sqNumericEnvironment S) k 0 c) (exNE_name H S k c) $;
+theorem exNE_positive (H S k c: nat): $ 0 < exNE_name H S k c $;
+theorem exNE_safe (H S n k c: nat):
+ $ sqEnvironmentSafe S n 0 k -> sqEnvironmentSafe S n 0 (exNE_name H S k c) $;
+theorem exNE_safe_body (H S n k c: nat):
+ $ sqEnvironmentSafe S n 0 k ->
+   sqEnvironmentSafe (exNE_name H S k c : S) (suc n) 0 (suc (exNE_name H S k c)) $;
+theorem exNE_source_bound_mono (p n G: nat):
+ $ p <= n -> sqSourceBound p G -> sqSourceBound n G $;
+theorem exNamedAt_AllI (p G a: nat)
+ (hw: $ sfContextWf G $) (hb: $ sqSourceBound p G $)
+ (ha: $ sfBound p (sfAll a) $)
+ (hp: $ exNamedAt (suc p) (sfContextShift G) a $):
+ $ exNamedAt p G (sfAll a) $;
+def exNE_minor (H S k c a: nat): nat =
+ $ sfNamedTemplate (sqEnvCons (exNE_name H S k c) (sqNumericEnvironment S))
+    (suc (exNE_name H S k c)) 0 a : H $;
+theorem exNamedAt_ExE (p G a c: nat)
+ (hw: $ sfContextWf G $) (hb: $ sqSourceBound p G $)
+ (ha: $ sfBound p (sfEx a) $) (hc: $ sfBound p c $)
+ (hp: $ exNamedAt p G (sfEx a) $)
+ (hq: $ exNamedAt (suc p) (a : sfContextShift G) (sfShift 0 c) $):
+ $ exNamedAt p G c $;

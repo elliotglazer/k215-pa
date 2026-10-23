@@ -1,0 +1,52 @@
+import "k218_proof_transfer.mm1";
+
+@_ abstract def k218OldBundleImages (.a .b .c: nat): wff =
+  $ A. a A. b A. c
+    (c != a /\ c != b -> kBundle a b c e. k218TranslatedClass) $;
+pub theorem k218OldBundleImages_at (a b c: nat):
+  $ k218OldBundleImages ->
+    c != a /\ c != b -> kBundle a b c e. k218TranslatedClass $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+
+theorem k218BT_derived_image (n q: nat)
+  (hq: $ k218Provable (k218Translate q) $):
+  $ n = q -> n e. k218TranslatedClass $ =
+'(mpbiri (mpbir k218TranslatedClass_value hq) (eleq1d id));
+
+theorem k218BT_bundle (n a b c: nat):
+  $ k218OldBundleImages ->
+    (c != a /\ c != b /\ n = kBundle a b c) -> n e. k218TranslatedClass $ =
+'(exp @ mpbird (eleq1d (syl anr anr))
+  (mpd (syl anl anr) (syl k218OldBundleImages_at anl)));
+
+theorem k218BT_body (n a b c u: nat):
+  $ k218OldBundleImages -> kAxBody n a b c u -> n e. k218TranslatedClass $ =
+'(eord (a1i (k218BT_derived_image k218Translated_rho1)) @
+  eord (a1i (k218BT_derived_image k218Translated_rho2)) @
+  eord (a1i (k218BT_derived_image k218Translated_rho3)) @
+  eord (a1i (k218BT_derived_image k218Translated_rho4)) @
+  eord (a1i (k218BT_derived_image k218Translated_rho5)) @
+  eord (a1i (k218BT_derived_image k218Translated_rho6)) @
+  eord (a1i (k218BT_derived_image k218Translated_rho7)) @
+  eord (a1i (k218BT_derived_image k218Translated_rho8)) k218BT_bundle);
+
+theorem k218BT_family {a b c u: nat} (n: nat):
+  $ k218OldBundleImages -> E. a E. b E. c E. u kAxBody n a b c u ->
+    n e. k218TranslatedClass $ =
+(named '(eexd @ eexd @ eexd @ eexd k218BT_body));
+
+theorem k218BT_zero_image: $ k218Provable (k218Translate 0) $ =
+'(mpbir (k218Provableeq k218Translate_zero) (k218Provable_axiom k218Axioms_true));
+theorem k218BT_axiom (n: nat):
+  $ k218OldBundleImages -> n e. kAxioms -> n e. k218TranslatedClass $ =
+(named '(syl5 (bi1 kAxioms_value)
+  (eord (a1i (k218BT_derived_image k218BT_zero_image)) k218BT_family)));
+pub theorem k218OldBundleImages_axioms:
+  $ k218OldBundleImages -> kAxioms C_ k218TranslatedClass $ =
+(named '(iald k218BT_axiom));
+pub theorem k218OldBundleImages_transfer (a: nat):
+  $ k218OldBundleImages -> kProvable a -> k218Provable (k218Translate a) $ =
+'(syl k218RawProofTransfer k218OldBundleImages_axioms);
+pub theorem k218OldBundleImages_consistency:
+  $ k218OldBundleImages -> (~k218Provable kF -> ~kProvable kF) $ =
+'(syl k218RawConsistencyTransfer k218OldBundleImages_axioms);

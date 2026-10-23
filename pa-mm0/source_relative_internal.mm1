@@ -1,0 +1,106 @@
+import "source_relative_theory.mm1";
+
+theorem sfRI_support_wf (T: set) (D G H k: nat) (ht: $ sfTheoryClosed T $):
+  $ sfTheorySupport T (sfEx D : sfContextRelativize D G) H ->
+    sfContextWf (H ++ sfDomainGuards D k) $ =
+'(syl (bi2 sfContextWf_append) @ iand (syl (ax_mp sfTheoryContext_wf ht) anl) (a1i sfDomainGuards_wf));
+theorem sfRI_cover_axioms (T: set) (D G H k: nat) (ht: $ sfTheoryClosed T $):
+  $ sfTheorySupport T (sfEx D : sfContextRelativize D G) H ->
+    sfLocalCoverage (H ++ sfDomainGuards D k) (sfContextRelativize D G) $ =
+'(mpd (syl anr (syl (bi1 sfLocalCoverage_cons) anr)) @
+  mpi zfcContextSub_append_left @ syl sfLocalCoverage_mono (sfRI_support_wf ht));
+theorem sfRI_cover_guards (T: set) (D G H k: nat) (ht: $ sfTheoryClosed T $):
+  $ sfTheorySupport T (sfEx D : sfContextRelativize D G) H ->
+    sfLocalCoverage (H ++ sfDomainGuards D k) (sfDomainGuards D k) $ =
+'(syl (ax_mp sstr zfcContextSub_append_right) @ syl sfLocalCoverage_self (sfRI_support_wf ht));
+theorem sfRI_cover_relative (T: set) (D G H k: nat) (ht: $ sfTheoryClosed T $):
+  $ sfTheorySupport T (sfEx D : sfContextRelativize D G) H ->
+    sfLocalCoverage (H ++ sfDomainGuards D k) (sfRelativeContext D G k) $ =
+'(syl (bi2 allappend) (iand (sfRI_cover_axioms ht) (sfRI_cover_guards ht)));
+theorem sfRI_replace (T: set) (D G H a k: nat) (ht: $ sfTheoryClosed T $):
+  $ sfTheorySupport T (sfEx D : sfContextRelativize D G) H ->
+    nsLocal (sfRelativeContext D G k) (sfRelativize D a) ->
+    nsLocal (H ++ sfDomainGuards D k) (sfRelativize D a) $ =
+'(mpd (sfRI_cover_relative ht) (syl sfLocal_hypothesis_replacement (sfRI_support_wf ht)));
+
+theorem sfRI_guard_witness (D k a i: nat):
+  $ i < k /\ a = sfDomainAt D i -> E. j a = sfSubst 0 j D $ =
+(named '(syl (iexe ,eqtac) anr));
+theorem sfRI_guard_exists (D k a: nat):
+  $ a IN sfDomainGuards D k -> E. j a = sfSubst 0 j D $ =
+(named '(syl (eex sfRI_guard_witness) (bi1 sfDomainGuards_member)));
+theorem sfRI_coverage (D H k: nat):
+  $ sfDomainCovered D H (H ++ sfDomainGuards D k) $ =
+(named '(ax_gen @ syl (eor orl (syl orr sfRI_guard_exists)) (bi1 lmemappend)));
+
+theorem sfRI_discharge_ready (T: set) (D G H a k: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+  $ sfBound 0 a -> sfTheorySupport T (sfEx D : sfContextRelativize D G) H ->
+    sfDomainDischargeReady D H (H ++ sfDomainGuards D k) (sfRelativize D a) $ =
+'(exp @ iand (a1i hd) @ iand
+  (mpd (syl anl anr) (a1i (ax_mp ssall ht)))
+  (iand (syl (ax_mp sfRelativize_closed hd) anl) (a1i sfRI_coverage)));
+theorem sfRI_discharge_at (T: set) (D G H a k p q: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+  $ sfBound 0 a /\ sfTheorySupport T (sfEx D : sfContextRelativize D G) H ->
+    sfNDFullDerives p (sfSequent (H ++ sfDomainGuards D k) (sfRelativize D a)) ->
+    sfNDFullDerives q (sfSequent H (sfEx D)) ->
+    nsLocal H (sfRelativize D a) $ =
+(named '(syl sfDomainDischarge (imp (sfRI_discharge_ready ht hd))));
+theorem sfRI_discharge_local (T: set) (D G H a k: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+  $ sfBound 0 a /\ sfTheorySupport T (sfEx D : sfContextRelativize D G) H ->
+    nsLocal (H ++ sfDomainGuards D k) (sfRelativize D a) ->
+    nsLocal H (sfEx D) -> nsLocal H (sfRelativize D a) $ =
+(named '(eexd @ com23 @ eexd @ com23 (sfRI_discharge_at ht hd)));
+theorem sfRI_target_intro (T: set) (H a: nat):
+  $ sfTheoryContext T H /\ nsLocal H a -> sfTheoryProvable T a $ =
+(named '(imp @ eexd @ exp sfTheoryProvable_intro));
+theorem sfRI_supported (T: set) (D G H a k: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+  $ sfBound 0 a -> sfTheorySupport T (sfEx D : sfContextRelativize D G) H ->
+    nsLocal (sfRelativeContext D G k) (sfRelativize D a) -> sfTheoryProvable T (sfRelativize D a) $ =
+'(exp @ exp @ syl sfRI_target_intro @ iand
+  (syl anl anlr)
+  (mpd (syl anl (syl (bi1 sfLocalCoverage_cons) (syl anr anlr))) @
+    mpd (mpd anr (syl (sfRI_replace ht) anlr)) @
+    syl (sfRI_discharge_local ht hd) anl));
+
+theorem sfRI_support_consume (T: set) (D G a k: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+  $ sfBound 0 a -> nsLocal (sfRelativeContext D G k) (sfRelativize D a) ->
+    (E. H sfTheorySupport T (sfEx D : sfContextRelativize D G) H) ->
+    sfTheoryProvable T (sfRelativize D a) $ =
+(named '(exp @ eexd @ imp @ com23 (sfRI_supported ht hd)));
+
+theorem sfRI_support_list (S T: set) (D G: nat) (P: wff) (hi: $ P -> sfRelativeAxiomImages S T D $) (he: $ P -> sfTheoryProvable T (sfEx D) $):
+ $ P -> sfTheoryContext S G -> all (sfTheoryProofClass T) (sfEx D : sfContextRelativize D G) $ =
+'(exp @ syl (bi2 allS) @ iand (syl (bi2 sfTheoryProofClass_value) (syl he anl)) (mpd anr (syl sfRelativeTheory_images (syl hi anl))));
+
+theorem sfRI_support_exists (S T: set) (D G: nat) (P: wff) (ht: $ sfTheoryClosed T $) (hi: $ P -> sfRelativeAxiomImages S T D $) (he: $ P -> sfTheoryProvable T (sfEx D) $):
+ $ P -> sfTheoryContext S G -> E. H sfTheorySupport T (sfEx D : sfContextRelativize D G) H $ =
+(named '(syl6 (sfTheory_finite_support ht) (sfRI_support_list hi he)));
+
+theorem sfRI_supported_finite (S T: set) (D G a k: nat) (P: wff) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $) (hi: $ P -> sfRelativeAxiomImages S T D $) (he: $ P -> sfTheoryProvable T (sfEx D) $):
+ $ P -> sfBound 0 a -> sfTheoryContext S G -> nsLocal (sfRelativeContext D G k) (sfRelativize D a) -> sfTheoryProvable T (sfRelativize D a) $ =
+(named '(exp @ exp @ exp @ mpd (mpd (syl anr anl) (syl (sfRI_support_exists ht hi he) (syl (syl (syl id anl) anl) anl))) (mpd anr (syl (sfRI_support_consume ht hd) (syl (syl anr anl) anl)))));
+
+theorem sfRI_context_transfer (S T: set) (D G p a: nat) (P: wff) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $) (hi: $ P -> sfRelativeAxiomImages S T D $) (he: $ P -> sfTheoryProvable T (sfEx D) $):
+ $ P -> sfBound 0 a -> sfTheoryContext S G -> sfNDFullDerives p (sfSequent G a) -> sfTheoryProvable T (sfRelativize D a) $ =
+(named '(exp @ exp @ syl5 (sfRelative_sequent hd) (eexd (imp (imp (sfRI_supported_finite ht hd hi he))))));
+
+pub theorem sfRelativeTheory_transfer_d (S T: set) (D a: nat) (P: wff) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $) (hi: $ P -> sfRelativeAxiomImages S T D $) (he: $ P -> sfTheoryProvable T (sfEx D) $):
+ $ P -> sfBound 0 a -> sfTheoryProvable S a -> sfTheoryProvable T (sfRelativize D a) $ =
+(named '(exp @ eexd @ eexd @ impd @ imp (sfRI_context_transfer ht hd hi he)));
+
+pub theorem sfRelativeTheory_transfer_curried (S T: set) (D a: nat) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+ $ sfRelativeAxiomImages S T D -> sfTheoryProvable T (sfEx D) -> sfBound 0 a -> sfTheoryProvable S a -> sfTheoryProvable T (sfRelativize D a) $ =
+(named '(exp (sfRelativeTheory_transfer_d ht hd anl anr)));
+
+pub theorem sfRelativeTheory_refutation_d (S T: set) (D: nat) (P: wff) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $) (hi: $ P -> sfRelativeAxiomImages S T D $) (he: $ P -> sfTheoryProvable T (sfEx D) $):
+ $ P -> sfTheoryProvable S sfBot -> sfTheoryProvable T sfBot $ =
+(named '(syl6 (bi1 (trud (sfTheoryProvable_congr (a1i sfRelativize_bot)))) (mpd (a1i sfBound_bot) (sfRelativeTheory_transfer_d ht hd hi he))));
+
+pub theorem sfRelativeTheory_refutation_curried (S T: set) (D: nat) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+ $ sfRelativeAxiomImages S T D -> sfTheoryProvable T (sfEx D) -> sfTheoryProvable S sfBot -> sfTheoryProvable T sfBot $ =
+(named '(exp (sfRelativeTheory_refutation_d ht hd anl anr)));

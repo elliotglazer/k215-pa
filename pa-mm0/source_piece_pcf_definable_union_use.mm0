@@ -1,0 +1,43 @@
+import "source_piece_pcf_definable_union_u2.mm0";
+
+import "source_piece_pcf_rep_implication_named_r43.mm0";
+
+import "source_piece_pcf_rep_cover_laws_r39.mm0";
+
+import "source_l_replacement_prefix_elimination.mm0";
+
+def sfPieceDefinableUnionWitnessBody(a b C:nat): nat = $ sfAnd (sfMem 0 (suc C)) (sfPieceRepImplicationNamedUnion (suc a) (suc b) 0) $;
+
+def sfPieceDefinableUnionWitness(a b C:nat): nat = $ sfEx (sfPieceDefinableUnionWitnessBody a b C) $;
+
+theorem sfPieceDefinableUnionWitnessBody_wf(a b C:nat): $ sfWf (sfPieceDefinableUnionWitnessBody a b C) $;
+
+theorem sfPieceDefinableUnionWitness_wf(a b C:nat): $ sfWf (sfPieceDefinableUnionWitness a b C) $;
+
+theorem pcuUse_profile_depth(T:set)(k a b r:nat): $ sfRename T k (sfPieceRepImplicationNamedUnion a b r) = sfPieceRepImplicationNamedUnion (sfRenameIndex T k a) (sfRenameIndex T k b) (sfRenameIndex T k r) $;
+
+theorem sfPieceDefinableUnionWitness_rename(T:set)(a b C:nat): $ sfRename T 0 (sfPieceDefinableUnionWitness a b C) = sfPieceDefinableUnionWitness (T @ a) (T @ b) (T @ C) $;
+
+theorem sfPieceDefinableUnionWitness_congr(a b C x y D:nat)(ha:$ a = x $)(hb:$ b = y $)(hc:$ C = D $): $ sfPieceDefinableUnionWitness a b C = sfPieceDefinableUnionWitness x y D $;
+
+def sfPieceDefinableUnionProducerBody: nat = $ sfImp (sfPieceRepClosure 3 2) (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfPieceDefinableUnionWitness 1 0 2))) $;
+
+def sfPieceDefinableUnionProducerLaw: nat = $ sfAll (sfAll (sfAll (sfAll sfPieceDefinableUnionProducerBody))) $;
+
+theorem sfPieceDefinableUnion_producer_exact: $ sfPieceDefinableUnionU2Formula = sfPieceDefinableUnionProducerLaw $;
+
+theorem sfPieceDefinableUnion_producer_prefix: $ sfAllPrefix 4 sfPieceDefinableUnionProducerBody = sfPieceDefinableUnionProducerLaw $;
+
+def sfPieceDefinableUnionProducerMap(B C a b:nat): set = $ sqEnvCons b (sqEnvCons a (sqEnvCons C (sqEnvCons B sfIdentityMap))) $;
+
+theorem pcuUse_at0(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4 @ 0 = b $;
+
+theorem pcuUse_at1(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4 @ 1 = a $;
+
+theorem pcuUse_at2(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4 @ 2 = C $;
+
+theorem pcuUse_at3(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4 @ 3 = B $;
+
+theorem sfPieceDefinableUnion_producer_open(B C a b:nat): $ sfRename (sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4) 0 sfPieceDefinableUnionProducerBody = sfImp (sfPieceRepClosure B C) (sfImp (sfMem a C) (sfImp (sfMem b C) (sfPieceDefinableUnionWitness a b C))) $;
+
+theorem sfPieceDefinableUnion_produce(G B C a b:nat)(hbg:$ sfContextSub sfLBackground G $)(hc:$ nsLocal G (sfPieceRepClosure B C) $)(ha:$ nsLocal G (sfMem a C) $)(hb:$ nsLocal G (sfMem b C) $): $ nsLocal G (sfEx (sfPieceDefinableUnionWitnessBody a b C)) $;

@@ -1,0 +1,23 @@
+import "k218q_equality.mm0";
+
+import "k218q_disjunction.mm0";
+
+import "quotation_binders.mm0";
+
+def sfK0QSepRawCut (t a x p: nat): nat = $ kAnd (kMem x a) (kAnd (kMem t x) p) $;
+
+def sfK0QSepRawChosen (t a b x p: nat): nat = $ kAnd (kMem x b) (sfK0QSepRawCut t a x p) $;
+
+def sfK0QSepRawCases (t a b x p: nat): nat = $ kDisj (kEq x b) (kDisj (kEq x t) (sfK0QSepRawChosen t a b x p)) $;
+
+def sfK0QSepRawProfile (t a b c x p: nat): nat = $ kAnd (kImp (kMem x c) (sfK0QSepRawCases t a b x p)) (kImp (sfK0QSepRawCases t a b x p) (kMem x c)) $;
+
+def sfK0QSepRawEnvelope (t a b x: nat): nat = $ kImp (kAnd (kMem t x) (kMem x a)) (kMem x b) $;
+
+def sfK0QSepDomainPoint (t a b c x p: nat): nat = $ kImp (kNot (kMem t t)) (kImp (kNot (kMem t b)) (kImp (sfK0QSepRawProfile t a b c x p) (kImp (sfK0QSepRawEnvelope t a b x) (kImp (kMem t x) (kAnd (kImp (kMem x c) (kAnd (kMem x a) p)) (kImp (kAnd (kMem x a) p) (kMem x c))))))) $;
+
+-- The matrix appears only at this exact selected-element environment.
+theorem sfK0QSep_domain_point (E: set) (t a b c x k theta: nat)
+ (hf: $ sfWf theta $):
+ $ k218QProvable (sfK0QSepDomainPoint t a b c x
+   (sfNamedTemplate (sqEnvCons x E) k 0 theta)) $;

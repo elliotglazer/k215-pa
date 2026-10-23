@@ -1,0 +1,49 @@
+import "k230_codes.mm1";
+
+@_ def kAxBody (n a b c u: nat): wff =
+$ n = kRho1 a b \/ (n = kRho2 a b c \/ (n = kRho3 a b c \/
+ (n = kRho4 a b c \/ (n = kRho5 a b c \/ (n = kRho6 a b \/
+ (n = kRho7 a b c \/ (n = kRho8 a b c u \/
+ (c != a /\ c != b /\ n = kBundle a b c)))))))) $;
+
+@_ abstract def kAxioms (.n .a .b .c .u: nat): set =
+$ {n | n = 0 \/ E. a E. b E. c E. u kAxBody n a b c u} $;
+
+pub theorem kAxioms_value {a b c u: nat} (n: nat):
+  $ n e. kAxioms <-> n = 0 \/ E. a E. b E. c E. u kAxBody n a b c u $ =
+(named '(elabe ,eqtac));
+
+pub theorem kAxioms_true: $ 0 e. kAxioms $ =
+(named '(mpbir kAxioms_value @ ax_mp orl eqid));
+
+pub theorem kAxioms_instance (n a b c u: nat):
+  $ kAxBody n a b c u -> n e. kAxioms $ =
+(named '(syl (bi2 kAxioms_value) @ syl orr @
+  syl (iexe ,eqtac) @ syl (iexe ,eqtac) @ syl (iexe ,eqtac) (iexe ,eqtac)));
+
+pub theorem kAxioms_rho1 (a b: nat): $ kRho1 a b e. kAxioms $ =
+(named '(kAxioms_instance @ ax_mp orl eqid));
+pub theorem kAxioms_rho2 (a b c: nat): $ kRho2 a b c e. kAxioms $ =
+(named '(kAxioms_instance (ax_mp orr (ax_mp orl eqid))));
+
+pub theorem kAxioms_rho3 (a b c: nat): $ kRho3 a b c e. kAxioms $ =
+(named '(kAxioms_instance (ax_mp orr (ax_mp orr (ax_mp orl eqid)))));
+
+pub theorem kAxioms_rho4 (a b c: nat): $ kRho4 a b c e. kAxioms $ =
+(named '(kAxioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))));
+
+pub theorem kAxioms_rho5 (a b c: nat): $ kRho5 a b c e. kAxioms $ =
+(named '(kAxioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))))));
+
+pub theorem kAxioms_rho6 (a b: nat): $ kRho6 a b e. kAxioms $ =
+(named '(kAxioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))))));
+
+pub theorem kAxioms_rho7 (a b c: nat): $ kRho7 a b c e. kAxioms $ =
+(named '(kAxioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))))))));
+
+pub theorem kAxioms_rho8 (a b c u: nat): $ kRho8 a b c u e. kAxioms $ =
+(named '(kAxioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))))))));
+
+pub theorem kAxioms_bundle (a b c: nat): $ c != a /\ c != b -> kBundle a b c e. kAxioms $ =
+(named '(syl kAxioms_instance (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (iand id (a1i eqid))))))))))));
+

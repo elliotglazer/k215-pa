@@ -1,0 +1,31 @@
+import "source_k0_qsep_domain_profile.mm0";
+
+import "source_k0_qsep_profile_substitution.mm0";
+
+def sfK0QSepWitnessConditions (t a b x: nat): nat = $ kAnd (kNot (kMem t t)) (kAnd (kNot (kMem t b)) (kAll x (sfK0QSepRawEnvelope t a b x))) $;
+
+def sfK0QSepWitnessProfile (E: set) (t a b c x theta: nat): nat = $ kAll x (sfK0QSepRawProfile t a b c x (sfNamedTemplate (sqEnvCons x E) (suc x) 0 theta)) $;
+
+def sfK0QSepWitnessBody (E: set) (t a c x theta: nat): nat = $ kAnd (kMem t c) (kAll x (kImp (kMem t x) (kAnd (kImp (kMem x c) (kAnd (kMem x a) (sfNamedTemplate (sqEnvCons x E) (suc x) 0 theta))) (kImp (kAnd (kMem x a) (sfNamedTemplate (sqEnvCons x E) (suc x) 0 theta)) (kMem x c))))) $;
+
+theorem sfK0QSep_exists_transport (h z p q: nat)
+ (hv: $ k218QProvable (kImp h (kAll z h)) $)
+ (hpq: $ k218QProvable (kImp h (kImp p q)) $):
+ $ k218QProvable (kImp h (kImp (kExists z p) (kExists z q))) $;
+
+theorem sfK0QSep_witness_normalize_at (E: set) (n t a b c x theta: nat)
+ (hf: $ sfBound (suc n) theta $) (hz: $ x != 0 $)
+ (ht: $ t != x $) (ha: $ a != x $) (hb: $ b != x $) (hc: $ c != x $)
+ (he: $ sqEnvAvoid E n x $) (htx: $ t < x $):
+ $ k218QProvable (kImp (sfK0QSepWitnessConditions t a b x) (kImp (sfK0QSepWitnessProfile E t a b c x theta) (sfK0QSepWitnessBody E t a c x theta))) $;
+
+-- A conditional construction from the exact raw tagged witness. All
+-- existence/profile premises remain inside the displayed object formula.
+theorem sfK0QSep_witness_normalize (E: set) (n t a b c x theta: nat)
+ (hf: $ sfBound (suc n) theta $) (hz: $ x != 0 $)
+ (ht: $ t != x $) (ha: $ a != x $) (hb: $ b != x $) (hc: $ c != x $)
+ (he: $ sqEnvAvoid E n x $) (htx: $ t < x $) (hc0: $ c != 0 $) (hct: $ c != t $) (hca: $ c != a $)
+ (hcb: $ c != b $) (hcx: $ c != x $):
+ $ k218QProvable (kImp (sfK0QSepWitnessConditions t a b x)
+ (kImp (kExists c (sfK0QSepWitnessProfile E t a b c x theta))
+   (kExists c (sfK0QSepWitnessBody E t a c x theta)))) $;

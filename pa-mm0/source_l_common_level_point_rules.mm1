@@ -1,0 +1,46 @@
+import "source_l_common_level_members.mm1";
+import "source_l_common_level_reflection.mm1";
+
+pub theorem sfCLPoint_pair (G start params beta y: nat):
+ $ nsLocal G (sfCLPoint start params beta y) ->
+   nsLocal G (sfAnd (sfCLOrdinalAt beta) (sfCLHierarchyAt beta y)) $ = 'nsLocal_CE1;
+
+pub theorem sfCLPoint_members (G start params beta y: nat):
+ $ nsLocal G (sfCLPoint start params beta y) -> nsLocal G (sfCLMembership start y params) $ = 'nsLocal_CE2;
+
+pub theorem sfCLPoint_build (G start params beta y: nat)
+ (ho: $ nsLocal G (sfCLOrdinalAt beta) $) (hl: $ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ nsLocal G (sfCLMembership start y params) -> nsLocal G (sfCLPoint start params beta y) $ =
+'(ax_mp sfLocal_and (ax_mp (ax_mp sfLocal_and ho) hl));
+
+pub theorem sfCLPoint_append (G start params beta y: nat)
+ (hp: $ nsLocal G (sfCLPoint start params beta y) $):
+ $ nsLocal G (sfMem (params + start) y) -> nsLocal G (sfCLPoint start (suc params) beta y) $ =
+'(syl (ax_mp sfLocal_and (ax_mp sfCLPoint_pair hp))
+ (ax_mp sfCLMembership_join (ax_mp sfCLPoint_members hp)));
+
+pub theorem sfCLPoint_from_inclusion (G start params seed oldY beta y: nat)
+ (hp: $ nsLocal G (sfCLPoint start params seed oldY) $)
+ (hs: $ nsLocal G (sfCLSubset oldY y) $)
+ (ho: $ nsLocal G (sfCLOrdinalAt beta) $)
+ (hl: $ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ nsLocal G (sfCLPoint start params beta y) $ =
+'(ax_mp (sfCLPoint_build ho hl)
+ (ax_mp (sfCLMembership_mono hs) (ax_mp sfCLPoint_members hp)));
+
+pub theorem sfCLReflectedPoint_from_inclusion (G start params count phi seed oldY beta y: nat)
+ (hp: $ nsLocal G (sfCLPoint start params seed oldY) $)
+ (hs: $ nsLocal G (sfCLSubset oldY y) $)
+ (ho: $ nsLocal G (sfCLOrdinalAt beta) $)
+ (hl: $ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ nsLocal G (sfCLReflection sfLDomain count phi beta) ->
+   nsLocal G (sfCLReflectedPoint start params count phi beta y) $ =
+'(ax_mp sfLocal_and (sfCLPoint_from_inclusion hp hs ho hl));
+
+pub theorem sfCLReflectedPoint_forget (G start params count phi beta y: nat):
+ $ nsLocal G (sfCLReflectedPoint start params count phi beta y) ->
+   nsLocal G (sfCLPoint start params beta y) $ = 'nsLocal_CE1;
+
+pub theorem sfCLReflectedPoint_reflection (G start params count phi beta y: nat):
+ $ nsLocal G (sfCLReflectedPoint start params count phi beta y) ->
+   nsLocal G (sfCLReflection sfLDomain count phi beta) $ = 'nsLocal_CE2;

@@ -1,0 +1,41 @@
+import "source_l_separation_image_op5_support.mm0";
+
+import "source_piece_pcf_definable_cover_realization.mm0";
+
+import "source_piece_pcf_definable_conjunction.mm0";
+
+def sfPieceDefinableExistentialSome(R A e:nat): nat = $ sfEx (sfAnd (sfMem 0 (suc A)) (sfLSeparationOp5SC (suc R) (suc e) 0)) $;
+
+def sfPieceDefinableExistentialBody(T:set)(phi A:nat): nat = $ sfAnd (sfMem 0 (suc A)) (sfCLSetRel (suc A) (sfRename T 1 phi)) $;
+
+def sfPieceDefinableExistentialValue(T:set)(phi A:nat): nat = $ sfCLSetRel A (sfRename T 0 (sfEx phi)) $;
+
+theorem sfPieceDefinableExistentialSome_wf(R A e:nat): $ sfWf (sfPieceDefinableExistentialSome R A e) $;
+
+theorem sfPieceDefinableExistentialBody_wf(T:set)(phi A:nat): $ sfWf (sfPieceDefinableExistentialBody T phi A) $;
+
+theorem sfPieceDefinableExistential_SC_depth(T:set)(k R e x:nat): $ sfRename T k (sfLSeparationOp5SC R e x) = sfLSeparationOp5SC (sfRenameIndex T k R) (sfRenameIndex T k e) (sfRenameIndex T k x) $;
+
+theorem sfPieceDefinableExistentialSome_rename(T:set)(R A e:nat): $ sfRename T 0 (sfPieceDefinableExistentialSome R A e) = sfPieceDefinableExistentialSome (T @ R) (T @ A) (T @ e) $;
+
+theorem sfPieceDefinableExistentialSome_congr(R A e R1 A1 e1:nat)(hr:$ R = R1 $)(ha:$ A = A1 $)(he:$ e = e1 $): $ sfPieceDefinableExistentialSome R A e = sfPieceDefinableExistentialSome R1 A1 e1 $;
+
+theorem sfPieceDefinableExistentialSome_shift(R A e:nat): $ sfShift 0 (sfPieceDefinableExistentialSome R A e) = sfPieceDefinableExistentialSome (suc R) (suc A) (suc e) $;
+
+theorem sfPieceDefinableExistentialSome_instance(R A e x:nat): $ sfSubst 0 x (sfAnd (sfMem 0 (suc A)) (sfLSeparationOp5SC (suc R) (suc e) 0)) = sfAnd (sfMem x A) (sfLSeparationOp5SC R e x) $;
+
+theorem sfPieceDefinableExistentialSome_intro(G R A e x:nat)(hx:$ nsLocal G (sfMem x A) $)(hs:$ nsLocal G (sfLSeparationOp5SC R e x) $): $ nsLocal G (sfPieceDefinableExistentialSome R A e) $;
+
+theorem sfPieceDefinableExistentialValue_unfold(T:set)(phi A:nat): $ sfPieceDefinableExistentialValue T phi A = sfEx (sfPieceDefinableExistentialBody T phi A) $;
+
+theorem sfPieceDefinableExistentialBody_instance(T:set)(phi A x:nat)(hf:$ sfWf phi $): $ sfSubst 0 x (sfPieceDefinableExistentialBody T phi A) = sfAnd (sfMem x A) (sfLSeparationOp5Value T phi A x) $;
+
+theorem sfPieceDefinableExistentialValue_intro(T:set)(G phi A x:nat)(hf:$ sfWf phi $)(hx:$ nsLocal G (sfMem x A) $)(hv:$ nsLocal G (sfLSeparationOp5Value T phi A x) $): $ nsLocal G (sfPieceDefinableExistentialValue T phi A) $;
+
+theorem sfPieceDefinableExistentialValue_shift(T:set)(phi A:nat)(hf:$ sfWf phi $): $ sfShift 0 (sfPieceDefinableExistentialValue T phi A) = sfPieceDefinableExistentialValue (sfComposeMap sfSuccessorMap T) phi (suc A) $;
+
+theorem sfPieceDefinableExistential_under(G h a:nat)(hh:$ sfWf h $)(hp:$ nsLocal G a $): $ nsLocal (h : sfContextShift G) (sfShift 0 a) $;
+
+theorem sfPieceDefinableExistential_cons(G h a:nat)(hh:$ sfWf h $)(hp:$ nsLocal G a $): $ nsLocal (h : G) a $;
+
+theorem sfPieceDefinableExistential_hyp(G h:nat)(hh:$ sfWf h $): $ nsLocal (h : sfContextShift G) h $;

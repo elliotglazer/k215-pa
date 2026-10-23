@@ -1,0 +1,19 @@
+import "source_l_power_def_literal.mm0";
+
+-- Closure form of the Definability Lemma (the part of Rocq Z_cl `definable_g` after
+-- `def_unpack`: rep_ex, env_inC and closure under op 5). For parameters in A, S = A u {A}
+-- (sfPieceRepSuccessor) and C the closure of S (sfPieceRepClosure), some X in C is
+-- {z in A | psi^A(z, params)}. Body: C = 0, S = 1, A = 2, parameters 3 .. m+2;
+-- closed as forall params, A, S, C.
+def sfLCoreDefinabilityBody(m psi:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 3 2 m)
+   (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0))))) $;
+
+def sfLCoreDefinabilityLaw(m psi:nat):nat =
+ $ sfAllPrefix (suc m) (sfAll (sfAll (sfLCoreDefinabilityBody m psi))) $;
+
+-- Def0 A D says D = C n P(A); the X in C is a subset of A, hence in D.
+theorem sfLDefinabilityLaw_from_core(m psi:nat)(hf:$ sfWf psi $)
+ (hC:$ sfTheoryProvable zfrAxioms (sfLCoreDefinabilityLaw m psi) $):
+ $ sfTheoryProvable zfrAxioms (sfLDefinabilityLaw m psi) $;

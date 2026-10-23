@@ -1,0 +1,103 @@
+import "quotation_supported_invariant.mm0";
+import "quotation_supported_contexts.mm0";
+
+-- Logical closure of the supported quotation invariant. Its cutoff may
+-- grow at each rule, and all environments remain internally finite.
+
+theorem sqSupportedProperty_mono (n m r: nat):
+ $ n <= m -> sqSupportedProperty n r -> sqSupportedProperty m r $;
+
+theorem sqSupportedAt_mono (n m r: nat):
+ $ n <= m -> sqSupportedAt n r -> sqSupportedAt m r $;
+
+theorem sqSupported_Ctx_at (G a: nat):
+ $ sfRowWf (sfSequent G a) -> a IN G ->
+   sqSupportedAt (sfSequent G a) (sfSequent G a) $;
+
+theorem sqSupported_Pc_at (G a b: nat):
+ $ sfRowWf (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) ->
+   sqSupportedAt (sfSequent G (sfImp (sfImp (sfImp a b) a) a))
+     (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) $;
+
+-- Generated sequent-level supported logical closures.
+
+theorem sqSupported_II (G a b: nat):
+ $ sfRowWf (sfSequent G (sfImp a b)) -> sqSupportedGood (sfSequent (a : G) b) -> sqSupportedGood (sfSequent G (sfImp a b)) $;
+
+theorem sqSupported_Exp (G a: nat):
+ $ sfRowWf (sfSequent G a) -> sqSupportedGood (sfSequent G sfBot) -> sqSupportedGood (sfSequent G a) $;
+
+theorem sqSupported_CE1 (G a b: nat):
+ $ sfRowWf (sfSequent G a) -> sqSupportedGood (sfSequent G (sfAnd a b)) -> sqSupportedGood (sfSequent G a) $;
+
+theorem sqSupported_CE2 (G a b: nat):
+ $ sfRowWf (sfSequent G b) -> sqSupportedGood (sfSequent G (sfAnd a b)) -> sqSupportedGood (sfSequent G b) $;
+
+theorem sqSupported_DI1 (G a b: nat):
+ $ sfRowWf (sfSequent G (sfOr a b)) -> sqSupportedGood (sfSequent G a) -> sqSupportedGood (sfSequent G (sfOr a b)) $;
+
+theorem sqSupported_DI2 (G a b: nat):
+ $ sfRowWf (sfSequent G (sfOr a b)) -> sqSupportedGood (sfSequent G b) -> sqSupportedGood (sfSequent G (sfOr a b)) $;
+
+theorem sqSupported_IE (G a b: nat):
+ $ sfRowWf (sfSequent G b) -> sqSupportedGood (sfSequent G (sfImp a b)) -> sqSupportedGood (sfSequent G a) -> sqSupportedGood (sfSequent G b) $;
+
+theorem sqSupported_CI (G a b: nat):
+ $ sfRowWf (sfSequent G (sfAnd a b)) -> sqSupportedGood (sfSequent G a) -> sqSupportedGood (sfSequent G b) -> sqSupportedGood (sfSequent G (sfAnd a b)) $;
+
+theorem sqSupported_BranchPair (G a b c: nat):
+ $ sfRowWf (sfBranches G a b c) -> sqSupportedGood (sfSequent (a : G) c) -> sqSupportedGood (sfSequent (b : G) c) -> sqSupportedGood (sfBranches G a b c) $;
+
+theorem sqSupported_DE (G a b c: nat):
+ $ sfRowWf (sfSequent G c) -> sqSupportedGood (sfSequent G (sfOr a b)) -> sqSupportedGood (sfBranches G a b c) -> sqSupportedGood (sfSequent G c) $;
+
+theorem sqSupported_Wk (G D a: nat):
+ $ sfRowWf (sfSequent D a) -> sfContextSub G D -> sqSupportedGood (sfSequent G a) ->
+   sqSupportedGood (sfSequent D a) $;
+
+theorem sqSupportedCase_Ctx (r: nat):
+ $ sfRowWf r -> sfNDCaseCtx r -> sqSupportedGood r $;
+
+theorem sqSupportedCase_Pc (r: nat):
+ $ sfRowWf r -> sfNDCasePc r -> sqSupportedGood r $;
+
+theorem sqSupportedCase_II (r p: nat):
+ $ sfRowWf r -> sfNDCaseII r p -> sqSupportedGood p -> sqSupportedGood r $;
+
+theorem sqSupportedCase_Exp (r p: nat):
+ $ sfRowWf r -> sfNDCaseExp r p -> sqSupportedGood p -> sqSupportedGood r $;
+
+theorem sqSupportedCase_CE1 (r p: nat):
+ $ sfRowWf r -> sfNDCaseCE1 r p -> sqSupportedGood p -> sqSupportedGood r $;
+
+theorem sqSupportedCase_CE2 (r p: nat):
+ $ sfRowWf r -> sfNDCaseCE2 r p -> sqSupportedGood p -> sqSupportedGood r $;
+
+theorem sqSupportedCase_DI1 (r p: nat):
+ $ sfRowWf r -> sfNDCaseDI1 r p -> sqSupportedGood p -> sqSupportedGood r $;
+
+theorem sqSupportedCase_DI2 (r p: nat):
+ $ sfRowWf r -> sfNDCaseDI2 r p -> sqSupportedGood p -> sqSupportedGood r $;
+
+theorem sqSupportedCase_Wk (r p: nat):
+ $ sfRowWf r -> sfNDCaseWk r p -> sqSupportedGood p -> sqSupportedGood r $;
+
+theorem sqSupported_prop_base (r: nat): $ sfNDPropBase r -> sqSupportedGood r $;
+
+theorem sqSupported_prop_unary (r p: nat):
+ $ sfNDPropUnary r p -> sqSupportedGood p -> sqSupportedGood r $;
+
+theorem sqSupportedCase_IE (r p q: nat):
+ $ sfRowWf r -> sfNDCaseIE r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $;
+
+theorem sqSupportedCase_CI (r p q: nat):
+ $ sfRowWf r -> sfNDCaseCI r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $;
+
+theorem sqSupportedCase_BranchPair (r p q: nat):
+ $ sfRowWf r -> sfNDCaseBranchPair r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $;
+
+theorem sqSupportedCase_DE (r p q: nat):
+ $ sfRowWf r -> sfNDCaseDE r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $;
+
+theorem sqSupported_prop_binary (r p q: nat):
+ $ sfNDPropBinary r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $;

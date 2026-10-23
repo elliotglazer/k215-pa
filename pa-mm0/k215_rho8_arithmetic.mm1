@@ -1,0 +1,19 @@
+import "k215_induction.mm1";
+@_ abstract def kr8MP (D: set) (.a .b: nat): wff =
+ $ A. a A. b (a e. D -> kImp a b e. D -> b e. D) $;
+@_ abstract def kr8Dominated (D: set) (.a .b .c .u: nat): wff =
+ $ A. a A. b A. c A. u (u <= a -> kRho8 a b c u e. D) $;
+@_ abstract def kr8Closed (D: set): wff = $ 0 e. D /\ (kr8MP D /\ kr8Dominated D) $;
+pub theorem kr8ImpZero: $ kImp 0 0 = 0 $ = '(eqtr (muleq2 pr0) mul0);
+pub theorem kr8PairScale (a: nat): $ a <= 4 * a $ = '(mpbi (leeq1 mul11) (ax_mp lemul1a (ltle (mpbi ltsuc lt01S))));
+pub theorem kr8ImpLeft (a b: nat): $ a <= kImp a b $ = '(letr leprid1 kr8PairScale);
+pub theorem kr8ImpRight (a b: nat): $ b <= kImp a b $ = '(letr leprid2 kr8PairScale);
+pub theorem kr8MP_use (D: set) (a b: nat):
+ $ kr8MP D -> a e. D -> kImp a b e. D -> b e. D $ = (named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+pub theorem kr8Dominated_use (D: set) (a b c u: nat):
+ $ kr8Dominated D -> u <= a -> kRho8 a b c u e. D $ = (named '(!! ealie x @ !! ealde y @ !! ealde z @ !! ealde w @ bi1d ,eqtac));
+pub theorem kr8Truth (D: set) (h: $ kr8Closed D $): $ 0 e. D $ = '(anl h);
+pub theorem kr8Apply (D: set) (a b: nat) (h: $ kr8Closed D $)
+ (ha: $ a e. D $) (hi: $ kImp a b e. D $): $ b e. D $ = '(ax_mp (ax_mp (ax_mp kr8MP_use (anl (anr h))) ha) hi);
+pub theorem kr8Leaf (D: set) (a b c u: nat) (h: $ kr8Closed D $)
+ (hu: $ u <= a $): $ kRho8 a b c u e. D $ = '(ax_mp (ax_mp kr8Dominated_use (anr (anr h))) hu);

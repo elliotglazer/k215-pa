@@ -1,0 +1,51 @@
+import "pa_formula_syntax.mm1";
+
+import "pa_source_interpretation_term_subst_bound.mm1";
+
+@_ abstract def paFormulaSubstBody (d a c h: nat): nat = $ if (c = 0) 0 (if (sfTag c = 1) (paFormulaEqual (paTermSubst d a (sfLeft c)) (paTermSubst d a (sfRight c))) (if (sfTag c = 3) (paFormulaAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c))) (if (sfTag c = 4) (paFormulaOr (h @ (d, sfLeft c)) (h @ (d, sfRight c))) (if (sfTag c = 5) (paFormulaImp (h @ (d, sfLeft c)) (h @ (d, sfRight c))) (if (sfTag c = 6 /\ sfRight c = 0) (paFormulaAll (h @ (suc d, sfLeft c))) (if (sfTag c = 7 /\ sfRight c = 0) (paFormulaEx (h @ (suc d, sfLeft c))) 0)))))) $;
+
+@_ abstract def paFormulaSubstStep (a .h: nat): set = $ \ h, paFormulaSubstBody (fst (sfHistoryLength h)) a (snd (sfHistoryLength h)) h $;
+
+@_ abstract def paFormulaSubst (d a c: nat): nat = $ srec (paFormulaSubstStep a) (d, c) $;
+
+@_ abstract def paFormulaSubstHistory (d a c .i: nat): nat = $ \. i e. upto (d, c), srec (paFormulaSubstStep a) i $;
+
+pub theorem paFormulaSubstStep_apply (a h: nat): $ paFormulaSubstStep a @ h = paFormulaSubstBody (fst (sfHistoryLength h)) a (snd (sfHistoryLength h)) h $ = (named '(!! applame j ,eqtac));
+
+pub theorem paFormulaSubstHistory_size (d a c: nat): $ sfHistoryLength (paFormulaSubstHistory d a c) = (d, c) $ = (named '(sreclem eqid));
+
+pub theorem paFormulaSubstHistory_lookup (d a c e b: nat): $ (e, b) < (d, c) -> paFormulaSubstHistory d a c @ (e, b) = paFormulaSubst e a b $ = (named '(syl (apprlame sreceq2) (bi2 elupto)));
+
+pub theorem paFormulaSubst_unfold (d a c: nat): $ paFormulaSubst d a c = paFormulaSubstBody d a c (paFormulaSubstHistory d a c) $ = (named '(eqtr srecval (eqtr paFormulaSubstStep_apply (paFormulaSubstBodyeq (eqtr (fsteq paFormulaSubstHistory_size) fstpr) eqid (eqtr (sndeq paFormulaSubstHistory_size) sndpr) eqid))));
+
+theorem paFormulaSubstBody_Equal (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ paFormulaSubstBody d a c h = paFormulaEqual (paTermSubst d a (sfLeft c)) (paTermSubst d a (sfRight c)) $ = (named '(eqtr (ifneg h0) (ifpos ht)));
+
+theorem paFormulaSubstBody_And (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ paFormulaSubstBody d a c h = paFormulaAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (ifpos ht))));
+
+theorem paFormulaSubstBody_Or (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ paFormulaSubstBody d a c h = paFormulaOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht)))));
+
+theorem paFormulaSubstBody_Imp (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $): $ paFormulaSubstBody d a c h = paFormulaImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))))));
+
+theorem paFormulaSubstBody_All (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $): $ paFormulaSubstBody d a c h = paFormulaAll (h @ (suc d, sfLeft c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos (ian ht hz))))))));
+
+theorem paFormulaSubstBody_Ex (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $): $ paFormulaSubstBody d a c h = paFormulaEx (h @ (suc d, sfLeft c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid)))) (ifpos (ian ht hz)))))))));
+
+theorem paFormulaSubstHistory_child (d a c b: nat) (h: $ sfLeft c = b $) (hb: $ b < c $): $ paFormulaSubstHistory d a c @ ((d, sfLeft c)) = paFormulaSubst d a b $ = (named '(eqtr (appeq2 (preq2 h)) (paFormulaSubstHistory_lookup (sfKey_lt hb))));
+
+theorem paFormulaSubstHistory_right (d a c b: nat) (h: $ sfRight c = b $) (hb: $ b < c $): $ paFormulaSubstHistory d a c @ ((d, sfRight c)) = paFormulaSubst d a b $ = (named '(eqtr (appeq2 (preq2 h)) (paFormulaSubstHistory_lookup (sfKey_lt hb))));
+
+theorem paFormulaSubstHistory_underBinder (d a c b: nat) (h: $ sfLeft c = b $) (hb: $ b < c $): $ paFormulaSubstHistory d a c @ ((suc d, sfLeft c)) = paFormulaSubst (suc d) a b $ = (named '(eqtr (appeq2 (preq2 h)) (paFormulaSubstHistory_lookup (sfKey_underBinder_lt hb))));
+
+pub theorem paFormulaSubst_false (d a: nat): $ paFormulaSubst d a paFormulaFalse = 0 $ = (named '(eqtr paFormulaSubst_unfold (ifpos eqid)));
+
+pub theorem paFormulaSubst_equal (d a b c: nat): $ paFormulaSubst d a (paFormulaEqual b c) = paFormulaEqual (paTermSubst d a b) (paTermSubst d a c) $ = (named '(eqtr paFormulaSubst_unfold (eqtr (paFormulaSubstBody_Equal sfMem_ne_sfBot sfMem_tag) (paFormulaEqualeq (paTermSubsteq3 sfMem_left) (paTermSubsteq3 sfMem_right)))));
+
+pub theorem paFormulaSubst_and (d a b c: nat): $ paFormulaSubst d a (paFormulaAnd b c) = paFormulaAnd (paFormulaSubst d a b) (paFormulaSubst d a c) $ = (named '(eqtr paFormulaSubst_unfold (eqtr (paFormulaSubstBody_And sfAnd_ne_sfBot sfAnd_tag) (paFormulaAndeq (paFormulaSubstHistory_child sfAnd_left sfAnd_left_lt) (paFormulaSubstHistory_right sfAnd_right sfAnd_right_lt)))));
+
+pub theorem paFormulaSubst_or (d a b c: nat): $ paFormulaSubst d a (paFormulaOr b c) = paFormulaOr (paFormulaSubst d a b) (paFormulaSubst d a c) $ = (named '(eqtr paFormulaSubst_unfold (eqtr (paFormulaSubstBody_Or sfOr_ne_sfBot sfOr_tag) (paFormulaOreq (paFormulaSubstHistory_child sfOr_left sfOr_left_lt) (paFormulaSubstHistory_right sfOr_right sfOr_right_lt)))));
+
+pub theorem paFormulaSubst_imp (d a b c: nat): $ paFormulaSubst d a (paFormulaImp b c) = paFormulaImp (paFormulaSubst d a b) (paFormulaSubst d a c) $ = (named '(eqtr paFormulaSubst_unfold (eqtr (paFormulaSubstBody_Imp sfImp_ne_sfBot sfImp_tag) (paFormulaImpeq (paFormulaSubstHistory_child sfImp_left sfImp_left_lt) (paFormulaSubstHistory_right sfImp_right sfImp_right_lt)))));
+
+pub theorem paFormulaSubst_all (d a b: nat): $ paFormulaSubst d a (paFormulaAll b) = paFormulaAll (paFormulaSubst (suc d) a b) $ = (named '(eqtr paFormulaSubst_unfold (eqtr (paFormulaSubstBody_All sfAll_ne_sfBot sfAll_tag sfAll_right) (paFormulaAlleq (paFormulaSubstHistory_underBinder sfAll_left sfAll_body_lt)))));
+
+pub theorem paFormulaSubst_ex (d a b: nat): $ paFormulaSubst d a (paFormulaEx b) = paFormulaEx (paFormulaSubst (suc d) a b) $ = (named '(eqtr paFormulaSubst_unfold (eqtr (paFormulaSubstBody_Ex sfEx_ne_sfBot sfEx_tag sfEx_right) (paFormulaExeq (paFormulaSubstHistory_underBinder sfEx_left sfEx_body_lt)))));

@@ -1,0 +1,101 @@
+-- Replayed in the distinct exact SeedG calculus. No K230 proof predicate is assumed.
+import "k218_proofs.mm1";
+import "trace_soundness.mm1";
+
+do (apply (register-eqd 'kImp) '(k218Imp_congr k218Imp_congr_left k218Imp_congr_right));
+do (apply (register-eqd 'kAll) '(k218All_congr k218All_congr_left k218All_congr_right));
+
+theorem k218Derives_congr (G: wff) (p q a b: nat)
+  (h1: $ G -> p = q $) (h2: $ G -> a = b $):
+  $ G -> (k218Derives p a <-> k218Derives q b) $ =
+'(aneqd (traceValideq2d h1) (lmemeqd h2 h1));
+theorem k218Derives_congr_left (G: wff) (p q a: nat) (h: $ G -> p = q $):
+  $ G -> (k218Derives p a <-> k218Derives q a) $ = '(k218Derives_congr h eqidd);
+theorem k218Derives_congr_right (G: wff) (p a b: nat) (h: $ G -> a = b $):
+  $ G -> (k218Derives p a <-> k218Derives p b) $ = '(k218Derives_congr eqidd h);
+do (apply (register-eqd 'k218Derives)
+  '(k218Derives_congr k218Derives_congr_left k218Derives_congr_right));
+
+@_ abstract def k218MPClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (a e. P /\ kImp a b e. P -> b e. P) $;
+@_ abstract def k218GenClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (b e. P -> kAll a b e. P) $;
+@_ def k218Closed (P: set): wff =
+  $ k218Axioms C_ P /\ k218MPClosed P /\ k218GenClosed P $;
+@_ abstract def k218Provable (a: nat) (.p: nat): wff = $ E. p k218Derives p a $;
+@_ abstract def k218Theorems (.a: nat): set = $ {a | k218Provable a} $;
+
+pub theorem k218MPClosed_apply (P: set) (a b: nat):
+  $ k218MPClosed P -> a e. P /\ kImp a b e. P -> b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+pub theorem k218GenClosed_apply (P: set) (a b: nat):
+  $ k218GenClosed P -> b e. P -> kAll a b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+theorem k218Proof_mp_payload (P: set) (a c l: nat):
+  $ k218MPClosed P /\ traceClassAll P l ->
+    (a IN l /\ kImp a c IN l) -> c e. P $ =
+'(exp @ mpd
+  (iand (mpd (syl anl anr) (syl traceClassAll_get (syl anr anl)))
+        (mpd (syl anr anr) (syl traceClassAll_get (syl anr anl))))
+  (syl k218MPClosed_apply (syl anl anl)));
+theorem k218Proof_mp_exists {a: nat} (P: set) (c l: nat):
+  $ k218MPClosed P /\ traceClassAll P l ->
+    E. a (a IN l /\ kImp a c IN l) -> c e. P $ =
+(named '(eexd k218Proof_mp_payload));
+theorem k218Proof_mp_rule (P: set) (c l: nat):
+  $ k218Closed P /\ traceClassAll P l -> (c, l) e. k218MpRules -> c e. P $ =
+(named '(syl5bi k218MpRules_value @ eord
+  (syl ssel (syl anl (syl anl anl)))
+  (syl k218Proof_mp_exists @ iand (syl anr (syl anl anl)) anr)));
+
+theorem k218Proof_gen_payload (P: set) (a b c l: nat):
+  $ k218GenClosed P /\ traceClassAll P l ->
+    (b IN l /\ c = kAll a b) -> c e. P $ =
+'(exp @ mpd
+  (mpd (mpd (syl anl anr) (syl traceClassAll_get (syl anr anl)))
+       (syl k218GenClosed_apply (syl anl anl)))
+  (bi2d (eleq1d (syl anr anr))));
+theorem k218Proof_gen_exists {a b: nat} (P: set) (c l: nat):
+  $ k218GenClosed P /\ traceClassAll P l ->
+    E. a E. b (b IN l /\ c = kAll a b) -> c e. P $ =
+(named '(eexd @ eexd k218Proof_gen_payload));
+theorem k218Proof_gen_rule (P: set) (c l: nat):
+  $ k218Closed P /\ traceClassAll P l -> (c, l) e. k218GenRules -> c e. P $ =
+(named '(syl5bi k218GenRules_value @ syl k218Proof_gen_exists @
+  iand (syl anr anl) anr));
+theorem k218Proof_rule (P: set) (c l: nat):
+  $ k218Closed P /\ traceClassAll P l -> (c, l) e. k218Rules -> c e. P $ =
+'(syl5bi elun @ eord k218Proof_mp_rule k218Proof_gen_rule);
+pub theorem k218Closed_ruleSound (P: set): $ k218Closed P -> traceRuleSound k218Rules P $ =
+(named '(iald @ iald @ exp k218Proof_rule));
+pub theorem k218Derives_induction (P: set) (p a: nat):
+  $ k218Closed P -> k218Derives p a -> a e. P $ =
+'(syl traceDerives_class k218Closed_ruleSound);
+pub theorem k218Provable_intro (p a: nat): $ k218Derives p a -> k218Provable a $ =
+(named '(iexe ,eqtac));
+pub theorem k218Provable_induction (P: set) (a: nat):
+  $ k218Closed P -> k218Provable a -> a e. P $ =
+(named '(eexd k218Derives_induction));
+pub theorem k218Provable_axiom (a: nat): $ a e. k218Axioms -> k218Provable a $ =
+'(syl k218Provable_intro k218Derives_axiom);
+theorem k218Provable_mp_witnesses (p q a b: nat):
+  $ k218Derives p a -> k218Derives q (kImp a b) -> k218Provable b $ =
+'(syl6 k218Provable_intro k218Derives_mp);
+pub theorem k218Provable_mp (a b: nat):
+  $ k218Provable a -> k218Provable (kImp a b) -> k218Provable b $ =
+(named '(eex @ eexd k218Provable_mp_witnesses));
+pub theorem k218Provable_gen (a b: nat): $ k218Provable b -> k218Provable (kAll a b) $ =
+(named '(eex @ syl k218Provable_intro k218Derives_gen));
+pub theorem k218Theorems_value (a: nat): $ a e. k218Theorems <-> k218Provable a $ =
+(named '(elabe ,eqtac));
+pub theorem k218Theorems_closed: $ k218Closed k218Theorems $ =
+(named '(ian
+  (ian (ax_gen @ syl (bi2 k218Theorems_value) k218Provable_axiom)
+       (ax_gen @ ax_gen @ syl (bi2 k218Theorems_value) @
+         mpd (syl (bi1 k218Theorems_value) anr) @
+           syl k218Provable_mp (syl (bi1 k218Theorems_value) anl)))
+  (ax_gen @ ax_gen @ syl (bi2 k218Theorems_value) @
+    syl k218Provable_gen (bi1 k218Theorems_value))));
+pub theorem k218Theorems_least (P: set): $ k218Closed P -> k218Theorems C_ P $ =
+(named '(iald @ syl5 (bi1 k218Theorems_value) k218Provable_induction));

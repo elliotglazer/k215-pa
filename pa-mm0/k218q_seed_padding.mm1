@@ -1,0 +1,46 @@
+import "k218q_seed_request.mm1";
+import "k218_raw_fresh.mm1";
+
+@_ def k218QPad (d R: nat): nat = $ kAnd d (kEq R R) $;
+@_ def k218QPadCode (d R: nat): nat = $ k218QSeedCode (k218QPad d R) $;
+
+pub theorem k218QPad_equivalent (d R: nat):
+ $ k218IEquivalent (k218QPad d R) d $ =
+'(ian k218IPropAndLeft
+  (k218QProvable_mp (k218QProvable_mp k218IEquality_reflexive k218IPropK)
+    (k218QProvable_mp k218IPropAndIntro k218IPropS)));
+
+pub theorem k218QPadCode_gtR (d R: nat): $ R < k218QPadCode d R $ =
+'(lttr (ltletr kRFB_eq_left k218GR_and_right) k218QSeedCode_above_source);
+
+pub theorem k218QPadCode_gt3 (d R: nat): $ 3 < k218QPadCode d R $ =
+'k218QSeedCode_gt3;
+
+pub theorem k218QPaddedSeed (d R: nat):
+ $ k218QProvable (k218SeedY 1 3 (k218QPadCode d R) d) $ =
+'(ax_mp (ax_mp k218QProvable_mp k218QSeed_normalized)
+  (ax_mp anl (k218QSeedY_equivalent k218QPad_equivalent)));
+
+pub theorem k218QPaddedRootSeed (d R: nat) (hd: $ kBinderAbsent d 3 $):
+ $ k218QProvable (k218QRootSeed 1 3 (k218QPadCode d R) d) $ =
+'(ax_mp (ax_mp k218QProvable_mp
+    (ax_mp (ax_mp k218QProvable_mp k218QPaddedSeed) k218QSeedY_witness))
+  (k218QSeedWitness_root (ltneri lt01S) hd));
+
+@_ def k218QSourceMatrix (E: set) (B f: nat): nat =
+ $ sfNamedTemplate (sqEnvCons 3 (sqEnvCons 1 E)) B 0 f $;
+
+@_ def k218QSourceSeedCode (E: set) (B f: nat): nat =
+ $ k218QPadCode (k218QSourceMatrix E B f) (B + suc f) $;
+
+pub theorem k218QSourceSeedCode_above_range (E: set) (B f: nat):
+ $ B + suc f < k218QSourceSeedCode E B f $ =
+'k218QPadCode_gtR;
+
+pub theorem k218QSourceSeed (E: set) (B f: nat)
+ (hB: $ 3 < B $) (hf: $ sfWf f $):
+ $ k218QProvable
+     (kAll 1 (k218QRootSeed 1 3 (k218QSourceSeedCode E B f)
+       (k218QSourceMatrix E B f))) $ =
+'(ax_mp k218QProvable_gen
+  (k218QPaddedRootSeed (ax_mp (sfNamedTemplate_binder_absent hB) hf)));

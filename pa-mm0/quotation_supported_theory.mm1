@@ -1,0 +1,64 @@
+import "quotation_supported_transport.mm1";
+import "quotation_supported_contexts.mm1";
+import "quotation_bootstrap.mm1";
+import "source_theory.mm1";
+import "quotation_supported_trace.mm1";
+
+@_ abstract def sqTheoryImageClass (.a: nat): set =
+ $ {a | kHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a)} $;
+@_ def sqTheoryImages (A: set): wff = $ A C_ sqTheoryImageClass $;
+
+pub theorem sqTheoryImageClass_value (a: nat):
+ $ a e. sqTheoryImageClass <->
+   kHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $ =
+(named '(elabe ,eqtac));
+
+pub theorem sqTheoryImages_member (A: set) (a: nat):
+ $ sqTheoryImages A -> a e. A ->
+   kHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $ =
+'(syl6 (bi1 sqTheoryImageClass_value) ssel);
+
+theorem sqST_context_member (A: set) (G a: nat):
+ $ sfTheoryContext A G -> a IN G -> a e. A $ = 'elall;
+
+theorem sqST_supported_member (A: set) (G S a: nat):
+ $ ((sqTheoryImages A /\ sfTheoryClosed A) /\ sfTheoryContext A G) -> a IN G ->
+   kHypProvable kQuotientContext (sqQuote (sqNumericEnvironment S) 1 4 0 a) $ =
+'(exp @ mpbid
+ (kHypProvableeq2d (syl sqQuote_environment_closed
+   (mpd anr (mpd (syl anr anl) (syl sfTheoryContext_member_closed (syl anr (syl anl anl)))))))
+ (mpd (mpd anr (syl sqST_context_member (syl anr anl)))
+   (syl sqTheoryImages_member (syl anl (syl anl anl)))));
+
+pub theorem sqTheoryImages_source_support (A: set) (G S: nat):
+ $ sqTheoryImages A -> sfTheoryClosed A -> sfTheoryContext A G ->
+   sqSourceSupport kQuotientContext S 1 4 G $ =
+(named '(exp @ exp @ syl sqSourceSupport_from_members @ !! iald a sqST_supported_member));
+
+theorem sqST_refutation_context (A: set) (G n: nat):
+ $ ((sqTheoryImages A /\ sfTheoryClosed A) /\ sfTheoryContext A G) ->
+   sqSupportedAt n (sfSequent G sfBot) -> kHypProvable kQuotientContext kF $ =
+'(exp @ mpbid (a1i (kHypProvableeq2 sqQuote_bot)) @
+ mpd (mpd (syl anr anl) (mpd (syl anr (syl anl anl))
+   (syl sqTheoryImages_source_support (syl anl (syl anl anl)))))
+ (mpd (a1i sqBootstrap_default_domain)
+  (mpd (a1i sqBootstrap_default_safe) (syl sqSupportedAt_sequent anr))));
+
+pub theorem sqTheoryImages_refutation_at (A: set) (G n: nat):
+ $ sqTheoryImages A -> sfTheoryClosed A -> sfTheoryContext A G ->
+   sqSupportedAt n (sfSequent G sfBot) -> kProvable kF $ =
+'(exp @ exp @ syl6 kBootstrap_refutation sqST_refutation_context);
+
+pub theorem sqTheoryImages_refutation_good (A: set) (G: nat):
+ $ sqTheoryImages A -> sfTheoryClosed A -> sfTheoryContext A G ->
+   sqSupportedGood (sfSequent G sfBot) -> kProvable kF $ =
+(named '(exp @ exp @ eexd @ imp @ imp sqTheoryImages_refutation_at));
+
+pub theorem sqTheoryImages_refutation_trace (A: set) (G p: nat):
+ $ sqTheoryImages A -> sfTheoryClosed A -> sfTheoryContext A G ->
+   sfNDFullDerives p (sfSequent G sfBot) -> kProvable kF $ =
+'(exp @ exp @ syl5 sqSupported_sequent (imp (imp sqTheoryImages_refutation_good)));
+
+pub theorem sqTheoryImages_refutation (A: set):
+ $ sqTheoryImages A -> sfTheoryClosed A -> sfTheoryProvable A sfBot -> kProvable kF $ =
+(named '(exp @ eexd @ eexd @ impd (imp sqTheoryImages_refutation_trace)));

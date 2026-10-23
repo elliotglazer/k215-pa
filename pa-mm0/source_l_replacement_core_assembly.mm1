@@ -1,0 +1,376 @@
+import "source_l_replacement_core_definability.mm1";
+import "source_l_separation_image_op5_background.mm1";
+
+@_ def sfLRepOpen(m psi:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0)
+   (sfPieceDefinableWitness 2 0 (suc m) psi)) $;
+
+@_ def sfLRepLaw(m psi:nat):nat = $ sfAllPrefix 3 (sfLRepOpen m psi) $;
+
+@_ def sfLEnvOpen(m:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 3 2 m)
+   (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 4) m 0))))) $;
+
+@_ def sfLEnvLaw(m:nat):nat = $ sfAllPrefix (m + 3) (sfLEnvOpen m) $;
+
+@_ def sfLOp5Open: nat =
+ $ sfAll (sfAll (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2)
+   (sfImp (sfMem 1 2) (sfImp (sfMem 0 2)
+    (sfEx (sfAnd (sfMem 0 3) (sfLSeparationOp5 2 1 5 0)))))))) $;
+
+@_ def sfLOp5Law: nat = $ sfAllPrefix 3 sfLOp5Open $;
+
+-- Arithmetic and index computations.
+theorem lca_n3(n:nat): $ n + 3 = suc (suc (suc n)) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add02))))));
+theorem lca_n4(n:nat): $ n + 4 = suc (suc (suc (suc n))) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add02))))))));
+theorem lca_RS12: $ sfRenameIndex sfSuccessorMap (suc 0) 2 = 3 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)));
+theorem lca_RS13: $ sfRenameIndex sfSuccessorMap (suc 0) 3 = 4 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)));
+theorem lca_RS14: $ sfRenameIndex sfSuccessorMap (suc 0) 4 = 5 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)));
+theorem lca_succ0(i:nat): $ sfRenameIndex sfSuccessorMap 0 i = suc i $ =
+ '(eqtr sfRenameIndex_zero sfSuccessorMap_value);
+
+-- Shifts at cutoff 0.
+theorem lca_succ_shift0(x y:nat):
+ $ sfShift 0 (sfPieceRepSuccessor x y) = sfPieceRepSuccessor (suc x) (suc y) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepSuccessor_wf))
+   (eqtr sfPieceRepSuccessor_rename (sfPieceRepSuccessor_eq lca_succ0 lca_succ0)));
+
+theorem lca_mem_shift0(a b:nat): $ sfShift 0 (sfMem a b) = sfMem (suc a) (suc b) $ =
+ '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_free lt02) (ax_mp sfShiftIndex_free lt02)));
+
+-- The environment under one binder.
+theorem lca_envmap_zero:
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0)) (sqEnvCons 0 (sfLReplacementStartMap 4)) @ 0 =
+   sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) @ 0 $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i sqEnvCons_zero)))
+    (eqtr (ax_mp sfRenameIndex_bound lt01S) (eqcom sqEnvCons_zero)))));
+
+theorem lca_envmap_suc(i:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0)) (sqEnvCons 0 (sfLReplacementStartMap 4)) @ suc i =
+   sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) @ suc i $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i (eqtr sqEnvCons_suc (eqtr sfLReplacementStartMap_at lca_n4)))))
+    (eqtr sfRenameIndex_lift (eqtr (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))
+     (eqcom (eqtr sqEnvCons_suc (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+      (suceq (eqtr sfLReplacementStartMap_at lca_n4)))))))))));
+
+theorem lca_envmap_step(i:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0)) (sqEnvCons 0 (sfLReplacementStartMap 4)) @ i =
+   sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) @ i ->
+   sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0)) (sqEnvCons 0 (sfLReplacementStartMap 4)) @ suc i =
+   sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) @ suc i $ =
+ '(a1i lca_envmap_suc);
+
+theorem lca_envmap_at(i:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0)) (sqEnvCons 0 (sfLReplacementStartMap 4)) @ i =
+   sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) @ i $ =
+ (named @ induct '(ind) 'i 'lca_envmap_zero 'lca_envmap_step);
+
+theorem lca_env_shift(m:nat):
+ $ sfShift (suc 0) (sfPieceEnv (sfLReplacementStartMap 4) m 0) =
+   sfPieceEnv (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) m 0 $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceEnv_wf))
+   (eqtr (sfRenameeq2 (eqcom add01))
+    (eqtr (ax_mp sfRename_depth sfRename_wf)
+     (eqtr (ax_mp sfRename_compose sfPieceEnvCore_wf)
+      (ax_mp (sfRename_extensional (!! ax_gen i @ ! lca_envmap_at i)) sfPieceEnvCore_wf))))));
+
+theorem lca_envex_shift(m:nat):
+ $ sfShift 0 (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 4) m 0))) =
+   sfEx (sfAnd (sfMem 0 2) (sfPieceEnv (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) m 0)) $ =
+ '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq
+   (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free ltirr)))
+   lca_env_shift))));
+
+-- The goal after opening R and s.
+theorem lca_profile_wf(T:set)(psi Y X:nat):
+ $ sfWf (sfPieceDefinableProfile T psi Y X) $ =
+ '(ax_mp sfWf_all (mpbir sfWf_iff (ian sfWf_mem (ax_mp (ax_mp sfWf_and sfWf_mem) sfCLSetRel_wf))));
+
+theorem lca_map6_at(i:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0))
+     (sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0))
+      (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3))) @ i =
+   sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) @ i $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i
+      (eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+       (eqtr (trud (sfRenameIndex_congr_index (a1i (eqtr sfComposeMap_value
+          (eqtr sfSuccessorMap_value (suceq (eqtr sfLReplacementStartMap_at lca_n3)))))))
+        (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)))))))))
+    (eqtr sfRenameIndex_lift
+     (eqtr (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))
+      (eqcom (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+       (suceq (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+        (suceq (eqtr sfLReplacementStartMap_at lca_n4)))))))))))));
+
+theorem lca_P3x2(psi:nat)(hf:$ sfWf psi $):
+ $ sfShift (suc 0) (sfShift (suc 0)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0)) =
+   sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap
+     (sfLReplacementStartMap 4))) psi 5 0 $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfShift_wf))
+   (eqtr (sfRenameeq3 (eqcom (ax_mp sfRename_successor lca_profile_wf)))
+    (eqtr (sfRenameeq3 (sfLRepProfile_rename hf))
+     (eqtr (sfLRepProfile_rename hf)
+      (nsAll_eq (sfIffeq
+       (nsMem_eq eqid (suceq (eqtr (trud (sfRenameIndex_congr_index
+         (a1i (ax_mp sfRenameIndex_bound lt01S)))) (ax_mp sfRenameIndex_bound lt01S))))
+       (nsAnd_eq
+        (nsMem_eq eqid (suceq (eqtr (trud (sfRenameIndex_congr_index (a1i lca_RS13))) lca_RS14)))
+        (sfCLSetReleq (suceq (eqtr (trud (sfRenameIndex_congr_index (a1i lca_RS13))) lca_RS14))
+         (ax_mp (sfRename_extensional (!! ax_gen i @ ! lca_map6_at i)) hf))))))))));
+
+theorem lca_GL1(psi:nat):
+ $ sfShift 0 (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0))) =
+   sfEx (sfAnd (sfMem 0 2) (sfShift (suc 0)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0))) $ =
+ '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq
+   (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free ltirr)))
+   eqid))));
+
+theorem lca_GL(psi:nat)(hf:$ sfWf psi $):
+ $ sfShift 0 (sfShift 0 (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0)))) =
+   sfEx (sfAnd (sfMem 0 3) (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4))) psi 5 0)) $ =
+ '(eqtr (sfShifteq2 lca_GL1) (eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq
+   (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S)
+    (eqtr (eqcom sfRenameIndex_successor) lca_RS12)))
+   (lca_P3x2 hf))))));
+
+-- Parameter membership in the form used by the op5 profile lemma.
+theorem lca_T6_at(i:nat):
+ $ sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) @ i = i + 6 $ =
+ '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+   (eqtr (suceq (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value (suceq sfLReplacementStartMap_at))))
+    (eqcom (eqtr addS (suceq addS))))));
+
+theorem lca_row_eq(i:nat):
+ $ sfCLBallMemberRows (sfLReplacementStartMap 6) 5 @ i =
+   sfMem (sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) @ i) 5 $ =
+ '(eqtr sfCLBallMemberRows_value (nsMem_eq (eqtr sfLReplacementStartMap_at (eqcom lca_T6_at)) eqid));
+
+theorem lca_dn(G m:nat)
+ (h:$ sfCLRowProofs (sfCLBallMemberRows (sfLReplacementStartMap 6) 5) G m $):
+ $ sfReflectionDnMembers (sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap
+     (sfLReplacementStartMap 4))) G 5 m $ =
+ (named '(ax_gen (syl (bi1 (nsLocal_formula_eq lca_row_eq)) (ax_mp sfCLRowProofs_at h))));
+
+-- Context plumbing.
+theorem lca_lift(G a b:nat)(hg:$ sfContextWf (a : sfContextShift G) $)
+ (h:$ nsLocal G b $): $ nsLocal (a : sfContextShift G) (sfShift 0 b) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken hg) sfContextSub_cons) (ax_mp sfSepLocal_shift h));
+
+theorem lca_lift_all(G a b:nat)(hb:$ sfWf b $)(hg:$ sfContextWf (a : sfContextShift G) $)
+ (h:$ nsLocal G (sfAll b) $): $ nsLocal (a : sfContextShift G) b $ =
+ '(sfRQ_rewrite (ax_mp sfSubst_shift_up_identity hb) (ax_mp nsLocal_AllE (sfRQ_rewrite sfShift_sfAll
+   (lca_lift hg h))));
+
+theorem lca_cons_wf(G a:nat)(ha:$ sfWf a $)(hg:$ sfContextWf G $):
+ $ sfContextWf (a : sfContextShift G) $ =
+ '(mpbir sfContextWf_cons (ian ha (ax_mp sfContextShift_preserves_wf hg)));
+
+theorem lca_op5_wf: $ sfWf (sfLSeparationOp5 2 1 5 0) $ =
+ '(ax_mp (ax_mp sfWf_and
+   (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_and sfWf_mem) sfLSeparationOp5SC_wf))))
+   (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfLSeparationOp5SC_wf) sfWf_mem))));
+
+theorem lca_op5B_wf:
+ $ sfWf (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2)
+   (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfEx (sfAnd (sfMem 0 3) (sfLSeparationOp5 2 1 5 0))))))) $ =
+ '(ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepClosure_wf)
+   (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfWf_mem)
+    (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) lca_op5_wf))))));
+
+theorem lca_GL6_wf(psi:nat):
+ $ sfWf (sfEx (sfAnd (sfMem 0 3) (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4))) psi 5 0))) $ =
+ '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) lca_profile_wf));
+
+theorem lca_GL_wf(psi:nat):
+ $ sfWf (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0))) $ =
+ '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) lca_profile_wf));
+
+-- The (closed) extension law used by the op5 profile lemma is invariant under shifting.
+theorem lca_ext_shift:
+ $ sfShift 0 (sfAll (sfLSeparationOp5Extensions 0)) = sfAll (sfLSeparationOp5Extensions 0) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor (ax_mp sfWf_all sfLSeparationOp5Extensions_wf)))
+   (eqtr sfRename_sfAll (nsAll_eq
+    (eqtr (sfRenameeq2 (eqcom add01))
+     (eqtr (ax_mp sfRename_depth sfLSeparationOp5Extensions_wf)
+      (eqtr sfLSeparationOp5Extensions_rename
+       (sfLSeparationOp5Extensions_eq (eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S)))))))));
+
+-- G4 (Y = 0, s = 1, R = 2, C = 3, S = 4, A = 5, parameters 6 ..).
+theorem lca_at_t(G m psi:nat)(hb:$ sfBound (suc m) psi $)(hg:$ sfContextWf G $)
+ (he:$ nsLocal G (sfAll (sfLSeparationOp5Extensions 0)) $)
+ (hN:$ nsLocal G (sfPieceDefinableNamed (suc m) psi 1 4) $)
+ (hE:$ nsLocal G (sfPieceEnv (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) m 0) $)
+ (hM:$ nsLocal G (sfCLMembership 5 4 m) $):
+ $ nsLocal (sfAnd (sfMem 0 3) (sfLSeparationOp5 2 1 5 0) : sfContextShift G)
+   (sfShift 0 (sfEx (sfAnd (sfMem 0 3) (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4))) psi 5 0)))) $ =
+ '(sfRQ_rewrite (eqcom sfShift_sfEx)
+   (ax_mp (ax_mp nsLocal_ExI sfShift_wf)
+    (mpbir (nsLocal_formula_eq (ax_mp sfSubst_shift_up_identity
+      (ax_mp (ax_mp sfWf_and sfWf_mem) lca_profile_wf)))
+     (ax_mp (ax_mp sfLocal_and
+       (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp
+        (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) lca_op5_wf) hg)) sfContext_member_head)))
+      (sfLSeparationOp5_profile_from_total hb
+       (sfRQ_rewrite (sfLSeparationOp5Named_shift hb)
+        (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) lca_op5_wf) hg) hN))
+       (lca_dn (sfLReplacementRows_from_membership (sfRQ_rewrite sfCLMembership_shift
+        (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) lca_op5_wf) hg) hM))))
+       (sfRQ_rewrite sfLSeparationOp5Env_shift
+        (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) lca_op5_wf) hg) hE))
+       (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp
+        (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) lca_op5_wf) hg)) sfContext_member_head))
+       (sfRQ_rewrite lca_ext_shift
+        (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) lca_op5_wf) hg) he)))))));
+
+-- G3 (s = 0, R = 1, C = 2, S = 3, A = 4, parameters 5 ..).
+theorem lca_at_s(G m psi:nat)(hb:$ sfBound (suc m) psi $)(hg:$ sfContextWf G $)
+ (he:$ nsLocal G (sfAll (sfLSeparationOp5Extensions 0)) $)
+ (hO:$ nsLocal G (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2)
+   (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfEx (sfAnd (sfMem 0 3) (sfLSeparationOp5 2 1 5 0))))))) $)
+ (hS:$ nsLocal G (sfPieceRepSuccessor 4 3) $)(hC:$ nsLocal G (sfPieceRepClosure 3 2) $)
+ (hR:$ nsLocal G (sfMem 1 2) $)(hs:$ nsLocal G (sfMem 0 2) $)
+ (hN:$ nsLocal G (sfPieceDefinableNamed (suc m) psi 1 4) $)
+ (hE:$ nsLocal G (sfPieceEnv (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) m 0) $)
+ (hM:$ nsLocal G (sfCLMembership 5 4 m) $):
+ $ nsLocal G (sfEx (sfAnd (sfMem 0 3) (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4))) psi 5 0))) $ =
+ '(ax_mp (ax_mp (sfLocal_exE lca_GL6_wf)
+    (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+      (ax_mp (ax_mp nsLocal_mp hO) hS)) hC)) hR)) hs))
+   (lca_at_t hb hg he hN hE hM));
+
+-- G2 (R = 0, C = 1, S = 2, A = 3, parameters 4 ..): open s.
+theorem lca_at_r(G m psi:nat)(hb:$ sfBound (suc m) psi $)(hg:$ sfContextWf G $)
+ (he:$ nsLocal G (sfAll (sfLSeparationOp5Extensions 0)) $)
+ (hO:$ nsLocal G (sfAll (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2)
+   (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfEx (sfAnd (sfMem 0 3) (sfLSeparationOp5 2 1 5 0)))))))) $)
+ (hS:$ nsLocal G (sfPieceRepSuccessor 3 2) $)(hC:$ nsLocal G (sfPieceRepClosure 2 1) $)
+ (hR:$ nsLocal G (sfMem 0 1) $)
+ (hN:$ nsLocal G (sfPieceDefinableNamed (suc m) psi 0 3) $)
+ (hE:$ nsLocal G (sfEx (sfAnd (sfMem 0 2)
+   (sfPieceEnv (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 4)) m 0))) $)
+ (hM:$ nsLocal G (sfCLMembership 4 3 m) $):
+ $ nsLocal G (sfShift 0 (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0)))) $ =
+ '(ax_mp (ax_mp (sfLocal_exE sfShift_wf) hE)
+   (sfRQ_rewrite (eqcom (lca_GL (ax_mp sfBound_wf hb)))
+    (lca_at_s hb (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg)
+     (sfRQ_rewrite lca_ext_shift (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg) he))
+     (lca_lift_all lca_op5B_wf (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg) hO)
+     (sfRQ_rewrite lca_succ_shift0 (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg) hS))
+     (sfRQ_rewrite sfPieceRepClosure_shift (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg) hC))
+     (sfRQ_rewrite lca_mem_shift0 (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg) hR))
+     (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg)) sfContext_member_head))
+     (sfRQ_rewrite (sfLSeparationOp5Named_shift hb) (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg) hN))
+     (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg)) sfContext_member_head))
+     (sfRQ_rewrite sfCLMembership_shift (lca_lift (lca_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg) hM)))));
+
+-- Core level (C = 0, S = 1, A = 2, parameters 3 ..): open R.
+theorem lca_at_y(G m psi:nat)(hb:$ sfBound (suc m) psi $)(hg:$ sfContextWf G $)
+ (he:$ nsLocal G (sfAll (sfLSeparationOp5Extensions 0)) $)
+ (hO:$ nsLocal G sfLOp5Open $)
+ (hS:$ nsLocal G (sfPieceRepSuccessor 2 1) $)(hC:$ nsLocal G (sfPieceRepClosure 1 0) $)
+ (hM:$ nsLocal G (sfCLMembership 3 2 m) $)
+ (hW:$ nsLocal G (sfPieceDefinableWitness 2 0 (suc m) psi) $)
+ (hE:$ nsLocal G (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 4) m 0))) $):
+ $ nsLocal G (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0))) $ =
+ '(ax_mp (ax_mp (sfLocal_exE lca_GL_wf) hW)
+   (lca_at_r hb (lca_cons_wf sfPieceDefinableWitnessBody_wf hg)
+    (sfRQ_rewrite lca_ext_shift (lca_lift (lca_cons_wf sfPieceDefinableWitnessBody_wf hg) he))
+    (lca_lift_all (ax_mp sfWf_all lca_op5B_wf) (lca_cons_wf sfPieceDefinableWitnessBody_wf hg) hO)
+    (sfRQ_rewrite lca_succ_shift0 (lca_lift (lca_cons_wf sfPieceDefinableWitnessBody_wf hg) hS))
+    (sfRQ_rewrite sfPieceRepClosure_shift (lca_lift (lca_cons_wf sfPieceDefinableWitnessBody_wf hg) hC))
+    (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (lca_cons_wf sfPieceDefinableWitnessBody_wf hg))
+     sfContext_member_head))
+    (sfRQ_rewrite (eqcom (sfPieceDefinableNamed_open hb))
+     (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (lca_cons_wf sfPieceDefinableWitnessBody_wf hg))
+      sfContext_member_head)))
+    (sfRQ_rewrite lca_envex_shift (lca_lift (lca_cons_wf sfPieceDefinableWitnessBody_wf hg) hE))
+    (sfRQ_rewrite sfCLMembership_shift (lca_lift (lca_cons_wf sfPieceDefinableWitnessBody_wf hg) hM))));
+
+-- Background level.
+theorem lca_rep_wf(m psi:nat): $ sfWf (sfLRepOpen m psi) $ =
+ '(ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepClosure_wf)
+   sfPieceDefinableWitness_wf));
+
+theorem lca_env_wf(m:nat): $ sfWf (sfLEnvOpen m) $ =
+ '(ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepClosure_wf)
+   (ax_mp (ax_mp sfWf_imp sfCLMembership_wf) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf)))));
+
+theorem lca_op5open_wf: $ sfWf sfLOp5Open $ = '(ax_mp sfWf_all (ax_mp sfWf_all lca_op5B_wf));
+
+theorem lca_gc_wf(m psi:nat):
+ $ sfContextWf (sfCLMembership 3 2 m : (sfPieceRepClosure 1 0 : (sfPieceRepSuccessor 2 1 :
+   (sfLOp5Open : (sfLEnvOpen m : (sfLRepOpen m psi : sfLBackground)))))) $ =
+ '(mpbir sfContextWf_cons (ian sfCLMembership_wf (mpbir sfContextWf_cons (ian sfPieceRepClosure_wf
+   (mpbir sfContextWf_cons (ian sfPieceRepSuccessor_wf (mpbir sfContextWf_cons (ian lca_op5open_wf
+    (mpbir sfContextWf_cons (ian lca_env_wf (mpbir sfContextWf_cons (ian lca_rep_wf
+     sfLBackground_wf))))))))))));
+
+theorem lca_bg_cons(G a:nat)(h:$ sfContextSub sfLBackground G $):
+ $ sfContextSub sfLBackground (a : G) $ =
+ '(ax_mp (ax_mp sfContextSub_trans h) sfContextSub_cons);
+
+theorem lca_gc_bg(m psi:nat):
+ $ sfContextSub sfLBackground (sfCLMembership 3 2 m : (sfPieceRepClosure 1 0 : (sfPieceRepSuccessor 2 1 :
+   (sfLOp5Open : (sfLEnvOpen m : (sfLRepOpen m psi : sfLBackground)))))) $ =
+ '(lca_bg_cons (lca_bg_cons (lca_bg_cons (lca_bg_cons (lca_bg_cons (lca_bg_cons sfContextSub_refl))))));
+
+theorem lca_local(m psi:nat)(hb:$ sfBound (suc m) psi $):
+ $ nsLocal sfLBackground (sfImp (sfLRepOpen m psi) (sfImp (sfLEnvOpen m)
+   (sfImp sfLOp5Open (sfLCoreDefinabilityBody m psi)))) $ =
+ '(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II
+   (lca_at_y hb lca_gc_wf
+    (ax_mp (ax_mp (ax_mp nsLocal_weaken lca_gc_wf) lca_gc_bg) sfLSeparationOp5Extension_local)
+    (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+     (ax_mp sfContext_member_tail sfContext_member_head))))
+    (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+     sfContext_member_head)))
+    (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) (ax_mp sfContext_member_tail sfContext_member_head))
+    (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) sfContext_member_head)
+    (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+      (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+       (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+        sfContext_member_head)))))))
+      (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+       sfContext_member_head)))))
+     (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) (ax_mp sfContext_member_tail sfContext_member_head)))
+    (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+      (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+       (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))))
+      (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+       sfContext_member_head)))))
+      (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) (ax_mp sfContext_member_tail sfContext_member_head))))
+     (ax_mp (ax_mp nsLocal_hyp lca_gc_wf) sfContext_member_head)))))))));
+
+pub theorem sfLCoreDefinabilityLaw_from_parts(m psi:nat)(hb:$ sfBound (suc m) psi $)
+ (hR:$ sfTheoryProvable zfrAxioms (sfLRepLaw m psi) $)
+ (hE:$ sfTheoryProvable zfrAxioms (sfLEnvLaw m) $)
+ (hO:$ sfTheoryProvable zfrAxioms sfLOp5Law $):
+ $ sfTheoryProvable zfrAxioms (sfLCoreDefinabilityLaw m psi) $ =
+ '(ax_mp (ax_mp sfTheoryProvable_prefix_intro zfrAxioms_closed)
+   (ax_mp (ax_mp sfTheoryProvable_gen zfrAxioms_closed)
+    (ax_mp (ax_mp sfTheoryProvable_gen zfrAxioms_closed)
+     (ax_mp (ax_mp sfTheoryProvable_mp
+       (ax_mp (ax_mp sfTheoryProvable_mp
+         (ax_mp (ax_mp sfTheoryProvable_mp (ax_mp (sfTheory_local sfLBackground_zfr) (lca_local hb)))
+          (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) hR)))
+        (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) hE)))
+      (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) hO)))));

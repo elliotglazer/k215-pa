@@ -1,0 +1,28 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm0";
+import "k218q_rebase.mm0";
+import "k218q_named_rebase.mm0";
+import "k230_fresh_allocation.mm0";
+
+theorem k218INamed_rebase (E: set) (n k l a: nat)
+ (hk: $ 0 < k $) (hl: $ 0 < l $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n l $)
+ (ha: $ sfBound n a $):
+ $ k218IEquivalent (sfNamedTemplate E k 0 a) (sfNamedTemplate E l 0 a) $;
+
+theorem k218INamed_allI (E: set) (H n k z a: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (ha: $ sfBound n (sfAll a) $) (hh: $ kContextFresh H z $):
+ $ k218IHypProvable H (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a) ->
+   k218IHypProvable H (sfNamedTemplate E k 0 (sfAll a)) $;
+
+theorem k218INamed_exE (E: set) (H n k z a c: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (ha: $ sfBound n (sfEx a) $) (hc: $ sfBound n c $)
+ (hh: $ kContextFresh H z $) (hfresh: $ kFresh (sfNamedTemplate E k 0 c) z $):
+ $ k218IHypProvable H (sfNamedTemplate E k 0 (sfEx a)) ->
+   k218IHypProvable (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a : H)
+    (sfNamedTemplate (sqEnvCons z E) (suc z) 0 (sfShift 0 c)) ->
+   k218IHypProvable H (sfNamedTemplate E k 0 c) $;

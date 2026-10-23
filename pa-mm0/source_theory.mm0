@@ -1,0 +1,54 @@
+import "zfc_quantified_proofs.mm0";
+
+-- An arbitrary arithmetic class of axiom codes with the fixed, concrete
+-- full source deduction calculus. This does not assume an interpretation.
+def sfClosedFormulaClass (.a: nat): set = $ {a | sfBound 0 a} $;
+def sfTheoryClosed (A: set): wff = $ A C_ sfClosedFormulaClass $;
+def sfTheoryContext (A: set) (G: nat): wff = $ all A G $;
+def sfTheoryProvable (A: set) (f .G .p: nat): wff =
+$ E. G E. p (sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G f)) $;
+
+theorem sfClosedFormulaClass_value (a: nat):
+  $ a e. sfClosedFormulaClass <-> sfBound 0 a $;
+theorem sfClosedFormulaClass_wf: $ sfClosedFormulaClass C_ sfFormulaClass $;
+theorem sfTheoryClosed_member (A: set) (a: nat):
+  $ sfTheoryClosed A -> a e. A -> sfBound 0 a $;
+theorem sfTheoryContext_nil (A: set): $ sfTheoryContext A 0 $;
+theorem sfTheoryContext_cons (A: set) (a G: nat):
+  $ sfTheoryContext A (a : G) <-> a e. A /\ sfTheoryContext A G $;
+theorem sfTheoryContext_append (A: set) (G D: nat):
+  $ sfTheoryContext A (G ++ D) <-> sfTheoryContext A G /\ sfTheoryContext A D $;
+theorem sfTheoryContext_mono (A B: set) (G: nat):
+  $ A C_ B -> sfTheoryContext A G -> sfTheoryContext B G $;
+theorem sfTheoryContext_member_closed (A: set) (G a: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G -> a IN G -> sfBound 0 a $;
+theorem sfTheoryContext_wf (A: set) (G: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G -> sfContextWf G $;
+theorem sfTheoryContext_shift_identity (A: set) (G: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G -> sfContextShift G = G $;
+theorem sfTheoryProof_context_wf (G p a: nat):
+  $ sfNDFullDerives p (sfSequent G a) -> sfContextWf G $;
+theorem sfTheoryProvable_intro (A: set) (G p f: nat):
+  $ sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G f) -> sfTheoryProvable A f $;
+theorem sfTheoryProvable_wf (A: set) (f: nat):
+  $ sfTheoryProvable A f -> sfWf f $;
+theorem sfTheoryProvable_mono (A B: set) (f: nat):
+  $ A C_ B -> sfTheoryProvable A f -> sfTheoryProvable B f $;
+theorem sfTheoryAxiom_provable (A: set) (a: nat):
+  $ sfWf a -> a e. A -> sfTheoryProvable A a $;
+theorem sfTheoryAxiom_provable_closed (A: set) (a: nat):
+  $ sfTheoryClosed A -> a e. A -> sfTheoryProvable A a $;
+theorem sfTheoryProvable_mp (A: set) (a b: nat):
+  $ sfTheoryProvable A (sfImp a b) -> sfTheoryProvable A a -> sfTheoryProvable A b $;
+theorem sfTheoryProof_gen (A: set) (G p a: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G -> sfNDFullDerives p (sfSequent G a) ->
+    sfNDFullDerives (zfcGenProof G p a) (sfSequent G (sfAll a)) $;
+theorem sfTheoryProvable_gen (A: set) (a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A a -> sfTheoryProvable A (sfAll a) $;
+theorem sfTheoryProvable_allE (A: set) (a t: nat):
+  $ sfTheoryProvable A (sfAll a) -> sfTheoryProvable A (sfSubst 0 t a) $;
+theorem sfTheoryContext_zfc (G: nat):
+  $ sfTheoryContext zfcAxioms G <-> zfcContext G $;
+theorem sfTheoryClosed_zfc: $ sfTheoryClosed zfcAxioms $;
+theorem sfTheoryProvable_zfc (a: nat):
+  $ sfTheoryProvable zfcAxioms a <-> zfcProvable a $;

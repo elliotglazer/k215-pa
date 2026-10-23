@@ -1,0 +1,33 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_derived.mm0";
+
+
+
+-- Derived rules of the exact numerical K calculus.
+
+theorem k218IPropContra (a b: nat): $ k218QProvable (kImp (kImp a b) (kImp (kImp b kF) (kImp a kF))) $;
+
+theorem k218IPropDuplicate (a b: nat): $ k218QProvable (kImp (kImp a (kImp a b)) (kImp a b)) $;
+
+theorem k218IPropUseConj (a b c: nat): $ k218QProvable (kImp a (kImp (kImp (kImp (kImp a b) (kImp c kF)) kF) b)) $;
+
+theorem k218IProvable_syl (a b c: nat)
+  (hab: $ k218QProvable (kImp a b) $) (hbc: $ k218QProvable (kImp b c) $):
+  $ k218QProvable (kImp a c) $;
+
+theorem k218IAll_mono (x a b: nat) (h: $ k218QProvable (kImp a b) $):
+  $ k218QProvable (kImp (kAll x a) (kAll x b)) $;
+
+theorem k218INot_mono (a b: nat) (h: $ k218QProvable (kImp a b) $):
+  $ k218QProvable (kImp (kNot b) (kNot a)) $;
+
+theorem k218IExists_mono (x a b: nat) (h: $ k218QProvable (kImp a b) $):
+  $ k218QProvable (kImp (kExists x a) (kExists x b)) $;
+
+theorem k218IExists_collapse (x a: nat)
+  (hv: $ k218QProvable (kImp a (kAll x a)) $):
+  $ k218QProvable (kImp (kExists x a) a) $;
+
+theorem k218IEquality_reflexive (x: nat): $ k218QProvable (kEq x x) $;
+

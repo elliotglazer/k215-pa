@@ -1,0 +1,105 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_deduction.mm1";
+
+@_ abstract def k218IContextProofClass (G .a: nat): set = $ {a | k218IHypProvable G a} $;
+@_ def k218IContextSupports (G H: nat): wff = $ traceClassAll (k218IContextProofClass G) H $;
+
+pub theorem k218IContextProofClass_value (G a: nat):
+ $ a e. k218IContextProofClass G <-> k218IHypProvable G a $ =
+(named '(elabe ,eqtac));
+
+pub theorem k218IContextSupports_member (G H a: nat):
+ $ k218IContextSupports G H -> a IN H -> k218IHypProvable G a $ =
+'(syl6 (bi1 k218IContextProofClass_value) traceClassAll_get);
+
+pub theorem k218IContextSupports_self (G: nat): $ k218IContextSupports G G $ =
+(named '(ax_gen @ syl (bi2 k218IContextProofClass_value) k218IHypProvable_assumption));
+
+pub theorem k218IContextSupports_nil (G: nat): $ k218IContextSupports G 0 $ =
+'traceClassAll_nil;
+
+pub theorem k218IContextSupports_cons (G H a: nat):
+ $ k218IContextSupports G H -> k218IHypProvable G a -> k218IContextSupports G (a : H) $ =
+'(exp @ sylc traceClassAll_cons (syl (bi2 k218IContextProofClass_value) anr) anl);
+
+theorem k218ICR_assumption (G H a: nat) (hs: $ k218IContextSupports G H $):
+ $ a IN H -> a e. k218IContextProofClass G $ =
+'(syl (bi2 k218IContextProofClass_value) (ax_mp k218IContextSupports_member hs));
+
+theorem k218ICR_seed (G a: nat):
+ $ a e. k218QTheorems -> a e. k218IContextProofClass G $ =
+'(syl (bi2 k218IContextProofClass_value) @ syl k218IHypProvable_seed (bi1 k218QTheorems_value));
+
+theorem k218ICR_trace_get (G l a: nat):
+ $ traceClassAll (k218IContextProofClass G) l -> a IN l -> k218IHypProvable G a $ =
+'(syl6 (bi1 k218IContextProofClass_value) traceClassAll_get);
+
+theorem k218ICR_mp_payload (G l a b: nat):
+ $ traceClassAll (k218IContextProofClass G) l ->
+   (b IN l /\ kImp b a IN l) -> a e. k218IContextProofClass G $ =
+'(exp @ syl (bi2 k218IContextProofClass_value) @
+  sylc k218IHypProvable_mp
+    (mpd (syl anl anr) (syl k218ICR_trace_get anl))
+    (mpd (syl anr anr) (syl k218ICR_trace_get anl)));
+
+theorem k218ICR_mp_exists {b: nat} (G l a: nat):
+ $ traceClassAll (k218IContextProofClass G) l ->
+   E. b (b IN l /\ kImp b a IN l) -> a e. k218IContextProofClass G $ =
+(named '(eexd k218ICR_mp_payload));
+
+theorem k218ICR_rule (G H l a: nat) (hs: $ k218IContextSupports G H $):
+ $ traceClassAll (k218IContextProofClass G) l ->
+   (a, l) e. k218IHypRules H -> a e. k218IContextProofClass G $ =
+(named '(syl5bi k218IHypRules_value @ eord
+  (a1i (k218ICR_assumption hs)) (eord (a1i k218ICR_seed) k218ICR_mp_exists)));
+
+pub theorem k218IHypRules_refine_sound (G H: nat) (hs: $ k218IContextSupports G H $):
+ $ traceRuleSound (k218IHypRules H) (k218IContextProofClass G) $ =
+(named '(ax_gen @ ax_gen (k218ICR_rule hs)));
+
+pub theorem k218IHypDerives_refine (G H p a: nat) (hs: $ k218IContextSupports G H $):
+ $ k218IHypDerives H p a -> k218IHypProvable G a $ =
+'(syl (bi1 k218IContextProofClass_value) (ax_mp traceDerives_class (k218IHypRules_refine_sound hs)));
+
+pub theorem k218IHypProvable_refine (G H a: nat) (hs: $ k218IContextSupports G H $):
+ $ k218IHypProvable H a -> k218IHypProvable G a $ =
+(named '(eex (k218IHypDerives_refine hs)));
+
+theorem k218ICR_assumption_d (G H a: nat):
+ $ k218IContextSupports G H -> a IN H -> a e. k218IContextProofClass G $ =
+'(syl6 (bi2 k218IContextProofClass_value) k218IContextSupports_member);
+
+theorem k218ICR_rule_d (G H l a: nat):
+ $ k218IContextSupports G H -> traceClassAll (k218IContextProofClass G) l ->
+   (a, l) e. k218IHypRules H -> a e. k218IContextProofClass G $ =
+(named '(exp @ syl5bi k218IHypRules_value @ eord
+  (syl k218ICR_assumption_d anl)
+  (eord (a1i k218ICR_seed) (syl k218ICR_mp_exists anr))));
+
+theorem k218ICR_sound_d (G H: nat):
+ $ k218IContextSupports G H -> traceRuleSound (k218IHypRules H) (k218IContextProofClass G) $ =
+(named '(iald @ iald k218ICR_rule_d));
+
+theorem k218ICR_derives_d (G H p a: nat):
+ $ k218IContextSupports G H -> k218IHypDerives H p a -> k218IHypProvable G a $ =
+'(syl6 (bi1 k218IContextProofClass_value) (syl traceDerives_class k218ICR_sound_d));
+
+pub theorem k218IHypProvable_refine_d (G H a: nat):
+ $ k218IContextSupports G H -> k218IHypProvable H a -> k218IHypProvable G a $ =
+(named '(eexd k218ICR_derives_d));
+
+theorem k218IContextIncludes_at {c: nat} (G H a: nat):
+ $ A. c (c IN H -> c IN G) -> a IN H -> a IN G $ =
+(named '(!! eale c ,eqtac));
+
+pub theorem k218IContextSupports_inclusion {c: nat} (G H: nat)
+ (hi: $ A. c (c IN H -> c IN G) $):
+ $ k218IContextSupports G H $ =
+(named '(ax_gen @ syl (bi2 k218IContextProofClass_value) @
+  syl k218IHypProvable_assumption (ax_mp k218IContextIncludes_at hi)));
+
+pub theorem k218IHypProvable_monotone {c: nat} (G H a: nat)
+ (hi: $ A. c (c IN H -> c IN G) $):
+ $ k218IHypProvable H a -> k218IHypProvable G a $ =
+'(k218IHypProvable_refine (k218IContextSupports_inclusion hi));

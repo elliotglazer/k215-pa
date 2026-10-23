@@ -1,0 +1,25 @@
+import "zfc_irreflexive.mm0";
+
+def sfLocalProofClass (J .a: nat): set = $ {a | nsLocal J a} $;
+
+def sfLocalCoverage (J H: nat): wff = $ all (sfLocalProofClass J) H $;
+
+theorem sfLocalProofClass_value (J a: nat):
+ $ a e. sfLocalProofClass J <-> nsLocal J a $;
+
+theorem sfLocalCoverage_nil (J: nat): $ sfLocalCoverage J 0 $;
+
+theorem sfLocalCoverage_cons (J a H: nat):
+ $ sfLocalCoverage J (a : H) <-> nsLocal J a /\ sfLocalCoverage J H $;
+
+theorem sfLocalCoverage_member (J H a: nat):
+ $ sfLocalCoverage J H -> a IN H -> nsLocal J a $;
+
+theorem sfLocalCoverage_value {a: nat} (J H: nat):
+ $ sfLocalCoverage J H <-> A. a (a IN H -> nsLocal J a) $;
+
+theorem sfLocalCoverage_self (J: nat):
+ $ sfContextWf J -> sfLocalCoverage J J $;
+
+theorem sfLocal_hypothesis_replacement (J H f: nat):
+ $ sfContextWf J -> sfLocalCoverage J H -> nsLocal H f -> nsLocal J f $;

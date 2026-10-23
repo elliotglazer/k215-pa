@@ -1,0 +1,206 @@
+import "source_piece_pcf_rep_case_common.mm1";
+
+import "source_piece_pcf_definable_dn.mm1";
+
+-- Context helpers.
+theorem pcrq_cwf (G h: nat) (hg: $ sfContextWf G $) (hh: $ sfWf h $):
+  $ sfContextWf (h : G) $ = '(mpbir sfContextWf_cons (ian hh hg));
+theorem pcrq_hd (G h: nat) (hg: $ sfContextWf G $) (hh: $ sfWf h $):
+  $ nsLocal (h : G) h $ =
+'(ax_mp (ax_mp nsLocal_hyp (pcrq_cwf hg hh)) (mpbir lmemS (orl eqid)));
+theorem pcrq_wk (G h a: nat) (hg: $ sfContextWf G $) (hh: $ sfWf h $) (p: $ nsLocal G a $):
+  $ nsLocal (h : G) a $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (pcrq_cwf hg hh)) sfContextSub_cons) p);
+theorem pcrq_pure (G a: nat) (hg: $ sfContextWf G $) (p: $ nsLocal 0 a $): $ nsLocal G a $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken hg) all0) p);
+
+-- A. (m -> X)  ->  ~ E. (m /\ ~ X)
+theorem pcrq_wfZ (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ sfWf (sfAnd m (sfImp X sfBot)) $ =
+'(ax_mp (ax_mp sfWf_and hm) (ax_mp (ax_mp sfWf_imp hx) sfWf_bot));
+theorem pcrq_wfP (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ sfWf (sfAll (sfImp m X)) $ = '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp hm) hx));
+theorem pcrq_f_ctx (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ sfContextWf (sfEx (sfAnd m (sfImp X sfBot)) : (sfAll (sfImp m X) : 0)) $ =
+'(pcrq_cwf (pcrq_cwf sfContextWf_nil (pcrq_wfP hm hx)) (ax_mp sfWf_ex (pcrq_wfZ hm hx)));
+theorem pcrq_f_all (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ nsLocal (sfEx (sfAnd m (sfImp X sfBot)) : (sfAll (sfImp m X) : 0)) (sfAll (sfImp m X)) $ =
+'(pcrq_wk (pcrq_cwf sfContextWf_nil (pcrq_wfP hm hx)) (ax_mp sfWf_ex (pcrq_wfZ hm hx))
+  (pcrq_hd sfContextWf_nil (pcrq_wfP hm hx)));
+theorem pcrq_f_bot (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ nsLocal (sfAnd m (sfImp X sfBot) :
+      sfContextShift (sfEx (sfAnd m (sfImp X sfBot)) : (sfAll (sfImp m X) : 0))) sfBot $ =
+'(ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_CE2 (sfPieceRepCase_head (pcrq_wfZ hm hx))))
+  (ax_mp (ax_mp nsLocal_mp
+    (ax_mp (ax_mp (ax_mp nsLocal_weaken (sfPieceRepCase_ctx (pcrq_wfZ hm hx))) sfContextSub_cons)
+      (ax_mp sfSepLocal_open (pcrq_f_all hm hx))))
+    (ax_mp nsLocal_CE1 (sfPieceRepCase_head (pcrq_wfZ hm hx)))));
+
+pub theorem sfPieceRepAllEquiv_forward (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ nsLocal 0 (sfImp (sfAll (sfImp m X)) (sfImp (sfEx (sfAnd m (sfImp X sfBot))) sfBot)) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II
+  (ax_mp (ax_mp (sfLocal_exE sfWf_bot)
+      (pcrq_hd (pcrq_cwf sfContextWf_nil (pcrq_wfP hm hx)) (ax_mp sfWf_ex (pcrq_wfZ hm hx))))
+    (sfRQ_rewrite (eqcom sfShift_bot) (pcrq_f_bot hm hx)))));
+
+-- ~ E. (m /\ ~ X)  ->  A. (m -> X)   (classical: Peirce)
+theorem pcrq_e2_inner (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ nsLocal ((sfImp X sfBot) : (m : sfContextShift ((sfImp (sfEx (sfAnd m (sfImp X sfBot))) sfBot) : 0))) X $ =
+'(ax_mp (sfLocal_falseE hx)
+  (ax_mp (ax_mp nsLocal_mp
+    (pcrq_wk (pcrq_cwf sfContextShift_wf hm) (ax_mp (ax_mp sfWf_imp hx) sfWf_bot)
+      (pcrq_wk sfContextShift_wf hm
+        (sfRQ_rewrite (eqtr sfShift_sfImp (sfImpeq sfShift_sfEx sfShift_bot))
+          (ax_mp sfSepLocal_shift
+            (pcrq_hd sfContextWf_nil
+              (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and hm) (ax_mp (ax_mp sfWf_imp hx) sfWf_bot)))) sfWf_bot)))))))
+    (ax_mp (ax_mp nsLocal_ExI sfShift_wf)
+      (sfRQ_rewrite (eqcom (ax_mp sfSubst_shift_up_identity (ax_mp (ax_mp sfWf_and hm) (ax_mp (ax_mp sfWf_imp hx) sfWf_bot))))
+        (ax_mp (ax_mp sfLocal_and
+          (pcrq_wk (pcrq_cwf sfContextShift_wf hm) (ax_mp (ax_mp sfWf_imp hx) sfWf_bot)
+            (pcrq_hd sfContextShift_wf hm)))
+          (pcrq_hd (pcrq_cwf sfContextShift_wf hm) (ax_mp (ax_mp sfWf_imp hx) sfWf_bot)))))));
+
+pub theorem sfPieceRepAllEquiv_backward (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ nsLocal 0 (sfImp (sfImp (sfEx (sfAnd m (sfImp X sfBot))) sfBot) (sfAll (sfImp m X))) $ =
+'(ax_mp nsLocal_II
+  (ax_mp (sfLocal_allI (pcrq_cwf sfContextWf_nil
+      (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and hm) (ax_mp (ax_mp sfWf_imp hx) sfWf_bot)))) sfWf_bot)))
+    (ax_mp nsLocal_II
+      (ax_mp (ax_mp nsLocal_mp (sfLocal_peirce (pcrq_cwf sfContextShift_wf hm) hx sfWf_bot))
+        (ax_mp nsLocal_II (pcrq_e2_inner hm hx))))));
+
+-- Iff transport: from Sa -> Sc and Sc -> Sa,  (E -> (q <-> Sc)) -> (E -> (q <-> Sa)).
+theorem pcrq_wfH (E q Sc: nat) (hE: $ sfWf E $) (hq: $ sfWf q $) (hSc: $ sfWf Sc $):
+  $ sfWf (sfImp E (sfIff q Sc)) $ =
+'(ax_mp (ax_mp sfWf_imp hE)
+  (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hq) hSc)) (ax_mp (ax_mp sfWf_imp hSc) hq)));
+theorem pcrq_W2 (E q Sc: nat) (hE: $ sfWf E $) (hq: $ sfWf q $) (hSc: $ sfWf Sc $):
+  $ sfContextWf (E : (sfImp E (sfIff q Sc) : 0)) $ =
+'(pcrq_cwf (pcrq_cwf sfContextWf_nil (pcrq_wfH hE hq hSc)) hE);
+theorem pcrq_pt_iff (E q Sc: nat) (hE: $ sfWf E $) (hq: $ sfWf q $) (hSc: $ sfWf Sc $):
+  $ nsLocal (E : (sfImp E (sfIff q Sc) : 0)) (sfIff q Sc) $ =
+'(ax_mp (ax_mp nsLocal_mp
+    (pcrq_wk (pcrq_cwf sfContextWf_nil (pcrq_wfH hE hq hSc)) hE
+      (pcrq_hd sfContextWf_nil (pcrq_wfH hE hq hSc))))
+  (pcrq_hd (pcrq_cwf sfContextWf_nil (pcrq_wfH hE hq hSc)) hE));
+theorem pcrq_pt_l (E q Sa Sc: nat)
+  (hE: $ sfWf E $) (hq: $ sfWf q $) (hSc: $ sfWf Sc $)
+  (h2: $ nsLocal 0 (sfImp Sc Sa) $):
+  $ nsLocal (E : (sfImp E (sfIff q Sc) : 0)) (sfImp q Sa) $ =
+'(ax_mp nsLocal_II
+  (ax_mp (ax_mp nsLocal_mp (pcrq_pure (pcrq_cwf (pcrq_W2 hE hq hSc) hq) h2))
+    (ax_mp (ax_mp nsLocal_mp
+        (pcrq_wk (pcrq_W2 hE hq hSc) hq (ax_mp nsLocal_CE1 (pcrq_pt_iff hE hq hSc))))
+      (pcrq_hd (pcrq_W2 hE hq hSc) hq))));
+theorem pcrq_pt_r (E q Sa Sc: nat)
+  (hE: $ sfWf E $) (hq: $ sfWf q $) (hSa: $ sfWf Sa $) (hSc: $ sfWf Sc $)
+  (h1: $ nsLocal 0 (sfImp Sa Sc) $):
+  $ nsLocal (E : (sfImp E (sfIff q Sc) : 0)) (sfImp Sa q) $ =
+'(ax_mp nsLocal_II
+  (ax_mp (ax_mp nsLocal_mp
+      (pcrq_wk (pcrq_W2 hE hq hSc) hSa (ax_mp nsLocal_CE2 (pcrq_pt_iff hE hq hSc))))
+    (ax_mp (ax_mp nsLocal_mp (pcrq_pure (pcrq_cwf (pcrq_W2 hE hq hSc) hSa) h1))
+      (pcrq_hd (pcrq_W2 hE hq hSc) hSa))));
+theorem pcrq_point (E q Sa Sc: nat)
+  (hE: $ sfWf E $) (hq: $ sfWf q $) (hSa: $ sfWf Sa $) (hSc: $ sfWf Sc $)
+  (h1: $ nsLocal 0 (sfImp Sa Sc) $) (h2: $ nsLocal 0 (sfImp Sc Sa) $):
+  $ nsLocal 0 (sfImp (sfImp E (sfIff q Sc)) (sfImp E (sfIff q Sa))) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II
+  (ax_mp (ax_mp sfLocal_and (pcrq_pt_l hE hq hSc h2)) (pcrq_pt_r hE hq hSa hSc h1))));
+
+-- The two relativized matrices.
+theorem pcrq_ea (a: nat):
+  $ sfCLSetRel 2 (sfRename sfPieceDefinableRecipeMap 0 (sfAll a)) =
+    sfAll (sfImp (sfMem 0 (suc 2)) (sfCLSetRel (suc 2) (sfRename sfPieceDefinableRecipeMap 1 a))) $ =
+'(eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfAll))) sfCLSetRel_sfAll);
+
+theorem pcrq_ec (a: nat):
+  $ sfCLSetRel 2 (sfRename sfPieceDefinableRecipeMap 0 (sfImp (sfEx (sfImp a sfBot)) sfBot)) =
+    sfImp (sfEx (sfAnd (sfMem 0 (suc 2))
+      (sfImp (sfCLSetRel (suc 2) (sfRename sfPieceDefinableRecipeMap 1 a)) sfBot))) sfBot $ =
+'(eqtr (trud (sfCLSetRel_formula_congr (a1i eqid)
+    (a1i (eqtr sfRename_sfImp (sfImpeq
+      (eqtr sfRename_sfEx (sfExeq (eqtr sfRename_sfImp (sfImpeq eqid sfRename_bot))))
+      sfRename_bot)))))
+  (eqtr sfCLSetRel_sfImp (sfImpeq
+    (eqtr sfCLSetRel_sfEx (sfExeq (sfAndeq eqid (eqtr sfCLSetRel_sfImp (sfImpeq eqid sfCLSetRel_bot)))))
+    sfCLSetRel_bot)));
+
+theorem pcrq_point_imp (n a: nat):
+  $ nsLocal 0 (sfImp (sfPieceDefinableRecipePoint n (sfImp (sfEx (sfImp a sfBot)) sfBot))
+      (sfPieceDefinableRecipePoint n (sfAll a))) $ =
+'(ax_mp nsLocal_II
+  (ax_mp (sfLocal_all_from_pure_imp
+      (pcrq_cwf sfContextWf_nil
+        (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfPieceEnv_wf)
+          (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) sfCLSetRel_wf))
+            (ax_mp (ax_mp sfWf_imp sfCLSetRel_wf) sfWf_mem)))))
+      (pcrq_point sfPieceEnv_wf sfWf_mem sfCLSetRel_wf sfCLSetRel_wf
+        (sfRQ_rewrite (sfImpeq (eqcom pcrq_ea) (eqcom pcrq_ec))
+          (sfPieceRepAllEquiv_forward sfWf_mem sfCLSetRel_wf))
+        (sfRQ_rewrite (sfImpeq (eqcom pcrq_ec) (eqcom pcrq_ea))
+          (sfPieceRepAllEquiv_backward sfWf_mem sfCLSetRel_wf))))
+    (pcrq_hd sfContextWf_nil
+      (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfPieceEnv_wf)
+        (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) sfCLSetRel_wf))
+          (ax_mp (ax_mp sfWf_imp sfCLSetRel_wf) sfWf_mem)))))));
+
+theorem pcrq_recipe_imp (n a: nat):
+  $ nsLocal 0 (sfImp (sfPieceDefinableRecipe n (sfImp (sfEx (sfImp a sfBot)) sfBot))
+      (sfPieceDefinableRecipe n (sfAll a))) $ =
+'(ax_mp (ax_mp nsLocal_mp
+  (sfPieceDefinableDn_apply_pure
+    (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfPieceEnv_wf)
+      (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) sfCLSetRel_wf))
+        (ax_mp (ax_mp sfWf_imp sfCLSetRel_wf) sfWf_mem))))
+    (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfPieceEnv_wf)
+      (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) sfCLSetRel_wf))
+        (ax_mp (ax_mp sfWf_imp sfCLSetRel_wf) sfWf_mem))))))
+  (ax_mp sfPieceDefinableDn_intro pcrq_point_imp));
+
+theorem pcrq_named01 (n a: nat) (hb: $ sfBound (suc n) a $):
+  $ nsLocal 0 (sfImp (sfPieceDefinableNamed n (sfImp (sfEx (sfImp a sfBot)) sfBot) 0 1)
+      (sfPieceDefinableNamed n (sfAll a) 0 1)) $ =
+'(sfRQ_rewrite
+  (sfImpeq
+    (eqcom (sfPieceRepCase_named01
+      (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEx (mpbir sfBound_sfImp (ian hb sfBound_bot))) sfBound_bot))))
+    (eqcom (sfPieceRepCase_named01 (mpbir sfBound_sfAll hb))))
+  pcrq_recipe_imp);
+
+pub theorem sfPieceRepAllEquiv_rule (G n a w A: nat)
+  (hg: $ sfContextWf G $) (hb: $ sfBound (suc n) a $)
+  (h: $ nsLocal G (sfPieceDefinableNamed n (sfImp (sfEx (sfImp a sfBot)) sfBot) w A) $):
+  $ nsLocal G (sfPieceDefinableNamed n (sfAll a) w A) $ =
+'(ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp (ax_mp nsLocal_weaken hg) all0)
+    (sfRQ_rewrite
+      (eqtr sfRename_sfImp (sfImpeq
+        (eqtr (sfPieceDefinableNamed_rename
+            (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEx (mpbir sfBound_sfImp (ian hb sfBound_bot))) sfBound_bot)))
+          (sfPieceDefinableNamed_congr
+            (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEx (mpbir sfBound_sfImp (ian hb sfBound_bot))) sfBound_bot))
+            (eqtr sfRenameIndex_zero sqEnvCons_zero)
+            (eqtr sfRenameIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero))))
+        (eqtr (sfPieceDefinableNamed_rename (mpbir sfBound_sfAll hb))
+          (sfPieceDefinableNamed_congr (mpbir sfBound_sfAll hb)
+            (eqtr sfRenameIndex_zero sqEnvCons_zero)
+            (eqtr sfRenameIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero))))))
+      (mpbi (nsLocal_context_eq sfContextRename_nil)
+        (ax_mp (! sfSepLocal_rename $ sqEnvCons w (sqEnvCons A sfIdentityMap) $ $ 0 $ $ 0 $ _)
+          (pcrq_named01 hb)))))) h);
+
+pub theorem sfPieceRepAllEquiv_witness (G A C n a: nat)
+  (hg: $ sfContextWf G $) (hb: $ sfBound (suc n) a $)
+  (hw: $ nsLocal G (sfPieceDefinableWitness A C n (sfImp (sfEx (sfImp a sfBot)) sfBot)) $):
+  $ nsLocal G (sfPieceDefinableWitness A C n (sfAll a)) $ =
+'(ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+  (sfRQ_rewrite (sfPieceDefinableNamed_witness_eq
+      (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEx (mpbir sfBound_sfImp (ian hb sfBound_bot))) sfBound_bot)))
+    hw))
+  (sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfAll hb)))
+    (sfPieceDefinableWitness_intro (mpbir sfBound_sfAll hb)
+      (ax_mp nsLocal_CE1 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf)))
+      (sfPieceRepAllEquiv_rule (sfPieceRepCase_ctx (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf)) hb
+        (ax_mp nsLocal_CE2 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf)))))));

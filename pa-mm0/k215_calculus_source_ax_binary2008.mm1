@@ -1,0 +1,37 @@
+import "k215_calculus_source_ax_unpair2008.mm1";
+import "k215_calculus_source_ax_pair2019.mm1";
+import "k218_codes.mm1";
+
+theorem k215BinaryUnpairInAt2008 (u t w c a b v: nat): $ (k215UnpairAt2008State k215PNum2008 0 0 w (k215PVector u t w c a b 0 0 v)) = (k215PState k215PNum2008 (k215PVector u t w c a b 0 0 v)) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+theorem k215BinaryUnpairOutAt2008 (u t w c a b v: nat): $ (k215UnpairAt2008State k215PNum2016 (fst w) (snd w) 0 (k215PVector u t w c a b 0 0 v)) = (k215PState k215PNum2016 (k215PVector u t 0 c a b (fst w) (snd w) v)) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+theorem k215BinaryUnpairAt2008 (u t w c a b v: nat):
+ $ k215PReach (k215PState k215PNum2008 (k215PVector u t w c a b 0 0 v)) (k215PState k215PNum2016 (k215PVector u t 0 c a b (fst w) (snd w) v)) $ =
+ '(mpbi (k215PReacheq k215BinaryUnpairInAt2008 k215BinaryUnpairOutAt2008) k215UnpairMacro2008_clean);
+
+theorem k215BinaryRestoreStackAt2008 (u t w c a b v: nat):
+ $ k215PReach (k215PState k215PNum2016 (k215PVector u t 0 c a b (fst w) (snd w) v)) (k215PState k215PNum2019 (k215PVector u t (snd w) c a b (fst w) 0 v)) $ =
+ '(k215PReach_intro (eqtr k215Loop2016Vector (k215PStateeq2 (k215PVectoreq3 add0))));
+
+theorem k215BinaryPairInAt2008 (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215PairAt2019State k215PNum2019 a6 a1 a7 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = (k215PState k215PNum2019 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+theorem k215BinaryPairOutAt2008 (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215PairAt2019State k215PNum2029 0 0 (a7 + (a6, a1)) (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = (k215PState k215PNum2029 (k215PVector a0 0 a2 a3 a4 a5 0 (a7 + (a6, a1)) a8)) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+theorem k215BinaryPairAt2008 (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat):
+ $ k215PReach (k215PState k215PNum2019 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) (k215PState k215PNum2029 (k215PVector a0 0 a2 a3 a4 a5 0 (a7 + (a6, a1)) a8)) $ =
+ '(mpbi (k215PReacheq k215BinaryPairInAt2008 k215BinaryPairOutAt2008) k215PairMacro2019);
+
+theorem k215BinaryPairCleanAt2008 (u t w c a b v: nat):
+ $ k215PReach (k215PState k215PNum2019 (k215PVector u t (snd w) c a b (fst w) 0 v)) (k215PState k215PNum2029 (k215PVector u 0 (snd w) c a b 0 (fst w, t) v)) $ =
+ '(mpbi (k215PReacheq2 (k215PStateeq2 (k215PVectoreq8 add01))) k215BinaryPairAt2008);
+theorem k215BinaryFourAt2008 (u t w c a b v: nat):
+ $ k215PReach (k215PState k215PNum2029 (k215PVector u 0 (snd w) c a b 0 (fst w, t) v)) (k215PState k215PNum2035 (k215PVector u (4 * (fst w, t)) (snd w) c a b 0 0 v)) $ =
+ '(k215PReach_intro (eqtr k215Loop2029Vector (k215PStateeq2 (k215PVectoreq2 add0))));
+
+theorem k215BinaryTagAllAt2008 (u t w c a b v: nat):
+ $ k215PReach (k215PState k215PNum2035 (k215PVector u (4 * (fst w, t)) (snd w) c a b 0 0 v)) (k215PState k215PNum2035 (k215PVector u (kImp (fst w) t) (snd w) c a b 0 0 v)) $ = 'k215PReach_refl;
+
+pub theorem k215BinaryConstructor2008 (u t w c a b v: nat):
+ $ k215PReach (k215PState k215PNum2008 (k215PVector u t w c a b 0 0 v)) (k215PState k215PNum2035 (k215PVector u (kImp (fst w) t) (snd w) c a b 0 0 v)) $ = '(ax_mp (ax_mp k215PReach_trans k215BinaryUnpairAt2008) (ax_mp (ax_mp k215PReach_trans k215BinaryRestoreStackAt2008) (ax_mp (ax_mp k215PReach_trans k215BinaryPairCleanAt2008) (ax_mp (ax_mp k215PReach_trans k215BinaryFourAt2008) k215BinaryTagAllAt2008))));
+

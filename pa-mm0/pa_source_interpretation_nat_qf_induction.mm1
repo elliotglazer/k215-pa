@@ -1,0 +1,55 @@
+import "pa_source_interpretation_nat_qf_syntax.mm1";
+
+@_ abstract def paNatQFFalseClosed (P: set) (.n: nat): wff = $ A. n (n, paFormulaFalse) e. P $;
+
+@_ abstract def paNatQFEqualClosed (P: set) (.n .a .b: nat): wff = $ A. n A. a A. b (paTermBound n a /\ paTermBound n b -> (n, paFormulaEqual a b) e. P) $;
+
+@_ abstract def paNatQFBinaryClosed (P: set) (.n .a .b: nat): wff = $ A. n A. a A. b ((n, a) e. P /\ (n, b) e. P -> (n, paFormulaAnd a b) e. P /\ (n, paFormulaOr a b) e. P /\ (n, paFormulaImp a b) e. P) $;
+
+@_ abstract def paNatQFConstructionClosed (P: set): wff = $ paNatQFFalseClosed P /\ paNatQFEqualClosed P /\ paNatQFBinaryClosed P $;
+
+theorem paQFI_false_at (P: set) (n: nat): $ paNatQFFalseClosed P -> (n, paFormulaFalse) e. P $ = (named '(!! eale m ,eqtac));
+
+theorem paQFI_equal_at (P: set) (n a b: nat): $ paNatQFEqualClosed P -> paTermBound n a /\ paTermBound n b -> (n, paFormulaEqual a b) e. P $ = (named '(!! ealie m @ !! ealde x @ !! ealde y @ bi1d ,eqtac));
+
+theorem paQFI_binary_at (P: set) (n a b: nat): $ paNatQFBinaryClosed P -> (n, a) e. P /\ (n, b) e. P -> (n, paFormulaAnd a b) e. P /\ (n, paFormulaOr a b) e. P /\ (n, paFormulaImp a b) e. P $ = (named '(!! ealie m @ !! ealde x @ !! ealde y @ bi1d ,eqtac));
+
+theorem paQFI_rebuild (c: nat): $ sfNode (sfTag c) (sfLeft c) (sfRight c) = c $ = (named '(eqtr (addeq1 (muleq2 fstsnd)) divmod));
+
+theorem paQFI_rebuild_tag (G: wff) (c t: nat) (ht: $ G -> sfTag c = t $): $ G -> c = sfNode t (sfLeft c) (sfRight c) $ = (named '(eqtrd (a1i (eqcom paQFI_rebuild)) (addeq2d ht)));
+
+theorem paQFI_rebuild_quantifier (G: wff) (c t: nat) (ht: $ G -> sfTag c = t $) (hz: $ G -> sfRight c = 0 $): $ G -> c = sfNode t (sfLeft c) 0 $ = (named '(eqtrd (paQFI_rebuild_tag ht) (addeq1d (muleq2d (preq2d hz)))));
+
+theorem paQFI_transport (P: set) (G: wff) (n a b: nat) (he: $ G -> a = b $) (hp: $ G -> (n, b) e. P $): $ G -> (n, a) e. P $ = (named '(mpbird (eleq1d (preq2d he)) hp));
+
+theorem paQFI_ind_at (P: set) (c a: nat): $ A. j (j < c -> A. m (paNatQFBound m j -> (m, j) e. P)) -> a < c -> A. m (paNatQFBound m a -> (m, a) e. P) $ = (named '(!! eale j ,eqtac));
+
+theorem paQFI_bound_at (P: set) (n a: nat): $ A. m (paNatQFBound m a -> (m, a) e. P) -> paNatQFBound n a -> (n, a) e. P $ = (named '(!! eale m ,eqtac));
+
+theorem paQFI_child {j m: nat} (P: set) (G: wff j m) (n c a: nat) (hi: $ G -> A. j (j < c -> A. m (paNatQFBound m j -> (m, j) e. P)) $) (ha: $ G -> a < c $): $ G -> paNatQFBound n a -> (n, a) e. P $ = (named '(syl paQFI_bound_at @ mpd ha (syl paQFI_ind_at hi)));
+
+theorem paQFI_history {j m: nat} (P: set) (G: wff j m) (n c a q: nat) (hi: $ G -> A. j (j < c -> A. m (paNatQFBound m j -> (m, j) e. P)) $) (ha: $ G -> a < c $): $ G -> (q, a) e. paNatQFBoundPrevious n c -> (q, a) e. P $ = (named '(syl5 (syl anr (bi1 paNatQFBoundPrevious_value)) (paQFI_child hi ha)));
+
+theorem paQFI_false (P: set) (G: wff) (n c: nat) (hc: $ G -> paNatQFConstructionClosed P $) (hz: $ G -> c = 0 $): $ G -> (n, c) e. P $ = (named '(paQFI_transport hz (syl paQFI_false_at (syl anl (syl anl hc)))));
+
+theorem paQFI_equal (P: set) (G: wff) (n c: nat) (hc: $ G -> paNatQFConstructionClosed P $) (ht: $ G -> sfTag c = 1 $) (ha: $ G -> paTermBound n (sfLeft c) /\ paTermBound n (sfRight c) $): $ G -> (n, c) e. P $ = (named '(paQFI_transport (paQFI_rebuild_tag ht) (mpd ha (syl paQFI_equal_at (syl anr (syl anl hc))))));
+
+theorem paQFI_and (P: set) (G: wff) (n c: nat) (hc: $ G -> paNatQFConstructionClosed P $) (ht: $ G -> sfTag c = 3 $) (hl: $ G -> (n, sfLeft c) e. P $) (hr: $ G -> (n, sfRight c) e. P $): $ G -> (n, c) e. P $ = (named '(paQFI_transport (paQFI_rebuild_tag ht) (syl anl (syl anl (mpd (iand hl hr) (syl paQFI_binary_at (syl anr hc)))))));
+
+theorem paQFI_or (P: set) (G: wff) (n c: nat) (hc: $ G -> paNatQFConstructionClosed P $) (ht: $ G -> sfTag c = 4 $) (hl: $ G -> (n, sfLeft c) e. P $) (hr: $ G -> (n, sfRight c) e. P $): $ G -> (n, c) e. P $ = (named '(paQFI_transport (paQFI_rebuild_tag ht) (syl anr (syl anl (mpd (iand hl hr) (syl paQFI_binary_at (syl anr hc)))))));
+
+theorem paQFI_imp (P: set) (G: wff) (n c: nat) (hc: $ G -> paNatQFConstructionClosed P $) (ht: $ G -> sfTag c = 5 $) (hl: $ G -> (n, sfLeft c) e. P $) (hr: $ G -> (n, sfRight c) e. P $): $ G -> (n, c) e. P $ = (named '(paQFI_transport (paQFI_rebuild_tag ht) (syl anr (mpd (iand hl hr) (syl paQFI_binary_at (syl anr hc))))));
+
+theorem paQFI_left_lt (c: nat): $ 0 < sfTag c -> sfLeft c < c $ = (named '(syl (bi1 (lteq2 paQFI_rebuild)) sfNode_left_lt));
+
+theorem paQFI_right_lt (c: nat): $ 0 < sfTag c -> sfRight c < c $ = (named '(syl (bi1 (lteq2 paQFI_rebuild)) sfNode_right_lt));
+
+theorem paQFI_ifp (G p a b q: wff) (hp: $ G -> p -> a -> q $) (hb: $ G -> b -> q $): $ G -> ifp p a b -> q $ = (named '(eord (impd hp) (syl5 anr hb)));
+
+theorem paQFI_allowed {j m: nat} (P: set) (G: wff j m) (n c: nat) (hc: $ G -> paNatQFConstructionClosed P $) (hi: $ G -> A. j (j < c -> A. m (paNatQFBound m j -> (m, j) e. P)) $): $ G -> paNatQFBoundAllowed n c (paNatQFBoundPrevious n c) -> (n, c) e. P $ = (named '(paQFI_ifp (exp @ exp @ paQFI_false (syl hc anll) anlr) (paQFI_ifp (exp @ exp @ paQFI_equal (syl hc anll) anlr anr) (paQFI_ifp (exp @ exp @ paQFI_and (syl hc anll) anlr (mpd anrl (paQFI_history (syl hi anll) (syl paQFI_left_lt (mpbiri lt01S (lteq2d anlr))))) (mpd anrr (paQFI_history (syl hi anll) (syl paQFI_right_lt (mpbiri lt01S (lteq2d anlr)))))) (paQFI_ifp (exp @ exp @ paQFI_or (syl hc anll) anlr (mpd anrl (paQFI_history (syl hi anll) (syl paQFI_left_lt (mpbiri lt01S (lteq2d anlr))))) (mpd anrr (paQFI_history (syl hi anll) (syl paQFI_right_lt (mpbiri lt01S (lteq2d anlr)))))) (paQFI_ifp (exp @ exp @ paQFI_imp (syl hc anll) anlr (mpd anrl (paQFI_history (syl hi anll) (syl paQFI_left_lt (mpbiri lt01S (lteq2d anlr))))) (mpd anrr (paQFI_history (syl hi anll) (syl paQFI_right_lt (mpbiri lt01S (lteq2d anlr)))))) (a1i (absurdr eqid))))))));
+
+theorem paQFI_bound_rename (P: set) (c: nat): $ A. q (paNatQFBound q c -> (q, c) e. P) <-> A. m (paNatQFBound m c -> (m, c) e. P) $ = (named '(cbval ,eqtac));
+
+theorem paQFI_step {j m: nat} (P: set) (G: wff j m) (c: nat) (hc: $ G -> paNatQFConstructionClosed P $) (hi: $ G -> A. j (j < c -> A. m (paNatQFBound m j -> (m, j) e. P)) $): $ G -> A. m (paNatQFBound m c -> (m, c) e. P) $ = (named '(sylib paQFI_bound_rename @ !! iald q @ syl5bi paNatQFBound_unfold (paQFI_allowed hc hi)));
+
+pub theorem paNatQFBound_induction (P: set) (n c: nat): $ paNatQFConstructionClosed P -> paNatQFBound n c -> (n, c) e. P $ = (named '(syl paQFI_bound_at @ !! indstr j y {,eqtac : $ j = c -> ((A. m (paNatQFBound m j -> (m, j) e. P)) <-> (A. m (paNatQFBound m c -> (m, c) e. P))) $} ,eqtac (paQFI_step anl anr)));

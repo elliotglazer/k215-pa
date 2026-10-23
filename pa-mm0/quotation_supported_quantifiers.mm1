@@ -1,0 +1,183 @@
+import "quotation_supported_environment.mm1";
+import "quotation_source_substitution.mm1";
+
+-- All hypotheses here are object-level arithmetic premises, so these lemmas
+-- can be used inside the numerical proof-trace induction.
+theorem sqSQ_below_at (E: set) (n k i: nat):
+ $ sqEnvBelow E n k -> i < n -> E @ i < k $ =
+(named '(!! eale j ,eqtac));
+theorem sqSQ_alloc_below (k q x: nat): $ x < k -> sqAllocAvoid k q x $ =
+(named '(!! iald i @ a1d @ syl ltne @ ltletrd id (a1i leaddid1)));
+theorem sqSQ_range_below (E: set) (n k q: nat):
+ $ sqEnvBelow E n k -> sqRangeEnvironment E n k q $ =
+(named '(!! iald i @ syl6 sqSQ_alloc_below sqSQ_below_at));
+pub theorem sqQuoteHygiene_from_below (E: set) (n t k c: nat):
+ $ 0 < k -> t < k -> sqEnvBelow E n k -> sqQuoteHygiene E n t k c $ =
+'(exp @ exp @ iand
+ (iand (syl sqSQ_alloc_below anll) (syl sqSQ_range_below anr))
+ (syl sqSQ_alloc_below anlr));
+pub theorem sqEnvironmentSafe_live_below (S n t k: nat):
+ $ sqEnvironmentSafe S n t k -> sqEnvBelow (sqNumericEnvironment S) n k $ =
+(named '(iald sqEnvironmentSafe_index));
+pub theorem sqEnvironmentSafe_hygiene (S n t k c: nat):
+ $ sqEnvironmentSafe S n t k -> sqQuoteHygiene (sqNumericEnvironment S) n t k c $ =
+'(mpd sqEnvironmentSafe_live_below (mpd sqEnvironmentSafe_tag (syl sqQuoteHygiene_from_below sqEnvironmentSafe_positive)));
+
+theorem sqSQ_below_cons_zero (E: set) (n k y: nat):
+ $ y < k -> sqEnvBelow E n k -> 0 < suc n -> sqEnvCons y E @ 0 < k $ =
+'(a1d @ a1d @ mpbird (a1i (lteq1 sqEnvCons_zero)) id);
+theorem sqSQ_below_cons_suc (E: set) (n k y i: nat):
+ $ y < k -> sqEnvBelow E n k -> suc i < suc n -> sqEnvCons y E @ suc i < k $ =
+'(a1i @ syl6 (bi2 (lteq1 sqEnvCons_suc)) @ syl5 (bi2 ltsuc) sqSQ_below_at);
+theorem sqSQ_below_cons_at (E: set) (n k y i: nat):
+ $ y < k -> sqEnvBelow E n k -> i < suc n -> sqEnvCons y E @ i < k $ =
+(named @ induct '(ind) 'i 'sqSQ_below_cons_zero '(a1i sqSQ_below_cons_suc));
+pub theorem sqEnvBelow_cons (E: set) (n k y: nat):
+ $ y < k -> sqEnvBelow E n k -> sqEnvBelow (sqEnvCons y E) (suc n) k $ =
+(named '(exp @ !! iald i @ mpd anr (syl sqSQ_below_cons_at anl)));
+pub theorem sqEnvBelow_successor (E: set) (n k: nat):
+ $ sqEnvBelow E n k -> sqEnvBelow E n (suc k) $ =
+(named '(!! iald i @ syl6 (ltletrd id (a1i lesucid)) sqSQ_below_at));
+
+theorem sqSQ_hyp_transport (G: wff) (H a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> kHypProvable H b $):
+ $ G -> kHypProvable H a $ = '(mpbird (kHypProvableeq2d he) hp);
+theorem sqSQ_prov_transport (G: wff) (a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> kProvable b $):
+ $ G -> kProvable a $ = '(mpbird (kProvableeqd he) hp);
+theorem sqSQ_hyp_mp (G: wff) (H a b: nat)
+ (ha: $ G -> kHypProvable H a $) (hi: $ G -> kHypProvable H (kImp a b) $):
+ $ G -> kHypProvable H b $ = '(sylc kHypProvable_mp ha hi);
+theorem sqSQ_equiv_forward (G: wff) (H a b: nat)
+ (he: $ G -> kEquivalent a b $) (ha: $ G -> kHypProvable H a $):
+ $ G -> kHypProvable H b $ =
+'(sqSQ_hyp_mp ha (syl kHypProvable_seed (syl anl he)));
+theorem sqSQ_equiv_backward (G: wff) (H a b: nat)
+ (he: $ G -> kEquivalent a b $) (hb: $ G -> kHypProvable H b $):
+ $ G -> kHypProvable H a $ =
+'(sqSQ_hyp_mp hb (syl kHypProvable_seed (syl anr he)));
+theorem sqSQ_and_intro (G: wff) (H a b: nat)
+ (ha: $ G -> kHypProvable H a $) (hb: $ G -> kHypProvable H b $):
+ $ G -> kHypProvable H (kAnd a b) $ =
+'(sqSQ_hyp_mp hb (sqSQ_hyp_mp ha (a1i (kHypProvable_seed kPropAndIntro))));
+
+theorem sqSQ_scope_body_absent (G: wff) (E: set) (t k a x: nat)
+ (ha: $ G -> sfWf a $) (hx: $ G -> x < suc k $):
+ $ G -> kBinderAbsent (sqScopeBody E t k a) x $ =
+'(mpd (syl sqSQ_alloc_below hx) (syl sqQuote_allocation_absent_zero ha));
+theorem sqSQ_scope_all_absent (G: wff) (E: set) (t k a x: nat)
+ (ha: $ G -> sfWf a $) (hx: $ G -> x < suc k $):
+ $ G -> kBinderAbsent (sqScopeAll E t k a) x $ =
+'(syl (bi2 kBinderAbsent_kImp) (iand (a1i kBinderAbsent_kMem) (sqSQ_scope_body_absent ha hx)));
+theorem sqSQ_scope_ex_absent (G: wff) (E: set) (t k a x: nat)
+ (ha: $ G -> sfWf a $) (hx: $ G -> x < suc k $):
+ $ G -> kBinderAbsent (sqScopeEx E t k a) x $ =
+'(mpd (sqSQ_scope_body_absent ha hx) (a1i (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem)));
+theorem sqSQ_subst_domain (G: wff) (t k y: nat) (ht: $ G -> k != t $):
+ $ G -> kSubst (kMem t k) k y = kMem t y $ =
+'(eqtrd (a1i kSubst_kMem) (kMemeqd (syl kReplace_miss (syl necom ht)) (a1i kReplace_hit)));
+theorem sqSQ_subst_body (G: wff) (E: set) (n t k y a: nat)
+ (hz: $ G -> k != 0 $) (ht: $ G -> k != t $)
+ (he: $ G -> sqEnvAvoid E n k $) (ha: $ G -> sfBound (suc n) a $):
+ $ G -> kSubst (sqScopeBody E t k a) k y = sqQuote (sqEnvCons y E) t (suc k) 0 a $ =
+'(mpd ha (mpd he (mpd ht (syl sqQuote_substitution_cons_when hz))));
+theorem sqSQ_subst_all (G: wff) (E: set) (n t k y a: nat)
+ (hz: $ G -> k != 0 $) (ht: $ G -> k != t $)
+ (he: $ G -> sqEnvAvoid E n k $) (ha: $ G -> sfBound (suc n) a $):
+ $ G -> kSubst (sqScopeAll E t k a) k y = kImp (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a) $ =
+'(eqtrd (a1i kSubst_kImp) (kImpeqd (sqSQ_subst_domain ht) (sqSQ_subst_body hz ht he ha)));
+theorem sqSQ_subst_ex (G: wff) (E: set) (n t k y a: nat)
+ (hz: $ G -> k != 0 $) (ht: $ G -> k != t $)
+ (he: $ G -> sqEnvAvoid E n k $) (ha: $ G -> sfBound (suc n) a $):
+ $ G -> kSubst (sqScopeEx E t k a) k y = kAnd (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a) $ =
+'(eqtrd (syl qsSubst_kAnd_when hz) (kAndeqd (sqSQ_subst_domain ht) (sqSQ_subst_body hz ht he ha)));
+
+theorem sqSQ_allE_scoped (G: wff) (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ G -> k != 0 $) (ht: $ G -> k != t $) (hy: $ G -> y < k $)
+ (he: $ G -> sqEnvAvoid E n k $) (ha: $ G -> sfBound (suc n) a $)
+ (hp: $ G -> kHypProvable H (sqQuote E t k 0 (sfAll a)) $)
+ (hd: $ G -> kHypProvable H (kMem t y) $):
+ $ G -> kHypProvable H (sqQuote (sqEnvCons y E) t (suc k) 0 a) $ =
+'(sqSQ_hyp_mp hd @ sqSQ_hyp_mp hp @ syl kHypProvable_seed @
+ sqSQ_prov_transport
+ (kImpeqd (syl sqQuote_all_cons (syl sfBound_wf ha)) (eqcomd (sqSQ_subst_all hz ht he ha)))
+ (mpd (sqSQ_scope_all_absent (syl sfBound_wf ha) (ltletrd hy (a1i lesucid)))
+  (mpd (sqSQ_scope_all_absent (syl sfBound_wf ha) (a1i ltsucid))
+    (syl kNamed_specialization (syl ltner hy)))));
+theorem sqSQ_exI_scoped (G: wff) (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ G -> k != 0 $) (ht: $ G -> k != t $) (hy: $ G -> y < k $)
+ (he: $ G -> sqEnvAvoid E n k $) (ha: $ G -> sfBound (suc n) a $)
+ (hp: $ G -> kHypProvable H (sqQuote (sqEnvCons y E) t (suc k) 0 a) $)
+ (hd: $ G -> kHypProvable H (kMem t y) $):
+ $ G -> kHypProvable H (sqQuote E t k 0 (sfEx a)) $ =
+'(sqSQ_hyp_mp (sqSQ_and_intro hd hp) @ syl kHypProvable_seed @
+ sqSQ_prov_transport
+ (kImpeqd (eqcomd (sqSQ_subst_ex hz ht he ha)) (syl sqQuote_ex_cons (syl sfBound_wf ha)))
+ (mpd (sqSQ_scope_ex_absent (syl sfBound_wf ha) (ltletrd hy (a1i lesucid)))
+  (mpd (sqSQ_scope_ex_absent (syl sfBound_wf ha) (a1i ltsucid))
+    (syl kNamed_exists_intro (syl ltner hy)))));
+
+theorem sqSQ_hygiene_use (G: wff) (E: set) (n t k c: nat)
+ (hk: $ G -> 0 < k $) (ht: $ G -> t < k $) (he: $ G -> sqEnvBelow E n k $):
+ $ G -> sqQuoteHygiene E n t k c $ =
+'(mpd he (mpd ht (syl sqQuoteHygiene_from_below hk)));
+theorem sqSQ_child_rebase (G: wff) (E: set) (n t k y a: nat)
+ (hk: $ G -> 0 < k $) (ht: $ G -> t < k $) (hy: $ G -> y < k $)
+ (he: $ G -> sqEnvBelow E n k $) (ha: $ G -> sfBound (suc n) a $):
+ $ G -> kEquivalent (sqQuote (sqEnvCons y E) t k 0 a)
+                       (sqQuote (sqEnvCons y E) t (suc k) 0 a) $ =
+'(mpd (sqSQ_hygiene_use (a1i lt01S) (ltletrd ht (a1i lesucid))
+  (syl sqEnvBelow_successor (mpd he (syl sqEnvBelow_cons hy)))) @
+ mpd (sqSQ_hygiene_use hk ht (mpd he (syl sqEnvBelow_cons hy))) @
+ syl sqQuote_fresh_base_equivalent ha);
+theorem sqSQ_allE_rebased (G: wff) (H: nat) (E: set) (n t k i a: nat)
+ (hk: $ G -> 0 < k $) (ht: $ G -> t < k $)
+ (he: $ G -> sqEnvBelow E n k $) (hi: $ G -> i < n $)
+ (ha: $ G -> sfBound (suc n) a $)
+ (hp: $ G -> kHypProvable H (sqQuote E t k 0 (sfAll a)) $)
+ (hd: $ G -> kHypProvable H (kMem t (E @ i)) $):
+ $ G -> kHypProvable H (sqQuote E t k 0 (sfSubst 0 i a)) $ =
+'(sqSQ_hyp_transport (syl sqQuote_source_substitution (syl sfBound_wf ha)) @
+ sqSQ_equiv_backward
+ (sqSQ_child_rebase hk ht (mpd hi (syl sqSQ_below_at he)) he ha)
+ (sqSQ_allE_scoped (syl (bi1 lt01) hk) (syl ltner ht)
+  (mpd hi (syl sqSQ_below_at he)) (syl sqEnvBelow_avoid he) ha hp hd));
+theorem sqSQ_exI_rebased (G: wff) (H: nat) (E: set) (n t k i a: nat)
+ (hk: $ G -> 0 < k $) (ht: $ G -> t < k $)
+ (he: $ G -> sqEnvBelow E n k $) (hi: $ G -> i < n $)
+ (ha: $ G -> sfBound (suc n) a $)
+ (hp: $ G -> kHypProvable H (sqQuote E t k 0 (sfSubst 0 i a)) $)
+ (hd: $ G -> kHypProvable H (kMem t (E @ i)) $):
+ $ G -> kHypProvable H (sqQuote E t k 0 (sfEx a)) $ =
+'(sqSQ_exI_scoped (syl (bi1 lt01) hk) (syl ltner ht)
+  (mpd hi (syl sqSQ_below_at he)) (syl sqEnvBelow_avoid he) ha
+ (sqSQ_equiv_forward
+  (sqSQ_child_rebase hk ht (mpd hi (syl sqSQ_below_at he)) he ha)
+  (sqSQ_hyp_transport (eqcomd (syl sqQuote_source_substitution (syl sfBound_wf ha))) hp)) hd);
+
+pub theorem sqSupported_AllE (H S n t k i a: nat):
+ $ sqEnvironmentSafe S n t k -> sqDomainSupport H S t -> i < n -> sfBound (suc n) a ->
+ kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfAll a)) ->
+ kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfSubst 0 i a)) $ =
+'(exp @ exp @ exp @ exp @
+ sqSQ_allE_rebased
+ (syl sqEnvironmentSafe_positive (syl anl (syl anl (syl anl anl))))
+ (syl sqEnvironmentSafe_tag (syl anl (syl anl (syl anl anl))))
+ (syl sqEnvironmentSafe_live_below (syl anl (syl anl (syl anl anl))))
+ (syl anr (syl anl anl)) (syl anr anl) anr
+ (mpd (ltletrd (syl anr (syl anl anl))
+   (syl sqEnvironmentSafe_length (syl anl (syl anl (syl anl anl)))))
+  (syl sqDomainSupport_at (syl anr (syl anl (syl anl anl))))));
+pub theorem sqSupported_ExI (H S n t k i a: nat):
+ $ sqEnvironmentSafe S n t k -> sqDomainSupport H S t -> i < n -> sfBound (suc n) a ->
+ kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfSubst 0 i a)) ->
+ kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfEx a)) $ =
+'(exp @ exp @ exp @ exp @
+ sqSQ_exI_rebased
+ (syl sqEnvironmentSafe_positive (syl anl (syl anl (syl anl anl))))
+ (syl sqEnvironmentSafe_tag (syl anl (syl anl (syl anl anl))))
+ (syl sqEnvironmentSafe_live_below (syl anl (syl anl (syl anl anl))))
+ (syl anr (syl anl anl)) (syl anr anl) anr
+ (mpd (ltletrd (syl anr (syl anl anl))
+   (syl sqEnvironmentSafe_length (syl anl (syl anl (syl anl anl)))))
+  (syl sqDomainSupport_at (syl anr (syl anl (syl anl anl))))));

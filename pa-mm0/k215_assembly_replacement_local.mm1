@@ -1,0 +1,113 @@
+import "source_l_replacement_definable_context.mm1";
+import "source_l_replacement_producer_schema.mm1";
+
+-- Context C = Law : sfLReplacementProducerContext n phi. The member extractions and the
+-- in-context derivation replay lrps_* (source_l_replacement_producer_schema), the body of
+-- sfLReplacement_schema_from_actual_seed and of sfLReplacement_schema_from_parameter_witness,
+-- stopping before the final cut so that the cut can be taken as an implication.
+
+theorem k215arl_hypD (n phi: nat)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+     sfLReplacementProducerContext n phi)
+   (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) sfContext_member_head);
+
+theorem k215arl_hypE (n phi: nat)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+     sfLReplacementProducerContext n phi) sfLReplacementLevelExtension $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem k215arl_hypA (n phi: nat)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+     sfLReplacementProducerContext n phi)
+   (sfLReplacementAboveLaw (suc (suc n)) (sfLReplacementPsi phi)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg)
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem k215arl_hypL (n phi: nat)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+     sfLReplacementProducerContext n phi) sfLReplacementLevelExistsLaw $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg)
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+     (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem k215arl_hypS (n phi: nat)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+     sfLReplacementProducerContext n phi)
+   (sfReflectionHierarchySubsetNormal sfCLHierarchy) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg)
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+     (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem k215arl_hypR (n phi: nat)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+     sfLReplacementProducerContext n phi)
+   (sfAllPrefix n (sfLReplacementSeedProducerFormula phi)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg)
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+     (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+       (ax_mp sfContext_member_tail sfContext_member_head))))));
+
+pub theorem k215AssemblyRep_local_in_context (n phi: nat)
+ (hb: $ sfBound (suc (suc n)) phi $)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+     sfLReplacementProducerContext n phi)
+   (sfRelativize sfLDomain (zfcReplacementCode phi n)) $ =
+ '(sfRQ_rewrite (eqcom sfRelativize_prefix)
+   (sfLSeparationImage_guard_prefix sfLDomain_wf hg
+    (sfLReplacement_open_in_context
+      (sfLSeparationImageParameterContext_wf sfLDomain_wf hg)
+      (ax_mp sfBound_wf hb)
+      (sfLReplacementWitness_from_seed_output hb
+        (lrps_into_input (ax_mp sfShift_closed_identity sfLReplacementLevelExtension_bound)
+          (k215arl_hypE hg))
+        (lrps_into_input (ax_mp sfShift_closed_identity
+          (sfLReplacementAboveLaw_bound (ax_mp sfLReplacementPsi_bound hb))) (k215arl_hypA hg))
+        (lrps_into_input (ax_mp sfShift_closed_identity sfLReplacementLevelExists_bound)
+          (k215arl_hypL hg))
+        (lrps_into_input (rfmc_subnormal_shift sfCLHierarchy_bound) (k215arl_hypS hg))
+        (sfLReplacement_parameter_inputs hg)
+        (sfLReplacementSeedOutput_from_range (ax_mp sfBound_wf hb)
+          (sfLReplacementSeedProducer_use
+            (sfLReplacementPrefix_open sfLDomain_wf (k215arl_hypR hg))))
+        (sfLReplacementDefinableLaw_to_callback hb (k215arl_hypD hg))))));
+
+-- Cut the context as an implication: sfTheory_lemma_context is
+-- all (proof class) G -> nsLocal G a -> provable a.
+pub theorem k215AssemblyRep_local (n phi: nat)
+ (hb: $ sfBound (suc (suc n)) phi $)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) ->
+   all (sfTheoryProofClass zfrAxioms) (sfLReplacementProducerContext n phi) ->
+   sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $ =
+ '(exp (syl (mpi (k215AssemblyRep_local_in_context hb hg)
+               (sfTheory_lemma_context zfrAxioms_closed))
+         (syl (bi2i sfTheoryContext_cons) (ax_mp anim1 (bi2i sfTheoryProofClass_value)))));
+
+-- Weak deduction helpers for the bound (used by k215_assembly_replacement_family).
+pub theorem k215AssemblyRep_if_bound (n phi: nat):
+ $ sfBound (suc (suc n)) (if (sfBound (suc (suc n)) phi) phi sfBot) $ =
+ '(trud @ ifbothd sfBoundeq2 sfBoundeq2 anr (a1i sfBound_bot));
+
+pub theorem k215AssemblyRep_transport (x phi n: nat):
+ $ x = phi ->
+   ((sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi x)) ->
+     sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode x n))) <->
+    (sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) ->
+     sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)))) $ =
+ (named ',eqtac);

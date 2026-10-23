@@ -1,0 +1,69 @@
+import "source_context_shift.mm0";
+
+def sfCLSetRelBody (d c h: nat): nat =
+$ if (c = 0) 0
+  (if (sfTag c = 1) (sfMem (sfLeft c) (sfRight c))
+  (if (sfTag c = 2) (sfEq (sfLeft c) (sfRight c))
+  (if (sfTag c = 3) (sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (sfAll (sfImp (sfMem 0 (suc d)) (h @ (suc d, sfLeft c))))
+  (if (sfTag c = 7 /\ sfRight c = 0) (sfEx (sfAnd (sfMem 0 (suc d)) (h @ (suc d, sfLeft c)))) 0))))))) $;
+
+def sfCLSetRelStep (.h: nat): set =
+$ \ h, sfCLSetRelBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+def sfCLSetRel (d c: nat): nat = $ srec sfCLSetRelStep (d, c) $;
+
+def sfCLSetRelHistory (d c .i: nat): nat =
+$ \. i e. upto (d, c), srec sfCLSetRelStep i $;
+
+theorem sfCLSetRelStep_apply (h: nat):
+  $ sfCLSetRelStep @ h = sfCLSetRelBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+theorem sfCLSetRelHistory_size (d c: nat): $ sfHistoryLength (sfCLSetRelHistory d c) = (d, c) $;
+
+theorem sfCLSetRelHistory_lookup (d c e a: nat):
+  $ (e, a) < (d, c) -> sfCLSetRelHistory d c @ (e, a) = sfCLSetRel e a $;
+
+theorem sfCLSetRel_unfold (d c: nat):
+  $ sfCLSetRel d c = sfCLSetRelBody d c (sfCLSetRelHistory d c) $;
+
+theorem sfCLSetRel_bot (d: nat):
+  $ sfCLSetRel d sfBot = sfBot $;
+
+theorem sfCLSetRel_sfMem (d a b: nat):
+  $ sfCLSetRel d (sfMem a b) = sfMem (a) (b) $;
+
+theorem sfCLSetRel_sfEq (d a b: nat):
+  $ sfCLSetRel d (sfEq a b) = sfEq (a) (b) $;
+
+theorem sfCLSetRel_sfAnd (d a b: nat):
+  $ sfCLSetRel d (sfAnd a b) = sfAnd (sfCLSetRel d a) (sfCLSetRel d b) $;
+
+theorem sfCLSetRel_sfOr (d a b: nat):
+  $ sfCLSetRel d (sfOr a b) = sfOr (sfCLSetRel d a) (sfCLSetRel d b) $;
+
+theorem sfCLSetRel_sfImp (d a b: nat):
+  $ sfCLSetRel d (sfImp a b) = sfImp (sfCLSetRel d a) (sfCLSetRel d b) $;
+
+theorem sfCLSetRel_sfAll (d a: nat):
+  $ sfCLSetRel d (sfAll a) = sfAll (sfImp (sfMem 0 (suc d)) (sfCLSetRel (suc d) a)) $;
+
+theorem sfCLSetRel_sfEx (d a: nat):
+  $ sfCLSetRel d (sfEx a) = sfEx (sfAnd (sfMem 0 (suc d)) (sfCLSetRel (suc d) a)) $;
+
+theorem sfCLSetRel_tag0 (d c: nat):
+  $ sfTag c = 0 -> sfCLSetRel d c = 0 $;
+
+theorem sfCLSetRel_bad_all (d c: nat):
+  $ sfTag c = 6 -> sfRight c != 0 -> sfCLSetRel d c = 0 $;
+
+theorem sfCLSetRel_bad_ex (d c: nat):
+  $ sfTag c = 7 -> sfRight c != 0 -> sfCLSetRel d c = 0 $;
+
+theorem sfCLSetRel_formula_congr (H: wff) (d e a b: nat)
+  (hd: $ H -> d = e $) (ha: $ H -> a = b $):
+  $ H -> sfCLSetRel d a = sfCLSetRel e b $;
+
+theorem sfCLSetRel_wf (d c: nat): $ sfWf (sfCLSetRel d c) $;

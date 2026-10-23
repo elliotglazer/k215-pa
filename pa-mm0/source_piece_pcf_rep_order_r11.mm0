@@ -1,0 +1,26 @@
+import "source_piece_pcf_rep_unique_r10.mm0";
+
+def sfPieceRepSuccessorLiftLaw:nat = $ (sfAll (sfAll (sfAll (sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfOr (sfMem 0 2) (sfEq 0 2)) (sfMem 0 1)))))) $;
+
+theorem sfPieceNumeral_count_eq(k l x:nat):
+ $ k = l -> sfPieceNumeral k x = sfPieceNumeral l x $;
+
+def sfPieceNumeralLtGood(l .G .k .x .y:nat):wff = $ A. G A. k A. x A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+def pcrlGoodAt1(l G .k .x .y:nat):wff = $ A. k A. x A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+def pcrlGoodAt2(l G k .x .y:nat):wff = $ A. x A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+def pcrlGoodAt3(l G k x .y:nat):wff = $ A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+def pcrlGoodAt4(l G k x y:nat):wff = $ ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+def pcrlBody(l y:nat):nat = $ sfAnd (sfPieceNumeral l 0) (sfPieceRepSuccessor 0 (suc y)) $;
+
+def pcrlContext(G l y:nat):nat = $ pcrlBody l y : sfContextShift G $;
+
+theorem sfPieceNumeral_lt_induction(l:nat):
+ $ sfPieceNumeralLtGood l $;
+
+theorem sfPieceNumeral_lt_from_laws(G k l x y:nat)(he:$ nsLocal G sfPieceRepEmptyUniqueLaw $)(hu:$ nsLocal G sfPieceRepSuccessorUniqueLaw $)(hs:$ nsLocal G sfPieceRepSuccessorLiftLaw $)(hl:$ k < l $)(hx:$ nsLocal G (sfPieceNumeral k x) $)(hy:$ nsLocal G (sfPieceNumeral l y) $):
+ $ (nsLocal G (sfMem x y)) $;

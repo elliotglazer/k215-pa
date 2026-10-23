@@ -1,0 +1,212 @@
+import "k215_literal_symbolic_base.mm1";
+
+@_ def k215SymC (v r: nat): nat = $ k215TmPush 1 (k215TmPush 0 (k215TmRepeat 1 v r)) $;
+@_ def k215SymRB (v r: nat): nat = $ k215TmRepeat 1 (suc v) (k215TmPush 0 r) $;
+@_ def k215SymRC (v r: nat): nat = $ k215TmRepeat 1 v (k215TmPush 0 (k215TmPush 1 r)) $;
+
+do (apply (register-eqd 'k215SymC) '(k215SymCeqd));
+do (apply (register-eqd 'k215SymRB) '(k215SymRBeqd));
+do (apply (register-eqd 'k215SymRC) '(k215SymRCeqd));
+
+theorem k215Block0H0 (l: nat): $ (k215TmRepeat 0 1 l) = (k215TmRepeat 0 1 l) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block0H1 (a0 r: nat): $ (k215TmRepeat 1 (suc (a0 + 0)) r) = (k215TmRepeat 1 (suc (a0 + 0)) r) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block0H2 (a0 r: nat): $ (k215TmRepeat 0 0 (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TmRepeat 1 (suc (a0 + 0)) r) $ = '(eqtr (k215TmRepeateq3 k215Block0H1) k215TmRepeat_zero);
+
+theorem k215Block0H3 (a0 l r: nat): $ (k215TMState k215Num74 (k215TmRepeat 0 1 l) (k215TmRepeat 0 0 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TMState k215Num74 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TMStateeq eqid k215Block0H0 k215Block0H2);
+
+theorem k215Block0H4 (a0 l r: nat): $ k215TMStep (k215TMState k215Num64 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TMState k215Num74 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(eqtr (k215TMStepeq eqid) (eqtr (eqtr (eqtr (k215TMStepeq (k215TMStateeq3 k215TmRepeat_succ)) (ax_mp k215TmStep_right (ian (ian k215TMTarget_le65 le01) k215SA_64_0))) (k215TMStateeq2 (eqcom k215Sym_bit))) k215Block0H3));
+
+theorem k215Block0H5 (a0 l r: nat): $ k215TMReach (k215TMState k215Num64 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) (k215TMState k215Num74 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TmControl_reach_step k215Block0H4);
+
+theorem k215Block0H6 (l: nat): $ (k215TmRepeat 1 1 (k215TmRepeat 0 1 l)) = (k215TmRepeat 1 1 (k215TmRepeat 0 1 l)) $ = '(k215TmRepeateq3 k215Block0H0);
+
+theorem k215Block0H7 (a0 r: nat): $ (k215TmRepeat 1 (a0 + 0) r) = (k215TmRepeat 1 (a0 + 0) r) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block0H8 (a0 l r: nat): $ (k215TMState k215Num64 (k215TmRepeat 1 1 (k215TmRepeat 0 1 l)) (k215TmRepeat 1 (a0 + 0) r)) = (k215TMState k215Num64 (k215TmRepeat 1 1 (k215TmRepeat 0 1 l)) (k215TmRepeat 1 (a0 + 0) r)) $ = '(k215TMStateeq eqid k215Block0H6 k215Block0H7);
+
+theorem k215Block0H9 (a0 l r: nat): $ k215TMStep (k215TMState k215Num74 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TMState k215Num64 (k215TmRepeat 1 1 (k215TmRepeat 0 1 l)) (k215TmRepeat 1 (a0 + 0) r)) $ = '(eqtr (k215TMStepeq eqid) (eqtr (eqtr (eqtr (k215TMStepeq (k215TMStateeq3 k215TmRepeat_succ)) (ax_mp k215TmStep_right (ian (ian k215TMTarget_le75 leid) k215SA_74_1))) (k215TMStateeq2 (eqcom k215Sym_bit))) k215Block0H8));
+
+theorem k215Block0H10 (a0 l r: nat): $ k215TMReach (k215TMState k215Num74 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) (k215TMState k215Num64 (k215TmRepeat 1 1 (k215TmRepeat 0 1 l)) (k215TmRepeat 1 (a0 + 0) r)) $ = '(k215TmControl_reach_step k215Block0H9);
+
+theorem k215Block0H11: $ (0 + 1) = 1 $ = 'add01;
+
+theorem k215Block0H12 (a0: nat): $ (a0 + 0) = (a0 + 0) $ = 'eqid;
+
+theorem k215Block0H13 (a0: nat): $ (a0 + 1) = (suc (a0 + 0)) $ = '(eqtr addS (suceq k215Block0H12));
+
+theorem k215Block0H14 (a0: nat): $ ((a0 + 0) + 1) = (suc (a0 + 0)) $ = '(eqtr addass (eqtr (addeq2 k215Block0H11) k215Block0H13));
+
+theorem k215Block0H15 (a0 l: nat): $ (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 1 1 (k215TmRepeat 0 1 l))) = (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) $ = '(eqtr (k215TmRepeateq3 k215Block0H6) (eqtr k215Sym_repeat_merge (k215TmRepeateq2 k215Block0H14)));
+
+theorem k215Block0H16 (a0 l r: nat): $ (k215TMState k215Num64 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 1 1 (k215TmRepeat 0 1 l))) r) = (k215TMState k215Num64 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) $ = '(k215TMStateeq eqid k215Block0H15 eqid);
+
+theorem k215Block0H17 (a0 l r: nat): $ k215TMReach (k215TMState k215Num64 (k215TmRepeat 1 1 (k215TmRepeat 0 1 l)) (k215TmRepeat 1 (a0 + 0) r)) (k215TMState k215Num64 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) $ = '(mpbi (k215TMReacheq (eqcom eqid) k215Block0H16) (ax_mp k215TMReach_intro (ax_mp k215TmScan_right (ian (ian k215TMTarget_le65 leid) k215SA_64_1))));
+
+theorem k215Block0H18 (a0 l r: nat): $ k215TMReach (k215TMState k215Num74 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) (k215TMState k215Num64 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) $ = '(k215TmControl_chain k215Block0H10 k215Block0H17);
+
+theorem k215Block0H19 (a0 l r: nat): $ k215TMReach (k215TMState k215Num64 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) (k215TMState k215Num64 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) $ = '(k215TmControl_chain k215Block0H5 k215Block0H18);
+
+theorem k215Block0H20 (a0 r: nat): $ (k215TmRegister a0 r) = (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(eqtr (eqtr (k215TmPusheq2 (eqcom k215TmRepeat_succ)) (eqcom k215Sym_bit)) (k215TmRepeateq3 (k215TmRepeateq2 (suceq (eqcom add0)))));
+
+theorem k215Block0H21 (a0 l: nat): $ (k215SymRB a0 l) = (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) $ = '(k215TmRepeateq eqid (suceq (eqcom add0)) (eqcom k215Sym_bit));
+
+theorem k215Block0H22 (a0 r: nat): $ (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TmRepeateq3 k215Block0H1);
+
+theorem k215Block0H23 (a0 l r: nat): $ (k215TMState k215Num64 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TMState k215Num64 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TMStateeq eqid eqid k215Block0H22);
+
+theorem k215Block0H24 (a0 l: nat): $ (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) = (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) $ = '(k215TmRepeateq3 k215Block0H0);
+
+theorem k215Block0H25 (a0 l r: nat): $ (k215TMState k215Num64 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) = (k215TMState k215Num64 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) $ = '(k215TMStateeq eqid k215Block0H24 eqid);
+
+pub theorem k215SymBlock0 (a0 l r: nat): $ k215TMReach (k215TMState k215Num64 l (k215TmRegister a0 r)) (k215TMState k215Num64 (k215SymRB a0 l) r) $ = '(mpbir (k215TMReacheq (eqtr (k215TMStateeq3 k215Block0H20) k215Block0H23) (eqtr (k215TMStateeq2 k215Block0H21) k215Block0H25)) k215Block0H19);
+
+theorem k215Block1H0 (l: nat): $ (k215TmRepeat 1 1 l) = (k215TmRepeat 1 1 l) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block1H1 (a0 r: nat): $ (k215TmRepeat 1 (suc (a0 + 0)) r) = (k215TmRepeat 1 (suc (a0 + 0)) r) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block1H2 (a0 r: nat): $ (k215TmRepeat 0 0 (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TmRepeat 1 (suc (a0 + 0)) r) $ = '(eqtr (k215TmRepeateq3 k215Block1H1) k215TmRepeat_zero);
+
+theorem k215Block1H3 (a0 l r: nat): $ (k215TMState k215Num93 (k215TmRepeat 1 1 l) (k215TmRepeat 0 0 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TMState k215Num93 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TMStateeq eqid k215Block1H0 k215Block1H2);
+
+theorem k215Block1H4 (a0 l r: nat): $ k215TMStep (k215TMState 0 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TMState k215Num93 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(eqtr (k215TMStepeq eqid) (eqtr (eqtr (eqtr (k215TMStepeq (k215TMStateeq3 k215TmRepeat_succ)) (ax_mp k215TmStep_right (ian (ian k215TMTarget_le1 le01) k215SA_0_0))) (k215TMStateeq2 (eqcom k215Sym_bit))) k215Block1H3));
+
+theorem k215Block1H5 (a0 l r: nat): $ k215TMReach (k215TMState 0 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) (k215TMState k215Num93 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TmControl_reach_step k215Block1H4);
+
+theorem k215Block1H6 (l: nat): $ (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) = (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) $ = '(k215TmRepeateq3 k215Block1H0);
+
+theorem k215Block1H7 (a0 r: nat): $ (k215TmRepeat 1 (a0 + 0) r) = (k215TmRepeat 1 (a0 + 0) r) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block1H8 (a0 l r: nat): $ (k215TMState 0 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) = (k215TMState 0 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) $ = '(k215TMStateeq eqid k215Block1H6 k215Block1H7);
+
+theorem k215Block1H9 (a0 l r: nat): $ k215TMStep (k215TMState k215Num93 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TMState 0 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) $ = '(eqtr (k215TMStepeq eqid) (eqtr (eqtr (eqtr (k215TMStepeq (k215TMStateeq3 k215TmRepeat_succ)) (ax_mp k215TmStep_right (ian (ian k215TMTarget_le94 leid) k215SA_93_1))) (k215TMStateeq2 (eqcom k215Sym_bit))) k215Block1H8));
+
+theorem k215Block1H10 (a0 l r: nat): $ k215TMReach (k215TMState k215Num93 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) (k215TMState 0 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) $ = '(k215TmControl_reach_step k215Block1H9);
+
+theorem k215Block1H11 (a0 l: nat): $ (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) = (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) $ = '(k215TmRepeateq3 k215Block1H6);
+
+theorem k215Block1H12 (a0 l r: nat): $ (k215TMState 0 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) r) = (k215TMState 0 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) r) $ = '(k215TMStateeq eqid k215Block1H11 eqid);
+
+theorem k215Block1H13 (a0 l r: nat): $ k215TMReach (k215TMState 0 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) (k215TMState 0 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) r) $ = '(mpbi (k215TMReacheq (eqcom eqid) k215Block1H12) (ax_mp k215TMReach_intro (ax_mp k215TmScan_right (ian (ian k215TMTarget_le1 leid) k215SA_0_1))));
+
+theorem k215Block1H14 (a0 l r: nat): $ k215TMReach (k215TMState k215Num93 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) (k215TMState 0 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) r) $ = '(k215TmControl_chain k215Block1H10 k215Block1H13);
+
+theorem k215Block1H15 (a0 l r: nat): $ k215TMReach (k215TMState 0 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) (k215TMState 0 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) r) $ = '(k215TmControl_chain k215Block1H5 k215Block1H14);
+
+theorem k215Block1H16 (a0 r: nat): $ (k215TmRegister a0 r) = (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(eqtr (eqtr (k215TmPusheq2 (eqcom k215TmRepeat_succ)) (eqcom k215Sym_bit)) (k215TmRepeateq3 (k215TmRepeateq2 (suceq (eqcom add0)))));
+
+theorem k215Block1H17 (a0 l: nat): $ (k215SymRC a0 l) = (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) $ = '(k215TmRepeateq eqid (eqcom add0) (eqtr (k215TmPusheq2 (eqcom k215Sym_bit)) (eqcom k215Sym_bit)));
+
+theorem k215Block1H18 (a0 r: nat): $ (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TmRepeateq3 k215Block1H1);
+
+theorem k215Block1H19 (a0 l r: nat): $ (k215TMState 0 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TMState 0 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TMStateeq eqid eqid k215Block1H18);
+
+pub theorem k215SymBlock1 (a0 l r: nat): $ k215TMReach (k215TMState 0 l (k215TmRegister a0 r)) (k215TMState 0 (k215SymRC a0 l) r) $ = '(mpbir (k215TMReacheq (eqtr (k215TMStateeq3 k215Block1H16) k215Block1H19) (eqtr (k215TMStateeq2 k215Block1H17) k215Block1H12)) k215Block1H15);
+
+theorem k215Block2H0 (l: nat): $ (k215TmRepeat 0 1 l) = (k215TmRepeat 0 1 l) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block2H1 (a0 l: nat): $ (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 l)) = (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 l)) $ = '(k215TmRepeateq3 k215Block2H0);
+
+theorem k215Block2H2 (r: nat): $ (k215TmRepeat 1 1 r) = (k215TmRepeat 1 1 r) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block2H3 (a0 l r: nat): $ (k215TmLeftState k215Num54 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 l)) (k215TmRepeat 1 1 r)) = (k215TmLeftState k215Num54 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 l)) (k215TmRepeat 1 1 r)) $ = '(k215TmLeftStateeq eqid k215Block2H1 k215Block2H2);
+
+theorem k215Block2H4 (a0 l r: nat): $ k215TMStep (k215TmLeftState k215Num40 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) = (k215TmLeftState k215Num54 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 l)) (k215TmRepeat 1 1 r)) $ = '(eqtr (k215TMStepeq eqid) (eqtr (eqtr (eqtr (k215TMStepeq (k215TmLeftStateeq2 k215TmRepeat_succ)) (ax_mp k215TmStep_left_zipper (ian (ian k215TMTarget_le41 leid) k215SA_40_1))) (k215TmLeftStateeq3 (eqcom k215Sym_bit))) k215Block2H3));
+
+theorem k215Block2H5 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num40 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) (k215TmLeftState k215Num54 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 l)) (k215TmRepeat 1 1 r)) $ = '(k215TmControl_reach_step k215Block2H4);
+
+theorem k215Block2H6: $ (0 + 1) = 1 $ = 'add01;
+
+theorem k215Block2H7 (a0: nat): $ (a0 + 0) = (a0 + 0) $ = 'eqid;
+
+theorem k215Block2H8 (a0: nat): $ (a0 + 1) = (suc (a0 + 0)) $ = '(eqtr addS (suceq k215Block2H7));
+
+theorem k215Block2H9 (a0: nat): $ ((a0 + 0) + 1) = (suc (a0 + 0)) $ = '(eqtr addass (eqtr (addeq2 k215Block2H6) k215Block2H8));
+
+theorem k215Block2H10 (a0 r: nat): $ (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 1 1 r)) = (k215TmRepeat 1 (suc (a0 + 0)) r) $ = '(eqtr (k215TmRepeateq3 k215Block2H2) (eqtr k215Sym_repeat_merge (k215TmRepeateq2 k215Block2H9)));
+
+theorem k215Block2H11 (a0 l r: nat): $ (k215TmLeftState k215Num54 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 1 1 r))) = (k215TmLeftState k215Num54 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TmLeftStateeq eqid k215Block2H0 k215Block2H10);
+
+theorem k215Block2H12 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num54 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 l)) (k215TmRepeat 1 1 r)) (k215TmLeftState k215Num54 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(mpbi (k215TMReacheq (eqcom eqid) k215Block2H11) (ax_mp k215TMReach_intro (ax_mp k215TmScan_left (ian (ian k215TMTarget_le55 leid) k215SA_54_1))));
+
+theorem k215Block2H13 (l: nat): $ (k215TmRepeat 0 0 l) = l $ = '(eqtr (k215TmRepeateq3 eqid) k215TmRepeat_zero);
+
+theorem k215Block2H14 (a0 r: nat): $ (k215TmRepeat 1 (suc (a0 + 0)) r) = (k215TmRepeat 1 (suc (a0 + 0)) r) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block2H15 (a0 r: nat): $ (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TmRepeateq3 k215Block2H14);
+
+theorem k215Block2H16 (a0 l r: nat): $ (k215TmLeftState k215Num40 (k215TmRepeat 0 0 l) (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TmLeftState k215Num40 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmLeftStateeq eqid k215Block2H13 k215Block2H15);
+
+theorem k215Block2H17 (a0 l r: nat): $ k215TMStep (k215TmLeftState k215Num54 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TmLeftState k215Num40 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(eqtr (k215TMStepeq eqid) (eqtr (eqtr (eqtr (k215TMStepeq (k215TmLeftStateeq2 k215TmRepeat_succ)) (ax_mp k215TmStep_left_zipper (ian (ian k215TMTarget_le55 le01) k215SA_54_0))) (k215TmLeftStateeq3 (eqcom k215Sym_bit))) k215Block2H16));
+
+theorem k215Block2H18 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num54 (k215TmRepeat 0 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) (k215TmLeftState k215Num40 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmControl_reach_step k215Block2H17);
+
+theorem k215Block2H19 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num54 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 l)) (k215TmRepeat 1 1 r)) (k215TmLeftState k215Num40 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmControl_chain k215Block2H12 k215Block2H18);
+
+theorem k215Block2H20 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num40 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) (k215TmLeftState k215Num40 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmControl_chain k215Block2H5 k215Block2H19);
+
+theorem k215Block2H21 (a0 l: nat): $ (k215SymRB a0 l) = (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) $ = '(k215TmRepeateq eqid (suceq (eqcom add0)) (eqcom k215Sym_bit));
+
+theorem k215Block2H22 (a0 r: nat): $ (k215TmRegister a0 r) = (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(eqtr (eqtr (k215TmPusheq2 (eqcom k215TmRepeat_succ)) (eqcom k215Sym_bit)) (k215TmRepeateq3 (k215TmRepeateq2 (suceq (eqcom add0)))));
+
+theorem k215Block2H23 (a0 l: nat): $ (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) = (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) $ = '(k215TmRepeateq3 k215Block2H0);
+
+theorem k215Block2H24 (a0 l r: nat): $ (k215TmLeftState k215Num40 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) = (k215TmLeftState k215Num40 (k215TmRepeat 1 (suc (a0 + 0)) (k215TmRepeat 0 1 l)) r) $ = '(k215TmLeftStateeq eqid k215Block2H23 eqid);
+
+theorem k215Block2H25 (a0 l r: nat): $ (k215TmLeftState k215Num40 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TmLeftState k215Num40 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmLeftStateeq eqid eqid k215Block2H15);
+
+pub theorem k215SymBlock2 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num40 (k215SymRB a0 l) r) (k215TmLeftState k215Num40 l (k215TmRegister a0 r)) $ = '(mpbir (k215TMReacheq (eqtr (k215TmLeftStateeq2 k215Block2H21) k215Block2H24) (eqtr (k215TmLeftStateeq3 k215Block2H22) k215Block2H25)) k215Block2H20);
+
+theorem k215Block3H0 (l: nat): $ (k215TmRepeat 1 1 l) = (k215TmRepeat 1 1 l) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block3H1 (l: nat): $ (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) = (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) $ = '(k215TmRepeateq3 k215Block3H0);
+
+theorem k215Block3H2 (a0 r: nat): $ (k215TmRepeat 1 (a0 + 0) r) = (k215TmRepeat 1 (a0 + 0) r) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block3H3 (a0 l r: nat): $ (k215TmLeftState k215Num96 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) = (k215TmLeftState k215Num96 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) $ = '(k215TmLeftStateeq eqid k215Block3H1 k215Block3H2);
+
+theorem k215Block3H4 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num96 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) r) (k215TmLeftState k215Num96 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) $ = '(mpbi (k215TMReacheq (eqcom eqid) k215Block3H3) (ax_mp k215TMReach_intro (ax_mp k215TmScan_left (ian (ian k215TMTarget_le97 leid) k215SA_96_1))));
+
+theorem k215Block3H5 (l: nat): $ (k215TmRepeat 0 0 (k215TmRepeat 1 1 l)) = (k215TmRepeat 1 1 l) $ = '(eqtr (k215TmRepeateq3 k215Block3H0) k215TmRepeat_zero);
+
+theorem k215Block3H6 (a0: nat): $ (0 + (a0 + 0)) = (a0 + 0) $ = 'add01;
+
+theorem k215Block3H7 (a0: nat): $ (1 + (a0 + 0)) = (suc (a0 + 0)) $ = '(eqtr addS1 (suceq k215Block3H6));
+
+theorem k215Block3H8 (a0 r: nat): $ (k215TmRepeat 1 1 (k215TmRepeat 1 (a0 + 0) r)) = (k215TmRepeat 1 (suc (a0 + 0)) r) $ = '(eqtr (k215TmRepeateq3 k215Block3H2) (eqtr k215Sym_repeat_merge (k215TmRepeateq2 k215Block3H7)));
+
+theorem k215Block3H9 (a0 l r: nat): $ (k215TmLeftState k215Num111 (k215TmRepeat 0 0 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 1 (k215TmRepeat 1 (a0 + 0) r))) = (k215TmLeftState k215Num111 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TmLeftStateeq eqid k215Block3H5 k215Block3H8);
+
+theorem k215Block3H10 (a0 l r: nat): $ k215TMStep (k215TmLeftState k215Num96 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) = (k215TmLeftState k215Num111 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(eqtr (k215TMStepeq eqid) (eqtr (eqtr (eqtr (k215TMStepeq (k215TmLeftStateeq2 k215TmRepeat_succ)) (ax_mp k215TmStep_left_zipper (ian (ian k215TMTarget_le97 le01) k215SA_96_0))) (k215TmLeftStateeq3 (eqcom k215Sym_bit))) k215Block3H9));
+
+theorem k215Block3H11 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num96 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) (k215TmLeftState k215Num111 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TmControl_reach_step k215Block3H10);
+
+theorem k215Block3H12 (l: nat): $ (k215TmRepeat 1 0 l) = l $ = '(eqtr (k215TmRepeateq3 eqid) k215TmRepeat_zero);
+
+theorem k215Block3H13 (a0 r: nat): $ (k215TmRepeat 1 (suc (a0 + 0)) r) = (k215TmRepeat 1 (suc (a0 + 0)) r) $ = '(k215TmRepeateq3 eqid);
+
+theorem k215Block3H14 (a0 r: nat): $ (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(k215TmRepeateq3 k215Block3H13);
+
+theorem k215Block3H15 (a0 l r: nat): $ (k215TmLeftState k215Num96 (k215TmRepeat 1 0 l) (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TmLeftState k215Num96 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmLeftStateeq eqid k215Block3H12 k215Block3H14);
+
+theorem k215Block3H16 (a0 l r: nat): $ k215TMStep (k215TmLeftState k215Num111 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) = (k215TmLeftState k215Num96 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(eqtr (k215TMStepeq eqid) (eqtr (eqtr (eqtr (k215TMStepeq (k215TmLeftStateeq2 k215TmRepeat_succ)) (ax_mp k215TmStep_left_zipper (ian (ian k215TMTarget_le112 leid) k215SA_111_1))) (k215TmLeftStateeq3 (eqcom k215Sym_bit))) k215Block3H15));
+
+theorem k215Block3H17 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num111 (k215TmRepeat 1 1 l) (k215TmRepeat 1 (suc (a0 + 0)) r)) (k215TmLeftState k215Num96 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmControl_reach_step k215Block3H16);
+
+theorem k215Block3H18 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num96 (k215TmRepeat 0 1 (k215TmRepeat 1 1 l)) (k215TmRepeat 1 (a0 + 0) r)) (k215TmLeftState k215Num96 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmControl_chain k215Block3H11 k215Block3H17);
+
+theorem k215Block3H19 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num96 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) r) (k215TmLeftState k215Num96 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmControl_chain k215Block3H4 k215Block3H18);
+
+theorem k215Block3H20 (a0 l: nat): $ (k215SymRC a0 l) = (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) $ = '(k215TmRepeateq eqid (eqcom add0) (eqtr (k215TmPusheq2 (eqcom k215Sym_bit)) (eqcom k215Sym_bit)));
+
+theorem k215Block3H21 (a0 r: nat): $ (k215TmRegister a0 r) = (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r)) $ = '(eqtr (eqtr (k215TmPusheq2 (eqcom k215TmRepeat_succ)) (eqcom k215Sym_bit)) (k215TmRepeateq3 (k215TmRepeateq2 (suceq (eqcom add0)))));
+
+theorem k215Block3H22 (a0 l: nat): $ (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) = (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) $ = '(k215TmRepeateq3 k215Block3H1);
+
+theorem k215Block3H23 (a0 l r: nat): $ (k215TmLeftState k215Num96 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) r) = (k215TmLeftState k215Num96 (k215TmRepeat 1 (a0 + 0) (k215TmRepeat 0 1 (k215TmRepeat 1 1 l))) r) $ = '(k215TmLeftStateeq eqid k215Block3H22 eqid);
+
+theorem k215Block3H24 (a0 l r: nat): $ (k215TmLeftState k215Num96 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) = (k215TmLeftState k215Num96 l (k215TmRepeat 0 1 (k215TmRepeat 1 (suc (a0 + 0)) r))) $ = '(k215TmLeftStateeq eqid eqid k215Block3H14);
+
+pub theorem k215SymBlock3 (a0 l r: nat): $ k215TMReach (k215TmLeftState k215Num96 (k215SymRC a0 l) r) (k215TmLeftState k215Num96 l (k215TmRegister a0 r)) $ = '(mpbir (k215TMReacheq (eqtr (k215TmLeftStateeq2 k215Block3H20) k215Block3H23) (eqtr (k215TmLeftStateeq3 k215Block3H21) k215Block3H24)) k215Block3H19);
+

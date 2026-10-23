@@ -1,0 +1,1050 @@
+import "k215_calculus_source_decode_loops.mm1";
+import "k215_calculus_source_mp_lookups.mm1";
+
+theorem k215MPLoopFourAdd (y: nat): $ 4 + y = suc (suc (suc (suc y))) $ = '(eqtr addS1 (suceq (eqtr addS1 (suceq (eqtr addS1 (suceq (eqtr addS1 (suceq add01))))))));
+theorem k215MPLoopFourShift (x y: nat): $ 4 * x + suc (suc (suc (suc y))) = 4 * suc x + y $ = '(eqtr (addeq2 (eqcom k215MPLoopFourAdd)) (eqtr (eqcom addass) (addeq1 (eqcom mulS))));
+
+@_ def k215Loop4595State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z (k215PR1 c) (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) y x (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4595State) '(k215Loop4595Stateeqd));
+
+theorem k215Loop4595StepZ (y z c: nat): $ k215PStep (k215Loop4595State k215PNum4595 0 y z c) = (k215Loop4595State k215PNum4598 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4595) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4595StepS (x y z c: nat): $ k215PStep (k215Loop4595State k215PNum4595 (suc x) y z c) = (k215Loop4595State k215PNum4596 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4595) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet7_vector)) (eqtr k215PSet7_vector (k215PVectoreq8 (eqtr subSS sub02))))));
+
+theorem k215Loop4595Step1 (x y z c: nat): $ k215PStep (k215Loop4595State k215PNum4596 x y z c) = (k215Loop4595State k215PNum4597 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4596) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4595Back (x y z c: nat): $ k215PStep (k215Loop4595State k215PNum4597 x y z c) = (k215Loop4595State k215PNum4595 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4597);
+
+theorem k215Loop4595Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4595State k215PNum4595 (suc x) y z c) = (k215Loop4595State k215PNum4596 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4595StepS));
+
+theorem k215Loop4595Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4595State k215PNum4595 (suc x) y z c) = (k215Loop4595State k215PNum4597 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4595Cycle1) k215Loop4595Step1));
+
+theorem k215Loop4595Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4595State k215PNum4595 (suc x) y z c) = (k215Loop4595State k215PNum4595 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4595Cycle2) k215Loop4595Back));
+
+@_ abstract def k215Loop4595Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4595State k215PNum4595 x y z c) = (k215Loop4595State k215PNum4598 0 (x + y) z c) $;
+theorem k215Loop4595At (x y z c: nat): $ k215Loop4595Claim x c -> k215PIter (3 * x + 1) (k215Loop4595State k215PNum4595 x y z c) = (k215Loop4595State k215PNum4598 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4595Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4595State k215PNum4595 0 y z c) = (k215Loop4595State k215PNum4598 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4595StepZ (k215Loop4595Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4595Inductive (x y z c: nat): $ k215Loop4595Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4595State k215PNum4595 (suc x) y z c) = (k215Loop4595State k215PNum4598 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4595Cycle3))))
+   (eqtrd k215Loop4595At (a1i (k215Loop4595Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4595All (x c: nat): $ k215Loop4595Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4595Base)) '(iald @ iald k215Loop4595Inductive));
+pub theorem k215Loop4595Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4595State k215PNum4595 x y z c) = (k215Loop4595State k215PNum4598 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4595At k215Loop4595All);
+
+
+theorem k215Loop4595VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4595State k215PNum4595 a7 a6 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4595 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+theorem k215Loop4595VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4595State k215PNum4598 0 (a7 + a6) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4598 (k215PVector a0 a1 a2 a3 a4 a5 (a7 + a6) 0 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+pub theorem k215Loop4595Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a7 + 1) (k215PState k215PNum4595 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4598 (k215PVector a0 a1 a2 a3 a4 a5 (a7 + a6) 0 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4595VectorIn)) (eqtr k215Loop4595Transfer k215Loop4595VectorOut));
+
+@_ def k215Loop4599State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z (k215PR1 c) (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) (k215PR6 c) x y) $;
+
+do (apply (register-eqd 'k215Loop4599State) '(k215Loop4599Stateeqd));
+
+theorem k215Loop4599StepZ (y z c: nat): $ k215PStep (k215Loop4599State k215PNum4599 0 y z c) = (k215Loop4599State k215PNum4602 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4599) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4599StepS (x y z c: nat): $ k215PStep (k215Loop4599State k215PNum4599 (suc x) y z c) = (k215Loop4599State k215PNum4600 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4599) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet7_vector)) (eqtr k215PSet7_vector (k215PVectoreq8 (eqtr subSS sub02))))));
+
+theorem k215Loop4599Step1 (x y z c: nat): $ k215PStep (k215Loop4599State k215PNum4600 x y z c) = (k215Loop4599State k215PNum4601 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4600) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet8_vector)) k215PSet8_vector)));
+
+theorem k215Loop4599Back (x y z c: nat): $ k215PStep (k215Loop4599State k215PNum4601 x y z c) = (k215Loop4599State k215PNum4599 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4601);
+
+theorem k215Loop4599Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4599State k215PNum4599 (suc x) y z c) = (k215Loop4599State k215PNum4600 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4599StepS));
+
+theorem k215Loop4599Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4599State k215PNum4599 (suc x) y z c) = (k215Loop4599State k215PNum4601 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4599Cycle1) k215Loop4599Step1));
+
+theorem k215Loop4599Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4599State k215PNum4599 (suc x) y z c) = (k215Loop4599State k215PNum4599 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4599Cycle2) k215Loop4599Back));
+
+@_ abstract def k215Loop4599Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4599State k215PNum4599 x y z c) = (k215Loop4599State k215PNum4602 0 (x + y) z c) $;
+theorem k215Loop4599At (x y z c: nat): $ k215Loop4599Claim x c -> k215PIter (3 * x + 1) (k215Loop4599State k215PNum4599 x y z c) = (k215Loop4599State k215PNum4602 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4599Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4599State k215PNum4599 0 y z c) = (k215Loop4599State k215PNum4602 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4599StepZ (k215Loop4599Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4599Inductive (x y z c: nat): $ k215Loop4599Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4599State k215PNum4599 (suc x) y z c) = (k215Loop4599State k215PNum4602 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4599Cycle3))))
+   (eqtrd k215Loop4599At (a1i (k215Loop4599Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4599All (x c: nat): $ k215Loop4599Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4599Base)) '(iald @ iald k215Loop4599Inductive));
+pub theorem k215Loop4599Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4599State k215PNum4599 x y z c) = (k215Loop4599State k215PNum4602 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4599At k215Loop4599All);
+
+
+theorem k215Loop4599VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4599State k215PNum4599 a7 a8 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4599 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid eqid));
+
+theorem k215Loop4599VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4599State k215PNum4602 0 (a7 + a8) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4602 (k215PVector a0 a1 a2 a3 a4 a5 a6 0 (a7 + a8)) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid eqid));
+
+pub theorem k215Loop4599Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a7 + 1) (k215PState k215PNum4599 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4602 (k215PVector a0 a1 a2 a3 a4 a5 a6 0 (a7 + a8)) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4599VectorIn)) (eqtr k215Loop4599Transfer k215Loop4599VectorOut));
+
+@_ def k215Loop4602State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z (k215PR1 c) (k215PR2 c) (k215PR3 c) y (k215PR5 c) x (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4602State) '(k215Loop4602Stateeqd));
+
+theorem k215Loop4602StepZ (y z c: nat): $ k215PStep (k215Loop4602State k215PNum4602 0 y z c) = (k215Loop4602State k215PNum4605 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4602) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4602StepS (x y z c: nat): $ k215PStep (k215Loop4602State k215PNum4602 (suc x) y z c) = (k215Loop4602State k215PNum4603 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4602) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet6_vector)) (eqtr k215PSet6_vector (k215PVectoreq7 (eqtr subSS sub02))))));
+
+theorem k215Loop4602Step1 (x y z c: nat): $ k215PStep (k215Loop4602State k215PNum4603 x y z c) = (k215Loop4602State k215PNum4604 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4603) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet4_vector)) k215PSet4_vector)));
+
+theorem k215Loop4602Back (x y z c: nat): $ k215PStep (k215Loop4602State k215PNum4604 x y z c) = (k215Loop4602State k215PNum4602 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4604);
+
+theorem k215Loop4602Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4602State k215PNum4602 (suc x) y z c) = (k215Loop4602State k215PNum4603 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4602StepS));
+
+theorem k215Loop4602Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4602State k215PNum4602 (suc x) y z c) = (k215Loop4602State k215PNum4604 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4602Cycle1) k215Loop4602Step1));
+
+theorem k215Loop4602Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4602State k215PNum4602 (suc x) y z c) = (k215Loop4602State k215PNum4602 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4602Cycle2) k215Loop4602Back));
+
+@_ abstract def k215Loop4602Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4602State k215PNum4602 x y z c) = (k215Loop4602State k215PNum4605 0 (x + y) z c) $;
+theorem k215Loop4602At (x y z c: nat): $ k215Loop4602Claim x c -> k215PIter (3 * x + 1) (k215Loop4602State k215PNum4602 x y z c) = (k215Loop4602State k215PNum4605 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4602Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4602State k215PNum4602 0 y z c) = (k215Loop4602State k215PNum4605 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4602StepZ (k215Loop4602Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4602Inductive (x y z c: nat): $ k215Loop4602Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4602State k215PNum4602 (suc x) y z c) = (k215Loop4602State k215PNum4605 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4602Cycle3))))
+   (eqtrd k215Loop4602At (a1i (k215Loop4602Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4602All (x c: nat): $ k215Loop4602Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4602Base)) '(iald @ iald k215Loop4602Inductive));
+pub theorem k215Loop4602Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4602State k215PNum4602 x y z c) = (k215Loop4602State k215PNum4605 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4602At k215Loop4602All);
+
+
+theorem k215Loop4602VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4602State k215PNum4602 a6 a4 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4602 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4602VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4602State k215PNum4605 0 (a6 + a4) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4605 (k215PVector a0 a1 a2 a3 (a6 + a4) a5 0 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4602Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a6 + 1) (k215PState k215PNum4602 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4605 (k215PVector a0 a1 a2 a3 (a6 + a4) a5 0 a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4602VectorIn)) (eqtr k215Loop4602Transfer k215Loop4602VectorOut));
+
+@_ def k215Loop4605State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z x (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) y (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4605State) '(k215Loop4605Stateeqd));
+
+theorem k215Loop4605StepZ (y z c: nat): $ k215PStep (k215Loop4605State k215PNum4605 0 y z c) = (k215Loop4605State k215PNum4608 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4605) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4605StepS (x y z c: nat): $ k215PStep (k215Loop4605State k215PNum4605 (suc x) y z c) = (k215Loop4605State k215PNum4606 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4605) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet1_vector)) (eqtr k215PSet1_vector (k215PVectoreq2 (eqtr subSS sub02))))));
+
+theorem k215Loop4605Step1 (x y z c: nat): $ k215PStep (k215Loop4605State k215PNum4606 x y z c) = (k215Loop4605State k215PNum4607 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4606) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4605Back (x y z c: nat): $ k215PStep (k215Loop4605State k215PNum4607 x y z c) = (k215Loop4605State k215PNum4605 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4607);
+
+theorem k215Loop4605Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4605State k215PNum4605 (suc x) y z c) = (k215Loop4605State k215PNum4606 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4605StepS));
+
+theorem k215Loop4605Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4605State k215PNum4605 (suc x) y z c) = (k215Loop4605State k215PNum4607 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4605Cycle1) k215Loop4605Step1));
+
+theorem k215Loop4605Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4605State k215PNum4605 (suc x) y z c) = (k215Loop4605State k215PNum4605 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4605Cycle2) k215Loop4605Back));
+
+@_ abstract def k215Loop4605Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4605State k215PNum4605 x y z c) = (k215Loop4605State k215PNum4608 0 (x + y) z c) $;
+theorem k215Loop4605At (x y z c: nat): $ k215Loop4605Claim x c -> k215PIter (3 * x + 1) (k215Loop4605State k215PNum4605 x y z c) = (k215Loop4605State k215PNum4608 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4605Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4605State k215PNum4605 0 y z c) = (k215Loop4605State k215PNum4608 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4605StepZ (k215Loop4605Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4605Inductive (x y z c: nat): $ k215Loop4605Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4605State k215PNum4605 (suc x) y z c) = (k215Loop4605State k215PNum4608 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4605Cycle3))))
+   (eqtrd k215Loop4605At (a1i (k215Loop4605Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4605All (x c: nat): $ k215Loop4605Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4605Base)) '(iald @ iald k215Loop4605Inductive));
+pub theorem k215Loop4605Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4605State k215PNum4605 x y z c) = (k215Loop4605State k215PNum4608 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4605At k215Loop4605All);
+
+
+theorem k215Loop4605VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4605State k215PNum4605 a1 a6 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4605 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4605VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4605State k215PNum4608 0 (a1 + a6) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4608 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4605Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a1 + 1) (k215PState k215PNum4605 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4608 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4605VectorIn)) (eqtr k215Loop4605Transfer k215Loop4605VectorOut));
+
+@_ def k215Loop4608State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z y x (k215PR3 c) (k215PR4 c) (k215PR5 c) (k215PR6 c) (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4608State) '(k215Loop4608Stateeqd));
+
+theorem k215Loop4608StepZ (y z c: nat): $ k215PStep (k215Loop4608State k215PNum4608 0 y z c) = (k215Loop4608State k215PNum4611 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4608) (ifeq (eqeq1 k215PGet2_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4608StepS (x y z c: nat): $ k215PStep (k215Loop4608State k215PNum4608 (suc x) y z c) = (k215Loop4608State k215PNum4609 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4608) (ifeq (eqeq1 k215PGet2_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet2_vector)) (eqtr k215PSet2_vector (k215PVectoreq3 (eqtr subSS sub02))))));
+
+theorem k215Loop4608Step1 (x y z c: nat): $ k215PStep (k215Loop4608State k215PNum4609 x y z c) = (k215Loop4608State k215PNum4610 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4609) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4608Back (x y z c: nat): $ k215PStep (k215Loop4608State k215PNum4610 x y z c) = (k215Loop4608State k215PNum4608 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4610);
+
+theorem k215Loop4608Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4608State k215PNum4608 (suc x) y z c) = (k215Loop4608State k215PNum4609 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4608StepS));
+
+theorem k215Loop4608Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4608State k215PNum4608 (suc x) y z c) = (k215Loop4608State k215PNum4610 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4608Cycle1) k215Loop4608Step1));
+
+theorem k215Loop4608Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4608State k215PNum4608 (suc x) y z c) = (k215Loop4608State k215PNum4608 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4608Cycle2) k215Loop4608Back));
+
+@_ abstract def k215Loop4608Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4608State k215PNum4608 x y z c) = (k215Loop4608State k215PNum4611 0 (x + y) z c) $;
+theorem k215Loop4608At (x y z c: nat): $ k215Loop4608Claim x c -> k215PIter (3 * x + 1) (k215Loop4608State k215PNum4608 x y z c) = (k215Loop4608State k215PNum4611 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4608Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4608State k215PNum4608 0 y z c) = (k215Loop4608State k215PNum4611 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4608StepZ (k215Loop4608Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4608Inductive (x y z c: nat): $ k215Loop4608Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4608State k215PNum4608 (suc x) y z c) = (k215Loop4608State k215PNum4611 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4608Cycle3))))
+   (eqtrd k215Loop4608At (a1i (k215Loop4608Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4608All (x c: nat): $ k215Loop4608Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4608Base)) '(iald @ iald k215Loop4608Inductive));
+pub theorem k215Loop4608Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4608State k215PNum4608 x y z c) = (k215Loop4608State k215PNum4611 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4608At k215Loop4608All);
+
+
+theorem k215Loop4608VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4608State k215PNum4608 a2 a1 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4608 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4608VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4608State k215PNum4611 0 (a2 + a1) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4611 (k215PVector a0 (a2 + a1) 0 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4608Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a2 + 1) (k215PState k215PNum4608 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4611 (k215PVector a0 (a2 + a1) 0 a3 a4 a5 a6 a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4608VectorIn)) (eqtr k215Loop4608Transfer k215Loop4608VectorOut));
+
+@_ def k215Loop4611State (pc x y z c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) x (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) z y (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4611State) '(k215Loop4611Stateeqd));
+
+theorem k215Loop4611StepZ (y z c: nat): $ k215PStep (k215Loop4611State k215PNum4611 0 y z c) = (k215Loop4611State k215PNum4615 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4611) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4611StepS (x y z c: nat): $ k215PStep (k215Loop4611State k215PNum4611 (suc x) y z c) = (k215Loop4611State k215PNum4612 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4611) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet1_vector)) (eqtr k215PSet1_vector (k215PVectoreq2 (eqtr subSS sub02))))));
+
+theorem k215Loop4611Step1 (x y z c: nat): $ k215PStep (k215Loop4611State k215PNum4612 x y z c) = (k215Loop4611State k215PNum4613 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4612) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet7_vector)) k215PSet7_vector)));
+
+theorem k215Loop4611Step2 (x y z c: nat): $ k215PStep (k215Loop4611State k215PNum4613 x y z c) = (k215Loop4611State k215PNum4614 x y (suc z) c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4613) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4611Back (x y z c: nat): $ k215PStep (k215Loop4611State k215PNum4614 x y z c) = (k215Loop4611State k215PNum4611 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4614);
+
+theorem k215Loop4611Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4611State k215PNum4611 (suc x) y z c) = (k215Loop4611State k215PNum4612 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4611StepS));
+
+theorem k215Loop4611Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4611State k215PNum4611 (suc x) y z c) = (k215Loop4611State k215PNum4613 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4611Cycle1) k215Loop4611Step1));
+
+theorem k215Loop4611Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4611State k215PNum4611 (suc x) y z c) = (k215Loop4611State k215PNum4614 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4611Cycle2) k215Loop4611Step2));
+
+theorem k215Loop4611Cycle4 (x y z c: nat): $ k215PIter 4 (k215Loop4611State k215PNum4611 (suc x) y z c) = (k215Loop4611State k215PNum4611 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4611Cycle3) k215Loop4611Back));
+
+@_ abstract def k215Loop4611Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (4 * x + 1) (k215Loop4611State k215PNum4611 x y z c) = (k215Loop4611State k215PNum4615 0 (x + y) (x + z) c) $;
+theorem k215Loop4611At (x y z c: nat): $ k215Loop4611Claim x c -> k215PIter (4 * x + 1) (k215Loop4611State k215PNum4611 x y z c) = (k215Loop4611State k215PNum4615 0 (x + y) (x + z) c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4611Base (y z c: nat): $ k215PIter (4 * 0 + 1) (k215Loop4611State k215PNum4611 0 y z c) = (k215Loop4611State k215PNum4615 0 (0 + y) (0 + z) c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4611StepZ (k215Loop4611Stateeq eqid eqid (eqcom add01) (eqcom add01) eqid)))));
+theorem k215Loop4611Inductive (x y z c: nat): $ k215Loop4611Claim x c -> k215PIter (4 * suc x + 1) (k215Loop4611State k215PNum4611 (suc x) y z c) = (k215Loop4611State k215PNum4615 0 (suc x + y) (suc x + z) c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4611Cycle4))))
+   (eqtrd k215Loop4611At (a1i (k215Loop4611Stateeq eqid eqid (eqtr addS (eqcom addS1)) (eqtr addS (eqcom addS1)) eqid))));
+theorem k215Loop4611All (x c: nat): $ k215Loop4611Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4611Base)) '(iald @ iald k215Loop4611Inductive));
+pub theorem k215Loop4611Transfer (x y z c: nat): $ k215PIter (4 * x + 1) (k215Loop4611State k215PNum4611 x y z c) = (k215Loop4611State k215PNum4615 0 (x + y) (x + z) c) $ =
+ '(ax_mp k215Loop4611At k215Loop4611All);
+
+
+theorem k215Loop4611VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4611State k215PNum4611 a1 a7 a6 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4611 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+theorem k215Loop4611VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4611State k215PNum4615 0 (a1 + a7) (a1 + a6) (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4615 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) (a1 + a7) a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+pub theorem k215Loop4611Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (4 * a1 + 1) (k215PState k215PNum4611 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4615 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) (a1 + a7) a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4611VectorIn)) (eqtr k215Loop4611Transfer k215Loop4611VectorOut));
+
+@_ def k215Loop4617State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z y (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) x (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4617State) '(k215Loop4617Stateeqd));
+
+theorem k215Loop4617StepZ (y z c: nat): $ k215PStep (k215Loop4617State k215PNum4617 0 y z c) = (k215Loop4617State k215PNum4620 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4617) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4617StepS (x y z c: nat): $ k215PStep (k215Loop4617State k215PNum4617 (suc x) y z c) = (k215Loop4617State k215PNum4618 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4617) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet6_vector)) (eqtr k215PSet6_vector (k215PVectoreq7 (eqtr subSS sub02))))));
+
+theorem k215Loop4617Step1 (x y z c: nat): $ k215PStep (k215Loop4617State k215PNum4618 x y z c) = (k215Loop4617State k215PNum4619 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4618) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4617Back (x y z c: nat): $ k215PStep (k215Loop4617State k215PNum4619 x y z c) = (k215Loop4617State k215PNum4617 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4619);
+
+theorem k215Loop4617Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4617State k215PNum4617 (suc x) y z c) = (k215Loop4617State k215PNum4618 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4617StepS));
+
+theorem k215Loop4617Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4617State k215PNum4617 (suc x) y z c) = (k215Loop4617State k215PNum4619 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4617Cycle1) k215Loop4617Step1));
+
+theorem k215Loop4617Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4617State k215PNum4617 (suc x) y z c) = (k215Loop4617State k215PNum4617 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4617Cycle2) k215Loop4617Back));
+
+@_ abstract def k215Loop4617Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4617State k215PNum4617 x y z c) = (k215Loop4617State k215PNum4620 0 (x + y) z c) $;
+theorem k215Loop4617At (x y z c: nat): $ k215Loop4617Claim x c -> k215PIter (3 * x + 1) (k215Loop4617State k215PNum4617 x y z c) = (k215Loop4617State k215PNum4620 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4617Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4617State k215PNum4617 0 y z c) = (k215Loop4617State k215PNum4620 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4617StepZ (k215Loop4617Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4617Inductive (x y z c: nat): $ k215Loop4617Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4617State k215PNum4617 (suc x) y z c) = (k215Loop4617State k215PNum4620 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4617Cycle3))))
+   (eqtrd k215Loop4617At (a1i (k215Loop4617Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4617All (x c: nat): $ k215Loop4617Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4617Base)) '(iald @ iald k215Loop4617Inductive));
+pub theorem k215Loop4617Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4617State k215PNum4617 x y z c) = (k215Loop4617State k215PNum4620 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4617At k215Loop4617All);
+
+
+theorem k215Loop4617VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4617State k215PNum4617 a6 a1 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4617 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4617VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4617State k215PNum4620 0 (a6 + a1) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4620 (k215PVector a0 (a6 + a1) a2 a3 a4 a5 0 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4617Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a6 + 1) (k215PState k215PNum4617 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4620 (k215PVector a0 (a6 + a1) a2 a3 a4 a5 0 a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4617VectorIn)) (eqtr k215Loop4617Transfer k215Loop4617VectorOut));
+
+@_ def k215Loop4621State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z (k215PR1 c) y (k215PR3 c) (k215PR4 c) (k215PR5 c) (k215PR6 c) x (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4621State) '(k215Loop4621Stateeqd));
+
+theorem k215Loop4621StepZ (y z c: nat): $ k215PStep (k215Loop4621State k215PNum4621 0 y z c) = (k215Loop4621State k215PNum4624 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4621) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4621StepS (x y z c: nat): $ k215PStep (k215Loop4621State k215PNum4621 (suc x) y z c) = (k215Loop4621State k215PNum4622 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4621) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet7_vector)) (eqtr k215PSet7_vector (k215PVectoreq8 (eqtr subSS sub02))))));
+
+theorem k215Loop4621Step1 (x y z c: nat): $ k215PStep (k215Loop4621State k215PNum4622 x y z c) = (k215Loop4621State k215PNum4623 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4622) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet2_vector)) k215PSet2_vector)));
+
+theorem k215Loop4621Back (x y z c: nat): $ k215PStep (k215Loop4621State k215PNum4623 x y z c) = (k215Loop4621State k215PNum4621 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4623);
+
+theorem k215Loop4621Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4621State k215PNum4621 (suc x) y z c) = (k215Loop4621State k215PNum4622 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4621StepS));
+
+theorem k215Loop4621Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4621State k215PNum4621 (suc x) y z c) = (k215Loop4621State k215PNum4623 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4621Cycle1) k215Loop4621Step1));
+
+theorem k215Loop4621Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4621State k215PNum4621 (suc x) y z c) = (k215Loop4621State k215PNum4621 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4621Cycle2) k215Loop4621Back));
+
+@_ abstract def k215Loop4621Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4621State k215PNum4621 x y z c) = (k215Loop4621State k215PNum4624 0 (x + y) z c) $;
+theorem k215Loop4621At (x y z c: nat): $ k215Loop4621Claim x c -> k215PIter (3 * x + 1) (k215Loop4621State k215PNum4621 x y z c) = (k215Loop4621State k215PNum4624 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4621Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4621State k215PNum4621 0 y z c) = (k215Loop4621State k215PNum4624 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4621StepZ (k215Loop4621Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4621Inductive (x y z c: nat): $ k215Loop4621Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4621State k215PNum4621 (suc x) y z c) = (k215Loop4621State k215PNum4624 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4621Cycle3))))
+   (eqtrd k215Loop4621At (a1i (k215Loop4621Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4621All (x c: nat): $ k215Loop4621Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4621Base)) '(iald @ iald k215Loop4621Inductive));
+pub theorem k215Loop4621Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4621State k215PNum4621 x y z c) = (k215Loop4621State k215PNum4624 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4621At k215Loop4621All);
+
+
+theorem k215Loop4621VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4621State k215PNum4621 a7 a2 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4621 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid k215PR8_vector));
+
+theorem k215Loop4621VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4621State k215PNum4624 0 (a7 + a2) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4624 (k215PVector a0 a1 (a7 + a2) a3 a4 a5 a6 0 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid k215PR8_vector));
+
+pub theorem k215Loop4621Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a7 + 1) (k215PState k215PNum4621 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4624 (k215PVector a0 a1 (a7 + a2) a3 a4 a5 a6 0 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4621VectorIn)) (eqtr k215Loop4621Transfer k215Loop4621VectorOut));
+
+@_ def k215Loop4624State (pc x y z c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) y (k215PR2 c) (k215PR3 c) x (k215PR5 c) z (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4624State) '(k215Loop4624Stateeqd));
+
+theorem k215Loop4624StepZ (y z c: nat): $ k215PStep (k215Loop4624State k215PNum4624 0 y z c) = (k215Loop4624State k215PNum4628 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4624) (ifeq (eqeq1 k215PGet4_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4624StepS (x y z c: nat): $ k215PStep (k215Loop4624State k215PNum4624 (suc x) y z c) = (k215Loop4624State k215PNum4625 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4624) (ifeq (eqeq1 k215PGet4_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet4_vector)) (eqtr k215PSet4_vector (k215PVectoreq5 (eqtr subSS sub02))))));
+
+theorem k215Loop4624Step1 (x y z c: nat): $ k215PStep (k215Loop4624State k215PNum4625 x y z c) = (k215Loop4624State k215PNum4626 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4625) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4624Step2 (x y z c: nat): $ k215PStep (k215Loop4624State k215PNum4626 x y z c) = (k215Loop4624State k215PNum4627 x y (suc z) c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4626) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4624Back (x y z c: nat): $ k215PStep (k215Loop4624State k215PNum4627 x y z c) = (k215Loop4624State k215PNum4624 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4627);
+
+theorem k215Loop4624Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4624State k215PNum4624 (suc x) y z c) = (k215Loop4624State k215PNum4625 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4624StepS));
+
+theorem k215Loop4624Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4624State k215PNum4624 (suc x) y z c) = (k215Loop4624State k215PNum4626 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4624Cycle1) k215Loop4624Step1));
+
+theorem k215Loop4624Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4624State k215PNum4624 (suc x) y z c) = (k215Loop4624State k215PNum4627 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4624Cycle2) k215Loop4624Step2));
+
+theorem k215Loop4624Cycle4 (x y z c: nat): $ k215PIter 4 (k215Loop4624State k215PNum4624 (suc x) y z c) = (k215Loop4624State k215PNum4624 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4624Cycle3) k215Loop4624Back));
+
+@_ abstract def k215Loop4624Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (4 * x + 1) (k215Loop4624State k215PNum4624 x y z c) = (k215Loop4624State k215PNum4628 0 (x + y) (x + z) c) $;
+theorem k215Loop4624At (x y z c: nat): $ k215Loop4624Claim x c -> k215PIter (4 * x + 1) (k215Loop4624State k215PNum4624 x y z c) = (k215Loop4624State k215PNum4628 0 (x + y) (x + z) c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4624Base (y z c: nat): $ k215PIter (4 * 0 + 1) (k215Loop4624State k215PNum4624 0 y z c) = (k215Loop4624State k215PNum4628 0 (0 + y) (0 + z) c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4624StepZ (k215Loop4624Stateeq eqid eqid (eqcom add01) (eqcom add01) eqid)))));
+theorem k215Loop4624Inductive (x y z c: nat): $ k215Loop4624Claim x c -> k215PIter (4 * suc x + 1) (k215Loop4624State k215PNum4624 (suc x) y z c) = (k215Loop4624State k215PNum4628 0 (suc x + y) (suc x + z) c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4624Cycle4))))
+   (eqtrd k215Loop4624At (a1i (k215Loop4624Stateeq eqid eqid (eqtr addS (eqcom addS1)) (eqtr addS (eqcom addS1)) eqid))));
+theorem k215Loop4624All (x c: nat): $ k215Loop4624Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4624Base)) '(iald @ iald k215Loop4624Inductive));
+pub theorem k215Loop4624Transfer (x y z c: nat): $ k215PIter (4 * x + 1) (k215Loop4624State k215PNum4624 x y z c) = (k215Loop4624State k215PNum4628 0 (x + y) (x + z) c) $ =
+ '(ax_mp k215Loop4624At k215Loop4624All);
+
+
+theorem k215Loop4624VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4624State k215PNum4624 a4 a1 a6 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4624 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4624VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4624State k215PNum4628 0 (a4 + a1) (a4 + a6) (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4628 (k215PVector a0 (a4 + a1) a2 a3 0 a5 (a4 + a6) a7 a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4624Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (4 * a4 + 1) (k215PState k215PNum4624 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4628 (k215PVector a0 (a4 + a1) a2 a3 0 a5 (a4 + a6) a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4624VectorIn)) (eqtr k215Loop4624Transfer k215Loop4624VectorOut));
+
+@_ def k215Loop4628State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z (k215PR1 c) (k215PR2 c) (k215PR3 c) y (k215PR5 c) x (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4628State) '(k215Loop4628Stateeqd));
+
+theorem k215Loop4628StepZ (y z c: nat): $ k215PStep (k215Loop4628State k215PNum4628 0 y z c) = (k215Loop4628State k215PNum4631 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4628) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4628StepS (x y z c: nat): $ k215PStep (k215Loop4628State k215PNum4628 (suc x) y z c) = (k215Loop4628State k215PNum4629 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4628) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet6_vector)) (eqtr k215PSet6_vector (k215PVectoreq7 (eqtr subSS sub02))))));
+
+theorem k215Loop4628Step1 (x y z c: nat): $ k215PStep (k215Loop4628State k215PNum4629 x y z c) = (k215Loop4628State k215PNum4630 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4629) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet4_vector)) k215PSet4_vector)));
+
+theorem k215Loop4628Back (x y z c: nat): $ k215PStep (k215Loop4628State k215PNum4630 x y z c) = (k215Loop4628State k215PNum4628 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4630);
+
+theorem k215Loop4628Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4628State k215PNum4628 (suc x) y z c) = (k215Loop4628State k215PNum4629 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4628StepS));
+
+theorem k215Loop4628Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4628State k215PNum4628 (suc x) y z c) = (k215Loop4628State k215PNum4630 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4628Cycle1) k215Loop4628Step1));
+
+theorem k215Loop4628Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4628State k215PNum4628 (suc x) y z c) = (k215Loop4628State k215PNum4628 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4628Cycle2) k215Loop4628Back));
+
+@_ abstract def k215Loop4628Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4628State k215PNum4628 x y z c) = (k215Loop4628State k215PNum4631 0 (x + y) z c) $;
+theorem k215Loop4628At (x y z c: nat): $ k215Loop4628Claim x c -> k215PIter (3 * x + 1) (k215Loop4628State k215PNum4628 x y z c) = (k215Loop4628State k215PNum4631 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4628Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4628State k215PNum4628 0 y z c) = (k215Loop4628State k215PNum4631 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4628StepZ (k215Loop4628Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4628Inductive (x y z c: nat): $ k215Loop4628Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4628State k215PNum4628 (suc x) y z c) = (k215Loop4628State k215PNum4631 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4628Cycle3))))
+   (eqtrd k215Loop4628At (a1i (k215Loop4628Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4628All (x c: nat): $ k215Loop4628Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4628Base)) '(iald @ iald k215Loop4628Inductive));
+pub theorem k215Loop4628Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4628State k215PNum4628 x y z c) = (k215Loop4628State k215PNum4631 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4628At k215Loop4628All);
+
+
+theorem k215Loop4628VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4628State k215PNum4628 a6 a4 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4628 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4628VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4628State k215PNum4631 0 (a6 + a4) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4631 (k215PVector a0 a1 a2 a3 (a6 + a4) a5 0 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4628Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a6 + 1) (k215PState k215PNum4628 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4631 (k215PVector a0 a1 a2 a3 (a6 + a4) a5 0 a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4628VectorIn)) (eqtr k215Loop4628Transfer k215Loop4628VectorOut));
+
+@_ def k215Loop4635State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z (k215PR1 c) (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) y x (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4635State) '(k215Loop4635Stateeqd));
+
+theorem k215Loop4635StepZ (y z c: nat): $ k215PStep (k215Loop4635State k215PNum4635 0 y z c) = (k215Loop4635State k215PNum4638 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4635) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4635StepS (x y z c: nat): $ k215PStep (k215Loop4635State k215PNum4635 (suc x) y z c) = (k215Loop4635State k215PNum4636 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4635) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet7_vector)) (eqtr k215PSet7_vector (k215PVectoreq8 (eqtr subSS sub02))))));
+
+theorem k215Loop4635Step1 (x y z c: nat): $ k215PStep (k215Loop4635State k215PNum4636 x y z c) = (k215Loop4635State k215PNum4637 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4636) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4635Back (x y z c: nat): $ k215PStep (k215Loop4635State k215PNum4637 x y z c) = (k215Loop4635State k215PNum4635 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4637);
+
+theorem k215Loop4635Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4635State k215PNum4635 (suc x) y z c) = (k215Loop4635State k215PNum4636 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4635StepS));
+
+theorem k215Loop4635Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4635State k215PNum4635 (suc x) y z c) = (k215Loop4635State k215PNum4637 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4635Cycle1) k215Loop4635Step1));
+
+theorem k215Loop4635Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4635State k215PNum4635 (suc x) y z c) = (k215Loop4635State k215PNum4635 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4635Cycle2) k215Loop4635Back));
+
+@_ abstract def k215Loop4635Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4635State k215PNum4635 x y z c) = (k215Loop4635State k215PNum4638 0 (x + y) z c) $;
+theorem k215Loop4635At (x y z c: nat): $ k215Loop4635Claim x c -> k215PIter (3 * x + 1) (k215Loop4635State k215PNum4635 x y z c) = (k215Loop4635State k215PNum4638 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4635Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4635State k215PNum4635 0 y z c) = (k215Loop4635State k215PNum4638 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4635StepZ (k215Loop4635Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4635Inductive (x y z c: nat): $ k215Loop4635Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4635State k215PNum4635 (suc x) y z c) = (k215Loop4635State k215PNum4638 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4635Cycle3))))
+   (eqtrd k215Loop4635At (a1i (k215Loop4635Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4635All (x c: nat): $ k215Loop4635Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4635Base)) '(iald @ iald k215Loop4635Inductive));
+pub theorem k215Loop4635Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4635State k215PNum4635 x y z c) = (k215Loop4635State k215PNum4638 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4635At k215Loop4635All);
+
+
+theorem k215Loop4635VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4635State k215PNum4635 a7 a6 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4635 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+theorem k215Loop4635VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4635State k215PNum4638 0 (a7 + a6) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4638 (k215PVector a0 a1 a2 a3 a4 a5 (a7 + a6) 0 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+pub theorem k215Loop4635Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a7 + 1) (k215PState k215PNum4635 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4638 (k215PVector a0 a1 a2 a3 a4 a5 (a7 + a6) 0 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4635VectorIn)) (eqtr k215Loop4635Transfer k215Loop4635VectorOut));
+
+@_ def k215Loop4639State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z (k215PR1 c) y (k215PR3 c) (k215PR4 c) (k215PR5 c) (k215PR6 c) x (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4639State) '(k215Loop4639Stateeqd));
+
+theorem k215Loop4639StepZ (y z c: nat): $ k215PStep (k215Loop4639State k215PNum4639 0 y z c) = (k215Loop4639State k215PNum4642 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4639) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4639StepS (x y z c: nat): $ k215PStep (k215Loop4639State k215PNum4639 (suc x) y z c) = (k215Loop4639State k215PNum4640 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4639) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet7_vector)) (eqtr k215PSet7_vector (k215PVectoreq8 (eqtr subSS sub02))))));
+
+theorem k215Loop4639Step1 (x y z c: nat): $ k215PStep (k215Loop4639State k215PNum4640 x y z c) = (k215Loop4639State k215PNum4641 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4640) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet2_vector)) k215PSet2_vector)));
+
+theorem k215Loop4639Back (x y z c: nat): $ k215PStep (k215Loop4639State k215PNum4641 x y z c) = (k215Loop4639State k215PNum4639 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4641);
+
+theorem k215Loop4639Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4639State k215PNum4639 (suc x) y z c) = (k215Loop4639State k215PNum4640 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4639StepS));
+
+theorem k215Loop4639Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4639State k215PNum4639 (suc x) y z c) = (k215Loop4639State k215PNum4641 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4639Cycle1) k215Loop4639Step1));
+
+theorem k215Loop4639Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4639State k215PNum4639 (suc x) y z c) = (k215Loop4639State k215PNum4639 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4639Cycle2) k215Loop4639Back));
+
+@_ abstract def k215Loop4639Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4639State k215PNum4639 x y z c) = (k215Loop4639State k215PNum4642 0 (x + y) z c) $;
+theorem k215Loop4639At (x y z c: nat): $ k215Loop4639Claim x c -> k215PIter (3 * x + 1) (k215Loop4639State k215PNum4639 x y z c) = (k215Loop4639State k215PNum4642 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4639Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4639State k215PNum4639 0 y z c) = (k215Loop4639State k215PNum4642 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4639StepZ (k215Loop4639Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4639Inductive (x y z c: nat): $ k215Loop4639Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4639State k215PNum4639 (suc x) y z c) = (k215Loop4639State k215PNum4642 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4639Cycle3))))
+   (eqtrd k215Loop4639At (a1i (k215Loop4639Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4639All (x c: nat): $ k215Loop4639Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4639Base)) '(iald @ iald k215Loop4639Inductive));
+pub theorem k215Loop4639Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4639State k215PNum4639 x y z c) = (k215Loop4639State k215PNum4642 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4639At k215Loop4639All);
+
+
+theorem k215Loop4639VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4639State k215PNum4639 a7 a2 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4639 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid k215PR8_vector));
+
+theorem k215Loop4639VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4639State k215PNum4642 0 (a7 + a2) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4642 (k215PVector a0 a1 (a7 + a2) a3 a4 a5 a6 0 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid k215PR8_vector));
+
+pub theorem k215Loop4639Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a7 + 1) (k215PState k215PNum4639 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4642 (k215PVector a0 a1 (a7 + a2) a3 a4 a5 a6 0 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4639VectorIn)) (eqtr k215Loop4639Transfer k215Loop4639VectorOut));
+
+@_ def k215Loop4642State (pc x y z c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) x (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) z y (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4642State) '(k215Loop4642Stateeqd));
+
+theorem k215Loop4642StepZ (y z c: nat): $ k215PStep (k215Loop4642State k215PNum4642 0 y z c) = (k215Loop4642State k215PNum4646 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4642) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4642StepS (x y z c: nat): $ k215PStep (k215Loop4642State k215PNum4642 (suc x) y z c) = (k215Loop4642State k215PNum4643 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4642) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet1_vector)) (eqtr k215PSet1_vector (k215PVectoreq2 (eqtr subSS sub02))))));
+
+theorem k215Loop4642Step1 (x y z c: nat): $ k215PStep (k215Loop4642State k215PNum4643 x y z c) = (k215Loop4642State k215PNum4644 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4643) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet7_vector)) k215PSet7_vector)));
+
+theorem k215Loop4642Step2 (x y z c: nat): $ k215PStep (k215Loop4642State k215PNum4644 x y z c) = (k215Loop4642State k215PNum4645 x y (suc z) c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4644) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4642Back (x y z c: nat): $ k215PStep (k215Loop4642State k215PNum4645 x y z c) = (k215Loop4642State k215PNum4642 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4645);
+
+theorem k215Loop4642Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4642State k215PNum4642 (suc x) y z c) = (k215Loop4642State k215PNum4643 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4642StepS));
+
+theorem k215Loop4642Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4642State k215PNum4642 (suc x) y z c) = (k215Loop4642State k215PNum4644 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4642Cycle1) k215Loop4642Step1));
+
+theorem k215Loop4642Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4642State k215PNum4642 (suc x) y z c) = (k215Loop4642State k215PNum4645 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4642Cycle2) k215Loop4642Step2));
+
+theorem k215Loop4642Cycle4 (x y z c: nat): $ k215PIter 4 (k215Loop4642State k215PNum4642 (suc x) y z c) = (k215Loop4642State k215PNum4642 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4642Cycle3) k215Loop4642Back));
+
+@_ abstract def k215Loop4642Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (4 * x + 1) (k215Loop4642State k215PNum4642 x y z c) = (k215Loop4642State k215PNum4646 0 (x + y) (x + z) c) $;
+theorem k215Loop4642At (x y z c: nat): $ k215Loop4642Claim x c -> k215PIter (4 * x + 1) (k215Loop4642State k215PNum4642 x y z c) = (k215Loop4642State k215PNum4646 0 (x + y) (x + z) c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4642Base (y z c: nat): $ k215PIter (4 * 0 + 1) (k215Loop4642State k215PNum4642 0 y z c) = (k215Loop4642State k215PNum4646 0 (0 + y) (0 + z) c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4642StepZ (k215Loop4642Stateeq eqid eqid (eqcom add01) (eqcom add01) eqid)))));
+theorem k215Loop4642Inductive (x y z c: nat): $ k215Loop4642Claim x c -> k215PIter (4 * suc x + 1) (k215Loop4642State k215PNum4642 (suc x) y z c) = (k215Loop4642State k215PNum4646 0 (suc x + y) (suc x + z) c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4642Cycle4))))
+   (eqtrd k215Loop4642At (a1i (k215Loop4642Stateeq eqid eqid (eqtr addS (eqcom addS1)) (eqtr addS (eqcom addS1)) eqid))));
+theorem k215Loop4642All (x c: nat): $ k215Loop4642Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4642Base)) '(iald @ iald k215Loop4642Inductive));
+pub theorem k215Loop4642Transfer (x y z c: nat): $ k215PIter (4 * x + 1) (k215Loop4642State k215PNum4642 x y z c) = (k215Loop4642State k215PNum4646 0 (x + y) (x + z) c) $ =
+ '(ax_mp k215Loop4642At k215Loop4642All);
+
+
+theorem k215Loop4642VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4642State k215PNum4642 a1 a7 a6 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4642 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+theorem k215Loop4642VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4642State k215PNum4646 0 (a1 + a7) (a1 + a6) (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4646 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) (a1 + a7) a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+pub theorem k215Loop4642Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (4 * a1 + 1) (k215PState k215PNum4642 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4646 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) (a1 + a7) a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4642VectorIn)) (eqtr k215Loop4642Transfer k215Loop4642VectorOut));
+
+@_ def k215Loop4648State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z y (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) x (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4648State) '(k215Loop4648Stateeqd));
+
+theorem k215Loop4648StepZ (y z c: nat): $ k215PStep (k215Loop4648State k215PNum4648 0 y z c) = (k215Loop4648State k215PNum4651 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4648) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4648StepS (x y z c: nat): $ k215PStep (k215Loop4648State k215PNum4648 (suc x) y z c) = (k215Loop4648State k215PNum4649 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4648) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet6_vector)) (eqtr k215PSet6_vector (k215PVectoreq7 (eqtr subSS sub02))))));
+
+theorem k215Loop4648Step1 (x y z c: nat): $ k215PStep (k215Loop4648State k215PNum4649 x y z c) = (k215Loop4648State k215PNum4650 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4649) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4648Back (x y z c: nat): $ k215PStep (k215Loop4648State k215PNum4650 x y z c) = (k215Loop4648State k215PNum4648 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4650);
+
+theorem k215Loop4648Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4648State k215PNum4648 (suc x) y z c) = (k215Loop4648State k215PNum4649 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4648StepS));
+
+theorem k215Loop4648Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4648State k215PNum4648 (suc x) y z c) = (k215Loop4648State k215PNum4650 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4648Cycle1) k215Loop4648Step1));
+
+theorem k215Loop4648Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4648State k215PNum4648 (suc x) y z c) = (k215Loop4648State k215PNum4648 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4648Cycle2) k215Loop4648Back));
+
+@_ abstract def k215Loop4648Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4648State k215PNum4648 x y z c) = (k215Loop4648State k215PNum4651 0 (x + y) z c) $;
+theorem k215Loop4648At (x y z c: nat): $ k215Loop4648Claim x c -> k215PIter (3 * x + 1) (k215Loop4648State k215PNum4648 x y z c) = (k215Loop4648State k215PNum4651 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4648Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4648State k215PNum4648 0 y z c) = (k215Loop4648State k215PNum4651 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4648StepZ (k215Loop4648Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4648Inductive (x y z c: nat): $ k215Loop4648Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4648State k215PNum4648 (suc x) y z c) = (k215Loop4648State k215PNum4651 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4648Cycle3))))
+   (eqtrd k215Loop4648At (a1i (k215Loop4648Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4648All (x c: nat): $ k215Loop4648Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4648Base)) '(iald @ iald k215Loop4648Inductive));
+pub theorem k215Loop4648Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4648State k215PNum4648 x y z c) = (k215Loop4648State k215PNum4651 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4648At k215Loop4648All);
+
+
+theorem k215Loop4648VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4648State k215PNum4648 a6 a1 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4648 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4648VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4648State k215PNum4651 0 (a6 + a1) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4651 (k215PVector a0 (a6 + a1) a2 a3 a4 a5 0 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4648Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a6 + 1) (k215PState k215PNum4648 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4651 (k215PVector a0 (a6 + a1) a2 a3 a4 a5 0 a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4648VectorIn)) (eqtr k215Loop4648Transfer k215Loop4648VectorOut));
+
+@_ def k215Loop4652State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z y (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) (k215PR6 c) x (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4652State) '(k215Loop4652Stateeqd));
+
+theorem k215Loop4652StepZ (y z c: nat): $ k215PStep (k215Loop4652State k215PNum4652 0 y z c) = (k215Loop4652State k215PNum4658 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4652) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4652StepS (x y z c: nat): $ k215PStep (k215Loop4652State k215PNum4652 (suc x) y z c) = (k215Loop4652State k215PNum4653 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4652) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet7_vector)) (eqtr k215PSet7_vector (k215PVectoreq8 (eqtr subSS sub02))))));
+
+theorem k215Loop4652Step1 (x y z c: nat): $ k215PStep (k215Loop4652State k215PNum4653 x y z c) = (k215Loop4652State k215PNum4654 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4653) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4652Step2 (x y z c: nat): $ k215PStep (k215Loop4652State k215PNum4654 x y z c) = (k215Loop4652State k215PNum4655 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4654) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4652Step3 (x y z c: nat): $ k215PStep (k215Loop4652State k215PNum4655 x y z c) = (k215Loop4652State k215PNum4656 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4655) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4652Step4 (x y z c: nat): $ k215PStep (k215Loop4652State k215PNum4656 x y z c) = (k215Loop4652State k215PNum4657 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4656) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4652Back (x y z c: nat): $ k215PStep (k215Loop4652State k215PNum4657 x y z c) = (k215Loop4652State k215PNum4652 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4657);
+
+theorem k215Loop4652Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4652State k215PNum4652 (suc x) y z c) = (k215Loop4652State k215PNum4653 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4652StepS));
+
+theorem k215Loop4652Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4652State k215PNum4652 (suc x) y z c) = (k215Loop4652State k215PNum4654 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4652Cycle1) k215Loop4652Step1));
+
+theorem k215Loop4652Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4652State k215PNum4652 (suc x) y z c) = (k215Loop4652State k215PNum4655 x (suc (suc y)) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4652Cycle2) k215Loop4652Step2));
+
+theorem k215Loop4652Cycle4 (x y z c: nat): $ k215PIter 4 (k215Loop4652State k215PNum4652 (suc x) y z c) = (k215Loop4652State k215PNum4656 x (suc (suc (suc y))) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4652Cycle3) k215Loop4652Step3));
+
+theorem k215Loop4652Cycle5 (x y z c: nat): $ k215PIter 5 (k215Loop4652State k215PNum4652 (suc x) y z c) = (k215Loop4652State k215PNum4657 x (suc (suc (suc (suc y)))) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4652Cycle4) k215Loop4652Step4));
+
+theorem k215Loop4652Cycle6 (x y z c: nat): $ k215PIter 6 (k215Loop4652State k215PNum4652 (suc x) y z c) = (k215Loop4652State k215PNum4652 x (suc (suc (suc (suc y)))) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4652Cycle5) k215Loop4652Back));
+
+@_ abstract def k215Loop4652Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (6 * x + 1) (k215Loop4652State k215PNum4652 x y z c) = (k215Loop4652State k215PNum4658 0 (4 * x + y) z c) $;
+theorem k215Loop4652At (x y z c: nat): $ k215Loop4652Claim x c -> k215PIter (6 * x + 1) (k215Loop4652State k215PNum4652 x y z c) = (k215Loop4652State k215PNum4658 0 (4 * x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4652Base (y z c: nat): $ k215PIter (6 * 0 + 1) (k215Loop4652State k215PNum4652 0 y z c) = (k215Loop4652State k215PNum4658 0 (4 * 0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4652StepZ (k215Loop4652Stateeq eqid eqid (eqcom (eqtr (addeq1 mul0) add01)) eqid eqid)))));
+theorem k215Loop4652Inductive (x y z c: nat): $ k215Loop4652Claim x c -> k215PIter (6 * suc x + 1) (k215Loop4652State k215PNum4652 (suc x) y z c) = (k215Loop4652State k215PNum4658 0 (4 * suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4652Cycle6))))
+   (eqtrd k215Loop4652At (a1i (k215Loop4652Stateeq eqid eqid k215MPLoopFourShift eqid eqid))));
+theorem k215Loop4652All (x c: nat): $ k215Loop4652Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4652Base)) '(iald @ iald k215Loop4652Inductive));
+pub theorem k215Loop4652Transfer (x y z c: nat): $ k215PIter (6 * x + 1) (k215Loop4652State k215PNum4652 x y z c) = (k215Loop4652State k215PNum4658 0 (4 * x + y) z c) $ =
+ '(ax_mp k215Loop4652At k215Loop4652All);
+
+
+theorem k215Loop4652VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4652State k215PNum4652 a7 a1 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4652 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid k215PR8_vector));
+
+theorem k215Loop4652VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4652State k215PNum4658 0 (4 * a7 + a1) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4658 (k215PVector a0 (4 * a7 + a1) a2 a3 a4 a5 a6 0 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid k215PR8_vector));
+
+pub theorem k215Loop4652Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (6 * a7 + 1) (k215PState k215PNum4652 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4658 (k215PVector a0 (4 * a7 + a1) a2 a3 a4 a5 a6 0 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4652VectorIn)) (eqtr k215Loop4652Transfer k215Loop4652VectorOut));
+
+@_ def k215Loop4658State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z x (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) y (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4658State) '(k215Loop4658Stateeqd));
+
+theorem k215Loop4658StepZ (y z c: nat): $ k215PStep (k215Loop4658State k215PNum4658 0 y z c) = (k215Loop4658State k215PNum4661 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4658) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4658StepS (x y z c: nat): $ k215PStep (k215Loop4658State k215PNum4658 (suc x) y z c) = (k215Loop4658State k215PNum4659 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4658) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet1_vector)) (eqtr k215PSet1_vector (k215PVectoreq2 (eqtr subSS sub02))))));
+
+theorem k215Loop4658Step1 (x y z c: nat): $ k215PStep (k215Loop4658State k215PNum4659 x y z c) = (k215Loop4658State k215PNum4660 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4659) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4658Back (x y z c: nat): $ k215PStep (k215Loop4658State k215PNum4660 x y z c) = (k215Loop4658State k215PNum4658 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4660);
+
+theorem k215Loop4658Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4658State k215PNum4658 (suc x) y z c) = (k215Loop4658State k215PNum4659 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4658StepS));
+
+theorem k215Loop4658Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4658State k215PNum4658 (suc x) y z c) = (k215Loop4658State k215PNum4660 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4658Cycle1) k215Loop4658Step1));
+
+theorem k215Loop4658Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4658State k215PNum4658 (suc x) y z c) = (k215Loop4658State k215PNum4658 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4658Cycle2) k215Loop4658Back));
+
+@_ abstract def k215Loop4658Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4658State k215PNum4658 x y z c) = (k215Loop4658State k215PNum4661 0 (x + y) z c) $;
+theorem k215Loop4658At (x y z c: nat): $ k215Loop4658Claim x c -> k215PIter (3 * x + 1) (k215Loop4658State k215PNum4658 x y z c) = (k215Loop4658State k215PNum4661 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4658Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4658State k215PNum4658 0 y z c) = (k215Loop4658State k215PNum4661 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4658StepZ (k215Loop4658Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4658Inductive (x y z c: nat): $ k215Loop4658Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4658State k215PNum4658 (suc x) y z c) = (k215Loop4658State k215PNum4661 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4658Cycle3))))
+   (eqtrd k215Loop4658At (a1i (k215Loop4658Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4658All (x c: nat): $ k215Loop4658Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4658Base)) '(iald @ iald k215Loop4658Inductive));
+pub theorem k215Loop4658Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4658State k215PNum4658 x y z c) = (k215Loop4658State k215PNum4661 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4658At k215Loop4658All);
+
+
+theorem k215Loop4658VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4658State k215PNum4658 a1 a6 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4658 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4658VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4658State k215PNum4661 0 (a1 + a6) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4661 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4658Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a1 + 1) (k215PState k215PNum4658 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4661 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4658VectorIn)) (eqtr k215Loop4658Transfer k215Loop4658VectorOut));
+
+@_ def k215Loop4671State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z x (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) y (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4671State) '(k215Loop4671Stateeqd));
+
+theorem k215Loop4671StepZ (y z c: nat): $ k215PStep (k215Loop4671State k215PNum4671 0 y z c) = (k215Loop4671State k215PNum4674 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4671) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4671StepS (x y z c: nat): $ k215PStep (k215Loop4671State k215PNum4671 (suc x) y z c) = (k215Loop4671State k215PNum4672 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4671) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet1_vector)) (eqtr k215PSet1_vector (k215PVectoreq2 (eqtr subSS sub02))))));
+
+theorem k215Loop4671Step1 (x y z c: nat): $ k215PStep (k215Loop4671State k215PNum4672 x y z c) = (k215Loop4671State k215PNum4673 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4672) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4671Back (x y z c: nat): $ k215PStep (k215Loop4671State k215PNum4673 x y z c) = (k215Loop4671State k215PNum4671 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4673);
+
+theorem k215Loop4671Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4671State k215PNum4671 (suc x) y z c) = (k215Loop4671State k215PNum4672 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4671StepS));
+
+theorem k215Loop4671Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4671State k215PNum4671 (suc x) y z c) = (k215Loop4671State k215PNum4673 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4671Cycle1) k215Loop4671Step1));
+
+theorem k215Loop4671Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4671State k215PNum4671 (suc x) y z c) = (k215Loop4671State k215PNum4671 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4671Cycle2) k215Loop4671Back));
+
+@_ abstract def k215Loop4671Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4671State k215PNum4671 x y z c) = (k215Loop4671State k215PNum4674 0 (x + y) z c) $;
+theorem k215Loop4671At (x y z c: nat): $ k215Loop4671Claim x c -> k215PIter (3 * x + 1) (k215Loop4671State k215PNum4671 x y z c) = (k215Loop4671State k215PNum4674 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4671Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4671State k215PNum4671 0 y z c) = (k215Loop4671State k215PNum4674 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4671StepZ (k215Loop4671Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4671Inductive (x y z c: nat): $ k215Loop4671Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4671State k215PNum4671 (suc x) y z c) = (k215Loop4671State k215PNum4674 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4671Cycle3))))
+   (eqtrd k215Loop4671At (a1i (k215Loop4671Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4671All (x c: nat): $ k215Loop4671Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4671Base)) '(iald @ iald k215Loop4671Inductive));
+pub theorem k215Loop4671Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4671State k215PNum4671 x y z c) = (k215Loop4671State k215PNum4674 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4671At k215Loop4671All);
+
+
+theorem k215Loop4671VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4671State k215PNum4671 a1 a6 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4671 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4671VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4671State k215PNum4674 0 (a1 + a6) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4674 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4671Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a1 + 1) (k215PState k215PNum4671 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4674 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4671VectorIn)) (eqtr k215Loop4671Transfer k215Loop4671VectorOut));
+
+@_ def k215Loop4674State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z y x (k215PR3 c) (k215PR4 c) (k215PR5 c) (k215PR6 c) (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4674State) '(k215Loop4674Stateeqd));
+
+theorem k215Loop4674StepZ (y z c: nat): $ k215PStep (k215Loop4674State k215PNum4674 0 y z c) = (k215Loop4674State k215PNum4677 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4674) (ifeq (eqeq1 k215PGet2_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4674StepS (x y z c: nat): $ k215PStep (k215Loop4674State k215PNum4674 (suc x) y z c) = (k215Loop4674State k215PNum4675 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4674) (ifeq (eqeq1 k215PGet2_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet2_vector)) (eqtr k215PSet2_vector (k215PVectoreq3 (eqtr subSS sub02))))));
+
+theorem k215Loop4674Step1 (x y z c: nat): $ k215PStep (k215Loop4674State k215PNum4675 x y z c) = (k215Loop4674State k215PNum4676 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4675) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4674Back (x y z c: nat): $ k215PStep (k215Loop4674State k215PNum4676 x y z c) = (k215Loop4674State k215PNum4674 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4676);
+
+theorem k215Loop4674Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4674State k215PNum4674 (suc x) y z c) = (k215Loop4674State k215PNum4675 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4674StepS));
+
+theorem k215Loop4674Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4674State k215PNum4674 (suc x) y z c) = (k215Loop4674State k215PNum4676 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4674Cycle1) k215Loop4674Step1));
+
+theorem k215Loop4674Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4674State k215PNum4674 (suc x) y z c) = (k215Loop4674State k215PNum4674 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4674Cycle2) k215Loop4674Back));
+
+@_ abstract def k215Loop4674Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4674State k215PNum4674 x y z c) = (k215Loop4674State k215PNum4677 0 (x + y) z c) $;
+theorem k215Loop4674At (x y z c: nat): $ k215Loop4674Claim x c -> k215PIter (3 * x + 1) (k215Loop4674State k215PNum4674 x y z c) = (k215Loop4674State k215PNum4677 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4674Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4674State k215PNum4674 0 y z c) = (k215Loop4674State k215PNum4677 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4674StepZ (k215Loop4674Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4674Inductive (x y z c: nat): $ k215Loop4674Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4674State k215PNum4674 (suc x) y z c) = (k215Loop4674State k215PNum4677 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4674Cycle3))))
+   (eqtrd k215Loop4674At (a1i (k215Loop4674Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4674All (x c: nat): $ k215Loop4674Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4674Base)) '(iald @ iald k215Loop4674Inductive));
+pub theorem k215Loop4674Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4674State k215PNum4674 x y z c) = (k215Loop4674State k215PNum4677 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4674At k215Loop4674All);
+
+
+theorem k215Loop4674VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4674State k215PNum4674 a2 a1 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4674 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4674VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4674State k215PNum4677 0 (a2 + a1) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4677 (k215PVector a0 (a2 + a1) 0 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4674Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a2 + 1) (k215PState k215PNum4674 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4677 (k215PVector a0 (a2 + a1) 0 a3 a4 a5 a6 a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4674VectorIn)) (eqtr k215Loop4674Transfer k215Loop4674VectorOut));
+
+@_ def k215Loop4677State (pc x y z c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) x (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) z y (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4677State) '(k215Loop4677Stateeqd));
+
+theorem k215Loop4677StepZ (y z c: nat): $ k215PStep (k215Loop4677State k215PNum4677 0 y z c) = (k215Loop4677State k215PNum4681 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4677) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4677StepS (x y z c: nat): $ k215PStep (k215Loop4677State k215PNum4677 (suc x) y z c) = (k215Loop4677State k215PNum4678 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4677) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet1_vector)) (eqtr k215PSet1_vector (k215PVectoreq2 (eqtr subSS sub02))))));
+
+theorem k215Loop4677Step1 (x y z c: nat): $ k215PStep (k215Loop4677State k215PNum4678 x y z c) = (k215Loop4677State k215PNum4679 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4678) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet7_vector)) k215PSet7_vector)));
+
+theorem k215Loop4677Step2 (x y z c: nat): $ k215PStep (k215Loop4677State k215PNum4679 x y z c) = (k215Loop4677State k215PNum4680 x y (suc z) c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4679) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4677Back (x y z c: nat): $ k215PStep (k215Loop4677State k215PNum4680 x y z c) = (k215Loop4677State k215PNum4677 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4680);
+
+theorem k215Loop4677Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4677State k215PNum4677 (suc x) y z c) = (k215Loop4677State k215PNum4678 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4677StepS));
+
+theorem k215Loop4677Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4677State k215PNum4677 (suc x) y z c) = (k215Loop4677State k215PNum4679 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4677Cycle1) k215Loop4677Step1));
+
+theorem k215Loop4677Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4677State k215PNum4677 (suc x) y z c) = (k215Loop4677State k215PNum4680 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4677Cycle2) k215Loop4677Step2));
+
+theorem k215Loop4677Cycle4 (x y z c: nat): $ k215PIter 4 (k215Loop4677State k215PNum4677 (suc x) y z c) = (k215Loop4677State k215PNum4677 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4677Cycle3) k215Loop4677Back));
+
+@_ abstract def k215Loop4677Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (4 * x + 1) (k215Loop4677State k215PNum4677 x y z c) = (k215Loop4677State k215PNum4681 0 (x + y) (x + z) c) $;
+theorem k215Loop4677At (x y z c: nat): $ k215Loop4677Claim x c -> k215PIter (4 * x + 1) (k215Loop4677State k215PNum4677 x y z c) = (k215Loop4677State k215PNum4681 0 (x + y) (x + z) c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4677Base (y z c: nat): $ k215PIter (4 * 0 + 1) (k215Loop4677State k215PNum4677 0 y z c) = (k215Loop4677State k215PNum4681 0 (0 + y) (0 + z) c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4677StepZ (k215Loop4677Stateeq eqid eqid (eqcom add01) (eqcom add01) eqid)))));
+theorem k215Loop4677Inductive (x y z c: nat): $ k215Loop4677Claim x c -> k215PIter (4 * suc x + 1) (k215Loop4677State k215PNum4677 (suc x) y z c) = (k215Loop4677State k215PNum4681 0 (suc x + y) (suc x + z) c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4677Cycle4))))
+   (eqtrd k215Loop4677At (a1i (k215Loop4677Stateeq eqid eqid (eqtr addS (eqcom addS1)) (eqtr addS (eqcom addS1)) eqid))));
+theorem k215Loop4677All (x c: nat): $ k215Loop4677Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4677Base)) '(iald @ iald k215Loop4677Inductive));
+pub theorem k215Loop4677Transfer (x y z c: nat): $ k215PIter (4 * x + 1) (k215Loop4677State k215PNum4677 x y z c) = (k215Loop4677State k215PNum4681 0 (x + y) (x + z) c) $ =
+ '(ax_mp k215Loop4677At k215Loop4677All);
+
+
+theorem k215Loop4677VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4677State k215PNum4677 a1 a7 a6 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4677 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+theorem k215Loop4677VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4677State k215PNum4681 0 (a1 + a7) (a1 + a6) (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4681 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) (a1 + a7) a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+
+pub theorem k215Loop4677Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (4 * a1 + 1) (k215PState k215PNum4677 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4681 (k215PVector a0 0 a2 a3 a4 a5 (a1 + a6) (a1 + a7) a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4677VectorIn)) (eqtr k215Loop4677Transfer k215Loop4677VectorOut));
+
+@_ def k215Loop4683State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z y (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) x (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4683State) '(k215Loop4683Stateeqd));
+
+theorem k215Loop4683StepZ (y z c: nat): $ k215PStep (k215Loop4683State k215PNum4683 0 y z c) = (k215Loop4683State k215PNum4686 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4683) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4683StepS (x y z c: nat): $ k215PStep (k215Loop4683State k215PNum4683 (suc x) y z c) = (k215Loop4683State k215PNum4684 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4683) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet6_vector)) (eqtr k215PSet6_vector (k215PVectoreq7 (eqtr subSS sub02))))));
+
+theorem k215Loop4683Step1 (x y z c: nat): $ k215PStep (k215Loop4683State k215PNum4684 x y z c) = (k215Loop4683State k215PNum4685 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4684) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4683Back (x y z c: nat): $ k215PStep (k215Loop4683State k215PNum4685 x y z c) = (k215Loop4683State k215PNum4683 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4685);
+
+theorem k215Loop4683Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4683State k215PNum4683 (suc x) y z c) = (k215Loop4683State k215PNum4684 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4683StepS));
+
+theorem k215Loop4683Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4683State k215PNum4683 (suc x) y z c) = (k215Loop4683State k215PNum4685 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4683Cycle1) k215Loop4683Step1));
+
+theorem k215Loop4683Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4683State k215PNum4683 (suc x) y z c) = (k215Loop4683State k215PNum4683 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4683Cycle2) k215Loop4683Back));
+
+@_ abstract def k215Loop4683Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4683State k215PNum4683 x y z c) = (k215Loop4683State k215PNum4686 0 (x + y) z c) $;
+theorem k215Loop4683At (x y z c: nat): $ k215Loop4683Claim x c -> k215PIter (3 * x + 1) (k215Loop4683State k215PNum4683 x y z c) = (k215Loop4683State k215PNum4686 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4683Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4683State k215PNum4683 0 y z c) = (k215Loop4683State k215PNum4686 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4683StepZ (k215Loop4683Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4683Inductive (x y z c: nat): $ k215Loop4683Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4683State k215PNum4683 (suc x) y z c) = (k215Loop4683State k215PNum4686 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4683Cycle3))))
+   (eqtrd k215Loop4683At (a1i (k215Loop4683Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4683All (x c: nat): $ k215Loop4683Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4683Base)) '(iald @ iald k215Loop4683Inductive));
+pub theorem k215Loop4683Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4683State k215PNum4683 x y z c) = (k215Loop4683State k215PNum4686 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4683At k215Loop4683All);
+
+
+theorem k215Loop4683VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4683State k215PNum4683 a6 a1 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4683 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4683VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4683State k215PNum4686 0 (a6 + a1) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4686 (k215PVector a0 (a6 + a1) a2 a3 a4 a5 0 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4683Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a6 + 1) (k215PState k215PNum4683 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4686 (k215PVector a0 (a6 + a1) a2 a3 a4 a5 0 a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4683VectorIn)) (eqtr k215Loop4683Transfer k215Loop4683VectorOut));
+
+@_ def k215Loop4687State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z (k215PR1 c) y (k215PR3 c) (k215PR4 c) (k215PR5 c) (k215PR6 c) x (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4687State) '(k215Loop4687Stateeqd));
+
+theorem k215Loop4687StepZ (y z c: nat): $ k215PStep (k215Loop4687State k215PNum4687 0 y z c) = (k215Loop4687State k215PNum4690 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4687) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4687StepS (x y z c: nat): $ k215PStep (k215Loop4687State k215PNum4687 (suc x) y z c) = (k215Loop4687State k215PNum4688 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4687) (ifeq (eqeq1 k215PGet7_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet7_vector)) (eqtr k215PSet7_vector (k215PVectoreq8 (eqtr subSS sub02))))));
+
+theorem k215Loop4687Step1 (x y z c: nat): $ k215PStep (k215Loop4687State k215PNum4688 x y z c) = (k215Loop4687State k215PNum4689 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4688) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet2_vector)) k215PSet2_vector)));
+
+theorem k215Loop4687Back (x y z c: nat): $ k215PStep (k215Loop4687State k215PNum4689 x y z c) = (k215Loop4687State k215PNum4687 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4689);
+
+theorem k215Loop4687Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4687State k215PNum4687 (suc x) y z c) = (k215Loop4687State k215PNum4688 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4687StepS));
+
+theorem k215Loop4687Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4687State k215PNum4687 (suc x) y z c) = (k215Loop4687State k215PNum4689 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4687Cycle1) k215Loop4687Step1));
+
+theorem k215Loop4687Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4687State k215PNum4687 (suc x) y z c) = (k215Loop4687State k215PNum4687 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4687Cycle2) k215Loop4687Back));
+
+@_ abstract def k215Loop4687Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4687State k215PNum4687 x y z c) = (k215Loop4687State k215PNum4690 0 (x + y) z c) $;
+theorem k215Loop4687At (x y z c: nat): $ k215Loop4687Claim x c -> k215PIter (3 * x + 1) (k215Loop4687State k215PNum4687 x y z c) = (k215Loop4687State k215PNum4690 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4687Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4687State k215PNum4687 0 y z c) = (k215Loop4687State k215PNum4690 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4687StepZ (k215Loop4687Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4687Inductive (x y z c: nat): $ k215Loop4687Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4687State k215PNum4687 (suc x) y z c) = (k215Loop4687State k215PNum4690 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4687Cycle3))))
+   (eqtrd k215Loop4687At (a1i (k215Loop4687Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4687All (x c: nat): $ k215Loop4687Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4687Base)) '(iald @ iald k215Loop4687Inductive));
+pub theorem k215Loop4687Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4687State k215PNum4687 x y z c) = (k215Loop4687State k215PNum4690 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4687At k215Loop4687All);
+
+
+theorem k215Loop4687VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4687State k215PNum4687 a7 a2 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4687 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid k215PR8_vector));
+
+theorem k215Loop4687VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4687State k215PNum4690 0 (a7 + a2) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4690 (k215PVector a0 a1 (a7 + a2) a3 a4 a5 a6 0 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector eqid k215PR8_vector));
+
+pub theorem k215Loop4687Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a7 + 1) (k215PState k215PNum4687 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4690 (k215PVector a0 a1 (a7 + a2) a3 a4 a5 a6 0 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4687VectorIn)) (eqtr k215Loop4687Transfer k215Loop4687VectorOut));
+
+@_ def k215Loop4690State (pc x y z c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) y (k215PR2 c) (k215PR3 c) x (k215PR5 c) z (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4690State) '(k215Loop4690Stateeqd));
+
+theorem k215Loop4690StepZ (y z c: nat): $ k215PStep (k215Loop4690State k215PNum4690 0 y z c) = (k215Loop4690State k215PNum4694 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4690) (ifeq (eqeq1 k215PGet4_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4690StepS (x y z c: nat): $ k215PStep (k215Loop4690State k215PNum4690 (suc x) y z c) = (k215Loop4690State k215PNum4691 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4690) (ifeq (eqeq1 k215PGet4_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet4_vector)) (eqtr k215PSet4_vector (k215PVectoreq5 (eqtr subSS sub02))))));
+
+theorem k215Loop4690Step1 (x y z c: nat): $ k215PStep (k215Loop4690State k215PNum4691 x y z c) = (k215Loop4690State k215PNum4692 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4691) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet1_vector)) k215PSet1_vector)));
+
+theorem k215Loop4690Step2 (x y z c: nat): $ k215PStep (k215Loop4690State k215PNum4692 x y z c) = (k215Loop4690State k215PNum4693 x y (suc z) c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4692) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector)));
+
+theorem k215Loop4690Back (x y z c: nat): $ k215PStep (k215Loop4690State k215PNum4693 x y z c) = (k215Loop4690State k215PNum4690 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4693);
+
+theorem k215Loop4690Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4690State k215PNum4690 (suc x) y z c) = (k215Loop4690State k215PNum4691 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4690StepS));
+
+theorem k215Loop4690Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4690State k215PNum4690 (suc x) y z c) = (k215Loop4690State k215PNum4692 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4690Cycle1) k215Loop4690Step1));
+
+theorem k215Loop4690Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4690State k215PNum4690 (suc x) y z c) = (k215Loop4690State k215PNum4693 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4690Cycle2) k215Loop4690Step2));
+
+theorem k215Loop4690Cycle4 (x y z c: nat): $ k215PIter 4 (k215Loop4690State k215PNum4690 (suc x) y z c) = (k215Loop4690State k215PNum4690 x (suc y) (suc z) c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4690Cycle3) k215Loop4690Back));
+
+@_ abstract def k215Loop4690Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (4 * x + 1) (k215Loop4690State k215PNum4690 x y z c) = (k215Loop4690State k215PNum4694 0 (x + y) (x + z) c) $;
+theorem k215Loop4690At (x y z c: nat): $ k215Loop4690Claim x c -> k215PIter (4 * x + 1) (k215Loop4690State k215PNum4690 x y z c) = (k215Loop4690State k215PNum4694 0 (x + y) (x + z) c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4690Base (y z c: nat): $ k215PIter (4 * 0 + 1) (k215Loop4690State k215PNum4690 0 y z c) = (k215Loop4690State k215PNum4694 0 (0 + y) (0 + z) c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4690StepZ (k215Loop4690Stateeq eqid eqid (eqcom add01) (eqcom add01) eqid)))));
+theorem k215Loop4690Inductive (x y z c: nat): $ k215Loop4690Claim x c -> k215PIter (4 * suc x + 1) (k215Loop4690State k215PNum4690 (suc x) y z c) = (k215Loop4690State k215PNum4694 0 (suc x + y) (suc x + z) c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4690Cycle4))))
+   (eqtrd k215Loop4690At (a1i (k215Loop4690Stateeq eqid eqid (eqtr addS (eqcom addS1)) (eqtr addS (eqcom addS1)) eqid))));
+theorem k215Loop4690All (x c: nat): $ k215Loop4690Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4690Base)) '(iald @ iald k215Loop4690Inductive));
+pub theorem k215Loop4690Transfer (x y z c: nat): $ k215PIter (4 * x + 1) (k215Loop4690State k215PNum4690 x y z c) = (k215Loop4690State k215PNum4694 0 (x + y) (x + z) c) $ =
+ '(ax_mp k215Loop4690At k215Loop4690All);
+
+
+theorem k215Loop4690VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4690State k215PNum4690 a4 a1 a6 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4690 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4690VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4690State k215PNum4694 0 (a4 + a1) (a4 + a6) (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4694 (k215PVector a0 (a4 + a1) a2 a3 0 a5 (a4 + a6) a7 a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4690Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (4 * a4 + 1) (k215PState k215PNum4690 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4694 (k215PVector a0 (a4 + a1) a2 a3 0 a5 (a4 + a6) a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4690VectorIn)) (eqtr k215Loop4690Transfer k215Loop4690VectorOut));
+
+@_ def k215Loop4694State (pc x y z c: nat): nat = $ k215PState pc (k215PVector z (k215PR1 c) (k215PR2 c) (k215PR3 c) y (k215PR5 c) x (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Loop4694State) '(k215Loop4694Stateeqd));
+
+theorem k215Loop4694StepZ (y z c: nat): $ k215PStep (k215Loop4694State k215PNum4694 0 y z c) = (k215Loop4694State k215PNum4697 0 y z c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4694) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215Loop4694StepS (x y z c: nat): $ k215PStep (k215Loop4694State k215PNum4694 (suc x) y z c) = (k215Loop4694State k215PNum4695 x y z c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupExtraLoopsmp_4694) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet6_vector)) (eqtr k215PSet6_vector (k215PVectoreq7 (eqtr subSS sub02))))));
+
+theorem k215Loop4694Step1 (x y z c: nat): $ k215PStep (k215Loop4694State k215PNum4695 x y z c) = (k215Loop4694State k215PNum4696 x (suc y) z c) $ = '(eqtr (k215PAtCI k215PLookupExtraLoopsmp_4695) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet4_vector)) k215PSet4_vector)));
+
+theorem k215Loop4694Back (x y z c: nat): $ k215PStep (k215Loop4694State k215PNum4696 x y z c) = (k215Loop4694State k215PNum4694 x y z c) $ = '(k215PAtCC k215PLookupExtraLoopsmp_4696);
+
+theorem k215Loop4694Cycle1 (x y z c: nat): $ k215PIter 1 (k215Loop4694State k215PNum4694 (suc x) y z c) = (k215Loop4694State k215PNum4695 x y z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero) k215Loop4694StepS));
+
+theorem k215Loop4694Cycle2 (x y z c: nat): $ k215PIter 2 (k215Loop4694State k215PNum4694 (suc x) y z c) = (k215Loop4694State k215PNum4696 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4694Cycle1) k215Loop4694Step1));
+
+theorem k215Loop4694Cycle3 (x y z c: nat): $ k215PIter 3 (k215Loop4694State k215PNum4694 (suc x) y z c) = (k215Loop4694State k215PNum4694 x (suc y) z c) $ = '(eqtr k215PIter_succ (eqtr (k215PStepeq k215Loop4694Cycle2) k215Loop4694Back));
+
+@_ abstract def k215Loop4694Claim (x c: nat) (.y .z: nat): wff =
+ $ A. y A. z k215PIter (3 * x + 1) (k215Loop4694State k215PNum4694 x y z c) = (k215Loop4694State k215PNum4697 0 (x + y) z c) $;
+theorem k215Loop4694At (x y z c: nat): $ k215Loop4694Claim x c -> k215PIter (3 * x + 1) (k215Loop4694State k215PNum4694 x y z c) = (k215Loop4694State k215PNum4697 0 (x + y) z c) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215Loop4694Base (y z c: nat): $ k215PIter (3 * 0 + 1) (k215Loop4694State k215PNum4694 0 y z c) = (k215Loop4694State k215PNum4697 0 (0 + y) z c) $ =
+ '(eqtr (k215PItereq1 (eqtr (addeq1 mul0) add01))
+   (eqtr k215PIter_succ (eqtr (k215PStepeq k215PIter_zero)
+     (eqtr k215Loop4694StepZ (k215Loop4694Stateeq eqid eqid (eqcom add01) eqid eqid)))));
+theorem k215Loop4694Inductive (x y z c: nat): $ k215Loop4694Claim x c -> k215PIter (3 * suc x + 1) (k215Loop4694State k215PNum4694 (suc x) y z c) = (k215Loop4694State k215PNum4697 0 (suc x + y) z c) $ =
+ '(eqtrd (a1i (eqtr (k215PItereq1 k215EqTime_succ)
+     (eqtr k215PIter_add (k215PItereq2 k215Loop4694Cycle3))))
+   (eqtrd k215Loop4694At (a1i (k215Loop4694Stateeq eqid eqid (eqtr addS (eqcom addS1)) eqid eqid))));
+theorem k215Loop4694All (x c: nat): $ k215Loop4694Claim x c $ =
+ (named @ induct '(ind) 'x '(ax_gen (ax_gen k215Loop4694Base)) '(iald @ iald k215Loop4694Inductive));
+pub theorem k215Loop4694Transfer (x y z c: nat): $ k215PIter (3 * x + 1) (k215Loop4694State k215PNum4694 x y z c) = (k215Loop4694State k215PNum4697 0 (x + y) z c) $ =
+ '(ax_mp k215Loop4694At k215Loop4694All);
+
+
+theorem k215Loop4694VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4694State k215PNum4694 a6 a4 a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4694 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215Loop4694VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ (k215Loop4694State k215PNum4697 0 (a6 + a4) a0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) = k215PState k215PNum4697 (k215PVector a0 a1 a2 a3 (a6 + a4) a5 0 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector eqid k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Loop4694Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PIter (3 * a6 + 1) (k215PState k215PNum4694 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) =
+   k215PState k215PNum4697 (k215PVector a0 a1 a2 a3 (a6 + a4) a5 0 a7 a8) $ =
+ '(eqtr (k215PItereq2 (eqcom k215Loop4694VectorIn)) (eqtr k215Loop4694Transfer k215Loop4694VectorOut));
+

@@ -1,0 +1,13 @@
+import "source_reflection_transfer_tv_inputs.mm1";
+
+@_ def sfTVShiftMemberRow(H:wff)(G y k j:nat):wff = $ H -> j < suc k -> nsLocal ((sfMem 0 (suc y)) : sfContextShift G) (sfMem (sfIdentityMap @ j) (suc y)) $;
+
+theorem sftvm_zero(H:wff)(G y k:nat): $ sfTVShiftMemberRow H G y k 0 $ = (named '(a1i (a1i (mpbir (nsLocal_formula_eq (nsMem_eq sfIdentityMap_value eqid)) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContext_member_head)))));
+
+theorem sftvm_suc(H:wff)(G y k j:nat)(hm:$ H -> sfReflectionDnMembers sfIdentityMap G y k $): $ sfTVShiftMemberRow H G y k (suc j) $ = (named '(exp (syl (bi2 (nsLocal_formula_eq (nsMem_eq sfIdentityMap_value eqid))) (mpd (mpbid (a1i (nsLocal_formula_eq (eqtr sfShift_sfMem (nsMem_eq sfShiftIndex_zero sfShiftIndex_zero)))) (syl sfSepLocal_shift (mpbid (a1i (nsLocal_formula_eq (nsMem_eq sfIdentityMap_value eqid))) (mpd (mpbird (a1i ltsuc) anr) (syl sfReflectionDnMembers_at (syl hm anl)))))) (a1i (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons))))));
+
+theorem sftvm_all(H:wff)(G y k j:nat)(hm:$ H -> sfReflectionDnMembers sfIdentityMap G y k $): $ sfTVShiftMemberRow H G y k j $ = (named @ induct '(ind) 'j 'sftvm_zero '(a1i (sftvm_suc hm)));
+
+pub theorem sfTVMembers_shift_if(H:wff)(G y k:nat)(hm:$ H -> sfReflectionDnMembers sfIdentityMap G y k $): $ H -> sfReflectionDnMembers sfIdentityMap ((sfMem 0 (suc y)) : sfContextShift G) (suc y) (suc k) $ = (named '(!! iald j @ sftvm_all hm));
+
+pub theorem sfTVMembers_shift(G y k:nat)(hm:$ sfReflectionDnMembers sfIdentityMap G y k $): $ sfReflectionDnMembers sfIdentityMap ((sfMem 0 (suc y)) : sfContextShift G) (suc y) (suc k) $ = (named '(trud (sfTVMembers_shift_if (a1i hm))));

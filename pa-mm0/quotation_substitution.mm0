@@ -1,0 +1,88 @@
+import "k230_substitution.mm0";
+
+import "quotation_binders.mm0";
+
+import "quotation_freshness.mm0";
+
+def kReplaceEnvironment (x y: nat) (E: set) (.i: nat): set =
+ $ \ i, kReplace x y (E @ i) $;
+
+theorem kReplaceEnvironment_value (x y: nat) (E: set) (i: nat):
+ $ kReplaceEnvironment x y E @ i = kReplace x y (E @ i) $;
+
+theorem sfNamedIndex_replace (E: set) (k d i x y: nat) (hk: $ x < k $):
+ $ kReplace x y (sfNamedIndex E k d i) =
+ sfNamedIndex (kReplaceEnvironment x y E) k d i $;
+
+theorem qsSubst_kF (x y: nat) (hz: $ x != 0 $):
+ $ kSubst kF x y = kF $;
+
+theorem qsSubst_kNot (a x y: nat) (hz: $ x != 0 $):
+ $ kSubst (kNot a) x y = kNot (kSubst a x y) $;
+
+theorem qsSubst_kAnd (a b x y: nat) (hz: $ x != 0 $):
+ $ kSubst (kAnd a b) x y = kAnd (kSubst a x y) (kSubst b x y) $;
+
+theorem qsSubst_kDisj (a b x y: nat) (hz: $ x != 0 $):
+ $ kSubst (kDisj a b) x y = kDisj (kSubst a x y) (kSubst b x y) $;
+
+theorem qsSubst_kExists (a b x y: nat) (hz: $ x != 0 $):
+ $ a != x -> kSubst (kExists a b) x y = kExists a (kSubst b x y) $;
+
+def ntSubstClass (E: set) (k x y: nat) (.c .d: nat): set =
+$ {c | A. d (kSubst (sfNamedTemplate E k d c) x y =
+ sfNamedTemplate (kReplaceEnvironment x y E) k d c)} $;
+
+theorem ntSubst_value {d: nat} (E: set) (k x y c: nat):
+ $ c e. ntSubstClass E k x y <-> A. d
+ (kSubst (sfNamedTemplate E k d c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k d c) $;
+
+theorem sfNamedTemplate_substitution (E: set) (k d c x y: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfWf c -> kSubst (sfNamedTemplate E k d c) x y =
+ sfNamedTemplate (kReplaceEnvironment x y E) k d c $;
+
+theorem kReplace_if (P: wff) (x y a b: nat):
+ $ kReplace x y (if P a b) = if P (kReplace x y a) (kReplace x y b) $;
+
+theorem sqEqual_substitution (t a b k x y: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ kSubst (sqEqual t a b k) x y =
+ sqEqual (kReplace x y t) (kReplace x y a) (kReplace x y b) k $;
+
+theorem sqMember_substitution (t a b k x y: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ kSubst (sqMember t a b k) x y =
+ sqMember (kReplace x y t) (kReplace x y a) (kReplace x y b) k $;
+
+def qqSubstClass (E: set) (t k x y: nat) (.c .d: nat): set =
+$ {c | A. d (kSubst (sqQuote E t k d c) x y =
+ sqQuote (kReplaceEnvironment x y E) (kReplace x y t) k d c)} $;
+
+theorem qqSubst_value {d: nat} (E: set) (t k x y c: nat):
+ $ c e. qqSubstClass E t k x y <-> A. d
+ (kSubst (sqQuote E t k d c) x y = sqQuote (kReplaceEnvironment x y E) (kReplace x y t) k d c) $;
+
+theorem sqQuote_substitution (E: set) (t k d c x y: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfWf c -> kSubst (sqQuote E t k d c) x y =
+ sqQuote (kReplaceEnvironment x y E) (kReplace x y t) k d c $;
+
+theorem kReplaceEnvironment_cons_agree (E: set) (n k y: nat):
+ $ sqEnvAvoid E n k -> sqEnvAgree
+ (kReplaceEnvironment k y (sqEnvCons k E)) (sqEnvCons y E) (suc n) $;
+
+theorem kReplaceEnvironment_avoid (E: set) (n x y: nat):
+ $ sqEnvAvoid E n x -> sqEnvAgree (kReplaceEnvironment x y E) E n $;
+
+theorem sfNamedTemplate_substitution_cons (E: set) (n k y c: nat)
+ (hz: $ k != 0 $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) c ->
+ kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) 0 c) k y =
+ sfNamedTemplate (sqEnvCons y E) (suc k) 0 c $;
+
+theorem sqQuote_substitution_cons (E: set) (n t k y c: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) c ->
+ kSubst (sqQuote (sqEnvCons k E) t (suc k) 0 c) k y =
+ sqQuote (sqEnvCons y E) t (suc k) 0 c $;

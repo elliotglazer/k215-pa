@@ -1,0 +1,25 @@
+import "bb215_arithmetic_formula_depth_two_sat.mm0";
+
+import "bb215_arithmetic_formula_projections.mm0";
+
+import "bb215_arithmetic_formula_predecessor.mm0";
+
+import "bb215_arithmetic_formula_list_graph.mm0";
+
+def bb215ArithmeticFormulaTailGraph (l t .p: nat): wff = $ E. p (bb215ArithmeticFormulaPredecessorGraph l p /\ bb215ArithmeticFormulaSndGraph p t) $;
+
+theorem bb215ArithmeticFormulaTailGraph_correct (l t: nat): $ bb215ArithmeticFormulaTailGraph l t <-> bb215ArithmeticFormulaListTail l = t $;
+
+def bb215ArithmeticFormulaTailCode: nat = $ paFormulaEx (paFormulaAnd (paFormulaOr (paFormulaAnd (paFormulaEqual (paTermVariable 1) (paTermZero)) (paFormulaEqual (paTermVariable 0) (paTermZero))) (paFormulaEqual (paTermVariable 1) (paTermSuccessor (paTermVariable 0)))) (paFormulaEx (paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 1)) (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable 0) (paTermVariable 3)) (paTermSuccessor (paTermAddition (paTermVariable 0) (paTermVariable 3)))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 3)))))) $;
+
+def bb215ArithmeticFormulaTailSource: nat = $ paSourceFormulaEx (sfAnd (sfOr (sfAnd (paSourceFormulaEqual (paSourceTermVariable 1) (paSourceTermZero)) (paSourceFormulaEqual (paSourceTermVariable 0) (paSourceTermZero))) (paSourceFormulaEqual (paSourceTermVariable 1) (paSourceTermSuccessor (paSourceTermVariable 0)))) (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 1)) (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable 0) (paSourceTermVariable 3)) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable 0) (paSourceTermVariable 3)))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 3)))))) $;
+
+theorem bb215ArithmeticFormulaTailCode_bound: $ paFormulaBound 2 bb215ArithmeticFormulaTailCode $;
+
+theorem bb215ArithmeticFormulaTailCode_satisfies (E: set): $ bb215ArithmeticFormulaDepthTwoSat E bb215ArithmeticFormulaTailCode <-> bb215ArithmeticFormulaTailGraph (E @ 0) (E @ 1) $;
+
+theorem bb215ArithmeticFormulaTailCode_represents (E: set): $ bb215ArithmeticFormulaDepthTwoSat E bb215ArithmeticFormulaTailCode <-> bb215ArithmeticFormulaListTail (E @ 0) = E @ 1 $;
+
+theorem bb215ArithmeticFormulaTailSource_exact: $ paFormulaSource bb215ArithmeticFormulaTailCode = bb215ArithmeticFormulaTailSource $;
+
+theorem bb215ArithmeticFormulaTailSource_bound: $ sfBound 2 bb215ArithmeticFormulaTailSource $;

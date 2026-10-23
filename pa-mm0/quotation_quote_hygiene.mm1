@@ -1,0 +1,67 @@
+import "quotation_rebase_hygiene.mm1";
+
+@_ def sqQuoteHygiene (E: set) (n t k c: nat): wff =
+ $ sqRebaseHygiene E n k c sqAllocationMargin /\
+   sqAllocAvoid k (suc (c + sqAllocationMargin)) t $;
+pub theorem sqQuoteHygiene_base (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> sqRebaseHygiene E n k c sqAllocationMargin $ = 'anl;
+pub theorem sqQuoteHygiene_tag (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> sqAllocAvoid k (suc (c + sqAllocationMargin)) t $ = 'anr;
+pub theorem sqQuoteHygiene_nonzero (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> k != 0 $ =
+'(syl sqRebaseHygiene_nonzero anl);
+pub theorem sqQuoteHygiene_tag_neq (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> k != t $ =
+'(syl necom @ mpbid (a1i (noteq (eqeq2 add0))) @
+ syl (mpi lt01S sqAllocAvoid_at) anr);
+pub theorem sqQuoteHygiene_avoid (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> sqEnvAvoid E n k $ =
+'(syl sqRebaseHygiene_avoid anl);
+pub theorem sqQuoteHygiene_subformula (E: set) (n t k a c: nat) (ha: $ a <= c $):
+ $ sqQuoteHygiene E n t k c -> sqQuoteHygiene E n t k a $ =
+'(iand (syl (sqRebaseHygiene_subformula ha) anl)
+ (syl (sqAllocAvoid_mono (mpbi lesuc (mpbi leadd1 ha))) anr));
+pub theorem sqQuoteHygiene_agree (E F: set) (n t k c: nat) (he: $ sqEnvAgree E F n $):
+ $ sqQuoteHygiene E n t k c -> sqQuoteHygiene F n t k c $ =
+'(iand (syl (sqRebaseHygiene_agree he) anl) anr);
+pub theorem sqQuoteHygiene_stack_child (S n t k a c y: nat) (E: set) (ha: $ a < c $):
+ $ sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqAllocAvoid (suc k) (suc (a + sqAllocationMargin)) y ->
+ sqQuoteHygiene (sqStackEnv (y : S) E) (suc n) t (suc k) a $ =
+'(exp @ iand
+ (mpd anr (syl (sqRebaseHygiene_stack_child ha) (syl anl anl)))
+ (syl (sqAllocAvoid_successor ha) (syl anr anl)));
+
+theorem sqQH_if (G P: wff) (k q a b: nat)
+ (ha: $ G -> sqAllocAvoid k q a $) (hb: $ G -> sqAllocAvoid k q b $):
+ $ G -> sqAllocAvoid k q (if P a b) $ =
+'(casesda
+ (mpbird (sqAllocAvoideq3d (syl ifpos anr)) (syl ha anl))
+ (mpbird (sqAllocAvoideq3d (syl ifneg anr)) (syl hb anl)));
+theorem sqQH_atom_value (t a b i: nat):
+ $ sqAtomEnvironment t a b @ i = if (i = 0) t (if (i = 1) a b) $ =
+(named '(!! applame j ,eqtac));
+theorem sqQH_atom_at (G: wff) (t a b k q i: nat)
+ (ht: $ G -> sqAllocAvoid k q t $) (ha: $ G -> sqAllocAvoid k q a $)
+ (hb: $ G -> sqAllocAvoid k q b $):
+ $ G -> sqAllocAvoid k q (sqAtomEnvironment t a b @ i) $ =
+'(mpbird (a1i (sqAllocAvoideq3 sqQH_atom_value)) (sqQH_if ht (sqQH_if ha hb)));
+theorem sqQH_atom_range (G: wff) (t a b k q: nat)
+ (ht: $ G -> sqAllocAvoid k q t $) (ha: $ G -> sqAllocAvoid k q a $)
+ (hb: $ G -> sqAllocAvoid k q b $):
+ $ G -> sqRangeEnvironment (sqAtomEnvironment t a b) 3 k q $ =
+(named '(!! iald i @ a1d @ sqQH_atom_at ht ha hb));
+theorem sqQH_narrow (k p q x: nat) (hq: $ q <= sqAllocationMargin $):
+ $ sqAllocAvoid k (suc (p + sqAllocationMargin)) x -> sqAllocAvoid k (suc (q + 0)) x $ =
+'(sqAllocAvoid_mono (mpbi lesuc (mpbir (leeq1 add0) (letr hq leaddid2))));
+pub theorem sqQuoteHygiene_atom_template (G: wff) (E: set) (n t k p q a b: nat)
+ (hq: $ q <= sqAllocationMargin $)
+ (hh: $ G -> sqQuoteHygiene E n t k p $)
+ (ha: $ G -> a < n $) (hb: $ G -> b < n $):
+ $ G -> sqRebaseHygiene (sqAtomEnvironment t (E @ a) (E @ b)) 3 k q 0 $ =
+'(iand
+ (syl (sqQH_narrow hq) (syl sqRebaseHygiene_zero (syl anl hh)))
+ (sqQH_atom_range
+  (syl (sqQH_narrow hq) (syl anr hh))
+  (syl (sqQH_narrow hq) (mpd ha (syl sqRangeEnvironment_at (syl sqRebaseHygiene_environment (syl anl hh)))))
+  (syl (sqQH_narrow hq) (mpd hb (syl sqRangeEnvironment_at (syl sqRebaseHygiene_environment (syl anl hh)))))));

@@ -1,0 +1,19 @@
+-- L10 assembly at the literal level, with the AWS-only native runtime law
+-- k215PNativeLaw (proved as k215PActualNativeLaw in
+-- k215_literal_runtime_native_assembled_full) kept as an explicit antecedent.
+-- This module avoids the 173-file runtime chain. Its closure still needs
+-- k215_literal_boot_full.mm1 (29 MB, over the git limit) and
+-- k215_literal_runtime_pc_bound.mm1 (4 MB), so it is HOST-ONLY until those
+-- two sources are available to the checker.
+import "k215_literal_runtime_conditional.mm0";
+import "k215_assembly_program_source.mm0";
+
+theorem k215AssemblyNative_literal_iff_kInconsistent:
+ $ k215PNativeLaw -> (k215LiteralHalts <-> k215Inconsistent) $;
+
+theorem k215AssemblyNative_literal_iff_k218Inconsistent:
+ $ k215PNativeLaw -> (k215LiteralHalts <-> k218Inconsistent) $;
+
+-- The second antecedent is the open K-to-ZFC refutation transfer (M3L applied to G2L).
+theorem k215AssemblyNative_halts_ZFC_given_transfer:
+ $ k215PNativeLaw -> (k215Inconsistent -> zfcInconsistent) -> k215LiteralHalts -> zfcInconsistent $;

@@ -1,0 +1,52 @@
+import "extracted_named_rebase.mm1";
+import "k230_fresh_allocation.mm1";
+
+pub theorem exNamed_rebase (E: set) (n k l a: nat)
+ (hk: $ 0 < k $) (hl: $ 0 < l $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n l $)
+ (ha: $ sfBound n a $):
+ $ kEquivalent (sfNamedTemplate E k 0 a) (sfNamedTemplate E l 0 a) $ =
+'(ax_mp (ax_mp (ax_mp sfNamedTemplate_fresh_base_equivalent ha)
+ (ian (sqAllocAvoid_below hk) (ax_mp sqSQ_range_below he)))
+ (ian (sqAllocAvoid_below hl) (ax_mp sqSQ_range_below hf)));
+
+pub theorem exNamed_allI (E: set) (H n k z a: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (ha: $ sfBound n (sfAll a) $) (hh: $ kContextFresh H z $):
+ $ kHypProvable H (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a) ->
+   kHypProvable H (sfNamedTemplate E k 0 (sfAll a)) $ =
+'(rsyl (kHypProvable_gen_fresh hh)
+ (rsyl (bi2 (kHypProvableeq2 (ax_mp sfNamedTemplate_all_cons
+   (ax_mp sfBound_wf (mpbi sfBound_sfAll ha)))))
+  (mpi (kHypProvable_seed (anr (exNamed_rebase hk hz he hf ha))) kHypProvable_mp)));
+
+theorem exNamed_exE_minor (E: set) (H n k z a c: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (hc: $ sfBound n c $):
+ $ kHypProvable (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a : H)
+    (sfNamedTemplate (sqEnvCons z E) (suc z) 0 (sfShift 0 c)) ->
+   kHypProvable H (kImp (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a)
+    (sfNamedTemplate E k 0 c)) $ =
+'(rsyl (bi1 (kHypProvableeq2 (ax_mp sfNamedTemplate_source_shift (ax_mp sfBound_wf hc))))
+ (rsyl (mpi (kHypProvable_seed (anr (exNamed_rebase hk lt01S he
+   (ax_mp sqEnvBelow_successor hf) hc))) kHypProvable_mp)
+  kHypProvable_deduction));
+
+pub theorem exNamed_exE (E: set) (H n k z a c: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (ha: $ sfBound n (sfEx a) $) (hc: $ sfBound n c $)
+ (hh: $ kContextFresh H z $) (hfresh: $ kFresh (sfNamedTemplate E k 0 c) z $):
+ $ kHypProvable H (sfNamedTemplate E k 0 (sfEx a)) ->
+   kHypProvable (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a : H)
+    (sfNamedTemplate (sqEnvCons z E) (suc z) 0 (sfShift 0 c)) ->
+   kHypProvable H (sfNamedTemplate E k 0 c) $ =
+'(exp @ sylc
+ (kHypProvable_exists_elim (ax_mp kContextFresh_vacuous hh)
+   (ax_mp kFresh_vacuity hfresh))
+ (syl (rsyl (mpi (kHypProvable_seed (anl (exNamed_rebase hk hz he hf ha))) kHypProvable_mp)
+   (bi1 (kHypProvableeq2 (ax_mp sfNamedTemplate_ex_cons
+     (ax_mp sfBound_wf (mpbi sfBound_sfEx ha)))))) anl)
+ (syl (exNamed_exE_minor hk hz he hf hc) anr));

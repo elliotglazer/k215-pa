@@ -1,0 +1,63 @@
+import "source_theory_renaming.mm1";
+import "source_hypothesis_replacement.mm1";
+
+def sfTheoryProofClass (T: set) (.a: nat): set = $ {a | sfTheoryProvable T a} $;
+@_ def sfTheorySupport (T: set) (L H: nat): wff =
+$ sfTheoryContext T H /\ sfLocalCoverage H L $;
+pub theorem sfTheoryProofClass_value (T: set) (a: nat):
+  $ a e. sfTheoryProofClass T <-> sfTheoryProvable T a $ =
+(named '(elabe @ sfTheoryProvable_congr id));
+
+theorem sfTS_local_weaken_member (G H a: nat):
+  $ sfContextWf H /\ sfContextSub G H -> a e. sfLocalProofClass G -> a e. sfLocalProofClass H $ =
+'(syl5 (bi1 sfLocalProofClass_value) @ syl6 (bi2 sfLocalProofClass_value) @ imp nsLocal_weaken);
+theorem sfTS_local_class_sub (G H: nat):
+  $ sfContextWf H /\ sfContextSub G H -> sfLocalProofClass G C_ sfLocalProofClass H $ =
+(named '(iald sfTS_local_weaken_member));
+pub theorem sfLocalCoverage_mono (G H L: nat):
+  $ sfContextWf H -> sfContextSub G H -> sfLocalCoverage G L -> sfLocalCoverage H L $ =
+'(exp @ syl ssall sfTS_local_class_sub);
+
+theorem sfTS_support_at (T: set) (G p a: nat):
+  $ sfTheoryContext T G /\ sfNDFullDerives p (sfSequent G a) ->
+    sfTheoryContext T G /\ nsLocal G a $ =
+'(iand anl (syl nsLocal_intro anr));
+pub theorem sfTheoryProvable_support {H: nat} (T: set) (a: nat):
+  $ sfTheoryProvable T a -> E. H (sfTheoryContext T H /\ nsLocal H a) $ =
+(named '(eex @ eex @ syl (iexe ,eqtac) sfTS_support_at));
+
+theorem sfTS_union_context (T: set) (G J: nat):
+  $ sfTheoryContext T G /\ sfTheoryContext T J -> sfTheoryContext T (G ++ J) $ =
+'(bi2 sfTheoryContext_append);
+theorem sfTS_union_wf (T: set) (G J: nat) (ht: $ sfTheoryClosed T $):
+  $ sfTheoryContext T G /\ sfTheoryContext T J -> sfContextWf (G ++ J) $ =
+'(syl (ax_mp sfTheoryContext_wf ht) sfTS_union_context);
+theorem sfTS_step_at (T: set) (a L G J: nat) (ht: $ sfTheoryClosed T $):
+  $ sfTheorySupport T L G /\ (sfTheoryContext T J /\ nsLocal J a) -> sfTheorySupport T (a : L) (G ++ J) $ =
+'(iand
+  (syl sfTS_union_context (iand anll anrl))
+  (syl (bi2 sfLocalCoverage_cons) @ iand
+    (mpd anrr @ mpi zfcContextSub_append_right @ syl nsLocal_weaken @
+      syl (sfTS_union_wf ht) (iand anll anrl))
+    (mpd anlr @ mpi zfcContextSub_append_left @ syl sfLocalCoverage_mono @
+      syl (sfTS_union_wf ht) (iand anll anrl))));
+theorem sfTS_step_exists_right (T: set) (a L G: nat) (ht: $ sfTheoryClosed T $):
+  $ sfTheorySupport T L G -> sfTheoryProvable T a -> E. H sfTheorySupport T (a : L) H $ =
+(named '(syl5 sfTheoryProvable_support @ eexd @ exp @ syl (iexe ,eqtac) (sfTS_step_at ht)));
+theorem sfTS_step_exists (T: set) (a L: nat) (ht: $ sfTheoryClosed T $):
+  $ (E. H sfTheorySupport T L H) -> sfTheoryProvable T a -> E. H sfTheorySupport T (a : L) H $ =
+(named '(syl (eex (sfTS_step_exists_right ht)) (bi1 (cbvex ,eqtac))));
+theorem sfTS_finite_step (T: set) (a L: nat) (ht: $ sfTheoryClosed T $):
+  $ (all (sfTheoryProofClass T) L -> E. H sfTheorySupport T L H) ->
+    all (sfTheoryProofClass T) (a : L) -> E. H sfTheorySupport T (a : L) H $ =
+'(exp @ mpd (syl (bi1 sfTheoryProofClass_value) (syl anl (syl (bi1 allS) anr))) @
+  syl (sfTS_step_exists ht) @ mpd (syl anr (syl (bi1 allS) anr)) anl);
+theorem sfTS_zero (T: set): $ sfTheorySupport T 0 0 $ =
+'(ian sfTheoryContext_nil sfLocalCoverage_nil);
+theorem sfTS_zero_exists (T: set): $ E. H sfTheorySupport T 0 H $ =
+(named '(ax_mp (iexe ,eqtac) sfTS_zero));
+pub theorem sfTheory_finite_support {H: nat} (T: set) (L: nat) (ht: $ sfTheoryClosed T $):
+  $ all (sfTheoryProofClass T) L -> E. H sfTheorySupport T L H $ =
+(named @ induct '(listind) 'L
+  '(a1i sfTS_zero_exists)
+  '(sfTS_finite_step ht));

@@ -1,0 +1,38 @@
+import "k215_calculus_source_commands.mm0";
+import "k215_calculus_source_cycle_positive.mm0";
+import "k215_calculus_iterator_algebra.mm0";
+
+def k215PProgressResult (p r: nat): wff =
+ $ ifp (r = 0) (k215PHaltsFrom p) (k215PProgress p (k215PEnumConfig (r - 1))) $;
+
+theorem k215PProgressResult_none (p: nat):
+ $ k215PProgressResult p 0 <-> k215PHaltsFrom p $;
+
+theorem k215PProgressResult_some (p t: nat):
+ $ k215PProgressResult p (suc t) <-> k215PProgress p (k215PEnumConfig t) $;
+
+theorem k215PProgressResult_comp (p u r: nat):
+ $ k215PProgress p u -> k215PCommandResult u r -> k215PProgressResult p r $;
+
+theorem k215PProgress_halts (p t: nat):
+ $ k215PProgress p t -> k215PHaltsFrom t -> k215PHaltsFrom p $;
+
+def k215POptionHalts (r: nat): wff =
+ $ ifp (r = 0) T. (k215PHaltsFrom (k215PEnumConfig (r - 1))) $;
+
+theorem k215POptionHalts_none: $ k215POptionHalts 0 $;
+
+theorem k215POptionHalts_some (s: nat):
+ $ k215POptionHalts (suc s) <-> k215PHaltsFrom (k215PEnumConfig s) $;
+
+theorem k215PProgressResult_halts (p r: nat):
+ $ k215PProgressResult p r -> k215POptionHalts r -> k215PHaltsFrom p $;
+
+theorem k215EnumIter_after_step (n s: nat):
+ $ k215EnumIter (suc n) s = k215EnumOptionIter n (k215EnumStep s) $;
+
+theorem k215EnumIter_step_zero (n s: nat):
+ $ k215EnumStep s = 0 -> k215EnumIter (suc n) s = 0 $;
+
+theorem k215EnumIter_step_some (n s t: nat):
+ $ k215EnumStep s = suc t -> k215EnumIter (suc n) s = k215EnumIter n t $;

@@ -1,0 +1,47 @@
+import "source_l_common_level_setrel.mm1";
+
+import "source_structural_induction.mm1";
+
+import "source_syntax_laws.mm1";
+
+@_ def sfCLSetRelBoundClass (.c .n .d: nat): set = $ {c | A. n A. d (sfBound n c -> d < n -> sfBound n (sfCLSetRel d c))} $;
+
+theorem clrb_bound_eq (n a b: nat) (h: $ a = b $): $ sfBound n a <-> sfBound n b $ = (named '(ax_mp srecpeq2 (preq2 h)));
+
+theorem clrb_value (c: nat): $ c e. sfCLSetRelBoundClass <-> A. n A. d (sfBound n c -> d < n -> sfBound n (sfCLSetRel d c)) $ = (named '(elabe ,eqtac));
+
+theorem clrb_each (c n d: nat): $ (A. x A. y (sfBound x c -> y < x -> sfBound x (sfCLSetRel y c))) -> sfBound n c -> d < n -> sfBound n (sfCLSetRel d c) $ = (named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+theorem clrb_at (c n d: nat): $ c e. sfCLSetRelBoundClass -> sfBound n c -> d < n -> sfBound n (sfCLSetRel d c) $ = (named '(syl clrb_each (bi1 clrb_value)));
+
+theorem clrb_apply (H: wff) (c n d: nat) (hc: $ H -> c e. sfCLSetRelBoundClass $) (hb: $ H -> sfBound n c $) (hd: $ H -> d < n $): $ H -> sfBound n (sfCLSetRel d c) $ = (named '(mpd hd (mpd hb (syl clrb_at hc))));
+
+theorem clrb_bot : $ sfBot e. sfCLSetRelBoundClass $ = (named '(mpbir clrb_value @ ax_gen @ ax_gen @ a1i @ a1i @ mpbir (clrb_bound_eq sfCLSetRel_bot) sfBound_bot));
+
+theorem clrb_mem (a b: nat): $ sfMem a b e. sfCLSetRelBoundClass $ = (named '(mpbir clrb_value @ ax_gen @ ax_gen @ a1d @ bi2 (clrb_bound_eq sfCLSetRel_sfMem)));
+
+theorem clrb_eq (a b: nat): $ sfEq a b e. sfCLSetRelBoundClass $ = (named '(mpbir clrb_value @ ax_gen @ ax_gen @ a1d @ bi2 (clrb_bound_eq sfCLSetRel_sfEq)));
+
+theorem clrb_atomic : $ sfAtomicClosed sfCLSetRelBoundClass $ = (named '(ax_gen @ ax_gen @ ian clrb_mem clrb_eq));
+
+theorem clrb_and (a b: nat): $ a e. sfCLSetRelBoundClass /\ b e. sfCLSetRelBoundClass -> sfAnd a b e. sfCLSetRelBoundClass $ = (named '(mpbird (a1i clrb_value) @ !! iald n @ !! iald d @ exp @ exp @ syl (bi2 (clrb_bound_eq sfCLSetRel_sfAnd)) @ syl (bi2 sfBound_sfAnd) @ iand (clrb_apply (syl anl anll) (syl anl (syl (bi1 sfBound_sfAnd) anlr)) anr) (clrb_apply (syl anr anll) (syl anr (syl (bi1 sfBound_sfAnd) anlr)) anr)));
+
+theorem clrb_or (a b: nat): $ a e. sfCLSetRelBoundClass /\ b e. sfCLSetRelBoundClass -> sfOr a b e. sfCLSetRelBoundClass $ = (named '(mpbird (a1i clrb_value) @ !! iald n @ !! iald d @ exp @ exp @ syl (bi2 (clrb_bound_eq sfCLSetRel_sfOr)) @ syl (bi2 sfBound_sfOr) @ iand (clrb_apply (syl anl anll) (syl anl (syl (bi1 sfBound_sfOr) anlr)) anr) (clrb_apply (syl anr anll) (syl anr (syl (bi1 sfBound_sfOr) anlr)) anr)));
+
+theorem clrb_imp (a b: nat): $ a e. sfCLSetRelBoundClass /\ b e. sfCLSetRelBoundClass -> sfImp a b e. sfCLSetRelBoundClass $ = (named '(mpbird (a1i clrb_value) @ !! iald n @ !! iald d @ exp @ exp @ syl (bi2 (clrb_bound_eq sfCLSetRel_sfImp)) @ syl (bi2 sfBound_sfImp) @ iand (clrb_apply (syl anl anll) (syl anl (syl (bi1 sfBound_sfImp) anlr)) anr) (clrb_apply (syl anr anll) (syl anr (syl (bi1 sfBound_sfImp) anlr)) anr)));
+
+theorem clrb_binary : $ sfBinaryClosed sfCLSetRelBoundClass $ = (named '(ax_gen @ ax_gen @ iand (iand clrb_and clrb_or) clrb_imp));
+
+theorem clrb_all (a: nat): $ a e. sfCLSetRelBoundClass -> sfAll a e. sfCLSetRelBoundClass $ = (named '(mpbird (a1i clrb_value) @ !! iald n @ !! iald d @ exp @ exp @ syl (bi2 (clrb_bound_eq sfCLSetRel_sfAll)) @ syl (bi2 sfBound_sfAll) @ syl (bi2 sfBound_sfImp) @ iand (syl (bi2 sfBound_sfMem) (iand (a1i lt01S) (syl (bi1 ltsuc) anr))) (clrb_apply anll (syl (bi1 sfBound_sfAll) anlr) (syl (bi1 ltsuc) anr))));
+
+theorem clrb_ex (a: nat): $ a e. sfCLSetRelBoundClass -> sfEx a e. sfCLSetRelBoundClass $ = (named '(mpbird (a1i clrb_value) @ !! iald n @ !! iald d @ exp @ exp @ syl (bi2 (clrb_bound_eq sfCLSetRel_sfEx)) @ syl (bi2 sfBound_sfEx) @ syl (bi2 sfBound_sfAnd) @ iand (syl (bi2 sfBound_sfMem) (iand (a1i lt01S) (syl (bi1 ltsuc) anr))) (clrb_apply anll (syl (bi1 sfBound_sfEx) anlr) (syl (bi1 ltsuc) anr))));
+
+theorem clrb_quantifier : $ sfQuantifierClosed sfCLSetRelBoundClass $ = (named '(ax_gen @ iand clrb_all clrb_ex));
+
+theorem clrb_closed : $ sfConstructionClosed sfCLSetRelBoundClass $ = (named '(ian (ian (ian clrb_bot clrb_atomic) clrb_binary) clrb_quantifier));
+
+theorem clrb_induction (c: nat): $ sfWf c -> c e. sfCLSetRelBoundClass $ = (named '(ax_mp sfWf_induction clrb_closed));
+
+pub theorem sfCLSetRel_bound (d n c: nat): $ sfBound n c -> d < n -> sfBound n (sfCLSetRel d c) $ = (named '(mpd id (syl clrb_at (syl clrb_induction sfBound_wf))));
+
+pub theorem sfCLSetRel_reflection_bound (count phi: nat) (hp: $ sfBound count phi $): $ sfBound (suc count) (sfCLSetRel count phi) $ = (named '(ax_mp (ax_mp sfCLSetRel_bound (ax_mp (ax_mp sfBound_mono hp) lesucid)) ltsucid));

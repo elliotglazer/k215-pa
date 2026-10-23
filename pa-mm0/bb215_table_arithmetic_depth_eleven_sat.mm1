@@ -1,0 +1,47 @@
+import "bb215_table_arithmetic_depth_ten_sat.mm1";
+
+import "pa_source_interpretation_nat_term_assignment.mm1";
+
+@_ abstract def bb215TableArithmeticDepthElevenSatBody (E: set) (c h .x: nat): wff = $ ifp (c = 0) (0 != 0) (ifp (sfTag c = 1) (bb215ArithmeticFormulaTermValue E (sfLeft c) = bb215ArithmeticFormulaTermValue E (sfRight c)) (ifp (sfTag c = 3) (sfLeft c e. h /\ sfRight c e. h) (ifp (sfTag c = 4) (sfLeft c e. h \/ sfRight c e. h) (ifp (sfTag c = 5) (sfLeft c e. h -> sfRight c e. h) (ifp (sfTag c = 6 /\ sfRight c = 0) (A. x bb215TableArithmeticDepthTenSat (paNatTermConsEnvironment E x) (sfLeft c)) (ifp (sfTag c = 7 /\ sfRight c = 0) (E. x bb215TableArithmeticDepthTenSat (paNatTermConsEnvironment E x) (sfLeft c)) (0 != 0))))))) $;
+
+@_ abstract def bb215TableArithmeticDepthElevenSatStep (E: set) (.c .h: nat): set = $ S\ c, {h | bb215TableArithmeticDepthElevenSatBody E c h} $;
+
+@_ abstract def bb215TableArithmeticDepthElevenSat (E: set) (c: nat): wff = $ srecp (bb215TableArithmeticDepthElevenSatStep E) c $;
+
+@_ abstract def bb215TableArithmeticDepthElevenSatPrevious (E: set) (c .i: nat): nat = $ sep (upto c) {i | srecp (bb215TableArithmeticDepthElevenSatStep E) i} $;
+
+pub theorem bb215TableArithmeticDepthElevenSatStep_value (E: set) (c h: nat): $ (c, h) e. bb215TableArithmeticDepthElevenSatStep E <-> bb215TableArithmeticDepthElevenSatBody E c h $ = (named '(elsabe @ elabed ,eqtac));
+
+pub theorem bb215TableArithmeticDepthElevenSatPrevious_value (E: set) (c a: nat): $ a e. bb215TableArithmeticDepthElevenSatPrevious E c <-> a < c /\ bb215TableArithmeticDepthElevenSat E a $ = (named '(bitr elsep @ bitr (aneq1i elupto) (aneq2i (elabe ,eqtac))));
+
+pub theorem bb215TableArithmeticDepthElevenSat_unfold (E: set) (c: nat): $ bb215TableArithmeticDepthElevenSat E c <-> bb215TableArithmeticDepthElevenSatBody E c (bb215TableArithmeticDepthElevenSatPrevious E c) $ = (named '(bitr srecpval bb215TableArithmeticDepthElevenSatStep_value));
+
+theorem bb215TableArithmeticDepthElevenSatBody_Equal (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ bb215TableArithmeticDepthElevenSatBody E c h <-> bb215ArithmeticFormulaTermValue E (sfLeft c) = bb215ArithmeticFormulaTermValue E (sfRight c) $ = (named '(bitr (ifpneg h0) (ifppos ht)));
+
+theorem bb215TableArithmeticDepthElevenSatBody_And (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ bb215TableArithmeticDepthElevenSatBody E c h <-> sfLeft c e. h /\ sfRight c e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (ifppos ht))));
+
+theorem bb215TableArithmeticDepthElevenSatBody_Or (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ bb215TableArithmeticDepthElevenSatBody E c h <-> sfLeft c e. h \/ sfRight c e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht)))));
+
+theorem bb215TableArithmeticDepthElevenSatBody_Imp (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 5 $): $ bb215TableArithmeticDepthElevenSatBody E c h <-> sfLeft c e. h -> sfRight c e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht))))));
+
+theorem bb215TableArithmeticDepthElevenSatBody_All (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $): $ bb215TableArithmeticDepthElevenSatBody E c h <-> A. x bb215TableArithmeticDepthTenSat (paNatTermConsEnvironment E x) (sfLeft c) $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos (ian ht hz))))))));
+
+theorem bb215TableArithmeticDepthElevenSatBody_Ex (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $): $ bb215TableArithmeticDepthElevenSatBody E c h <-> E. x bb215TableArithmeticDepthTenSat (paNatTermConsEnvironment E x) (sfLeft c) $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid)))) (ifppos (ian ht hz)))))))));
+
+theorem bb215TableArithmeticDepthElevenSatPrevious_child (E: set) (c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $): $ sfLeft c e. bb215TableArithmeticDepthElevenSatPrevious E c <-> bb215TableArithmeticDepthElevenSat E a $ = (named '(bitr (eleq1 hl) (bitr bb215TableArithmeticDepthElevenSatPrevious_value (bian1 ha))));
+
+theorem bb215TableArithmeticDepthElevenSatPrevious_right (E: set) (c a: nat) (hl: $ sfRight c = a $) (ha: $ a < c $): $ sfRight c e. bb215TableArithmeticDepthElevenSatPrevious E c <-> bb215TableArithmeticDepthElevenSat E a $ = (named '(bitr (eleq1 hl) (bitr bb215TableArithmeticDepthElevenSatPrevious_value (bian1 ha))));
+
+pub theorem bb215TableArithmeticDepthElevenSat_false (E: set): $ bb215TableArithmeticDepthElevenSat E paFormulaFalse <-> 0 != 0 $ = (named '(bitr bb215TableArithmeticDepthElevenSat_unfold (ifppos eqid)));
+
+pub theorem bb215TableArithmeticDepthElevenSat_equal (E: set) (a b: nat): $ bb215TableArithmeticDepthElevenSat E (paFormulaEqual a b) <-> bb215ArithmeticFormulaTermValue E a = bb215ArithmeticFormulaTermValue E b $ = (named '(bitr bb215TableArithmeticDepthElevenSat_unfold (bitr (bb215TableArithmeticDepthElevenSatBody_Equal sfMem_ne_sfBot sfMem_tag) (eqeq (bb215ArithmeticFormulaTermValueeq2 sfMem_left) (bb215ArithmeticFormulaTermValueeq2 sfMem_right)))));
+
+pub theorem bb215TableArithmeticDepthElevenSat_and (E: set) (a b: nat): $ bb215TableArithmeticDepthElevenSat E (paFormulaAnd a b) <-> (bb215TableArithmeticDepthElevenSat E a /\ bb215TableArithmeticDepthElevenSat E b) $ = (named '(bitr bb215TableArithmeticDepthElevenSat_unfold (bitr (bb215TableArithmeticDepthElevenSatBody_And sfAnd_ne_sfBot sfAnd_tag) (aneq (bb215TableArithmeticDepthElevenSatPrevious_child sfAnd_left sfAnd_left_lt) (bb215TableArithmeticDepthElevenSatPrevious_right sfAnd_right sfAnd_right_lt)))));
+
+pub theorem bb215TableArithmeticDepthElevenSat_or (E: set) (a b: nat): $ bb215TableArithmeticDepthElevenSat E (paFormulaOr a b) <-> (bb215TableArithmeticDepthElevenSat E a \/ bb215TableArithmeticDepthElevenSat E b) $ = (named '(bitr bb215TableArithmeticDepthElevenSat_unfold (bitr (bb215TableArithmeticDepthElevenSatBody_Or sfOr_ne_sfBot sfOr_tag) (oreq (bb215TableArithmeticDepthElevenSatPrevious_child sfOr_left sfOr_left_lt) (bb215TableArithmeticDepthElevenSatPrevious_right sfOr_right sfOr_right_lt)))));
+
+pub theorem bb215TableArithmeticDepthElevenSat_imp (E: set) (a b: nat): $ bb215TableArithmeticDepthElevenSat E (paFormulaImp a b) <-> (bb215TableArithmeticDepthElevenSat E a -> bb215TableArithmeticDepthElevenSat E b) $ = (named '(bitr bb215TableArithmeticDepthElevenSat_unfold (bitr (bb215TableArithmeticDepthElevenSatBody_Imp sfImp_ne_sfBot sfImp_tag) (imeqi (bb215TableArithmeticDepthElevenSatPrevious_child sfImp_left sfImp_left_lt) (bb215TableArithmeticDepthElevenSatPrevious_right sfImp_right sfImp_right_lt)))));
+
+pub theorem bb215TableArithmeticDepthElevenSat_all (E: set) (a: nat) {x: nat}: $ bb215TableArithmeticDepthElevenSat E (paFormulaAll a) <-> A. x bb215TableArithmeticDepthTenSat (paNatTermConsEnvironment E x) a $ = (named '(bitr bb215TableArithmeticDepthElevenSat_unfold (bitr (bb215TableArithmeticDepthElevenSatBody_All sfAll_ne_sfBot sfAll_tag sfAll_right) (!! aleqi x (bb215TableArithmeticDepthTenSateq2 sfAll_left)))));
+
+pub theorem bb215TableArithmeticDepthElevenSat_ex (E: set) (a: nat) {x: nat}: $ bb215TableArithmeticDepthElevenSat E (paFormulaEx a) <-> E. x bb215TableArithmeticDepthTenSat (paNatTermConsEnvironment E x) a $ = (named '(bitr bb215TableArithmeticDepthElevenSat_unfold (bitr (bb215TableArithmeticDepthElevenSatBody_Ex sfEx_ne_sfBot sfEx_tag sfEx_right) (!! exeqi x (bb215TableArithmeticDepthTenSateq2 sfEx_left)))));

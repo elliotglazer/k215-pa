@@ -1,0 +1,633 @@
+import "source_renaming_cutoffs.mm1";
+import "source_renaming_laws.mm1";
+import "raw_source_prop_transfer.mm1";
+
+do (apply (register-eqd 'sfRename) '(sfRename_congr sfRename_congr_graph sfRename_congr_depth sfRename_congr_formula));
+theorem sfNR_Sequent_congr (H: wff) (a u b v: nat)
+  (ha: $ H -> a = u $) (hb: $ H -> b = v $):
+  $ H -> sfSequent a b = sfSequent u v $ = '(sfSequent_congr ha hb);
+do (apply (register-eqd 'sfSequent) '(sfNR_Sequent_congr));
+theorem sfNR_Branches_congr (H: wff) (a u b v c w d x: nat)
+  (ha: $ H -> a = u $) (hb: $ H -> b = v $)
+  (hc: $ H -> c = w $) (hd: $ H -> d = x $):
+  $ H -> sfBranches a b c d = sfBranches u v w x $ = '(sfBranches_congr ha hb hc hd);
+do (apply (register-eqd 'sfBranches) '(sfNR_Branches_congr));
+do (apply (register-eqd 'sfRowWf) '(sfRowWf_congr));
+do (apply (register-eqd 'sfContextWf) '(sfContextWf_congr));
+
+@_ abstract def sfRenameFormulaMap (R: set) (d .a: nat): set = $ \ a, sfRename R d a $;
+@_ abstract def sfContextRename (R: set) (d G: nat): nat = $ map (sfRenameFormulaMap R d) G $;
+@_ def sfRenameRow (R: set) (d r: nat): nat =
+$ if (fst r = 0)
+  (sfSequent (sfContextRename R d (fst (snd r))) (sfRename R d (snd (snd r))))
+  (if (fst r = 1)
+    (sfBranches (sfContextRename R d (fst (snd r)))
+      (sfRename R d (fst (snd (snd r))))
+      (sfRename R d (fst (snd (snd (snd r)))))
+      (sfRename R d (snd (snd (snd (snd r))))))
+    (sfSequent 0 sfBot)) $;
+pub theorem sfRenameFormulaMap_value (R: set) (d a: nat):
+  $ sfRenameFormulaMap R d @ a = sfRename R d a $ =
+(named '(!! applame j ,eqtac));
+pub theorem sfContextRename_nil (R: set) (d: nat): $ sfContextRename R d 0 = 0 $ = 'map0;
+pub theorem sfContextRename_cons (R: set) (d a G: nat):
+  $ sfContextRename R d (a : G) = sfRename R d a : sfContextRename R d G $ =
+'(eqtr mapS (conseq1 sfRenameFormulaMap_value));
+pub theorem sfContextRename_wf (R: set) (d G: nat): $ sfContextWf (sfContextRename R d G) $ =
+(named @ induct '(listind) 'G
+  '(mpbir (alleq2 sfContextRename_nil) sfContextWf_nil)
+  '(sylibr (alleq2 sfContextRename_cons) @ syl (bi2 sfContextWf_cons)
+    (iand (a1i sfRename_wf) id)));
+pub theorem sfContextRename_member (R: set) (d a G: nat):
+  $ a IN G -> sfRename R d a IN sfContextRename R d G $ =
+'(mpbid (a1i (trud (lmemeqd (a1i sfRenameFormulaMap_value) eqidd))) lmemmapi);
+
+theorem sfNR_map_witness (F: set) (G D a b: nat):
+  $ sfContextSub G D -> (a IN G /\ b = F @ a) -> b IN map F D $ =
+'(exp @ mpbird (lmemeqd anrr eqidd)
+  (syl lmemmapi (mpd anrl (syl sfContextSub_member anl))));
+pub theorem sfContextRename_sub (R: set) (d G D: nat):
+  $ sfContextSub G D -> sfContextSub (sfContextRename R d G) (sfContextRename R d D) $ =
+(named '(iald @ syl5bi lmemmap @ eexd sfNR_map_witness));
+pub theorem sfContextRename_congr (H: wff) (R: set) (d G D: nat)
+  (h: $ H -> G = D $): $ H -> sfContextRename R d G = sfContextRename R d D $ = '(mapeq2d h);
+do (apply (register-eqd 'sfContextRename) '(sfContextRename_congr));
+
+pub theorem sfRenameRow_sequent (R: set) (d G a: nat):
+  $ sfRenameRow R d (sfSequent G a) = sfSequent (sfContextRename R d G) (sfRename R d a) $ =
+'(eqtr (ifpos sfSequent_tag) @ trud @ sfSequent_congr
+  (sfContextRename_congr (a1i sfSequent_context))
+  (sfRename_congr_formula (a1i sfSequent_formula)));
+pub theorem sfRenameRow_branches (R: set) (d G a b c: nat):
+  $ sfRenameRow R d (sfBranches G a b c) =
+    sfBranches (sfContextRename R d G) (sfRename R d a) (sfRename R d b) (sfRename R d c) $ =
+'(eqtr (ifneg (mpbir (noteq (eqeq1 sfBranches_tag)) peano1)) @
+  eqtr (ifpos sfBranches_tag) @ trud @ sfBranches_congr
+    (sfContextRename_congr (a1i sfBranches_context))
+    (sfRename_congr_formula (a1i sfBranches_left))
+    (sfRename_congr_formula (a1i sfBranches_right))
+    (sfRename_congr_formula (a1i sfBranches_formula)));
+theorem sfNR_if_wf (G p: wff) (a b: nat)
+  (ha: $ G /\ p -> sfRowWf a $) (hb: $ G -> sfRowWf b $):
+  $ G -> sfRowWf (if p a b) $ =
+'(ifbothd (sfRowWf_congr id) (sfRowWf_congr id) ha (syl hb anl));
+pub theorem sfRenameRow_wf (R: set) (d r: nat): $ sfRowWf (sfRenameRow R d r) $ =
+'(trud @ sfNR_if_wf (a1i (sfRowWf_sequent_intro sfContextRename_wf sfRename_wf)) @
+  sfNR_if_wf (a1i (sfRowWf_branches_intro sfContextRename_wf sfRename_wf sfRename_wf sfRename_wf))
+  (a1i (sfRowWf_sequent_intro sfContextWf_nil sfWf_bot)));
+
+
+pub theorem sfRenameRow_congr (H: wff) (R: set) (d r s: nat)
+  (h: $ H -> r = s $): $ H -> sfRenameRow R d r = sfRenameRow R d s $ =
+'(sfRenameRoweqd (a1i eqsid) eqidd h);
+do (apply (register-eqd 'sfRenameRow) '(sfRenameRow_congr));
+
+-- Each propositional rule is preserved by its actual numeric row map.
+theorem sfNR_Ctx_congr (H: wff) (r s: nat) (hr: $ H -> r = s $):
+  $ H -> (sfNDCaseCtx r <-> sfNDCaseCtx s) $ =
+(named '(exeqd @ exeqd @ aneq1d (eqeq1d hr)));
+theorem sfNR_Ctx_instance (R: set) (d g a r: nat):
+  $ r = sfSequent g a /\ a IN g -> sfNDCaseCtx (sfRenameRow R d r) $ =
+'(mpbird (sfNR_Ctx_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid))))))) (syl sfNDCaseCtx_intro (syl sfContextRename_member anr)));
+pub theorem sfNDCaseCtx_rename (R: set) (d r: nat):
+  $ sfNDCaseCtx r -> sfNDCaseCtx (sfRenameRow R d r) $ =
+(named '(eex @ eex @ sfNR_Ctx_instance));
+
+theorem sfNR_Pc_congr (H: wff) (r s: nat) (hr: $ H -> r = s $):
+  $ H -> (sfNDCasePc r <-> sfNDCasePc s) $ =
+(named '(exeqd @ exeqd @ exeqd @ eqeq1d hr));
+theorem sfNR_Pc_instance (R: set) (d g a b r: nat):
+  $ r = sfSequent g (sfImp (sfImp (sfImp a b) a) a) -> sfNDCasePc (sfRenameRow R d r) $ =
+'(mpbird (sfNR_Pc_congr (eqtrd (sfRenameRow_congr id) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i (eqtr sfRename_sfImp (trud (sfImp_congr (a1i (eqtr sfRename_sfImp (trud (sfImp_congr (a1i (eqtr sfRename_sfImp (trud (sfImp_congr (a1i eqid) (a1i eqid))))) (a1i eqid))))) (a1i eqid))))))))))) (a1i sfNDCasePc_intro));
+pub theorem sfNDCasePc_rename (R: set) (d r: nat):
+  $ sfNDCasePc r -> sfNDCasePc (sfRenameRow R d r) $ =
+(named '(eex @ eex @ eex @ sfNR_Pc_instance));
+
+theorem sfNR_II_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseII r p <-> sfNDCaseII s u) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (eqeq1d hp)));
+theorem sfNR_II_instance (R: set) (d g a b r p: nat):
+  $ r = sfSequent g (sfImp a b) /\ p = sfSequent (a : g) b -> sfNDCaseII (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(mpbird (sfNR_II_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i (eqtr sfRename_sfImp (trud (sfImp_congr (a1i eqid) (a1i eqid)))))))))) (eqtrd (sfRenameRow_congr anr) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i sfContextRename_cons) (a1i eqid))))))) (a1i sfNDCaseII_intro));
+pub theorem sfNDCaseII_rename (R: set) (d r p: nat):
+  $ sfNDCaseII r p -> sfNDCaseII (sfRenameRow R d r) (sfRenameRow R d p) $ =
+(named '(eex @ eex @ eex @ sfNR_II_instance));
+
+theorem sfNR_Exp_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseExp r p <-> sfNDCaseExp s u) $ =
+(named '(exeqd @ exeqd @ aneqd (eqeq1d hr) (eqeq1d hp)));
+theorem sfNR_Exp_instance (R: set) (d g a r p: nat):
+  $ r = sfSequent g a /\ p = sfSequent g sfBot -> sfNDCaseExp (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(mpbird (sfNR_Exp_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid)))))) (eqtrd (sfRenameRow_congr anr) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i sfRename_bot))))))) (a1i sfNDCaseExp_intro));
+pub theorem sfNDCaseExp_rename (R: set) (d r p: nat):
+  $ sfNDCaseExp r p -> sfNDCaseExp (sfRenameRow R d r) (sfRenameRow R d p) $ =
+(named '(eex @ eex @ sfNR_Exp_instance));
+
+theorem sfNR_CE1_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseCE1 r p <-> sfNDCaseCE1 s u) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (eqeq1d hp)));
+theorem sfNR_CE1_instance (R: set) (d g a b r p: nat):
+  $ r = sfSequent g a /\ p = sfSequent g (sfAnd a b) -> sfNDCaseCE1 (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(mpbird (sfNR_CE1_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid)))))) (eqtrd (sfRenameRow_congr anr) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i (eqtr sfRename_sfAnd (trud (sfAnd_congr (a1i eqid) (a1i eqid))))))))))) (a1i sfNDCaseCE1_intro));
+pub theorem sfNDCaseCE1_rename (R: set) (d r p: nat):
+  $ sfNDCaseCE1 r p -> sfNDCaseCE1 (sfRenameRow R d r) (sfRenameRow R d p) $ =
+(named '(eex @ eex @ eex @ sfNR_CE1_instance));
+
+theorem sfNR_CE2_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseCE2 r p <-> sfNDCaseCE2 s u) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (eqeq1d hp)));
+theorem sfNR_CE2_instance (R: set) (d g a b r p: nat):
+  $ r = sfSequent g b /\ p = sfSequent g (sfAnd a b) -> sfNDCaseCE2 (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(mpbird (sfNR_CE2_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid)))))) (eqtrd (sfRenameRow_congr anr) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i (eqtr sfRename_sfAnd (trud (sfAnd_congr (a1i eqid) (a1i eqid))))))))))) (a1i sfNDCaseCE2_intro));
+pub theorem sfNDCaseCE2_rename (R: set) (d r p: nat):
+  $ sfNDCaseCE2 r p -> sfNDCaseCE2 (sfRenameRow R d r) (sfRenameRow R d p) $ =
+(named '(eex @ eex @ eex @ sfNR_CE2_instance));
+
+theorem sfNR_DI1_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseDI1 r p <-> sfNDCaseDI1 s u) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (eqeq1d hp)));
+theorem sfNR_DI1_instance (R: set) (d g a b r p: nat):
+  $ r = sfSequent g (sfOr a b) /\ p = sfSequent g a -> sfNDCaseDI1 (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(mpbird (sfNR_DI1_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i (eqtr sfRename_sfOr (trud (sfOr_congr (a1i eqid) (a1i eqid)))))))))) (eqtrd (sfRenameRow_congr anr) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid))))))) (a1i sfNDCaseDI1_intro));
+pub theorem sfNDCaseDI1_rename (R: set) (d r p: nat):
+  $ sfNDCaseDI1 r p -> sfNDCaseDI1 (sfRenameRow R d r) (sfRenameRow R d p) $ =
+(named '(eex @ eex @ eex @ sfNR_DI1_instance));
+
+theorem sfNR_DI2_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseDI2 r p <-> sfNDCaseDI2 s u) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (eqeq1d hp)));
+theorem sfNR_DI2_instance (R: set) (d g a b r p: nat):
+  $ r = sfSequent g (sfOr a b) /\ p = sfSequent g b -> sfNDCaseDI2 (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(mpbird (sfNR_DI2_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i (eqtr sfRename_sfOr (trud (sfOr_congr (a1i eqid) (a1i eqid)))))))))) (eqtrd (sfRenameRow_congr anr) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid))))))) (a1i sfNDCaseDI2_intro));
+pub theorem sfNDCaseDI2_rename (R: set) (d r p: nat):
+  $ sfNDCaseDI2 r p -> sfNDCaseDI2 (sfRenameRow R d r) (sfRenameRow R d p) $ =
+(named '(eex @ eex @ eex @ sfNR_DI2_instance));
+
+theorem sfNR_IE_congr (H: wff) (r s p u q v: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $) (hq: $ H -> q = v $):
+  $ H -> (sfNDCaseIE r p q <-> sfNDCaseIE s u v) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (aneqd (eqeq1d hp) (eqeq1d hq))));
+theorem sfNR_IE_instance (R: set) (d g a b r p q: nat):
+  $ r = sfSequent g b /\ (p = sfSequent g (sfImp a b) /\ q = sfSequent g a) -> sfNDCaseIE (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $ =
+'(mpbird (sfNR_IE_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid)))))) (eqtrd (sfRenameRow_congr anrl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i (eqtr sfRename_sfImp (trud (sfImp_congr (a1i eqid) (a1i eqid)))))))))) (eqtrd (sfRenameRow_congr anrr) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid))))))) (a1i sfNDCaseIE_intro));
+pub theorem sfNDCaseIE_rename (R: set) (d r p q: nat):
+  $ sfNDCaseIE r p q -> sfNDCaseIE (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $ =
+(named '(eex @ eex @ eex @ sfNR_IE_instance));
+
+theorem sfNR_CI_congr (H: wff) (r s p u q v: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $) (hq: $ H -> q = v $):
+  $ H -> (sfNDCaseCI r p q <-> sfNDCaseCI s u v) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (aneqd (eqeq1d hp) (eqeq1d hq))));
+theorem sfNR_CI_instance (R: set) (d g a b r p q: nat):
+  $ r = sfSequent g (sfAnd a b) /\ (p = sfSequent g a /\ q = sfSequent g b) -> sfNDCaseCI (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $ =
+'(mpbird (sfNR_CI_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i (eqtr sfRename_sfAnd (trud (sfAnd_congr (a1i eqid) (a1i eqid)))))))))) (eqtrd (sfRenameRow_congr anrl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid)))))) (eqtrd (sfRenameRow_congr anrr) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid))))))) (a1i sfNDCaseCI_intro));
+pub theorem sfNDCaseCI_rename (R: set) (d r p q: nat):
+  $ sfNDCaseCI r p q -> sfNDCaseCI (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $ =
+(named '(eex @ eex @ eex @ sfNR_CI_instance));
+
+theorem sfNR_BranchPair_congr (H: wff) (r s p u q v: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $) (hq: $ H -> q = v $):
+  $ H -> (sfNDCaseBranchPair r p q <-> sfNDCaseBranchPair s u v) $ =
+(named '(exeqd @ exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (aneqd (eqeq1d hp) (eqeq1d hq))));
+theorem sfNR_BranchPair_instance (R: set) (d g a b c r p q: nat):
+  $ r = sfBranches g a b c /\ (p = sfSequent (a : g) c /\ q = sfSequent (b : g) c) -> sfNDCaseBranchPair (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $ =
+'(mpbird (sfNR_BranchPair_congr (eqtrd (sfRenameRow_congr anl) (a1i sfRenameRow_branches)) (eqtrd (sfRenameRow_congr anrl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i sfContextRename_cons) (a1i eqid)))))) (eqtrd (sfRenameRow_congr anrr) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i sfContextRename_cons) (a1i eqid))))))) (a1i sfNDCaseBranchPair_intro));
+pub theorem sfNDCaseBranchPair_rename (R: set) (d r p q: nat):
+  $ sfNDCaseBranchPair r p q -> sfNDCaseBranchPair (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $ =
+(named '(eex @ eex @ eex @ eex @ sfNR_BranchPair_instance));
+
+theorem sfNR_DE_congr (H: wff) (r s p u q v: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $) (hq: $ H -> q = v $):
+  $ H -> (sfNDCaseDE r p q <-> sfNDCaseDE s u v) $ =
+(named '(exeqd @ exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (aneqd (eqeq1d hp) (eqeq1d hq))));
+theorem sfNR_DE_instance (R: set) (d g a b c r p q: nat):
+  $ r = sfSequent g c /\ (p = sfSequent g (sfOr a b) /\ q = sfBranches g a b c) -> sfNDCaseDE (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $ =
+'(mpbird (sfNR_DE_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid)))))) (eqtrd (sfRenameRow_congr anrl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i (eqtr sfRename_sfOr (trud (sfOr_congr (a1i eqid) (a1i eqid)))))))))) (eqtrd (sfRenameRow_congr anrr) (a1i sfRenameRow_branches))) (a1i sfNDCaseDE_intro));
+pub theorem sfNDCaseDE_rename (R: set) (d r p q: nat):
+  $ sfNDCaseDE r p q -> sfNDCaseDE (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $ =
+(named '(eex @ eex @ eex @ eex @ sfNR_DE_instance));
+
+theorem sfNR_Wk_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseWk r p <-> sfNDCaseWk s u) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (aneq1d (eqeq1d hp))));
+theorem sfNR_Wk_instance (R: set) (d g h a r p: nat):
+  $ r = sfSequent h a /\ (p = sfSequent g a /\ sfContextSub g h) -> sfNDCaseWk (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(mpbird (sfNR_Wk_congr (eqtrd (sfRenameRow_congr anl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid)))))) (eqtrd (sfRenameRow_congr anrl) (a1i (eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr (a1i eqid) (a1i eqid))))))) (syl sfNDCaseWk_intro (syl sfContextRename_sub anrr)));
+pub theorem sfNDCaseWk_rename (R: set) (d r p: nat):
+  $ sfNDCaseWk r p -> sfNDCaseWk (sfRenameRow R d r) (sfRenameRow R d p) $ =
+(named '(eex @ eex @ eex @ sfNR_Wk_instance));
+
+
+
+pub theorem sfNDPropBase_rename (R: set) (d r: nat):
+  $ sfNDPropBase r -> sfNDPropBase (sfRenameRow R d r) $ =
+'(iand (a1i sfRenameRow_wf)
+  (syl (orim sfNDCaseCtx_rename sfNDCasePc_rename) anr));
+pub theorem sfNDPropUnary_rename (R: set) (d r p: nat):
+  $ sfNDPropUnary r p -> sfNDPropUnary (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(iand (a1i sfRenameRow_wf)
+  (syl (orim sfNDCaseII_rename
+    (orim sfNDCaseExp_rename (orim sfNDCaseCE1_rename (orim sfNDCaseCE2_rename
+      (orim sfNDCaseDI1_rename (orim sfNDCaseDI2_rename sfNDCaseWk_rename)))))) anr));
+pub theorem sfNDPropBinary_rename (R: set) (d r p q: nat):
+  $ sfNDPropBinary r p q ->
+    sfNDPropBinary (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $ =
+'(iand (a1i sfRenameRow_wf)
+  (syl (orim sfNDCaseIE_rename (orim sfNDCaseCI_rename
+    (orim sfNDCaseBranchPair_rename sfNDCaseDE_rename))) anr));
+
+def sfRenameRowMap (R: set) (d .r: nat): set = $ \ r, sfRenameRow R d r $;
+def sfRenameRows (R: set) (d p: nat): nat = $ map (sfRenameRowMap R d) p $;
+theorem sfNR_Rows_congr (H: wff) (R: set) (d p q: nat) (h: $ H -> p = q $):
+  $ H -> sfRenameRows R d p = sfRenameRows R d q $ = '(mapeq2d h);
+do (apply (register-eqd 'sfRenameRows) '(sfNR_Rows_congr));
+pub theorem sfRenameRowMap_value (R: set) (d r: nat):
+  $ sfRenameRowMap R d @ r = sfRenameRow R d r $ =
+(named '(!! applame j ,eqtac));
+pub theorem sfRenameRows_nil (R: set) (d: nat): $ sfRenameRows R d 0 = 0 $ = 'map0;
+pub theorem sfRenameRows_cons (R: set) (d r p: nat):
+  $ sfRenameRows R d (r : p) = sfRenameRow R d r : sfRenameRows R d p $ =
+'(eqtr mapS (conseq1 sfRenameRowMap_value));
+pub theorem sfRenameRows_member (R: set) (d r p: nat):
+  $ r IN p -> sfRenameRow R d r IN sfRenameRows R d p $ =
+'(mpbid (a1i (trud (lmemeqd (a1i sfRenameRowMap_value) eqidd))) lmemmapi);
+
+theorem sfNR_prop_unary_rule (R: set) (d r p l: nat):
+  $ p IN l /\ sfNDPropUnary r p ->
+    (sfRenameRow R d r, sfRenameRows R d l) e. sfNDPropRules $ =
+'(syl sfNDPropRules_unary (iand (syl sfRenameRows_member anl) (syl sfNDPropUnary_rename anr)));
+theorem sfNR_prop_binary_rule (R: set) (d r p q l: nat):
+  $ p IN l /\ (q IN l /\ sfNDPropBinary r p q) ->
+    (sfRenameRow R d r, sfRenameRows R d l) e. sfNDPropRules $ =
+'(syl sfNDPropRules_binary (iand (syl sfRenameRows_member anl)
+  (iand (syl sfRenameRows_member anrl) (syl sfNDPropBinary_rename anrr))));
+pub theorem sfNDPropRules_rename (R: set) (d r l: nat):
+  $ (r, l) e. sfNDPropRules -> (sfRenameRow R d r, sfRenameRows R d l) e. sfNDPropRules $ =
+(named '(syl (eor (syl sfNDPropRules_base sfNDPropBase_rename)
+  (eor (eex sfNR_prop_unary_rule) (eex (eex sfNR_prop_binary_rule)))) (bi1 sfNDPropRules_value)));
+
+theorem sfNR_trace_congr (H: wff) (T: set) (p q: nat) (h: $ H -> p = q $):
+  $ H -> (traceValid T p <-> traceValid T q) $ = '(trueeqd (lreceq3d h));
+theorem sfNR_prop_trace_step (R: set) (d a l: nat):
+  $ (traceValid sfNDPropRules l -> traceValid sfNDPropRules (sfRenameRows R d l)) ->
+    traceValid sfNDPropRules (a : l) -> traceValid sfNDPropRules (sfRenameRows R d (a : l)) $ =
+'(exp @ mpbird (a1i (trud (sfNR_trace_congr (a1i sfRenameRows_cons)))) @
+  syl (bi2 traceValid_cons) @ iand
+    (mpd (syl anl (syl (bi1 traceValid_cons) anr)) anl)
+    (syl sfNDPropRules_rename (syl anr (syl (bi1 traceValid_cons) anr))));
+pub theorem sfNDPropTrace_rename (R: set) (d p: nat):
+  $ traceValid sfNDPropRules p -> traceValid sfNDPropRules (sfRenameRows R d p) $ =
+(named @ induct '(listind) 'p
+  '(a1i (mpbir (trud (sfNR_trace_congr (a1i sfRenameRows_nil))) traceValid_nil))
+  'sfNR_prop_trace_step);
+pub theorem sfNDPropDerives_rename (R: set) (d p r: nat):
+  $ sfNDPropDerives p r ->
+    sfNDPropDerives (sfRenameRows R d p) (sfRenameRow R d r) $ =
+'(iand (syl sfNDPropTrace_rename anl) (syl sfRenameRows_member anr));
+
+
+-- For FullND the induction invariant ranges over numeric depths, since
+-- AllI and ExE use a premise proof renamed one level deeper.
+def sfNDRenameExists (R: set) (d r .p: nat): wff =
+$ E. p sfNDFullDerives p (sfRenameRow R d r) $;
+theorem sfNR_Exists_congr (H: wff) (R: set) (d e r s: nat)
+  (hd: $ H -> d = e $) (hr: $ H -> r = s $):
+  $ H -> (sfNDRenameExists R d r <-> sfNDRenameExists R e s) $ =
+(named '(exeqd @ aneqd (a1i biid)
+  (lmemeqd (sfRenameRoweqd (a1i eqsid) hd hr) eqidd)));
+do (apply (register-eqd 'sfNDRenameExists) '(sfNR_Exists_congr));
+def sfNDRenameGood (R: set) (r .d: nat): wff =
+$ sfRowWf r /\ A. d sfNDRenameExists R d r $;
+theorem sfNR_Good_congr (H: wff) (R: set) (r s: nat) (hr: $ H -> r = s $):
+  $ H -> (sfNDRenameGood R r <-> sfNDRenameGood R s) $ =
+(named '(aneqd (sfRowWf_congr hr) (aleqd (sfNR_Exists_congr eqidd hr))));
+do (apply (register-eqd 'sfNDRenameGood) '(sfNR_Good_congr));
+def sfNDRenameClass (R: set) (.r: nat): set =
+$ {r | sfNDRenameGood R r} $;
+pub theorem sfNDRenameClass_value (R: set) (r: nat):
+  $ r e. sfNDRenameClass R <-> sfNDRenameGood R r $ = (named '(elabe ,eqtac));
+pub theorem sfNDRenameGood_wf (R: set) (r: nat): $ sfNDRenameGood R r -> sfRowWf r $ = (named 'anl);
+theorem sfNR_depth_at (R: set) (d r: nat):
+  $ A. n sfNDRenameExists R n r -> sfNDRenameExists R d r $ =
+(named '(!! eale n ,eqtac));
+pub theorem sfNDRenameGood_at (R: set) (d r: nat):
+  $ sfNDRenameGood R r -> sfNDRenameExists R d r $ =
+(named '(syl sfNR_depth_at anr));
+theorem sfNR_Full_congr (H: wff) (p q r s: nat)
+  (hp: $ H -> p = q $) (hr: $ H -> r = s $):
+  $ H -> (sfNDFullDerives p r <-> sfNDFullDerives q s) $ =
+'(aneqd (trueeqd (lreceq3d hp)) (lmemeqd hr hp));
+do (apply (register-eqd 'sfNDFullDerives) '(sfNR_Full_congr));
+theorem sfNR_exists_intro (R: set) (d r p: nat):
+  $ sfNDFullDerives p (sfRenameRow R d r) -> sfNDRenameExists R d r $ =
+(named '(iexe ,eqtac));
+theorem sfNR_base_exists (R: set) (d r: nat):
+  $ sfNDPropBase r -> sfNDRenameExists R d r $ =
+'(syl sfNR_exists_intro (syl sfNDFullDerives_prop_base sfNDPropBase_rename));
+pub theorem sfNDPropBase_rename_good (R: set) (r: nat):
+  $ sfNDPropBase r -> sfNDRenameGood R r $ =
+(named '(iand anl (iald sfNR_base_exists)));
+
+theorem sfNR_unary_witness (R: set) (d r p u: nat):
+  $ sfNDPropUnary r p -> sfNDFullDerives u (sfRenameRow R d p) -> sfNDRenameExists R d r $ =
+'(exp @ syl sfNR_exists_intro @ sylc sfNDFullDerives_prop_unary
+  (syl sfNDPropUnary_rename anl) anr);
+theorem sfNR_unary_exists (R: set) (d r p: nat):
+  $ sfNDPropUnary r p -> sfNDRenameExists R d p -> sfNDRenameExists R d r $ =
+(named '(eexd sfNR_unary_witness));
+pub theorem sfNDPropUnary_rename_good (R: set) (r p: nat):
+  $ sfNDPropUnary r p -> sfNDRenameGood R p -> sfNDRenameGood R r $ =
+(named '(exp @ iand (syl anl anl) @ iald @
+  mpd (syl sfNDRenameGood_at anr) (syl sfNR_unary_exists anl)));
+
+theorem sfNR_binary_witness (R: set) (d r p q u v: nat):
+  $ sfNDPropBinary r p q -> sfNDFullDerives u (sfRenameRow R d p) ->
+    sfNDFullDerives v (sfRenameRow R d q) -> sfNDRenameExists R d r $ =
+'(exp @ exp @ syl sfNR_exists_intro @ mpd anr @ mpd anlr @
+  syl sfNDFullDerives_prop_binary (syl sfNDPropBinary_rename anll));
+theorem sfNR_binary_exists (R: set) (d r p q: nat):
+  $ sfNDPropBinary r p q -> sfNDRenameExists R d p ->
+    sfNDRenameExists R d q -> sfNDRenameExists R d r $ =
+(named '(eexd @ com23 @ eexd @ com23 sfNR_binary_witness));
+pub theorem sfNDPropBinary_rename_good (R: set) (r p q: nat):
+  $ sfNDPropBinary r p q -> sfNDRenameGood R p -> sfNDRenameGood R q -> sfNDRenameGood R r $ =
+(named '(exp @ exp @ iand (syl anl anll) @ iald @
+  mpd (syl sfNDRenameGood_at anr) @ mpd (syl sfNDRenameGood_at anlr) @
+  syl sfNR_binary_exists anll));
+
+-- The conditional trace theorem is also useful on its own; the
+-- sfNDRename_rules_sound theorem below discharges its hypothesis.
+pub theorem sfNDRename_trace_induction (R: set) (p r d: nat):
+  $ traceRuleSound sfNDFullRules (sfNDRenameClass R) ->
+    sfNDFullDerives p r -> sfNDRenameExists R d r $ =
+'(syl6 sfNDRenameGood_at @ syl6 (bi1 sfNDRenameClass_value) traceDerives_class);
+
+
+-- Context-shift naturality uses the protected-depth formula law.
+theorem sfNR_context_eq (R: set) (d G D: nat) (h: $ G = D $):
+  $ sfContextRename R d G = sfContextRename R d D $ =
+'(trud (sfContextRename_congr (a1i h)));
+theorem sfNR_context_shift_cons (R: set) (d a G: nat):
+  $ sfWf a -> sfContextRename R (suc d) (sfContextShift G) = sfContextShift (sfContextRename R d G) ->
+    sfContextRename R (suc d) (sfContextShift (a : G)) = sfContextShift (sfContextRename R d (a : G)) $ =
+'(exp @ eqtrd (a1i (eqtr (sfNR_context_eq sfContextShift_cons) sfContextRename_cons)) @
+  eqtrd (conseqd (syl sfRename_shift_zero anl) anr) @
+  a1i (eqcom (eqtr (trud (sfContextShift_congr (a1i sfContextRename_cons))) sfContextShift_cons)));
+theorem sfNR_context_shift_step (R: set) (d a G: nat):
+  $ (sfContextWf G -> sfContextRename R (suc d) (sfContextShift G) = sfContextShift (sfContextRename R d G)) ->
+    sfContextWf (a : G) -> sfContextRename R (suc d) (sfContextShift (a : G)) = sfContextShift (sfContextRename R d (a : G)) $ =
+'(exp @ sylc sfNR_context_shift_cons
+  (syl anl (syl (bi1 sfContextWf_cons) anr))
+  (mpd (syl anr (syl (bi1 sfContextWf_cons) anr)) anl));
+pub theorem sfContextRename_shift (R: set) (d G: nat):
+  $ sfContextWf G -> sfContextRename R (suc d) (sfContextShift G) = sfContextShift (sfContextRename R d G) $ =
+(named @ induct '(listind) 'G
+  '(a1i (eqtr (sfNR_context_eq sfContextShift_nil) @ eqtr sfContextRename_nil @
+    eqcom (eqtr (trud (sfContextShift_congr (a1i sfContextRename_nil))) sfContextShift_nil)))
+  'sfNR_context_shift_step);
+
+theorem sfNR_source_context_wf (H: wff) (r G a: nat)
+  (hr: $ H -> r = sfSequent G a $) (hw: $ H -> sfRowWf r $):
+  $ H -> sfContextWf G $ =
+'(syl anl (syl (bi1 sfRowWf_sequent) (mpbid (sfRowWf_congr hr) hw)));
+theorem sfNR_source_formula_wf (H: wff) (r G a: nat)
+  (hr: $ H -> r = sfSequent G a $) (hw: $ H -> sfRowWf r $):
+  $ H -> sfWf a $ =
+'(syl anr (syl (bi1 sfRowWf_sequent) (mpbid (sfRowWf_congr hr) hw)));
+theorem sfNR_wf_all_child (H: wff) (a: nat) (h: $ H -> sfWf (sfAll a) $):
+  $ H -> sfWf a $ = '(syl (bi1 sfWf_all_iff) h);
+theorem sfNR_wf_ex_child (H: wff) (a: nat) (h: $ H -> sfWf (sfEx a) $):
+  $ H -> sfWf a $ = '(syl (bi1 sfWf_ex_iff) h);
+
+theorem sfNR_row_all (R: set) (d G a: nat):
+  $ sfRenameRow R d (sfSequent G (sfAll a)) =
+    sfSequent (sfContextRename R d G) (sfAll (sfRename R (suc d) a)) $ =
+'(eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr eqidd (a1i sfRename_sfAll))));
+theorem sfNR_row_ex (R: set) (d G a: nat):
+  $ sfRenameRow R d (sfSequent G (sfEx a)) =
+    sfSequent (sfContextRename R d G) (sfEx (sfRename R (suc d) a)) $ =
+'(eqtr sfRenameRow_sequent (trud (sfNR_Sequent_congr eqidd (a1i sfRename_sfEx))));
+theorem sfNR_row_subst (R: set) (d G t a: nat):
+  $ sfWf a -> sfRenameRow R d (sfSequent G (sfSubst 0 t a)) =
+    sfSequent (sfContextRename R d G)
+      (sfSubst 0 (sfRenameIndex R d t) (sfRename R (suc d) a)) $ =
+'(eqtrd (a1i sfRenameRow_sequent) (sfNR_Sequent_congr eqidd sfRename_subst_zero));
+theorem sfNR_row_AllI (R: set) (d G a: nat):
+  $ sfContextWf G -> sfRenameRow R (suc d) (sfSequent (sfContextShift G) a) =
+    sfSequent (sfContextShift (sfContextRename R d G)) (sfRename R (suc d) a) $ =
+'(eqtrd (a1i sfRenameRow_sequent) (sfNR_Sequent_congr sfContextRename_shift eqidd));
+theorem sfNR_row_ExE (R: set) (d G a c: nat):
+  $ sfContextWf G -> sfWf c ->
+    sfRenameRow R (suc d) (sfSequent (a : sfContextShift G) (sfShift 0 c)) =
+    sfSequent (sfRename R (suc d) a : sfContextShift (sfContextRename R d G))
+      (sfShift 0 (sfRename R d c)) $ =
+'(exp @ eqtrd (a1i sfRenameRow_sequent) @ sfNR_Sequent_congr
+  (eqtrd (a1i sfContextRename_cons) (conseqd eqidd (syl sfContextRename_shift anl)))
+  (syl sfRename_shift_zero anr));
+
+-- Quantifier cases use the lifted depth for discharged variable premises.
+theorem sfNR_AllI_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseAllI r p <-> sfNDCaseAllI s u) $ =
+(named '(exeqd @ exeqd @ aneqd (eqeq1d hr) (eqeq1d hp)));
+theorem sfNR_AllE_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseAllE r p <-> sfNDCaseAllE s u) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (eqeq1d hp)));
+theorem sfNR_ExI_congr (H: wff) (r s p u: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $):
+  $ H -> (sfNDCaseExI r p <-> sfNDCaseExI s u) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (eqeq1d hp)));
+theorem sfNR_ExE_congr (H: wff) (r s p u q v: nat) (hr: $ H -> r = s $) (hp: $ H -> p = u $) (hq: $ H -> q = v $):
+  $ H -> (sfNDCaseExE r p q <-> sfNDCaseExE s u v) $ =
+(named '(exeqd @ exeqd @ exeqd @ aneqd (eqeq1d hr) (aneqd (eqeq1d hp) (eqeq1d hq))));
+
+theorem sfNR_AllI_instance (R: set) (d g a r p: nat):
+  $ (r = sfSequent g (sfAll a) /\ p = sfSequent (sfContextShift g) a) -> sfRowWf r ->
+    sfNDCaseAllI (sfRenameRow R d r) (sfRenameRow R (suc d) p) $ =
+'(exp @ mpbiri sfNDCaseAllI_intro @ sfNR_AllI_congr
+  (eqtrd (sfRenameRow_congr anll) (a1i sfNR_row_all))
+  (eqtrd (sfRenameRow_congr anlr)
+    (syl sfNR_row_AllI (sfNR_source_context_wf anll anr))));
+theorem sfNR_AllI_case (R: set) (d r p: nat):
+  $ sfNDCaseAllI r p -> sfRowWf r ->
+    sfNDCaseAllI (sfRenameRow R d r) (sfRenameRow R (suc d) p) $ =
+(named '(eex @ eex sfNR_AllI_instance));
+pub theorem sfNDQuantUnary_AllI_rename (R: set) (d r p: nat):
+  $ sfNDCaseAllI r p -> sfRowWf r ->
+    sfNDQuantUnary (sfRenameRow R d r) (sfRenameRow R (suc d) p) $ =
+'(exp @ iand (a1i sfRenameRow_wf) (syl orl (imp sfNR_AllI_case)));
+
+theorem sfNR_AllE_instance (R: set) (d g a t r p: nat):
+  $ (r = sfSequent g (sfSubst 0 t a) /\ p = sfSequent g (sfAll a)) -> sfRowWf p ->
+    sfNDCaseAllE (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(exp @ mpbiri sfNDCaseAllE_intro @ sfNR_AllE_congr
+  (eqtrd (sfRenameRow_congr anll)
+    (syl sfNR_row_subst (sfNR_wf_all_child (sfNR_source_formula_wf anlr anr))))
+  (eqtrd (sfRenameRow_congr anlr) (a1i sfNR_row_all)));
+theorem sfNR_AllE_case (R: set) (d r p: nat):
+  $ sfNDCaseAllE r p -> sfRowWf p ->
+    sfNDCaseAllE (sfRenameRow R d r) (sfRenameRow R d p) $ =
+(named '(eex @ eex @ eex sfNR_AllE_instance));
+pub theorem sfNDQuantUnary_AllE_rename (R: set) (d r p: nat):
+  $ sfNDCaseAllE r p -> sfRowWf p ->
+    sfNDQuantUnary (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(exp @ iand (a1i sfRenameRow_wf) (syl orr (syl orl (imp sfNR_AllE_case))));
+
+theorem sfNR_ExI_instance (R: set) (d g a t r p: nat):
+  $ (r = sfSequent g (sfEx a) /\ p = sfSequent g (sfSubst 0 t a)) -> sfRowWf r ->
+    sfNDCaseExI (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(exp @ mpbiri sfNDCaseExI_intro @ sfNR_ExI_congr
+  (eqtrd (sfRenameRow_congr anll) (a1i sfNR_row_ex))
+  (eqtrd (sfRenameRow_congr anlr)
+    (syl sfNR_row_subst (sfNR_wf_ex_child (sfNR_source_formula_wf anll anr)))));
+theorem sfNR_ExI_case (R: set) (d r p: nat):
+  $ sfNDCaseExI r p -> sfRowWf r ->
+    sfNDCaseExI (sfRenameRow R d r) (sfRenameRow R d p) $ =
+(named '(eex @ eex @ eex sfNR_ExI_instance));
+pub theorem sfNDQuantUnary_ExI_rename (R: set) (d r p: nat):
+  $ sfNDCaseExI r p -> sfRowWf r ->
+    sfNDQuantUnary (sfRenameRow R d r) (sfRenameRow R d p) $ =
+'(exp @ iand (a1i sfRenameRow_wf) (syl orr (syl orr (imp sfNR_ExI_case))));
+
+theorem sfNR_ExE_instance (R: set) (d g a c r p q: nat):
+  $ (r = sfSequent g c /\ (p = sfSequent g (sfEx a) /\ q = sfSequent (a : sfContextShift g) (sfShift 0 c))) -> sfRowWf r ->
+    sfNDCaseExE (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R (suc d) q) $ =
+'(exp @ mpbiri sfNDCaseExE_intro @ sfNR_ExE_congr
+  (eqtrd (sfRenameRow_congr anll) (a1i sfRenameRow_sequent))
+  (eqtrd (sfRenameRow_congr (syl anl anlr)) (a1i sfNR_row_ex))
+  (eqtrd (sfRenameRow_congr (syl anr anlr))
+    (sylc sfNR_row_ExE (sfNR_source_context_wf anll anr) (sfNR_source_formula_wf anll anr))));
+theorem sfNR_ExE_case (R: set) (d r p q: nat):
+  $ sfNDCaseExE r p q -> sfRowWf r ->
+    sfNDCaseExE (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R (suc d) q) $ =
+(named '(eex @ eex @ eex sfNR_ExE_instance));
+pub theorem sfNDQuantBinary_ExE_rename (R: set) (d r p q: nat):
+  $ sfNDCaseExE r p q -> sfRowWf r ->
+    sfNDQuantBinary (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R (suc d) q) $ =
+'(exp @ iand (a1i sfRenameRow_wf) (imp sfNR_ExE_case));
+
+
+theorem sfNR_qunary_witness (R: set) (d r s u: nat):
+  $ sfNDQuantUnary (sfRenameRow R d r) s -> sfNDFullDerives u s -> sfNDRenameExists R d r $ =
+'(exp @ syl sfNR_exists_intro @ sylc sfNDFullDerives_unary anl anr);
+theorem sfNR_qunary_exists (R: set) (d r s: nat):
+  $ sfNDQuantUnary (sfRenameRow R d r) s -> (E. u sfNDFullDerives u s) -> sfNDRenameExists R d r $ =
+(named '(eexd sfNR_qunary_witness));
+theorem sfNR_qbinary_witness (R: set) (d r s t u v: nat):
+  $ sfNDQuantBinary (sfRenameRow R d r) s t -> sfNDFullDerives u s ->
+    sfNDFullDerives v t -> sfNDRenameExists R d r $ =
+'(exp @ exp @ syl sfNR_exists_intro @ mpd anr @ mpd anlr @ syl sfNDFullDerives_binary anll);
+theorem sfNR_qbinary_exists (R: set) (d r s t: nat):
+  $ sfNDQuantBinary (sfRenameRow R d r) s t -> (E. u sfNDFullDerives u s) ->
+    (E. v sfNDFullDerives v t) -> sfNDRenameExists R d r $ =
+(named '(eexd @ com23 @ eexd @ com23 sfNR_qbinary_witness));
+
+theorem sfNR_good_AllI_exists (R: set) (d r p: nat):
+  $ sfRowWf r /\ sfNDRenameGood R p -> sfNDCaseAllI r p -> sfNDRenameExists R d r $ =
+(named '(exp @ sylc sfNR_qunary_exists
+  (mpd anll (syl sfNDQuantUnary_AllI_rename anr))
+  (syl sfNDRenameGood_at anlr)));
+theorem sfNR_good_AllE_exists (R: set) (d r p: nat):
+  $ sfRowWf r /\ sfNDRenameGood R p -> sfNDCaseAllE r p -> sfNDRenameExists R d r $ =
+(named '(exp @ sylc sfNR_qunary_exists
+  (mpd (syl sfNDRenameGood_wf anlr) (syl sfNDQuantUnary_AllE_rename anr))
+  (syl sfNDRenameGood_at anlr)));
+theorem sfNR_good_ExI_exists (R: set) (d r p: nat):
+  $ sfRowWf r /\ sfNDRenameGood R p -> sfNDCaseExI r p -> sfNDRenameExists R d r $ =
+(named '(exp @ sylc sfNR_qunary_exists
+  (mpd anll (syl sfNDQuantUnary_ExI_rename anr))
+  (syl sfNDRenameGood_at anlr)));
+theorem sfNR_quant_cases_exists (R: set) (d r p: nat):
+  $ sfRowWf r /\ sfNDRenameGood R p ->
+    (sfNDCaseAllI r p \/ (sfNDCaseAllE r p \/ sfNDCaseExI r p)) -> sfNDRenameExists R d r $ =
+'(eord sfNR_good_AllI_exists (eord sfNR_good_AllE_exists sfNR_good_ExI_exists));
+pub theorem sfNDQuantUnary_rename_good (R: set) (r p: nat):
+  $ sfNDQuantUnary r p -> sfNDRenameGood R p -> sfNDRenameGood R r $ =
+(named '(exp @ iand (syl anl anl) @ iald @
+  mpd anlr (syl sfNR_quant_cases_exists (iand anll anr))));
+
+theorem sfNR_good_ExE_exists (R: set) (d r p q: nat):
+  $ sfRowWf r /\ (sfNDRenameGood R p /\ sfNDRenameGood R q) ->
+    sfNDCaseExE r p q -> sfNDRenameExists R d r $ =
+(named '(exp @ mpd (syl sfNDRenameGood_at (syl anr anlr)) @
+  mpd (syl sfNDRenameGood_at (syl anl anlr)) @
+  syl sfNR_qbinary_exists (mpd anll (syl sfNDQuantBinary_ExE_rename anr))));
+pub theorem sfNDQuantBinary_rename_good (R: set) (r p q: nat):
+  $ sfNDQuantBinary r p q -> sfNDRenameGood R p -> sfNDRenameGood R q -> sfNDRenameGood R r $ =
+(named '(exp @ exp @ iand (syl anl anll) @ iald @
+  mpd (syl anr anll) @ syl sfNR_good_ExE_exists @
+    iand (syl anl anll) (iand anlr anr)));
+
+theorem sfNR_good_history (R: set) (l p: nat):
+  $ traceClassAll (sfNDRenameClass R) l -> p IN l -> sfNDRenameGood R p $ =
+'(syl6 (bi1 sfNDRenameClass_value) traceClassAll_get);
+theorem sfNR_prop_unary_good (R: set) (r p l: nat):
+  $ traceClassAll (sfNDRenameClass R) l -> p IN l /\ sfNDPropUnary r p -> sfNDRenameGood R r $ =
+'(exp @ mpd (mpd anrl (syl sfNR_good_history anl)) (syl sfNDPropUnary_rename_good anrr));
+theorem sfNR_prop_binary_good (R: set) (r p q l: nat):
+  $ traceClassAll (sfNDRenameClass R) l ->
+    p IN l /\ (q IN l /\ sfNDPropBinary r p q) -> sfNDRenameGood R r $ =
+'(exp @ mpd (mpd (syl anl anrr) (syl sfNR_good_history anl)) @
+  mpd (mpd anrl (syl sfNR_good_history anl)) @
+  syl sfNDPropBinary_rename_good (syl anr anrr));
+theorem sfNR_prop_rule_good (R: set) (r l: nat):
+  $ traceClassAll (sfNDRenameClass R) l -> (r, l) e. sfNDPropRules -> sfNDRenameGood R r $ =
+(named '(syl5bi sfNDPropRules_value @
+  eord (a1i sfNDPropBase_rename_good)
+    (eord (eexd sfNR_prop_unary_good) (eexd (eexd sfNR_prop_binary_good)))));
+
+theorem sfNR_quant_unary_good (R: set) (r p l: nat):
+  $ traceClassAll (sfNDRenameClass R) l -> p IN l /\ sfNDQuantUnary r p -> sfNDRenameGood R r $ =
+'(exp @ mpd (mpd anrl (syl sfNR_good_history anl)) (syl sfNDQuantUnary_rename_good anrr));
+theorem sfNR_quant_binary_good (R: set) (r p q l: nat):
+  $ traceClassAll (sfNDRenameClass R) l ->
+    p IN l /\ (q IN l /\ sfNDQuantBinary r p q) -> sfNDRenameGood R r $ =
+'(exp @ mpd (mpd (syl anl anrr) (syl sfNR_good_history anl)) @
+  mpd (mpd anrl (syl sfNR_good_history anl)) @
+  syl sfNDQuantBinary_rename_good (syl anr anrr));
+theorem sfNR_quant_rule_good (R: set) (r l: nat):
+  $ traceClassAll (sfNDRenameClass R) l -> (r, l) e. sfNDQuantRules -> sfNDRenameGood R r $ =
+(named '(syl5bi sfNDQuantRules_value @
+  eord (eexd sfNR_quant_unary_good) (eexd (eexd sfNR_quant_binary_good))));
+theorem sfNR_full_rule_good (R: set) (r l: nat):
+  $ traceClassAll (sfNDRenameClass R) l -> (r, l) e. sfNDFullRules -> sfNDRenameGood R r $ =
+'(syl5bi elun (eord sfNR_prop_rule_good sfNR_quant_rule_good));
+pub theorem sfNDRename_rules_sound (R: set):
+  $ traceRuleSound sfNDFullRules (sfNDRenameClass R) $ =
+(named '(ax_gen @ ax_gen @ syl6 (bi2 sfNDRenameClass_value) sfNR_full_rule_good));
+pub theorem sfNDFullDerives_rename (R: set) (d p r: nat):
+  $ sfNDFullDerives p r -> sfNDRenameExists R d r $ =
+'(ax_mp sfNDRename_trace_induction sfNDRename_rules_sound);
+
+
+-- Every ZFC axiom in a proof context is closed, so this context remains
+-- literally unchanged by depth-zero renaming.
+theorem sfNR_zfc_context_step (R: set) (a G: nat):
+  $ (zfcContext G -> sfContextRename R 0 G = G) -> zfcContext (a : G) ->
+    sfContextRename R 0 (a : G) = a : G $ =
+'(exp @ eqtrd (a1i sfContextRename_cons) @ conseqd
+  (syl sfRename_closed_identity (syl (mpi sfContext_member_head zfcContext_member_closed) anr))
+  (mpd (syl anr (syl (bi1 zfcContext_cons) anr)) anl));
+pub theorem zfcContext_rename_identity (R: set) (G: nat):
+  $ zfcContext G -> sfContextRename R 0 G = G $ =
+(named @ induct '(listind) 'G '(a1i sfContextRename_nil) 'sfNR_zfc_context_step);
+theorem sfNR_zfc_row_eq (R: set) (G a: nat):
+  $ zfcContext G -> sfRenameRow R 0 (sfSequent G a) = sfSequent G (sfRename R 0 a) $ =
+'(eqtrd (a1i sfRenameRow_sequent) (sfNR_Sequent_congr zfcContext_rename_identity eqidd));
+theorem sfNR_zfc_renamed_witness (R: set) (G a q: nat):
+  $ zfcContext G -> sfNDFullDerives q (sfRenameRow R 0 (sfSequent G a)) ->
+    zfcProvable (sfRename R 0 a) $ =
+'(exp @ syl zfcProvable_intro @ iand anl
+  (mpbid (sfNR_Full_congr eqidd (syl sfNR_zfc_row_eq anl)) anr));
+theorem sfNR_zfc_renamed_exists (R: set) (G a: nat):
+  $ zfcContext G -> sfNDRenameExists R 0 (sfSequent G a) -> zfcProvable (sfRename R 0 a) $ =
+(named '(eexd sfNR_zfc_renamed_witness));
+theorem sfNR_zfc_renamed_source (R: set) (G p a: nat):
+  $ zfcContext G /\ sfNDFullDerives p (sfSequent G a) -> zfcProvable (sfRename R 0 a) $ =
+'(sylc sfNR_zfc_renamed_exists anl (syl sfNDFullDerives_rename anr));
+pub theorem zfcProvable_rename (R: set) (a: nat):
+  $ zfcProvable a -> zfcProvable (sfRename R 0 a) $ =
+(named '(eex @ eex sfNR_zfc_renamed_source));
+
+theorem sfNR_Prov_congr (H: wff) (a b: nat) (h: $ H -> a = b $):
+  $ H -> (zfcProvable a <-> zfcProvable b) $ =
+(named '(exeqd @ exeqd @ aneq2d @ aneq2d @ lmemeqd
+  (sfNR_Sequent_congr eqidd h) eqidd));
+pub theorem rawSource_gen (x a: nat):
+  $ zfcProvable (rawDecode a) -> zfcProvable (rawDecode (kAll x a)) $ =
+'(mpbird (a1i (trud (sfNR_Prov_congr (a1i rawDecode_kAll))))
+  (syl zfcProvable_gen zfcProvable_rename));

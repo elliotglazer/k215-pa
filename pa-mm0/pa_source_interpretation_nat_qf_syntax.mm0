@@ -1,0 +1,30 @@
+import "pa_formula_syntax.mm0";
+
+def paNatQFBoundAllowed (n c h: nat): wff = $ ifp (c = 0) (0 = 0)
+ (ifp (sfTag c = 1) (paTermBound n (sfLeft c) /\ paTermBound n (sfRight c))
+ (ifp (sfTag c = 3) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 4) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 5) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (0 != 0))))) $;
+
+def paNatQFBoundStep (.k .h: nat): set = $ S\ k, {h | paNatQFBoundAllowed (fst k) (snd k) h} $;
+
+def paNatQFBound (n c: nat): wff = $ srecp paNatQFBoundStep (n, c) $;
+
+def paNatQFBoundPrevious (n c .i: nat): nat = $ sep (upto (n, c)) {i | srecp paNatQFBoundStep i} $;
+
+theorem paNatQFBoundStep_value (k h: nat): $ (k, h) e. paNatQFBoundStep <-> paNatQFBoundAllowed (fst k) (snd k) h $;
+
+theorem paNatQFBoundPrevious_value (n c m a: nat): $ (m, a) e. paNatQFBoundPrevious n c <-> (m, a) < (n, c) /\ paNatQFBound m a $;
+
+theorem paNatQFBound_unfold (n c: nat): $ paNatQFBound n c <-> paNatQFBoundAllowed n c (paNatQFBoundPrevious n c) $;
+
+theorem paNatQFBound_false (n: nat): $ paNatQFBound n paFormulaFalse $;
+
+theorem paNatQFBound_equal (n a b: nat): $ paNatQFBound n (paFormulaEqual a b) <-> paTermBound n a /\ paTermBound n b $;
+
+theorem paNatQFBound_and (n a b: nat): $ paNatQFBound n (paFormulaAnd a b) <-> paNatQFBound n a /\ paNatQFBound n b $;
+
+theorem paNatQFBound_or (n a b: nat): $ paNatQFBound n (paFormulaOr a b) <-> paNatQFBound n a /\ paNatQFBound n b $;
+
+theorem paNatQFBound_imp (n a b: nat): $ paNatQFBound n (paFormulaImp a b) <-> paNatQFBound n a /\ paNatQFBound n b $;

@@ -1,0 +1,41 @@
+import "source_piece_pcf_rep_cover_syntax_r27.mm1";
+
+@_ abstract def sfPieceRepRotate3 (.i:nat): set = $ \ i, if (i = 0) 1 (if (i = 1) 2 (if (i = 2) 3 (if (i = 3) 0 i))) $;
+
+@_ abstract def sfPieceRepDn3Step (.a:nat): set = $ \ a, sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRepRotate3 0 a)) $;
+
+@_ abstract def sfPieceRepDn3Core (n a:nat): nat = $ rec a sfPieceRepDn3Step n $;
+
+pub theorem sfPieceRepDn3Step_at (a:nat): $ sfPieceRepDn3Step @ a = sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRepRotate3 0 a)) $ = (named '(applame ,eqtac));
+
+pub theorem sfPieceRepDn3Core_zero (a:nat): $ sfPieceRepDn3Core 0 a = a $ = (named 'rec0);
+
+pub theorem sfPieceRepDn3Core_suc (n a:nat): $ sfPieceRepDn3Core (suc n) a = sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRepRotate3 0 (sfPieceRepDn3Core n a))) $ = (named '(eqtr recS sfPieceRepDn3Step_at));
+
+@_ abstract def sfPieceRepDn3Box (a:nat): nat = $ sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRepRotate3 0 a)) $;
+
+pub theorem sfPieceRepDn3Box_wf (a:nat): $ sfWf (sfPieceRepDn3Box a) $ = (named '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfRename_wf)));
+
+pub theorem sfPieceRepDn3Box_intro (a:nat): $ nsLocal 0 a -> nsLocal 0 (sfPieceRepDn3Box a) $ = (named '(syl (sfLocal_allI sfContextWf_nil) (syl nsLocal_II (syl (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) all0) (syl (bi1 (nsLocal_context_eq sfContextRename_nil)) sfSepLocal_rename)))));
+
+pub theorem sfPieceRepDn3Box_imp (a b:nat): $ nsLocal 0 (sfImp a b) -> nsLocal 0 (sfImp (sfPieceRepDn3Box a) (sfPieceRepDn3Box b)) $ = (named '(syl nsLocal_II (syl (sfLocal_allI (mpbir sfContextWf_cons (ian (sfPieceRepDn3Box_wf) sfContextWf_nil))) (syl nsLocal_II (mpd (a1i (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (ax_mp sfSepLocal_open (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (sfPieceRepDn3Box_wf) sfContextWf_nil))) sfContext_member_head)))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContext_member_head))) (syl nsLocal_mp (syl (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) all0) (syl (bi1 (nsLocal_formula_eq sfRename_sfImp)) (syl (bi1 (nsLocal_context_eq sfContextRename_nil)) sfSepLocal_rename)))))))));
+
+pub theorem sfPieceRepDn3Box_apply (a b:nat): $ nsLocal 0 (sfImp (sfPieceRepDn3Box (sfImp a b)) (sfImp (sfPieceRepDn3Box a) (sfPieceRepDn3Box b))) $ = (named '(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp (sfLocal_allI (mpbir sfContextWf_cons (ian (sfPieceRepDn3Box_wf) (mpbir sfContextWf_cons (ian (sfPieceRepDn3Box_wf) sfContextWf_nil))))) (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (sfRQ_rewrite (nsImp_eq eqid sfRename_sfImp) (ax_mp sfSepLocal_open (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (sfPieceRepDn3Box_wf) (mpbir sfContextWf_cons (ian (sfPieceRepDn3Box_wf) sfContextWf_nil))))) (ax_mp sfContext_member_tail sfContext_member_head)))))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContext_member_head))) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (ax_mp sfSepLocal_open (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (sfPieceRepDn3Box_wf) (mpbir sfContextWf_cons (ian (sfPieceRepDn3Box_wf) sfContextWf_nil))))) sfContext_member_head)))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContext_member_head))))))));
+
+theorem sfPieceRepDn3_compose_pure (a b c:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hc:$ sfWf c $): $ nsLocal 0 (sfImp (sfImp a b) (sfImp (sfImp b c) (sfImp a c))) $ = (named '(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_imp hb) hc) (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_imp ha) hb) sfContextWf_nil))))))) (ax_mp sfContext_member_tail sfContext_member_head))) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_imp hb) hc) (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_imp ha) hb) sfContextWf_nil))))))) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_imp hb) hc) (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_imp ha) hb) sfContextWf_nil))))))) sfContext_member_head)))))));
+
+theorem sfPieceRepDn3_compose (a b c:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hc:$ sfWf c $): $ nsLocal 0 (sfImp a b) -> nsLocal 0 (sfImp b c) -> nsLocal 0 (sfImp a c) $ = (named '(syl nsLocal_mp (ax_mp nsLocal_mp (sfPieceRepDn3_compose_pure ha hb hc))));
+
+theorem sfPieceRepDn3_intro_successor (n a:nat): $ nsLocal 0 (sfPieceRepDn3Core n a) -> nsLocal 0 (sfPieceRepDn3Core (suc n) a) $ = (named '(syl (bi2 (nsLocal_formula_eq sfPieceRepDn3Core_suc)) sfPieceRepDn3Box_intro));
+
+theorem sfPieceRepDn3_intro_step (n a:nat): $ (nsLocal 0 a -> nsLocal 0 (sfPieceRepDn3Core n a)) -> (nsLocal 0 a -> nsLocal 0 (sfPieceRepDn3Core (suc n) a)) $ = (named '(imim2i sfPieceRepDn3_intro_successor));
+
+pub theorem sfPieceRepDn3_intro (n a:nat): $ nsLocal 0 a -> nsLocal 0 (sfPieceRepDn3Core n a) $ = (named @ induct '(ind) 'n '(bi2 (nsLocal_formula_eq sfPieceRepDn3Core_zero)) 'sfPieceRepDn3_intro_step);
+
+theorem sfPieceRepDn3_apply_zero (a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $): $ nsLocal 0 (sfImp (sfPieceRepDn3Core 0 (sfImp a b)) (sfImp (sfPieceRepDn3Core 0 a) (sfPieceRepDn3Core 0 b))) $ = (named '(sfRQ_rewrite (eqcom (nsImp_eq sfPieceRepDn3Core_zero (nsImp_eq sfPieceRepDn3Core_zero sfPieceRepDn3Core_zero))) (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_imp ha) hb) sfContextWf_nil))) sfContext_member_head))));
+
+theorem sfPieceRepDn3_apply_step (n a b:nat): $ nsLocal 0 (sfImp (sfPieceRepDn3Core n (sfImp a b)) (sfImp (sfPieceRepDn3Core n a) (sfPieceRepDn3Core n b))) -> nsLocal 0 (sfImp (sfPieceRepDn3Core (suc n) (sfImp a b)) (sfImp (sfPieceRepDn3Core (suc n) a) (sfPieceRepDn3Core (suc n) b))) $ = (named '(syl (bi2 (nsLocal_formula_eq (nsImp_eq sfPieceRepDn3Core_suc (nsImp_eq sfPieceRepDn3Core_suc sfPieceRepDn3Core_suc)))) (mpd (a1i (sfPieceRepDn3Box_apply)) (syl (sfPieceRepDn3_compose (sfPieceRepDn3Box_wf) (sfPieceRepDn3Box_wf) (ax_mp (ax_mp sfWf_imp (sfPieceRepDn3Box_wf)) (sfPieceRepDn3Box_wf))) sfPieceRepDn3Box_imp))));
+
+pub theorem sfPieceRepDn3_apply_pure (n a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $): $ nsLocal 0 (sfImp (sfPieceRepDn3Core n (sfImp a b)) (sfImp (sfPieceRepDn3Core n a) (sfPieceRepDn3Core n b))) $ = (named @ induct '(ind) 'n '(sfPieceRepDn3_apply_zero ha hb) 'sfPieceRepDn3_apply_step);
+
+pub theorem sfPieceRepDn3_apply (G n a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hi:$ nsLocal G (sfPieceRepDn3Core n (sfImp a b)) $)(hp:$ nsLocal G (sfPieceRepDn3Core n a) $): $ nsLocal G (sfPieceRepDn3Core n b) $ = (named '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (ax_mp nsLocal_context_wf hi)) all0) (sfPieceRepDn3_apply_pure ha hb))) hi)) hp));

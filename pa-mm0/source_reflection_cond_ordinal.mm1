@@ -1,0 +1,87 @@
+import "source_reflection_cond_ordinal_nd.mm1";
+
+import "source_core_theory.mm1";
+
+import "source_theory_local.mm1";
+
+import "zfc_irreflexive.mm1";
+
+@_ def rcondOrdF0: nat = $ sfMem 0 1 $;
+
+@_ def rcondOrdF1: nat = $ sfBot $;
+
+@_ def rcondOrdF2: nat = $ sfImp rcondOrdF0 rcondOrdF1 $;
+
+@_ def rcondOrdF3: nat = $ sfAll rcondOrdF2 $;
+
+@_ def rcondOrdF4: nat = $ sfEx rcondOrdF3 $;
+
+@_ def rcondOrdG5: nat = $ rcondOrdF4 : 0 $;
+
+@_ def rcondOrdF6: nat = $ sfMem 0 2 $;
+
+@_ def rcondOrdF7: nat = $ sfImp rcondOrdF0 rcondOrdF6 $;
+
+@_ def rcondOrdF8: nat = $ sfAll rcondOrdF7 $;
+
+@_ def rcondOrdF9: nat = $ sfImp rcondOrdF0 rcondOrdF8 $;
+
+@_ def rcondOrdF10: nat = $ sfAll rcondOrdF9 $;
+
+@_ def rcondOrdF11: nat = $ sfImp rcondOrdF0 rcondOrdF10 $;
+
+@_ def rcondOrdF12: nat = $ sfAll rcondOrdF11 $;
+
+@_ def rcondOrdF13: nat = $ sfAnd rcondOrdF10 rcondOrdF12 $;
+
+@_ def rcondOrdF14: nat = $ sfEx rcondOrdF13 $;
+
+theorem rcondOrdBound0: $ sfBound 2 rcondOrdF0 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem rcondOrdBound1: $ sfBound 3 rcondOrdF0 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem rcondOrdBound2: $ sfBound 3 rcondOrdF6 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+theorem rcondOrdBound3: $ sfBound 3 rcondOrdF7 $ = '(mpbir sfBound_sfImp (ian rcondOrdBound1 rcondOrdBound2));
+
+theorem rcondOrdBound4: $ sfBound 2 rcondOrdF8 $ = '(mpbir sfBound_sfAll rcondOrdBound3);
+
+theorem rcondOrdBound5: $ sfBound 2 rcondOrdF9 $ = '(mpbir sfBound_sfImp (ian rcondOrdBound0 rcondOrdBound4));
+
+theorem rcondOrdBound6: $ sfBound 1 rcondOrdF10 $ = '(mpbir sfBound_sfAll rcondOrdBound5);
+
+theorem rcondOrdBound7: $ sfBound 4 rcondOrdF0 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem rcondOrdBound8: $ sfBound 4 rcondOrdF6 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+theorem rcondOrdBound9: $ sfBound 4 rcondOrdF7 $ = '(mpbir sfBound_sfImp (ian rcondOrdBound7 rcondOrdBound8));
+
+theorem rcondOrdBound10: $ sfBound 3 rcondOrdF8 $ = '(mpbir sfBound_sfAll rcondOrdBound9);
+
+theorem rcondOrdBound11: $ sfBound 3 rcondOrdF9 $ = '(mpbir sfBound_sfImp (ian rcondOrdBound1 rcondOrdBound10));
+
+theorem rcondOrdBound12: $ sfBound 2 rcondOrdF10 $ = '(mpbir sfBound_sfAll rcondOrdBound11);
+
+theorem rcondOrdBound13: $ sfBound 2 rcondOrdF11 $ = '(mpbir sfBound_sfImp (ian rcondOrdBound0 rcondOrdBound12));
+
+theorem rcondOrdBound14: $ sfBound 1 rcondOrdF12 $ = '(mpbir sfBound_sfAll rcondOrdBound13);
+
+theorem rcondOrdBound15: $ sfBound 1 rcondOrdF13 $ = '(mpbir sfBound_sfAnd (ian rcondOrdBound6 rcondOrdBound14));
+
+theorem rcondOrdBound16: $ sfBound 0 rcondOrdF14 $ = '(mpbir sfBound_sfEx rcondOrdBound15);
+
+@_ def sfReflectionCondOrdinalAxiom0:nat = $ rcondOrdF4 $;
+
+@_ def sfReflectionCondOrdinalContext:nat = $ rcondOrdG5 $;
+
+@_ def sfReflectionCondOrdinalWitness:nat = $ rcondOrdF14 $;
+
+pub theorem sfReflectionCondOrdinalAxiom0_zfr: $ sfReflectionCondOrdinalAxiom0 e. zfrAxioms $ = '(ax_mp zfcCoreAxioms_zfr_member zfcCoreEmpty_member);
+
+pub theorem sfReflectionCondOrdinal_pure: $ nsLocal sfReflectionCondOrdinalContext sfReflectionCondOrdinalWitness $ = 'rcondOrdNDCertificate;
+
+pub theorem sfReflectionCondOrdinal_closed: $ sfBound 0 sfReflectionCondOrdinalWitness $ = 'rcondOrdBound16;
+
+pub theorem sfReflectionCondOrdinalContext_zfr: $ sfTheoryContext zfrAxioms sfReflectionCondOrdinalContext $ = '(mpbir sfTheoryContext_cons (ian sfReflectionCondOrdinalAxiom0_zfr sfTheoryContext_nil));
+
+pub theorem sfReflectionCondOrdinalWitness_zfr: $ sfTheoryProvable zfrAxioms sfReflectionCondOrdinalWitness $ = '(ax_mp (sfTheory_local sfReflectionCondOrdinalContext_zfr) sfReflectionCondOrdinal_pure);

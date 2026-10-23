@@ -1,0 +1,11 @@
+import "pa_source_interpretation_nat_qf_syntax.mm0";
+
+def paNatQFFalseClosed (P: set) (.n: nat): wff = $ A. n (n, paFormulaFalse) e. P $;
+
+def paNatQFEqualClosed (P: set) (.n .a .b: nat): wff = $ A. n A. a A. b (paTermBound n a /\ paTermBound n b -> (n, paFormulaEqual a b) e. P) $;
+
+def paNatQFBinaryClosed (P: set) (.n .a .b: nat): wff = $ A. n A. a A. b ((n, a) e. P /\ (n, b) e. P -> (n, paFormulaAnd a b) e. P /\ (n, paFormulaOr a b) e. P /\ (n, paFormulaImp a b) e. P) $;
+
+def paNatQFConstructionClosed (P: set): wff = $ paNatQFFalseClosed P /\ paNatQFEqualClosed P /\ paNatQFBinaryClosed P $;
+
+theorem paNatQFBound_induction (P: set) (n c: nat): $ paNatQFConstructionClosed P -> paNatQFBound n c -> (n, c) e. P $;

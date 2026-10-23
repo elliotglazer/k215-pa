@@ -1,0 +1,49 @@
+import "source_reflection_transfer_tv_from_rows.mm1";
+
+@_ def sfTVBallContextStep(y:nat)(.z:nat):set = $ \ z, (suc (fst z), (sfMem 0 (suc (y + fst z))) : sfContextShift (snd z)) $;
+
+@_ def sfTVBallContextRaw(G y n:nat):nat = $ rec (0, G) (sfTVBallContextStep y) n $;
+
+@_ def sfTVBallContext(G y n:nat):nat = $ snd (sfTVBallContextRaw G y n) $;
+
+theorem sftvbc_step_at(y z:nat): $ sfTVBallContextStep y @ z = (suc (fst z), (sfMem 0 (suc (y + fst z))) : sfContextShift (snd z)) $ = (named '(!! applame j ,eqtac));
+
+theorem sftvbc_raw_zero(G y:nat): $ sfTVBallContextRaw G y 0 = (0, G) $ = (named 'rec0);
+
+theorem sftvbc_raw_suc(G y n:nat): $ sfTVBallContextRaw G y (suc n) = (suc (fst (sfTVBallContextRaw G y n)), (sfMem 0 (suc (y + fst (sfTVBallContextRaw G y n)))) : sfContextShift (sfTVBallContext G y n)) $ = (named '(eqtr recS sftvbc_step_at));
+
+theorem sftvbc_count(G y n:nat): $ fst (sfTVBallContextRaw G y n) = n $ = (named @ induct '(ind) 'n '(eqtr (fsteq sftvbc_raw_zero) fstpr) '(eqtrd (a1i (eqtr (fsteq sftvbc_raw_suc) fstpr)) (suceqd id)));
+
+pub theorem sfTVBallContext_zero(G y:nat): $ sfTVBallContext G y 0 = G $ = (named '(eqtr (sndeq sftvbc_raw_zero) sndpr));
+
+pub theorem sfTVBallContext_suc(G y n:nat): $ sfTVBallContext G y (suc n) = (sfMem 0 (y + suc n)) : sfContextShift (sfTVBallContext G y n) $ = (named '(eqtr (sndeq sftvbc_raw_suc) (eqtr sndpr (conseq1 (nsMem_eq eqid (eqtr (suceq (addeq2 sftvbc_count)) (eqcom addS)))))));
+
+pub theorem sfTVBallContext_wf(G y n:nat)(hg:$ sfContextWf G $): $ sfContextWf (sfTVBallContext G y n) $ = (named @ induct '(ind) 'n '(mpbir (trud (sfContextWf_congr (a1i sfTVBallContext_zero))) hg) '(a1i (mpbir (trud (sfContextWf_congr (a1i sfTVBallContext_suc))) (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf)))));
+
+@_ def sfTVBallSnocLaw(n:nat)(.v .a:nat):wff = $ A. v A. a (sfCLBall (suc n) v a = sfCLBall n v (sfAll (sfImp (sfMem 0 (suc (v + n))) a))) $;
+
+theorem sftvbc_snoc_at(n y body:nat): $ sfTVBallSnocLaw n -> sfCLBall (suc n) y body = sfCLBall n y (sfAll (sfImp (sfMem 0 (suc (y + n))) body)) $ = (named '(!! ealie v @ !! ealde a @ bi1d ,eqtac));
+
+theorem sftvbc_snoc_zero: $ sfTVBallSnocLaw 0 $ = (named '(ax_gen @ ax_gen @ eqtr sfCLBall_suc (eqtr (nsAll_eq (nsImp_eq eqid sfCLBall_zero)) (eqcom (eqtr sfCLBall_zero (nsAll_eq (nsImp_eq (nsMem_eq eqid (suceq add0)) eqid)))))));
+
+theorem sftvbc_snoc_step(n:nat): $ sfTVBallSnocLaw n -> sfTVBallSnocLaw (suc n) $ = (named '(!! iald v @ !! iald a @ eqtrd (a1i sfCLBall_suc) (eqtrd (sfAlleqd (sfImpeqd eqidd sftvbc_snoc_at)) (a1i (eqcom (eqtr sfCLBall_suc (nsAll_eq (nsImp_eq eqid (sfCLBalleq eqid eqid (nsAll_eq (nsImp_eq (nsMem_eq eqid (suceq (eqcom addSass))) eqid)))))))))));
+
+theorem sftvbc_snoc(n:nat): $ sfTVBallSnocLaw n $ = (named @ induct '(ind) 'n 'sftvbc_snoc_zero 'sftvbc_snoc_step);
+
+pub theorem sfTVBall_snoc(n y body:nat): $ sfCLBall (suc n) y body = sfCLBall n y (sfAll (sfImp (sfMem 0 (suc (y + n))) body)) $ = (named '(ax_mp sftvbc_snoc_at sftvbc_snoc));
+
+@_ def sfTVBallIntroLaw(G y n:nat)(.a:nat):wff = $ A. a (nsLocal (sfTVBallContext G y n) a -> nsLocal G (sfCLBall n y a)) $;
+
+theorem sftvbc_intro_at(G y n body:nat): $ sfTVBallIntroLaw G y n -> nsLocal (sfTVBallContext G y n) body -> nsLocal G (sfCLBall n y body) $ = (named '(!! eale a ,eqtac));
+
+theorem sftvbc_intro_zero(G y:nat): $ sfTVBallIntroLaw G y 0 $ = (named '(ax_gen (syl (bi2 (nsLocal_formula_eq sfCLBall_zero)) (bi1 (nsLocal_context_eq sfTVBallContext_zero)))));
+
+theorem sftvbc_context_suc_canon(G y n:nat): $ sfTVBallContext G y (suc n) = (sfMem 0 (suc (y + n))) : sfContextShift (sfTVBallContext G y n) $ = (named '(eqtr sfTVBallContext_suc (conseq1 (nsMem_eq eqid addS))));
+
+theorem sftvbc_intro_next(G y n body:nat)(hg:$ sfContextWf G $): $ sfTVBallIntroLaw G y n -> nsLocal (sfTVBallContext G y (suc n)) body -> nsLocal G (sfCLBall (suc n) y body) $ = (named '(exp (syl (bi2 (nsLocal_formula_eq sfTVBall_snoc)) (mpd (syl (sfLocal_allI (sfTVBallContext_wf hg)) (syl nsLocal_II (syl (bi1 (nsLocal_context_eq sftvbc_context_suc_canon)) anr))) (syl sftvbc_intro_at anl)))));
+
+theorem sftvbc_intro_step(G y n:nat)(hg:$ sfContextWf G $): $ sfTVBallIntroLaw G y n -> sfTVBallIntroLaw G y (suc n) $ = (named '(!! iald a @ sftvbc_intro_next hg));
+
+theorem sftvbc_intro_all(G y n:nat)(hg:$ sfContextWf G $): $ sfTVBallIntroLaw G y n $ = (named @ induct '(ind) 'n 'sftvbc_intro_zero '(sftvbc_intro_step hg));
+
+pub theorem sfTVBall_introduce(G y n body:nat)(hg:$ sfContextWf G $): $ nsLocal (sfTVBallContext G y n) body -> nsLocal G (sfCLBall n y body) $ = (named '(ax_mp sftvbc_intro_at (sftvbc_intro_all hg)));

@@ -1,0 +1,24 @@
+import "k215_calculus_source_ax_gate_lookups.mm1";
+import "k215_literal_runtime_reach.mm1";
+
+
+@_ def k215Clear4588State (pc x c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) x (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) (k215PR6 c) (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215Clear4588State) '(k215Clear4588Stateeqd));
+
+theorem k215Clear4588Zero (c: nat): $ k215PReach (k215Clear4588State k215PNum4588 0 c) (k215Clear4588State k215PNum4590 0 c) $ = '(k215PReach_step (eqtr (eqtr (k215PAtCD k215PLookupClear4588_4588) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifpos eqid)));
+
+theorem k215Clear4588Succ (x c: nat): $ k215PReach (k215Clear4588State k215PNum4588 (suc x) c) (k215Clear4588State k215PNum4589 x c) $ = '(k215PReach_step (eqtr (eqtr (eqtr (k215PAtCD k215PLookupClear4588_4588) (ifeq (eqeq1 k215PGet1_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet1_vector)) (eqtr k215PSet1_vector (k215PVectoreq2 (eqtr subSS sub02)))))));
+
+theorem k215Clear4588Back (x c: nat): $ k215PReach (k215Clear4588State k215PNum4589 x c) (k215Clear4588State k215PNum4588 x c) $ = '(k215PReach_step (k215PAtCC k215PLookupClear4588_4589));
+
+pub theorem k215Clear4588All (x c: nat): $ k215PReach (k215Clear4588State k215PNum4588 x c) (k215Clear4588State k215PNum4590 0 c) $ =
+ (named @ induct '(ind) 'x 'k215Clear4588Zero
+   '(ax_mp k215PReach_trans (ax_mp (ax_mp k215PReach_trans k215Clear4588Succ) k215Clear4588Back)));
+
+theorem k215Clear4588VectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215Clear4588State k215PNum4588 a1 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) = k215PState k215PNum4588 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector k215PR7_vector k215PR8_vector));
+
+theorem k215Clear4588VectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215Clear4588State k215PNum4590 0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) = k215PState k215PNum4590 (k215PVector a0 0 a2 a3 a4 a5 a6 a7 a8) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector eqid k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector k215PR6_vector k215PR7_vector k215PR8_vector));
+
+pub theorem k215Clear4588Vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PReach (k215PState k215PNum4588 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) (k215PState k215PNum4590 (k215PVector a0 0 a2 a3 a4 a5 a6 a7 a8)) $ = '(mpbi (k215PReacheq k215Clear4588VectorIn k215Clear4588VectorOut) k215Clear4588All);
+

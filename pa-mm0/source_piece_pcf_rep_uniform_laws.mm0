@@ -1,0 +1,57 @@
+import "source_piece_pcf_rep_uniform_induction.mm0";
+
+-- Introduction rules for the seven step laws of sfPieceRepUniform.
+-- A step law is in implication form; the lane's case lemmas are naturally in hypothesis
+-- form (premises such as sfBound n a and nsLocal G (W n a) as rule hypotheses). The intro
+-- rules below turn a hypothesis-form case lemma, instantiated at the "if" terms, into the
+-- law (weak deduction theorem: replace a subformula code by a default code, sfBot or a
+-- bounded atom, whenever the premises fail, so the premises always hold).
+
+def sfPieceRepIfWitness (G A C n a: nat): nat =
+$ if (sfBound n a /\ nsLocal G (sfPieceDefinableWitness A C n a)) a sfBot $;
+def sfPieceRepIfDepth (n a b: nat): nat = $ if (a < n /\ b < n) n 1 $;
+def sfPieceRepIfLeft (n a b: nat): nat = $ if (a < n /\ b < n) a 0 $;
+def sfPieceRepIfRight (n a b: nat): nat = $ if (a < n /\ b < n) b 0 $;
+
+theorem sfPieceRepIfWitness_bound (G A C n a: nat):
+  $ sfBound n (sfPieceRepIfWitness G A C n a) $;
+theorem sfPieceRepIfWitness_witness (G A B C n a: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ nsLocal G (sfPieceDefinableWitness A C n (sfPieceRepIfWitness G A C n a)) $;
+theorem sfPieceRepIfAtom_mem_bound (n a b: nat):
+  $ sfBound (sfPieceRepIfDepth n a b)
+      (sfMem (sfPieceRepIfLeft n a b) (sfPieceRepIfRight n a b)) $;
+theorem sfPieceRepIfAtom_eq_bound (n a b: nat):
+  $ sfBound (sfPieceRepIfDepth n a b)
+      (sfEq (sfPieceRepIfLeft n a b) (sfPieceRepIfRight n a b)) $;
+
+theorem sfPieceRepMemLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C (sfPieceRepIfDepth n a b)
+        (sfMem (sfPieceRepIfLeft n a b) (sfPieceRepIfRight n a b))) $):
+  $ sfPieceRepMemLaw G A C $;
+theorem sfPieceRepEqLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C (sfPieceRepIfDepth n a b)
+        (sfEq (sfPieceRepIfLeft n a b) (sfPieceRepIfRight n a b))) $):
+  $ sfPieceRepEqLaw G A C $;
+theorem sfPieceRepAndLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfAnd (sfPieceRepIfWitness G A C n a) (sfPieceRepIfWitness G A C n b))) $):
+  $ sfPieceRepAndLaw G A C $;
+theorem sfPieceRepOrLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfOr (sfPieceRepIfWitness G A C n a) (sfPieceRepIfWitness G A C n b))) $):
+  $ sfPieceRepOrLaw G A C $;
+theorem sfPieceRepImpLaw_intro {n a b: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfImp (sfPieceRepIfWitness G A C n a) (sfPieceRepIfWitness G A C n b))) $):
+  $ sfPieceRepImpLaw G A C $;
+theorem sfPieceRepAllLaw_intro {n a: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfAll (sfPieceRepIfWitness G A C (suc n) a))) $):
+  $ sfPieceRepAllLaw G A C $;
+theorem sfPieceRepExLaw_intro {n a: nat} (G A C: nat)
+  (h: $ nsLocal G (sfPieceDefinableWitness A C n
+        (sfEx (sfPieceRepIfWitness G A C (suc n) a))) $):
+  $ sfPieceRepExLaw G A C $;

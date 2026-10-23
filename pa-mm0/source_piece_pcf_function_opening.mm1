@@ -1,0 +1,83 @@
+import "source_piece_pcf_opening.mm1";
+import "source_piece_pcf_function_syntax.mm1";
+theorem pcfO_piece_cond(H:wff)(domain level count phi d X:nat)
+ (hd:$ H -> sfBound 1 domain $)(hl:$ H -> sfBound 2 level $)(hb:$ H -> sfBound (suc count) phi $):
+ $ H -> sfORBinary (sfPiecePC domain level count phi 0 1) d X = sfPiecePC domain level count phi d X $ =
+ '(mpd hb (mpd hl (syl sfPiecePC_binary_open hd)));
+@_ def sfPieceFunctionBinaryOpenLaw (domain level:nat)(E:set)(n d X:nat): wff =
+ $ sfPieceFunctionTableValid E n ->
+   sfORBinary (sfPieceFunctionBinary domain level E n) d X =
+    sfPieceFunctionConjunction domain level E n d X $;
+
+theorem pcfO_true (d X: nat): $ sfORBinary sfCLTrue d X = sfCLTrue $ =
+'(eqtr sfRename_sfImp (trud (sfImpeqd (a1i sfRename_bot) (a1i sfRename_bot))));
+
+theorem pcfO_zero (domain level:nat)(E:set)(d X:nat):
+ $ sfPieceFunctionBinaryOpenLaw domain level E 0 d X $ =
+'(a1i (eqtr (trud (sfRename_congr_formula (a1i sfPieceFunctionConjunction_zero)))
+ (eqtr pcfO_true (eqcom sfPieceFunctionConjunction_zero))));
+
+theorem pcfO_step_cond (H: wff) (domain level:nat)(E:set)(n d X:nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hi: $ H -> sfPieceFunctionBinaryOpenLaw domain level E n d X $)
+ (hv: $ H -> sfPieceFunctionTableValid E (suc n) $):
+ $ H -> sfORBinary (sfPieceFunctionBinary domain level E (suc n)) d X =
+   sfPieceFunctionConjunction domain level E (suc n) d X $ =
+'(eqtrd (a1i (trud (sfRename_congr_formula (a1i sfPieceFunctionConjunction_suc))))
+ (eqtrd (a1i sfRename_sfAnd)
+  (eqtrd (sfAndeqd
+    (mpd (syl sfPieceFunctionTableValid_prefix hv) hi)
+    (pcfO_piece_cond hd hl (syl sfPieceFunctionTableValid_last hv)))
+   (a1i (eqcom sfPieceFunctionConjunction_suc)))));
+
+theorem pcfO_step (domain level:nat)(E:set)(n d X:nat)
+ (hd: $ sfBound 1 domain $) (hl: $ sfBound 2 level $):
+ $ sfPieceFunctionBinaryOpenLaw domain level E n d X ->
+   sfPieceFunctionBinaryOpenLaw domain level E (suc n) d X $ =
+(named '(exp @ pcfO_step_cond (a1i hd) (a1i hl) anl anr));
+
+def pcfOBoundLaw(domain level:nat)(E:set)(n d X:nat):wff =
+ $ sfBound 1 domain -> sfBound 2 level -> sfPieceFunctionBinaryOpenLaw domain level E n d X $;
+
+do { (add-eqd-thm 'pcfOBoundLaw 'pcfOBoundLawCong) };
+
+theorem pcfO_bound_zero(domain level:nat)(E:set)(d X:nat):
+ $ pcfOBoundLaw domain level E 0 d X $ =
+'(a1i (a1i pcfO_zero));
+
+theorem pcfO_bound_step_cond(H:wff)(domain level:nat)(E:set)(n d X:nat)
+ (hi:$ H -> pcfOBoundLaw domain level E n d X $)
+ (hd:$ H -> sfBound 1 domain $)(hl:$ H -> sfBound 2 level $)
+ (hv:$ H -> sfPieceFunctionTableValid E (suc n) $):
+ $ H -> sfORBinary (sfPieceFunctionBinary domain level E (suc n)) d X =
+  sfPieceFunctionConjunction domain level E (suc n) d X $ =
+'(! pcfO_step_cond $ H $ domain level E n d X hd hl (mpd hl (mpd hd hi)) hv);
+
+theorem pcfO_bound_step(domain level:nat)(E:set)(n d X:nat):
+ $ pcfOBoundLaw domain level E n d X -> pcfOBoundLaw domain level E (suc n) d X $ =
+(named '(exp @ exp @ exp @
+ pcfO_bound_step_cond (syl anll anl) (syl anlr anl) anlr anr));
+
+theorem pcfO_bound_all(domain level:nat)(E:set)(n d X:nat):
+ $ pcfOBoundLaw domain level E n d X $ =
+(named '(! ind poInd poStep n
+ $ pcfOBoundLaw domain level E poInd d X $
+ $ pcfOBoundLaw domain level E 0 d X $
+ $ pcfOBoundLaw domain level E n d X $
+ $ pcfOBoundLaw domain level E poStep d X $
+ $ pcfOBoundLaw domain level E (suc poStep) d X $
+ ,eqtac ,eqtac ,eqtac ,eqtac
+ (! pcfO_bound_zero domain level E d X)
+ (! pcfO_bound_step domain level E poStep d X)));
+
+theorem pcfO_all (domain level:nat)(E:set)(n d X:nat)
+ (hd: $ sfBound 1 domain $) (hl: $ sfBound 2 level $):
+ $ sfPieceFunctionBinaryOpenLaw domain level E n d X $ =
+'(ax_mp (ax_mp pcfO_bound_all hd) hl);
+
+pub theorem sfPieceFunctionBinary_open (domain level:nat)(E:set)(n d X:nat)
+ (hd: $ sfBound 1 domain $) (hl: $ sfBound 2 level $):
+ $ sfPieceFunctionTableValid E n ->
+   sfORBinary (sfPieceFunctionBinary domain level E n) d X =
+    sfPieceFunctionConjunction domain level E n d X $ =
+'(pcfO_all hd hl);

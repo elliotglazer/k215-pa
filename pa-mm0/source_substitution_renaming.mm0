@@ -1,0 +1,20 @@
+import "source_renaming_depth.mm0";
+
+def sfSubstDepthMap (k t .i: nat): set = $ \ i, sfSubstIndex k t i $;
+
+theorem sfSubstDepthMap_value (k t i: nat):
+ $ sfSubstDepthMap k t @ i = sfSubstIndex k t i $;
+
+theorem sfSubstIndex_depth (k t d i: nat):
+ $ sfSubstIndex (d + k) t i = sfRenameIndex (sfSubstDepthMap k t) d i $;
+
+def sfSubstAsMapClass (k t .c .d: nat): set = $ {c | A. d sfSubst (d + k) t c = sfRename (sfSubstDepthMap k t) d c} $;
+
+theorem sfSubst_lifted_map (k t d c: nat):
+ $ sfWf c -> sfSubst (d + k) t c = sfRename (sfSubstDepthMap k t) d c $;
+
+theorem sfSubst_as_map (k t c: nat):
+ $ sfWf c -> sfSubst k t c = sfRename (sfSubstDepthMap k t) 0 c $;
+
+theorem sfSubst_rename_compose (S: set) (k t c: nat):
+ $ sfWf c -> sfSubst k t (sfRename S 0 c) = sfRename (sfComposeMap (sfSubstDepthMap k t) S) 0 c $;

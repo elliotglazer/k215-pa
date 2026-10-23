@@ -1,0 +1,194 @@
+import "raw_source_image.mm1";
+import "source_renaming_laws.mm1";
+import "source_renaming_depth.mm1";
+import "source_renaming_extensional.mm1";
+import "source_substitution_renaming.mm1";
+import "source_theory_prefix.mm1";
+import "source_syntax_laws.mm1";
+import "zfc_schema_maps.mm1";
+
+-- (lane L01, glue step 2 infrastructure)
+-- 1. The free indices of rawDecode c are below c (strong induction on c).
+
+theorem k215QB_ind_at {j: nat} (c a: nat):
+  $ A. j (j < c -> sfBound j (rawDecode j)) -> a < c -> sfBound a (rawDecode a) $ =
+(named '(!! eale j ,eqtac));
+
+theorem k215QB_hist {j: nat} (G: wff j) (c a: nat)
+  (hi: $ G -> A. j (j < c -> sfBound j (rawDecode j)) $) (ha: $ G -> a < c $):
+  $ G -> sfBound c (rawDecodeHistory c @ a) $ =
+'(mpbird (sfLaw_bound_congr eqidd (syl rawDecodeHistory_lookup ha))
+   (sylc sfBound_mono (mpd ha (syl k215QB_ind_at hi)) (syl ltle ha)));
+
+theorem k215QB_if (G p: wff) (c a b: nat)
+  (hp: $ G /\ p -> sfBound c a $) (hb: $ G -> sfBound c b $):
+  $ G -> sfBound c (if p a b) $ =
+'(ifbothd (sfLaw_bound_congr eqidd id) (sfLaw_bound_congr eqidd id) hp (syl hb anl));
+
+theorem k215QB_rbm_eq (x n i: nat): $ i = x -> i < n -> rawBinderMap x @ i < suc n $ =
+'(a1d @ mpbiri lt01S (lteq1d (eqtrd (appeq2d id) (a1i rawBinderMap_same))));
+
+theorem k215QB_rbm_ne (x n i: nat): $ i != x -> i < n -> rawBinderMap x @ i < suc n $ =
+'(exp @ mpbird (lteq1d @ anwl rawBinderMap_other) (anwr (bi1 ltsuc)));
+
+theorem k215QB_rbm_lt (x n i: nat): $ i < n -> rawBinderMap x @ i < suc n $ =
+'(cases k215QB_rbm_eq k215QB_rbm_ne);
+
+theorem k215QB_rename (x n c: nat):
+  $ sfBound n c -> sfBound (suc n) (sfRename (rawBinderMap x) 0 c) $ =
+(named '(sylib (trud (sfLaw_bound_congr (a1i add01) eqidd))
+   (sylbir (trud (sfLaw_bound_congr (a1i add01) eqidd))
+     (ax_mp sfRename_bound (ax_gen k215QB_rbm_lt)))));
+
+theorem k215QB_truth (n: nat): $ sfBound n sfTruth $ =
+'(mpbir sfBound_sfImp (iani sfBound_bot sfBound_bot));
+
+theorem k215QB_body {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> sfBound j (rawDecode j)) $) (hc: $ G -> 0 < c $):
+  $ G -> sfBound c (rawDecodeBody c (rawDecodeHistory c)) $ =
+'(k215QB_if (syl (mpbird (a1i sfBound_sfMem) (iand (syl rawLeft_lt hc) (syl rawRight_lt hc))) anl) @
+  k215QB_if (syl (mpbird (a1i sfBound_sfEq) (iand (syl rawLeft_lt hc) (syl rawRight_lt hc))) anl) @
+  k215QB_if (syl (mpbird (a1i sfBound_sfAll)
+    (syl k215QB_rename (k215QB_hist hi (syl rawRight_lt hc)))) anl) @
+  k215QB_if (syl (mpbird (a1i sfBound_sfImp)
+    (iand (k215QB_hist hi (syl rawLeft_lt hc)) (k215QB_hist hi (syl rawRight_lt hc)))) anl)
+  (a1i k215QB_truth));
+
+theorem k215QB_zero (c: nat): $ c = 0 -> sfBound c (rawDecode c) $ =
+'(mpbiri k215QB_truth (sfLaw_bound_congr eqidd (eqtrd (rawDecode_congr id) (a1i rawDecode_zero))));
+
+theorem k215QB_nz (c: nat): $ ~ 0 < c -> c = 0 $ = '(con1 (bi2 lt01));
+
+theorem k215QB_step {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> sfBound j (rawDecode j)) $):
+  $ G -> sfBound c (rawDecode c) $ =
+'(casesda
+   (mpbird (sfLaw_bound_congr eqidd (a1i rawDecode_unfold)) (k215QB_body (anwl hi) anr))
+   (anwr (syl k215QB_zero k215QB_nz)));
+
+pub theorem k215RawDecode_bound (c: nat): $ sfBound c (rawDecode c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (sfBound j (rawDecode j) <-> sfBound c (rawDecode c)) $}
+  ,eqtac (k215QB_step anr)));
+
+-- 2. The parametric opaque atom: a formula code phi with index 0 placed at a, index 1 at b,
+-- and every index i >= 2 at p + (i - 2) (the parameters start at index p).
+
+@_ def k215QPMap (a b p: nat) (.i: nat): set = $ \ i, if (i = 0) a (if (i = 1) b (p + (i - 2))) $;
+@_ def k215QP (phi a b p: nat): nat = $ sfRename (k215QPMap a b p) 0 phi $;
+
+theorem k215QPMap_value (a b p i: nat):
+  $ k215QPMap a b p @ i = if (i = 0) a (if (i = 1) b (p + (i - 2))) $ =
+(named '(applame ,eqtac));
+
+pub theorem k215QP_wf (phi a b p: nat): $ sfWf (k215QP phi a b p) $ = 'sfRename_wf;
+
+theorem k215QP_point (R: set) (d a b p a2 b2 p2: nat) {i: nat}
+  (hj: $ A. i (sfRenameIndex R d (p + (i - 2)) = p2 + (i - 2)) $)
+  (ha: $ sfRenameIndex R d a = a2 $) (hb: $ sfRenameIndex R d b = b2 $):
+  $ sfComposeMap (sfRenameDepthMap R d) (k215QPMap a b p) @ i = k215QPMap a2 b2 p2 @ i $ =
+'(eqtr (eqtr sfComposeMap_value sfRenameDepthMap_value)
+  (eqtr
+   (cases
+    (eqtr4d (eqtrd (sfRenameIndex_congr_index (eqtrd (a1i k215QPMap_value) ifpos)) (a1i ha)) ifpos)
+    (casesda
+     (eqtr4d
+       (eqtrd (sfRenameIndex_congr_index
+          (eqtrd (a1i k215QPMap_value) (eqtrd (syl ifneg anl) (syl ifpos anr)))) (a1i hb))
+       (eqtrd (syl ifneg anl) (syl ifpos anr)))
+     (eqtr4d
+       (eqtrd (sfRenameIndex_congr_index
+          (eqtrd (a1i k215QPMap_value) (eqtrd (syl ifneg anl) (syl ifneg anr)))) (a1i (ax_mp eal hj)))
+       (eqtrd (syl ifneg anl) (syl ifneg anr)))))
+   (eqcom k215QPMap_value)));
+
+pub theorem k215QP_rename (R: set) (d phi a b p a2 b2 p2: nat) {i: nat}
+  (hj: $ A. i (sfRenameIndex R d (p + (i - 2)) = p2 + (i - 2)) $)
+  (ha: $ sfRenameIndex R d a = a2 $) (hb: $ sfRenameIndex R d b = b2 $) (hf: $ sfWf phi $):
+  $ sfRename R d (k215QP phi a b p) = k215QP phi a2 b2 p2 $ =
+'(eqtr (ax_mp sfRename_mixed_compose hf)
+   (ax_mp (sfRename_extensional (!! ax_gen i @ ! k215QP_point R d a b p a2 b2 p2 i hj ha hb)) hf));
+
+-- Renamings that act as a translation above the parameter start.
+theorem k215QP_lin_at (R: set) (d p e p2 t: nat) (hp: $ d <= p $) (he: $ p - d = e $)
+  (hp2: $ sfRenameIndex R d p = p2 $) (hR: $ R @ (e + t) = R @ e + t $):
+  $ sfRenameIndex R d (p + t) = p2 + t $ =
+'(eqtr (sfRenameIndex_free (mpbi lenlt (letr hp leaddid1)))
+  (eqtr (addeq2 (appeq2 (eqtr (addsub hp) (addeq1 he))))
+  (eqtr (addeq2 hR)
+  (eqtr (eqcom addass)
+   (addeq1 (eqtr (eqcom (addeq2 (appeq2 he)))
+     (eqtr (eqcom (sfRenameIndex_free (mpbi lenlt hp))) hp2)))))));
+
+theorem k215QP_lin (R: set) (d p e p2: nat) {i: nat} (hp: $ d <= p $) (he: $ p - d = e $)
+  (hp2: $ sfRenameIndex R d p = p2 $) (hR: $ A. i (R @ (e + (i - 2)) = R @ e + (i - 2)) $):
+  $ A. i (sfRenameIndex R d (p + (i - 2)) = p2 + (i - 2)) $ =
+'(!! ax_gen i @ k215QP_lin_at hp he hp2 (ax_mp eal hR));
+
+theorem k215QP_succ_at (e t: nat): $ sfSuccessorMap @ (e + t) = sfSuccessorMap @ e + t $ =
+'(eqtr sfSuccessorMap_value (eqcom (eqtr (addeq1 sfSuccessorMap_value) addS1)));
+
+pub theorem k215QP_shift (d phi a b p: nat) (hp: $ d <= p $) (hf: $ sfWf phi $):
+  $ sfShift d (k215QP phi a b p) =
+    k215QP phi (sfShiftIndex d a) (sfShiftIndex d b) (sfShiftIndex d p) $ =
+(named '(eqtr (eqcom (ax_mp sfRename_successor k215QP_wf))
+   (k215QP_rename (k215QP_lin hp eqid sfRenameIndex_successor (ax_gen k215QP_succ_at))
+     sfRenameIndex_successor sfRenameIndex_successor hf)));
+
+theorem k215QP_subst_at (d t p s: nat) (hp: $ d < p $):
+  $ sfRenameIndex (sfSubstDepthMap d t) 0 (p + s) = sfSubstIndex d t p + s $ =
+'(eqtr sfRenameIndex_zero (eqtr sfSubstDepthMap_value
+   (eqtr (sfSubstIndex_above (ltletr hp leaddid1))
+   (eqtr (addsub (lelttr le01 hp)) (addeq1 (eqcom (sfSubstIndex_above hp)))))));
+
+pub theorem k215QP_subst (d t phi a b p: nat) (hp: $ d < p $) (hf: $ sfWf phi $):
+  $ sfSubst d t (k215QP phi a b p) =
+    k215QP phi (sfSubstIndex d t a) (sfSubstIndex d t b) (sfSubstIndex d t p) $ =
+(named '(eqtr (ax_mp sfSubst_as_map k215QP_wf)
+   (k215QP_rename (ax_gen @ k215QP_subst_at hp)
+     (eqtr sfRenameIndex_zero sfSubstDepthMap_value)
+     (eqtr sfRenameIndex_zero sfSubstDepthMap_value) hf)));
+
+theorem k215QP_bind_at (x e t: nat) (hx: $ x < e $):
+  $ rawBinderMap x @ (e + t) = rawBinderMap x @ e + t $ =
+'(eqtr (rawBinderMap_other (ltner (ltletr hx leaddid1)))
+   (eqcom (eqtr (addeq1 (rawBinderMap_other (ltner hx))) addS1)));
+
+pub theorem k215QP_binder (x d e phi a b p a2 b2 p2: nat)
+  (hp: $ d <= p $) (he: $ p - d = e $) (hx: $ x < e $)
+  (ha: $ sfRenameIndex (rawBinderMap x) d a = a2 $)
+  (hb: $ sfRenameIndex (rawBinderMap x) d b = b2 $)
+  (hp2: $ sfRenameIndex (rawBinderMap x) d p = p2 $) (hf: $ sfWf phi $):
+  $ sfRename (rawBinderMap x) d (k215QP phi a b p) = k215QP phi a2 b2 p2 $ =
+(named '(k215QP_rename (k215QP_lin hp he hp2 (ax_gen @ k215QP_bind_at hx)) ha hb hf));
+
+theorem k215QP_sep_at (e t: nat): $ sfSepMap @ (suc e + t) = sfSepMap @ suc e + t $ =
+'(eqtr (appeq2 addS1) (eqtr sfSepMap_suc (eqtr addass (eqtr (addeq2 addcom)
+   (eqtr (eqcom addass) (addeq1 (eqcom sfSepMap_suc)))))));
+
+pub theorem k215QP_sep (d e phi a b p a2 b2 p2: nat)
+  (hp: $ d <= p $) (he: $ p - d = suc e $)
+  (ha: $ sfRenameIndex sfSepMap d a = a2 $) (hb: $ sfRenameIndex sfSepMap d b = b2 $)
+  (hp2: $ sfRenameIndex sfSepMap d p = p2 $) (hf: $ sfWf phi $):
+  $ sfRename sfSepMap d (k215QP phi a b p) = k215QP phi a2 b2 p2 $ =
+(named '(k215QP_rename (k215QP_lin hp he hp2 (ax_gen k215QP_sep_at)) ha hb hf));
+
+-- Bounds: phi with free indices below 2 + m gives free indices below p + m.
+theorem k215QP_bpt (a b p m i: nat) (ha: $ a < p $) (hb: $ b < p $):
+  $ i < 2 + m -> k215QPMap a b p @ i < p + m $ =
+'(cases
+   (a1d (mpbird (lteq1d (eqtrd (a1i k215QPMap_value) ifpos)) (a1i (ltletr ha leaddid1))))
+   (casesda
+     (a1d (mpbird (lteq1d (eqtrd (a1i k215QPMap_value) (eqtrd (syl ifneg anl) (syl ifpos anr))))
+        (a1i (ltletr hb leaddid1))))
+     (sylibrd
+       (syld (bi2d (syl ltsubadd2 (sylibr ltlene (iand (syl (bi2 le11) anl) (syl necom anr)))))
+         (a1i (bi1 ltadd2)))
+       (lteq1d (eqtrd (a1i k215QPMap_value) (eqtrd (syl ifneg anl) (syl ifneg anr)))))));
+
+pub theorem k215QP_bound (phi a b p m: nat)
+  (hf: $ sfBound (2 + m) phi $) (ha: $ a < p $) (hb: $ b < p $):
+  $ sfBound (p + m) (k215QP phi a b p) $ =
+(named '(mpbi (trud (sfLaw_bound_congr (a1i add01) eqidd))
+   (ax_mp (ax_mp sfRename_bound (ax_gen @ k215QP_bpt ha hb))
+     (mpbir (trud (sfLaw_bound_congr (a1i add01) eqidd)) hf))));

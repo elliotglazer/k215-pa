@@ -1,0 +1,35 @@
+import "source_reflection_transfer_tv_ball_intro.mm1";
+
+@_ def sfTVLiftMap(n:nat)(.i:nat):set = $ \ i, n + i $;
+
+@_ def sfTVLift(n a:nat):nat = $ sfRename (sfTVLiftMap n) 0 a $;
+
+pub theorem sfTVLiftMap_at(n i:nat): $ sfTVLiftMap n @ i = n + i $ = (named '(!! applame j ,eqtac));
+
+theorem sftvc_lift_zero_map(i:nat): $ sfTVLiftMap 0 @ i = sfIdentityMap @ i $ = (named '(eqtr sfTVLiftMap_at (eqtr add01 (eqcom sfIdentityMap_value))));
+
+pub theorem sfTVLift_zero(a:nat)(ha:$ sfWf a $): $ sfTVLift 0 a = a $ = (named '(eqtr (ax_mp (sfRename_extensional (ax_gen sftvc_lift_zero_map)) ha) (ax_mp sfRename_identity ha)));
+
+theorem sftvc_lift_suc_map(n i:nat): $ sfComposeMap sfSuccessorMap (sfTVLiftMap n) @ i = sfTVLiftMap (suc n) @ i $ = (named '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value (eqtr (suceq sfTVLiftMap_at) (eqcom (eqtr sfTVLiftMap_at addS1))))));
+
+pub theorem sfTVLift_shift(n a:nat)(ha:$ sfWf a $): $ sfShift 0 (sfTVLift n a) = sfTVLift (suc n) a $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfRename_wf)) (eqtr (ax_mp sfRename_compose ha) (ax_mp (sfRename_extensional (ax_gen sftvc_lift_suc_map)) ha))));
+
+theorem sftvc_lift_base(G y a:nat)(ha:$ sfWf a $)(hp:$ nsLocal G a $): $ nsLocal (sfTVBallContext G y 0) (sfTVLift 0 a) $ = (named '(mpbir (trud (nsLocaleqd (a1i sfTVBallContext_zero) (a1i (sfTVLift_zero ha)))) hp));
+
+theorem sftvc_lift_step(G y n a:nat)(ha:$ sfWf a $): $ nsLocal (sfTVBallContext G y n) (sfTVLift n a) -> nsLocal (sfTVBallContext G y (suc n)) (sfTVLift (suc n) a) $ = (named '(syl (bi2 (nsLocal_context_eq sfTVBallContext_suc)) (syl (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (syl (bi1 (nsLocal_formula_eq (sfTVLift_shift ha))) sfSepLocal_shift))));
+
+pub theorem sfTVBallContext_lift(G y n a:nat)(ha:$ sfWf a $)(hp:$ nsLocal G a $): $ nsLocal (sfTVBallContext G y n) (sfTVLift n a) $ = (named @ induct '(ind) 'n '(sftvc_lift_base ha hp) '(sftvc_lift_step ha));
+
+pub theorem sfTVBallContext_closed_lift(G y n a:nat)(ha:$ sfBound 0 a $)(hp:$ nsLocal G a $): $ nsLocal (sfTVBallContext G y n) a $ = (named '(mpbi (nsLocal_formula_eq (ax_mp sfRename_closed_identity ha)) (sfTVBallContext_lift (ax_mp sfBound_wf ha) hp)));
+
+theorem sftvc_members_congr(G J y z n:nat)(hg:$ G = J $)(hy:$ y = z $): $ sfReflectionDnMembers sfIdentityMap G y n <-> sfReflectionDnMembers sfIdentityMap J z n $ = (named '(aleqi (imeq2i (trud (nsLocaleqd (a1i hg) (a1i (nsMem_eq eqid hy)))))));
+
+theorem sftvc_members_zero(G y:nat): $ sfReflectionDnMembers sfIdentityMap (sfTVBallContext G y 0) (y + 0) 0 $ = (named '(ax_gen (ax_mp absurd lt02)));
+
+theorem sftvc_members_step(G y n:nat): $ sfReflectionDnMembers sfIdentityMap (sfTVBallContext G y n) (y + n) n -> sfReflectionDnMembers sfIdentityMap (sfTVBallContext G y (suc n)) (y + suc n) (suc n) $ = (named '(syl (bi1 (sftvc_members_congr (eqcom sftvbc_context_suc_canon) (eqcom addS))) (sfTVMembers_shift_if id)));
+
+pub theorem sfTVBallContext_members(G y n:nat): $ sfReflectionDnMembers sfIdentityMap (sfTVBallContext G y n) (y + n) n $ = (named @ induct '(ind) 'n 'sftvc_members_zero 'sftvc_members_step);
+
+theorem sftvc_tuple_rows(G y n:nat)(hm:$ sfReflectionDnMembers sfIdentityMap G y n $): $ sfCLRowProofs (sfReflectionTupleRows sfIdentityMap 0 y) G n $ = (named '(ax_gen (mpbird (a1i (nsLocal_formula_eq (eqtr sfReflectionTupleRows_at (nsMem_eq add0 eqid)))) (ax_mp sfReflectionDnMembers_at hm))));
+
+pub theorem sfTVBallContext_tuple(G y n:nat)(hg:$ sfContextWf G $): $ nsLocal (sfTVBallContext G y n) (sfReflectionTuple sfIdentityMap 0 (y + n) n) $ = (named '(ax_mp (sfCLFold_proof (sfTVBallContext_wf hg)) (sftvc_tuple_rows sfTVBallContext_members)));

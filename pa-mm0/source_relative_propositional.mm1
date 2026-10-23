@@ -1,0 +1,85 @@
+import "source_relative_quantifiers.mm1";
+
+theorem sfRP_explosion_proof (G p a: nat) (ha: $ sfWf a $):
+  $ sfNDFullDerives p (sfSequent G sfBot) ->
+    sfNDFullDerives (sfSequent G a : p) (sfSequent G a) $ =
+'(mpd id @ syl sfNDFullDerives_prop_unary @ syl sfNDPropUnary_Exp @
+  sylc sfRowWf_sequent_intro
+    (syl anl (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf)) (a1i ha));
+
+pub theorem sfLocal_explosion (G a: nat) (ha: $ sfWf a $):
+  $ nsLocal G sfBot -> nsLocal G a $ =
+(named '(eex @ syl nsLocal_intro (sfRP_explosion_proof ha)));
+
+theorem sfRP_di2_proof (G p a b: nat) (ha: $ sfWf a $):
+  $ sfNDFullDerives p (sfSequent G b) ->
+    sfNDFullDerives (sfSequent G (sfOr a b) : p) (sfSequent G (sfOr a b)) $ =
+'(mpd id @ syl sfNDFullDerives_prop_unary @ syl sfNDPropUnary_DI2 @
+  sylc sfRowWf_sequent_intro
+    (syl anl (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf))
+    (sylc sfWf_or (a1i ha) zfcProof_formula_wf));
+
+pub theorem sfLocal_or_right (G a b: nat) (ha: $ sfWf a $):
+  $ nsLocal G b -> nsLocal G (sfOr a b) $ =
+(named '(eex @ syl nsLocal_intro (sfRP_di2_proof ha)));
+
+pub theorem sfRelative_II (D G a b: nat)
+  (hp: $ nsLocal (sfRelativize D a : G) (sfRelativize D b) $):
+  $ nsLocal G (sfRelativize D (sfImp a b)) $ =
+'(sfRQ_rewrite (eqcom sfRelativize_sfImp) (ax_mp nsLocal_II hp));
+
+pub theorem sfRelative_CE1 (D G a b: nat)
+  (hp: $ nsLocal G (sfRelativize D (sfAnd a b)) $):
+  $ nsLocal G (sfRelativize D a) $ =
+'(ax_mp nsLocal_CE1 (sfRQ_rewrite sfRelativize_sfAnd hp));
+
+pub theorem sfRelative_CE2 (D G a b: nat)
+  (hp: $ nsLocal G (sfRelativize D (sfAnd a b)) $):
+  $ nsLocal G (sfRelativize D b) $ =
+'(ax_mp nsLocal_CE2 (sfRQ_rewrite sfRelativize_sfAnd hp));
+
+pub theorem sfRelative_IE (D G a b: nat)
+  (hp: $ nsLocal G (sfRelativize D (sfImp a b)) $)
+  (hq: $ nsLocal G (sfRelativize D a) $):
+  $ nsLocal G (sfRelativize D b) $ =
+'(ax_mp (ax_mp nsLocal_mp (sfRQ_rewrite sfRelativize_sfImp hp)) hq);
+
+pub theorem sfRelative_CI (D G a b: nat)
+  (hp: $ nsLocal G (sfRelativize D a) $)
+  (hq: $ nsLocal G (sfRelativize D b) $):
+  $ nsLocal G (sfRelativize D (sfAnd a b)) $ =
+'(sfRQ_rewrite (eqcom sfRelativize_sfAnd) (ax_mp (ax_mp sfLocal_and hp) hq));
+
+pub theorem sfRelative_Exp (D G a: nat)
+  (hd: $ sfWf D $) (hp: $ nsLocal G (sfRelativize D sfBot) $):
+  $ nsLocal G (sfRelativize D a) $ =
+'(ax_mp (sfLocal_explosion (ax_mp sfRelativize_wf hd)) (sfRQ_rewrite sfRelativize_bot hp));
+
+pub theorem sfRelative_DI1 (D G a b: nat)
+  (hd: $ sfWf D $) (hp: $ nsLocal G (sfRelativize D a) $):
+  $ nsLocal G (sfRelativize D (sfOr a b)) $ =
+'(sfRQ_rewrite (eqcom sfRelativize_sfOr) (ax_mp (ax_mp nsLocal_DI1 (ax_mp sfRelativize_wf hd)) hp));
+
+pub theorem sfRelative_DI2 (D G a b: nat)
+  (hd: $ sfWf D $) (hp: $ nsLocal G (sfRelativize D b) $):
+  $ nsLocal G (sfRelativize D (sfOr a b)) $ =
+'(sfRQ_rewrite (eqcom sfRelativize_sfOr) (ax_mp (sfLocal_or_right (ax_mp sfRelativize_wf hd)) hp));
+
+pub theorem sfRelative_DE (D G a b c: nat)
+  (hp: $ nsLocal G (sfRelativize D (sfOr a b)) $)
+  (hl: $ nsLocal (sfRelativize D a : G) (sfRelativize D c) $)
+  (hr: $ nsLocal (sfRelativize D b : G) (sfRelativize D c) $):
+  $ nsLocal G (sfRelativize D c) $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_DE (sfRQ_rewrite sfRelativize_sfOr hp)) hl) hr);
+
+theorem sfRP_peirce_eq (D a b: nat):
+  $ sfRelativize D (sfImp (sfImp (sfImp a b) a) a) =
+    sfImp (sfImp (sfImp (sfRelativize D a) (sfRelativize D b)) (sfRelativize D a)) (sfRelativize D a) $ =
+'(eqtr sfRelativize_sfImp (sfImp_eq_left
+  (eqtr sfRelativize_sfImp (sfImp_eq_left sfRelativize_sfImp))));
+
+pub theorem sfRelative_Peirce (D G a b: nat)
+  (hd: $ sfWf D $) (hg: $ sfContextWf G $):
+  $ nsLocal G (sfRelativize D (sfImp (sfImp (sfImp a b) a) a)) $ =
+'(sfRQ_rewrite (eqcom sfRP_peirce_eq) (ax_mp nsLocal_intro (ax_mp (ax_mp (ax_mp zfcNDPeirce_derives hg) (ax_mp sfRelativize_wf hd)) (ax_mp sfRelativize_wf hd))));
+

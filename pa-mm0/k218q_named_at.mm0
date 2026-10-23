@@ -1,0 +1,73 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm0";
+import "k218q_rebase.mm0";
+import "k218q_named_conditional.mm0";
+
+theorem k218INamedAt_mono (p q G a: nat)
+ (hle: $ p <= q $)
+ (hp: $ k218INamedAt p G a $)
+: $ k218INamedAt q G a $;
+
+theorem k218INamedAt_Ctx (p G a: nat)
+ (hm: $ a IN G $)
+: $ k218INamedAt p G a $;
+
+theorem k218INamedAt_Pc (p G a b: nat)
+: $ k218INamedAt p G (sfImp (sfImp (sfImp a b) a) a) $;
+
+theorem k218INamedAt_Wk (p G J a: nat)
+ (hsub: $ sfContextSub J G $)
+ (hp: $ k218INamedAt p J a $)
+: $ k218INamedAt p G a $;
+
+theorem k218INamedAt_II (p G a b: nat)
+ (hp: $ k218INamedAt p (a : G) b $)
+: $ k218INamedAt p G (sfImp a b) $;
+
+theorem k218INamedAt_Exp (p G a: nat)
+ (hp: $ k218INamedAt p G sfBot $)
+: $ k218INamedAt p G a $;
+
+theorem k218INamedAt_CE1 (p G a b: nat)
+ (hp: $ k218INamedAt p G (sfAnd a b) $)
+: $ k218INamedAt p G a $;
+
+theorem k218INamedAt_CE2 (p G a b: nat)
+ (hp: $ k218INamedAt p G (sfAnd a b) $)
+: $ k218INamedAt p G b $;
+
+theorem k218INamedAt_DI1 (p G a b: nat)
+ (hp: $ k218INamedAt p G a $)
+: $ k218INamedAt p G (sfOr a b) $;
+
+theorem k218INamedAt_DI2 (p G a b: nat)
+ (hp: $ k218INamedAt p G b $)
+: $ k218INamedAt p G (sfOr a b) $;
+
+theorem k218INamedAt_IE (p G a b: nat)
+ (hp: $ k218INamedAt p G a $)
+ (hq: $ k218INamedAt p G (sfImp a b) $)
+: $ k218INamedAt p G b $;
+
+theorem k218INamedAt_CI (p G a b: nat)
+ (hp: $ k218INamedAt p G a $)
+ (hq: $ k218INamedAt p G b $)
+: $ k218INamedAt p G (sfAnd a b) $;
+
+theorem k218INamedAt_DE (p G a b c: nat)
+ (hp: $ k218INamedAt p G (sfOr a b) $)
+ (hq: $ k218INamedAt p (a : G) c $)
+ (hr: $ k218INamedAt p (b : G) c $)
+: $ k218INamedAt p G c $;
+
+theorem k218INamedAt_AllE (p G i a: nat)
+ (ha: $ sfBound (suc p) a $)
+ (hi: $ i < p $)
+ (hp: $ k218INamedAt p G (sfAll a) $)
+: $ k218INamedAt p G (sfSubst 0 i a) $;
+
+theorem k218INamedAt_ExI (p G i a: nat)
+ (ha: $ sfBound (suc p) a $)
+ (hi: $ i < p $)
+ (hp: $ k218INamedAt p G (sfSubst 0 i a) $)
+: $ k218INamedAt p G (sfEx a) $;

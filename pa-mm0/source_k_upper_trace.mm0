@@ -1,0 +1,39 @@
+import "source_core_theory.mm0";
+
+import "source_theory_prefix.mm0";
+
+def sfUpperTraceMap (.i: nat): set = $ \ i, if (i = 0) 1 (if (i = 1) 0 (suc i)) $;
+
+def sfUpperTracePredicate (phi: nat): nat = $ sfEx (sfAnd (sfMem 0 2) (sfRename sfUpperTraceMap 0 phi)) $;
+
+def sfUpperTraceSeparation (phi: nat): nat = $ sfSeparation (sfRename sfSepMap 0 (sfUpperTracePredicate phi)) $;
+
+theorem sfUpperTraceMap_value (i: nat):
+ $ sfUpperTraceMap @ i = if (i = 0) 1 (if (i = 1) 0 (suc i)) $;
+
+theorem sfUpperTraceMap_upper (i: nat):
+ $ sfUpperTraceMap @ i <= suc i $;
+
+theorem sfUpperTraceMap_bound (i n: nat):
+ $ i < suc (suc n) -> sfUpperTraceMap @ i < suc (suc (suc n)) $;
+
+theorem sfUpperTrace_rename_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc (suc n))) (sfRename sfUpperTraceMap 0 phi) $;
+
+theorem sfUpperTracePredicate_wf (phi: nat):
+ $ sfWf (sfUpperTracePredicate phi) $;
+
+theorem sfUpperTracePredicate_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc n)) (sfUpperTracePredicate phi) $;
+
+theorem sfUpperTraceSeparation_axiom (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> zfcSeparationCode (sfUpperTracePredicate phi) (suc n) e. zfrAxioms $;
+
+theorem sfUpperTraceSeparation_closed (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound 0 (zfcSeparationCode (sfUpperTracePredicate phi) (suc n)) $;
+
+theorem sfUpperTraceSeparation_zfr_closed (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (zfcSeparationCode (sfUpperTracePredicate phi) (suc n)) $;
+
+theorem sfUpperTraceSeparation_zfr (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (sfUpperTraceSeparation phi) $;

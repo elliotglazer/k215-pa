@@ -1,0 +1,86 @@
+import "source_l_separation_image_transitive_api.mm1";
+import "source_l_separation_image_transitive_kernel.mm1";
+import "source_l_separation_image_reflected_collection.mm1";
+import "source_l_separation_image_witness.mm1";
+import "source_renaming_extensional.mm1";
+
+pub theorem sfLSeparationImage_witness_from_reflected(G start n phi beta Y:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (ht:$ nsLocal G sfLSeparationStageTransNormal $)
+ (hp:$ nsLocal G (sfCLReflectedPoint start (suc n) (suc n) phi beta Y) $)
+ (he:$ nsLocal G (sfLSeparationImageCandidate (sfLSeparationImageParameterMap start) sfLDomain phi Y start) $):
+ $ nsLocal G (sfLSeparationImageWitness (sfLSeparationImageParameterMap start) sfLDomain phi start) $ =
+ '(sfLSeparationImage_witness_from_candidate sfLDomain_bound hb he
+   (sfLSeparationReflected_subset ht hp) (ax_mp sfCLReflectedPoint_reflection hp)
+   (ax_mp nsLocal_CE2 (ax_mp sfCLPoint_pair (ax_mp sfCLReflectedPoint_forget hp)))
+   (sfLSeparationImageReflected_rows hp));
+
+theorem slSepW_shiftmap_at(start i:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap 1) (sfLSeparationImageShiftEnv (sfLSeparationImageParameterMap start)) @ i =
+   sfLSeparationImageShiftEnv (sfLSeparationImageParameterMap (suc start)) @ i $ =
+ '(eqtr sfComposeMap_value (eqtr (appeq2 sfLSeparationImageShiftEnv_at)
+   (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift
+    (eqtr (suceq sfRenameIndex_zero) (eqtr (suceq sfSuccessorMap_value)
+     (eqtr (suceq (suceq sfLSeparationImageParameterMap_at))
+      (eqcom (eqtr sfLSeparationImageShiftEnv_at
+       (eqtr (suceq sfLSeparationImageParameterMap_at) (suceq addS2)))))))))));
+
+theorem slSepW_shift_rename(start phi:nat)(hf:$ sfWf phi $):
+ $ sfShift 2 (sfRename (sfLSeparationImageShiftEnv (sfLSeparationImageParameterMap start)) 1 phi) =
+   sfRename (sfLSeparationImageShiftEnv (sfLSeparationImageParameterMap (suc start))) 1 phi $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfRename_wf))
+  (eqtr (sfRenameeq2 (eqcom add11)) (eqtr (ax_mp sfRename_depth sfRename_wf)
+   (eqtr (ax_mp sfRename_compose hf)
+    (ax_mp (sfRename_extensional (!! ax_gen i @ ! slSepW_shiftmap_at start i)) hf))))));
+
+theorem slSepW_iff_shift(k a b:nat):
+ $ sfShift k (sfIff a b) = sfIff (sfShift k a) (sfShift k b) $ =
+ '(eqtr sfShift_sfAnd (nsAnd_eq sfShift_sfImp sfShift_sfImp));
+
+pub theorem sfLSeparationImageStartWitness_shift(start D phi:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf phi $):
+ $ sfShift 0 (sfLSeparationImageWitness (sfLSeparationImageParameterMap start) D phi start) =
+   sfLSeparationImageWitness (sfLSeparationImageParameterMap (suc start)) D phi (suc start) $ =
+ '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq
+  (ax_mp sfShift_bound_identity hd)
+  (eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfImp (nsImp_eq
+   (ax_mp sfShift_bound_identity (ax_mp (ax_mp sfBound_mono hd) (mpbi lesuc le01)))
+   (eqtr slSepW_iff_shift (sfIffeq
+    (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S))))
+    (eqtr sfShift_sfAnd (nsAnd_eq
+     (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S)
+      (eqtr lsiw_index_lift (eqtr (suceq lsiw_index_lift) (suceq (suceq sfShiftIndex_zero))))))
+     (eqtr (ax_mp (ax_mp sfRelativize_shift hd) sfRename_wf) (sfRelativizeeq2 (slSepW_shift_rename hf)))))))))))))));
+
+theorem slSepW_zeromap_at(i:nat):
+ $ sfLSeparationImageShiftEnv (sfLSeparationImageParameterMap 0) @ i = sfLSeparationImageShiftEnv sfSuccessorMap @ i $ =
+ '(eqtr sfLSeparationImageShiftEnv_at (eqtr (suceq sfLSeparationImageParameterMap_at)
+   (eqtr (suceq add02) (eqcom (eqtr sfLSeparationImageShiftEnv_at (suceq sfSuccessorMap_value))))));
+
+pub theorem sfLSeparationImageStartWitness_zero(D phi:nat)(hf:$ sfWf phi $):
+ $ sfLSeparationImageWitness (sfLSeparationImageParameterMap 0) D phi 0 =
+   sfLSeparationImageWitness sfSuccessorMap D phi 0 $ =
+ (named '(nsEx_eq (nsAnd_eq eqid (nsAll_eq (nsImp_eq eqid (sfIffeq eqid
+   (nsAnd_eq eqid (sfRelativizeeq2 (ax_mp (sfRename_extensional (!! ax_gen i @ ! slSepW_zeromap_at i)) hf)))))))));
+
+def sfLSeparationReflectedContext(G n phi:nat):nat =
+ $ sfCLWitnessContext G (sfCLReflectedPoint 2 (suc n) (suc n) phi 1 0) $;
+
+theorem slSepW_reflected_hyp(G n phi:nat):
+ $ nsLocal (sfLSeparationReflectedContext G n phi) (sfCLReflectedPoint 2 (suc n) (suc n) phi 1 0) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfCLReflectedPoint_wf sfContextShift_wf))) sfContext_member_head);
+
+pub theorem sfLSeparationImage_witness_from_recipe(G n phi:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (ht:$ nsLocal G sfLSeparationStageTransNormal $)
+ (hc:$ nsLocal G (sfCLReflectedRecipe 0 (suc n) (suc n) phi) $)
+ (he:$ nsLocal (sfLSeparationReflectedContext G n phi)
+    (sfLSeparationImageCandidate (sfLSeparationImageParameterMap 2) sfLDomain phi 0 2) $):
+ $ nsLocal G (sfLSeparationImageWitness sfSuccessorMap sfLDomain phi 0) $ =
+ '(sfRQ_rewrite (sfLSeparationImageStartWitness_zero (ax_mp sfBound_wf hb))
+   (ax_mp (sfCLReflectedRecipe_eliminate (ax_mp nsLocal_context_wf hc) (sfLSeparationImageWitness_wf sfLDomain_bound) hc)
+    (sfRQ_rewrite (eqcom (eqtr (sfShifteq2 (sfLSeparationImageStartWitness_shift sfLDomain_bound (ax_mp sfBound_wf hb)))
+      (sfLSeparationImageStartWitness_shift sfLDomain_bound (ax_mp sfBound_wf hb))))
+     (sfLSeparationImage_witness_from_reflected hb
+      (slSepWitnessClosed sfCLReflectedPoint_wf sfLSeparationStageTransNormal_bound ht)
+      slSepW_reflected_hyp he))));

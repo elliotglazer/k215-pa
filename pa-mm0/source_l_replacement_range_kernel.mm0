@@ -1,0 +1,83 @@
+import "source_l_domain.mm0";
+import "source_relative_contexts.mm0";
+import "source_wf_separation_logic.mm0";
+
+def lrepRangeF0(c:nat):nat = $ sfImp (sfDomainAt sfLDomain 0) (sfMem 0 1) $;
+
+def lrepRangeF1(c:nat):nat = $ sfImp (sfMem 0 2) (lrepRangeF0 c) $;
+
+def lrepRangeF2(c:nat):nat = $ sfAll (lrepRangeF1 c) $;
+
+def lrepRangeF3(c:nat):nat = $ sfAnd (sfDomainAt sfLDomain 0) (sfDomainAt sfLDomain 1) $;
+
+def lrepRangeF4(c:nat):nat = $ sfAnd (lrepRangeF3 c) c $;
+
+def lrepRangeF5(c:nat):nat = $ sfAnd (sfMem 0 4) (lrepRangeF4 c) $;
+
+def lrepRangeF6(c:nat):nat = $ sfEx (lrepRangeF5 c) $;
+
+def lrepRangeF7(c:nat):nat = $ sfImp (sfMem 0 2) (lrepRangeF6 c) $;
+
+def lrepRangeF8(c:nat):nat = $ sfImp (lrepRangeF6 c) (sfMem 0 2) $;
+
+def lrepRangeF9(c:nat):nat = $ sfAnd (lrepRangeF7 c) (lrepRangeF8 c) $;
+
+def lrepRangeF10(c:nat):nat = $ sfAll (lrepRangeF9 c) $;
+
+def lrepRangeG11(c:nat):nat = $ (lrepRangeF10 c) : 0 $;
+
+def lrepRangeG12(c:nat):nat = $ (lrepRangeF2 c) : (lrepRangeG11 c) $;
+
+def lrepRangeG13(c:nat):nat = $ sfContextShift (lrepRangeG12 c) $;
+
+def lrepRangeG14(c:nat):nat = $ (sfDomainAt sfLDomain 0) : (lrepRangeG13 c) $;
+
+def lrepRangeF15(c:nat):nat = $ sfAnd (sfMem 0 4) c $;
+
+def lrepRangeF16(c:nat):nat = $ sfAnd (sfDomainAt sfLDomain 0) (lrepRangeF15 c) $;
+
+def lrepRangeF17(c:nat):nat = $ sfEx (lrepRangeF16 c) $;
+
+def lrepRangeG18(c:nat):nat = $ (lrepRangeF17 c) : (lrepRangeG14 c) $;
+
+def lrepRangeG19(c:nat):nat = $ sfContextShift (lrepRangeG18 c) $;
+
+def lrepRangeG20(c:nat):nat = $ (lrepRangeF16 c) : (lrepRangeG19 c) $;
+
+def lrepRangeF21(c:nat):nat = $ sfShift 0 (sfDomainAt sfLDomain 0) $;
+
+def lrepRangeF22(c:nat):nat = $ sfShift 1 (lrepRangeF5 c) $;
+
+def lrepRangeF23(c:nat):nat = $ sfEx (lrepRangeF22 c) $;
+
+def lrepRangeF24(c:nat):nat = $ sfShift 0 (lrepRangeF6 c) $;
+
+def lrepRangeF25(c:nat):nat = $ sfShift 0 (lrepRangeF9 c) $;
+
+def lrepRangeF26(c:nat):nat = $ sfShift 0 (sfMem 0 2) $;
+
+def lrepRangeF27(c:nat):nat = $ sfImp (lrepRangeF26 c) (lrepRangeF24 c) $;
+
+def lrepRangeF28(c:nat):nat = $ sfImp (lrepRangeF24 c) (lrepRangeF26 c) $;
+
+def lrepRangeF29(c:nat):nat = $ sfAnd (lrepRangeF27 c) (lrepRangeF28 c) $;
+
+def lrepRangeF30(c:nat):nat = $ sfImp (lrepRangeF17 c) (sfMem 0 1) $;
+
+def lrepRangeF31(c:nat):nat = $ sfImp (sfDomainAt sfLDomain 0) (lrepRangeF30 c) $;
+
+def lrepRangeF32(c:nat):nat = $ sfAll (lrepRangeF31 c) $;
+
+def lrepRangeF33(c:nat):nat = $ sfImp (lrepRangeF2 c) (lrepRangeF32 c) $;
+
+def lrepRangeF34(c:nat):nat = $ sfImp (lrepRangeF10 c) (lrepRangeF33 c) $;
+
+def sfLReplacementAmbientProfile(c:nat):nat = $ (lrepRangeF10 c) $;
+
+def sfLReplacementIntersectionBound(c:nat):nat = $ (lrepRangeF2 c) $;
+
+def sfLReplacementRangeCoverage(c:nat):nat = $ (lrepRangeF32 c) $;
+
+theorem sfLReplacement_range_coverage_pure(c:nat)(hc:$ sfWf c $):
+ $ nsLocal 0 (sfImp (sfLReplacementAmbientProfile c)
+  (sfImp (sfLReplacementIntersectionBound c) (sfLReplacementRangeCoverage c))) $;

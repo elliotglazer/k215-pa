@@ -1,0 +1,39 @@
+import "source_k0_qrep_carrier_conditional.mm1";
+
+import "source_k0_qsep_safe_prefix.mm1";
+
+import "zfc_axioms.mm1";
+
+import "k218q_bootstrap.mm1";
+
+theorem qrepUniform_base_at (n S k phi: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound n (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi)) -> 2 < k -> sqEnvBelow (sqNumericEnvironment S) n k -> k218QProvable (kImp kEmptyMarker (sqQuote (sqNumericEnvironment S) 1 k 0 (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi)))) $ =
+'(a1d (! sfK0QRepCarrier_image_curried $ (sqNumericEnvironment S) $ $ n $ $ k $ $ phi $));
+
+theorem qrepUniform_base (n phi: nat):
+ $ sfBound (suc (suc n)) phi -> sfK0QSepSafe n (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi)) $ =
+(named '(!! iald S @ !! iald k @ qrepUniform_base_at));
+
+theorem qrepUniform_closed (n phi: nat):
+ $ sfBound (suc (suc n)) phi -> sfK0QSepSafe 0 (zfcReplacementCode phi n) $ =
+'(syl sfK0QSepSafe_closed qrepUniform_base);
+
+theorem qrepUniform_marker_numeric (n phi: nat):
+ $ sfBound (suc (suc n)) phi -> k218QProvable (kImp kEmptyMarker (sqQuote (sqNumericEnvironment 0) 1 4 0 (zfcReplacementCode phi n))) $ =
+'(mpd (a1i k218QM_below_zero) (mpd (a1i (mpbi ltsuc (mpbi ltsuc lt01S))) (mpd zfcReplacementCode_closed (syl sfK0QSepSafe_use qrepUniform_closed))));
+
+pub theorem sfK0QRep_uniform_marker (n phi: nat):
+ $ sfBound (suc (suc n)) phi -> k218QProvable (kImp kEmptyMarker (sqQuote sqZeroEnvironment 1 4 0 (zfcReplacementCode phi n))) $ =
+'(mpbid (k218QProvableeqd (kImpeq2d (syl sqQuote_environment_closed zfcReplacementCode_closed))) qrepUniform_marker_numeric);
+
+theorem qrepUniform_marker_member:
+ $ kEmptyMarker IN kQuotientContext $ =
+'(mpbir lmemS (orr lmemconsid));
+
+pub theorem sfK0QRep_uniform_context (n phi: nat):
+ $ sfBound (suc (suc n)) phi -> k218IHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 (zfcReplacementCode phi n)) $ =
+'(syl (ax_mp k218IHypProvable_mp (ax_mp k218IHypProvable_assumption qrepUniform_marker_member)) (syl k218IHypProvable_seed sfK0QRep_uniform_marker));
+
+pub theorem sfK0QRep_all_context {phi n: nat}:
+ $ A. phi A. n (sfBound (suc (suc n)) phi -> k218IHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 (zfcReplacementCode phi n))) $ =
+(named '(ax_gen (ax_gen sfK0QRep_uniform_context)));

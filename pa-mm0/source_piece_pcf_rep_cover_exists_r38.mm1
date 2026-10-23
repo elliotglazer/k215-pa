@@ -1,0 +1,59 @@
+import "source_piece_pcf_rep_cover_step_r36.mm1";
+
+pub theorem sfPieceRepEnvironmentCoverAt_congr(n A X B Y:nat)(hA:$ A = B $)(hX:$ X = Y $): $ sfPieceRepEnvironmentCoverAt A X n = sfPieceRepEnvironmentCoverAt B Y n $ = (named '(eqtr (eqcom sfPieceRepCoverNamed_open) (eqtr (sfPieceRepCoverNamed_congr hX hA) sfPieceRepCoverNamed_open)));
+
+pub theorem sfPieceRepEnvironmentCoverAt_rename_depth(R:set)(d A X n:nat): $ sfRename R d (sfPieceRepEnvironmentCoverAt A X n) = sfPieceRepEnvironmentCoverAt (sfRenameIndex R d A) (sfRenameIndex R d X) n $ = (named '(eqtr (trud (sfRename_congr_formula (a1i (eqcom sfPieceRepCoverNamed_open)))) (eqtr (sfORBinary_rename_depth sfPieceRepCoverCore_wf) (eqtr (sfPieceRepCoverNamed_congr sfRenameDepthMap_value sfRenameDepthMap_value) sfPieceRepCoverNamed_open))));
+
+pub theorem sfPieceRepEnvironmentCoverAt_subst(d t A X n:nat): $ sfSubst d t (sfPieceRepEnvironmentCoverAt A X n) = sfPieceRepEnvironmentCoverAt (sfSubstIndex d t A) (sfSubstIndex d t X) n $ = (named '(eqtr (trud (sfSubst_congr (a1i eqid) (a1i eqid) (a1i (eqcom sfPieceRepCoverNamed_open)))) (eqtr (sfORBinary_subst sfPieceRepCoverCore_wf) sfPieceRepCoverNamed_open)));
+
+pub theorem sfPieceRepEnvironmentCoverAt_shift(A X n:nat): $ sfShift 0 (sfPieceRepEnvironmentCoverAt A X n) = sfPieceRepEnvironmentCoverAt (suc A) (suc X) n $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepEnvironmentCoverAt_wf)) (eqtr sfPieceRepEnvironmentCoverAt_rename_depth (sfPieceRepEnvironmentCoverAt_congr (eqtr sfRenameIndex_zero sfSuccessorMap_value) (eqtr sfRenameIndex_zero sfSuccessorMap_value)))));
+
+pub theorem sfPieceRepEnvironmentCoverStep_rename_depth(R:set)(d A X Y:nat): $ sfRename R d (sfPieceRepEnvironmentCoverStep A X Y) = sfPieceRepEnvironmentCoverStep (sfRenameIndex R d A) (sfRenameIndex R d X) (sfRenameIndex R d Y) $ = (named '(eqtr (ax_mp sfRename_as_map sfPieceRepEnvironmentCoverStep_wf) (eqtr sfPieceRepEnvironmentCoverStep_rename (pcr36_step_congr sfRenameDepthMap_value sfRenameDepthMap_value sfRenameDepthMap_value))));
+
+pub theorem sfPieceRepEnvironmentCoverStep_subst(d t A X Y:nat): $ sfSubst d t (sfPieceRepEnvironmentCoverStep A X Y) = sfPieceRepEnvironmentCoverStep (sfSubstIndex d t A) (sfSubstIndex d t X) (sfSubstIndex d t Y) $ = (named '(eqtr (ax_mp sfSubst_as_map sfPieceRepEnvironmentCoverStep_wf) (eqtr sfPieceRepEnvironmentCoverStep_rename (pcr36_step_congr sfSubstDepthMap_value sfSubstDepthMap_value sfSubstDepthMap_value))));
+
+@_ abstract def pcr38SuccBody(A C x:nat):nat = $ sfAnd (sfMem 0 (suc C)) (sfPieceRepEnvironmentCoverStep (suc A) (suc x) 0) $;
+
+@_ abstract def pcr38SuccAt(A C x:nat):nat = $ sfEx (pcr38SuccBody A C x) $;
+
+@_ abstract def sfPieceRepCoverSuccessorClosed(A C:nat):nat = $ sfAll (sfImp (sfMem 0 (suc C)) (pcr38SuccAt (suc A) (suc C) 0)) $;
+
+@_ abstract def pcr38First(G A C n:nat):nat = $ sfPieceRepEnvironmentCoverBody A C n : sfContextShift G $;
+
+@_ abstract def pcr38Second(G A C n:nat):nat = $ pcr38SuccBody (suc A) (suc C) 0 : sfContextShift (pcr38First G A C n) $;
+
+theorem pcr38_succbody_wf(A C x:nat): $ sfWf (pcr38SuccBody A C x) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceRepEnvironmentCoverStep_wf));
+
+pub theorem sfPieceRepCoverSuccessorClosed_wf(A C:nat): $ sfWf (sfPieceRepCoverSuccessorClosed A C) $ = (named '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_ex pcr38_succbody_wf))));
+
+theorem pcr38_body_open(A C n x:nat): $ sfSubst 0 x (sfPieceRepEnvironmentCoverBody A C n) = sfAnd (sfMem x C) (sfPieceRepEnvironmentCoverAt A x n) $ = (named '(eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_hit add02) sfSubstIndex_successor)) (eqtr sfPieceRepEnvironmentCoverAt_subst (sfPieceRepEnvironmentCoverAt_congr sfSubstIndex_successor (eqtr sfSubstIndex_hit add02))))));
+
+pub theorem sfPieceRepEnvironmentCover_intro(G A C n x:nat)(hm:$ nsLocal G (sfMem x C) $)(hp:$ nsLocal G (sfPieceRepEnvironmentCoverAt A x n) $): $ nsLocal G (sfPieceRepEnvironmentCover A C n) $ = (named '(ax_mp (ax_mp nsLocal_ExI sfPieceRepEnvironmentCoverBody_wf) (sfRQ_rewrite (eqcom pcr38_body_open) (sfLocal_and hm hp))));
+
+pub theorem sfPieceRepEnvironmentCover_shift(A C n:nat): $ sfShift 0 (sfPieceRepEnvironmentCover A C n) = sfPieceRepEnvironmentCover (suc A) (suc C) n $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepEnvironmentCover_wf)) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))))) (eqtr sfPieceRepEnvironmentCoverAt_rename_depth (sfPieceRepEnvironmentCoverAt_congr (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))) (ax_mp sfRenameIndex_bound lt01S)))))))));
+
+pub theorem sfPieceRepCoverSuccessorClosed_shift(A C:nat): $ sfShift 0 (sfPieceRepCoverSuccessorClosed A C) = sfPieceRepCoverSuccessorClosed (suc A) (suc C) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepCoverSuccessorClosed_wf)) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))))) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))))))) (eqtr sfPieceRepEnvironmentCoverStep_rename_depth (pcr36_step_congr (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))))) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfRenameIndex_bound lt01S)))))))))))));
+
+theorem pcr38_closed_open(A C x:nat): $ sfSubst 0 x (sfImp (sfMem 0 (suc C)) (pcr38SuccAt (suc A) (suc C) 0)) = sfImp (sfMem x C) (pcr38SuccAt A C x) $ = (named '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_hit add02) sfSubstIndex_successor)) (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfPieceRepEnvironmentCoverStep_subst (pcr36_step_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_hit (eqtr addS (suceq add02))) (ax_mp sfSubstIndex_bound lt01S))))))))));
+
+theorem pcr38_closed_use(G A C x:nat)(hs:$ nsLocal G (sfPieceRepCoverSuccessorClosed A C) $): $ nsLocal G (sfMem x C) -> nsLocal G (pcr38SuccAt A C x) $ = (named '(ax_mp nsLocal_mp (sfRQ_rewrite pcr38_closed_open (ax_mp nsLocal_AllE hs))));
+
+theorem pcr38_first_wf(G A C n:nat): $ sfContextWf (pcr38First G A C n) $ = (named '(mpbir sfContextWf_cons (ian sfPieceRepEnvironmentCoverBody_wf sfContextShift_wf)));
+
+theorem pcr38_first_hyp(G A C n:nat): $ nsLocal (pcr38First G A C n) (sfPieceRepEnvironmentCoverBody A C n) $ = (named '(ax_mp (ax_mp nsLocal_hyp pcr38_first_wf) sfContext_member_head));
+
+theorem pcr38_first_cover(G A C n:nat): $ nsLocal (pcr38First G A C n) (sfPieceRepEnvironmentCoverAt (suc A) 0 n) $ = (named '(ax_mp nsLocal_CE2 pcr38_first_hyp));
+
+theorem pcr38_first_mem(G A C n:nat): $ nsLocal (pcr38First G A C n) (sfMem 0 (suc C)) $ = (named '(ax_mp nsLocal_CE1 pcr38_first_hyp));
+
+theorem pcr38_second_wf(G A C n:nat): $ sfContextWf (pcr38Second G A C n) $ = (named '(mpbir sfContextWf_cons (ian pcr38_succbody_wf sfContextShift_wf)));
+
+theorem pcr38_second_hyp(G A C n:nat): $ nsLocal (pcr38Second G A C n) (pcr38SuccBody (suc A) (suc C) 0) $ = (named '(ax_mp (ax_mp nsLocal_hyp pcr38_second_wf) sfContext_member_head));
+
+theorem pcr38_second_next(G A C n:nat): $ nsLocal (pcr38Second G A C n) (sfShift 0 (sfPieceRepEnvironmentCover (suc A) (suc C) (suc n))) $ = (named '(sfRQ_rewrite (eqcom sfPieceRepEnvironmentCover_shift) (sfPieceRepEnvironmentCover_intro (ax_mp nsLocal_CE1 pcr38_second_hyp) (sfPieceRepEnvironmentCover_step (ax_mp (ax_mp (ax_mp nsLocal_weaken pcr38_second_wf) sfContextSub_cons) (sfRQ_rewrite sfPieceRepEnvironmentCoverAt_shift (ax_mp sfSepLocal_shift pcr38_first_cover))) (ax_mp nsLocal_CE2 pcr38_second_hyp)))));
+
+theorem pcr38_first_next(G A C n:nat)(hs:$ nsLocal G (sfPieceRepCoverSuccessorClosed A C) $): $ nsLocal (pcr38First G A C n) (sfShift 0 (sfPieceRepEnvironmentCover A C (suc n))) $ = (named '(sfRQ_rewrite (eqcom sfPieceRepEnvironmentCover_shift) (ax_mp (ax_mp (sfLocal_exE sfPieceRepEnvironmentCover_wf) (ax_mp (pcr38_closed_use (ax_mp (ax_mp (ax_mp nsLocal_weaken pcr38_first_wf) sfContextSub_cons) (sfRQ_rewrite sfPieceRepCoverSuccessorClosed_shift (ax_mp sfSepLocal_shift hs)))) pcr38_first_mem)) pcr38_second_next)));
+
+pub theorem sfPieceRepEnvironmentCover_successor(G A C n:nat)(hs:$ nsLocal G (sfPieceRepCoverSuccessorClosed A C) $): $ nsLocal G (sfPieceRepEnvironmentCover A C n) -> nsLocal G (sfPieceRepEnvironmentCover A C (suc n)) $ = (named '(ax_mp (com12 (sfLocal_exE sfPieceRepEnvironmentCover_wf)) (pcr38_first_next hs)));
+
+pub theorem sfPieceRepEnvironmentCover_from_base_closed(G A C n:nat)(h0:$ nsLocal G (sfPieceRepEnvironmentCover A C 0) $)(hs:$ nsLocal G (sfPieceRepCoverSuccessorClosed A C) $): $ nsLocal G (sfPieceRepEnvironmentCover A C n) $ = (named @ induct '(ind) 'n 'h0 '(sfPieceRepEnvironmentCover_successor hs));

@@ -1,0 +1,87 @@
+import "source_l_replacement_reflected_image.mm1";
+import "source_l_replacement_common_coverage.mm1";
+import "source_renaming_extensional.mm1";
+
+theorem lrwt_depthmap_at(T:set)(i:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap 1) (sfComposeMap sfSuccessorMap T) @ i =
+   sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap T) @ i $ =
+ '(eqtr sfComposeMap_value
+  (eqtr (appeq2 (eqtr sfComposeMap_value sfSuccessorMap_value))
+   (eqtr sfRenameDepthMap_value
+    (eqtr sfRenameIndex_lift
+     (eqtr (suceq sfRenameIndex_zero)
+      (eqtr (suceq sfSuccessorMap_value)
+       (eqcom (eqtr sfComposeMap_value
+        (eqtr sfSuccessorMap_value (suceq (eqtr sfComposeMap_value sfSuccessorMap_value)))))))))));
+
+theorem lrwt_env_shift(T:set)(psi:nat)(hf:$ sfWf psi $):
+ $ sfShift 2 (sfRename (sfComposeMap sfSuccessorMap T) 1 psi) =
+   sfRename (sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap T)) 1 psi $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfRename_wf))
+  (eqtr (sfRenameeq2 (eqcom add11))
+  (eqtr (ax_mp sfRename_depth sfRename_wf)
+   (eqtr (ax_mp sfRename_compose hf)
+    (ax_mp (sfRename_extensional (!! ax_gen i @ ! lrwt_depthmap_at T i)) hf))))));
+
+theorem lrwt_rel_shift(T:set)(D psi:nat)(hd:$ sfBound 1 D $)(hf:$ sfWf psi $):
+ $ sfShift 2 (sfRelativize D (sfRename (sfComposeMap sfSuccessorMap T) 1 psi)) =
+   sfRelativize D (sfRename (sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap T)) 1 psi) $ =
+ '(eqtr (ax_mp (ax_mp sfRelativize_shift hd) sfRename_wf) (sfRelativizeeq2 (lrwt_env_shift hf)));
+
+theorem lrwt_iff_shift(d a b:nat):
+ $ sfShift d (sfIff a b) = sfIff (sfShift d a) (sfShift d b) $ =
+ '(eqtr sfShift_sfAnd (nsAnd_eq sfShift_sfImp sfShift_sfImp));
+
+pub theorem sfLReplacementImageWitness_shift(T:set)(D psi:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $):
+ $ sfShift 0 (sfLReplacementImageWitness T D psi) =
+   sfLReplacementImageWitness (sfComposeMap sfSuccessorMap T) D psi $ =
+ '(eqtr sfShift_sfEx (nsEx_eq
+  (eqtr sfShift_sfAnd (nsAnd_eq (ax_mp sfShift_bound_identity hd)
+   (eqtr sfShift_sfAll (nsAll_eq
+    (eqtr sfShift_sfImp (nsImp_eq
+     (ax_mp sfShift_bound_identity (ax_mp (ax_mp sfBound_mono hd) (mpbi lesuc le01)))
+     (eqtr lrwt_iff_shift (sfIffeq
+      (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S)
+        (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S))))
+      (lrwt_rel_shift hd hf)))))))))));
+
+theorem lrwt_start_succ_at(start i:nat):
+ $ sfComposeMap sfSuccessorMap (sfLReplacementStartMap start) @ i =
+   sfLReplacementStartMap (suc start) @ i $ =
+ '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+  (eqtr (suceq sfLReplacementStartMap_at)
+   (eqtr (eqcom addS) (eqcom sfLReplacementStartMap_at)))));
+
+theorem lrwt_map_at{j:nat}(T U:set)(i:nat)(h:$ A. j T @ j = U @ j $):
+ $ T @ i = U @ i $ = '(ax_mp sre_map_at h);
+
+theorem lrwt_succmap_at{j:nat}(T U:set)(i:nat)(h:$ A. j T @ j = U @ j $):
+ $ sfComposeMap sfSuccessorMap T @ i = sfComposeMap sfSuccessorMap U @ i $ =
+ '(eqtr sfComposeMap_value
+  (eqtr (appeq2 (lrwt_map_at h)) (eqcom sfComposeMap_value)));
+
+pub theorem sfLReplacementImageWitness_map{j:nat}(T U:set)(D psi:nat)
+ (hf:$ sfWf psi $)(h:$ A. j T @ j = U @ j $):
+ $ sfLReplacementImageWitness T D psi = sfLReplacementImageWitness U D psi $ =
+ (named '(nsEx_eq (nsAnd_eq eqid (nsAll_eq (nsImp_eq eqid (sfIffeq eqid
+  (sfRelativizeeq2 (ax_mp
+   (sfRename_extensional (ax_gen (lrwt_succmap_at h))) hf))))))));
+
+pub theorem sfLReplacementStartWitness_shift(start D psi:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $):
+ $ sfShift 0 (sfLReplacementImageWitness (sfLReplacementStartMap start) D psi) =
+   sfLReplacementImageWitness (sfLReplacementStartMap (suc start)) D psi $ =
+ (named '(eqtr (sfLReplacementImageWitness_shift hd hf)
+  (sfLReplacementImageWitness_map hf (!! ax_gen i @ ! lrwt_start_succ_at start i))));
+
+pub theorem sfLReplacementDoubleEx_eliminate(G A Q:nat)
+ (ha:$ sfWf A $)(hq:$ sfWf Q $)
+ (hp:$ nsLocal G (sfEx (sfEx A)) $)
+ (hw:$ nsLocal (sfCLWitnessContext G A) (sfShift 0 (sfShift 0 Q)) $):
+ $ nsLocal G Q $ =
+ '(ax_mp (ax_mp (sfLocal_exE hq) hp)
+  (ax_mp (ax_mp (sfLocal_exE sfShift_wf)
+   (ax_mp (ax_mp nsLocal_hyp
+    (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex ha) sfContextShift_wf)))
+     sfContext_member_head)) hw));

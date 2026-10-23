@@ -1,0 +1,18 @@
+import "source_relative_prop_closure.mm0";
+import "source_relative_quantifier_closure.mm0";
+
+theorem sfRelative_rules_sound (D: nat) (hd: $ sfBound 1 D $):
+  $ traceRuleSound sfNDFullRules (sfRelativeClass D) $;
+theorem sfRelative_trace (D p: nat) (hd: $ sfBound 1 D $):
+  $ traceValid sfNDFullRules p -> traceClassAll (sfRelativeClass D) p $;
+theorem sfRelative_derives (D p r: nat) (hd: $ sfBound 1 D $):
+  $ sfNDFullDerives p r -> sfRelativeGood D r $;
+theorem sfRelative_sequent {k: nat} (D p G a: nat) (hd: $ sfBound 1 D $):
+  $ sfNDFullDerives p (sfSequent G a) ->
+    E. k nsLocal (sfRelativeContext D G k) (sfRelativize D a) $;
+theorem sfRelative_local {k: nat} (D G a: nat) (hd: $ sfBound 1 D $):
+  $ nsLocal G a -> E. k nsLocal (sfRelativeContext D G k) (sfRelativize D a) $;
+theorem sfRelative_branches {k: nat} (D p G a b c: nat) (hd: $ sfBound 1 D $):
+  $ sfNDFullDerives p (sfBranches G a b c) ->
+    E. k (nsLocal (sfRelativize D a : sfRelativeContext D G k) (sfRelativize D c) /\
+      nsLocal (sfRelativize D b : sfRelativeContext D G k) (sfRelativize D c)) $;

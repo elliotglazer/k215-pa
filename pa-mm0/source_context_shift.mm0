@@ -1,0 +1,20 @@
+import "source_contexts.mm0";
+import "source_shift.mm0";
+
+theorem sfShift_formula_congr (H: wff) (d e a b: nat)
+  (hd: $ H -> d = e $) (ha: $ H -> a = b $):
+  $ H -> sfShift d a = sfShift e b $;
+theorem sfShift_wf (d c: nat): $ sfWf (sfShift d c) $;
+
+def sfShiftMap (.a: nat): set = $ \ a, sfShift 0 a $;
+def sfContextShift (G: nat): nat = $ map sfShiftMap G $;
+
+theorem sfShiftMap_value (a: nat): $ sfShiftMap @ a = sfShift 0 a $;
+theorem sfContextShift_nil: $ sfContextShift 0 = 0 $;
+theorem sfContextShift_cons (a G: nat):
+  $ sfContextShift (a : G) = sfShift 0 a : sfContextShift G $;
+theorem sfContextShift_congr (H: wff) (G D: nat) (h: $ H -> G = D $):
+  $ H -> sfContextShift G = sfContextShift D $;
+theorem sfContextShift_wf (G: nat): $ sfContextWf (sfContextShift G) $;
+theorem sfContextShift_preserves_wf (G: nat):
+  $ sfContextWf G -> sfContextWf (sfContextShift G) $;

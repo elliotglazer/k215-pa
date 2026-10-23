@@ -1,0 +1,49 @@
+import "pa_source_interpretation_terms.mm0";
+
+import "source_renaming.mm0";
+
+def paTermRenameBody (R: set) (c h: nat): nat = $ if (c = 0) paTermZero
+ (if (sfTag c = 1) (paTermVariable (R @ (sfLeft c)))
+ (if (sfTag c = 2) (paTermSuccessor (h @ (sfLeft c)))
+ (if (sfTag c = 3) (paTermAddition (h @ (sfLeft c)) (h @ (sfRight c)))
+ (if (sfTag c = 4) (paTermMultiplication (h @ (sfLeft c)) (h @ (sfRight c))) paTermZero)))) $;
+
+def paTermRenameStep (R: set) (.h: nat): set = $ \ h, paTermRenameBody R (sfHistoryLength h) h $;
+
+def paTermRename (R: set) (c: nat): nat = $ srec (paTermRenameStep R) c $;
+
+def paTermRenameHistory (R: set) (c .i: nat): nat = $ \. i e. upto c, srec (paTermRenameStep R) i $;
+
+theorem paTermRenameStep_apply (R: set) (h: nat): $ paTermRenameStep R @ h = paTermRenameBody R (sfHistoryLength h) h $;
+
+theorem paTermRenameHistory_size (R: set) (c: nat): $ sfHistoryLength (paTermRenameHistory R c) = c $;
+
+theorem paTermRenameHistory_lookup (R: set) (c a: nat): $ a < c -> paTermRenameHistory R c @ a = paTermRename R a $;
+
+theorem paTermRename_unfold (R: set) (c: nat): $ paTermRename R c = paTermRenameBody R c (paTermRenameHistory R c) $;
+
+theorem paTermRename_zero (R: set): $ paTermRename R paTermZero = paTermZero $;
+
+theorem paTermRename_variable (R: set) (i: nat): $ paTermRename R (paTermVariable i) = paTermVariable (R @ i) $;
+
+theorem paTermRename_successor (R: set) (a: nat): $ paTermRename R (paTermSuccessor a) = paTermSuccessor (paTermRename R a) $;
+
+theorem paTermRename_addition (R: set) (a b: nat): $ paTermRename R (paTermAddition a b) = paTermAddition (paTermRename R a) (paTermRename R b) $;
+
+theorem paTermRename_multiplication (R: set) (a b: nat): $ paTermRename R (paTermMultiplication a b) = paTermMultiplication (paTermRename R a) (paTermRename R b) $;
+
+def paTermLiftMap (k .i: nat): set = $ \ i, k + i $;
+
+def paTermLift (k c: nat): nat = $ paTermRename (paTermLiftMap k) c $;
+
+def paTermShiftMap (d .i: nat): set = $ \ i, sfShiftIndex d i $;
+
+def paTermShift (d c: nat): nat = $ paTermRename (paTermShiftMap d) c $;
+
+theorem paTermLiftMap_value (k i: nat): $ paTermLiftMap k @ i = k + i $;
+
+theorem paTermShiftMap_value (d i: nat): $ paTermShiftMap d @ i = sfShiftIndex d i $;
+
+theorem paTermLift_variable (k i: nat): $ paTermLift k (paTermVariable i) = paTermVariable (k + i) $;
+
+theorem paTermShift_variable (d i: nat): $ paTermShift d (paTermVariable i) = paTermVariable (sfShiftIndex d i) $;

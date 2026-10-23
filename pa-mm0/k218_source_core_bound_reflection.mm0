@@ -1,0 +1,24 @@
+import "k218_source_core_bounds.mm0";
+import "source_renaming_laws.mm0";
+
+def sfK218SupportInverse (.i: nat): set =
+ $ \ i, if (i = 0) 1 (if (i = 1) 0 (i - 2)) $;
+theorem sfK218SupportInverse_value (i: nat):
+ $ sfK218SupportInverse @ i = if (i = 0) 1 (if (i = 1) 0 (i - 2)) $;
+theorem sfK218SupportInverse_left (i: nat):
+ $ sfK218SupportInverse @ (sfK218SupportMap @ i) = i $;
+theorem sfK218SupportInverse_roundtrip (f: nat):
+ $ sfWf f -> sfRename sfK218SupportInverse 0 (sfRename sfK218SupportMap 0 f) = f $;
+
+theorem sfK218Kp0_support_bound (n f: nat):
+ $ sfBound n (sfK218Kp0 f) -> sfBound (suc (suc (suc (suc n)))) (sfRename sfK218SupportMap 0 f) $;
+theorem sfK218Kp0_bound_reflection (n f: nat):
+ $ sfWf f -> sfBound n (sfK218Kp0 f) -> sfBound (suc (suc n)) f $;
+theorem sfK218Kp0_closed_reflection (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218Kp0 f)) -> sfBound (suc (suc n)) f $;
+theorem sfK218SeededCore_support_bound (n f: nat):
+ $ sfBound n (sfK218SeededCore f) -> sfBound (suc (suc (suc (suc n)))) (sfRename sfK218SupportMap 0 f) $;
+theorem sfK218SeededCore_bound_reflection (n f: nat):
+ $ sfWf f -> sfBound n (sfK218SeededCore f) -> sfBound (suc (suc n)) f $;
+theorem sfK218SeededCore_closed_reflection (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218SeededCore f)) -> sfBound (suc (suc n)) f $;

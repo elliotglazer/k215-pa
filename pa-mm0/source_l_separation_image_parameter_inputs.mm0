@@ -1,0 +1,26 @@
+import "source_l_separation_image_prefix.mm0";
+import "source_l_common_level_transport.mm0";
+
+theorem slGuardCons_base(D G start:nat)(hg:$ sfContextWf G $)(h0:$ nsLocal G (sfSubst 0 start D) $):
+ $ nsLocal G (sfCLPredicates D (suc start) 0) -> nsLocal G (sfCLPredicates D start 1) $;
+theorem slGuardCons_step_cond(H:wff)(D G start n:nat)
+ (hi:$ H -> (nsLocal G (sfCLPredicates D (suc start) n) -> nsLocal G (sfCLPredicates D start (suc n))) $)
+ (hs:$ H -> nsLocal G (sfCLPredicates D (suc start) (suc n)) $):
+ $ H -> nsLocal G (sfCLPredicates D start (suc (suc n))) $;
+theorem slGuardCons_step(D G start n:nat):
+ $ (nsLocal G (sfCLPredicates D (suc start) n) -> nsLocal G (sfCLPredicates D start (suc n))) ->
+   nsLocal G (sfCLPredicates D (suc start) (suc n)) -> nsLocal G (sfCLPredicates D start (suc (suc n))) $;
+theorem sfLSeparationImagePredicate_cons(D G start n:nat)(hg:$ sfContextWf G $)(h0:$ nsLocal G (sfSubst 0 start D) $):
+ $ nsLocal G (sfCLPredicates D (suc start) n) -> nsLocal G (sfCLPredicates D start (suc n)) $;
+theorem slGuardParams_base(D G:nat)(hg:$ sfContextWf G $):
+ $ nsLocal (sfLSeparationImageParameterContext D 0 G) (sfCLPredicates D 0 0) $;
+theorem slGuardParams_step_cond(H:wff)(D G n:nat)(hd:$ sfBound 1 D $)
+ (hi:$ H -> nsLocal (sfLSeparationImageParameterContext D n G) (sfCLPredicates D 0 n) $):
+ $ H -> nsLocal (sfLSeparationImageParameterContext D (suc n) G) (sfCLPredicates D 0 (suc n)) $;
+theorem slGuardParams_step(D G n:nat)(hd:$ sfBound 1 D $):
+ $ nsLocal (sfLSeparationImageParameterContext D n G) (sfCLPredicates D 0 n) ->
+   nsLocal (sfLSeparationImageParameterContext D (suc n) G) (sfCLPredicates D 0 (suc n)) $;
+theorem sfLSeparationImageParameterPredicates(D G n:nat)(hd:$ sfBound 1 D $)(hg:$ sfContextWf G $):
+ $ nsLocal (sfLSeparationImageParameterContext D n G) (sfCLPredicates D 0 n) $;
+theorem sfLSeparationImageAllInputPredicates(D G n:nat)(hd:$ sfBound 1 D $)(hg:$ sfContextWf G $):
+ $ nsLocal (D : sfContextShift (sfLSeparationImageParameterContext D n G)) (sfCLPredicates D 0 (suc n)) $;

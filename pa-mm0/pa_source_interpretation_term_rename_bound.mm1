@@ -1,0 +1,19 @@
+import "pa_source_interpretation_term_renaming.mm1";
+
+theorem paTMRBound_cond (G p I J: wff) (b a c: nat) (hp: $ G /\ p -> I -> paTermBound b a $) (hn: $ G -> J -> paTermBound b c $): $ G -> ifp p I J -> paTermBound b (if p a c) $ = (named '(eord (impd @ exp @ sylibrd hp (srecpeq2d (preq2d (syl ifpos anr)))) (impd @ exp @ sylibrd (syl hn anl) (srecpeq2d (preq2d (syl ifneg anr))))));
+
+theorem paTMRBound_ind_at (R: set) (n m c a: nat): $ A. j (j < c -> (paTermBound n j -> paTermBound m (paTermRename R j))) -> a < c -> paTermBound n a -> paTermBound m (paTermRename R a) $ = (named '(!! eale j ,eqtac));
+
+theorem paTMRBound_use {j: nat} (G: wff j) (R: set) (n m c a: nat) (hi: $ G -> A. j (j < c -> (paTermBound n j -> paTermBound m (paTermRename R j))) $) (ha: $ G -> a < c $): $ G -> paTermBound n a -> paTermBound m (paTermRename R a) $ = (named '(mpd ha (syl paTMRBound_ind_at hi)));
+
+theorem paTMRBound_history {j: nat} (G: wff j) (R: set) (n m c a: nat) (hi: $ G -> A. j (j < c -> (paTermBound n j -> paTermBound m (paTermRename R j))) $) (ha: $ G -> a < c $): $ G -> paTermBound n a -> paTermBound m (paTermRenameHistory R c @ a) $ = (named '(sylibrd (paTMRBound_use hi ha) (srecpeq2d (preq2d (syl paTermRenameHistory_lookup ha)))));
+
+theorem paTMRBound_source_history (n c a: nat): $ (n, a) e. paTermBoundPrevious n c -> paTermBound n a $ = (named '(syl anr (bi1 paTermBoundPrevious_value)));
+
+theorem paTMRBound_map_at (R: set) (n m a: nat): $ A. i (i < n -> R @ i < m) -> a < n -> R @ a < m $ = (named '(!! eale i ,eqtac));
+
+theorem paTMRBound_body {i j: nat} (G: wff i j) (R: set) (n m c: nat) (hm: $ G -> A. i (i < n -> R @ i < m) $) (hi: $ G -> A. j (j < c -> (paTermBound n j -> paTermBound m (paTermRename R j))) $): $ G -> paTermBoundAllowed n c (paTermBoundPrevious n c) -> paTermBound m (paTermRenameBody R c (paTermRenameHistory R c)) $ = (named '(paTMRBound_cond (a1i (a1i paTermBound_zero)) (paTMRBound_cond (exp @ syl (bi2 paTermBound_variable) (sylc paTMRBound_map_at (syl hm anll) anrr)) (paTMRBound_cond (exp @ syl (bi2 paTermBound_successor) (mpd (syl paTMRBound_source_history anrr) (paTMRBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S)))))) (paTMRBound_cond (exp @ syl (bi2 paTermBound_addition) (iand (mpd (syl paTMRBound_source_history anrl) (paTMRBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))))) (mpd (syl paTMRBound_source_history anrr) (paTMRBound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))))))) (paTMRBound_cond (exp @ syl (bi2 paTermBound_multiplication) (iand (mpd (syl paTMRBound_source_history anrl) (paTMRBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))))) (mpd (syl paTMRBound_source_history anrr) (paTMRBound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))))))) (a1i (a1i paTermBound_zero))))))));
+
+theorem paTMRBound_actual {i j: nat} (G: wff i j) (R: set) (n m c: nat) (hm: $ G -> A. i (i < n -> R @ i < m) $) (hi: $ G -> A. j (j < c -> (paTermBound n j -> paTermBound m (paTermRename R j))) $): $ G -> paTermBound n c -> paTermBound m (paTermRename R c) $ = (named '(syl5bi paTermBound_unfold @ sylibrd (paTMRBound_body hm hi) (a1i (srecpeq2 (preq2 paTermRename_unfold)))));
+
+pub theorem paTermRename_bound {i: nat} (R: set) (n m c: nat): $ (A. i (i < n -> R @ i < m)) -> paTermBound n c -> paTermBound m (paTermRename R c) $ = (named '(!! indstr j y {,eqtac : $ j = c -> ((paTermBound n j -> paTermBound m (paTermRename R j)) <-> (paTermBound n c -> paTermBound m (paTermRename R c))) $} ,eqtac (paTMRBound_actual anl anr)));

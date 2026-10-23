@@ -1,0 +1,24 @@
+import "k215_calculus_counter.mm0";
+
+def k215R8Prefix (a b c u r: nat): nat =
+ $ k215DiscardPrefix (k215CounterPrefix u (suc (k215CmdAX c b (a - u)
+   (k215NipPrefix 8 (suc (k215CmdDROP (k215NipPrefix 3 r))))))) $;
+
+def k215R8Time (u: nat): nat = $ ((suc (suc (suc 10))) + k215CounterTime u) + (suc (suc 10)) $;
+
+theorem k215R8_run (a b c u r np t w: nat):
+ $ u <= a -> k215EnumIter (k215R8Time u)
+   (k218EnumState (suc (k215R8Prefix a b c u r)) np t w 0 0) =
+   suc (k218EnumState r np (kRho8 a b c u) w 0 0) $;
+
+def k215GenTail (i r: nat): nat =
+ $ suc (k215CmdNIP (suc (k215CmdAX i 0 0 (k215NipPrefix 9 (suc (k215CmdDROP (k215NipPrefix 2 r))))))) $;
+
+def k215GenPrefix (i r: nat): nat =
+ $ k215CmdDROP (k215CounterPrefix i (k215GenTail i r)) $;
+
+def k215GenTime (i: nat): nat = $ suc ((suc (suc (suc (suc 10)))) + k215CounterTime i) $;
+
+theorem k215Gen_run (i r np X w: nat):
+ $ k215EnumIter (k215GenTime i) (k218EnumState (suc (k215GenPrefix i r)) np X w 0 0) =
+   suc (k218EnumState r np (kAll i X) w 0 0) $;

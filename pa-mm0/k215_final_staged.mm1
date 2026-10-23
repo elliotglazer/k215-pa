@@ -1,0 +1,61 @@
+-- HOST: see k215_final_staged.mm0.
+import "k215_assembly_native_conditional.mm1";
+import "k215_bundle_images.mm1";
+
+-- ibid (h1: a -> b -> c) (h2: a -> c -> b): a -> (b <-> c); the forward
+-- half is the bridge itself, the reverse half is explosion.
+theorem k215fs_bridge {b: nat}:
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   (~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) $ =
+ '(ibid id (a1i k215AssemblyBB_none_implies_consistent));
+
+-- Transfer from k215_refutation_from_core; the converse is M4 (hm) composed with M1+M2.
+pub theorem K215_halts_iff_ZFC_inconsistent_staged
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc: $ k215CoreImagesL $)
+ (hm: $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> k215Inconsistent $)
+ (hN: $ k215PNativeLaw $):
+ $ k215LiteralHalts <-> zfcInconsistent $ =
+ '(ibii (ax_mp (ax_mp k215AssemblyNative_halts_ZFC_given_transfer hN) (k215_refutation_from_core hz hn hc))
+   (syl (bi2i (ax_mp k215AssemblyNative_literal_iff_kInconsistent hN)) (ax_mp hm hz)));
+
+pub theorem K215_nonhalting_iff_ZFC_consistent_staged
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc: $ k215CoreImagesL $)
+ (hm: $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> k215Inconsistent $)
+ (hN: $ k215PNativeLaw $):
+ $ ~zfcInconsistent <-> ~k215LiteralHalts $ =
+ '(ax_mp bicom (noteqi (K215_halts_iff_ZFC_inconsistent_staged hz hn hc hm hN)));
+
+-- bitr3d (h1: a -> (c <-> b)) (h2: a -> (c <-> d)): a -> (b <-> d)
+pub theorem K215_full_consistency_BB215_nonprovability_staged_bridge {b: nat}
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc: $ k215CoreImagesL $)
+ (hm: $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> k215Inconsistent $)
+ (hN: $ k215PNativeLaw $):
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $ =
+ '(iand (a1i (K215_nonhalting_iff_ZFC_consistent_staged hz hn hc hm hN))
+   (bitr3d (a1i (K215_nonhalting_iff_ZFC_consistent_staged hz hn hc hm hN)) k215fs_bridge));
+
+pub theorem K215_full_consistency_BB215_nonprovability_staged_nonhalting_bridge {b: nat}
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc: $ k215CoreImagesL $)
+ (hm: $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> k215Inconsistent $)
+ (hN: $ k215PNativeLaw $):
+ $ (~k215LiteralHalts -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $ =
+ '(iand (a1i (K215_nonhalting_iff_ZFC_consistent_staged hz hn hc hm hN))
+   (ibid id (a1i (syl (bi1i (K215_nonhalting_iff_ZFC_consistent_staged hz hn hc hm hN))
+     k215AssemblyBB_none_implies_consistent))));
+
+pub theorem ZFC_consistent_iff_BB215_no_value_provable_given_bridge_staged {b: nat}:
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   (~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) $ =
+ '(k215fs_bridge);

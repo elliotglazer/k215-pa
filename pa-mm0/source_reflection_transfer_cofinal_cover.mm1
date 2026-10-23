@@ -1,0 +1,43 @@
+import "source_reflection_transfer_cofinal_laws.mm1";
+
+def sfReflectionCofinalHitPoint(level K a k y:nat):nat = $ sfAnd (sfMem k K) (sfAnd (sfORBinary level k y) (sfMem a y)) $;
+
+def sfReflectionCofinalHit(level K a:nat):nat = $ sfEx (sfEx (sfReflectionCofinalHitPoint level (suc (suc K)) (suc (suc a)) 1 0)) $;
+
+def sfReflectionCofinalCover(level K Y:nat):nat = $ sfAll (sfImp (sfMem 0 (suc Y)) (sfReflectionCofinalHit level (suc K) 0)) $;
+
+def sfReflectionCofinalSeedPoint(level K k y:nat):nat = $ sfAnd (sfMem k K) (sfORBinary level k y) $;
+
+def sfReflectionCofinalSeed(level K:nat):nat = $ sfEx (sfEx (sfReflectionCofinalSeedPoint level (suc (suc K)) 1 0)) $;
+
+theorem rfcc_hitpoint_wf(level K a k y:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalHitPoint level K a k y) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp (ax_mp sfWf_and (rfc_level_wf hl)) sfWf_mem)));
+
+theorem rfcc_hit_wf(level K a:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalHit level K a) $ = (named '(ax_mp sfWf_ex (ax_mp sfWf_ex (rfcc_hitpoint_wf hl))));
+
+theorem rfcc_hitpoint_rename(R:set)(level K a k y:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionCofinalHitPoint level K a k y) = sfReflectionCofinalHitPoint level (R @ K) (R @ a) (R @ k) (R @ y) $ = (named '(eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (eqtr sfRename_sfAnd (nsAnd_eq (sfORBinary_rename (ax_mp sfBound_wf hl)) (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)))))));
+
+theorem rfcc_hitpoint_congr(level K KP a ap k kp y yp:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $)(ha:$ a = ap $)(hk:$ k = kp $)(hy:$ y = yp $): $ sfReflectionCofinalHitPoint level K a k y = sfReflectionCofinalHitPoint level KP ap kp yp $ = (named '(nsAnd_eq (nsMem_eq hk hK) (nsAnd_eq (sfORBinary_congr (ax_mp sfBound_wf hl) hk hy) (nsMem_eq ha hy))));
+
+pub theorem sfReflectionCofinalHit_rename(R:set)(level K a:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionCofinalHit level K a) = sfReflectionCofinalHit level (R @ K) (R @ a) $ = (named '(eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfEx (nsEx_eq (eqtr (ax_mp sfRename_as_map (rfcc_hitpoint_wf hl)) (eqtr (rfcc_hitpoint_rename hl) (rfcc_hitpoint_congr hl rfcl_depth2_tail rfcl_depth2_tail rfcl_depth2_1 rfcl_depth2_0))))))));
+
+theorem rfcc_hit_congr(level K KP a ap:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $)(ha:$ a = ap $): $ sfReflectionCofinalHit level K a = sfReflectionCofinalHit level KP ap $ = (named '(nsEx_eq (nsEx_eq (rfcc_hitpoint_congr hl (suceq (suceq hK)) (suceq (suceq ha)) eqid eqid))));
+
+pub theorem sfReflectionCofinalHit_shift(level K a:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionCofinalHit level K a) = sfReflectionCofinalHit level (suc K) (suc a) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor (rfcc_hit_wf hl))) (eqtr (sfReflectionCofinalHit_rename hl) (rfcc_hit_congr hl sfSuccessorMap_value sfSuccessorMap_value))));
+
+theorem rfcc_cover_body_wf(level K Y:nat)(hl:$ sfBound 2 level $): $ sfWf (sfImp (sfMem 0 (suc Y)) (sfReflectionCofinalHit level (suc K) 0)) $ = (named '(ax_mp (ax_mp sfWf_imp sfWf_mem) (rfcc_hit_wf hl)));
+
+theorem rfcc_cons_zero(a:nat): $ sqEnvCons a sfIdentityMap @ 0 = a $ = (named 'sqEnvCons_zero);
+
+theorem rfcc_cons_suc(a i:nat): $ sqEnvCons a sfIdentityMap @ suc i = i $ = (named '(eqtr sqEnvCons_suc sfIdentityMap_value));
+
+pub theorem sfReflectionCofinalCover_use(G level K Y a:nat)(hl:$ sfBound 2 level $)(hC:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(ha:$ nsLocal G (sfMem a Y) $): $ nsLocal G (sfReflectionCofinalHit level K a) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (eqtr sfRenameIndex_zero rfcc_cons_zero) (eqtr sfRenameIndex_zero rfcc_cons_suc))) (eqtr (sfReflectionCofinalHit_rename hl) (rfcc_hit_congr hl rfcc_cons_suc rfcc_cons_zero))))) (ax_mp (rfcl_all_cons (rfcc_cover_body_wf hl)) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all (rfcc_cover_body_wf hl)))) hC)))) ha));
+
+theorem rfcc_seedpoint_wf(level K k y:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalSeedPoint level K k y) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) (rfc_level_wf hl)));
+
+theorem rfcc_point_shift0(T:set)(start n level K k y:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionCofinalPoint T start n level K k y) = sfReflectionCofinalPoint T (suc start) n level (suc K) (suc k) (suc y) $ = (named '(eqtr (rfc_point_shift hl le01) (rfc_point_congr hl sfShiftIndex_zero sfShiftIndex_zero sfShiftIndex_zero)));
+
+pub theorem sfReflectionCofinalPoint_shift2(T:set)(start n level K k y:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfShift 0 (sfReflectionCofinalPoint T start n level K k y)) = sfReflectionCofinalPoint T (suc (suc start)) n level (suc (suc K)) (suc (suc k)) (suc (suc y)) $ = (named '(eqtr (sfShifteq2 (rfcc_point_shift0 hl)) (rfcc_point_shift0 hl)));
+
+theorem rfcc_seed_branch(T:set)(G start level K:nat)(hl:$ sfBound 2 level $)(hSeed:$ nsLocal G (sfReflectionCofinalSeed level K) $): $ nsLocal (sfReflectionCofinalContext G (sfReflectionCofinalSeedPoint level (suc (suc K)) 1 0)) (sfShift 0 (sfShift 0 (sfReflectionCofinalCommon T start 0 level K))) $ = (named '(mpbir (nsLocal_formula_eq (rfcstep_common_shift2 hl)) (sfReflectionCofinalCommon_intro hl (ax_mp (ax_mp sfLocal_and (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (rfc_context_wf (rfcc_seedpoint_wf hl))) sfContext_member_head))) (ax_mp (ax_mp sfLocal_and (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (rfc_context_wf (rfcc_seedpoint_wf hl))) sfContext_member_head))) (mpbir (nsLocal_formula_eq sfReflectionTuple_zero) (sfCLTrue_proof (rfc_context_wf (rfcc_seedpoint_wf hl)))))))));
+
+pub theorem sfReflectionCofinal_seed_tuple(T:set)(G start level K:nat)(hl:$ sfBound 2 level $)(hSeed:$ nsLocal G (sfReflectionCofinalSeed level K) $): $ nsLocal G (sfReflectionCofinalCommon T start 0 level K) $ = (named '(ax_mp (sfReflectionCofinal_double_eliminate (rfcc_seedpoint_wf hl) (sfReflectionCofinalCommon_wf hl) hSeed) (rfcc_seed_branch hl hSeed)));

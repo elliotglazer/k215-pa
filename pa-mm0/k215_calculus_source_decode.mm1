@@ -1,0 +1,135 @@
+import "k215_calculus_source_decode_unpair.mm1";
+import "k215_calculus_iteration.mm1";
+
+@_ def k215ReloadState (pc x n c: nat): nat = $ k215PState pc (k215PVector x (k215PR1 c) (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) n (k215PR7 c) (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215ReloadState) '(k215ReloadStateeqd));
+
+theorem k215ReloadStep6 (x n c: nat): $ k215PStep (k215ReloadState 6 x n c) = (k215ReloadState 7 (suc x) n c) $ = '(eqtr (k215PAtCI k215PLookupDecode_6) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet0_vector)) k215PSet0_vector)));
+
+theorem k215ReloadReach6 (x n c: nat): $ k215PReach (k215ReloadState 6 x n c) (k215ReloadState 7 (suc x) n c) $ = '(k215PReach_step k215ReloadStep6);
+
+theorem k215ReloadStep7Z (x c: nat): $ k215PStep (k215ReloadState 7 x 0 c) = (k215ReloadState 9 x 0 c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupDecode_7) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215ReloadReach7Z (x c: nat): $ k215PReach (k215ReloadState 7 x 0 c) (k215ReloadState 9 x 0 c) $ = '(k215PReach_step k215ReloadStep7Z);
+
+theorem k215ReloadStep7S (x n c: nat): $ k215PStep (k215ReloadState 7 x (suc n) c) = (k215ReloadState 8 x n c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupDecode_7) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet6_vector)) (eqtr k215PSet6_vector (k215PVectoreq7 (eqtr subSS sub02))))));
+
+theorem k215ReloadReach7S (x n c: nat): $ k215PReach (k215ReloadState 7 x (suc n) c) (k215ReloadState 8 x n c) $ = '(k215PReach_step k215ReloadStep7S);
+
+theorem k215ReloadStep8 (x n c: nat): $ k215PStep (k215ReloadState 8 x n c) = (k215ReloadState 6 x n c) $ = '(k215PAtCC k215PLookupDecode_8);
+
+theorem k215ReloadReach8 (x n c: nat): $ k215PReach (k215ReloadState 8 x n c) (k215ReloadState 6 x n c) $ = '(k215PReach_step k215ReloadStep8);
+
+theorem k215ReloadCycle (x n c: nat): $ k215PReach (k215ReloadState 7 x (suc n) c) (k215ReloadState 7 (suc x) n c) $ = '(ax_mp (ax_mp k215PReach_trans k215ReloadReach7S) (ax_mp (ax_mp k215PReach_trans k215ReloadReach8) k215ReloadReach6));
+
+@_ abstract def k215ReloadRun (n x c: nat): wff = $ k215PReach (k215ReloadState 7 x n c) (k215ReloadState 9 (n + x) 0 c) $;
+@_ abstract def k215ReloadClaim (n c: nat) (.x: nat): wff = $ A. x k215ReloadRun n x c $;
+theorem k215ReloadClaim_at (n x c: nat): $ k215ReloadClaim n c -> k215ReloadRun n x c $ = (named '(!! ealie i @ bi1d ,eqtac));
+theorem k215ReloadBase (x c: nat): $ k215ReloadRun 0 x c $ = '(mpbi (k215PReacheq2 (k215ReloadStateeq2 (eqcom add01))) k215ReloadReach7Z);
+theorem k215ReloadInductive (n x c: nat): $ k215ReloadClaim n c -> k215ReloadRun (suc n) x c $ =
+ '(syl (ax_mp k215PReach_trans k215ReloadCycle)
+   (mpbid (a1i (k215PReacheq2 (k215ReloadStateeq2 (eqtr addS (eqcom addS1))))) k215ReloadClaim_at));
+theorem k215ReloadClaim_all (n c: nat): $ k215ReloadClaim n c $ =
+ (named @ induct '(ind) 'n '(ax_gen k215ReloadBase) '(iald k215ReloadInductive));
+theorem k215Reload7 (n x c: nat): $ k215ReloadRun n x c $ = '(ax_mp k215ReloadClaim_at k215ReloadClaim_all);
+pub theorem k215Reload6 (n x c: nat): $ k215PReach (k215ReloadState 6 x n c) (k215ReloadState 9 (suc (n + x)) 0 c) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215ReloadReach6)
+   (mpbi (k215PReacheq2 (k215ReloadStateeq2 addS)) k215Reload7));
+
+
+theorem k215ReloadVectorIn (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215ReloadState 6 a0 a6 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) = (k215PState 6 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+theorem k215ReloadVectorOut (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215ReloadState 9 (suc (a6 + a0)) 0 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) = (k215PState 9 (k215PVector (suc (a6 + a0)) a1 a2 a3 a4 a5 0 a7 a8)) $ = '(k215PStateeq2 (k215PVectoreq eqid k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid k215PR7_vector k215PR8_vector));
+
+pub theorem k215Reload6_vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PReach (k215PState 6 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) (k215PState 9 (k215PVector (suc (a6 + a0)) a1 a2 a3 a4 a5 0 a7 a8)) $ = '(mpbi (k215PReacheq k215ReloadVectorIn k215ReloadVectorOut) k215Reload6);
+
+theorem k215DecodeUnpair9In (u t w c a b l: nat): $ k215UnpairState 9 0 0 l (k215PVector u t w c a b 0 0 l) = (k215PState 9 (k215PVector u t w c a b 0 0 l)) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid eqid));
+
+theorem k215DecodeUnpair9Out (u t w c a b l: nat): $ k215UnpairState k215Num17 (fst l) (snd l) 0 (k215PVector u t w c a b 0 0 l) = (k215PState k215Num17 (k215PVector u t w c a b (fst l) (snd l) 0)) $ = '(k215PStateeq2 (k215PVectoreq k215PR0_vector k215PR1_vector k215PR2_vector k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid eqid));
+
+pub theorem k215DecodeUnpair9 (u t w c a b l: nat): $ k215PReach (k215PState 9 (k215PVector u t w c a b 0 0 l)) (k215PState k215Num17 (k215PVector u t w c a b (fst l) (snd l) 0)) $ = '(mpbi (k215PReacheq k215DecodeUnpair9In k215DecodeUnpair9Out) k215UnpairMacro9_clean);
+
+theorem k215DecodeEntryZero (u t w d h: nat): $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 0)) (k215PState 2 (k215PVector u t w 0 d h 0 0 0)) $ = '(k215PReach_step (eqtr (eqtr (k215PAtCD k215PLookupDecode_0) (ifeq (eqeq1 k215PGet8_vector) eqid eqid)) (ifpos eqid)));
+
+theorem k215DecodeEntrySucc (u t w d h l: nat): $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 (suc l))) (k215PState 1 (k215PVector u t w 0 d h 0 0 l)) $ = '(k215PReach_step (eqtr (eqtr (eqtr (k215PAtCD k215PLookupDecode_0) (ifeq (eqeq1 k215PGet8_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet8_vector)) (eqtr k215PSet8_vector (k215PVectoreq9 (eqtr subSS sub02)))))));
+
+theorem k215DecodeEntrySkip (u t w d h l: nat): $ k215PReach (k215PState 1 (k215PVector u t w 0 d h 0 0 l)) (k215PState 9 (k215PVector u t w 0 d h 0 0 l)) $ = '(k215PReach_step (k215PAtCB k215PLookupDecode_1));
+
+pub theorem k215DecodeReloadTo9 (u t w d h: nat): $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 0)) (k215PState 9 (k215PVector (suc u) t w 0 d h 0 0 u)) $ = '(ax_mp (ax_mp k215PReach_trans k215DecodeEntryZero) (ax_mp (ax_mp k215PReach_trans (k215PReach_intro (eqtr k215Loop2Vector (k215PStateeq2 (k215PVectoreq eqid eqid eqid eqid eqid eqid add0 eqid add0))))) (mpbi (k215PReacheq2 (k215PStateeq2 (k215PVectoreq1 (suceq add0)))) k215Reload6_vector)));
+
+pub theorem k215DecodeContinueTo9 (u t w d h l: nat): $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 (suc l))) (k215PState 9 (k215PVector u t w 0 d h 0 0 l)) $ = '(ax_mp (ax_mp k215PReach_trans k215DecodeEntrySucc) k215DecodeEntrySkip);
+
+theorem k215DecodeStage0 (u t w d h l: nat): $ k215PReach (k215PState 9 (k215PVector u t w 0 d h 0 0 l)) (k215PState k215Num17 (k215PVector u t w 0 d h (fst l) (snd l) 0)) $ = 'k215DecodeUnpair9;
+
+theorem k215DecodeStage1 (u t w d h l: nat): $ k215PReach (k215PState k215Num17 (k215PVector u t w 0 d h (fst l) (snd l) 0)) (k215PState k215Num20 (k215PVector u t w 0 d h (fst l) 0 (snd l))) $ = '(k215PReach_intro (eqtr k215Loop17Vector (k215PStateeq2 (k215PVectoreq9 add0))));
+
+theorem k215DecodeStage2 (u t w d h l: nat): $ k215PReach (k215PState k215Num20 (k215PVector u t w 0 d h (fst l) 0 (snd l))) (k215PState k215Num23 (k215PVector u t w (fst l) d h 0 0 (snd l))) $ = '(k215PReach_intro (eqtr k215Loop20Vector (k215PStateeq2 (k215PVectoreq4 add0))));
+
+
+pub theorem k215DecodeFrom9 (u t w d h l: nat):
+ $ k215PReach (k215PState 9 (k215PVector u t w 0 d h 0 0 l))
+    (k215PState k215Num23 (k215PVector u t w (fst l) d h 0 0 (snd l))) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215DecodeStage0)
+   (ax_mp (ax_mp k215PReach_trans k215DecodeStage1) k215DecodeStage2));
+pub theorem k215DecodeReload (u t w d h: nat):
+ $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 0))
+    (k215PState k215Num23 (k215PVector (suc u) t w (fst u) d h 0 0 (snd u))) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215DecodeReloadTo9) k215DecodeFrom9);
+pub theorem k215DecodeContinue (u t w d h l: nat):
+ $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 (suc l)))
+    (k215PState k215Num23 (k215PVector u t w (fst l) d h 0 0 (snd l))) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215DecodeContinueTo9) k215DecodeFrom9);
+
+@_ def k215PEnumConfig (s: nat): nat =
+ $ k215PState 0 (k215PVector (k218EnumNP s) (k218EnumTW s) (k218EnumWS s)
+    0 (k218EnumD s) (k218EnumH s) 0 0 (k218EnumPL s)) $;
+@_ def k215PDecodedConfig (s: nat): nat =
+ $ k215PState k215Num23 (k215PVector (k218EnumNext s) (k218EnumTW s) (k218EnumWS s)
+    (fst (k218EnumList s)) (k218EnumD s) (k218EnumH s) 0 0 (snd (k218EnumList s))) $;
+do (apply (register-eqd 'k215PEnumConfig) '(k215PEnumConfigeqd));
+do (apply (register-eqd 'k215PDecodedConfig) '(k215PDecodedConfigeqd));
+pub theorem k215PEnumConfig_state (pl u t w d h: nat):
+ $ k215PEnumConfig (k218EnumState pl u t w d h) =
+   k215PState 0 (k215PVector u t w 0 d h 0 0 pl) $ =
+ '(k215PStateeq2 (k215PVectoreq k218EnumState_NP k218EnumState_TW k218EnumState_WS
+   eqid k218EnumState_D k218EnumState_H eqid eqid k218EnumState_PL));
+theorem k215DecodeListReload (u t w d h: nat):
+ $ k218EnumList (k218EnumState 0 u t w d h) = u $ =
+ '(eqtr (ax_mp k218EnumList_reload k218EnumState_PL) k218EnumState_NP);
+theorem k215PDecodedConfig_reload (u t w d h: nat):
+ $ k215PDecodedConfig (k218EnumState 0 u t w d h) =
+   k215PState k215Num23 (k215PVector (suc u) t w (fst u) d h 0 0 (snd u)) $ =
+ '(k215PStateeq2 (k215PVectoreq
+   (eqtr (ax_mp k218EnumNext_reload k218EnumState_PL) (suceq k218EnumState_NP))
+   k218EnumState_TW k218EnumState_WS (fsteq k215DecodeListReload)
+   k218EnumState_D k218EnumState_H eqid eqid (sndeq k215DecodeListReload)));
+theorem k215PDecodeReload (u t w d h: nat):
+ $ k215PReach (k215PEnumConfig (k218EnumState 0 u t w d h))
+   (k215PDecodedConfig (k218EnumState 0 u t w d h)) $ =
+ '(mpbir (k215PReacheq k215PEnumConfig_state k215PDecodedConfig_reload) k215DecodeReload);
+theorem k215DecodeListContinue (u t w d h l: nat):
+ $ k218EnumList (k218EnumState (suc l) u t w d h) = l $ =
+ '(eqtr (ax_mp k218EnumList_continue (mpbir (noteq (eqeq1 k218EnumState_PL)) peano1))
+   (eqtr (subeq1 k218EnumState_PL) (eqtr subSS sub02)));
+theorem k215PDecodedConfig_continue (u t w d h l: nat):
+ $ k215PDecodedConfig (k218EnumState (suc l) u t w d h) =
+   k215PState k215Num23 (k215PVector u t w (fst l) d h 0 0 (snd l)) $ =
+ '(k215PStateeq2 (k215PVectoreq
+   (eqtr (ax_mp k218EnumNext_continue (mpbir (noteq (eqeq1 k218EnumState_PL)) peano1)) k218EnumState_NP)
+   k218EnumState_TW k218EnumState_WS (fsteq k215DecodeListContinue)
+   k218EnumState_D k218EnumState_H eqid eqid (sndeq k215DecodeListContinue)));
+theorem k215PDecodeContinue (u t w d h l: nat):
+ $ k215PReach (k215PEnumConfig (k218EnumState (suc l) u t w d h))
+   (k215PDecodedConfig (k218EnumState (suc l) u t w d h)) $ =
+ '(mpbir (k215PReacheq k215PEnumConfig_state k215PDecodedConfig_continue) k215DecodeContinue);
+theorem k215PDecodeState (pl u t w d h: nat):
+ $ k215PReach (k215PEnumConfig (k218EnumState pl u t w d h))
+   (k215PDecodedConfig (k218EnumState pl u t w d h)) $ =
+ (named @ induct '(ind) 'pl 'k215PDecodeReload '(a1i k215PDecodeContinue));
+pub theorem k215PDecodeEnum (s: nat):
+ $ k215PReach (k215PEnumConfig s) (k215PDecodedConfig s) $ =
+ '(mpbi (k215PReacheq (k215PEnumConfigeq k218EnumState_rebuild)
+   (k215PDecodedConfigeq k218EnumState_rebuild)) k215PDecodeState);
+pub theorem k215PInitial_enum_config:
+ $ k215PInitial = k215PEnumConfig k215EnumInitial $ = '(eqcom k215PEnumConfig_state);

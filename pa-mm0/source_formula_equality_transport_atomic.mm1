@@ -1,0 +1,153 @@
+import "source_local_extra.mm1";
+
+import "source_structural_induction.mm1";
+
+@_ abstract def sfFormulaEqualityContext: nat = $ zfcRefl : (zfcSym : (zfcTrans : (zfcEqElem : 0))) $;
+
+theorem feq_context_cons (a G: nat) (ha: $ sfWf a $) (hg: $ sfContextWf G $):
+ $ sfContextWf (a : G) $ =
+'(mpbir sfContextWf_cons (ian ha hg));
+
+pub theorem sfFormulaEqualityContext_wf:
+ $ sfContextWf sfFormulaEqualityContext $ =
+'(feq_context_cons zfcRefl_wf (feq_context_cons zfcSym_wf (feq_context_cons zfcTrans_wf (feq_context_cons zfcEqElem_wf sfContextWf_nil))));
+
+pub theorem sfFormulaEqualityContext_allowed:
+ $ zfcContext sfFormulaEqualityContext $ =
+'(mpbir zfcContext_cons (ian (ax_mp zfcFixed_member (ax_mp orl eqid)) (mpbir zfcContext_cons (ian (ax_mp zfcFixed_member (ax_mp orr (ax_mp orl eqid))) (mpbir zfcContext_cons (ian (ax_mp zfcFixed_member (ax_mp orr (ax_mp orr (ax_mp orl eqid)))) (mpbir zfcContext_cons (ian (ax_mp zfcFixed_member (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))) zfcContext_nil))))))));
+
+pub theorem sfFormulaEqualityContext_shift:
+ $ sfContextShift sfFormulaEqualityContext = sfFormulaEqualityContext $ =
+'(ax_mp zfcContext_shift_identity sfFormulaEqualityContext_allowed);
+
+theorem feqEq_congr (a b c d: nat) (h0: $ a = b $) (h1: $ c = d $):
+ $ sfEq a c = sfEq b d $ =
+'(trud (sfEq_congr (a1i h0) (a1i h1)));
+
+theorem feqMem_congr (a b c d: nat) (h0: $ a = b $) (h1: $ c = d $):
+ $ sfMem a c = sfMem b d $ =
+'(trud (sfMem_congr (a1i h0) (a1i h1)));
+
+theorem feqImp_congr (a b c d: nat) (h0: $ a = b $) (h1: $ c = d $):
+ $ sfImp a c = sfImp b d $ =
+'(trud (sfImp_congr (a1i h0) (a1i h1)));
+
+theorem feqAnd_congr (a b c d: nat) (h0: $ a = b $) (h1: $ c = d $):
+ $ sfAnd a c = sfAnd b d $ =
+'(trud (sfAnd_congr (a1i h0) (a1i h1)));
+
+theorem feqOr_congr (a b c d: nat) (h0: $ a = b $) (h1: $ c = d $):
+ $ sfOr a c = sfOr b d $ =
+'(trud (sfOr_congr (a1i h0) (a1i h1)));
+
+theorem feqAll_congr (a b: nat) (h: $ a = b $):
+ $ sfAll a = sfAll b $ =
+'(trud (sfAll_congr (a1i h)));
+
+theorem feqEx_congr (a b: nat) (h: $ a = b $):
+ $ sfEx a = sfEx b $ =
+'(trud (sfEx_congr (a1i h)));
+
+theorem feq_rewrite (G a b: nat) (he: $ a = b $) (hp: $ nsLocal G a $):
+ $ nsLocal G b $ =
+'(mpbi (nsLocal_formula_eq he) hp);
+
+theorem feq_context_rewrite (G D a: nat) (he: $ G = D $) (hp: $ nsLocal G a $):
+ $ nsLocal D a $ =
+'(mpbi (nsLocal_context_eq he) hp);
+
+theorem feq_refl_axiom:
+ $ nsLocal sfFormulaEqualityContext zfcRefl $ =
+'(ax_mp (ax_mp nsLocal_hyp sfFormulaEqualityContext_wf) sfContext_member_head);
+
+theorem feq_refl_subst0 (a: nat):
+ $ sfSubst 0 a (sfEq 0 0) = (sfEq a a) $ =
+'(eqtr sfSubst_sfEq (feqEq_congr sfSubstIndex_zero sfSubstIndex_zero));
+
+pub theorem sfFormulaEquality_refl_local (a: nat):
+ $ nsLocal sfFormulaEqualityContext (sfEq a a) $ =
+'(feq_rewrite feq_refl_subst0 (ax_mp nsLocal_AllE feq_refl_axiom));
+
+theorem feq_sym_axiom:
+ $ nsLocal sfFormulaEqualityContext zfcSym $ =
+'(ax_mp (ax_mp nsLocal_hyp sfFormulaEqualityContext_wf) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem feq_sym_subst0 (a: nat):
+ $ sfSubst 0 a (sfAll (sfImp (sfEq 1 0) (sfEq 0 1))) = (sfAll (sfImp (sfEq (suc a) 0) (sfEq 0 (suc a)))) $ =
+'(eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfEq (feqEq_congr (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero))))))));
+
+theorem feq_sym_step0 (a: nat):
+ $ nsLocal sfFormulaEqualityContext (sfAll (sfImp (sfEq (suc a) 0) (sfEq 0 (suc a)))) $ =
+'(feq_rewrite feq_sym_subst0 (ax_mp nsLocal_AllE feq_sym_axiom));
+
+theorem feq_sym_subst1 (a b: nat):
+ $ sfSubst 0 b (sfImp (sfEq (suc a) 0) (sfEq 0 (suc a))) = (sfImp (sfEq a b) (sfEq b a)) $ =
+'(eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr sfSubstIndex_successor sfSubstIndex_zero)) (eqtr sfSubst_sfEq (feqEq_congr sfSubstIndex_zero sfSubstIndex_successor))));
+
+pub theorem sfFormulaEquality_sym_local (a b: nat):
+ $ nsLocal sfFormulaEqualityContext (sfImp (sfEq a b) (sfEq b a)) $ =
+'(feq_rewrite feq_sym_subst1 (ax_mp nsLocal_AllE feq_sym_step0));
+
+theorem feq_trans_axiom:
+ $ nsLocal sfFormulaEqualityContext zfcTrans $ =
+'(ax_mp (ax_mp nsLocal_hyp sfFormulaEqualityContext_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem feq_trans_subst0 (a: nat):
+ $ sfSubst 0 a (sfAll (sfAll (sfImp (sfEq 2 1) (sfImp (sfEq 1 0) (sfEq 2 0))))) = (sfAll (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq 1 0) (sfEq (suc (suc a)) 0))))) $ =
+'(eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (ax_mp sfSubstIndex_bound lt01S)))))))))));
+
+theorem feq_trans_step0 (a: nat):
+ $ nsLocal sfFormulaEqualityContext (sfAll (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq 1 0) (sfEq (suc (suc a)) 0))))) $ =
+'(feq_rewrite feq_trans_subst0 (ax_mp nsLocal_AllE feq_trans_axiom));
+
+theorem feq_trans_subst1 (a b: nat):
+ $ sfSubst 0 b (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq 1 0) (sfEq (suc (suc a)) 0)))) = (sfAll (sfImp (sfEq (suc a) (suc b)) (sfImp (sfEq (suc b) 0) (sfEq (suc a) 0)))) $ =
+'(eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (ax_mp sfSubstIndex_bound lt01S)))))))));
+
+theorem feq_trans_step1 (a b: nat):
+ $ nsLocal sfFormulaEqualityContext (sfAll (sfImp (sfEq (suc a) (suc b)) (sfImp (sfEq (suc b) 0) (sfEq (suc a) 0)))) $ =
+'(feq_rewrite feq_trans_subst1 (ax_mp nsLocal_AllE feq_trans_step0));
+
+theorem feq_trans_subst2 (a b c: nat):
+ $ sfSubst 0 c (sfImp (sfEq (suc a) (suc b)) (sfImp (sfEq (suc b) 0) (sfEq (suc a) 0))) = (sfImp (sfEq a b) (sfImp (sfEq b c) (sfEq a c))) $ =
+'(eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr sfSubstIndex_successor sfSubstIndex_zero)) (eqtr sfSubst_sfEq (feqEq_congr sfSubstIndex_successor sfSubstIndex_zero))))));
+
+pub theorem sfFormulaEquality_trans_local (a b c: nat):
+ $ nsLocal sfFormulaEqualityContext (sfImp (sfEq a b) (sfImp (sfEq b c) (sfEq a c))) $ =
+'(feq_rewrite feq_trans_subst2 (ax_mp nsLocal_AllE feq_trans_step1));
+
+theorem feq_element_axiom:
+ $ nsLocal sfFormulaEqualityContext zfcEqElem $ =
+'(ax_mp (ax_mp nsLocal_hyp sfFormulaEqualityContext_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem feq_element_subst0 (a: nat):
+ $ sfSubst 0 a (sfAll (sfAll (sfAll (sfImp (sfEq 3 1) (sfImp (sfEq 2 0) (sfImp (sfMem 3 2) (sfMem 1 0))))))) = (sfAll (sfAll (sfAll (sfImp (sfEq (suc (suc (suc a))) 1) (sfImp (sfEq 2 0) (sfImp (sfMem (suc (suc (suc a))) 2) (sfMem 1 0))))))) $ =
+'(eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfMem (feqMem_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))))) (eqtr sfSubst_sfMem (feqMem_congr (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))) (ax_mp sfSubstIndex_bound lt01S)))))))))))))));
+
+theorem feq_element_step0 (a: nat):
+ $ nsLocal sfFormulaEqualityContext (sfAll (sfAll (sfAll (sfImp (sfEq (suc (suc (suc a))) 1) (sfImp (sfEq 2 0) (sfImp (sfMem (suc (suc (suc a))) 2) (sfMem 1 0))))))) $ =
+'(feq_rewrite feq_element_subst0 (ax_mp nsLocal_AllE feq_element_axiom));
+
+theorem feq_element_subst1 (a b: nat):
+ $ sfSubst 0 b (sfAll (sfAll (sfImp (sfEq (suc (suc (suc a))) 1) (sfImp (sfEq 2 0) (sfImp (sfMem (suc (suc (suc a))) 2) (sfMem 1 0)))))) = (sfAll (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq (suc (suc b)) 0) (sfImp (sfMem (suc (suc a)) (suc (suc b))) (sfMem 1 0)))))) $ =
+'(eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfMem (feqMem_congr (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubst_sfMem (feqMem_congr (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))) (ax_mp sfSubstIndex_bound lt01S)))))))))))));
+
+theorem feq_element_step1 (a b: nat):
+ $ nsLocal sfFormulaEqualityContext (sfAll (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq (suc (suc b)) 0) (sfImp (sfMem (suc (suc a)) (suc (suc b))) (sfMem 1 0)))))) $ =
+'(feq_rewrite feq_element_subst1 (ax_mp nsLocal_AllE feq_element_step0));
+
+theorem feq_element_subst2 (a b c: nat):
+ $ sfSubst 0 c (sfAll (sfImp (sfEq (suc (suc a)) 1) (sfImp (sfEq (suc (suc b)) 0) (sfImp (sfMem (suc (suc a)) (suc (suc b))) (sfMem 1 0))))) = (sfAll (sfImp (sfEq (suc a) (suc c)) (sfImp (sfEq (suc b) 0) (sfImp (sfMem (suc a) (suc b)) (sfMem (suc c) 0))))) $ =
+'(eqtr sfSubst_sfAll (feqAll_congr (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfMem (feqMem_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubst_sfMem (feqMem_congr (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S)))))))))));
+
+theorem feq_element_step2 (a b c: nat):
+ $ nsLocal sfFormulaEqualityContext (sfAll (sfImp (sfEq (suc a) (suc c)) (sfImp (sfEq (suc b) 0) (sfImp (sfMem (suc a) (suc b)) (sfMem (suc c) 0))))) $ =
+'(feq_rewrite feq_element_subst2 (ax_mp nsLocal_AllE feq_element_step1));
+
+theorem feq_element_subst3 (a b c d: nat):
+ $ sfSubst 0 d (sfImp (sfEq (suc a) (suc c)) (sfImp (sfEq (suc b) 0) (sfImp (sfMem (suc a) (suc b)) (sfMem (suc c) 0)))) = (sfImp (sfEq a c) (sfImp (sfEq b d) (sfImp (sfMem a b) (sfMem c d)))) $ =
+'(eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfEq (feqEq_congr sfSubstIndex_successor sfSubstIndex_zero)) (eqtr sfSubst_sfImp (feqImp_congr (eqtr sfSubst_sfMem (feqMem_congr sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfMem (feqMem_congr sfSubstIndex_successor sfSubstIndex_zero))))))));
+
+pub theorem sfFormulaEquality_element_local (a b c d: nat):
+ $ nsLocal sfFormulaEqualityContext (sfImp (sfEq a c) (sfImp (sfEq b d) (sfImp (sfMem a b) (sfMem c d)))) $ =
+'(feq_rewrite feq_element_subst3 (ax_mp nsLocal_AllE feq_element_step2));

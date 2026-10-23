@@ -1,0 +1,67 @@
+import "source_l_common_level_two_join.mm1";
+import "source_l_common_level_two_shift.mm1";
+
+-- The core: eliminate both existential hypotheses, then join.
+
+theorem cl2_core_w1 (G ja jb: nat) (hg: $ sfContextWf G $)
+ (hS: $ nsLocal G sfCL2Sub $) (hC: $ nsLocal G sfCL2Cmp $)
+ (hb: $ nsLocal G (sfCL2Ex (suc (suc jb))) $):
+ $ nsLocal (sfCLWitnessContext G (sfCL2Pt 1 0 (suc (suc ja))))
+    (sfCL2BothEx (suc (suc (suc (suc ja)))) (suc (suc (suc (suc jb))))) $ =
+'(ax_mp (sfCLDoubleEx_eliminate (cl2_witness_wf hg cl2_pt_wf) cl2_pt_wf cl2_bothex_wf
+    (mpbi (nsLocal_formula_eq cl2_ex_shift2) (cl2_transport hg cl2_pt_wf hb)))
+  (mpbi (nsLocal_formula_eq (eqcom cl2_bex_shift2))
+   (sfCL2_join
+    (cl2_witness_wf (cl2_witness_wf hg cl2_pt_wf) cl2_pt_wf)
+    (cl2_transport_closed (cl2_witness_wf hg cl2_pt_wf) cl2_pt_wf sfCL2Sub_bound
+      (cl2_transport_closed hg cl2_pt_wf sfCL2Sub_bound hS))
+    (cl2_transport_closed (cl2_witness_wf hg cl2_pt_wf) cl2_pt_wf sfCL2Cmp_bound
+      (cl2_transport_closed hg cl2_pt_wf sfCL2Cmp_bound hC))
+    (mpbi (nsLocal_formula_eq cl2_pt_shift0_2)
+      (cl2_transport (cl2_witness_wf hg cl2_pt_wf) cl2_pt_wf (cl2_witness_head hg cl2_pt_wf)))
+    (cl2_witness_head (cl2_witness_wf hg cl2_pt_wf) cl2_pt_wf))));
+
+pub theorem sfCL2_core (G ja jb: nat) (hg: $ sfContextWf G $)
+ (hS: $ nsLocal G sfCL2Sub $) (hC: $ nsLocal G sfCL2Cmp $)
+ (ha: $ nsLocal G (sfCL2Ex (suc (suc ja))) $) (hb: $ nsLocal G (sfCL2Ex (suc (suc jb))) $):
+ $ nsLocal G (sfCL2BothEx (suc (suc ja)) (suc (suc jb))) $ =
+'(ax_mp (sfCLDoubleEx_eliminate hg cl2_pt_wf cl2_bothex_wf ha)
+  (mpbi (nsLocal_formula_eq (eqcom cl2_bex_shift2)) (cl2_core_w1 hg hS hC hb)));
+-- The closed law, proved from the two lemma sentences.
+
+theorem cl2_context_wf: $ sfContextWf sfCL2Context $ =
+'(mpbir sfContextWf_cons (ian cl2_cmp_wf (mpbir sfContextWf_cons (ian cl2_sub_wf sfContextWf_nil))));
+
+theorem cl2_context_shift: $ sfContextShift sfCL2Context = sfCL2Context $ =
+'(eqtr sfContextShift_cons (conseq (ax_mp sfShift_closed_identity sfCL2Cmp_bound)
+  (eqtr sfContextShift_cons (conseq (ax_mp sfShift_closed_identity sfCL2Sub_bound) sfContextShift_nil))));
+
+theorem cl2_inner_context_wf:
+ $ sfContextWf (sfCL2Ex 2 : (sfCL2Ex 3 : sfCL2Context)) $ =
+'(mpbir sfContextWf_cons (ian cl2_ex_wf (mpbir sfContextWf_cons (ian cl2_ex_wf cl2_context_wf))));
+
+theorem cl2_inner_goal:
+ $ nsLocal (sfCL2Ex 2 : (sfCL2Ex 3 : sfCL2Context)) (sfCL2BothEx 3 2) $ =
+'(! sfCL2_core $ sfCL2Ex 2 : (sfCL2Ex 3 : sfCL2Context) $ $ 1 $ $ 0 $ cl2_inner_context_wf
+  (ax_mp (ax_mp nsLocal_hyp cl2_inner_context_wf)
+    (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))
+  (ax_mp (ax_mp nsLocal_hyp cl2_inner_context_wf)
+    (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))
+  (ax_mp (ax_mp nsLocal_hyp cl2_inner_context_wf) (ax_mp sfContext_member_tail sfContext_member_head))
+  (ax_mp (ax_mp nsLocal_hyp cl2_inner_context_wf) sfContext_member_head));
+
+theorem cl2_open_law:
+ $ nsLocal sfCL2Context (sfImp (sfCL2Ex 3) (sfImp (sfCL2Ex 2) (sfCL2BothEx 3 2))) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II cl2_inner_goal));
+
+pub theorem sfCL2Law_local: $ nsLocal sfCL2Context sfCL2Law $ =
+'(ax_mp (sfLocal_allI cl2_context_wf) (mpbir (nsLocal_context_eq cl2_context_shift)
+  (ax_mp (sfLocal_allI cl2_context_wf) (mpbir (nsLocal_context_eq cl2_context_shift) cl2_open_law))));
+
+pub theorem sfCL2Law_imp_zfr: $ sfTheoryProvable zfrAxioms (sfImp sfCL2Sub (sfImp sfCL2Cmp sfCL2Law)) $ =
+'(ax_mp (sfTheory_local sfTheoryContext_nil) (ax_mp nsLocal_II (ax_mp nsLocal_II sfCL2Law_local)));
+
+pub theorem sfCL2Law_zfr (hS: $ sfTheoryProvable zfrAxioms sfCL2Sub $)
+ (hC: $ sfTheoryProvable zfrAxioms sfCL2Cmp $):
+ $ sfTheoryProvable zfrAxioms sfCL2Law $ =
+'(ax_mp (ax_mp sfTheoryProvable_mp (ax_mp (ax_mp sfTheoryProvable_mp sfCL2Law_imp_zfr) hS)) hC);

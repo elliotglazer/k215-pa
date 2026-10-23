@@ -1,0 +1,15 @@
+import "source_reflection_transfer_cofinal_step.mm0";
+
+theorem sfReflectionCofinalMergeAt_rename(R:set)(level K X Y:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionCofinalMergeAt level K X Y) = sfReflectionCofinalMergeAt level (R @ K) (R @ X) (R @ Y) $;
+
+def sfReflectionCofinalMergeBody(level K k X l Y:nat):nat = $ sfImp (sfMem k K) (sfImp (sfORBinary level k X) (sfImp (sfMem l K) (sfImp (sfORBinary level l Y) (sfReflectionCofinalMergeAt level K X Y)))) $;
+
+def sfReflectionCofinalMergeLaw(level K:nat):nat = $ sfAll (sfAll (sfAll (sfAll (sfReflectionCofinalMergeBody level (suc (suc (suc (suc K)))) 3 2 1 0)))) $;
+
+theorem sfReflectionCofinalMergeLaw_rename(R:set)(level K:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionCofinalMergeLaw level K) = sfReflectionCofinalMergeLaw level (R @ K) $;
+
+theorem sfReflectionCofinalMergeLaw_shift(level K:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionCofinalMergeLaw level K) = sfReflectionCofinalMergeLaw level (suc K) $;
+
+def sfReflectionCofinalFour(k X l Y:nat):set = $ sqEnvCons Y (sqEnvCons l (sqEnvCons X (sqEnvCons k sfIdentityMap))) $;
+
+theorem sfReflectionCofinalMergeLaw_use(G level K k X l Y:nat)(hl:$ sfBound 2 level $)(hM:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $)(hk:$ nsLocal G (sfMem k K) $)(hX:$ nsLocal G (sfORBinary level k X) $)(hlK:$ nsLocal G (sfMem l K) $)(hY:$ nsLocal G (sfORBinary level l Y) $): $ nsLocal G (sfReflectionCofinalMergeAt level K X Y) $;

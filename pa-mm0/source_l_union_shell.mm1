@@ -1,0 +1,85 @@
+import "source_l_union_shell_replay.mm1";
+
+import "extracted_ltrans_weak.mm1";
+
+@_ def slUEF0: nat = $ sfMem 0 1 $;
+
+@_ def slUEF1: nat = $ sfMem 0 3 $;
+
+@_ def slUEF2: nat = $ sfMem 1 0 $;
+
+@_ def slUEF3: nat = $ sfAnd slUEF1 slUEF2 $;
+
+@_ def slUEF4: nat = $ sfEx slUEF3 $;
+
+@_ def slUEF5: nat = $ sfAnd sfLDomain slUEF3 $;
+
+@_ def slUEF6: nat = $ sfEx slUEF5 $;
+
+@_ def slUEF7: nat = $ sfImp slUEF0 slUEF4 $;
+
+@_ def slUEF8: nat = $ sfImp slUEF0 slUEF6 $;
+
+@_ def slUEF9: nat = $ sfImp slUEF4 slUEF0 $;
+
+@_ def slUEF10: nat = $ sfImp slUEF6 slUEF0 $;
+
+@_ def slUEF11: nat = $ sfAnd slUEF7 slUEF9 $;
+
+@_ def slUEF12: nat = $ sfAnd slUEF8 slUEF10 $;
+
+@_ def slUEF13: nat = $ sfAll slUEF11 $;
+
+@_ def slUEF14: nat = $ sfImp sfLDomain slUEF12 $;
+
+@_ def slUEF15: nat = $ sfAll slUEF14 $;
+
+@_ def slUEF16: nat = $ sfEx slUEF13 $;
+
+@_ def slUEF17: nat = $ sfAnd sfLDomain slUEF15 $;
+
+@_ def slUEF18: nat = $ sfEx slUEF17 $;
+
+theorem slUERel0: $ sfRelativize sfLDomain slUEF0 = slUEF0 $ = 'sfRelativize_sfMem;
+
+theorem slUERel1: $ sfRelativize sfLDomain slUEF1 = slUEF1 $ = 'sfRelativize_sfMem;
+
+theorem slUERel2: $ sfRelativize sfLDomain slUEF2 = slUEF2 $ = 'sfRelativize_sfMem;
+
+theorem slUERel3: $ sfRelativize sfLDomain slUEF3 = slUEF3 $ = '(eqtr sfRelativize_sfAnd (nsAnd_eq slUERel1 slUERel2));
+
+theorem slUERel4: $ sfRelativize sfLDomain slUEF4 = slUEF6 $ = '(eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid slUERel3)));
+
+theorem slUERel5: $ sfRelativize sfLDomain slUEF7 = slUEF8 $ = '(eqtr sfRelativize_sfImp (nsImp_eq slUERel0 slUERel4));
+
+theorem slUERel6: $ sfRelativize sfLDomain slUEF1 = slUEF1 $ = 'sfRelativize_sfMem;
+
+theorem slUERel7: $ sfRelativize sfLDomain slUEF2 = slUEF2 $ = 'sfRelativize_sfMem;
+
+theorem slUERel8: $ sfRelativize sfLDomain slUEF3 = slUEF3 $ = '(eqtr sfRelativize_sfAnd (nsAnd_eq slUERel6 slUERel7));
+
+theorem slUERel9: $ sfRelativize sfLDomain slUEF4 = slUEF6 $ = '(eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid slUERel8)));
+
+theorem slUERel10: $ sfRelativize sfLDomain slUEF0 = slUEF0 $ = 'sfRelativize_sfMem;
+
+theorem slUERel11: $ sfRelativize sfLDomain slUEF9 = slUEF10 $ = '(eqtr sfRelativize_sfImp (nsImp_eq slUERel9 slUERel10));
+
+theorem slUERel12: $ sfRelativize sfLDomain slUEF11 = slUEF12 $ = '(eqtr sfRelativize_sfAnd (nsAnd_eq slUERel5 slUERel11));
+
+theorem slUERel13: $ sfRelativize sfLDomain slUEF13 = slUEF15 $ = '(eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid slUERel12)));
+
+theorem slUERel14: $ sfRelativize sfLDomain slUEF16 = slUEF18 $ = '(eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid slUERel13)));
+
+theorem slUERel15: $ sfRelativize sfLDomain zfcUnion = slUFF2703 $ = '(eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid slUERel14)));
+
+@_ def sfLUnionNextLevel: nat = $ slUFF807 $;
+
+pub theorem sfLUnionShell_context: $ slUFContext = sfLBackground $ = 'eqid;
+
+pub theorem sfLUnionShell_formula: $ slUFFormula = sfImp sfLStageTrans (sfImp sfLDefUnion (sfImp sfLUnionNextLevel (sfRelativize sfLDomain zfcUnion))) $ = '(nsImp_eq eqid (nsImp_eq eqid (nsImp_eq eqid (eqcom slUERel15))));
+
+pub theorem sfLUnionShell_local: $ nsLocal sfLBackground (sfImp sfLStageTrans (sfImp sfLDefUnion (sfImp sfLUnionNextLevel (sfRelativize sfLDomain zfcUnion)))) $ = '(mpbi (nsLocal_context_eq sfLUnionShell_context) (mpbi (nsLocal_formula_eq sfLUnionShell_formula) slUFCertificate));
+
+pub theorem sfLUnionShell_zfr: $ sfTheoryProvable zfrAxioms (sfImp sfLStageTrans (sfImp sfLDefUnion (sfImp sfLUnionNextLevel (sfRelativize sfLDomain zfcUnion)))) $ = '(ax_mp (sfTheory_local sfLBackground_zfr) sfLUnionShell_local);
+
+pub theorem sfLUnion_from_next: $ sfTheoryProvable zfrAxioms sfLUnionNextLevel -> sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $ = '(ax_mp sfTheoryProvable_mp (ax_mp (ax_mp sfTheoryProvable_mp (ax_mp (ax_mp sfTheoryProvable_mp sfLUnionShell_zfr) sfLWeakStageTrans_zfr)) sfLDefUnion_zfr));

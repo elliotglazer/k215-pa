@@ -1,0 +1,39 @@
+import "source_l_common_level_members.mm0";
+
+import "source_syntax_laws.mm0";
+
+def sfPieceRepEmpty(x:nat):nat = $ sfAll (sfImp (sfMem 0 (suc x)) sfBot) $;
+
+def sfPieceRepSuccessor(x s:nat):nat =
+ $ sfAnd (sfAnd (sfMem x s) (sfCLSubset x s))
+    (sfAll (sfImp (sfMem 0 (suc s)) (sfOr (sfMem 0 (suc x)) (sfEq 0 (suc x))))) $;
+
+def sfPieceNumeralStep(.previous:nat):set =
+ $ \ previous, sfEx (sfAnd previous (sfPieceRepSuccessor 0 1)) $;
+
+def sfPieceNumeralCore(k:nat):nat = $ rec (sfPieceRepEmpty 0) sfPieceNumeralStep k $;
+
+def sfPieceNumeral(k x:nat):nat = $ sfSubst 0 x (sfPieceNumeralCore k) $;
+
+theorem sfPieceNumeralCore_zero: $ sfPieceNumeralCore 0 = sfPieceRepEmpty 0 $;
+
+theorem sfPieceNumeralStep_value(previous:nat):
+ $ sfPieceNumeralStep @ previous = sfEx (sfAnd previous (sfPieceRepSuccessor 0 1)) $;
+
+theorem sfPieceNumeralCore_suc(k:nat):
+ $ sfPieceNumeralCore (suc k) = sfEx (sfAnd (sfPieceNumeralCore k) (sfPieceRepSuccessor 0 1)) $;
+
+theorem sfPieceRepEmpty_open(x:nat):
+ $ sfSubst 0 x (sfPieceRepEmpty 0) = sfPieceRepEmpty x $;
+
+theorem sfPieceRepSuccessor_open(x:nat):
+ $ sfSubst 1 x (sfPieceRepSuccessor 0 1) = sfPieceRepSuccessor 0 (suc x) $;
+
+theorem sfPieceNumeralCore_bound(k:nat): $ sfBound 1 (sfPieceNumeralCore k) $;
+
+theorem sfPieceNumeral_zero(x:nat): $ sfPieceNumeral 0 x = sfPieceRepEmpty x $;
+
+theorem sfPieceNumeral_suc(k x:nat):
+ $ sfPieceNumeral (suc k) x = sfEx (sfAnd (sfPieceNumeralCore k) (sfPieceRepSuccessor 0 (suc x))) $;
+
+theorem sfPieceNumeral_wf(k x:nat): $ sfWf (sfPieceNumeral k x) $;

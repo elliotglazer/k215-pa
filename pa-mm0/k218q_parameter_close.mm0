@@ -1,0 +1,17 @@
+import "k218q_parameter_names.mm0";
+
+def k218ParameterTemplate (S k a: nat): nat =
+ $ sfNamedTemplate (sqNumericEnvironment S) k 0 a $;
+def k218ParameterFormula (n a: nat): nat =
+ $ k218ParameterTemplate (k218ParameterNames n) (4 + n) a $;
+def k218ParameterClosure (n .a: nat): wff =
+ $ A. a (sfWf a -> k218QProvable (k218ParameterFormula n a) ->
+   k218QProvable (k218ParameterFormula 0 (sfAllPrefix n a))) $;
+
+theorem k218ParameterFormula_close_one (n a: nat):
+ $ sfWf a -> k218QProvable (k218ParameterFormula (suc n) a) ->
+   k218QProvable (k218ParameterFormula n (sfAll a)) $;
+
+theorem k218ParameterFormula_close (n a: nat) (ha: $ sfWf a $):
+ $ k218QProvable (k218ParameterFormula n a) ->
+   k218QProvable (k218ParameterFormula 0 (sfAllPrefix n a)) $;

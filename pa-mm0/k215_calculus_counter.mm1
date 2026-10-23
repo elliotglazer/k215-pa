@@ -1,0 +1,29 @@
+import "k215_calculus_mp.mm1";
+
+do (apply (register-eqd 'k218EnumState) '(k218EnumStateeqd));
+do (apply (register-eqd 'k215EnumIter) '(k215EnumItereqd));
+do (apply (register-eqd 'k215EnumStep) '(k215EnumStepeqd));
+
+@_ def k215CounterPrefix (i r: nat): nat = $ if (i = 0) r (suc (k215CmdMP i r)) $;
+@_ def k215CounterTime (i: nat): nat = $ if (i = 0) 0 1 $;
+
+theorem k215Counter_Imp_nonzero (i: nat): $ i != 0 -> kImp 0 i != 0 $ =
+ '(syl (bi2 mulne0) (iand (a1i peano1) (syl (bi1 lt01) (ltletrd (bi2 lt01) (a1i leprid2)))));
+
+theorem k215Counter_MP (i r np w: nat):
+ $ i != 0 -> k215EnumStep (k218EnumState (suc (k215CmdMP i r)) np 0 w 0 0) =
+   suc (k218EnumState r np 0 w i 0) $ =
+ '(eqtrd (a1i k215StepMP_continue)
+   (eqtrd (syl ifneg (mpbird (a1i (noteq (eqeq1 (kImpeq2 add01)))) k215Counter_Imp_nonzero))
+     (a1i (suceq (k218EnumStateeq eqid eqid eqid eqid add01 eqid)))));
+
+pub theorem k215Counter_run (i r np w: nat):
+ $ k215EnumIter (k215CounterTime i)
+      (k218EnumState (k215CounterPrefix i r) np 0 w 0 0) =
+   suc (k218EnumState r np 0 w i 0) $ =
+ '(cases
+   (eqtrd (k215EnumItereqd ifpos (k218EnumStateeqd ifpos eqidd eqidd eqidd eqidd eqidd))
+     (eqtrd (a1i k215EnumIter_zero)
+       (suceqd (k218EnumStateeqd eqidd eqidd eqidd eqidd (eqcomd id) eqidd))))
+   (eqtrd (k215EnumItereqd ifneg (k218EnumStateeqd ifneg eqidd eqidd eqidd eqidd eqidd))
+     (eqtrd (a1i k215MP_iter_one) k215Counter_MP)));

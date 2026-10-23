@@ -1,0 +1,19 @@
+import "source_piece_pcf_rep_implication_r24.mm0";
+
+import "source_piece_pcf_definable_witness.mm0";
+
+def sfPieceRepImplicationRecipeProfile(n phi r:nat):nat = $ sfPieceDn n (sfAll (sfImp (sfPieceDefinableRecipeEnvironment n) (sfIff (sfMem 0 r) (sfCLSetRel 2 (sfRename sfPieceDefinableRecipeMap 0 phi))))) $;
+
+def sfPieceRepImplicationRecipeCover(n universe:nat):nat = $ sfPieceDn n (sfAll (sfImp (sfPieceDefinableRecipeEnvironment n) (sfMem 0 universe))) $;
+
+def sfPieceRepImplicationRecipeDifference(n universe left difference:nat):nat = $ sfPieceDn n (sfAll (sfIff (sfMem 0 difference) (sfAnd (sfMem 0 universe) (sfImp (sfMem 0 left) sfBot)))) $;
+
+def sfPieceRepImplicationRecipeUnion(n difference right result:nat):nat = $ sfPieceDn n (sfAll (sfIff (sfMem 0 result) (sfOr (sfMem 0 difference) (sfMem 0 right)))) $;
+
+theorem sfPieceRepImplicationRecipe_matrix(T:set)(A phi psi:nat): $ sfCLSetRel A (sfRename T 0 (sfImp phi psi)) = sfImp (sfCLSetRel A (sfRename T 0 phi)) (sfCLSetRel A (sfRename T 0 psi)) $;
+
+theorem sfPieceRepImplicationRecipe_profile_is_recipe(n phi:nat): $ sfPieceRepImplicationRecipeProfile n phi 1 = sfPieceDefinableRecipe n phi $;
+
+theorem sfPieceRepImplicationRecipe_from_profiles(G n phi psi universe left right difference:nat)(hN:$ nsLocal G (sfPieceRepImplicationRecipeDifference n universe left difference) $)(hR:$ nsLocal G (sfPieceRepImplicationRecipeUnion n difference right 1) $)(hA:$ nsLocal G (sfPieceRepImplicationRecipeProfile n phi left) $)(hB:$ nsLocal G (sfPieceRepImplicationRecipeProfile n psi right) $)(hD:$ nsLocal G (sfPieceRepImplicationRecipeCover n universe) $): $ nsLocal G (sfPieceDefinableRecipe n (sfImp phi psi)) $;
+
+theorem sfPieceRepImplicationRecipe_at_carrier(G n phi psi universe left right difference A:nat)(hN:$ nsLocal G (sfPieceRepImplicationRecipeDifference n universe left difference) $)(hR:$ nsLocal G (sfPieceRepImplicationRecipeUnion n difference right 1) $)(hA:$ nsLocal G (sfPieceRepImplicationRecipeProfile n phi left) $)(hB:$ nsLocal G (sfPieceRepImplicationRecipeProfile n psi right) $)(hD:$ nsLocal G (sfPieceRepImplicationRecipeCover n universe) $): $ nsLocal (sfContextRename (sfPieceOpenMap 0 (suc A)) 0 G) (sfRename (sfPieceOpenMap 0 (suc A)) 0 (sfPieceDefinableRecipe n (sfImp phi psi))) $;

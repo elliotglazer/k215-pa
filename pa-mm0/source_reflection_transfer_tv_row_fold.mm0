@@ -1,0 +1,15 @@
+import "source_reflection_transfer_tv_row_guard.mm0";
+
+def sfTVFunctionRowLaws(D level:nat)(E:set)(n .i:nat):set = $ \ i, sfTVRowBallLaw D level (sfPieceFunctionBinary D (sfReflectionPCLevel level) E n) (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) $;
+
+def sfTVFunctionRowLawConjunction(D level:nat)(E:set)(n:nat):nat = $ sfCLFold (sfTVFunctionRowLaws D level E n) n $;
+
+theorem sfTVFunctionRowLaws_at(D level:nat)(E:set)(n i:nat): $ sfTVFunctionRowLaws D level E n @ i = sfTVRowBallLaw D level (sfPieceFunctionBinary D (sfReflectionPCLevel level) E n) (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) $;
+
+theorem sfTVFunctionRowLaws_proofs(D level:nat)(E:set)(n:nat)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 level $)(hv:$ sfPieceFunctionTableValid E n $): $ sfCLRowProofs (sfTVFunctionRowLaws D level E n) (sfReflectionPHProducerContext level) n $;
+
+theorem sfTVFunctionRowLawConjunction_local(D level:nat)(E:set)(n:nat)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 level $)(hv:$ sfPieceFunctionTableValid E n $): $ nsLocal (sfReflectionPHProducerContext level) (sfTVFunctionRowLawConjunction D level E n) $;
+
+theorem sfTVFunctionRowLawConjunction_zfr(D level:nat)(E:set)(n:nat)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 level $)(hv:$ sfPieceFunctionTableValid E n $)(hE:$ sfTheoryProvable zfrAxioms (sfReflectionCondLevelExists level) $)(hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal level) $)(hC:$ sfTheoryProvable zfrAxioms (sfReflectionLimitCoverageLaw level) $): $ sfTheoryProvable zfrAxioms (sfTVFunctionRowLawConjunction D level E n) $;
+
+theorem sfTVFunctionRowLawConjunction_member(D level:nat)(E:set)(n G i:nat)(hf:$ nsLocal G (sfTVFunctionRowLawConjunction D level E n) $)(hp:$ nsLocal G (sfReflectionLimitProfile level (sfPieceFunctionBinary D (sfReflectionPCLevel level) E n)) $)(hl:$ nsLocal G (sfORBinary level 0 3) $): $ i < n -> nsLocal G (sfTVRowBall D (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) 3) $;

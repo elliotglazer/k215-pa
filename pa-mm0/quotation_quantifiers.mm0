@@ -1,0 +1,66 @@
+import "quotation_propositional.mm0";
+import "quotation_substitution.mm0";
+import "quotation_binders_absent.mm0";
+import "k230_specialization.mm0";
+
+-- Scoped quantifier rules. Body quotations retain the successor fresh base.
+def sqScopeBody (E: set) (t k a: nat): nat =
+$ sqQuote (sqEnvCons k E) t (suc k) 0 a $;
+def sqScopeAll (E: set) (t k a: nat): nat = $ kImp (kMem t k) (sqScopeBody E t k a) $;
+def sqScopeEx (E: set) (t k a: nat): nat = $ kAnd (kMem t k) (sqScopeBody E t k a) $;
+def sqEnvBelow (E: set) (n k .i: nat): wff = $ A. i (i < n -> E @ i < k) $;
+
+theorem sqEnvBelow_avoid (E: set) (n k: nat):
+ $ sqEnvBelow E n k -> sqEnvAvoid E n k $;
+theorem sqScopeAll_absent (E: set) (t k a x: nat) (hx: $ x < suc k $):
+ $ sfWf a -> kBinderAbsent (sqScopeAll E t k a) x $;
+theorem sqScopeEx_absent (E: set) (t k a x: nat) (hx: $ x < suc k $):
+ $ sfWf a -> kBinderAbsent (sqScopeEx E t k a) x $;
+theorem sqScopeAll_substitution (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) a ->
+   kSubst (sqScopeAll E t k a) k y =
+   kImp (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a) $;
+theorem sqScopeEx_substitution (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) a ->
+   kSubst (sqScopeEx E t k a) k y =
+   kAnd (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a) $;
+
+theorem sqQuote_all_specialization (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) a ->
+   kProvable (kImp (sqQuote E t k 0 (sfAll a))
+     (kImp (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a))) $;
+theorem sqQuote_exists_introduction (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) a ->
+   kProvable (kImp (kAnd (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a))
+     (sqQuote E t k 0 (sfEx a))) $;
+
+theorem sqLocal_allE_avoid (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $)
+ (he: $ sqEnvAvoid E n k $) (ha: $ sfBound (suc n) a $):
+ $ sqLocal H E t k 0 (sfAll a) -> kHypProvable H (kMem t y) ->
+   sqLocal H (sqEnvCons y E) t (suc k) 0 a $;
+theorem sqLocal_exI_avoid (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $)
+ (he: $ sqEnvAvoid E n k $) (ha: $ sfBound (suc n) a $):
+ $ sqLocal H (sqEnvCons y E) t (suc k) 0 a -> kHypProvable H (kMem t y) ->
+   sqLocal H E t k 0 (sfEx a) $;
+
+theorem sqLocal_allE (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ t < k $) (hy: $ y < k $)
+ (he: $ sqEnvBelow E n k $) (ha: $ sfBound (suc n) a $):
+ $ sqLocal H E t k 0 (sfAll a) -> kHypProvable H (kMem t y) ->
+   sqLocal H (sqEnvCons y E) t (suc k) 0 a $;
+theorem sqLocal_exI (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ t < k $) (hy: $ y < k $)
+ (he: $ sqEnvBelow E n k $) (ha: $ sfBound (suc n) a $):
+ $ sqLocal H (sqEnvCons y E) t (suc k) 0 a -> kHypProvable H (kMem t y) ->
+   sqLocal H E t k 0 (sfEx a) $;
+
+theorem sqLocal_allI (H: nat) (E: set) (t k a: nat)
+ (ha: $ sfWf a $) (hf: $ kContextFresh H k $):
+ $ sqLocal ((kMem t k) : H) (sqEnvCons k E) t (suc k) 0 a ->
+   sqLocal H E t k 0 (sfAll a) $;

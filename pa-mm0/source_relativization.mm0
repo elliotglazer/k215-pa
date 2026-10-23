@@ -1,0 +1,55 @@
+import "source_context_shift.mm0";
+
+-- Numerical domain relativization; no proof interpretation is assumed.
+def sfRelBody (d c h: nat): nat =
+$ if (c = 0) 0
+  (if (sfTag c = 1) (sfMem (sfLeft c) (sfRight c))
+  (if (sfTag c = 2) (sfEq (sfLeft c) (sfRight c))
+  (if (sfTag c = 3) (sfAnd (h @ sfLeft c) (h @ sfRight c))
+  (if (sfTag c = 4) (sfOr (h @ sfLeft c) (h @ sfRight c))
+  (if (sfTag c = 5) (sfImp (h @ sfLeft c) (h @ sfRight c))
+  (if (sfTag c = 6 /\ sfRight c = 0) (sfAll (sfImp d (h @ sfLeft c)))
+  (if (sfTag c = 7 /\ sfRight c = 0) (sfEx (sfAnd d (h @ sfLeft c))) 0))))))) $;
+
+def sfRelStep (d .h: nat): set = $ \ h, sfRelBody d (sfHistoryLength h) h $;
+def sfRelativize (d c: nat): nat = $ srec (sfRelStep d) c $;
+def sfRelHistory (d c .i: nat): nat = $ \. i e. upto c, srec (sfRelStep d) i $;
+
+theorem sfRelStep_apply (d h: nat):
+  $ sfRelStep d @ h = sfRelBody d (sfHistoryLength h) h $;
+
+theorem sfRelHistory_size (d c: nat):
+  $ sfHistoryLength (sfRelHistory d c) = c $;
+
+theorem sfRelHistory_lookup (d c a: nat):
+  $ a < c -> sfRelHistory d c @ a = sfRelativize d a $;
+
+theorem sfRelativize_unfold (d c: nat):
+  $ sfRelativize d c = sfRelBody d c (sfRelHistory d c) $;
+
+theorem sfRelativize_bot (d: nat): $ sfRelativize d sfBot = sfBot $;
+
+theorem sfRelativize_sfMem (d a b: nat):
+  $ sfRelativize d (sfMem a b) = sfMem a b $;
+
+theorem sfRelativize_sfEq (d a b: nat):
+  $ sfRelativize d (sfEq a b) = sfEq a b $;
+
+theorem sfRelativize_sfAnd (d a b: nat):
+  $ sfRelativize d (sfAnd a b) = sfAnd (sfRelativize d a) (sfRelativize d b) $;
+
+theorem sfRelativize_sfOr (d a b: nat):
+  $ sfRelativize d (sfOr a b) = sfOr (sfRelativize d a) (sfRelativize d b) $;
+
+theorem sfRelativize_sfImp (d a b: nat):
+  $ sfRelativize d (sfImp a b) = sfImp (sfRelativize d a) (sfRelativize d b) $;
+
+theorem sfRelativize_sfAll (d a: nat):
+  $ sfRelativize d (sfAll a) = sfAll (sfImp d (sfRelativize d a)) $;
+
+theorem sfRelativize_sfEx (d a: nat):
+  $ sfRelativize d (sfEx a) = sfEx (sfAnd d (sfRelativize d a)) $;
+
+theorem sfRelativize_wf (d c: nat):
+  $ sfWf d -> sfWf (sfRelativize d c) $;
+

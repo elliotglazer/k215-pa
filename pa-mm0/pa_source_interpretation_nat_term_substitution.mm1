@@ -1,0 +1,41 @@
+import "pa_source_interpretation_nat_term_renaming.mm1";
+
+import "pa_source_interpretation_term_substitution.mm1";
+
+@_ abstract def paNatTermSubstEnvironment (E: set) (d a .i: nat): set = $ \ i, if (i < d) (E @ i) (if (i = d) (bb215ArithmeticFormulaTermValue E (paTermLift d a)) (E @ (i - 1))) $;
+
+pub theorem paNatTermSubstEnvironment_value (E: set) (d a i: nat): $ paNatTermSubstEnvironment E d a @ i = if (i < d) (E @ i) (if (i = d) (bb215ArithmeticFormulaTermValue E (paTermLift d a)) (E @ (i - 1))) $ = (named '(!! applame j ,eqtac));
+
+pub theorem paNatTermSubstEnvironment_hit (E: set) (d a: nat): $ paNatTermSubstEnvironment E d a @ d = bb215ArithmeticFormulaTermValue E (paTermLift d a) $ = (named '(eqtr paNatTermSubstEnvironment_value (eqtr (ifneg ltirr) (ifpos eqid))));
+
+theorem paNTSVar_below (E: set) (d a i: nat): $ i < d -> bb215ArithmeticFormulaTermValue E (paTermSubstVariable d a i) = paNatTermSubstEnvironment E d a @ i $ = (named '(eqtrd (bb215ArithmeticFormulaTermValueeqd (a1i eqsid) ifpos) (eqtrd (a1i bb215ArithmeticFormulaTermValue_variable) (eqcomd (eqtrd (a1i paNatTermSubstEnvironment_value) ifpos)))));
+
+theorem paNTSVar_hit (E: set) (d a i: nat): $ i = d -> bb215ArithmeticFormulaTermValue E (paTermSubstVariable d a i) = paNatTermSubstEnvironment E d a @ i $ = (named '(eqtrd (bb215ArithmeticFormulaTermValueeqd (a1i eqsid) (eqtrd (paTermSubstVariableeq3d id) (a1i paTermSubstVariable_hit))) (eqcomd (eqtrd (appeq2d id) (a1i paNatTermSubstEnvironment_hit)))));
+
+theorem paNTSVar_above (E: set) (d a i: nat): $ d < i -> bb215ArithmeticFormulaTermValue E (paTermSubstVariable d a i) = paNatTermSubstEnvironment E d a @ i $ = (named '(eqtrd (bb215ArithmeticFormulaTermValueeqd (a1i eqsid) (eqtrd (syl ifneg ltnlt) (syl ifneg ltner))) (eqtrd (a1i bb215ArithmeticFormulaTermValue_variable) (eqcomd (eqtrd (a1i paNatTermSubstEnvironment_value) (eqtrd (syl ifneg ltnlt) (syl ifneg ltner)))))));
+
+pub theorem paNatTermValue_substitution_variable (E: set) (d a i: nat): $ bb215ArithmeticFormulaTermValue E (paTermSubstVariable d a i) = paNatTermSubstEnvironment E d a @ i $ = (named '(cases paNTSVar_hit (syl (eori paNTSVar_below paNTSVar_above) (bi1 neltlt))));
+
+@_ abstract def paNatTermSubstitutionClass (E: set) (d a .c: nat): set = $ {c | bb215ArithmeticFormulaTermValue E (paTermSubst d a c) = bb215ArithmeticFormulaTermValue (paNatTermSubstEnvironment E d a) c} $;
+
+theorem paNTS_value (E: set) (d a c: nat): $ c e. paNatTermSubstitutionClass E d a <-> bb215ArithmeticFormulaTermValue E (paTermSubst d a c) = bb215ArithmeticFormulaTermValue (paNatTermSubstEnvironment E d a) c $ = (named '(elabe ,eqtac));
+
+theorem paNTS_zero (E: set) (d a: nat): $ paTermZero e. paNatTermSubstitutionClass E d a $ = (named '(mpbir paNTS_value (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermSubst_zero) (eqtr bb215ArithmeticFormulaTermValue_zero (eqcom bb215ArithmeticFormulaTermValue_zero)))));
+
+theorem paNTS_variable (E: set) (d a i: nat): $ paTermVariable i e. paNatTermSubstitutionClass E d a $ = (named '(mpbir paNTS_value (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermSubst_variable) (eqtr paNatTermValue_substitution_variable (eqcom bb215ArithmeticFormulaTermValue_variable)))));
+
+theorem paNTS_successor (E: set) (d a t: nat): $ t e. paNatTermSubstitutionClass E d a -> paTermSuccessor t e. paNatTermSubstitutionClass E d a $ = (named '(mpbird (a1i paNTS_value) (eqtrd (a1i (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermSubst_successor) bb215ArithmeticFormulaTermValue_successor)) (eqtrd (suceqd (bi1 paNTS_value)) (a1i (eqcom bb215ArithmeticFormulaTermValue_successor))))));
+
+theorem paNTS_addition (E: set) (d a t u: nat): $ t e. paNatTermSubstitutionClass E d a /\ u e. paNatTermSubstitutionClass E d a -> paTermAddition t u e. paNatTermSubstitutionClass E d a $ = (named '(mpbird (a1i paNTS_value) (eqtrd (a1i (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermSubst_addition) bb215ArithmeticFormulaTermValue_addition)) (eqtrd (addeqd (syl (bi1 paNTS_value) anl) (syl (bi1 paNTS_value) anr)) (a1i (eqcom bb215ArithmeticFormulaTermValue_addition))))));
+
+theorem paNTS_multiplication (E: set) (d a t u: nat): $ t e. paNatTermSubstitutionClass E d a /\ u e. paNatTermSubstitutionClass E d a -> paTermMultiplication t u e. paNatTermSubstitutionClass E d a $ = (named '(mpbird (a1i paNTS_value) (eqtrd (a1i (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermSubst_multiplication) bb215ArithmeticFormulaTermValue_multiplication)) (eqtrd (muleqd (syl (bi1 paNTS_value) anl) (syl (bi1 paNTS_value) anr)) (a1i (eqcom bb215ArithmeticFormulaTermValue_multiplication))))));
+
+theorem paNTS_variables (E: set) (d a n: nat): $ paTermVariableClosed (paNatTermSubstitutionClass E d a) n $ = (named '(ax_gen (a1i paNTS_variable)));
+
+theorem paNTS_successors (E: set) (d a: nat): $ paTermSuccessorClosed (paNatTermSubstitutionClass E d a) $ = (named '(ax_gen paNTS_successor));
+
+theorem paNTS_binaries (E: set) (d a: nat): $ paTermBinaryClosed (paNatTermSubstitutionClass E d a) $ = (named '(ax_gen @ ax_gen @ iand paNTS_addition paNTS_multiplication));
+
+theorem paNTS_closed (E: set) (d a n: nat): $ paTermConstructionClosed (paNatTermSubstitutionClass E d a) n $ = (named '(ian paNTS_zero (ian paNTS_variables (ian paNTS_successors paNTS_binaries))));
+
+pub theorem paNatTermValue_substitution (E: set) (d a n c: nat): $ paTermBound n c -> bb215ArithmeticFormulaTermValue E (paTermSubst d a c) = bb215ArithmeticFormulaTermValue (paNatTermSubstEnvironment E d a) c $ = (named '(syl (bi1 paNTS_value) (paTermBound_induction paNTS_closed)));

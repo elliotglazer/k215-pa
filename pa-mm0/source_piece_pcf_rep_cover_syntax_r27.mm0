@@ -1,0 +1,25 @@
+import "source_piece_pcf_rep_implication_recipe_r25.mm0";
+
+def sfPieceRepEnvironmentCoverAt(A X n:nat):nat = $ sfRename (sfPieceOpenMap X A) 0 (sfPieceRepImplicationRecipeCover n 1) $;
+
+def sfPieceRepEnvironmentCoverStep(A X Y:nat):nat = $ sfAll (sfAll (sfAll (sfImp (sfMem 2 (suc (suc (suc X)))) (sfImp (sfMem 1 (suc (suc (suc A)))) (sfImp (sfPieceRepExtension 2 1 0) (sfMem 0 (suc (suc (suc Y))))))))) $;
+
+theorem sfPieceRepEnvironmentCoverAt_wf(A X n:nat): $ sfWf (sfPieceRepEnvironmentCoverAt A X n) $;
+
+theorem sfPieceRepEnvironmentCoverStep_wf(A X Y:nat): $ sfWf (sfPieceRepEnvironmentCoverStep A X Y) $;
+
+def sfPieceRepEnvironmentCoverBody(A C n:nat):nat = $ sfAnd (sfMem 0 (suc C)) (sfRename (sfPieceOpenMap 0 (suc A)) 0 (sfPieceRepImplicationRecipeCover n 1)) $;
+
+def sfPieceRepEnvironmentCover(A C n:nat):nat = $ sfEx (sfPieceRepEnvironmentCoverBody A C n) $;
+
+theorem sfPieceRepEnvironmentCoverBody_wf(A C n:nat): $ sfWf (sfPieceRepEnvironmentCoverBody A C n) $;
+
+theorem sfPieceRepEnvironmentCover_wf(A C n:nat): $ sfWf (sfPieceRepEnvironmentCover A C n) $;
+
+theorem sfPieceRepEnvironmentCover_zero_code(universe:nat): $ sfPieceRepImplicationRecipeCover 0 universe = sfAll (sfImp (sfPieceRepEmpty 0) (sfMem 0 universe)) $;
+
+theorem sfPieceRepEnvironmentCover_zero_carrier(A:nat): $ sfRename (sfPieceOpenMap 0 (suc A)) 0 (sfPieceRepImplicationRecipeCover 0 1) = sfAll (sfImp (sfPieceRepEmpty 0) (sfMem 0 1)) $;
+
+theorem sfPieceRepEnvironmentCover_zero(A C:nat): $ sfPieceRepEnvironmentCover A C 0 = sfEx (sfAnd (sfMem 0 (suc C)) (sfAll (sfImp (sfPieceRepEmpty 0) (sfMem 0 1)))) $;
+
+theorem sfPieceRepEnvironmentCover_zero_from_actual(G A C:nat)(h:$ nsLocal G (sfEx (sfAnd (sfMem 0 (suc C)) (sfAll (sfImp (sfPieceRepEmpty 0) (sfMem 0 1))))) $): $ nsLocal G (sfPieceRepEnvironmentCover A C 0) $;

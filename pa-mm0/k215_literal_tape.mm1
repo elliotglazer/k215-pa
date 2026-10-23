@@ -1,0 +1,56 @@
+import "k215_literal_tm.mm1";
+
+do (apply (register-eqd 'k215TMMove) '(k215TMMoveeqd k215TMMoveeq1d k215TMMoveeq2d k215TMMoveeq3d));
+
+@_ def k215TmPush (b n: nat): nat = $ b + 2 * n $;
+@_ def k215TmHead (n: nat): nat = $ n % 2 $;
+@_ def k215TmTail (n: nat): nat = $ n // 2 $;
+
+pub theorem k215TmPush_head (b n: nat): $ b <= 1 -> k215TmHead (k215TmPush b n) = b $ =
+'(eqtrd (a1i (modeq1 addcom)) @ syl muladdmod2lt @ iand (a1i d2ne0) (bi1 leltsuc));
+pub theorem k215TmPush_tail (b n: nat): $ b <= 1 -> k215TmTail (k215TmPush b n) = n $ =
+'(eqtrd (a1i (diveq1 addcom)) @ syl muladddiv2lt @ iand (a1i d2ne0) (bi1 leltsuc));
+pub theorem k215TmHead_bound (n: nat): $ k215TmHead n <= 1 $ =
+'(mpbi (bicom leltsuc) (modlt d2ne0));
+pub theorem k215TmTape_split (n: nat): $ k215TmPush (k215TmHead n) (k215TmTail n) = n $ =
+'(eqtr addcom divmod);
+pub theorem k215TmHead_zero: $ k215TmHead 0 = 0 $ = 'mod01;
+pub theorem k215TmTail_zero: $ k215TmTail 0 = 0 $ = 'div01;
+pub theorem k215TmPush_blank: $ k215TmPush 0 0 = 0 $ = '(eqtr (addeq2 mul02) add0);
+
+theorem k215TmTwoSquare: $ 2 * 2 = 4 $ = '(eqtr mul21 (eqtr addS (suceq add12)));
+pub theorem k215TmPush_twice (b w n: nat): $ k215TmPush b (k215TmPush w n) = b + 2 * w + 4 * n $ =
+'(eqtr (addeq2 muladd) @ eqtr (eqcom addass) @
+  addeq2 (eqtr (eqcom mulass) (muleq1 k215TmTwoSquare)));
+pub theorem k215TMMove_left (a l r: nat):
+ $ k215TMDir a = 0 -> k215TMMove a l r =
+   k215TMState (k215TMTarget a) (k215TmTail l) (k215TmPush (k215TmHead l) (k215TmPush (k215TMWrite a) (k215TmTail r))) $ =
+'(eqtrd ifpos (a1i (preq2 (preq2 (eqcom k215TmPush_twice)))));
+theorem k215TMMove_left_R (a l r: nat):
+ $ k215TMDir a = 0 -> k215TMR (k215TMMove a l r) = k215TmPush (k215TmHead l) (k215TmPush (k215TMWrite a) (k215TmTail r)) $ =
+'(eqtrd (k215TMReqd k215TMMove_left) (a1i k215TMState_R));
+pub theorem k215TMMove_left_new_head (a l r: nat):
+ $ k215TMDir a = 0 -> k215TmHead (k215TMR (k215TMMove a l r)) = k215TmHead l $ =
+'(eqtrd (k215TmHeadeqd k215TMMove_left_R) (a1i (k215TmPush_head k215TmHead_bound)));
+theorem k215TMMove_left_tailR (a l r: nat):
+ $ k215TMDir a = 0 -> k215TmTail (k215TMR (k215TMMove a l r)) = k215TmPush (k215TMWrite a) (k215TmTail r) $ =
+'(eqtrd (k215TmTaileqd k215TMMove_left_R) (a1i (k215TmPush_tail k215TmHead_bound)));
+pub theorem k215TMMove_left_written (a l r: nat):
+ $ k215TMWrite a <= 1 -> k215TMDir a = 0 ->
+   k215TmHead (k215TmTail (k215TMR (k215TMMove a l r))) = k215TMWrite a $ =
+'(exp @ eqtrd (k215TmHeadeqd (syl k215TMMove_left_tailR anr)) (syl k215TmPush_head anl));
+
+pub theorem k215TMMove_right (a l r: nat):
+ $ k215TMDir a != 0 ->
+   k215TMMove a l r = k215TMState (k215TMTarget a) (k215TmPush (k215TMWrite a) l) (k215TmTail r) $ =
+'(eqtrd ifneg (a1i (preq2 (preq1 addcom))));
+pub theorem k215TMMove_right_new_head (a l r: nat):
+ $ k215TMDir a != 0 ->
+   k215TmHead (k215TMR (k215TMMove a l r)) = k215TmHead (k215TmTail r) $ =
+'(k215TmHeadeqd @ eqtrd (k215TMReqd k215TMMove_right) (a1i k215TMState_R));
+pub theorem k215TMMove_right_written (a l r: nat):
+ $ k215TMWrite a <= 1 -> k215TMDir a != 0 ->
+   k215TmHead (k215TML (k215TMMove a l r)) = k215TMWrite a $ =
+'(exp @ eqtrd
+  (k215TmHeadeqd @ eqtrd (k215TMLeqd (syl k215TMMove_right anr)) (a1i k215TMState_L))
+  (syl k215TmPush_head anl));

@@ -1,0 +1,199 @@
+import "k230_codes.mm1";
+import "source_renaming.mm1";
+
+-- Arithmetic decoder for K's four-tag named codes. Its graph is newly
+-- defined here; equality with the Rocq numerical trace graph is not assumed.
+do (apply (register-eqd 'sfRename) '(sfRename_congr sfRename_congr_graph sfRename_congr_depth sfRename_congr_formula));
+do (apply (register-eqd 'sfMem) '(sfMem_congr sfMem_congr_left sfMem_congr_right));
+do (apply (register-eqd 'sfEq) '(sfEq_congr sfEq_congr_left sfEq_congr_right));
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+do (apply (register-eqd 'sfAll) '(sfAll_congr));
+@_ def sfTruth: nat = $ sfImp sfBot sfBot $;
+@_ def rawTag (c: nat): nat = $ c % 4 $;
+@_ def rawLeft (c: nat): nat = $ fst (c // 4) $;
+@_ def rawRight (c: nat): nat = $ snd (c // 4) $;
+@_ def rawBinderIndex (x i: nat): nat = $ if (i = x) 0 (suc i) $;
+@_ def rawBinderMap (x .i: nat): set = $ \ i, rawBinderIndex x i $;
+@_ def rawDecodeBody (c h: nat): nat =
+$ if (rawTag c = 1) (sfMem (rawLeft c) (rawRight c))
+  (if (rawTag c = 3) (sfEq (rawLeft c) (rawRight c))
+  (if (rawTag c = 2) (sfAll (sfRename (rawBinderMap (rawLeft c)) 0 (h @ rawRight c)))
+  (if (0 < c) (sfImp (h @ rawLeft c) (h @ rawRight c)) sfTruth))) $;
+theorem rawHistoryLength_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> sfHistoryLength a = sfHistoryLength b $ =
+(named '(theeqd @ abeqd @ aneqd
+  (eleq2d (abeqd (sseq1d (dmeqd (nseqd h)))))
+  (aleqd (imeq1d (eleq2d (abeqd (sseq1d (dmeqd (nseqd h)))))))));
+do (apply (register-eqd 'sfHistoryLength) '(rawHistoryLength_congr));
+@_ abstract def rawDecodeStep (.h: nat): set = $ \ h, rawDecodeBody (sfHistoryLength h) h $;
+@_ abstract def rawDecode (c: nat): nat = $ srec rawDecodeStep c $;
+@_ abstract def rawDecodeHistory (c .i: nat): nat = $ \. i e. upto c, srec rawDecodeStep i $;
+@_ def rawDecodeGraph (c s: nat): wff = $ s = rawDecode c $;
+
+
+pub theorem rawBinderMap_value (x i: nat): $ rawBinderMap x @ i = rawBinderIndex x i $ =
+(named '(!! applame j ,eqtac));
+pub theorem rawBinderMap_same (x: nat): $ rawBinderMap x @ x = 0 $ =
+'(eqtr rawBinderMap_value (ifpos eqid));
+pub theorem rawBinderMap_other (x i: nat): $ i != x -> rawBinderMap x @ i = suc i $ =
+'(eqtrd (a1i rawBinderMap_value) ifneg);
+pub theorem rawQuot_lt (c: nat): $ 0 < c -> c // 4 < c $ =
+'(sylibr (divltmul1 peano1) @ sylib (lteq1 mul11) @ mpbii (mpbi ltsuc lt01S) ltmul1);
+pub theorem rawLeft_lt (c: nat): $ 0 < c -> rawLeft c < c $ =
+'(lelttrd (a1i fstleid) rawQuot_lt);
+pub theorem rawRight_lt (c: nat): $ 0 < c -> rawRight c < c $ =
+'(lelttrd (a1i sndleid) rawQuot_lt);
+pub theorem rawDecodeStep_apply (h: nat): $ rawDecodeStep @ h = rawDecodeBody (sfHistoryLength h) h $ =
+(named '(!! applame j ,eqtac));
+pub theorem rawDecodeHistory_size (c: nat): $ sfHistoryLength (rawDecodeHistory c) = c $ =
+(named '(sreclem eqid));
+pub theorem rawDecodeHistory_lookup (c a: nat): $ a < c -> rawDecodeHistory c @ a = rawDecode a $ =
+(named '(syl (apprlame sreceq2) (bi2 elupto)));
+pub theorem rawDecode_unfold (c: nat): $ rawDecode c = rawDecodeBody c (rawDecodeHistory c) $ =
+(named '(eqtr srecval @ eqtr rawDecodeStep_apply @ rawDecodeBodyeq rawDecodeHistory_size eqid));
+
+theorem raw_kImp_quot (a b: nat): $ kImp a b // 4 = (a, b) $ = '(muldiv2 peano1);
+
+pub theorem raw_kImp_left (a b: nat): $ rawLeft (kImp a b) = a $ =
+'(eqtr (fsteq raw_kImp_quot) fstpr);
+
+pub theorem raw_kImp_right (a b: nat): $ rawRight (kImp a b) = b $ =
+'(eqtr (sndeq raw_kImp_quot) sndpr);
+
+theorem raw_kMem_quot (a b: nat): $ kMem a b // 4 = (a, b) $ = '(muladddiv2lt (ian peano1 (mpbi ltsuc lt01S)));
+
+pub theorem raw_kMem_left (a b: nat): $ rawLeft (kMem a b) = a $ =
+'(eqtr (fsteq raw_kMem_quot) fstpr);
+
+pub theorem raw_kMem_right (a b: nat): $ rawRight (kMem a b) = b $ =
+'(eqtr (sndeq raw_kMem_quot) sndpr);
+
+pub theorem raw_kMem_positive (a b: nat): $ 0 < kMem a b $ = '(ltletr lt01S leaddid2);
+
+theorem raw_kAll_quot (a b: nat): $ kAll a b // 4 = (a, b) $ = '(muladddiv2lt (ian peano1 (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+pub theorem raw_kAll_left (a b: nat): $ rawLeft (kAll a b) = a $ =
+'(eqtr (fsteq raw_kAll_quot) fstpr);
+
+pub theorem raw_kAll_right (a b: nat): $ rawRight (kAll a b) = b $ =
+'(eqtr (sndeq raw_kAll_quot) sndpr);
+
+pub theorem raw_kAll_positive (a b: nat): $ 0 < kAll a b $ = '(ltletr lt01S leaddid2);
+
+theorem raw_kEq_quot (a b: nat): $ kEq a b // 4 = (a, b) $ = '(muladddiv2lt (ian peano1 (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem raw_kEq_left (a b: nat): $ rawLeft (kEq a b) = a $ =
+'(eqtr (fsteq raw_kEq_quot) fstpr);
+
+pub theorem raw_kEq_right (a b: nat): $ rawRight (kEq a b) = b $ =
+'(eqtr (sndeq raw_kEq_quot) sndpr);
+
+pub theorem raw_kEq_positive (a b: nat): $ 0 < kEq a b $ = '(ltletr lt01S leaddid2);
+
+pub theorem raw_kImp_zero: $ kImp 0 0 = 0 $ = '(eqtr (muleq2 pr0) mul0);
+pub theorem raw_kImp_zero_iff (a b: nat): $ kImp a b = 0 <-> a = 0 /\ b = 0 $ =
+'(bitr (eqeq2 (eqcom mul0)) @ bitr (mulcan2 peano1) @ bitr (eqeq2 (eqcom pr0)) prth);
+pub theorem raw_kImp_left_lt (a b: nat): $ kImp a b != 0 -> a < kImp a b $ =
+'(syl (bi1 (lteq1 raw_kImp_left)) (syl rawLeft_lt (bi2 lt01)));
+pub theorem raw_kImp_right_lt (a b: nat): $ kImp a b != 0 -> b < kImp a b $ =
+'(syl (bi1 (lteq1 raw_kImp_right)) (syl rawRight_lt (bi2 lt01)));
+pub theorem raw_kAll_body_lt (a b: nat): $ b < kAll a b $ =
+'(mpbi (lteq1 raw_kAll_right) (rawRight_lt raw_kAll_positive));
+
+theorem rawBody_mem (c h: nat) (ht: $ rawTag c = 1 $):
+  $ rawDecodeBody c h = sfMem (rawLeft c) (rawRight c) $ = '(ifpos ht);
+theorem rawBody_eq (c h: nat) (ht: $ rawTag c = 3 $):
+  $ rawDecodeBody c h = sfEq (rawLeft c) (rawRight c) $ =
+'(eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifpos ht));
+theorem rawBody_all (c h: nat) (ht: $ rawTag c = 2 $):
+  $ rawDecodeBody c h = sfAll (sfRename (rawBinderMap (rawLeft c)) 0 (h @ rawRight c)) $ =
+'(eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) @
+  eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei ltsucid))) (ifpos ht));
+theorem rawBody_imp (c h: nat) (ht: $ rawTag c = 0 $):
+  $ 0 < c -> rawDecodeBody c h = sfImp (h @ rawLeft c) (h @ rawRight c) $ =
+'(eqtrd (a1i (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S)))) @
+  eqtrd (a1i (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S)))) @
+  eqtrd (a1i (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S)))) ifpos);
+theorem rawBody_zero (h: nat): $ rawDecodeBody 0 h = sfTruth $ =
+'(eqtr (ifneg (mpbir (noteq (eqeq1 mod01)) (ltnei lt01S))) @
+  eqtr (ifneg (mpbir (noteq (eqeq1 mod01)) (ltnei lt01S))) @
+  eqtr (ifneg (mpbir (noteq (eqeq1 mod01)) (ltnei lt01S))) (ifneg ltirr));
+
+theorem rawDecode_eq (a b: nat) (h: $ a = b $): $ rawDecode a = rawDecode b $ = '(sreceq2 h);
+theorem rawRename_eq (R S: set) (d e a b: nat)
+  (hr: $ R == S $) (hd: $ d = e $) (ha: $ a = b $):
+  $ sfRename R d a = sfRename S e b $ =
+'(trud @ sfRename_congr (a1i hr) (a1i hd) (a1i ha));
+pub theorem rawDecode_zero: $ rawDecode 0 = sfTruth $ = '(eqtr rawDecode_unfold rawBody_zero);
+pub theorem rawDecode_kMem (a b: nat): $ rawDecode (kMem a b) = sfMem a b $ =
+'(eqtr rawDecode_unfold @ eqtr (rawBody_mem kMem_tag) @
+  eqtr (sfMem_eq_left raw_kMem_left) (sfMem_eq_right raw_kMem_right));
+pub theorem rawDecode_kEq (a b: nat): $ rawDecode (kEq a b) = sfEq a b $ =
+'(eqtr rawDecode_unfold @ eqtr (rawBody_eq kEq_tag) @
+  eqtr (sfEq_eq_left raw_kEq_left) (sfEq_eq_right raw_kEq_right));
+pub theorem rawDecode_kImp (a b: nat):
+  $ kImp a b != 0 -> rawDecode (kImp a b) = sfImp (rawDecode a) (rawDecode b) $ =
+'(eqtrd (a1i rawDecode_unfold) @ eqtrd (syl (rawBody_imp kImp_tag) (bi2 lt01)) @
+  sfImp_congr
+    (eqtrd (a1i (appeq2 raw_kImp_left)) (syl rawDecodeHistory_lookup raw_kImp_left_lt))
+    (eqtrd (a1i (appeq2 raw_kImp_right)) (syl rawDecodeHistory_lookup raw_kImp_right_lt)));
+pub theorem rawDecode_kAll (x a: nat):
+  $ rawDecode (kAll x a) = sfAll (sfRename (rawBinderMap x) 0 (rawDecode a)) $ =
+'(eqtr rawDecode_unfold @ eqtr (rawBody_all kAll_tag) @ sfAll_eq @
+  rawRename_eq (rawBinderMapeq raw_kAll_left) eqid
+    (eqtr (appeq2 raw_kAll_right) (rawDecodeHistory_lookup raw_kAll_body_lt)));
+pub theorem rawDecode_kF: $ rawDecode kF = sfMem 0 0 $ =
+'(eqtr3 (rawDecode_eq kMem_zero) rawDecode_kMem);
+pub theorem rawDecode_kImp_zero: $ rawDecode (kImp 0 0) = sfTruth $ =
+'(eqtr (rawDecode_eq raw_kImp_zero) rawDecode_zero);
+pub theorem sfTruth_ne_bot: $ sfTruth != sfBot $ = 'sfImp_ne_sfBot;
+theorem rawTruth_ne_imp: $ sfTruth != sfImp sfTruth sfTruth $ =
+'(mt (syl anl (bi1 sfImp_injective)) (necom sfTruth_ne_bot));
+pub theorem rawDecode_zero_collision:
+  $ rawDecode (kImp 0 0) != sfImp (rawDecode 0) (rawDecode 0) $ =
+'(mpbir (noteq (eqeq rawDecode_kImp_zero
+  (eqtr (sfImp_eq_left rawDecode_zero) (sfImp_eq_right rawDecode_zero)))) rawTruth_ne_imp);
+
+pub theorem sfTruth_wf: $ sfWf sfTruth $ = '(sfWf_imp sfWf_bot sfWf_bot);
+pub theorem rawDecode_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> rawDecode a = rawDecode b $ = '(sreceq2d h);
+theorem rawWf_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> (sfWf a <-> sfWf b) $ = '(srecpeq2d h);
+do (apply (register-eqd 'rawDecode) '(rawDecode_congr));
+do (apply (register-eqd 'sfWf) '(rawWf_congr));
+theorem rawDecode_ind_at (c a: nat):
+  $ A. j (j < c -> sfWf (rawDecode j)) -> a < c -> sfWf (rawDecode a) $ =
+(named '(!! eale j ,eqtac));
+theorem rawDecode_history_wf {j: nat} (G: wff j) (c a: nat)
+  (hi: $ G -> A. j (j < c -> sfWf (rawDecode j)) $) (ha: $ G -> a < c $):
+  $ G -> sfWf (rawDecodeHistory c @ a) $ =
+'(mpbird (srecpeq2d (syl rawDecodeHistory_lookup ha))
+  (mpd ha (syl rawDecode_ind_at hi)));
+theorem rawIf_wf (G p: wff) (a b: nat)
+  (hp: $ G /\ p -> sfWf a $) (hb: $ G -> sfWf b $):
+  $ G -> sfWf (if p a b) $ =
+'(ifbothd srecpeq2 srecpeq2 hp (syl hb anl));
+theorem rawDecodeBody_wf {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> sfWf (rawDecode j)) $):
+  $ G -> sfWf (rawDecodeBody c (rawDecodeHistory c)) $ =
+'(rawIf_wf (a1i sfWf_mem) @ rawIf_wf (a1i sfWf_eq) @
+  rawIf_wf (a1i (sfWf_all sfRename_wf)) @
+  rawIf_wf
+    (sylc sfWf_imp (rawDecode_history_wf (syl hi anl) (syl rawLeft_lt anr))
+      (rawDecode_history_wf (syl hi anl) (syl rawRight_lt anr)))
+    (a1i sfTruth_wf));
+theorem rawDecode_wf_step {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> sfWf (rawDecode j)) $):
+  $ G -> sfWf (rawDecode c) $ =
+'(mpbird (a1i (srecpeq2 rawDecode_unfold)) (rawDecodeBody_wf hi));
+pub theorem rawDecode_wf (c: nat): $ sfWf (rawDecode c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (sfWf (rawDecode j) <-> sfWf (rawDecode c)) $}
+  ,eqtac (rawDecode_wf_step anr)));
+pub theorem rawDecodeGraph_total {s: nat} (c: nat): $ E. s rawDecodeGraph c s $ =
+(named 'ax_6);
+pub theorem rawDecodeGraph_functional (c s t: nat):
+  $ rawDecodeGraph c s -> rawDecodeGraph c t -> s = t $ =
+'(exp (eqtrd anl (eqcomd anr)));
+pub theorem rawDecodeGraph_wf (c s: nat): $ rawDecodeGraph c s -> sfWf s $ =
+'(mpbiri rawDecode_wf (srecpeq2d id));

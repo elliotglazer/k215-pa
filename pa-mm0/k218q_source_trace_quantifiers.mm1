@@ -1,0 +1,125 @@
+import "k218q_source_trace_propositional.mm1";
+
+pub theorem k218QRowAt_formula_bound (n G a: nat):
+ $ k218QRowAt n (sfSequent G a) -> sfBound n a $ =
+'(mpd k218QRowAt_bound (syl sqRowWf_sequent_formula_bound k218QRowAt_wf));
+
+pub theorem k218QRowAt_source_bound (n G a: nat):
+ $ k218QRowAt n (sfSequent G a) -> sqSourceBound n G $ =
+'(mpd k218QRowAt_bound (syl sqRowWf_sequent_source_bound k218QRowAt_wf));
+
+theorem k218QT_AllI_named (F: wff) (m n G a: nat)
+ (hw: $ F -> sfRowWf (sfSequent G (sfAll a)) $)
+ (hn: $ F -> sfSequent G (sfAll a) <= n $)
+ (hp: $ F -> k218QRowAt m (sfSequent (sfContextShift G) a) $)
+ (hm: $ F -> m <= suc n $):
+ $ F -> k218INamedAt n G (sfAll a) $ =
+'(mpd (mpd hp (syl k218QT_named_raise hm)) @
+ mpd (mpd hn (syl sqRowWf_sequent_formula_bound hw)) @
+ mpd (mpd hn (syl sqRowWf_sequent_source_bound hw)) @
+ syl k218INamedAt_AllI_imp (syl anl (syl (bi1 sfRowWf_sequent) hw)));
+
+pub theorem k218QRow_AllI_at (m G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> k218QRowAt m (sfSequent (sfContextShift G) a) -> k218QRowAt (sfSequent G (sfAll a) + m) (sfSequent G (sfAll a)) $ =
+'(exp @ iand anl (iand (a1i leaddid1)
+ (syl (bi2 k218QRowProperty_sequent) (k218QT_AllI_named anl (a1i leaddid1) anr (a1i (letr leaddid2 lesucid))))));
+
+pub theorem k218QRow_AllI (G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> k218QRowGood (sfSequent (sfContextShift G) a) -> k218QRowGood (sfSequent G (sfAll a)) $ =
+(named '(eexd (syl6 k218QRowGood_intro k218QRow_AllI_at)));
+
+theorem k218QT_AllE_named (F: wff) (m n G a i: nat)
+ (hp: $ F -> k218QRowAt m (sfSequent G (sfAll a)) $)
+ (hm: $ F -> m <= n $) (hi: $ F -> i < n $):
+ $ F -> k218INamedAt n G (sfSubst 0 i a) $ =
+'(mpd (mpd hp (syl k218QT_named_raise hm)) @ mpd hi @ syl k218INamedAt_AllE_imp @
+ syl (bi1 sfBound_sfAll) @ mpd hm (syl sfBound_mono (syl k218QRowAt_formula_bound hp)));
+
+pub theorem k218QRow_AllE_at (m G a i: nat):
+ $ sfRowWf (sfSequent G (sfSubst 0 i a)) -> k218QRowAt m (sfSequent G (sfAll a)) -> k218QRowAt (sfSequent G (sfSubst 0 i a) + m + suc i) (sfSequent G (sfSubst 0 i a)) $ =
+'(exp @ iand anl (iand (a1i (letr leaddid1 leaddid1))
+ (syl (bi2 k218QRowProperty_sequent) (k218QT_AllE_named anr (a1i (letr leaddid2 leaddid1)) (a1i leaddid2)))));
+
+pub theorem k218QRow_AllE_good (G a i: nat):
+ $ sfRowWf (sfSequent G (sfSubst 0 i a)) -> k218QRowGood (sfSequent G (sfAll a)) -> k218QRowGood (sfSequent G (sfSubst 0 i a)) $ =
+(named '(eexd (syl6 k218QRowGood_intro k218QRow_AllE_at)));
+
+theorem k218QT_ExI_named (F: wff) (m n G a i: nat)
+ (hw: $ F -> sfRowWf (sfSequent G (sfEx a)) $)
+ (hn: $ F -> sfSequent G (sfEx a) <= n $)
+ (hp: $ F -> k218QRowAt m (sfSequent G (sfSubst 0 i a)) $)
+ (hm: $ F -> m <= n $) (hi: $ F -> i < n $):
+ $ F -> k218INamedAt n G (sfEx a) $ =
+'(mpd (mpd hp (syl k218QT_named_raise hm)) @ mpd hi @ syl k218INamedAt_ExI_imp @
+ syl (bi1 sfBound_sfEx) @ mpd hn (syl sqRowWf_sequent_formula_bound hw));
+
+pub theorem k218QRow_ExI_at (m G a i: nat):
+ $ sfRowWf (sfSequent G (sfEx a)) -> k218QRowAt m (sfSequent G (sfSubst 0 i a)) -> k218QRowAt (sfSequent G (sfEx a) + m + suc i) (sfSequent G (sfEx a)) $ =
+'(exp @ iand anl (iand (a1i (letr leaddid1 leaddid1))
+ (syl (bi2 k218QRowProperty_sequent) (k218QT_ExI_named anl (a1i (letr leaddid1 leaddid1)) anr (a1i (letr leaddid2 leaddid1)) (a1i leaddid2)))));
+
+pub theorem k218QRow_ExI_good (G a i: nat):
+ $ sfRowWf (sfSequent G (sfEx a)) -> k218QRowGood (sfSequent G (sfSubst 0 i a)) -> k218QRowGood (sfSequent G (sfEx a)) $ =
+(named '(eexd (syl6 k218QRowGood_intro k218QRow_ExI_at)));
+
+theorem k218QT_ExE_named (F: wff) (m j n G a c: nat)
+ (hw: $ F -> sfRowWf (sfSequent G c) $) (hn: $ F -> sfSequent G c <= n $)
+ (hp: $ F -> k218QRowAt m (sfSequent G (sfEx a)) $) (hm: $ F -> m <= n $)
+ (hq: $ F -> k218QRowAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) $)
+ (hj: $ F -> j <= suc n $):
+ $ F -> k218INamedAt n G c $ =
+'(mpd (mpd hq (syl k218QT_named_raise hj)) @
+ mpd (mpd hp (syl k218QT_named_raise hm)) @
+ mpd (mpd hn (syl sqRowWf_sequent_formula_bound hw)) @
+ mpd (mpd hm (syl sfBound_mono (syl k218QRowAt_formula_bound hp))) @
+ mpd (mpd hn (syl sqRowWf_sequent_source_bound hw)) @
+ syl k218INamedAt_ExE_imp (syl anl (syl (bi1 sfRowWf_sequent) hw)));
+
+pub theorem k218QRow_ExE_at (m j G a c: nat):
+ $ sfRowWf (sfSequent G c) -> k218QRowAt m (sfSequent G (sfEx a)) -> k218QRowAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) -> k218QRowAt (sfSequent G c + m + j) (sfSequent G c) $ =
+'(exp @ exp @ iand anll (iand (a1i (letr leaddid1 leaddid1))
+ (syl (bi2 k218QRowProperty_sequent) (k218QT_ExE_named anll (a1i (letr leaddid1 leaddid1)) anlr (a1i (letr leaddid2 leaddid1)) anr (a1i (letr leaddid2 lesucid))))));
+
+theorem k218QT_ExE_good_at (m j G a c: nat):
+ $ sfRowWf (sfSequent G c) -> k218QRowAt m (sfSequent G (sfEx a)) -> k218QRowAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) -> k218QRowGood (sfSequent G c) $ =
+'(exp @ exp @ syl k218QRowGood_intro @ mpd anr (mpd anlr (syl k218QRow_ExE_at anll)));
+
+pub theorem k218QRow_ExE (G a c: nat):
+ $ sfRowWf (sfSequent G c) -> k218QRowGood (sfSequent G (sfEx a)) -> k218QRowGood (sfSequent (a : sfContextShift G) (sfShift 0 c)) -> k218QRowGood (sfSequent G c) $ =
+(named '(eexd @ exp @ eexd @ imp k218QT_ExE_good_at));
+
+theorem k218QTQ_unary_transport (r p R P: nat)
+ (h: $ sfRowWf R -> k218QRowGood P -> k218QRowGood R $):
+ $ sfRowWf r -> (r = R /\ p = P) -> k218QRowGood p -> k218QRowGood r $ =
+'(exp @ exp @ mpbird (k218QRowGoodeqd (syl anl anlr)) @
+ mpd (mpbid (k218QRowGoodeqd (syl anr anlr)) anr)
+ (syl h (mpbid (sfRowWf_congr (syl anl anlr)) anll)));
+theorem k218QTQ_binary_transport (r p q R P Q: nat)
+ (h: $ sfRowWf R -> k218QRowGood P -> k218QRowGood Q -> k218QRowGood R $):
+ $ sfRowWf r -> (r = R /\ (p = P /\ q = Q)) ->
+ k218QRowGood p -> k218QRowGood q -> k218QRowGood r $ =
+'(exp @ exp @ exp @ mpbird (k218QRowGoodeqd (syl anl anllr)) @
+ mpd (mpbid (k218QRowGoodeqd (syl anr (syl anr anllr))) anr) @
+ mpd (mpbid (k218QRowGoodeqd (syl anl (syl anr anllr))) anlr) @
+ syl h (mpbid (sfRowWf_congr (syl anl anllr)) (syl anl anll)));
+
+pub theorem k218QRowCase_AllI (r p: nat):
+ $ sfRowWf r -> sfNDCaseAllI r p -> k218QRowGood p -> k218QRowGood r $ =
+(named '(eexd @ eexd @ k218QTQ_unary_transport k218QRow_AllI));
+pub theorem k218QRowCase_AllE (r p: nat):
+ $ sfRowWf r -> sfNDCaseAllE r p -> k218QRowGood p -> k218QRowGood r $ =
+(named '(eexd @ eexd @ eexd @ k218QTQ_unary_transport k218QRow_AllE_good));
+pub theorem k218QRowCase_ExI (r p: nat):
+ $ sfRowWf r -> sfNDCaseExI r p -> k218QRowGood p -> k218QRowGood r $ =
+(named '(eexd @ eexd @ eexd @ k218QTQ_unary_transport k218QRow_ExI_good));
+pub theorem k218QRowCase_ExE (r p q: nat):
+ $ sfRowWf r -> sfNDCaseExE r p q -> k218QRowGood p -> k218QRowGood q -> k218QRowGood r $ =
+(named '(eexd @ eexd @ eexd @ k218QTQ_binary_transport k218QRow_ExE));
+
+pub theorem k218QRow_quant_unary (r p: nat):
+ $ sfNDQuantUnary r p -> k218QRowGood p -> k218QRowGood r $ =
+'(imp (eord k218QRowCase_AllI (eord k218QRowCase_AllE k218QRowCase_ExI)));
+pub theorem k218QRow_quant_binary (r p q: nat):
+ $ sfNDQuantBinary r p q -> k218QRowGood p -> k218QRowGood q -> k218QRowGood r $ =
+'(imp k218QRowCase_ExE);
+

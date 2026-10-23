@@ -1,0 +1,43 @@
+import "source_piece_pcf_dn_environment.mm1";
+
+import "source_renaming_agreement.mm1";
+
+@_ def sfReflectionDnTail(T:set)(k .i:nat):set = $ \ i, T @ (k + i) $;
+
+pub theorem sfReflectionDnTail_at(T:set)(k i:nat): $ sfReflectionDnTail T k @ i = T @ (k + i) $ = (named '(!! applame j ,eqtac));
+
+pub theorem sfReflectionDnTail_zero_at(T:set)(i:nat): $ sfReflectionDnTail T 0 @ i = T @ i $ = (named '(eqtr sfReflectionDnTail_at (appeq2 add01)));
+
+theorem rdnTail_cons_zero(T:set)(k:nat): $ sqEnvCons (T @ k) (sfReflectionDnTail T (suc k)) @ 0 = sfReflectionDnTail T k @ 0 $ = (named '(eqtr sqEnvCons_zero (eqcom (eqtr sfReflectionDnTail_at (appeq2 add0)))));
+
+theorem rdnTail_cons_suc(T:set)(k i:nat): $ sqEnvCons (T @ k) (sfReflectionDnTail T (suc k)) @ suc i = sfReflectionDnTail T k @ suc i $ = (named '(eqtr sqEnvCons_suc (eqtr sfReflectionDnTail_at (eqtr (appeq2 addSass) (eqcom sfReflectionDnTail_at)))));
+
+pub theorem sfReflectionDnTail_cons_at(T:set)(k i:nat): $ sqEnvCons (T @ k) (sfReflectionDnTail T (suc k)) @ i = sfReflectionDnTail T k @ i $ = (named @ induct '(ind) 'i 'rdnTail_cons_zero '(a1i rdnTail_cons_suc));
+
+theorem rdnMap_specialize(E F:set)(i:nat): $ (A. j E @ j = F @ j) -> E @ i = F @ i $ = (named '(!! eale j ,eqtac));
+
+theorem rdnMap_at{j:nat}(E F:set)(i:nat)(h:$ A. j E @ j = F @ j $): $ E @ i = F @ i $ = (named '(ax_mp rdnMap_specialize h));
+
+theorem rdnEnv_zero(E F:set)(d X:nat): $ sfPieceEnvironment E d X @ 0 = sfPieceEnvironment F d X @ 0 $ = (named '(eqtr sfPieceEnvironment_zero (eqcom sfPieceEnvironment_zero)));
+
+theorem rdnEnv_one(E F:set)(d X:nat): $ sfPieceEnvironment E d X @ 1 = sfPieceEnvironment F d X @ 1 $ = (named '(eqtr sfPieceEnvironment_one (eqcom sfPieceEnvironment_one)));
+
+theorem rdnEnv_tail{j:nat}(E F:set)(d X i:nat)(h:$ A. j E @ j = F @ j $): $ sfPieceEnvironment E d X @ suc (suc i) = sfPieceEnvironment F d X @ suc (suc i) $ = (named '(eqtr sfPieceEnvironment_tail (eqtr (rdnMap_at h) (eqcom sfPieceEnvironment_tail))));
+
+theorem rdnEnv_from_one{j:nat}(E F:set)(d X i:nat)(h:$ A. j E @ j = F @ j $): $ sfPieceEnvironment E d X @ suc i = sfPieceEnvironment F d X @ suc i $ = (named @ induct '(ind) 'i 'rdnEnv_one '(a1i (rdnEnv_tail h)));
+
+pub theorem sfReflectionDnEnvironment_at{j:nat}(E F:set)(d X i:nat)(h:$ A. j E @ j = F @ j $): $ sfPieceEnvironment E d X @ i = sfPieceEnvironment F d X @ i $ = (named @ induct '(ind) 'i 'rdnEnv_zero '(a1i (rdnEnv_from_one h)));
+
+pub theorem sfReflectionDnEnvironment_rename{j:nat}(E F:set)(d X body:nat)(h:$ A. j E @ j = F @ j $)(hf:$ sfWf body $): $ sfRename (sfPieceEnvironment E d X) 0 body = sfRename (sfPieceEnvironment F d X) 0 body $ = (named '(ax_mp (sfRename_extensional (ax_gen (sfReflectionDnEnvironment_at h))) hf));
+
+pub theorem sfReflectionDnTail_zero_rename(T:set)(d X body:nat)(hf:$ sfWf body $): $ sfRename (sfPieceEnvironment (sfReflectionDnTail T 0) d X) 0 body = sfRename (sfPieceEnvironment T d X) 0 body $ = (named '(sfReflectionDnEnvironment_rename (ax_gen sfReflectionDnTail_zero_at) hf));
+
+pub theorem sfReflectionDnTail_cons_rename(T:set)(k d X body:nat)(hf:$ sfWf body $): $ sfRename (sfPieceEnvironment (sqEnvCons (T @ k) (sfReflectionDnTail T (suc k))) d X) 0 body = sfRename (sfPieceEnvironment (sfReflectionDnTail T k) d X) 0 body $ = (named '(sfReflectionDnEnvironment_rename (ax_gen sfReflectionDnTail_cons_at) hf));
+
+theorem rdnEnv_at_zero(E F:set)(d X i:nat): $ i = 0 -> sfPieceEnvironment E d X @ i = sfPieceEnvironment F d X @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i rdnEnv_zero) (eqcomd (appeq2d id)))));
+
+theorem rdnEnv_at_one(E F:set)(d X i:nat): $ i = 1 -> sfPieceEnvironment E d X @ i = sfPieceEnvironment F d X @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i rdnEnv_one) (eqcomd (appeq2d id)))));
+
+pub theorem sfReflectionDnEnvironment_binary_agree(E F:set)(d X:nat): $ sfRenameMapAgree (sfPieceEnvironment E d X) (sfPieceEnvironment F d X) 2 $ = (named '(ax_gen (syl (eor rdnEnv_at_zero rdnEnv_at_one) (bi1 bool01))));
+
+pub theorem sfReflectionDnEnvironment_binary_rename(E F:set)(d X body:nat)(hb:$ sfBound 2 body $): $ sfRename (sfPieceEnvironment E d X) 0 body = sfRename (sfPieceEnvironment F d X) 0 body $ = (named '(ax_mp (ax_mp sfRename_bounded_agreement sfReflectionDnEnvironment_binary_agree) (mpbir (sfSchema_bound_index_eq add01) hb)));

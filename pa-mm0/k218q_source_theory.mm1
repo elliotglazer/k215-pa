@@ -1,0 +1,110 @@
+import "k218q_source_trace.mm1";
+import "k218q_closed_core_uniform.mm1";
+import "source_theory.mm1";
+
+@_ abstract def k218QClosedImageClass (.a: nat): set =
+ $ {a | sfBound 0 a /\ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a)} $;
+
+pub theorem k218QClosedImageClass_value (a: nat):
+ $ a e. k218QClosedImageClass <->
+   (sfBound 0 a /\ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a)) $ =
+(named '(elabe ,eqtac));
+
+pub theorem k218QClosedImageClass_closed: $ sfTheoryClosed k218QClosedImageClass $ =
+(named '(ax_gen @ syl (bi2 sfClosedFormulaClass_value) (syl anl (bi1 k218QClosedImageClass_value))));
+
+theorem k218CI_below_zero (E: set) (k: nat): $ sqEnvBelow E 0 k $ =
+(named '(ax_gen (absurd lt02)));
+
+theorem k218CI_positive (n: nat): $ 0 < 4 + n $ =
+'(lttr (lttr (lttr lt01S (mpbi ltsuc lt01S)) (mpbi ltsuc (mpbi ltsuc lt01S))) k218CC_base);
+
+theorem k218CI_positive_four: $ 0 < 4 $ =
+'(mpbi (lteq2 add0) k218CI_positive);
+
+pub theorem k218QClosedQuotation_transport (E F: set) (k l a: nat):
+ $ sfBound 0 a -> 0 < k -> 0 < l ->
+   k218QProvable (sfNamedTemplate E k 0 a) ->
+   k218QProvable (sfNamedTemplate F l 0 a) $ =
+'(exp @ exp @ exp @ mpbid
+ (k218QProvableeqd (syl sfNamedTemplate_environment_closed (syl anl anll))) @
+ mpd (syl anl (k218IND_rebase anllr anlr
+   (a1i k218CI_below_zero) (a1i k218CI_below_zero) (syl anl anll)))
+ (syl k218QProvable_mp anr));
+
+pub theorem k218QClosedImage_rebase (E: set) (k a: nat):
+ $ sfBound 0 a -> 0 < k ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) ->
+   k218QProvable (sfNamedTemplate E k 0 a) $ =
+'(exp @ exp @ mpbid (k218QProvableeqd (syl sfNamedTemplate_environment_closed anll)) @
+ mpd (syl anl (k218IND_rebase (a1i k218CI_positive_four) anlr
+   (a1i k218CI_below_zero) (a1i k218CI_below_zero) anll))
+ (syl k218QProvable_mp anr));
+
+theorem k218CI_context_member (G a: nat):
+ $ sfTheoryContext k218QClosedImageClass G -> a IN G ->
+   (sfBound 0 a /\ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a)) $ =
+'(syl6 (bi1 k218QClosedImageClass_value) elall);
+
+theorem k218CI_supported_member (G H S k a: nat):
+ $ (sfTheoryContext k218QClosedImageClass G /\ 0 < k) -> a IN G ->
+   k218IHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $ =
+'(exp @ syl k218IHypProvable_seed @
+ mpd (syl anr (mpd anr (syl k218CI_context_member anll))) @ mpd anlr @
+ syl k218QClosedImage_rebase (syl anl (mpd anr (syl k218CI_context_member anll))));
+
+pub theorem k218QClosedImage_support (G H S k: nat):
+ $ sfTheoryContext k218QClosedImageClass G -> 0 < k -> k218INamedSupport H S k G $ =
+(named '(exp @ !! iald a k218CI_supported_member));
+
+theorem k218CI_names_below (n: nat):
+ $ sqEnvironmentBelow (k218ParameterNames n) (4 + n) $ =
+(named '(ax_gen (syl (ax_mp k218CRB_env_read k218ParameterNames_below)
+ (bi1 (lteq2 k218ParameterNames_length)))));
+
+pub theorem k218QParameterNames_safe (n: nat):
+ $ sqEnvironmentSafe (k218ParameterNames n) n 0 (4 + n) $ =
+'(ian (mpbir (leeq2 k218ParameterNames_length) leid)
+ (ian k218CI_positive (ian k218CI_positive k218CI_names_below)));
+
+theorem k218CI_names_support (G H n: nat):
+ $ sfTheoryContext k218QClosedImageClass G ->
+   k218INamedSupport H (k218ParameterNames n) (4 + n) G $ =
+'(mpi k218CI_positive k218QClosedImage_support);
+
+pub theorem k218QClosedImage_proof_named (G n a: nat):
+ $ sfBound 0 a -> sfTheoryContext k218QClosedImageClass G ->
+   k218INamedAt n G a ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $ =
+'(exp @ exp @ mpd
+ (syl k218IHypProvable_empty @
+  mpd (syl k218CI_names_support anlr) @ mpd (a1i k218QParameterNames_safe) @
+  mpd (a1i leid) @ syl k218INamedAt_use anr) @
+ mpd (a1i k218CI_positive_four) @ mpd (a1i k218CI_positive) @
+ syl k218QClosedQuotation_transport anll);
+
+pub theorem k218QClosedImage_proof_trace (G p a: nat):
+ $ sfBound 0 a -> sfTheoryContext k218QClosedImageClass G ->
+   sfNDFullDerives p (sfSequent G a) ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $ =
+(named '(exp @ syl5 k218QSourceND_named (eexd (imp k218QClosedImage_proof_named))));
+
+pub theorem k218QClosedImage_proof (a: nat):
+ $ sfBound 0 a -> sfTheoryProvable k218QClosedImageClass a ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $ =
+(named '(eexd @ eexd @ impd k218QClosedImage_proof_trace));
+
+pub theorem k218QClosedImage_refutation_named (G n: nat):
+ $ sfTheoryContext k218QClosedImageClass G -> k218INamedAt n G sfBot -> k218QProvable kF $ =
+'(exp @ syl k218IHypProvable_empty @
+ mpbid (k218IHypProvableeq2d (a1i sfNamedTemplate_bot)) @
+ mpd (syl k218CI_names_support anl) @ mpd (a1i k218QParameterNames_safe) @
+ mpd (a1i leid) @ syl k218INamedAt_use anr);
+
+pub theorem k218QClosedImage_refutation_trace (G p: nat):
+ $ sfTheoryContext k218QClosedImageClass G -> sfNDFullDerives p (sfSequent G sfBot) -> k218QProvable kF $ =
+(named '(syl5 k218QSourceND_named (eexd k218QClosedImage_refutation_named)));
+
+pub theorem k218QClosedImage_refutation:
+ $ sfTheoryProvable k218QClosedImageClass sfBot -> k218QProvable kF $ =
+(named '(eex @ eex @ mpd anr (syl k218QClosedImage_refutation_trace anl)));

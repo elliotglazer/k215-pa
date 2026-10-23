@@ -1,0 +1,51 @@
+import "quotation_environment.mm0";
+
+def sqEnvCons (x: nat) (E: set) (.i: nat): set =
+$ \ i, if (i = 0) x (E @ (i - 1)) $;
+
+theorem sqEnvCons_value (x: nat) (E: set) (i: nat):
+ $ sqEnvCons x E @ i = if (i = 0) x (E @ (i - 1)) $;
+
+theorem sqEnvCons_zero (x: nat) (E: set): $ sqEnvCons x E @ 0 = x $;
+
+theorem sqEnvCons_suc (x: nat) (E: set) (i: nat):
+ $ sqEnvCons x E @ suc i = E @ i $;
+
+theorem sfNamedIndex_rebase (E: set) (k d i: nat):
+ $ sfNamedIndex E k (suc d) i = sfNamedIndex (sqEnvCons k E) (suc k) d i $;
+
+theorem sqBinder_base (k d: nat): $ k + suc d = suc k + d $;
+
+def ntRebaseClass (E: set) (k: nat) (.c .d: nat): set =
+$ {c | A. d (sfNamedTemplate E  k (suc d) c = sfNamedTemplate (sqEnvCons k E)  (suc k) d c)} $;
+
+theorem ntRebase_value {d: nat} (E: set) (k: nat) (c: nat):
+ $ c e. ntRebaseClass E k <-> A. d (sfNamedTemplate E  k (suc d) c = sfNamedTemplate (sqEnvCons k E)  (suc k) d c) $;
+
+theorem sfNamedTemplate_rebase (E: set) (k: nat) (d c: nat):
+ $ sfWf c -> sfNamedTemplate E  k (suc d) c = sfNamedTemplate (sqEnvCons k E)  (suc k) d c $;
+
+def qqRebaseClass (E: set) (t k: nat) (.c .d: nat): set =
+$ {c | A. d (sqQuote E t  k (suc d) c = sqQuote (sqEnvCons k E) t  (suc k) d c)} $;
+
+theorem qqRebase_value {d: nat} (E: set) (t k: nat) (c: nat):
+ $ c e. qqRebaseClass E t k <-> A. d (sqQuote E t  k (suc d) c = sqQuote (sqEnvCons k E) t  (suc k) d c) $;
+
+theorem sqQuote_rebase (E: set) (t k: nat) (d c: nat):
+ $ sfWf c -> sqQuote E t  k (suc d) c = sqQuote (sqEnvCons k E) t  (suc k) d c $;
+
+theorem sfNamedTemplate_all_cons (E: set) (k a: nat):
+ $ sfWf a -> sfNamedTemplate E k 0 (sfAll a) =
+ kAll k (sfNamedTemplate (sqEnvCons k E) (suc k) 0 a) $;
+
+theorem sfNamedTemplate_ex_cons (E: set) (k a: nat):
+ $ sfWf a -> sfNamedTemplate E k 0 (sfEx a) =
+ kExists k (sfNamedTemplate (sqEnvCons k E) (suc k) 0 a) $;
+
+theorem sqQuote_all_cons (E: set) (t k a: nat):
+ $ sfWf a -> sqQuote E t k 0 (sfAll a) =
+ kAll k (kImp (kMem t k) (sqQuote (sqEnvCons k E) t (suc k) 0 a)) $;
+
+theorem sqQuote_ex_cons (E: set) (t k a: nat):
+ $ sfWf a -> sqQuote E t k 0 (sfEx a) =
+ kExists k (kAnd (kMem t k) (sqQuote (sqEnvCons k E) t (suc k) 0 a)) $;

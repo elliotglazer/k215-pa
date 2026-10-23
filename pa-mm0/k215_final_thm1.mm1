@@ -1,0 +1,161 @@
+-- See k215_final_thm1.mm0.
+import "k215_final_staged.mm1";
+import "k215_assembly_g1_staged.mm1";
+import "k215_assembly_levels_staged.mm1";
+import "k215_comparison_completed_schemas.mm1";
+import "source_l_nonempty.mm1";
+import "k215_literal_runtime_native_assembled_full.mm1";
+import "source_l_universal_hierarchy_exists.mm1";
+import "source_l_universal_hierarchy_unique.mm1";
+import "source_l_compact_hierarchy_subset.mm1";
+import "source_l_universal_hierarchy_limit.mm1";
+import "source_l_compact_hierarchy_stage.mm1";
+import "source_l_power_collection_kernel.mm1";
+import "source_l_separation_image_transitive_producer.mm1";
+import "source_l_common_level_zero_lift.mm1";
+import "source_l_replacement_final_law.mm1";
+import "source_l_clstage_levels.mm1";
+import "k215_assembly_blvl.mm1";
+import "source_piece_pcf_separation_maps.mm1";
+import "source_l_separation_image_definable_final.mm1";
+import "source_l_wellorder_final.mm1";
+import "source_l_replacement_next_bridge.mm1";
+import "source_l_wellorder_outcond.mm1";
+import "extracted_ltrans_weak.mm1";
+import "source_l_power_final.mm1";
+import "source_reflection_transfer_tv_images.mm1";
+import "source_l_common_level_two.mm1";
+import "source_l_pair_next.mm1";
+import "source_l_pair_next_union.mm1";
+import "source_l_omega_shell.mm1";
+import "source_omega_ordinals_in_l_zfr.mm1";
+import "source_l_ac_images.mm1";
+import "source_l_ac_ordl.mm1";
+
+do { (set-timeout 5000) };
+
+-- Separation^L: the rule form (in the bound) of L01's definable_final with L02's law, made
+-- uniform by the if-bound trick at bound suc n (L02's sfLRFL_if_bound at m = n).
+theorem k215ff_sep_rule (n phi: nat) (hb: $ sfBound (suc n) phi $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcSeparationCode phi n)) $ =
+'(sfLSeparationImage_schema_from_definable_law hb
+   (sfLReplacementDefinableLaw_zfr (ax_mp sfPieceSeparationPredicate_bound hb)));
+
+theorem k215ff_sep_transport (x phi n: nat):
+ $ x = phi ->
+   (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcSeparationCode x n)) <->
+    sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcSeparationCode phi n))) $ =
+(named ',eqtac);
+
+theorem k215ff_sep_imp (n phi: nat):
+ $ sfBound (suc n) phi ->
+   sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcSeparationCode phi n)) $ =
+'(mpbid (syl k215ff_sep_transport ifpos) (a1i (k215ff_sep_rule sfLRFL_if_bound)));
+
+-- Separation images in L (formerly the open premise hSep).
+pub theorem k215FinalFull_separation: $ sfZFCSeparationImages zfrAxioms sfLDomain $ =
+(named '(!! ax_gen x @ !! ax_gen y k215ff_sep_imp));
+
+-- sfLLevelsInLLaw is k215BLvl def for def; k215_assembly_blvl checks the conversion.
+pub theorem k215FinalFull_levels: $ zfcProvable k215BLvl $ =
+'(k215AssemblyBLvl_from_definable (sfLReplacementDefinableLaw_zfr (mpbir sfBound_sfEq (ian d0lt1 d0lt1))));
+
+-- T2 of Choice^L (L03's outcond applied to the discharged hierarchy, next-level and wellorder laws).
+pub theorem k215FinalFull_choiceT2: $ sfTheoryProvable zfrAxioms sfLChoiceT2 $ =
+'(sfLWOChoiceT2_cond sfLUniversalHierarchyExists_zfr sfLUniversalHierarchyUnique_zfr sfLNextLevelLaw_zfr
+   sfLWellorderRankLaw_zfr sfLWellorderLevelTrans_zfr);
+
+pub theorem k215FinalFull_G1
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $):
+ $ sfZFCImageFamilies zfrAxioms sfLDomain $ =
+(named '(ax_mp (!! k215AssemblyG1_from_parts x y hF k215FinalFull_separation sfLUniversalHierarchyExists_zfr sfLUniversalHierarchyUnique_zfr sfLPowerHierarchySubset_zfr sfLUniversalHierarchyLimit_reflection_zfr sfLCompactHierarchyStage_reflection_zfr sfLPowerLevelBound_from_hierarchy_zfr)
+   (!! sfLReplacementDefinableLaws_closed x y)));
+
+pub theorem k215FinalFull_coreL
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $):
+ $ k215CoreImagesL $ =
+'(k215AssemblyLv_coreL (k215FinalFull_G1 hF) sfLNonempty_zfr k215FinalFull_levels
+   sfLUniversalHierarchyExists_zfr sfLUniversalHierarchyUnique_zfr sfLPowerHierarchySubset_zfr sfLUniversalHierarchyLimit_reflection_zfr sfLCompactHierarchyStage_reflection_zfr
+   sfLSeparationStageTrans_zfr sfCLZero_zfr);
+
+pub theorem K215_halts_iff_ZFC_inconsistent_full
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $):
+ $ k215LiteralHalts <-> zfcInconsistent $ =
+'(K215_halts_iff_ZFC_inconsistent_staged (k215FinalFull_G1 hF) sfLNonempty_zfr
+   (k215FinalFull_coreL hF) k215ZFC_refutation_from_Limages k215PActualNativeLaw);
+
+pub theorem K215_full_consistency_BB215_nonprovability_full_bridge {b: nat}
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $):
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $ =
+'(K215_full_consistency_BB215_nonprovability_staged_bridge (k215FinalFull_G1 hF)
+   sfLNonempty_zfr (k215FinalFull_coreL hF) k215ZFC_refutation_from_Limages
+   k215PActualNativeLaw);
+
+pub theorem k215FinalFull_fixed
+ (hPair: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $)
+ (hUnion: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $)
+ (hOmega: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) $)
+ (hChoice: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $):
+ $ sfZFCFixedImages zfrAxioms sfLDomain $ =
+'(sfTVLFixedImages_from_actual_images sfLTransitivity_weak_zfr hPair hUnion sfLPower_image_zfr hOmega hChoice);
+
+pub theorem K215_halts_iff_ZFC_inconsistent_parts
+ (hPair: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $)
+ (hUnion: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $)
+ (hOmega: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) $)
+ (hChoice: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $):
+ $ k215LiteralHalts <-> zfcInconsistent $ =
+'(K215_halts_iff_ZFC_inconsistent_full (k215FinalFull_fixed hPair hUnion hOmega hChoice));
+
+pub theorem K215_full_consistency_BB215_nonprovability_parts_bridge {b: nat}
+ (hPair: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $)
+ (hUnion: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $)
+ (hOmega: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) $)
+ (hChoice: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $):
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $ =
+'(K215_full_consistency_BB215_nonprovability_full_bridge (k215FinalFull_fixed hPair hUnion hOmega hChoice));
+
+pub theorem k215FinalFull_replacement: $ sfZFCReplacementImages zfrAxioms sfLDomain $ =
+(named '(ax_mp (!! k215AssemblyRepH_images_from_definable_laws x y sfLUniversalHierarchyExists_zfr sfLUniversalHierarchyUnique_zfr sfLPowerHierarchySubset_zfr sfLUniversalHierarchyLimit_reflection_zfr sfLCompactHierarchyStage_reflection_zfr sfLPowerLevelBound_from_hierarchy_zfr)
+   (!! sfLReplacementDefinableLaws_closed x y)));
+
+pub theorem k215FinalFull_fixed_ordl
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ sfZFCFixedImages zfrAxioms sfLDomain $ =
+'(sfLACFixed_cond sfLTransitivity_weak_zfr (sfLPair_from_common2 sfLPairCommon2_zfr) sfLUnion_zfr
+   sfLPower_image_zfr (sfLOmega_from_ordinals sfLOrdinalsInL_zfr) k215FinalFull_separation
+   k215FinalFull_replacement sfLNonempty_zfr sfLUniversalHierarchyExists_zfr sfLUniversalHierarchyUnique_zfr
+   k215FinalFull_choiceT2 hOL);
+
+pub theorem K215_halts_iff_ZFC_inconsistent_ordl
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ k215LiteralHalts <-> zfcInconsistent $ =
+'(K215_halts_iff_ZFC_inconsistent_full (k215FinalFull_fixed_ordl hOL));
+
+pub theorem K215_full_consistency_BB215_nonprovability_ordl_bridge {b: nat}
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $ =
+'(K215_full_consistency_BB215_nonprovability_full_bridge (k215FinalFull_fixed_ordl hOL));
+
+pub theorem k215FinalFull_fixed_closed: $ sfZFCFixedImages zfrAxioms sfLDomain $ =
+'(k215FinalFull_fixed_ordl (sfLACOrdL_from_ordinals sfLOrdinalsInL_zfr));
+
+pub theorem K215_halts_iff_ZFC_inconsistent_final:
+ $ k215LiteralHalts <-> zfcInconsistent $ =
+'(K215_halts_iff_ZFC_inconsistent_full k215FinalFull_fixed_closed);
+
+pub theorem K215_full_consistency_BB215_nonprovability_final_bridge {b: nat}:
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $ =
+'(K215_full_consistency_BB215_nonprovability_full_bridge k215FinalFull_fixed_closed);
+
+pub theorem k215FinalFull_native_law:
+ $ k215PNativeLaw $ =
+'(k215PActualNativeLaw);

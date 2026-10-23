@@ -1,0 +1,25 @@
+import "source_reflection_transfer_ordinal_maps.mm0";
+
+def sfReflectionEqualitySubsetBody(x y:nat):nat = $ sfImp (sfEq x y) (sfCLSubset x y) $;
+
+def sfReflectionEqualitySubset:nat = $ sfAll (sfAll (sfReflectionEqualitySubsetBody 1 0)) $;
+
+theorem sfReflectionEqualitySubset_at(x y:nat): $ nsLocal sfFormulaEqualityContext (sfReflectionEqualitySubsetBody x y) $;
+
+theorem sfReflectionEqualitySubset_local: $ nsLocal sfFormulaEqualityContext sfReflectionEqualitySubset $;
+
+theorem sfReflectionEqualitySubset_zfr: $ sfTheoryProvable zfrAxioms sfReflectionEqualitySubset $;
+
+theorem sfReflectionEqualitySubset_use(G x y:nat)(hE:$ nsLocal G sfReflectionEqualitySubset $)(he:$ nsLocal G (sfEq x y) $): $ nsLocal G (sfCLSubset x y) $;
+
+theorem sfReflectionOrdinalSubsetCompare_use(G x y:nat)(hC:$ nsLocal G sfReflectionOrdinalTrichotomy $)(hE:$ nsLocal G sfReflectionEqualitySubset $)(hX:$ nsLocal G (sfReflectionOrdinalAt x) $)(hY:$ nsLocal G (sfReflectionOrdinalAt y) $): $ nsLocal G (sfOr (sfCLSubset x y) (sfCLSubset y x)) $;
+
+def sfReflectionOrdinalSubsetBody(x y:nat):nat = $ sfImp (sfReflectionOrdinalAt x) (sfImp (sfReflectionOrdinalAt y) (sfOr (sfCLSubset x y) (sfCLSubset y x))) $;
+
+def sfReflectionOrdinalSubsetCompare:nat = $ sfAll (sfAll (sfReflectionOrdinalSubsetBody 1 0)) $;
+
+def sfReflectionOrdinalSubsetContext:nat = $ sfReflectionOrdinalTrichotomy : sfFormulaEqualityContext $;
+
+theorem sfReflectionOrdinalSubsetCompare_local: $ nsLocal sfReflectionOrdinalSubsetContext sfReflectionOrdinalSubsetCompare $;
+
+theorem sfReflectionOrdinalSubsetCompare_zfr: $ sfTheoryProvable zfrAxioms sfReflectionOrdinalSubsetCompare $;

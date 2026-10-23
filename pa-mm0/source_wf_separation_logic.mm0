@@ -1,0 +1,19 @@
+import "source_relative_prefix.mm0";
+import "source_wf_subset.mm0";
+
+-- Numerical source proof operations used by the arbitrary-code schema
+-- template. No predicate is interpreted and no reflection is assumed.
+theorem sfSepContext_successor (G: nat):
+ $ sfContextWf G -> sfContextRename sfSuccessorMap 0 G = sfContextShift G $;
+
+theorem sfSepLocal_rename (R: set) (d G a: nat):
+ $ nsLocal G a -> nsLocal (sfContextRename R d G) (sfRename R d a) $;
+
+theorem sfSepLocal_shift (G a: nat):
+ $ nsLocal G a -> nsLocal (sfContextShift G) (sfShift 0 a) $;
+
+theorem sfSepLocal_open (G a: nat):
+ $ nsLocal G (sfAll a) -> nsLocal (sfContextShift G) a $;
+
+theorem sfSepLocal_allI (G a: nat):
+ $ sfContextWf G -> nsLocal (sfContextShift G) a -> nsLocal G (sfAll a) $;

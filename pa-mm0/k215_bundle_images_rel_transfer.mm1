@@ -1,0 +1,29 @@
+import "k215_bundle_images_source.mm1";
+import "source_zfc_interpretation.mm1";
+import "source_l_domain.mm1";
+import "source_core_theory.mm1";
+
+def k215BundleImagesL: wff = $ k215BundleAxioms C_ sfRelativeAxiomClass zfcAxioms sfLDomain $;
+
+-- The ZFC axioms: their ZFR images in L are ZFC images in L.
+theorem k215BL_zfc_images (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $):
+ $ zfcAxioms C_ sfRelativeAxiomClass zfcAxioms sfLDomain $ =
+(named '(ax_gen @ syl (bi2 sfRelativeAxiomClass_value) @
+  syl (ax_mp sfTheoryProvable_mono zfrAxioms_subset_zfc) (ax_mp sfZFCImageFamilies_axiom hz)));
+
+pub theorem k215BundleSource_relative_images
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hb:$ k215BundleImagesL $):
+ $ sfRelativeAxiomImages k215BundleSourceAxioms zfcAxioms sfLDomain $ =
+'(mpbir unss (ian (k215BL_zfc_images hz) hb));
+
+pub theorem k215BundleImagesL_refutation_transfer
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hb:$ k215BundleImagesL $):
+ $ k215Inconsistent -> zfcInconsistent $ =
+'(syl (syl (bi1 sfTheoryProvable_zfc)
+   (sfRelativeTheory_refutation sfTheoryClosed_zfc sfLDomain_bound
+     (k215BundleSource_relative_images hz hb)
+     (ax_mp (ax_mp sfTheoryProvable_mono zfrAxioms_subset_zfc) hn)))
+  k215BundleSource_refutation_transfer);

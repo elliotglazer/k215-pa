@@ -1,0 +1,31 @@
+import "k218_vacuity_image.mm0";
+
+def k218QProvable (a: nat): wff = $ k218Provable (k218Translate a) $;
+def k218QTheorems (.a: nat): set = $ {a | k218QProvable a} $;
+def k218QAxBody (n a b c u: nat): wff =
+  $ n = kRho1 a b \/ (n = kRho2 a b c \/ (n = kRho3 a b c \/
+    (n = kRho4 a b c \/ (n = kRho5 a b c \/ (n = kRho6 a b \/
+    (n = kRho7 a b c \/ n = kRho8 a b c u)))))) $;
+def k218QAxioms (.n .a .b .c .u: nat): set =
+  $ {n | n = 0 \/ E. a E. b E. c E. u k218QAxBody n a b c u} $;
+
+theorem k218QTheorems_value (a: nat): $ a e. k218QTheorems <-> k218QProvable a $;
+theorem k218QAxioms_value {a b c u: nat} (n: nat):
+  $ n e. k218QAxioms <-> n = 0 \/ E. a E. b E. c E. u k218QAxBody n a b c u $;
+theorem k218QAxioms_true: $ 0 e. k218QAxioms $;
+theorem k218QAxioms_rho1 (a b: nat): $ kRho1 a b e. k218QAxioms $;
+theorem k218QAxioms_rho2 (a b c: nat): $ kRho2 a b c e. k218QAxioms $;
+theorem k218QAxioms_rho3 (a b c: nat): $ kRho3 a b c e. k218QAxioms $;
+theorem k218QAxioms_rho4 (a b c: nat): $ kRho4 a b c e. k218QAxioms $;
+theorem k218QAxioms_rho5 (a b c: nat): $ kRho5 a b c e. k218QAxioms $;
+theorem k218QAxioms_rho6 (a b: nat): $ kRho6 a b e. k218QAxioms $;
+theorem k218QAxioms_rho7 (a b c: nat): $ kRho7 a b c e. k218QAxioms $;
+theorem k218QAxioms_rho8 (a b c u: nat): $ kRho8 a b c u e. k218QAxioms $;
+theorem k218QProvable_axiom (a: nat): $ a e. k218QAxioms -> k218QProvable a $;
+theorem k218QProvable_mp (a b: nat):
+  $ k218QProvable a -> k218QProvable (kImp a b) -> k218QProvable b $;
+theorem k218QProvable_gen (x a: nat): $ k218QProvable a -> k218QProvable (kAll x a) $;
+theorem k218QFresh_vacuity (a x: nat):
+  $ kFresh a x -> k218QProvable (kImp a (kAll x a)) $;
+theorem k218QBundle_vacuity (a b c: nat):
+  $ c != a /\ c != b -> k218QProvable (kVacuity a b c) $;

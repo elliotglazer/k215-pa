@@ -1,0 +1,34 @@
+import "source_piece_pcf_collection_syntax.mm0";
+
+import "source_piece_pcf_dn_environment.mm0";
+
+import "source_reflection_least_cond_ord_syntax.mm0";
+
+import "source_theory_renaming.mm0";
+
+def sfPieceCollectedDrop: set = $ sqEnvCons 0 sfIdentityMap $;
+
+def sfPieceCollectedMap: set =
+ $ sfComposeMap (sfRenameDepthMap sfPieceCollectedDrop 2)
+   (sfComposeMap (sfLCBinaryMap 1 0 3) sfPieceQMap) $;
+
+theorem sfPieceCollectedMap_at(i:nat):
+ $ sfPieceCollectedMap @ i = sfPieceRotate @ i $;
+
+theorem sfPieceCollection_output_code(body:nat)(hf:$ sfWf body $):
+ $ sfRename sfPieceCollectedDrop 0 (sfOrdinalCollectionOutput (sfRename sfPieceQMap 0 body)) =
+   sfEx (sfAnd sfLeastOrdinalPredicate
+    (sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 body)))) $;
+
+theorem sfPieceDn_wf(count body:nat)(hf:$ sfWf body $):
+ $ sfWf (sfPieceDn count body) $;
+
+theorem sfPieceDn_collected_output(count body:nat)(hf:$ sfWf body $):
+ $ sfRename sfPieceCollectedDrop 0
+    (sfOrdinalCollectionOutput (sfRename sfPieceQMap 0 (sfPieceDn count body))) =
+   sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceDn (suc count) body)) $;
+
+theorem sfPieceDn_collection_output(T:set)(count body:nat)
+ (ht:$ sfTheoryClosed T $)(hf:$ sfWf body $):
+ $ sfTheoryProvable T (sfOrdinalCollectionOutput (sfRename sfPieceQMap 0 (sfPieceDn count body))) ->
+   sfTheoryProvable T (sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceDn (suc count) body))) $;

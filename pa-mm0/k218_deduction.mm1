@@ -1,0 +1,150 @@
+-- Contextual SeedG logic; every generalization/vacuity premise remains explicit.
+import "k218_derived.mm1";
+
+do (apply (register-eqd 'kImp) '(k218Imp_congr k218Imp_congr_left k218Imp_congr_right));
+
+@_ abstract def k218HypRules (G: nat) (.c .l .b: nat): set =
+$ S\ c, {l | c IN G \/ (c e. k218Theorems \/
+    E. b (b IN l /\ kImp b c IN l))} $;
+@_ def k218HypDerives (G p a: nat): wff = $ traceDerives (k218HypRules G) p a $;
+@_ abstract def k218HypProvable (G a: nat) (.p: nat): wff = $ E. p k218HypDerives G p a $;
+
+pub theorem k218HypRules_value {b: nat} (G c l: nat):
+  $ (c, l) e. k218HypRules G <-> c IN G \/
+    (c e. k218Theorems \/ E. b (b IN l /\ kImp b c IN l)) $ =
+(named '(elsabe @ elabed ,eqtac));
+
+theorem k218HypMember_left (a p q: nat): $ a IN p -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orl);
+theorem k218HypMember_right (a p q: nat): $ a IN q -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orr);
+theorem k218HypRules_extend (G c l r: nat):
+  $ (c, l) e. k218HypRules G -> (c, l ++ r) e. k218HypRules G $ =
+(named '(syl (bi2 k218HypRules_value) @ syl
+  (orim2 (orim2 (eximi @ iand
+    (syl k218HypMember_left anl) (syl k218HypMember_left anr))))
+  (bi1 k218HypRules_value)));
+pub theorem k218HypRules_stable (G: nat): $ traceAppendStable (k218HypRules G) $ =
+(named '(ax_gen @ ax_gen @ ax_gen k218HypRules_extend));
+pub theorem k218HypProvable_intro (G p a: nat): $ k218HypDerives G p a -> k218HypProvable G a $ =
+(named '(iexe ,eqtac));
+
+theorem k218HypRules_assumption (G a l: nat): $ a IN G -> (a, l) e. k218HypRules G $ =
+(named '(syl (bi2 k218HypRules_value) orl));
+theorem k218HypRules_seed (G a l: nat): $ k218Provable a -> (a, l) e. k218HypRules G $ =
+(named '(syl (bi2 k218HypRules_value) @ syl orr @ syl orl (bi2 k218Theorems_value)));
+pub theorem k218HypProvable_assumption (G a: nat): $ a IN G -> k218HypProvable G a $ =
+'(syl k218HypProvable_intro @ syl traceDerives_head @
+  iand (a1i traceValid_nil) k218HypRules_assumption);
+pub theorem k218HypProvable_seed (G a: nat): $ k218Provable a -> k218HypProvable G a $ =
+'(syl k218HypProvable_intro @ syl traceDerives_head @
+  iand (a1i traceValid_nil) k218HypRules_seed);
+
+theorem k218HypRules_mp (G a b l: nat):
+  $ a IN l /\ kImp a b IN l -> (b, l) e. k218HypRules G $ =
+(named '(syl (bi2 k218HypRules_value) @ syl orr @ syl orr (iexe ,eqtac)));
+theorem k218HypValid_append (G p q: nat):
+  $ traceValid (k218HypRules G) p -> traceValid (k218HypRules G) q ->
+    traceValid (k218HypRules G) (p ++ q) $ = '(traceValid_append k218HypRules_stable);
+pub theorem k218HypDerives_mp (G p q a b: nat):
+  $ k218HypDerives G p a -> k218HypDerives G q (kImp a b) ->
+    k218HypDerives G (b : (p ++ q)) b $ =
+'(exp @ syl traceDerives_head @ iand
+  (sylc k218HypValid_append (syl anl anl) (syl anl anr))
+  (syl k218HypRules_mp @ iand
+    (syl k218HypMember_left (syl anr anl))
+    (syl k218HypMember_right (syl anr anr))));
+theorem k218HypProvable_mp_witnesses (G p q a b: nat):
+  $ k218HypDerives G p a -> k218HypDerives G q (kImp a b) -> k218HypProvable G b $ =
+'(syl6 k218HypProvable_intro k218HypDerives_mp);
+pub theorem k218HypProvable_mp (G a b: nat):
+  $ k218HypProvable G a -> k218HypProvable G (kImp a b) -> k218HypProvable G b $ =
+(named '(eex @ eexd k218HypProvable_mp_witnesses));
+
+pub theorem k218HypProvable_imp_weaken (G h a: nat):
+  $ k218HypProvable G a -> k218HypProvable G (kImp h a) $ =
+'(mpi (k218HypProvable_seed k218PropK) k218HypProvable_mp);
+pub theorem k218HypProvable_imp_mp (G h a b: nat):
+  $ k218HypProvable G (kImp h a) -> k218HypProvable G (kImp h (kImp a b)) ->
+    k218HypProvable G (kImp h b) $ =
+'(exp @ mpd
+  (syl (mpi (k218HypProvable_seed k218PropS) k218HypProvable_mp) anr)
+  (syl k218HypProvable_mp anl));
+
+@_ abstract def k218DeductionClass (G h: nat) (.a: nat): set =
+$ {a | k218HypProvable G (kImp h a)} $;
+pub theorem k218DeductionClass_value (G h a: nat):
+  $ a e. k218DeductionClass G h <-> k218HypProvable G (kImp h a) $ =
+(named '(elabe ,eqtac));
+
+theorem k218Deduction_assumption_equal (G h a: nat):
+  $ a = h -> k218HypProvable G (kImp h a) $ =
+'(mpbiri (k218HypProvable_seed k218PropI) (k218HypProvableeq2d (k218Imp_congr_right id)));
+theorem k218Deduction_assumption (G h a: nat):
+  $ a IN (h : G) -> a e. k218DeductionClass G h $ =
+'(syl (bi2 k218DeductionClass_value) @
+  syl (eori k218Deduction_assumption_equal
+    (syl k218HypProvable_imp_weaken k218HypProvable_assumption)) (bi1 lmemS));
+theorem k218Deduction_seed (G h a: nat):
+  $ a e. k218Theorems -> a e. k218DeductionClass G h $ =
+'(syl (bi2 k218DeductionClass_value) @ syl k218HypProvable_imp_weaken @
+  syl k218HypProvable_seed (bi1 k218Theorems_value));
+theorem k218Deduction_trace_get (G h l a: nat):
+  $ traceClassAll (k218DeductionClass G h) l -> a IN l ->
+    k218HypProvable G (kImp h a) $ =
+'(syl6 (bi1 k218DeductionClass_value) traceClassAll_get);
+theorem k218Deduction_mp_payload (G h l a b: nat):
+  $ traceClassAll (k218DeductionClass G h) l ->
+    (b IN l /\ kImp b a IN l) -> a e. k218DeductionClass G h $ =
+'(exp @ syl (bi2 k218DeductionClass_value) @
+  sylc k218HypProvable_imp_mp
+    (mpd (syl anl anr) (syl k218Deduction_trace_get anl))
+    (mpd (syl anr anr) (syl k218Deduction_trace_get anl)));
+theorem k218Deduction_mp_exists {b: nat} (G h l a: nat):
+  $ traceClassAll (k218DeductionClass G h) l ->
+    E. b (b IN l /\ kImp b a IN l) -> a e. k218DeductionClass G h $ =
+(named '(eexd k218Deduction_mp_payload));
+theorem k218Deduction_rule (G h l a: nat):
+  $ traceClassAll (k218DeductionClass G h) l ->
+    (a, l) e. k218HypRules (h : G) -> a e. k218DeductionClass G h $ =
+(named '(syl5bi k218HypRules_value @ eord
+  (a1i k218Deduction_assumption)
+  (eord (a1i k218Deduction_seed) k218Deduction_mp_exists)));
+pub theorem k218HypRules_deduction_sound (G h: nat):
+  $ traceRuleSound (k218HypRules (h : G)) (k218DeductionClass G h) $ =
+(named '(ax_gen @ ax_gen k218Deduction_rule));
+pub theorem k218HypDerives_deduction (G h p a: nat):
+  $ k218HypDerives (h : G) p a -> k218HypProvable G (kImp h a) $ =
+'(syl (bi1 k218DeductionClass_value) (traceDerives_class k218HypRules_deduction_sound));
+pub theorem k218HypProvable_deduction (G h a: nat):
+  $ k218HypProvable (h : G) a -> k218HypProvable G (kImp h a) $ =
+(named '(eex k218HypDerives_deduction));
+
+theorem k218Hyp_theorem_get (l a: nat):
+  $ traceClassAll k218Theorems l -> a IN l -> k218Provable a $ =
+'(syl6 (bi1 k218Theorems_value) traceClassAll_get);
+theorem k218Hyp_empty_mp_payload (l a b: nat):
+  $ traceClassAll k218Theorems l ->
+    (b IN l /\ kImp b a IN l) -> a e. k218Theorems $ =
+'(exp @ syl (bi2 k218Theorems_value) @ sylc k218Provable_mp
+  (mpd (syl anl anr) (syl k218Hyp_theorem_get anl))
+  (mpd (syl anr anr) (syl k218Hyp_theorem_get anl)));
+theorem k218Hyp_empty_mp_exists {b: nat} (l a: nat):
+  $ traceClassAll k218Theorems l ->
+    E. b (b IN l /\ kImp b a IN l) -> a e. k218Theorems $ =
+(named '(eexd k218Hyp_empty_mp_payload));
+theorem k218Hyp_empty_rule (l a: nat):
+  $ traceClassAll k218Theorems l -> (a, l) e. k218HypRules 0 -> a e. k218Theorems $ =
+(named '(syl5bi k218HypRules_value @ eord
+  (a1i (absurd lmem0)) (eord (a1i id) k218Hyp_empty_mp_exists)));
+pub theorem k218HypRules_empty_sound: $ traceRuleSound (k218HypRules 0) k218Theorems $ =
+(named '(ax_gen @ ax_gen k218Hyp_empty_rule));
+pub theorem k218HypDerives_empty (p a: nat): $ k218HypDerives 0 p a -> k218Provable a $ =
+'(syl (bi1 k218Theorems_value) (traceDerives_class k218HypRules_empty_sound));
+pub theorem k218HypProvable_empty (a: nat): $ k218HypProvable 0 a -> k218Provable a $ =
+(named '(eex k218HypDerives_empty));
+pub theorem k218HypProvable_empty_iff (a: nat): $ k218HypProvable 0 a <-> k218Provable a $ =
+'(ibii k218HypProvable_empty k218HypProvable_seed);
+pub theorem k218HypProvable_discharge (h a: nat):
+  $ k218HypProvable (h : 0) a -> k218Provable (kImp h a) $ =
+'(syl k218HypProvable_empty k218HypProvable_deduction);

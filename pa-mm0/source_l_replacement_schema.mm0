@@ -1,0 +1,50 @@
+import "source_l_replacement_witness.mm0";
+
+import "source_l_replacement_matrix.mm0";
+
+import "source_renaming_extensional.mm0";
+
+import "source_relative_prefix.mm0";
+
+def sfLReplacementFunctional(phi:nat):nat =
+ $ sfRelativize sfLDomain (sfFunctionality (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi)) $;
+
+def sfLReplacementInputContext(phi:nat):nat =
+ $ sfLDomain : sfContextShift (sfLReplacementFunctional phi : 0) $;
+
+theorem sfLReplacementImageWitness_literal(phi:nat)(hf:$ sfWf phi $):
+ $ sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi) =
+ sfEx (sfAnd sfLDomain (sfAll (sfImp sfLDomain (sfIff (sfMem 0 1)
+  (sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 3) (sfRelativize sfLDomain (sfRename sfRepCMap 0 phi))))))))) $;
+
+theorem sfLReplacement_relative_literal(phi:nat)(hf:$ sfWf phi $):
+ $ sfRelativize sfLDomain (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi)) =
+ sfImp (sfLReplacementFunctional phi) (sfAll (sfImp sfLDomain (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)))) $;
+
+theorem sfLReplacement_open_from_witness(phi:nat)(hf:$ sfWf phi $)
+ (hw:$ nsLocal (sfLReplacementInputContext phi) (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)) $):
+ $ nsLocal 0 (sfRelativize sfLDomain (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi))) $;
+
+theorem sfLReplacement_schema_from_witness(phi n:nat)(hb:$ sfBound (suc (suc n)) phi $)
+ (hw:$ nsLocal (sfLReplacementInputContext phi) (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $;
+
+theorem sfLReplacement_schema_from_definable(phi n Y:nat)(hb:$ sfBound (suc (suc n)) phi $)
+ (he:$ nsLocal (sfLReplacementInputContext phi) (sfLReplacementImageDefinable sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $)
+ (hs:$ nsLocal (sfLReplacementInputContext phi) (sfLReplacementImageCoverage sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $)
+ (hr:$ nsLocal (sfLReplacementInputContext phi) (sfLSeparationImageComparison sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $;
+
+def sfLReplacementInputOverContext(G phi:nat):nat =
+ $ sfLDomain : sfContextShift (sfLReplacementFunctional phi : G) $;
+
+theorem sfLReplacement_open_in_context(G phi:nat)(hg:$ sfContextWf G $)(hf:$ sfWf phi $)
+ (hw:$ nsLocal (sfLReplacementInputOverContext G phi) (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)) $):
+ $ nsLocal G (sfRelativize sfLDomain (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi))) $;
+
+theorem sfLReplacement_schema_in_context(G phi n Y:nat)(hg:$ sfContextWf G $)
+ (hbase:$ all (sfTheoryProofClass zfrAxioms) G $)(hb:$ sfBound (suc (suc n)) phi $)
+ (he:$ nsLocal (sfLReplacementInputOverContext G phi) (sfLReplacementImageDefinable sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $)
+ (hs:$ nsLocal (sfLReplacementInputOverContext G phi) (sfLReplacementImageCoverage sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $)
+ (hr:$ nsLocal (sfLReplacementInputOverContext G phi) (sfLSeparationImageComparison sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $;

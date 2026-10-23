@@ -1,0 +1,59 @@
+import "k218q_safe_prefix.mm1";
+
+@_ abstract def k218ParameterNames (n .S: nat): nat =
+ $ rec 0 (\ S, (4 + len S) : S) n $;
+@_ def k218ParameterAvoid (S n x: nat): wff =
+ $ sqEnvAvoid (sqNumericEnvironment S) n x $;
+@_ def k218ParameterBelow (S n k: nat): wff =
+ $ sqEnvBelow (sqNumericEnvironment S) n k $;
+
+pub theorem k218ParameterNames_zero: $ k218ParameterNames 0 = 0 $ = (named 'rec0);
+
+theorem k218PN_raw_suc (n: nat):
+ $ k218ParameterNames (suc n) = (4 + len (k218ParameterNames n)) : k218ParameterNames n $ =
+'(eqtr recS (! applame $ k218ParameterNames n $ _ S _ (conseqd (addeqd (a1i eqid) (leneqd id)) id)));
+
+theorem k218PN_length_step (n: nat):
+ $ len (k218ParameterNames n) = n -> len (k218ParameterNames (suc n)) = suc n $ =
+'(eqtrd (a1i (leneq k218PN_raw_suc)) (eqtrd (a1i lenS) (suceqd id)));
+
+pub theorem k218ParameterNames_length (n: nat): $ len (k218ParameterNames n) = n $ =
+(named @ induct '(ind) 'n '(eqtr (leneq k218ParameterNames_zero) len0) 'k218PN_length_step);
+
+pub theorem k218ParameterNames_suc (n: nat):
+ $ k218ParameterNames (suc n) = (4 + n) : k218ParameterNames n $ =
+'(eqtr k218PN_raw_suc (conseq1 (addeq2 k218ParameterNames_length)));
+
+theorem k218PN_avoid1_step (n: nat):
+ $ k218ParameterAvoid (k218ParameterNames n) n 1 ->
+   k218ParameterAvoid (k218ParameterNames (suc n)) (suc n) 1 $ =
+'(syl (bi2 (k218ParameterAvoideq1 k218ParameterNames_suc))
+ (ax_mp k218SP_avoid_cons (ltne (lttr (mpbi ltsuc lt01S) (ltletr ltsucid leaddid1)))));
+
+pub theorem k218ParameterNames_avoid1 (n: nat):
+ $ k218ParameterAvoid (k218ParameterNames n) n 1 $ =
+(named @ induct '(ind) 'n 'sqEnvAvoid_zero 'k218PN_avoid1_step);
+
+theorem k218PN_avoid3_step (n: nat):
+ $ k218ParameterAvoid (k218ParameterNames n) n 3 ->
+   k218ParameterAvoid (k218ParameterNames (suc n)) (suc n) 3 $ =
+'(syl (bi2 (k218ParameterAvoideq1 k218ParameterNames_suc))
+ (ax_mp k218SP_avoid_cons (ltne (ltletr ltsucid leaddid1))));
+
+pub theorem k218ParameterNames_avoid3 (n: nat):
+ $ k218ParameterAvoid (k218ParameterNames n) n 3 $ =
+(named @ induct '(ind) 'n 'sqEnvAvoid_zero 'k218PN_avoid3_step);
+
+theorem k218PN_below_zero: $ k218ParameterBelow (k218ParameterNames 0) 0 (4 + 0) $ =
+(named '(ax_gen (absurd lt02)));
+
+theorem k218PN_below_step (n: nat):
+ $ k218ParameterBelow (k218ParameterNames n) n (4 + n) ->
+   k218ParameterBelow (k218ParameterNames (suc n)) (suc n) (4 + suc n) $ =
+'(syl (bi2 (k218ParameterBeloweq1 k218ParameterNames_suc))
+ (syl (ax_mp k218SP_below_cons (mpbir (lteq2 addS) ltsucid))
+ (syl (bi2 (k218ParameterBeloweq3 addS)) sqEnvBelow_successor)));
+
+pub theorem k218ParameterNames_below (n: nat):
+ $ k218ParameterBelow (k218ParameterNames n) n (4 + n) $ =
+(named @ induct '(ind) 'n 'k218PN_below_zero 'k218PN_below_step);

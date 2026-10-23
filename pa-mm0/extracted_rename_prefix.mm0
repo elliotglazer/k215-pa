@@ -1,0 +1,16 @@
+import "source_renaming_laws.mm0";
+import "source_structural_induction.mm0";
+
+theorem exRenamePrefix_index {i: nat} (R S: set) (d n a: nat):
+ $ (A. i (i < n -> R @ i = S @ i)) -> a < d + n -> sfRenameIndex R d a = sfRenameIndex S d a $;
+
+def exRenamePrefixClass (R S: set) (n .c .d .i: nat): set =
+$ {c | A. d ((A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c ->
+ sfRename R d c = sfRename S d c)} $;
+
+theorem exRenamePrefix_value {d i: nat} (R S: set) (n c: nat):
+ $ c e. exRenamePrefixClass R S n <->
+ A. d ((A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c -> sfRename R d c = sfRename S d c) $;
+
+theorem exRenamePrefix_bounded {i: nat} (R S: set) (d n c: nat):
+ $ (A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $;

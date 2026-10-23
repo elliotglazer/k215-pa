@@ -1,0 +1,78 @@
+import "quotation_allocation.mm0";
+import "quotation_stack_environment.mm0";
+import "quotation_freshness.mm0";
+
+def sqRangeEnvironment (E: set) (n k q .i: nat): wff =
+ $ A. i (i < n -> sqAllocAvoid k q (E @ i)) $;
+
+theorem sqRangeEnvironment_at (E: set) (n k q i: nat):
+ $ sqRangeEnvironment E n k q -> i < n -> sqAllocAvoid k q (E @ i) $;
+
+theorem sqRangeEnvironment_zero (E: set) (k q: nat):
+ $ sqRangeEnvironment E 0 k q $;
+
+theorem sqRangeEnvironment_below {i: nat} (E: set) (n k q: nat)
+ (he: $ A. i (i < n -> E @ i < k) $):
+ $ sqRangeEnvironment E n k q $;
+
+theorem sqRangeEnvironment_mono (E: set) (n k q r: nat) (hr: $ r <= q $):
+ $ sqRangeEnvironment E n k q -> sqRangeEnvironment E n k r $;
+
+theorem sqRangeEnvironment_agree (E F: set) (n k q: nat) (he: $ sqEnvAgree E F n $):
+ $ sqRangeEnvironment E n k q -> sqRangeEnvironment F n k q $;
+
+theorem sqRangeEnvironment_cons (E: set) (n k q y: nat):
+ $ sqAllocAvoid k q y -> sqRangeEnvironment E n k q ->
+ sqRangeEnvironment (sqEnvCons y E) (suc n) k q $;
+
+def sqRebaseHygiene (E: set) (n k c m: nat): wff =
+ $ sqAllocAvoid k (suc (c + m)) 0 /\ sqRangeEnvironment E n k (suc (c + m)) $;
+
+theorem sqRebaseHygiene_zero (E: set) (n k c m: nat):
+ $ sqRebaseHygiene E n k c m -> sqAllocAvoid k (suc (c + m)) 0 $;
+
+theorem sqRebaseHygiene_environment (E: set) (n k c m: nat):
+ $ sqRebaseHygiene E n k c m -> sqRangeEnvironment E n k (suc (c + m)) $;
+
+theorem sqRebaseHygiene_nonzero (E: set) (n k c m: nat):
+ $ sqRebaseHygiene E n k c m -> k != 0 $;
+
+theorem sqRebaseHygiene_avoid (E: set) (n k c m: nat):
+ $ sqRebaseHygiene E n k c m -> sqEnvAvoid E n k $;
+
+theorem sqRebaseHygiene_below {i: nat} (E: set) (n k c m: nat)
+ (hk: $ 0 < k $) (he: $ A. i (i < n -> E @ i < k) $):
+ $ sqRebaseHygiene E n k c m $;
+
+theorem sqRebaseHygiene_subformula (E: set) (n k a c m: nat) (ha: $ a <= c $):
+ $ sqRebaseHygiene E n k c m -> sqRebaseHygiene E n k a m $;
+
+theorem sqRebaseHygiene_child (E: set) (n k a c m y: nat) (ha: $ a < c $):
+ $ sqRebaseHygiene E n k c m -> sqAllocAvoid (suc k) (suc (a + m)) y ->
+ sqRebaseHygiene (sqEnvCons y E) (suc n) (suc k) a m $;
+
+theorem sqRebaseHygiene_agree (E F: set) (n k c m: nat) (he: $ sqEnvAgree E F n $):
+ $ sqRebaseHygiene E n k c m -> sqRebaseHygiene F n k c m $;
+
+theorem sqRebaseHygiene_stack_child (S n k a c m y: nat) (E: set) (ha: $ a < c $):
+ $ sqRebaseHygiene (sqStackEnv S E) n k c m -> sqAllocAvoid (suc k) (suc (a + m)) y ->
+ sqRebaseHygiene (sqStackEnv (y : S) E) (suc n) (suc k) a m $;
+
+def sqCommonName (f g k l q: nat): nat = $ suc ((f + g) + (k + l) + q) $;
+
+theorem sqCommonName_left (f g k l q: nat): $ f < sqCommonName f g k l q $;
+
+theorem sqCommonName_right (f g k l q: nat): $ g < sqCommonName f g k l q $;
+
+theorem sqCommonName_range_left (f g k l q: nat):
+ $ k + q < sqCommonName f g k l q $;
+
+theorem sqCommonName_range_right (f g k l q: nat):
+ $ l + q < sqCommonName f g k l q $;
+
+theorem sqCommonName_avoid_left (f g k l q: nat):
+ $ sqAllocAvoid k q (sqCommonName f g k l q) $;
+
+theorem sqCommonName_avoid_right (f g k l q: nat):
+ $ sqAllocAvoid l q (sqCommonName f g k l q) $;
+

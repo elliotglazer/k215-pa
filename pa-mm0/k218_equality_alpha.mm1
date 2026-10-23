@@ -1,0 +1,118 @@
+import "k218_equality_fresh.mm1";
+
+pub theorem k218Vacuity_and_proved (z p q: nat)
+  (hp: $ k218Provable (kImp p (kAll z p)) $)
+  (hq: $ k218Provable (kImp q (kAll z q)) $):
+  $ k218Provable (kImp (kAnd p q) (kAll z (kAnd p q))) $ =
+'(k218Vacuity_negation (k218Vacuity_implication hp (k218Vacuity_negation hq)));
+pub theorem k218Vacuity_iff_proved (z p q: nat)
+  (hp: $ k218Provable (kImp p (kAll z p)) $)
+  (hq: $ k218Provable (kImp q (kAll z q)) $):
+  $ k218Provable (kImp (k218Iff p q) (kAll z (k218Iff p q))) $ =
+'(k218Vacuity_and_proved (k218Vacuity_implication hp hq) (k218Vacuity_implication hq hp));
+
+theorem k218Hyp_syl (G p q r: nat)
+  (hpq: $ k218HypProvable G (kImp p q) $)
+  (hqr: $ k218HypProvable G (kImp q r) $):
+  $ k218HypProvable G (kImp p r) $ =
+'(ax_mp (ax_mp k218HypProvable_mp hqr)
+  (ax_mp (ax_mp k218HypProvable_mp hpq) (ax_mp k218HypProvable_seed k218PropB)));
+theorem k218Hyp_and (G p q: nat)
+  (hp: $ k218HypProvable G p $) (hq: $ k218HypProvable G q $):
+  $ k218HypProvable G (kAnd p q) $ =
+'(ax_mp (ax_mp k218HypProvable_mp hq)
+  (ax_mp (ax_mp k218HypProvable_mp hp) (ax_mp k218HypProvable_seed k218PropAndIntro)));
+
+theorem k218Hyp_iff_transport (G h p q r s: nat)
+  (hh: $ k218HypProvable G h $) (hi: $ k218HypProvable G (k218Iff p q) $)
+  (hrp: $ k218Provable (kImp h (kImp r p)) $)
+  (hpr: $ k218Provable (kImp h (kImp p r)) $)
+  (hsq: $ k218Provable (kImp h (kImp s q)) $)
+  (hqs: $ k218Provable (kImp h (kImp q s)) $):
+  $ k218HypProvable G (k218Iff r s) $ =
+'(k218Hyp_and
+  (k218Hyp_syl
+    (k218Hyp_syl
+      (ax_mp (ax_mp k218HypProvable_mp hh) (ax_mp k218HypProvable_seed hrp))
+      (ax_mp (ax_mp k218HypProvable_mp hi) (ax_mp k218HypProvable_seed k218PropAndLeft)))
+    (ax_mp (ax_mp k218HypProvable_mp hh) (ax_mp k218HypProvable_seed hqs)))
+  (k218Hyp_syl
+    (k218Hyp_syl
+      (ax_mp (ax_mp k218HypProvable_mp hh) (ax_mp k218HypProvable_seed hsq))
+      (ax_mp (ax_mp k218HypProvable_mp hi) (ax_mp k218HypProvable_seed k218PropAndRight)))
+    (ax_mp (ax_mp k218HypProvable_mp hh) (ax_mp k218HypProvable_seed hpr))));
+
+pub theorem k218Iff_transport (h p q r s: nat)
+  (hrp: $ k218Provable (kImp h (kImp r p)) $)
+  (hpr: $ k218Provable (kImp h (kImp p r)) $)
+  (hsq: $ k218Provable (kImp h (kImp s q)) $)
+  (hqs: $ k218Provable (kImp h (kImp q s)) $):
+  $ k218Provable (kImp h (kImp (k218Iff p q) (k218Iff r s))) $ =
+'(ax_mp k218HypProvable_discharge
+  (ax_mp k218HypProvable_deduction
+    (k218Hyp_iff_transport
+      (ax_mp k218HypProvable_assumption (mpbir lmemS (orr lmemconsid)))
+      (ax_mp k218HypProvable_assumption lmemconsid) hrp hpr hsq hqs)));
+
+pub theorem k218Named_specialize_proved (x y p q: nat)
+  (he: $ k218Provable (kImp (kEq x y) (kImp p q)) $)
+  (hv: $ k218Provable (kImp q (kAll x q)) $):
+  $ k218Provable (kImp (kAll x p) q) $ =
+'(k218Provable_syl
+  (k218Imp_apply_right (k218Provable_axiom k218Axioms_rho1)
+    (k218Provable_syl (k218All_mono (k218Provable_mp he k218Cd103)) k218All_exists))
+  (k218Exists_collapse hv));
+
+theorem k218In_transport (v w x y: nat):
+  $ k218Provable (kImp (kEq v w)
+    (kImp (k218Iff (kMem v x) (kMem v y)) (k218Iff (kMem w x) (kMem w y)))) $ =
+'(k218Iff_transport
+  (k218Provable_syl k218Equality_symmetric (k218Provable_axiom k218Axioms_rho5))
+  (k218Provable_axiom k218Axioms_rho5)
+  (k218Provable_syl k218Equality_symmetric (k218Provable_axiom k218Axioms_rho5))
+  (k218Provable_axiom k218Axioms_rho5));
+theorem k218Out_transport (v w x y: nat):
+  $ k218Provable (kImp (kEq v w)
+    (kImp (k218Iff (kMem x v) (kMem y v)) (k218Iff (kMem x w) (kMem y w)))) $ =
+'(k218Iff_transport
+  (k218Provable_syl k218Equality_symmetric (k218Provable_axiom k218Axioms_rho3))
+  (k218Provable_axiom k218Axioms_rho3)
+  (k218Provable_syl k218Equality_symmetric (k218Provable_axiom k218Axioms_rho3))
+  (k218Provable_axiom k218Axioms_rho3));
+
+theorem k218In_vacuity (z v x y: nat)
+  (hzv: $ z != v $) (hzx: $ z != x $) (hzy: $ z != y $):
+  $ k218Provable (kImp (k218Iff (kMem v x) (kMem v y))
+    (kAll z (k218Iff (kMem v x) (kMem v y)))) $ =
+'(k218Vacuity_iff_proved
+  (ax_mp k218Membership_vacuity (ian hzv hzx))
+  (ax_mp k218Membership_vacuity (ian hzv hzy)));
+theorem k218Out_vacuity (z v x y: nat)
+  (hzv: $ z != v $) (hzx: $ z != x $) (hzy: $ z != y $):
+  $ k218Provable (kImp (k218Iff (kMem x v) (kMem y v))
+    (kAll z (k218Iff (kMem x v) (kMem y v)))) $ =
+'(k218Vacuity_iff_proved
+  (ax_mp k218Membership_vacuity (ian hzx hzv))
+  (ax_mp k218Membership_vacuity (ian hzy hzv)));
+
+pub theorem k218EqIn_alpha_strict (v w x y: nat)
+  (hvw: $ v != w $) (hvx: $ v != x $) (hvy: $ v != y $)
+  (hwx: $ w != x $) (hwy: $ w != y $):
+  $ k218Provable (kImp (k218EqIn v x y) (k218EqIn w x y)) $ =
+'(k218Provable_syl
+  (k218Vacuity_universal (k218In_vacuity (necom hvw) hwx hwy))
+  (k218All_mono (k218Named_specialize_proved k218In_transport (k218In_vacuity hvw hvx hvy))));
+pub theorem k218EqOut_alpha_strict (v w x y: nat)
+  (hvw: $ v != w $) (hvx: $ v != x $) (hvy: $ v != y $)
+  (hwx: $ w != x $) (hwy: $ w != y $):
+  $ k218Provable (kImp (k218EqOut v x y) (k218EqOut w x y)) $ =
+'(k218Provable_syl
+  (k218Vacuity_universal (k218Out_vacuity (necom hvw) hwx hwy))
+  (k218All_mono (k218Named_specialize_proved k218Out_transport (k218Out_vacuity hvw hvx hvy))));
+pub theorem k218EqEv_alpha_strict (v w x y: nat)
+  (hvw: $ v != w $) (hvx: $ v != x $) (hvy: $ v != y $)
+  (hwx: $ w != x $) (hwy: $ w != y $):
+  $ k218Provable (kImp (k218EqEv v x y) (k218EqEv w x y)) $ =
+'(k218Bundle_conjoin
+  (k218Provable_syl k218PropAndLeft (k218EqIn_alpha_strict hvw hvx hvy hwx hwy))
+  (k218Provable_syl k218PropAndRight (k218EqOut_alpha_strict hvw hvx hvy hwx hwy)));

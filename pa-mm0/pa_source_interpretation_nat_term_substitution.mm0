@@ -1,0 +1,15 @@
+import "pa_source_interpretation_nat_term_renaming.mm0";
+
+import "pa_source_interpretation_term_substitution.mm0";
+
+def paNatTermSubstEnvironment (E: set) (d a .i: nat): set = $ \ i, if (i < d) (E @ i) (if (i = d) (bb215ArithmeticFormulaTermValue E (paTermLift d a)) (E @ (i - 1))) $;
+
+theorem paNatTermSubstEnvironment_value (E: set) (d a i: nat): $ paNatTermSubstEnvironment E d a @ i = if (i < d) (E @ i) (if (i = d) (bb215ArithmeticFormulaTermValue E (paTermLift d a)) (E @ (i - 1))) $;
+
+theorem paNatTermSubstEnvironment_hit (E: set) (d a: nat): $ paNatTermSubstEnvironment E d a @ d = bb215ArithmeticFormulaTermValue E (paTermLift d a) $;
+
+theorem paNatTermValue_substitution_variable (E: set) (d a i: nat): $ bb215ArithmeticFormulaTermValue E (paTermSubstVariable d a i) = paNatTermSubstEnvironment E d a @ i $;
+
+def paNatTermSubstitutionClass (E: set) (d a .c: nat): set = $ {c | bb215ArithmeticFormulaTermValue E (paTermSubst d a c) = bb215ArithmeticFormulaTermValue (paNatTermSubstEnvironment E d a) c} $;
+
+theorem paNatTermValue_substitution (E: set) (d a n c: nat): $ paTermBound n c -> bb215ArithmeticFormulaTermValue E (paTermSubst d a c) = bb215ArithmeticFormulaTermValue (paNatTermSubstEnvironment E d a) c $;

@@ -1,0 +1,528 @@
+import "source_k0_qsep_matrix_alignment.mm1";
+
+import "source_k0_qsep_tagged_branches.mm1";
+
+import "k218q_equality.mm1";
+
+import "k218q_specialization.mm1";
+
+theorem qsepSingletonSubstitution (y r k z: nat) (hy: $ y < k $) (hr: $ r < k $) (hz: $ z < k $):
+ $ kSubst (kImp (kMem k r) (kEq k y)) k z = kImp (kMem z r) (kEq z y) $ =
+'(eqtr kSubst_kImp (kImpeq
+ (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (ltne hr))))
+ (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss (ltne hy))))));
+
+theorem qsepSingletonAllSpecialize (y r k z: nat) (hy: $ y < k $) (hr: $ r < k $) (hz: $ z < k $):
+ $ k218QProvable (kImp (kAll k (kImp (kMem k r) (kEq k y))) (kImp (kMem z r) (kEq z y))) $ =
+'(mpbi (k218QProvableeq (kImpeq2 (qsepSingletonSubstitution hy hr hz)))
+ (ax_mp (ax_mp (ax_mp k218INamed_specialization (ltner hz))
+ (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq)))
+ (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))));
+
+pub theorem sfK0QSepSingleton_select (y r k z: nat) (hy: $ y < k $) (hr: $ r < k $) (hz: $ z < k $):
+ $ k218QProvable (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem z r) (kEq z y))) $ =
+'(k218IProvable_syl k218IPropAndRight (qsepSingletonAllSpecialize hy hr hz));
+
+theorem qsepPairNotSingletonStep0 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kImp (kMem t r) (kMem t r))) (kImp (kMem t r) (kMem t r))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kImp (kMem t r) (kMem t r)) (kMem t r))) $ $ (kImp (kImp (kMem t r) (kImp (kMem t r) (kMem t r))) (kImp (kMem t r) (kMem t r))) $ (! k218IPropK $ (kMem t r) $ $ (kImp (kMem t r) (kMem t r)) $) (! k218IPropS $ (kMem t r) $ $ (kImp (kMem t r) (kMem t r)) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonStep1 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem t r) (kMem t r)) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kMem t r) (kMem t r))) $ $ (kImp (kMem t r) (kMem t r)) $ (! k218IPropK $ (kMem t r) $ $ (kMem t r) $) (! qsepPairNotSingletonStep0 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep2 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r))) $ $ (kImp (kMem t r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)))) $ (! k218IPropK $ (kMem t r) $ $ (sfK0QSepNamedSingleton y r k) $) (! k218IPropK $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonStep3 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kMem t r)) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)))) $ $ (kImp (kImp (kMem t r) (kMem t r)) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)))) $ (! qsepPairNotSingletonStep2 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem t r) $ $ (kMem t r) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)) $));
+
+theorem qsepPairNotSingletonStep4 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kMem t r)) $ $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r))) $ (! qsepPairNotSingletonStep1 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep3 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep5 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k))) (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) (sfK0QSepNamedSingleton y r k))) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k))) (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k))) $ (! k218IPropK $ (sfK0QSepNamedSingleton y r k) $ $ (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) $) (! k218IPropS $ (sfK0QSepNamedSingleton y r k) $ $ (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) $ $ (sfK0QSepNamedSingleton y r k) $));
+
+theorem qsepPairNotSingletonStep6 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k))) $ $ (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) $ (! k218IPropK $ (sfK0QSepNamedSingleton y r k) $ $ (sfK0QSepNamedSingleton y r k) $) (! qsepPairNotSingletonStep5 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep7 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (sfK0QSepNamedSingleton y r k) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y)))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y))) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y)))) $ (sfK0QSepSingleton_select hy hr ht) (! k218IPropK $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y))) $ $ (sfK0QSepNamedSingleton y r k) $));
+
+theorem qsepPairNotSingletonStep8 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y)))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y)))) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y)))) $ (! qsepPairNotSingletonStep7 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (sfK0QSepNamedSingleton y r k) $ $ (sfK0QSepNamedSingleton y r k) $ $ (kImp (kMem t r) (kEq t y)) $));
+
+theorem qsepPairNotSingletonStep9 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y))) $ (! qsepPairNotSingletonStep6 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep8 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep10 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem t r) (kEq t y))) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y))) $ (! qsepPairNotSingletonStep9 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (sfK0QSepNamedSingleton y r k) $ $ (kMem t r) $ $ (kEq t y) $));
+
+theorem qsepPairNotSingletonStep11 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y))) $ $ (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)))) $ (! qsepPairNotSingletonStep10 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropK $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonStep12 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)))) $ $ (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)))) $ (! qsepPairNotSingletonStep11 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem t r) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kMem t r)) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)) $));
+
+theorem qsepPairNotSingletonStep13 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kMem t r))) $ $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y))) $ (! qsepPairNotSingletonStep4 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep12 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep14 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq t y) (kEq y t))) $ =
+'(! k218QProvable_mp $ (kImp (kEq t y) (kEq y t)) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq t y) (kEq y t))) $ (! k218IEquality_symmetric $ t $ $ y $) (! k218IPropK $ (kImp (kEq t y) (kEq y t)) $ $ (sfK0QSepNamedSingleton y r k) $));
+
+theorem qsepPairNotSingletonStep15 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq t y) (kEq y t))) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) $ (! qsepPairNotSingletonStep14 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (sfK0QSepNamedSingleton y r k) $ $ (kEq t y) $ $ (kEq y t) $));
+
+theorem qsepPairNotSingletonStep16 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) $ $ (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) $ (! qsepPairNotSingletonStep15 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropK $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonStep17 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) $ $ (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) $ (! qsepPairNotSingletonStep16 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem t r) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kEq t y)) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) $));
+
+theorem qsepPairNotSingletonStep18 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq t y))) $ $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) $ (! qsepPairNotSingletonStep13 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep17 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep19 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) $ (! qsepPairNotSingletonStep18 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropK $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep20 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem b r) (kMem b r))) (kImp (kMem b r) (kMem b r))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem b r) (kMem b r)) (kMem b r))) $ $ (kImp (kImp (kMem b r) (kImp (kMem b r) (kMem b r))) (kImp (kMem b r) (kMem b r))) $ (! k218IPropK $ (kMem b r) $ $ (kImp (kMem b r) (kMem b r)) $) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem b r) (kMem b r)) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep21 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kMem b r)) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem b r) (kMem b r))) $ $ (kImp (kMem b r) (kMem b r)) $ (! k218IPropK $ (kMem b r) $ $ (kMem b r) $) (! qsepPairNotSingletonStep20 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep22 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r))) $ $ (kImp (kMem b r) (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)))) $ (! k218IPropK $ (kMem b r) $ $ (sfK0QSepNamedSingleton y r k) $) (! k218IPropK $ (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep23 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kMem b r)) (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)))) $ $ (kImp (kImp (kMem b r) (kMem b r)) (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)))) $ (! qsepPairNotSingletonStep22 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem b r) $ $ (kMem b r) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)) $));
+
+theorem qsepPairNotSingletonStep24 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kMem b r)) $ $ (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r))) $ (! qsepPairNotSingletonStep21 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep23 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep25 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (sfK0QSepNamedSingleton y r k) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y)))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y))) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y)))) $ (sfK0QSepSingleton_select hy hr hb) (! k218IPropK $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y))) $ $ (sfK0QSepNamedSingleton y r k) $));
+
+theorem qsepPairNotSingletonStep26 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y)))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y)))) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y)))) $ (! qsepPairNotSingletonStep25 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (sfK0QSepNamedSingleton y r k) $ $ (sfK0QSepNamedSingleton y r k) $ $ (kImp (kMem b r) (kEq b y)) $));
+
+theorem qsepPairNotSingletonStep27 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (sfK0QSepNamedSingleton y r k)) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y))) $ (! qsepPairNotSingletonStep6 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep26 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep28 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kMem b r) (kEq b y))) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y))) $ (! qsepPairNotSingletonStep27 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (sfK0QSepNamedSingleton y r k) $ $ (kMem b r) $ $ (kEq b y) $));
+
+theorem qsepPairNotSingletonStep29 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y))) $ $ (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)))) $ (! qsepPairNotSingletonStep28 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropK $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep30 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r))) (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)))) $ $ (kImp (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r))) (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)))) $ (! qsepPairNotSingletonStep29 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem b r) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kMem b r)) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)) $));
+
+theorem qsepPairNotSingletonStep31 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kMem b r))) $ $ (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y))) $ (! qsepPairNotSingletonStep24 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep30 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep32 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b y) (kImp (kEq y t) (kEq b t)))) $ =
+'(! k218QProvable_mp $ (kImp (kEq b y) (kImp (kEq y t) (kEq b t))) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b y) (kImp (kEq y t) (kEq b t)))) $ (! k218IEquality_transitive $ b $ $ y $ $ t $) (! k218IPropK $ (kImp (kEq b y) (kImp (kEq y t) (kEq b t))) $ $ (sfK0QSepNamedSingleton y r k) $));
+
+theorem qsepPairNotSingletonStep33 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t)))) $ =
+'(! k218QProvable_mp $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b y) (kImp (kEq y t) (kEq b t)))) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t)))) $ (! qsepPairNotSingletonStep32 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (sfK0QSepNamedSingleton y r k) $ $ (kEq b y) $ $ (kImp (kEq y t) (kEq b t)) $));
+
+theorem qsepPairNotSingletonStep34 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t)))) $ $ (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))))) $ (! qsepPairNotSingletonStep33 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropK $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t)))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep35 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y))) (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))))) $ $ (kImp (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y))) (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))))) $ (! qsepPairNotSingletonStep34 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem b r) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kEq b y)) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))) $));
+
+theorem qsepPairNotSingletonStep36 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b y))) $ $ (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t)))) $ (! qsepPairNotSingletonStep31 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep35 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep37 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ $ (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ (! k218IPropS $ (sfK0QSepNamedSingleton y r k) $ $ (kEq y t) $ $ (kEq b t) $) (! k218IPropK $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep38 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t)))) (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kImp (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t)))) (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ (! qsepPairNotSingletonStep37 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem b r) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t))) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) $));
+
+theorem qsepPairNotSingletonStep39 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq y t) (kEq b t)))) $ $ (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ (! qsepPairNotSingletonStep36 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep38 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep40 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kImp (kMem b r) (kImp (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ (! k218IPropK $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) $ $ (kMem t r) $) (! k218IPropK $ (kImp (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep41 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ $ (kImp (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ (! qsepPairNotSingletonStep40 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem b r) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) $ $ (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $));
+
+theorem qsepPairNotSingletonStep42 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ (! qsepPairNotSingletonStep39 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep41 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep43 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ (! k218IPropS $ (kMem t r) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) $) (! k218IPropK $ (kImp (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep44 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ (! qsepPairNotSingletonStep43 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ $ (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $));
+
+theorem qsepPairNotSingletonStep45 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ (! qsepPairNotSingletonStep42 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep44 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep46 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ (! qsepPairNotSingletonStep45 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t))) $ $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) $));
+
+theorem qsepPairNotSingletonStep47 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq y t)))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ (! qsepPairNotSingletonStep19 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep46 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep48 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ $ (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ (! k218IPropK $ (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) $ $ (kImp (kEq b t) kF) $) (! k218IPropK $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonStep49 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ (! qsepPairNotSingletonStep48 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem t r) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) $ $ (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) $));
+
+theorem qsepPairNotSingletonStep50 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ (! qsepPairNotSingletonStep49 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropK $ (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep51 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))))) $ (! qsepPairNotSingletonStep50 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) $ $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $));
+
+theorem qsepPairNotSingletonStep52 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ (! qsepPairNotSingletonStep47 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep51 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep53 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) (kImp (kEq b t) kF))) $ $ (kImp (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) $ (! k218IPropK $ (kImp (kEq b t) kF) $ $ (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $) (! k218IPropS $ (kImp (kEq b t) kF) $ $ (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $ $ (kImp (kEq b t) kF) $));
+
+theorem qsepPairNotSingletonStep54 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) $ $ (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $ (! k218IPropK $ (kImp (kEq b t) kF) $ $ (kImp (kEq b t) kF) $) (! qsepPairNotSingletonStep53 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep55 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF))) $ $ (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)))) $ (! k218IPropK $ (kImp (kEq b t) kF) $ $ (sfK0QSepNamedSingleton y r k) $) (! k218IPropK $ (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF))) $ $ (kImp (kEq b t) kF) $));
+
+theorem qsepPairNotSingletonStep56 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)))) $ $ (kImp (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)))) $ (! qsepPairNotSingletonStep55 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kImp (kEq b t) kF) $ $ (kImp (kEq b t) kF) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)) $));
+
+theorem qsepPairNotSingletonStep57 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $ $ (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF))) $ (! qsepPairNotSingletonStep54 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep56 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep58 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kEq b t) kF) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ $ (kImp (kImp (kEq b t) kF) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ (! k218IPropS $ (sfK0QSepNamedSingleton y r k) $ $ (kEq b t) $ $ kF $) (! k218IPropK $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ $ (kImp (kEq b t) kF) $));
+
+theorem qsepPairNotSingletonStep59 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kImp (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ (! qsepPairNotSingletonStep58 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kImp (kEq b t) kF) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF)) $ $ (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF)) $));
+
+theorem qsepPairNotSingletonStep60 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kEq b t) kF) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kImp (kEq b t) kF))) $ $ (kImp (kImp (kEq b t) kF) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ (! qsepPairNotSingletonStep57 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep59 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+theorem qsepPairNotSingletonStep61 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ $ (kImp (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ (! qsepPairNotSingletonStep60 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kImp (kEq b t) kF) $ $ (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)) $ $ (kImp (sfK0QSepNamedSingleton y r k) kF) $));
+
+theorem qsepPairNotSingletonStep62 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ $ (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ (! qsepPairNotSingletonStep61 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropK $ (kImp (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonStep63 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ (! qsepPairNotSingletonStep62 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem t r) $ $ (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))) $ $ (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)) $));
+
+theorem qsepPairNotSingletonStep64 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepPairNotSingletonStep63 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropK $ (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonStep65 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepPairNotSingletonStep64 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t)))) $ $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) $));
+
+theorem qsepPairNotSingletonStep66 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) (kEq b t))))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ (! qsepPairNotSingletonStep52 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy) (! qsepPairNotSingletonStep65 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy));
+
+pub theorem sfK0QSepPair_not_singleton_at (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ =
+'(! qsepPairNotSingletonStep66 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy);
+
+theorem qsepPairVac0 (b t r y: nat) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kAll y (kMem b r))) $ =
+'(ax_mp k218QFresh_vacuity (mpbir kFresh_kMem (ian hyb hyr)));
+
+theorem qsepPairVac1 (b t r y: nat) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem t r) (kAll y (kMem t r))) $ =
+'(ax_mp k218QFresh_vacuity (mpbir kFresh_kMem (ian hyt hyr)));
+
+theorem qsepPairVac2 (b t r y: nat) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) $ =
+'(k218IVacuity_negation (ax_mp k218QFresh_vacuity (mpbir kFresh_kEq (ian hyb hyt))));
+
+theorem qsepPairNotSingletonAllStep0 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) (kImp (kEq b t) kF))) $ $ (kImp (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) $ (! k218IPropK $ (kImp (kEq b t) kF) $ $ (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $) (! k218IPropS $ (kImp (kEq b t) kF) $ $ (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $ $ (kImp (kEq b t) kF) $));
+
+theorem qsepPairNotSingletonAllStep1 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF))) $ $ (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $ (! k218IPropK $ (kImp (kEq b t) kF) $ $ (kImp (kEq b t) kF) $) (! qsepPairNotSingletonAllStep0 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep2 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) $ $ (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ (qsepPairVac2 hyb hyt hyr) (! k218IPropK $ (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) $ $ (kImp (kEq b t) kF) $));
+
+theorem qsepPairNotSingletonAllStep3 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ $ (kImp (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ (! qsepPairNotSingletonAllStep2 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kImp (kEq b t) kF) $ $ (kImp (kEq b t) kF) $ $ (kAll y (kImp (kEq b t) kF)) $));
+
+theorem qsepPairNotSingletonAllStep4 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kImp (kEq b t) kF)) $ $ (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) $ (! qsepPairNotSingletonAllStep1 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep3 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep5 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) $ $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ (! qsepPairNotSingletonAllStep4 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropK $ (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonAllStep6 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))))) $ (! qsepPairNotSingletonAllStep5 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropK $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep7 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kImp (kMem t r) (kMem t r))) (kImp (kMem t r) (kMem t r))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kImp (kMem t r) (kMem t r)) (kMem t r))) $ $ (kImp (kImp (kMem t r) (kImp (kMem t r) (kMem t r))) (kImp (kMem t r) (kMem t r))) $ (! k218IPropK $ (kMem t r) $ $ (kImp (kMem t r) (kMem t r)) $) (! k218IPropS $ (kMem t r) $ $ (kImp (kMem t r) (kMem t r)) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonAllStep8 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem t r) (kMem t r)) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kMem t r) (kMem t r))) $ $ (kImp (kMem t r) (kMem t r)) $ (! k218IPropK $ (kMem t r) $ $ (kMem t r) $) (! qsepPairNotSingletonAllStep7 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep9 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kMem t r) (kAll y (kMem t r)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kAll y (kMem t r))) $ $ (kImp (kMem t r) (kImp (kMem t r) (kAll y (kMem t r)))) $ (qsepPairVac1 hyb hyt hyr) (! k218IPropK $ (kImp (kMem t r) (kAll y (kMem t r))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonAllStep10 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kMem t r)) (kImp (kMem t r) (kAll y (kMem t r)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kMem t r) (kAll y (kMem t r)))) $ $ (kImp (kImp (kMem t r) (kMem t r)) (kImp (kMem t r) (kAll y (kMem t r)))) $ (! qsepPairNotSingletonAllStep9 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem t r) $ $ (kMem t r) $ $ (kAll y (kMem t r)) $));
+
+theorem qsepPairNotSingletonAllStep11 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem t r) (kAll y (kMem t r))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kMem t r)) $ $ (kImp (kMem t r) (kAll y (kMem t r))) $ (! qsepPairNotSingletonAllStep8 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep10 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep12 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kAll y (kMem t r)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kAll y (kMem t r))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kAll y (kMem t r)))) $ (! qsepPairNotSingletonAllStep11 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropK $ (kImp (kMem t r) (kAll y (kMem t r))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep13 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem b r) (kMem b r))) (kImp (kMem b r) (kMem b r))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem b r) (kMem b r)) (kMem b r))) $ $ (kImp (kImp (kMem b r) (kImp (kMem b r) (kMem b r))) (kImp (kMem b r) (kMem b r))) $ (! k218IPropK $ (kMem b r) $ $ (kImp (kMem b r) (kMem b r)) $) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem b r) (kMem b r)) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep14 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kMem b r)) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem b r) (kMem b r))) $ $ (kImp (kMem b r) (kMem b r)) $ (! k218IPropK $ (kMem b r) $ $ (kMem b r) $) (! qsepPairNotSingletonAllStep13 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep15 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem b r) (kAll y (kMem b r)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kAll y (kMem b r))) $ $ (kImp (kMem b r) (kImp (kMem b r) (kAll y (kMem b r)))) $ (qsepPairVac0 hyb hyt hyr) (! k218IPropK $ (kImp (kMem b r) (kAll y (kMem b r))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep16 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kMem b r)) (kImp (kMem b r) (kAll y (kMem b r)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem b r) (kAll y (kMem b r)))) $ $ (kImp (kImp (kMem b r) (kMem b r)) (kImp (kMem b r) (kAll y (kMem b r)))) $ (! qsepPairNotSingletonAllStep15 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kMem b r) $ $ (kAll y (kMem b r)) $));
+
+theorem qsepPairNotSingletonAllStep17 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kAll y (kMem b r))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kMem b r)) $ $ (kImp (kMem b r) (kAll y (kMem b r))) $ (! qsepPairNotSingletonAllStep14 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep16 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep18 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kAll y (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(ax_mp k218QProvable_gen (sfK0QSepPair_not_singleton_at hb ht hr hy));
+
+theorem qsepPairNotSingletonAllStep19 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kAll y (kMem b r)) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kAll y (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kAll y (kMem b r)) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepPairNotSingletonAllStep18 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepTagDist $ y $ $ (kMem b r) $ $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) $));
+
+theorem qsepPairNotSingletonAllStep20 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kAll y (kMem b r)) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kMem b r)) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem b r) (kImp (kAll y (kMem b r)) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep19 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropK $ (kImp (kAll y (kMem b r)) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep21 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kAll y (kMem b r))) (kImp (kMem b r) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kAll y (kMem b r)) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kImp (kMem b r) (kAll y (kMem b r))) (kImp (kMem b r) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep20 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kAll y (kMem b r)) $ $ (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $));
+
+theorem qsepPairNotSingletonAllStep22 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kAll y (kMem b r))) $ $ (kImp (kMem b r) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepPairNotSingletonAllStep17 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep21 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep23 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem b r) (kImp (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepTagDist $ y $ $ (kMem t r) $ $ (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)) $) (! k218IPropK $ (kImp (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep24 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem b r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kImp (kMem b r) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem b r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep23 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $));
+
+theorem qsepPairNotSingletonAllStep25 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kAll y (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem b r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepPairNotSingletonAllStep22 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep24 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep26 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kMem b r) (kImp (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! k218IPropK $ (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kMem t r) $) (! k218IPropK $ (kImp (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep27 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ $ (kImp (kImp (kMem b r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! qsepPairNotSingletonAllStep26 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $));
+
+theorem qsepPairNotSingletonAllStep28 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep25 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep27 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep29 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! k218IPropS $ (kMem t r) $ $ (kAll y (kMem t r)) $ $ (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) $) (! k218IPropK $ (kImp (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep30 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) (kImp (kMem b r) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) (kImp (kMem b r) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! qsepPairNotSingletonAllStep29 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $));
+
+theorem qsepPairNotSingletonAllStep31 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kMem t r)) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep28 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep30 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep32 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kAll y (kMem t r)))) (kImp (kMem b r) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kAll y (kMem t r))) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kAll y (kMem t r)))) (kImp (kMem b r) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep31 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kAll y (kMem t r))) $ $ (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $));
+
+theorem qsepPairNotSingletonAllStep33 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kAll y (kMem t r)))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepPairNotSingletonAllStep12 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep32 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep34 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kImp (kMem t r) (kImp (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepTagDist $ y $ $ (kImp (kEq b t) kF) $ $ (kImp (sfK0QSepNamedSingleton y r k) kF) $) (! k218IPropK $ (kImp (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonAllStep35 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepPairNotSingletonAllStep34 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem t r) $ $ (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))) $ $ (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))) $));
+
+theorem qsepPairNotSingletonAllStep36 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep35 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropK $ (kImp (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep37 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep36 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) $));
+
+theorem qsepPairNotSingletonAllStep38 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kAll y (kImp (kImp (kEq b t) kF) (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepPairNotSingletonAllStep33 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep37 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep39 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem t r) (kImp (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! k218IPropK $ (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))) $ $ (kImp (kEq b t) kF) $) (! k218IPropK $ (kImp (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonAllStep40 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep39 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem t r) $ $ (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))) $ $ (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) $));
+
+theorem qsepPairNotSingletonAllStep41 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! qsepPairNotSingletonAllStep40 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropK $ (kImp (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep42 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! qsepPairNotSingletonAllStep41 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $));
+
+theorem qsepPairNotSingletonAllStep43 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep38 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep42 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep44 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! k218IPropS $ (kImp (kEq b t) kF) $ $ (kAll y (kImp (kEq b t) kF)) $ $ (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)) $) (! k218IPropK $ (kImp (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kMem t r) $));
+
+theorem qsepPairNotSingletonAllStep45 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep44 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem t r) $ $ (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) $ $ (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) $));
+
+theorem qsepPairNotSingletonAllStep46 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! qsepPairNotSingletonAllStep45 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropK $ (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep47 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! qsepPairNotSingletonAllStep46 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $));
+
+theorem qsepPairNotSingletonAllStep48 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kImp (kAll y (kImp (kEq b t) kF)) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep43 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep47 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep49 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! k218IPropS $ (kMem t r) $ $ (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) $ $ (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))) $) (! k218IPropK $ (kImp (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kMem b r) $));
+
+theorem qsepPairNotSingletonAllStep50 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))))) $ (! qsepPairNotSingletonAllStep49 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ $ (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $));
+
+theorem qsepPairNotSingletonAllStep51 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep48 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep50 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+theorem qsepPairNotSingletonAllStep52 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ $ (kImp (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))))) (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))))) $ (! qsepPairNotSingletonAllStep51 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! k218IPropS $ (kMem b r) $ $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF)))) $ $ (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF)))) $));
+
+theorem qsepPairNotSingletonAllStep53 (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (kEq b t) kF))))) $ $ (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ (! qsepPairNotSingletonAllStep6 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr) (! qsepPairNotSingletonAllStep52 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr));
+
+pub theorem sfK0QSepPair_not_singleton (b t r y k: nat) (hb: $ b < k $) (ht: $ t < k $) (hr: $ r < k $) (hy: $ y < k $) (hyb: $ y != b $) (hyt: $ y != t $) (hyr: $ y != r $):
+ $ k218QProvable (kImp (kMem b r) (kImp (kMem t r) (kImp (kImp (kEq b t) kF) (kAll y (kImp (sfK0QSepNamedSingleton y r k) kF))))) $ =
+'(! qsepPairNotSingletonAllStep53 $ b $ $ t $ $ r $ $ y $ $ k $ hb ht hr hy hyb hyt hyr);

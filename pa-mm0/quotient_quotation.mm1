@@ -1,0 +1,119 @@
+import "quotient_atom_templates.mm1";
+
+-- Arithmetic guarded quotient quotation into the exact K language.
+-- It is not yet a theorem of logical or axiom-image preservation.
+@_ def sqQuoteBody (E: set) (t k d c h: nat): nat =
+$ if (c = 0) kF
+  (if (sfTag c = 1) (sqMember t (sfNamedIndex E k d (sfLeft c)) (sfNamedIndex E k d (sfRight c)) (k + d))
+  (if (sfTag c = 2) (sqEqual t (sfNamedIndex E k d (sfLeft c)) (sfNamedIndex E k d (sfRight c)) (k + d))
+  (if (sfTag c = 3) (kAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (kDisj (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (kImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (kAll (k + d) (kImp (kMem t (k + d)) (h @ (suc d, sfLeft c))))
+  (if (sfTag c = 7 /\ sfRight c = 0) (kExists (k + d) (kAnd (kMem t (k + d)) (h @ (suc d, sfLeft c)))) kF))))))) $;
+@_ abstract def sqQuoteStep (E: set) (t k .h: nat): set =
+$ \ h, sqQuoteBody E t k (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+@_ abstract def sqQuote (E: set) (t k d c: nat): nat = $ srec (sqQuoteStep E t k) (d, c) $;
+@_ abstract def sqQuoteHistory (E: set) (t k d c .i: nat): nat =
+$ \. i e. upto (d, c), srec (sqQuoteStep E t k) i $;
+
+pub theorem sqQuoteStep_apply (E: set) (t k h: nat):
+  $ sqQuoteStep E t k @ h = sqQuoteBody E t k (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $ =
+(named '(!! applame j ,eqtac));
+
+pub theorem sqQuoteHistory_size (E: set) (t k d c: nat):
+  $ sfHistoryLength (sqQuoteHistory E t k d c) = (d, c) $ =
+(named '(sreclem eqid));
+
+pub theorem sqQuoteHistory_lookup (E: set) (t k d c e a: nat):
+  $ (e, a) < (d, c) -> sqQuoteHistory E t k d c @ (e, a) = sqQuote E t k e a $ =
+(named '(syl (apprlame sreceq2) (bi2 elupto)));
+
+pub theorem sqQuote_unfold (E: set) (t k d c: nat):
+  $ sqQuote E t k d c = sqQuoteBody E t k d c (sqQuoteHistory E t k d c) $ =
+(named '(eqtr srecval @ eqtr sqQuoteStep_apply @
+  sqQuoteBodyeq eqsid eqid eqid (eqtr (fsteq sqQuoteHistory_size) fstpr)
+    (eqtr (sndeq sqQuoteHistory_size) sndpr) eqid));
+
+theorem sqQuoteBody_sfMem (E: set) (t k d c h: nat)
+  (h0: $ c != 0 $) (ht: $ sfTag c = 1 $):
+  $ sqQuoteBody E t k d c h = sqMember t (sfNamedIndex E k d (sfLeft c)) (sfNamedIndex E k d (sfRight c)) (k + d) $ =
+'(eqtr (ifneg h0) (ifpos ht));
+
+theorem sqQuoteBody_sfEq (E: set) (t k d c h: nat)
+  (h0: $ c != 0 $) (ht: $ sfTag c = 2 $):
+  $ sqQuoteBody E t k d c h = sqEqual t (sfNamedIndex E k d (sfLeft c)) (sfNamedIndex E k d (sfRight c)) (k + d) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifpos ht)));
+
+theorem sqQuoteBody_sfAnd (E: set) (t k d c h: nat)
+  (h0: $ c != 0 $) (ht: $ sfTag c = 3 $):
+  $ sqQuoteBody E t k d c h = kAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (ifpos ht))));
+
+theorem sqQuoteBody_sfOr (E: set) (t k d c h: nat)
+  (h0: $ c != 0 $) (ht: $ sfTag c = 4 $):
+  $ sqQuoteBody E t k d c h = kDisj (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (ifpos ht)))));
+
+theorem sqQuoteBody_sfImp (E: set) (t k d c h: nat)
+  (h0: $ c != 0 $) (ht: $ sfTag c = 5 $):
+  $ sqQuoteBody E t k d c h = kImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (ifpos ht))))));
+
+theorem sqQuoteBody_sfAll (E: set) (t k d c h: nat)
+  (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $):
+  $ sqQuoteBody E t k d c h = kAll (k + d) (kImp (kMem t (k + d)) (h @ (suc d, sfLeft c))) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (ifpos (ian ht hz))))))));
+
+theorem sqQuoteBody_sfEx (E: set) (t k d c h: nat)
+  (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $):
+  $ sqQuoteBody E t k d c h = kExists (k + d) (kAnd (kMem t (k + d)) (h @ (suc d, sfLeft c))) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr (ifneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ifpos (ian ht hz)))))))));
+
+theorem sqQuoteHistory_left (E: set) (t k d c a: nat)
+  (he: $ sfLeft c = a $) (ha: $ a < c $):
+  $ sqQuoteHistory E t k d c @ (d, sfLeft c) = sqQuote E t k (d) a $ =
+'(eqtr (appeq2 (preq2 he)) (sqQuoteHistory_lookup (sfKey_lt ha)));
+
+theorem sqQuoteHistory_right (E: set) (t k d c a: nat)
+  (he: $ sfRight c = a $) (ha: $ a < c $):
+  $ sqQuoteHistory E t k d c @ (d, sfRight c) = sqQuote E t k (d) a $ =
+'(eqtr (appeq2 (preq2 he)) (sqQuoteHistory_lookup (sfKey_lt ha)));
+
+theorem sqQuoteHistory_binder (E: set) (t k d c a: nat)
+  (he: $ sfLeft c = a $) (ha: $ a < c $):
+  $ sqQuoteHistory E t k d c @ (suc d, sfLeft c) = sqQuote E t k (suc d) a $ =
+'(eqtr (appeq2 (preq2 he)) (sqQuoteHistory_lookup (sfKey_underBinder_lt ha)));
+
+pub theorem sqQuote_bot (E: set) (t k d: nat):
+  $ sqQuote E t k d sfBot = kF $ =
+'(eqtr sqQuote_unfold (ifpos eqid));
+
+pub theorem sqQuote_sfMem (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfMem a b) = sqMember t (sfNamedIndex E k d a) (sfNamedIndex E k d b) (k + d) $ =
+'(eqtr sqQuote_unfold (eqtr (sqQuoteBody_sfMem sfMem_ne_sfBot sfMem_tag) (sqMembereq eqid (sfNamedIndexeq4 sfMem_left) (sfNamedIndexeq4 sfMem_right) eqid)));
+
+pub theorem sqQuote_sfEq (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfEq a b) = sqEqual t (sfNamedIndex E k d a) (sfNamedIndex E k d b) (k + d) $ =
+'(eqtr sqQuote_unfold (eqtr (sqQuoteBody_sfEq sfEq_ne_sfBot sfEq_tag) (sqEqualeq eqid (sfNamedIndexeq4 sfEq_left) (sfNamedIndexeq4 sfEq_right) eqid)));
+
+pub theorem sqQuote_sfAnd (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfAnd a b) = kAnd (sqQuote E t k d a) (sqQuote E t k d b) $ =
+'(eqtr sqQuote_unfold (eqtr (sqQuoteBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (kAndeq (sqQuoteHistory_left sfAnd_left sfAnd_left_lt) (sqQuoteHistory_right sfAnd_right sfAnd_right_lt))));
+
+pub theorem sqQuote_sfOr (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfOr a b) = kDisj (sqQuote E t k d a) (sqQuote E t k d b) $ =
+'(eqtr sqQuote_unfold (eqtr (sqQuoteBody_sfOr sfOr_ne_sfBot sfOr_tag) (kDisjeq (sqQuoteHistory_left sfOr_left sfOr_left_lt) (sqQuoteHistory_right sfOr_right sfOr_right_lt))));
+
+pub theorem sqQuote_sfImp (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfImp a b) = kImp (sqQuote E t k d a) (sqQuote E t k d b) $ =
+'(eqtr sqQuote_unfold (eqtr (sqQuoteBody_sfImp sfImp_ne_sfBot sfImp_tag) (kImpeq (sqQuoteHistory_left sfImp_left sfImp_left_lt) (sqQuoteHistory_right sfImp_right sfImp_right_lt))));
+
+pub theorem sqQuote_sfAll (E: set) (t k d a: nat):
+  $ sqQuote E t k d (sfAll a) = kAll (k + d) (kImp (kMem t (k + d)) (sqQuote E t k (suc d) a)) $ =
+'(eqtr sqQuote_unfold (eqtr (sqQuoteBody_sfAll sfAll_ne_sfBot sfAll_tag sfAll_right) (kAlleq2 (kImpeq2 (sqQuoteHistory_binder sfAll_left sfAll_body_lt)))));
+
+pub theorem sqQuote_sfEx (E: set) (t k d a: nat):
+  $ sqQuote E t k d (sfEx a) = kExists (k + d) (kAnd (kMem t (k + d)) (sqQuote E t k (suc d) a)) $ =
+'(eqtr sqQuote_unfold (eqtr (sqQuoteBody_sfEx sfEx_ne_sfBot sfEx_tag sfEx_right) (kExistseq2 (kAndeq2 (sqQuoteHistory_binder sfEx_left sfEx_body_lt)))));
+

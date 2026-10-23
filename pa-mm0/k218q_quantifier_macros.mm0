@@ -1,0 +1,32 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_quantifier_derived.mm0";
+
+-- Finite global K proof macros, with every vacuity premise explicit.
+
+theorem k218IPropNegativeImplication (p q: nat): $ k218QProvable (kImp (kImp p kF) (kImp p q)) $;
+
+theorem k218IPropCasesImplication (p q r: nat): $ k218QProvable (kImp (kImp (kImp p kF) r) (kImp (kImp q r) (kImp (kImp p q) r))) $;
+
+theorem k218IVacuity_negation (x p: nat)
+  (hv: $ k218QProvable (kImp p (kAll x p)) $):
+  $ k218QProvable (kImp (kNot p) (kAll x (kNot p))) $;
+
+theorem k218IVacuity_implication (x p q: nat)
+  (hp: $ k218QProvable (kImp p (kAll x p)) $)
+  (hq: $ k218QProvable (kImp q (kAll x q)) $):
+  $ k218QProvable (kImp (kImp p q) (kAll x (kImp p q))) $;
+
+theorem k218IVacuity_universal (x y p: nat)
+  (hv: $ k218QProvable (kImp p (kAll y p)) $):
+  $ k218QProvable (kImp (kAll x p) (kAll y (kAll x p))) $;
+
+theorem k218IVacuity_truth (x: nat):
+  $ k218QProvable (kImp 0 (kAll x 0)) $;
+
+theorem k218IAll_exists (x p q: nat):
+  $ k218QProvable (kImp (kAll x (kImp p q)) (kImp (kExists x p) (kExists x q))) $;
+
+theorem k218IExists_elimination (x p q: nat)
+  (hv: $ k218QProvable (kImp q (kAll x q)) $):
+  $ k218QProvable (kImp (kAll x (kImp p q)) (kImp (kExists x p) q)) $;

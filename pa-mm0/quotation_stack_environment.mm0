@@ -1,0 +1,23 @@
+import "quotation_binders.mm0";
+
+-- Numeric environment stacks permit PA induction without quantifying over
+-- an arithmetic formula-class parameter E.
+def sqStackIndex (S: nat) (E: set) (i: nat): nat =
+ $ if (nth i S = 0) (E @ (i - len S)) (nth i S - 1) $;
+def sqStackEnv (S: nat) (E: set) (.i: nat): set = $ \ i, sqStackIndex S E i $;
+
+theorem sqStackEnv_value (S: nat) (E: set) (i: nat):
+ $ sqStackEnv S E @ i = sqStackIndex S E i $;
+theorem sqStackIndex_nil (E: set) (i: nat): $ sqStackIndex 0 E i = E @ i $;
+theorem sqStackIndex_cons_zero (a S: nat) (E: set): $ sqStackIndex (a : S) E 0 = a $;
+theorem sqStackIndex_cons_suc (a S: nat) (E: set) (i: nat):
+ $ sqStackIndex (a : S) E (suc i) = sqStackIndex S E i $;
+theorem sqStackEnv_nil (E: set) (i: nat): $ sqStackEnv 0 E @ i = E @ i $;
+theorem sqStackEnv_cons_zero (a S: nat) (E: set): $ sqStackEnv (a : S) E @ 0 = a $;
+theorem sqStackEnv_cons_suc (a S: nat) (E: set) (i: nat):
+ $ sqStackEnv (a : S) E @ suc i = sqStackEnv S E @ i $;
+theorem sqStackEnv_cons (a S: nat) (E: set) (i: nat):
+ $ sqStackEnv (a : S) E @ i = sqEnvCons a (sqStackEnv S E) @ i $;
+theorem sqStackEnv_cons_agree (a S: nat) (E: set) (n: nat):
+ $ sqEnvAgree (sqStackEnv (a : S) E) (sqEnvCons a (sqStackEnv S E)) n $;
+theorem sqStackEnv_nil_agree (E: set) (n: nat): $ sqEnvAgree (sqStackEnv 0 E) E n $;

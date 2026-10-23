@@ -1,0 +1,119 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+import "k218_stack.mm0";
+
+-- Six-register abstract SeedG enumerator; concrete program correspondence is separate.
+-- The Cantor tuple is a bijection: there are no malformed numeric states.
+def k218EnumState (pl np tw ws d h: nat): nat = $ (pl, np, tw, ws, d, h) $;
+def k218EnumPL (s: nat): nat = $ fst s $;
+def k218EnumNP (s: nat): nat = $ fst (snd s) $;
+def k218EnumTW (s: nat): nat = $ fst (snd (snd s)) $;
+def k218EnumWS (s: nat): nat = $ fst (snd (snd (snd s))) $;
+def k218EnumD (s: nat): nat = $ fst (snd (snd (snd (snd s)))) $;
+def k218EnumH (s: nat): nat = $ snd (snd (snd (snd (snd s)))) $;
+def k218EnumInitial: nat = $ k218EnumState 0 0 0 0 0 0 $;
+
+-- Reload uses np itself for a first command; continuation uses pl - 1.
+def k218EnumList (s: nat): nat = $ if (k218EnumPL s = 0) (k218EnumNP s) (k218EnumPL s - 1) $;
+def k218EnumNext (s: nat): nat = $ if (k218EnumPL s = 0) (suc (k218EnumNP s)) (k218EnumNP s) $;
+def k218EnumSelector (s: nat): nat = $ fst (k218EnumList s) $;
+def k218EnumTail (s: nat): nat = $ snd (snd (k218EnumList s)) $;
+def k218EnumDelta (s: nat): nat = $ k218EnumD s + fst (snd (k218EnumList s)) $;
+def k218EnumAXState (s c tail next delta: nat): nat =
+$ k218EnumState (snd (snd tail)) next
+    (k218Gate delta (k218EnumH s + fst tail) c)
+    (k218AxStack delta (k218EnumH s) (k218EnumH s + fst tail) c
+      (fst (snd tail)) (k218EnumTW s) (k218EnumWS s)) 0 0 $;
+
+-- Option encoding is 0 = None and suc state = Some state.
+def k218EnumCommand (s ac tail next delta: nat): nat =
+$ if (ac = 0)
+    (if (kImp (k218EnumTW s) delta = k218EnumH s)
+      (suc (k218EnumState tail next delta (0, k218EnumWS s) delta 0))
+      (suc (k218EnumState tail next 0 (k218EnumWS s) delta 0)))
+  (if (ac = 1)
+    (suc (k218EnumState tail next (k218EnumH s) (k218EnumTW s, k218EnumWS s) delta (k218EnumH s)))
+  (if (ac = 2)
+    (if (k218EnumH s = 1) 0
+      (suc (k218EnumState tail next (k218EnumTW s) (snd (k218EnumWS s)) delta (fst (k218EnumWS s)))))
+    (suc (k218EnumAXState s (ac - 3) tail next delta)))) $;
+def k218EnumStep (s: nat): nat =
+$ k218EnumCommand s (k218EnumSelector s) (k218EnumTail s) (k218EnumNext s) (k218EnumDelta s) $;
+
+theorem k218EnumState_PL (pl np tw ws d h: nat):
+  $ k218EnumPL (k218EnumState pl np tw ws d h) = pl $;
+
+theorem k218EnumState_NP (pl np tw ws d h: nat):
+  $ k218EnumNP (k218EnumState pl np tw ws d h) = np $;
+
+theorem k218EnumState_TW (pl np tw ws d h: nat):
+  $ k218EnumTW (k218EnumState pl np tw ws d h) = tw $;
+
+theorem k218EnumState_WS (pl np tw ws d h: nat):
+  $ k218EnumWS (k218EnumState pl np tw ws d h) = ws $;
+
+theorem k218EnumState_D (pl np tw ws d h: nat):
+  $ k218EnumD (k218EnumState pl np tw ws d h) = d $;
+
+theorem k218EnumState_H (pl np tw ws d h: nat):
+  $ k218EnumH (k218EnumState pl np tw ws d h) = h $;
+
+theorem k218EnumState_rebuild (s: nat):
+ $ k218EnumState (k218EnumPL s) (k218EnumNP s) (k218EnumTW s) (k218EnumWS s) (k218EnumD s) (k218EnumH s) = s $;
+theorem k218EnumInitial_zero: $ k218EnumInitial = 0 $;
+theorem k218EnumList_reload (s: nat): $ k218EnumPL s = 0 -> k218EnumList s = k218EnumNP s $;
+theorem k218EnumList_continue (s: nat): $ k218EnumPL s != 0 -> k218EnumList s = k218EnumPL s - 1 $;
+theorem k218EnumNext_reload (s: nat): $ k218EnumPL s = 0 -> k218EnumNext s = suc (k218EnumNP s) $;
+theorem k218EnumNext_continue (s: nat): $ k218EnumPL s != 0 -> k218EnumNext s = k218EnumNP s $;
+
+theorem k218EnumCommand_mp_hit (s tail next delta: nat):
+ $ kImp (k218EnumTW s) delta = k218EnumH s -> k218EnumCommand s 0 tail next delta = suc (k218EnumState tail next delta (0, k218EnumWS s) delta 0) $;
+
+theorem k218EnumCommand_mp_miss (s tail next delta: nat):
+ $ kImp (k218EnumTW s) delta != k218EnumH s -> k218EnumCommand s 0 tail next delta = suc (k218EnumState tail next 0 (k218EnumWS s) delta 0) $;
+
+theorem k218EnumCommand_drop (s tail next delta: nat):
+ $ k218EnumCommand s 1 tail next delta = suc (k218EnumState tail next (k218EnumH s) (k218EnumTW s, k218EnumWS s) delta (k218EnumH s)) $;
+
+theorem k218EnumCommand_nip_halt (s tail next delta: nat):
+ $ k218EnumH s = 1 -> k218EnumCommand s 2 tail next delta = 0 $;
+
+theorem k218EnumCommand_nip_pop (s tail next delta: nat):
+ $ k218EnumH s != 1 -> k218EnumCommand s 2 tail next delta = suc (k218EnumState tail next (k218EnumTW s) (snd (k218EnumWS s)) delta (fst (k218EnumWS s))) $;
+
+theorem k218EnumCommand_ax (s c tail next delta: nat):
+ $ k218EnumCommand s (suc (suc (suc c))) tail next delta =
+   suc (k218EnumAXState s c tail next delta) $;
+
+def k218EnumStateGood (s: nat): wff =
+$ k218Provable (k218EnumTW s) /\ k218Provable (k218EnumH s) /\ k218GoodStack (k218EnumWS s) $;
+def k218EnumOptionGood (r: nat): wff =
+$ ifp (r = 0) (k218Provable 1) (k218EnumStateGood (r - 1)) $;
+
+theorem k218EnumStep_mp_hit (s: nat):
+ $ k218EnumSelector s = 0 -> kImp (k218EnumTW s) (k218EnumDelta s) = k218EnumH s -> k218EnumStep s = suc (k218EnumState (k218EnumTail s) (k218EnumNext s) (k218EnumDelta s) (0, k218EnumWS s) (k218EnumDelta s) 0) $;
+
+theorem k218EnumStep_mp_miss (s: nat):
+ $ k218EnumSelector s = 0 -> kImp (k218EnumTW s) (k218EnumDelta s) != k218EnumH s -> k218EnumStep s = suc (k218EnumState (k218EnumTail s) (k218EnumNext s) 0 (k218EnumWS s) (k218EnumDelta s) 0) $;
+
+theorem k218EnumStep_drop (s: nat):
+ $ k218EnumSelector s = 1 -> k218EnumStep s = suc (k218EnumState (k218EnumTail s) (k218EnumNext s) (k218EnumH s) (k218EnumTW s, k218EnumWS s) (k218EnumDelta s) (k218EnumH s)) $;
+
+theorem k218EnumStep_nip_halt (s: nat):
+ $ k218EnumSelector s = 2 -> k218EnumH s = 1 -> k218EnumStep s = 0 $;
+
+theorem k218EnumStep_nip_pop (s: nat):
+ $ k218EnumSelector s = 2 -> k218EnumH s != 1 -> k218EnumStep s = suc (k218EnumState (k218EnumTail s) (k218EnumNext s) (k218EnumTW s) (snd (k218EnumWS s)) (k218EnumDelta s) (fst (k218EnumWS s))) $;
+
+theorem k218EnumStep_ax (s c: nat):
+ $ k218EnumSelector s = suc (suc (suc c)) -> k218EnumStep s = suc (k218EnumAXState s c (k218EnumTail s) (k218EnumNext s) (k218EnumDelta s)) $;
+
+theorem k218EnumCommand_good (s ac tail next delta: nat):
+  $ k218EnumStateGood s -> k218EnumOptionGood (k218EnumCommand s ac tail next delta) $;
+theorem k218EnumStep_good (s: nat):
+  $ k218EnumStateGood s -> k218EnumOptionGood (k218EnumStep s) $;
+theorem k218EnumInitial_good: $ k218EnumStateGood k218EnumInitial $;
+
+theorem k218EnumStep_some_sound (s t: nat):
+  $ k218EnumStateGood s -> k218EnumStep s = suc t -> k218EnumStateGood t $;
+theorem k218EnumStep_halt_sound (s: nat):
+  $ k218EnumStateGood s -> k218EnumStep s = 0 -> k218Provable 1 $;

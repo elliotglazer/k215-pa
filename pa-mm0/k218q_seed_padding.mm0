@@ -1,0 +1,30 @@
+import "k218q_seed_request.mm0";
+import "k218_raw_fresh.mm0";
+
+def k218QPad (d R: nat): nat = $ kAnd d (kEq R R) $;
+def k218QPadCode (d R: nat): nat = $ k218QSeedCode (k218QPad d R) $;
+
+theorem k218QPad_equivalent (d R: nat): $ k218IEquivalent (k218QPad d R) d $;
+theorem k218QPadCode_gtR (d R: nat): $ R < k218QPadCode d R $;
+theorem k218QPadCode_gt3 (d R: nat): $ 3 < k218QPadCode d R $;
+
+theorem k218QPaddedSeed (d R: nat):
+ $ k218QProvable (k218SeedY 1 3 (k218QPadCode d R) d) $;
+
+theorem k218QPaddedRootSeed (d R: nat) (hd: $ kBinderAbsent d 3 $):
+ $ k218QProvable (k218QRootSeed 1 3 (k218QPadCode d R) d) $;
+
+def k218QSourceMatrix (E: set) (B f: nat): nat =
+ $ sfNamedTemplate (sqEnvCons 3 (sqEnvCons 1 E)) B 0 f $;
+
+def k218QSourceSeedCode (E: set) (B f: nat): nat =
+ $ k218QPadCode (k218QSourceMatrix E B f) (B + suc f) $;
+
+theorem k218QSourceSeedCode_above_range (E: set) (B f: nat):
+ $ B + suc f < k218QSourceSeedCode E B f $;
+
+theorem k218QSourceSeed (E: set) (B f: nat)
+ (hB: $ 3 < B $) (hf: $ sfWf f $):
+ $ k218QProvable
+     (kAll 1 (k218QRootSeed 1 3 (k218QSourceSeedCode E B f)
+       (k218QSourceMatrix E B f))) $;

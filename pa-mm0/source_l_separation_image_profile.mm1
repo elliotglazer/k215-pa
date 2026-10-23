@@ -1,0 +1,83 @@
+import "source_piece_pcf_separation_local.mm1";
+import "source_l_common_level_members.mm1";
+import "source_wf_separation_logic.mm1";
+
+@_ def sfLSeparationImageDefProfile(T:set)(phi Y X x:nat):nat =
+ $ sfAll (sfIff (sfMem 0 (suc X))
+   (sfAnd (sfMem 0 (suc Y))
+    (sfAnd (sfMem 0 (suc x)) (sfCLSetRel (suc Y) (sfRename T 1 phi))))) $;
+
+@_ def sfLSeparationImageComparison(T:set)(D phi Y:nat):nat =
+ $ sfAll (sfImp (sfMem 0 (suc Y))
+   (sfIff (sfRelativize D (sfRename T 1 phi))
+    (sfCLSetRel (suc Y) (sfRename T 1 phi)))) $;
+
+theorem lsip_depth_zero(R:set): $ sfRenameDepthMap R 1 @ 0 = 0 $ =
+ '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound d0lt1));
+theorem lsip_depth_suc(R:set)(i:nat):
+ $ sfRenameDepthMap R 1 @ suc i = suc (R @ i) $ =
+ '(eqtr sfRenameDepthMap_value
+  (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)));
+theorem lsip_sep_zero: $ sfPieceSeparationShiftMap @ 0 = 0 $ =
+ 'lsip_depth_zero;
+theorem lsip_sep_suc(i:nat):
+ $ sfPieceSeparationShiftMap @ suc i = suc (suc i) $ =
+ '(eqtr lsip_depth_suc (suceq sfSuccessorMap_value));
+theorem lsip_drop_zero(T:set)(x:nat):
+ $ sfComposeMap (sfRenameDepthMap (sqEnvCons x T) 1)
+    sfPieceSeparationShiftMap @ 0 = sfRenameDepthMap T 1 @ 0 $ =
+ '(eqtr sfComposeMap_value (eqtr (appeq2 lsip_sep_zero)
+  (eqtr lsip_depth_zero (eqcom lsip_depth_zero))));
+theorem lsip_drop_suc(T:set)(x i:nat):
+ $ sfComposeMap (sfRenameDepthMap (sqEnvCons x T) 1)
+    sfPieceSeparationShiftMap @ suc i = sfRenameDepthMap T 1 @ suc i $ =
+ '(eqtr sfComposeMap_value (eqtr (appeq2 lsip_sep_suc)
+  (eqtr lsip_depth_suc (eqtr (suceq sqEnvCons_suc) (eqcom lsip_depth_suc)))));
+theorem lsip_drop_at(T:set)(x i:nat):
+ $ sfComposeMap (sfRenameDepthMap (sqEnvCons x T) 1)
+    sfPieceSeparationShiftMap @ i = sfRenameDepthMap T 1 @ i $ =
+ (named @ induct '(ind) 'i 'lsip_drop_zero '(a1i lsip_drop_suc));
+
+pub theorem sfLSeparationImagePredicate_under_binder(T:set)(phi x:nat)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons x T) 1 (sfPieceSeparationPredicate phi) =
+   sfAnd (sfMem 0 (suc x)) (sfRename T 1 phi) $ =
+ (named '(eqtr sfRename_sfAnd (nsAnd_eq
+  (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound d0lt1)
+    (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sqEnvCons_zero)))))
+  (eqtr (ax_mp sfRename_mixed_compose hf)
+    (eqtr (ax_mp (sfRename_extensional (!! ax_gen i @ ! lsip_drop_at T x i)) hf)
+      (eqcom (ax_mp sfRename_as_map hf)))))));
+
+pub theorem sfLSeparationImageDefProfile_exact(T:set)(phi Y X x:nat)(hf:$ sfWf phi $):
+ $ sfPieceDefinableProfile (sqEnvCons x T) (sfPieceSeparationPredicate phi) Y X =
+   sfLSeparationImageDefProfile T phi Y X x $ =
+ '(nsAll_eq (sfIffeq eqid (nsAnd_eq eqid
+  (eqtr (sfCLSetReleq2 (sfLSeparationImagePredicate_under_binder hf))
+   (eqtr sfCLSetRel_sfAnd (nsAnd_eq sfCLSetRel_sfMem eqid))))));
+
+theorem lsip_point(T:set)(G D phi Y X x:nat)(hd:$ sfBound 1 D $)(hf:$ sfWf phi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile (sqEnvCons x T) (sfPieceSeparationPredicate phi) Y X) $)
+ (hs:$ nsLocal G (sfCLSubset x Y) $)
+ (hr:$ nsLocal G (sfLSeparationImageComparison T D phi Y) $):
+ $ nsLocal (sfContextShift G)
+   (sfIff (sfMem 0 (suc X))
+    (sfAnd (sfMem 0 (suc x)) (sfRelativize D (sfRename T 1 phi)))) $ =
+ '(sfPieceSeparationPoint_local sfWf_mem sfWf_mem sfWf_mem sfCLSetRel_wf
+   (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd))
+   (ax_mp sfSepLocal_open
+    (sfRQ_rewrite (sfLSeparationImageDefProfile_exact hf) hp))
+   (ax_mp sfSepLocal_open hs) (ax_mp sfSepLocal_open hr));
+
+pub theorem sfLSeparationImage_profile(T:set)(G D phi Y X x:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf phi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile (sqEnvCons x T) (sfPieceSeparationPredicate phi) Y X) $)
+ (hs:$ nsLocal G (sfCLSubset x Y) $)
+ (hr:$ nsLocal G (sfLSeparationImageComparison T D phi Y) $):
+ $ nsLocal G (sfPieceSeparationLocalBody T D phi X x) $ =
+ '(ax_mp (sfLocal_allI (ax_mp nsLocal_context_wf hp))
+  (ax_mp nsLocal_II
+   (ax_mp (ax_mp (ax_mp nsLocal_weaken
+    (mpbir sfContextWf_cons
+      (ian (ax_mp sfBound_wf hd)
+       (ax_mp nsLocal_context_wf (lsip_point hd hf hp hs hr)))))
+    sfContextSub_cons) (lsip_point hd hf hp hs hr))));

@@ -1,0 +1,31 @@
+import "k218_membership_syntax.mm1";
+
+pub theorem k218Iff_fresh (p q z: nat)
+  (h0: $ z != 0 $) (hp: $ kFresh p z $) (hq: $ kFresh q z $):
+  $ kFresh (k218Iff p q) z $ =
+'(ax_mp (ax_mp (ax_mp kFresh_and_intro h0)
+  (ax_mp (ax_mp kFresh_imp_intro hp) hq))
+  (ax_mp (ax_mp kFresh_imp_intro hq) hp));
+
+pub theorem k218EqEv_fresh (v x y z: nat)
+  (h0: $ z != 0 $) (hv: $ z != v $) (hx: $ z != x $) (hy: $ z != y $):
+  $ kFresh (k218EqEv v x y) z $ =
+'(ax_mp (ax_mp (ax_mp kFresh_and_intro h0)
+  (ax_mp (ax_mp kFresh_all_intro hv)
+    (k218Iff_fresh h0 (ax_mp (ax_mp kFresh_mem_intro hv) hx)
+      (ax_mp (ax_mp kFresh_mem_intro hv) hy))))
+  (ax_mp (ax_mp kFresh_all_intro hv)
+    (k218Iff_fresh h0 (ax_mp (ax_mp kFresh_mem_intro hx) hv)
+      (ax_mp (ax_mp kFresh_mem_intro hy) hv))));
+
+pub theorem k218EqEv_vacuity (v x y z: nat)
+  (h0: $ z != 0 $) (hv: $ z != v $) (hx: $ z != x $) (hy: $ z != y $):
+  $ k218Provable (kImp (k218EqEv v x y) (kAll z (k218EqEv v x y))) $ =
+'(ax_mp (ax_mp k218Membership_fresh_vacuity k218MemSyntax_ev)
+  (k218EqEv_fresh h0 hv hx hy));
+
+pub theorem k218EqInd_vacuity_safe (x y z: nat)
+  (h0: $ z != 0 $) (hx: $ z != x $) (hy: $ z != y $)
+  (ha: $ z != k218EqAux x y $):
+  $ k218Provable (kImp (k218EqInd x y) (kAll z (k218EqInd x y))) $ =
+'(k218EqEv_vacuity h0 ha hx hy);

@@ -1,0 +1,81 @@
+import "k215_calculus_source_decode_loops.mm1";
+import "k215_literal_runtime_reach.mm1";
+import "k218_literal_runtime_pairing.mm1";
+
+
+@_ def k215UnpairState (pc a b n c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) (k215PR1 c) (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) a b n) $;
+
+do (apply (register-eqd 'k215UnpairState) '(k215UnpairStateeqd));
+
+theorem k215UnpairTransfer (b n c: nat): $ k215PIter (3 * b + 1) (k215UnpairState k215Num13 0 b n c) = (k215UnpairState k215Num16 b 0 n c) $ =
+ '(eqtr k215Loop13Vector (k215PStateeq2 (k215PVectoreq7 add0)));
+theorem k215UnpairReachTransfer (b n c: nat): $ k215PReach (k215UnpairState k215Num13 0 b n c) (k215UnpairState k215Num16 b 0 n c) $ =
+ '(k215PReach_intro k215UnpairTransfer);
+
+
+theorem k215UnpairStep9Z (a b c: nat): $ k215PStep (k215UnpairState 9 a b 0 c) = (k215UnpairState k215Num17 a b 0 c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupDecode_9) (ifeq (eqeq1 k215PGet8_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215UnpairReach9Z (a b c: nat): $ k215PReach (k215UnpairState 9 a b 0 c) (k215UnpairState k215Num17 a b 0 c) $ = '(k215PReach_step k215UnpairStep9Z);
+
+theorem k215UnpairStep9S (a b n c: nat): $ k215PStep (k215UnpairState 9 a b (suc n) c) = (k215UnpairState k215Num10 a b n c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupDecode_9) (ifeq (eqeq1 k215PGet8_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet8_vector)) (eqtr k215PSet8_vector (k215PVectoreq9 (eqtr subSS sub02))))));
+
+theorem k215UnpairReach9S (a b n c: nat): $ k215PReach (k215UnpairState 9 a b (suc n) c) (k215UnpairState k215Num10 a b n c) $ = '(k215PReach_step k215UnpairStep9S);
+
+theorem k215UnpairStep10 (a b n c: nat): $ k215PStep (k215UnpairState k215Num10 a b n c) = (k215UnpairState k215Num11 a (suc b) n c) $ = '(eqtr (k215PAtCI k215PLookupDecode_10) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet7_vector)) k215PSet7_vector)));
+
+theorem k215UnpairReach10 (a b n c: nat): $ k215PReach (k215UnpairState k215Num10 a b n c) (k215UnpairState k215Num11 a (suc b) n c) $ = '(k215PReach_step k215UnpairStep10);
+
+theorem k215UnpairStep11Z (b n c: nat): $ k215PStep (k215UnpairState k215Num11 0 b n c) = (k215UnpairState k215Num13 0 b n c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupDecode_11) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215UnpairReach11Z (b n c: nat): $ k215PReach (k215UnpairState k215Num11 0 b n c) (k215UnpairState k215Num13 0 b n c) $ = '(k215PReach_step k215UnpairStep11Z);
+
+theorem k215UnpairStep11S (a b n c: nat): $ k215PStep (k215UnpairState k215Num11 (suc a) b n c) = (k215UnpairState k215Num12 a b n c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupDecode_11) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet6_vector)) (eqtr k215PSet6_vector (k215PVectoreq7 (eqtr subSS sub02))))));
+
+theorem k215UnpairReach11S (a b n c: nat): $ k215PReach (k215UnpairState k215Num11 (suc a) b n c) (k215UnpairState k215Num12 a b n c) $ = '(k215PReach_step k215UnpairStep11S);
+
+theorem k215UnpairStep12 (a b n c: nat): $ k215PStep (k215UnpairState k215Num12 a b n c) = (k215UnpairState k215Num16 a b n c) $ = '(k215PAtCB k215PLookupDecode_12);
+
+theorem k215UnpairReach12 (a b n c: nat): $ k215PReach (k215UnpairState k215Num12 a b n c) (k215UnpairState k215Num16 a b n c) $ = '(k215PReach_step k215UnpairStep12);
+
+theorem k215UnpairStep16 (a b n c: nat): $ k215PStep (k215UnpairState k215Num16 a b n c) = (k215UnpairState 9 a b n c) $ = '(k215PAtCC k215PLookupDecode_16);
+
+theorem k215UnpairReach16 (a b n c: nat): $ k215PReach (k215UnpairState k215Num16 a b n c) (k215UnpairState 9 a b n c) $ = '(k215PReach_step k215UnpairStep16);
+
+theorem k215UnpairCycleZero (b n c: nat): $ k215PReach (k215UnpairState 9 0 b (suc n) c) (k215UnpairState 9 (suc b) 0 n c) $ = '(ax_mp (ax_mp k215PReach_trans k215UnpairReach9S) (ax_mp (ax_mp k215PReach_trans k215UnpairReach10) (ax_mp (ax_mp k215PReach_trans k215UnpairReach11Z) (ax_mp (ax_mp k215PReach_trans k215UnpairReachTransfer) k215UnpairReach16))));
+theorem k215UnpairCycleSucc (a b n c: nat): $ k215PReach (k215UnpairState 9 (suc a) b (suc n) c) (k215UnpairState 9 a (suc b) n c) $ = '(ax_mp (ax_mp k215PReach_trans k215UnpairReach9S) (ax_mp (ax_mp k215PReach_trans k215UnpairReach10) (ax_mp (ax_mp k215PReach_trans k215UnpairReach11S) (ax_mp (ax_mp k215PReach_trans k215UnpairReach12) k215UnpairReach16))));
+
+
+theorem k215UnpairAdvanceZero (b n c: nat): $ k215PReach (k215UnpairState 9 0 b (suc n) c) (k215UnpairState 9 (fst (suc (0, b))) (snd (suc (0, b))) n c) $ =
+ '(mpbi (k215PReacheq2 (k215UnpairStateeq eqid (eqtr (eqcom fstpr) (fsteq k218PairDiagonal_rotate)) (eqtr (eqcom sndpr) (sndeq k218PairDiagonal_rotate)) eqid eqid)) k215UnpairCycleZero);
+
+theorem k215UnpairAdvanceSucc (a b n c: nat): $ k215PReach (k215UnpairState 9 (suc a) b (suc n) c) (k215UnpairState 9 (fst (suc ((suc a), b))) (snd (suc ((suc a), b))) n c) $ =
+ '(mpbi (k215PReacheq2 (k215UnpairStateeq eqid (eqtr (eqcom fstpr) (fsteq k218Pair_next)) (eqtr (eqcom sndpr) (sndeq k218Pair_next)) eqid eqid)) k215UnpairCycleSucc);
+
+pub theorem k215UnpairAdvance (a b n c: nat): $ k215PReach (k215UnpairState 9 a b (suc n) c) (k215UnpairState 9 (fst (suc (a, b))) (snd (suc (a, b))) n c) $ =
+ (named @ induct '(ind) 'a 'k215UnpairAdvanceZero '(a1i k215UnpairAdvanceSucc));
+@_ abstract def k215UnpairRun (n a b c: nat): wff =
+ $ k215PReach (k215UnpairState 9 a b n c) (k215UnpairState k215Num17 (fst ((a, b) + n)) (snd ((a, b) + n)) 0 c) $;
+theorem k215UnpairRunZero (a b c: nat): $ k215UnpairRun 0 a b c $ =
+ '(mpbi (k215PReacheq2 (k215UnpairStateeq eqid
+     (eqcom (eqtr (fsteq add0) fstpr))
+     (eqcom (eqtr (sndeq add0) sndpr)) eqid eqid)) k215UnpairReach9Z);
+@_ abstract def k215UnpairClaim (n c: nat) (.a .b: nat): wff =
+ $ A. a A. b k215UnpairRun n a b c $;
+theorem k215UnpairClaim_at (n a b c: nat): $ k215UnpairClaim n c -> k215UnpairRun n a b c $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215UnpairCodeStep (a b n: nat): $ (fst (suc (a, b)), snd (suc (a, b))) + n = (a, b) + suc n $ =
+ '(eqtr (addeq1 fstsnd) addSass);
+theorem k215UnpairRunInductive (n a b c: nat): $ k215UnpairClaim n c -> k215UnpairRun (suc n) a b c $ =
+ '(syl (ax_mp k215PReach_trans k215UnpairAdvance)
+   (mpbid (a1i (k215PReacheq2 (k215UnpairStateeq eqid
+     (fsteq k215UnpairCodeStep) (sndeq k215UnpairCodeStep) eqid eqid))) k215UnpairClaim_at));
+theorem k215UnpairClaim_all (n c: nat): $ k215UnpairClaim n c $ =
+ (named @ induct '(ind) 'n '(ax_gen (ax_gen k215UnpairRunZero)) '(iald @ iald k215UnpairRunInductive));
+pub theorem k215UnpairMacro9 (n a b c: nat): $ k215PReach (k215UnpairState 9 a b n c) (k215UnpairState k215Num17 (fst ((a, b) + n)) (snd ((a, b) + n)) 0 c) $ =
+ '(ax_mp k215UnpairClaim_at k215UnpairClaim_all);
+pub theorem k215UnpairMacro9_clean (n c: nat): $ k215PReach (k215UnpairState 9 0 0 n c) (k215UnpairState k215Num17 (fst n) (snd n) 0 c) $ =
+ '(mpbi (k215PReacheq2 (k215UnpairStateeq eqid
+   (fsteq (eqtr (addeq1 pr0) add01))
+   (sndeq (eqtr (addeq1 pr0) add01)) eqid eqid)) k215UnpairMacro9);
+
+

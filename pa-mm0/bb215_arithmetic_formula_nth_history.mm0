@@ -1,0 +1,13 @@
+import "bb215_arithmetic_formula_list_graph.mm0";
+
+def bb215ArithmeticFormulaNthHistoryCertificate (a l n v .y: nat): wff = $ bb215ArithmeticFormulaHistoryCell a 0 l /\ bb215ArithmeticFormulaRecClosure a bb215ArithmeticFormulaListTailStep n /\ A. y (bb215ArithmeticFormulaHistoryCell a n y -> bb215ArithmeticFormulaListHead y = v) $;
+
+theorem bb215ArithmeticFormulaNthHistoryCertificate_sound (a l n v: nat): $ bb215ArithmeticFormulaNthHistoryCertificate a l n v -> nth n l = v $;
+
+def bb215ArithmeticFormulaNthHistoryGraph (n l v .a: nat): wff = $ E. a bb215ArithmeticFormulaNthHistoryCertificate a l n v $;
+
+theorem bb215ArithmeticFormulaNthHistoryGraph_sound (n l v: nat): $ bb215ArithmeticFormulaNthHistoryGraph n l v -> nth n l = v $;
+
+theorem bb215ArithmeticFormulaNthHistoryGraph_witness (n l: nat): $ bb215ArithmeticFormulaNthHistoryGraph n l (nth n l) $;
+
+theorem bb215ArithmeticFormulaNthHistoryGraph_correct (n l v: nat): $ bb215ArithmeticFormulaNthHistoryGraph n l v <-> nth n l = v $;

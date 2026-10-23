@@ -1,0 +1,43 @@
+import "source_l_common_level_setrel.mm1";
+
+import "source_theory_prefix.mm1";
+
+import "source_structural_induction.mm1";
+
+@_ def sfCLSetRelRenameClass (R: set) (.c .k .d: nat): set = $ {c | A. k A. d sfRename R k (sfCLSetRel d c) = sfCLSetRel (sfRenameIndex R k d) (sfRename R k c)} $;
+
+theorem clsr_value (R: set) (c: nat): $ c e. sfCLSetRelRenameClass R <-> A. k A. d sfRename R k (sfCLSetRel d c) = sfCLSetRel (sfRenameIndex R k d) (sfRename R k c) $ = (named '(elabe ,eqtac));
+
+theorem clsr_each (R: set) (c k d: nat): $ (A. x A. y sfRename R x (sfCLSetRel y c) = sfCLSetRel (sfRenameIndex R x y) (sfRename R x c)) -> sfRename R k (sfCLSetRel d c) = sfCLSetRel (sfRenameIndex R k d) (sfRename R k c) $ = (named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+theorem clsr_at (R: set) (c k d: nat): $ c e. sfCLSetRelRenameClass R -> sfRename R k (sfCLSetRel d c) = sfCLSetRel (sfRenameIndex R k d) (sfRename R k c) $ = (named '(syl clsr_each (bi1 clsr_value)));
+
+theorem clsr_bot (R: set): $ sfBot e. sfCLSetRelRenameClass R $ = (named '(mpbir clsr_value @ ax_gen @ ax_gen @ eqtr (sfRenameeq3 sfCLSetRel_bot) @ eqtr sfRename_bot (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_bot))) sfCLSetRel_bot))));
+
+theorem clsr_mem (R: set) (a b: nat): $ sfMem a b e. sfCLSetRelRenameClass R $ = (named '(mpbir clsr_value @ ax_gen @ ax_gen @ eqtr (sfRenameeq3 sfCLSetRel_sfMem) @ eqtr sfRename_sfMem (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfMem))) sfCLSetRel_sfMem))));
+
+theorem clsr_eq (R: set) (a b: nat): $ sfEq a b e. sfCLSetRelRenameClass R $ = (named '(mpbir clsr_value @ ax_gen @ ax_gen @ eqtr (sfRenameeq3 sfCLSetRel_sfEq) @ eqtr sfRename_sfEq (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfEq))) sfCLSetRel_sfEq))));
+
+theorem clsr_atomic (R: set): $ sfAtomicClosed (sfCLSetRelRenameClass R) $ = (named '(ax_gen @ ax_gen @ ian clsr_mem clsr_eq));
+
+theorem clsr_and (R: set) (a b: nat): $ a e. sfCLSetRelRenameClass R /\ b e. sfCLSetRelRenameClass R -> sfAnd a b e. sfCLSetRelRenameClass R $ = (named '(mpbird (a1i clsr_value) @ !! iald k @ !! iald d @ eqtrd (a1i (eqtr (sfRenameeq3 sfCLSetRel_sfAnd) sfRename_sfAnd)) @ eqtrd (sfAndeqd (syl clsr_at anl) (syl clsr_at anr)) (a1i (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfAnd))) sfCLSetRel_sfAnd)))));
+
+theorem clsr_or (R: set) (a b: nat): $ a e. sfCLSetRelRenameClass R /\ b e. sfCLSetRelRenameClass R -> sfOr a b e. sfCLSetRelRenameClass R $ = (named '(mpbird (a1i clsr_value) @ !! iald k @ !! iald d @ eqtrd (a1i (eqtr (sfRenameeq3 sfCLSetRel_sfOr) sfRename_sfOr)) @ eqtrd (sfOreqd (syl clsr_at anl) (syl clsr_at anr)) (a1i (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfOr))) sfCLSetRel_sfOr)))));
+
+theorem clsr_imp (R: set) (a b: nat): $ a e. sfCLSetRelRenameClass R /\ b e. sfCLSetRelRenameClass R -> sfImp a b e. sfCLSetRelRenameClass R $ = (named '(mpbird (a1i clsr_value) @ !! iald k @ !! iald d @ eqtrd (a1i (eqtr (sfRenameeq3 sfCLSetRel_sfImp) sfRename_sfImp)) @ eqtrd (sfImpeqd (syl clsr_at anl) (syl clsr_at anr)) (a1i (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfImp))) sfCLSetRel_sfImp)))));
+
+theorem clsr_binary (R: set): $ sfBinaryClosed (sfCLSetRelRenameClass R) $ = (named '(ax_gen @ ax_gen @ iand (iand clsr_and clsr_or) clsr_imp));
+
+theorem clsr_guard (R: set) (k d: nat): $ sfRename R (suc k) (sfMem 0 (suc d)) = sfMem 0 (suc (sfRenameIndex R k d)) $ = (named '(eqtr sfRename_sfMem (trud (sfMemeqd (a1i (ax_mp sfRenameIndex_bound lt01S)) (a1i sfRenameIndex_lift)))));
+
+theorem clsr_all (R: set) (a: nat): $ a e. sfCLSetRelRenameClass R -> sfAll a e. sfCLSetRelRenameClass R $ = (named '(mpbird (a1i clsr_value) @ !! iald k @ !! iald d @ eqtrd (a1i (eqtr (sfRenameeq3 sfCLSetRel_sfAll) (eqtr sfRename_sfAll (trud (sfAlleqd (a1i sfRename_sfImp)))))) @ eqtrd (sfAlleqd (sfImpeqd (a1i clsr_guard) (eqtrd clsr_at (a1i (trud (sfCLSetRel_formula_congr (a1i sfRenameIndex_lift) (a1i eqid))))))) (a1i (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfAll))) sfCLSetRel_sfAll)))));
+
+theorem clsr_ex (R: set) (a: nat): $ a e. sfCLSetRelRenameClass R -> sfEx a e. sfCLSetRelRenameClass R $ = (named '(mpbird (a1i clsr_value) @ !! iald k @ !! iald d @ eqtrd (a1i (eqtr (sfRenameeq3 sfCLSetRel_sfEx) (eqtr sfRename_sfEx (trud (sfExeqd (a1i sfRename_sfAnd)))))) @ eqtrd (sfExeqd (sfAndeqd (a1i clsr_guard) (eqtrd clsr_at (a1i (trud (sfCLSetRel_formula_congr (a1i sfRenameIndex_lift) (a1i eqid))))))) (a1i (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfEx))) sfCLSetRel_sfEx)))));
+
+theorem clsr_quantifier (R: set): $ sfQuantifierClosed (sfCLSetRelRenameClass R) $ = (named '(ax_gen @ iand clsr_all clsr_ex));
+
+theorem clsr_closed (R: set): $ sfConstructionClosed (sfCLSetRelRenameClass R) $ = (named '(ian (ian (ian clsr_bot clsr_atomic) clsr_binary) clsr_quantifier));
+
+pub theorem sfCLSetRel_rename (R: set) (k d c: nat): $ sfWf c -> sfRename R k (sfCLSetRel d c) = sfCLSetRel (sfRenameIndex R k d) (sfRename R k c) $ = (named '(syl clsr_at (ax_mp sfWf_induction clsr_closed)));
+
+pub theorem sfCLSetRel_shift (k d c: nat) (hc: $ sfWf c $): $ sfShift k (sfCLSetRel d c) = sfCLSetRel (sfShiftIndex k d) (sfShift k c) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfCLSetRel_wf)) (eqtr (ax_mp sfCLSetRel_rename hc) (trud (sfCLSetRel_formula_congr (a1i sfRenameIndex_successor) (a1i (ax_mp sfRename_successor hc)))))));

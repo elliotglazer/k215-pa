@@ -1,0 +1,15 @@
+import "source_renaming.mm0";
+
+import "source_structural_induction.mm0";
+
+def sfRenameMapAgree (R S: set) (n .i: nat): wff = $ A. i (i < n -> R @ i = S @ i) $;
+
+theorem sfRenameMapAgree_at (R S: set) (n i: nat): $ sfRenameMapAgree R S n -> i < n -> R @ i = S @ i $;
+
+theorem sfRenameIndex_agreement (R S: set) (d n i: nat): $ sfRenameMapAgree R S n -> i < d + n -> sfRenameIndex R d i = sfRenameIndex S d i $;
+
+def sfRenameAgreementClass (R S: set) (n: nat) (.c .d: nat): set = $ {c | A. d (sfBound (d + n) c -> sfRename R d c = sfRename S d c)} $;
+
+theorem sfRename_bounded_agreement (R S: set) (n d c: nat): $ sfRenameMapAgree R S n -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $;
+
+theorem sfRename_agreement {i: nat} (R S: set) (n d c: nat): $ (A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $;

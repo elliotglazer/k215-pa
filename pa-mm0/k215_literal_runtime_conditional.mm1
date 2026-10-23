@@ -1,0 +1,19 @@
+import "k215_literal_runtime_native_completion.mm1";
+import "k215_literal_runtime_startup_frame.mm1";
+import "k215_literal_reach_halt_equiv.mm1";
+
+pub theorem k215NativeInitial_halting_equivalence:
+ $ k215PNativeLaw ->
+   (k215TMHaltsFrom (k215PConfigFrame 1 k215PInitial 1 (repeat 1 k215Num39))
+    <-> k215PHaltsFrom k215PInitial) $ =
+ '(mpi k215PInitial_bound k215PNative_halting_equivalence);
+
+pub theorem k215LiteralHalts_iff_initial_frame:
+ $ k215LiteralHalts <->
+   k215TMHaltsFrom (k215PConfigFrame 1 k215PInitial 1 (repeat 1 k215Num39)) $ =
+ '(bitr (bitr (bicom k215TMHaltsFrom_initial) (k215TMReach_halts_iff k215BootFull_reach))
+   (bicom (k215TMHaltsFromeq k215PStartupFrame)));
+
+pub theorem k215LiteralHalts_iff_program_given_native_law:
+ $ k215PNativeLaw -> (k215LiteralHalts <-> k215PInitialHalts) $ =
+ '(bitrd (a1i k215LiteralHalts_iff_initial_frame) k215NativeInitial_halting_equivalence);

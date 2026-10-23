@@ -1,0 +1,23 @@
+import "pa_source_interpretation_builders.mm1";
+
+import "source_renaming_agreement.mm1";
+
+theorem paSI_succ_map_zero: $ paSITermSuccMap @ 0 = 0 $ = (named '(eqtr paSITermSuccMap_value (ifpos eqid)));
+
+theorem paSI_succ_map_one_at (i: nat): $ i < 1 -> paSITermSuccMap @ i = sfIdentityMap @ i $ = (named '(eqtrd (appeq2d (bi1 lt12)) (eqtrd (a1i paSI_succ_map_zero) (eqcomd (eqtrd (a1i sfIdentityMap_value) (bi1 lt12))))));
+
+theorem paSI_succ_map_one {i: nat}: $ A. i (i < 1 -> paSITermSuccMap @ i = sfIdentityMap @ i) $ = (named '(ax_gen paSI_succ_map_one_at));
+
+pub theorem paSourceTermSuccessor_closed_input (a: nat): $ sfBound 1 a -> paSourceTermSuccessor a = bb215SFNumeralStep a $ = (named '(sfExeqd (sfAndeq1d (eqtrd (syl (sfRename_agreement paSI_succ_map_one) (bi2 (sfBoundeq1 add01))) (syl sfRename_identity sfBound_wf)))));
+
+@_ abstract def paSourceNumeralGraph (v .a: nat): nat = $ rec paSourceTermZero (\ a, paSourceTermSuccessor a) v $;
+
+pub theorem paSourceNumeralGraph_zero: $ paSourceNumeralGraph 0 = paSourceTermZero $ = (named 'rec0);
+
+pub theorem paSourceNumeralGraph_succ (v: nat): $ paSourceNumeralGraph (suc v) = paSourceTermSuccessor (paSourceNumeralGraph v) $ = (named '(eqtr recS @ ! applame $ paSourceNumeralGraph v $ _ a _ paSourceTermSuccessoreq));
+
+pub theorem paSourceNumeralGraph_exact (v: nat): $ paSourceNumeralGraph v = bb215SFNumeral v $ = (named @ induct '(ind) 'v '(eqtr paSourceNumeralGraph_zero (eqcom bb215SFNumeral_zero)) '(eqtrd (a1i paSourceNumeralGraph_succ) (eqtrd (paSourceTermSuccessoreqd id) (a1i (eqtr (paSourceTermSuccessor_closed_input bb215SFNumeral_bound) (eqcom bb215SFNumeral_succ))))));
+
+pub theorem paSourceNumeralGraph_bound (v: nat): $ sfBound 1 (paSourceNumeralGraph v) $ = (named '(mpbir (sfBoundeq2 paSourceNumeralGraph_exact) bb215SFNumeral_bound));
+
+pub theorem paSourceNumeralGraph_instance (v a: nat): $ sfEx (sfAnd (paSourceNumeralGraph v) a) = bb215SFNumeralInstance v a $ = (named '(sfExeq (sfAndeq1 paSourceNumeralGraph_exact)));

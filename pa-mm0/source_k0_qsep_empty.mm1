@@ -1,0 +1,107 @@
+import "source_k0_qsep_singleton.mm1";
+
+import "k218q_specialization.mm1";
+
+import "k218q_quantifier_macros.mm1";
+
+theorem qsepEmptySubstitution (t y z: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyz: $ y != z $):
+ $ kSubst (kNot (kMem y t)) y z = kNot (kMem z t) $ =
+'(eqtr (qsSubst_kNot hy0) (kNoteq (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss hty)))));
+
+pub theorem sfK0QSepEmpty_at (t y z: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyz: $ y != z $):
+ $ k218QProvable (kImp (kAll y (kNot (kMem y t))) (kNot (kMem z t))) $ =
+'(mpbi (k218QProvableeq (kImpeq2 (qsepEmptySubstitution hy0 hty hyz)))
+ (ax_mp (ax_mp (ax_mp k218INamed_specialization hyz)
+ (ax_mp kBinderAbsent_not_intro kBinderAbsent_kMem))
+ (ax_mp kBinderAbsent_not_intro kBinderAbsent_kMem)));
+
+theorem qsepEmptyVacuous (t y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kNot (kMem y t))) (kAll K (kAll y (kNot (kMem y t))))) $ =
+'(ax_mp k218QFresh_vacuity (ax_mp (ax_mp kFresh_all_intro (ax_mp necom hyK))
+ (ax_mp (ax_mp kFresh_not_intro (mpbir kFresh_kMem (ian (ax_mp necom hyK) hKt))) hK0)));
+
+theorem qsepEmptySubsetStep0 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF)))) (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) (kAll y (kImp (kMem y t) kF)))) $ $ (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF)))) (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF)))) $ (! k218IPropK $ (kAll y (kImp (kMem y t) kF)) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) $) (! k218IPropS $ (kAll y (kImp (kMem y t) kF)) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) $ $ (kAll y (kImp (kMem y t) kF)) $));
+
+theorem qsepEmptySubsetStep1 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF)))) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) $ (! k218IPropK $ (kAll y (kImp (kMem y t) kF)) $ $ (kAll y (kImp (kMem y t) kF)) $) (! qsepEmptySubsetStep0 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt));
+
+theorem qsepEmptySubsetStep2 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF)))) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF))))) $ (qsepEmptyVacuous hy0 hty hyK hK0 hKt) (! k218IPropK $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF)))) $ $ (kAll y (kImp (kMem y t) kF)) $));
+
+theorem qsepEmptySubsetStep3 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF))))) $ $ (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF))))) $ (! qsepEmptySubsetStep2 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! k218IPropS $ (kAll y (kImp (kMem y t) kF)) $ $ (kAll y (kImp (kMem y t) kF)) $ $ (kAll K (kAll y (kImp (kMem y t) kF))) $));
+
+theorem qsepEmptySubsetStep4 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF)))) $ (! qsepEmptySubsetStep1 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! qsepEmptySubsetStep3 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt));
+
+theorem qsepEmptySubsetStep5 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF)) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF))) $ (sfK0QSepEmpty_at hy0 hty hyK) (! k218IPropK $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF)) $ $ (kAll y (kImp (kMem y t) kF)) $));
+
+theorem qsepEmptySubsetStep6 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF))) $ $ (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF))) $ (! qsepEmptySubsetStep5 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! k218IPropS $ (kAll y (kImp (kMem y t) kF)) $ $ (kAll y (kImp (kMem y t) kF)) $ $ (kImp (kMem K t) kF) $));
+
+theorem qsepEmptySubsetStep7 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF)) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll y (kImp (kMem y t) kF))) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF)) $ (! qsepEmptySubsetStep1 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! qsepEmptySubsetStep6 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt));
+
+theorem qsepEmptySubsetStep8 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kImp (kMem K t) kF) (kImp (kMem K t) (kMem K b)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem K t) kF) (kImp (kMem K t) (kMem K b))) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kImp (kMem K t) kF) (kImp (kMem K t) (kMem K b)))) $ (! k218IPropNegativeImplication $ (kMem K t) $ $ (kMem K b) $) (! k218IPropK $ (kImp (kImp (kMem K t) kF) (kImp (kMem K t) (kMem K b))) $ $ (kAll y (kImp (kMem y t) kF)) $));
+
+theorem qsepEmptySubsetStep9 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) (kMem K b)))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kImp (kMem K t) kF) (kImp (kMem K t) (kMem K b)))) $ $ (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF)) (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) (kMem K b)))) $ (! qsepEmptySubsetStep8 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! k218IPropS $ (kAll y (kImp (kMem y t) kF)) $ $ (kImp (kMem K t) kF) $ $ (kImp (kMem K t) (kMem K b)) $));
+
+theorem qsepEmptySubsetStep10 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) (kMem K b))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) kF)) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) (kMem K b))) $ (! qsepEmptySubsetStep7 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! qsepEmptySubsetStep9 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt));
+
+theorem qsepEmptySubsetStep11 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kAll K (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) (kMem K b)))) $ =
+'(ax_mp k218QProvable_gen (! qsepEmptySubsetStep10 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt));
+
+theorem qsepEmptySubsetStep12 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll K (kAll y (kImp (kMem y t) kF))) (kAll K (kImp (kMem K t) (kMem K b)))) $ =
+'(! k218QProvable_mp $ (kAll K (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kMem K t) (kMem K b)))) $ $ (kImp (kAll K (kAll y (kImp (kMem y t) kF))) (kAll K (kImp (kMem K t) (kMem K b)))) $ (! qsepEmptySubsetStep11 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! qsepTagDist $ K $ $ (kAll y (kImp (kMem y t) kF)) $ $ (kImp (kMem K t) (kMem K b)) $));
+
+theorem qsepEmptySubsetStep13 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll K (kAll y (kImp (kMem y t) kF))) (kAll K (kImp (kMem K t) (kMem K b))))) $ =
+'(! k218QProvable_mp $ (kImp (kAll K (kAll y (kImp (kMem y t) kF))) (kAll K (kImp (kMem K t) (kMem K b)))) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll K (kAll y (kImp (kMem y t) kF))) (kAll K (kImp (kMem K t) (kMem K b))))) $ (! qsepEmptySubsetStep12 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! k218IPropK $ (kImp (kAll K (kAll y (kImp (kMem y t) kF))) (kAll K (kImp (kMem K t) (kMem K b)))) $ $ (kAll y (kImp (kMem y t) kF)) $));
+
+theorem qsepEmptySubsetStep14 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF)))) (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kImp (kMem K t) (kMem K b))))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kImp (kAll K (kAll y (kImp (kMem y t) kF))) (kAll K (kImp (kMem K t) (kMem K b))))) $ $ (kImp (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF)))) (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kImp (kMem K t) (kMem K b))))) $ (! qsepEmptySubsetStep13 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! k218IPropS $ (kAll y (kImp (kMem y t) kF)) $ $ (kAll K (kAll y (kImp (kMem y t) kF))) $ $ (kAll K (kImp (kMem K t) (kMem K b))) $));
+
+theorem qsepEmptySubsetStep15 (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kImp (kMem K t) (kMem K b)))) $ =
+'(! k218QProvable_mp $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kAll y (kImp (kMem y t) kF)))) $ $ (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kImp (kMem K t) (kMem K b)))) $ (! qsepEmptySubsetStep4 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt) (! qsepEmptySubsetStep14 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt));
+
+pub theorem sfK0QSepEmpty_subset (t b y K: nat) (hy0: $ y != 0 $) (hty: $ t != y $) (hyK: $ y != K $)
+ (hK0: $ K != 0 $) (hKt: $ K != t $):
+ $ k218QProvable (kImp (kAll y (kImp (kMem y t) kF)) (kAll K (kImp (kMem K t) (kMem K b)))) $ =
+'(! qsepEmptySubsetStep15 $ t $ $ b $ $ y $ $ K $ hy0 hty hyK hK0 hKt);

@@ -1,0 +1,50 @@
+import "k215_calculus_iteration.mm1";
+
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+
+do (apply (register-eqd 'k215EnumAdvance) '(k215EnumAdvanceeqd));
+do (apply (register-eqd 'k215EnumIter) '(k215EnumItereqd));
+
+@_ abstract def k215EnumOptionIter (n r: nat) (.u: nat): nat =
+  $ rec r (\ u, k215EnumAdvance u) n $;
+
+pub theorem k215EnumOptionIter_zero (r: nat): $ k215EnumOptionIter 0 r = r $ = (named 'rec0);
+pub theorem k215EnumOptionIter_succ (n r: nat):
+  $ k215EnumOptionIter (suc n) r = k215EnumAdvance (k215EnumOptionIter n r) $ =
+'(eqtr recS @ ! applame $ k215EnumOptionIter n r $ _ u _ k215EnumAdvanceeq);
+pub theorem k215EnumOptionIter_some (n s: nat): $ k215EnumOptionIter n (suc s) = k215EnumIter n s $ = (named 'eqid);
+pub theorem k215EnumOptionIter_none (n: nat): $ k215EnumOptionIter n 0 = 0 $ =
+(named @ induct '(ind) 'n 'k215EnumOptionIter_zero
+ '(eqtrd (a1i k215EnumOptionIter_succ)
+   (eqtrd (k215EnumAdvanceeqd id) (a1i k215EnumAdvance_zero))));
+
+pub theorem k215EnumOptionIter_add (m n r: nat):
+  $ k215EnumOptionIter (m + n) r = k215EnumOptionIter n (k215EnumOptionIter m r) $ =
+(named @ induct '(ind) 'n
+ '(eqtr (k215EnumOptionItereq1 add0) (eqcom k215EnumOptionIter_zero))
+ '(eqtrd (a1i (k215EnumOptionItereq1 addS))
+   (eqtrd (a1i k215EnumOptionIter_succ)
+     (eqtrd (k215EnumAdvanceeqd id) (a1i (eqcom k215EnumOptionIter_succ))))));
+pub theorem k215EnumIter_add (m n s: nat):
+  $ k215EnumIter (m + n) s = k215EnumOptionIter n (k215EnumIter m s) $ = (named 'k215EnumOptionIter_add);
+pub theorem k215EnumIter_splice (m n s t: nat):
+  $ k215EnumIter m s = suc t -> k215EnumIter (m + n) s = k215EnumIter n t $ =
+(named '(eqtrd (a1i k215EnumIter_add) (k215EnumOptionItereq2d id)));
+pub theorem k215EnumIter_halted (m n s: nat):
+  $ k215EnumIter m s = 0 -> k215EnumIter (m + n) s = 0 $ =
+'(eqtrd (a1i k215EnumIter_add)
+  (eqtrd (k215EnumOptionItereq2d id) (a1i k215EnumOptionIter_none)));
+
+@_ abstract def k215EnumRunsForever (s: nat) (.i: nat): wff = $ A. i k215EnumIter i s != 0 $;
+
+pub theorem k215EnumRunsForever_at (s n: nat):
+  $ k215EnumRunsForever s -> k215EnumIter n s != 0 $ = (named '(!! eale i ,eqtac));
+theorem k215EnumRunsForever_reachable_at (s t m n: nat):
+  $ k215EnumRunsForever s -> k215EnumIter m s = suc t -> k215EnumIter n t != 0 $ =
+'(exp @ mpbid (syl (noteqd (eqeq1d k215EnumIter_splice)) anr)
+  (syl k215EnumRunsForever_at anl));
+pub theorem k215EnumRunsForever_reachable (s t m: nat):
+  $ k215EnumRunsForever s -> k215EnumIter m s = suc t -> k215EnumRunsForever t $ =
+(named '(exp @ iald @ imp k215EnumRunsForever_reachable_at));
+pub theorem k215EnumRunsForever_initial:
+  $ ~k215EnumHalts <-> k215EnumRunsForever k215EnumInitial $ = (named '(bicom alnex));

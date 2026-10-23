@@ -1,0 +1,21 @@
+import "source_piece_pcf_triple_maps.mm0";
+
+import "source_piece_pcf_dn_environment.mm0";
+
+def sfPieceDnOne(body:nat):nat =
+ $ sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 body)) $;
+
+def sfPieceDnOneMap(x y z:nat):set =
+ $ sfComposeMap (sfRenameDepthMap (sfLCBinaryMap x y z) 1) sfPieceRotate $;
+
+theorem sfPieceDnOneMap_at(x y z i:nat):
+ $ sfPieceDnOneMap x y z @ i = sfPieceTripleMap (suc x) (suc y) 0 (suc z) @ i $;
+
+theorem sfPieceDnOne_open(body x y z:nat)(hf:$ sfWf body $):
+ $ sfLCBinary (sfPieceDnOne body) x y z =
+  sfAll (sfImp (sfMem 0 (suc y)) (sfPieceTriple body (suc x) (suc y) 0 (suc z))) $;
+
+theorem sfPieceDnOne_wf(body:nat): $ sfWf (sfPieceDnOne body) $;
+
+theorem sfPieceDn_suc_one(count body:nat):
+ $ sfPieceDn (suc count) body = sfPieceDnOne (sfPieceDn count body) $;

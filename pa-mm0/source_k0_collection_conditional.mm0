@@ -1,0 +1,13 @@
+import "source_k0_collection_domain.mm0";
+
+def kcdSafeEnvironment (P: wff) (E: set) (.i: nat): set = $ {i | ifp P (i e. E) (i e. sqZeroEnvironment)} $;
+
+def kcdResult (E: set) (t a k theta: nat): nat = $ kImp (kAll (suc (suc (suc (suc (suc (suc (suc k))))))) (kNot (kMem (suc (suc (suc (suc (suc (suc (suc k))))))) t))) (kImp (kMem t a) (kExists (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))))))))))) (sfK0CollectionProfile E t a (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))))))))))) (suc (suc (suc (suc (suc (suc (suc (suc k)))))))) (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))) (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))))))))))))) (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k)))))))))))))))))))) (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))))))))))))))) theta))) $;
+
+theorem sfK0Collection_domain_d (G: wff) (E: set) (n t a k theta: nat)
+ (hf: $ G -> sfBound (suc (suc n)) theta $) (hk: $ G -> 0 < k $)
+ (ht: $ G -> t < k $) (ha: $ G -> a < k $) (he: $ G -> sqEnvBelow E n k $):
+ $ G -> k218QProvable (kcdResult E t a k theta) $;
+
+theorem sfK0Collection_domain_curried (E: set) (n t a k theta: nat):
+ $ sfBound (suc (suc n)) theta -> 0 < k -> t < k -> a < k -> sqEnvBelow E n k -> k218QProvable (kcdResult E t a k theta) $;

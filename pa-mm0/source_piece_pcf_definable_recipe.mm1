@@ -1,0 +1,33 @@
+import "source_piece_pcf_definable_bot.mm1";
+
+import "source_piece_pcf_rep_environment.mm1";
+
+import "source_piece_pcf_bounds.mm1";
+
+@_ abstract def sfPieceDefinableEmptyContext: nat = $ sfPieceRepEmpty 0 : 0 $;
+
+theorem sfPieceDefinableEmptyContext_wf: $ sfContextWf sfPieceDefinableEmptyContext $ = (named '(mpbir sfContextWf_cons (ian sfPieceRepEmpty_wf sfContextWf_nil)));
+
+theorem sfPieceDefinableEmptyContext_hyp: $ nsLocal sfPieceDefinableEmptyContext (sfPieceRepEmpty 0) $ = (named '(ax_mp (ax_mp nsLocal_hyp sfPieceDefinableEmptyContext_wf) sfContext_member_head));
+
+theorem sfPieceDefinableEmptyContext_rotate: $ sfContextRename sfPieceRotate 0 sfPieceDefinableEmptyContext = sfContextShift sfPieceDefinableEmptyContext $ = (named '(eqtr (eqtr sfContextRename_cons (conseq (eqtr sfPieceRepEmpty_rename (sfPieceRepEmpty_eq (eqtr sfRenameIndex_zero (eqtr sfPieceRotate_value (ifpos eqid))))) sfContextRename_nil)) (eqcom (eqtr sfContextShift_cons (conseq sfPieceDefinableBot_empty_shift sfContextShift_nil)))));
+
+theorem sfPieceDefinableRecipe_dn_step (a:nat): $ nsLocal sfPieceDefinableEmptyContext a -> nsLocal sfPieceDefinableEmptyContext (sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 a))) $ = (named '(syl (sfLocal_allI sfPieceDefinableEmptyContext_wf) (syl nsLocal_II (syl (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (syl (bi1 (nsLocal_context_eq sfPieceDefinableEmptyContext_rotate)) sfSepLocal_rename)))));
+
+theorem sfPieceDefinableRecipe_dn_successor (n a:nat): $ nsLocal sfPieceDefinableEmptyContext (sfPieceDn n a) -> nsLocal sfPieceDefinableEmptyContext (sfPieceDn (suc n) a) $ = (named '(syl (bi2 (nsLocal_formula_eq sfPieceDn_suc)) sfPieceDefinableRecipe_dn_step));
+
+theorem sfPieceDefinableRecipe_dn_induction_step (n a:nat): $ (nsLocal sfPieceDefinableEmptyContext a -> nsLocal sfPieceDefinableEmptyContext (sfPieceDn n a)) -> (nsLocal sfPieceDefinableEmptyContext a -> nsLocal sfPieceDefinableEmptyContext (sfPieceDn (suc n) a)) $ = (named '(imim2i sfPieceDefinableRecipe_dn_successor));
+
+pub theorem sfPieceDefinableRecipe_dn_intro (n a:nat): $ nsLocal sfPieceDefinableEmptyContext a -> nsLocal sfPieceDefinableEmptyContext (sfPieceDn n a) $ = (named @ induct '(ind) 'n '(bi2 (nsLocal_formula_eq sfPieceDn_zero)) 'sfPieceDefinableRecipe_dn_induction_step);
+
+@_ abstract def sfPieceDefinableRecipeMap (.i:nat): set = $ \ i, 3 + i $;
+
+@_ abstract def sfPieceDefinableRecipeEnvironment (n:nat): nat = $ sfPieceEnv sfPieceDefinableRecipeMap n 0 $;
+
+@_ abstract def sfPieceDefinableRecipePoint (n phi:nat): nat = $ sfAll (sfImp (sfPieceDefinableRecipeEnvironment n) (sfIff (sfMem 0 1) (sfCLSetRel 2 (sfRename sfPieceDefinableRecipeMap 0 phi)))) $;
+
+@_ abstract def sfPieceDefinableRecipe (n phi:nat): nat = $ sfPieceDn n (sfPieceDefinableRecipePoint n phi) $;
+
+theorem sfPieceDefinableRecipe_bot_point (n:nat): $ nsLocal sfPieceDefinableEmptyContext (sfPieceDefinableRecipePoint n sfBot) $ = (named '(sfRQ_rewrite (nsAll_eq (nsImp_eq eqid (nsAnd_eq (nsImp_eq eqid (eqcom sfPieceDefinableBot_matrix)) (nsImp_eq (eqcom sfPieceDefinableBot_matrix) eqid)))) (ax_mp (sfLocal_allI sfPieceDefinableEmptyContext_wf) (ax_mp nsLocal_II (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfPieceEnv_wf sfContextShift_wf))) sfContextSub_cons) (sfPieceDefinableBot_member_iff (sfRQ_rewrite sfPieceDefinableBot_empty_shift (ax_mp sfSepLocal_shift sfPieceDefinableEmptyContext_hyp))))))));
+
+pub theorem sfPieceDefinableRecipe_bot (n:nat): $ nsLocal 0 (sfImp (sfPieceRepEmpty 0) (sfPieceDefinableRecipe n sfBot)) $ = (named '(ax_mp nsLocal_II (ax_mp sfPieceDefinableRecipe_dn_intro sfPieceDefinableRecipe_bot_point)));

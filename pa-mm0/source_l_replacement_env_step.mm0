@@ -1,0 +1,48 @@
+import "source_piece_pcf_rep_environment.mm0";
+
+import "source_piece_pcf_rep_cover_laws_r39.mm0";
+
+import "source_l_common_level_blocks.mm0";
+
+import "source_l_common_level_recipe_transport.mm0";
+
+import "source_l_replacement_reflected_image.mm0";
+
+import "source_theory_local.mm0";
+
+import "source_l_background.mm0";
+
+-- Rocq Z_cl `env_inC` by induction on m, from closure of C under one-step extension.
+-- Open layout: C = 0, S = 1, A = 2, parameters 3 .. m+2 (as in sfLEnvOpen of core_assembly).
+def lreEnvOpen(m:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 3 2 m)
+   (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 4) m 0))))) $;
+
+def lreEnvLaw(m:nat):nat = $ sfAllPrefix (m + 3) (lreEnvOpen m) $;
+
+-- The same with the parameters moved up by one (3 .. becomes 4 ..).
+def lreEnvOpen5(m:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 4 2 m)
+   (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 5) m 0))))) $;
+
+-- Closure of C under one-step extension: e in C, v in A => some z in C is e + v.
+def lreExtStep: nat =
+ $ sfAll (sfAll (sfImp (sfMem 1 2) (sfImp (sfMem 0 4)
+   (sfEx (sfAnd (sfMem 0 3) (sfPieceRepExtension 2 1 0)))))) $;
+
+def lreExtOpen: nat = $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) lreExtStep) $;
+
+def lreExtLaw: nat = $ sfAllPrefix 3 lreExtOpen $;
+
+theorem lreEnvOpen_wf(m:nat): $ sfWf (lreEnvOpen m) $;
+
+theorem lreEnvOpen_step(n:nat)(hX:$ sfTheoryProvable zfrAxioms lreExtOpen $):
+ $ sfTheoryProvable zfrAxioms (lreEnvOpen n) -> sfTheoryProvable zfrAxioms (lreEnvOpen (suc n)) $;
+
+theorem lreEnvOpen_all(n:nat)(hX:$ sfTheoryProvable zfrAxioms lreExtOpen $)
+ (h0:$ sfTheoryProvable zfrAxioms (lreEnvOpen 0) $):
+ $ sfTheoryProvable zfrAxioms (lreEnvOpen n) $;
+
+theorem lreEnvLaw_from_ext(m:nat)(hX:$ sfTheoryProvable zfrAxioms lreExtLaw $)
+ (h0:$ sfTheoryProvable zfrAxioms (lreEnvLaw 0) $):
+ $ sfTheoryProvable zfrAxioms (lreEnvLaw m) $;

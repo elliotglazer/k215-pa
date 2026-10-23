@@ -1,0 +1,13 @@
+import "source_k_upper_trace_logic.mm1";
+
+theorem sfUpperEx_empty_sub (G: nat):
+ $ sfContextSub 0 G $ =
+(named '(ax_gen @ absurd lmem0));
+
+pub theorem sfUpperLocal_ex_map (G a b: nat) (hg: $ sfContextWf G $) (ha: $ sfWf a $) (hb: $ sfWf b $) (h: $ nsLocal (a : sfContextShift G) b $):
+ $ nsLocal G (sfEx a) -> nsLocal G (sfEx b) $ =
+'(mpi (mpbir (nsLocaleq2 sfShift_sfEx) (ax_mp (ax_mp nsLocal_ExI sfShift_wf) (mpbir (nsLocaleq2 (ax_mp sfSubst_shift_up_identity hb)) h))) (sfLocal_exE (ax_mp sfWf_ex hb)));
+
+pub theorem sfUpperLocal_ex_from_pure_imp (G a b: nat) (hg: $ sfContextWf G $) (ha: $ sfWf a $) (hb: $ sfWf b $) (h: $ nsLocal 0 (sfImp a b) $):
+ $ nsLocal G (sfEx a) -> nsLocal G (sfEx b) $ =
+'(sfUpperLocal_ex_map hg ha hb (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian ha sfContextShift_wf))) sfUpperEx_empty_sub) h)) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha sfContextShift_wf))) sfContext_member_head)));

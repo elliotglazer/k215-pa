@@ -1,0 +1,116 @@
+import "zfc_quantified_proofs.mm1";
+
+@_ def sfClosedFormulaClass (.a: nat): set = $ {a | sfBound 0 a} $;
+@_ def sfTheoryClosed (A: set): wff = $ A C_ sfClosedFormulaClass $;
+@_ def sfTheoryContext (A: set) (G: nat): wff = $ all A G $;
+@_ def sfTheoryProvable (A: set) (f .G .p: nat): wff =
+$ E. G E. p (sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G f)) $;
+
+pub theorem sfClosedFormulaClass_value (a: nat):
+  $ a e. sfClosedFormulaClass <-> sfBound 0 a $ =
+(named '(elabe ,eqtac));
+pub theorem sfClosedFormulaClass_wf: $ sfClosedFormulaClass C_ sfFormulaClass $ =
+(named '(ax_gen @ syl (bi2 sfFormulaClass_value) @ syl sfBound_wf (bi1 sfClosedFormulaClass_value)));
+pub theorem sfTheoryClosed_member (A: set) (a: nat):
+  $ sfTheoryClosed A -> a e. A -> sfBound 0 a $ =
+'(syl6 (bi1 sfClosedFormulaClass_value) ssel);
+pub theorem sfTheoryContext_nil (A: set): $ sfTheoryContext A 0 $ = 'all0;
+pub theorem sfTheoryContext_cons (A: set) (a G: nat):
+  $ sfTheoryContext A (a : G) <-> a e. A /\ sfTheoryContext A G $ = 'allS;
+pub theorem sfTheoryContext_append (A: set) (G D: nat):
+  $ sfTheoryContext A (G ++ D) <-> sfTheoryContext A G /\ sfTheoryContext A D $ = 'allappend;
+pub theorem sfTheoryContext_mono (A B: set) (G: nat):
+  $ A C_ B -> sfTheoryContext A G -> sfTheoryContext B G $ = 'ssall;
+pub theorem sfTheoryContext_member_closed (A: set) (G a: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G -> a IN G -> sfBound 0 a $ =
+'(syl6 (syl6 (bi1 sfClosedFormulaClass_value) elall) ssall);
+pub theorem sfTheoryContext_wf (A: set) (G: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G -> sfContextWf G $ =
+'(syl ssall (mpi sfClosedFormulaClass_wf sstr));
+theorem sfClosedContext_shift_identity (G: nat):
+  $ all sfClosedFormulaClass G -> sfContextShift G = G $ =
+(named @ induct '(listind) 'G
+  '(a1i sfContextShift_nil)
+  '(exp @ eqtrd (a1i sfContextShift_cons) @ conseqd
+    (syl sfShift_closed_identity @ syl (bi1 sfClosedFormulaClass_value) @
+      syl anl @ syl (bi1 allS) anr)
+    (mpd (syl anr (syl (bi1 allS) anr)) anl)));
+pub theorem sfTheoryContext_shift_identity (A: set) (G: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G -> sfContextShift G = G $ =
+'(syl6 sfClosedContext_shift_identity ssall);
+pub theorem sfTheoryProof_context_wf (G p a: nat):
+  $ sfNDFullDerives p (sfSequent G a) -> sfContextWf G $ =
+'(syl anl (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf));
+pub theorem sfTheoryProvable_intro (A: set) (G p f: nat):
+  $ sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G f) -> sfTheoryProvable A f $ =
+(named '(syl (iexe ,eqtac) (iexe ,eqtac)));
+pub theorem sfTheoryProvable_wf (A: set) (f: nat):
+  $ sfTheoryProvable A f -> sfWf f $ =
+(named '(eex @ eex @ syl zfcProof_formula_wf anr));
+theorem sfTheoryProvable_mono_at (A B: set) (G p f: nat):
+  $ A C_ B -> (sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G f)) -> sfTheoryProvable B f $ =
+'(exp @ syl sfTheoryProvable_intro @ iand (mpd anrl (syl sfTheoryContext_mono anl)) anrr);
+pub theorem sfTheoryProvable_mono (A B: set) (f: nat):
+  $ A C_ B -> sfTheoryProvable A f -> sfTheoryProvable B f $ =
+(named '(eexd @ eexd sfTheoryProvable_mono_at));
+theorem sfTheoryAxiom_context (A: set) (a: nat):
+  $ a e. A -> sfTheoryContext A (a : 0) $ =
+'(syl (bi2 sfTheoryContext_cons) (iand id (a1i sfTheoryContext_nil)));
+theorem sfTheoryAxiom_proof (a: nat):
+  $ sfWf a -> sfNDFullDerives (sfSequent (a : 0) a : 0) (sfSequent (a : 0) a) $ =
+'(syl sfNDFullDerives_prop_base @ mpi sfContext_member_head @
+  syl sfNDPropBase_Ctx @ sylc sfRowWf_sequent_intro
+    (syl (bi2 sfContextWf_cons) (iand id (a1i sfContextWf_nil))) id);
+pub theorem sfTheoryAxiom_provable (A: set) (a: nat):
+  $ sfWf a -> a e. A -> sfTheoryProvable A a $ =
+'(exp @ syl sfTheoryProvable_intro @ iand (syl sfTheoryAxiom_context anr) (syl sfTheoryAxiom_proof anl));
+pub theorem sfTheoryAxiom_provable_closed (A: set) (a: nat):
+  $ sfTheoryClosed A -> a e. A -> sfTheoryProvable A a $ =
+'(exp @ mpd anr @ syl sfTheoryAxiom_provable @ syl sfBound_wf (imp sfTheoryClosed_member));
+
+theorem sfTheoryProof_mp_at (A: set) (G D p q a b: nat):
+  $ (sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G (sfImp a b))) ->
+    (sfTheoryContext A D /\ sfNDFullDerives q (sfSequent D a)) -> sfTheoryProvable A b $ =
+'(exp @ syl sfTheoryProvable_intro @ iand
+  (syl (bi2 sfTheoryContext_append) (iand anll anrl))
+  (mpd anrr @ mpd anlr @ syl zfcProof_mp @ syl (bi2 sfContextWf_append) @ iand
+    (syl sfTheoryProof_context_wf anlr) (syl sfTheoryProof_context_wf anrr)));
+theorem sfTheoryProof_mp_right (A: set) (G p a b: nat):
+  $ (sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G (sfImp a b))) ->
+    sfTheoryProvable A a -> sfTheoryProvable A b $ =
+(named '(eexd @ eexd sfTheoryProof_mp_at));
+pub theorem sfTheoryProvable_mp (A: set) (a b: nat):
+  $ sfTheoryProvable A (sfImp a b) -> sfTheoryProvable A a -> sfTheoryProvable A b $ =
+(named '(eex @ eex sfTheoryProof_mp_right));
+
+pub theorem sfTheoryProof_gen (A: set) (G p a: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G -> sfNDFullDerives p (sfSequent G a) ->
+    sfNDFullDerives (zfcGenProof G p a) (sfSequent G (sfAll a)) $ =
+'(exp @ exp @ mpd
+  (mpbird (zfcQuantFullDerives_congr (a1i eqid)
+    (sfSequent_congr_context (mpd anlr (syl sfTheoryContext_shift_identity anll)))) anr)
+  (syl sfNDFullDerives_AllI @ sylc sfRowWf_sequent_intro
+    (syl sfTheoryProof_context_wf anr) (syl sfWf_all (syl zfcProof_formula_wf anr))));
+theorem sfTheoryProof_gen_at (A: set) (G p a: nat):
+  $ sfTheoryClosed A -> (sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G a)) ->
+    sfTheoryProvable A (sfAll a) $ =
+'(exp @ syl sfTheoryProvable_intro @ iand anrl @
+  mpd anrr @ mpd anrl (syl sfTheoryProof_gen anl));
+pub theorem sfTheoryProvable_gen (A: set) (a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A a -> sfTheoryProvable A (sfAll a) $ =
+(named '(eexd @ eexd sfTheoryProof_gen_at));
+theorem sfTheoryProof_allE_at (A: set) (G p a t: nat):
+  $ (sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G (sfAll a))) ->
+    sfTheoryProvable A (sfSubst 0 t a) $ =
+'(syl sfTheoryProvable_intro @ iand anl @ mpd anr @
+  syl sfNDFullDerives_AllE @ sylc sfRowWf_sequent_intro
+    (syl sfTheoryProof_context_wf anr) (a1i sfSubst_wf));
+pub theorem sfTheoryProvable_allE (A: set) (a t: nat):
+  $ sfTheoryProvable A (sfAll a) -> sfTheoryProvable A (sfSubst 0 t a) $ =
+(named '(eex @ eex sfTheoryProof_allE_at));
+pub theorem sfTheoryContext_zfc (G: nat):
+  $ sfTheoryContext zfcAxioms G <-> zfcContext G $ = 'biid;
+pub theorem sfTheoryClosed_zfc: $ sfTheoryClosed zfcAxioms $ =
+(named '(ax_gen @ syl (bi2 sfClosedFormulaClass_value) zfcAxioms_closed));
+pub theorem sfTheoryProvable_zfc (a: nat):
+  $ sfTheoryProvable zfcAxioms a <-> zfcProvable a $ = (named 'biid);

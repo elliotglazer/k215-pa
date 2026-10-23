@@ -1,0 +1,63 @@
+import "source_l_common_level_transport.mm1";
+import "source_l_common_level_setrel.mm1";
+import "source_l_domain.mm1";
+
+@_ def sfCLBallStep (.z: nat): set =
+ $ \ z, (fst z - 1, sfAll (sfImp (sfMem 0 (fst z)) (snd z))) $;
+@_ def sfCLBallRaw (y body n: nat): nat = $ rec (y, body) sfCLBallStep n $;
+@_ def sfCLBall (n y body: nat): nat = $ snd (sfCLBallRaw (y + n) body n) $;
+@_ def sfCLReflection (D count phi beta: nat): nat =
+ $ sfAll (sfImp (sfCLHierarchyAt (suc beta) 0)
+    (sfCLBall count 0 (sfIff (sfRelativize D phi) (sfCLSetRel count phi)))) $;
+@_ def sfCLReflectedPoint (start params count phi beta y: nat): nat =
+ $ sfAnd (sfCLPoint start params beta y) (sfCLReflection sfLDomain count phi beta) $;
+@_ def sfCLReflectedRecipe (start params count phi: nat): nat =
+ $ sfEx (sfEx (sfCLReflectedPoint (suc (suc start)) params count phi 1 0)) $;
+@_ def sfCLCommonReflectedLaw (start params count phi: nat): nat =
+ $ sfImp (sfCLPredicates sfLDomain start params) (sfCLReflectedRecipe start params count phi) $;
+
+theorem sfCLBallStep_value (z: nat):
+ $ sfCLBallStep @ z = (fst z - 1, sfAll (sfImp (sfMem 0 (fst z)) (snd z))) $ =
+ (named '(applame ,eqtac));
+pub theorem sfCLBallRaw_zero (y body: nat): $ sfCLBallRaw y body 0 = (y, body) $ = 'rec0;
+pub theorem sfCLBallRaw_suc (y body n: nat):
+ $ sfCLBallRaw y body (suc n) =
+   (fst (sfCLBallRaw y body n) - 1,
+    sfAll (sfImp (sfMem 0 (fst (sfCLBallRaw y body n))) (snd (sfCLBallRaw y body n)))) $ =
+ '(eqtr recS sfCLBallStep_value);
+pub theorem sfCLBallRaw_count (y body n: nat):
+ $ fst (sfCLBallRaw y body n) = y - n $ =
+ (named @ induct '(ind) 'n
+  '(eqtr (fsteq sfCLBallRaw_zero) (eqtr fstpr (eqcom sub02)))
+  '(eqtrd (a1i (eqtr (fsteq sfCLBallRaw_suc) fstpr))
+    (eqtrd (subeq1d id) (a1i (eqtr subsub (subeq2 add12))))));
+pub theorem sfCLBall_zero (y body: nat): $ sfCLBall 0 y body = body $ =
+ '(eqtr (sndeq sfCLBallRaw_zero) sndpr);
+theorem sfCLBall_seed (y n: nat): $ y + suc n = suc y + n $ = '(eqcom addSass);
+pub theorem sfCLBall_suc (n y body: nat):
+ $ sfCLBall (suc n) y body = sfAll (sfImp (sfMem 0 (suc y)) (sfCLBall n (suc y) body)) $ =
+ '(eqtr (sndeq sfCLBallRaw_suc)
+   (eqtr sndpr (nsAll_eq (nsImp_eq
+      (nsMem_eq eqid (eqtr (fsteq (sfCLBallRaweq1 sfCLBall_seed)) (eqtr sfCLBallRaw_count pncan)))
+      (sndeq (sfCLBallRaweq1 sfCLBall_seed))))));
+theorem sfCLBallRaw_wf (y body n: nat) (hb: $ sfWf body $):
+ $ sfWf (snd (sfCLBallRaw y body n)) $ =
+ (named @ induct '(ind) 'n
+   '(mpbir (sfSchema_wf_eq (eqtr (sndeq sfCLBallRaw_zero) sndpr)) hb)
+   '(mpbird (a1i (sfSchema_wf_eq (eqtr (sndeq sfCLBallRaw_suc) sndpr)))
+      (syl sfWf_all (syl (ax_mp sfWf_imp sfWf_mem) id))));
+pub theorem sfCLBall_wf (n y body: nat) (hb: $ sfWf body $): $ sfWf (sfCLBall n y body) $ =
+ '(sfCLBallRaw_wf hb);
+pub theorem sfCLReflection_wf (D count phi beta: nat) (hd: $ sfWf D $):
+ $ sfWf (sfCLReflection D count phi beta) $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfCLHierarchyAt_wf)
+    (sfCLBall_wf (mpbir sfWf_iff (ian (ax_mp sfRelativize_wf hd) sfCLSetRel_wf)))));
+pub theorem sfCLReflectedPoint_wf (start params count phi beta y: nat):
+ $ sfWf (sfCLReflectedPoint start params count phi beta y) $ =
+ '(ax_mp (ax_mp sfWf_and sfCLPoint_wf) (sfCLReflection_wf sfLDomain_wf));
+pub theorem sfCLReflectedRecipe_wf (start params count phi: nat):
+ $ sfWf (sfCLReflectedRecipe start params count phi) $ =
+ '(ax_mp sfWf_ex (ax_mp sfWf_ex sfCLReflectedPoint_wf));
+pub theorem sfCLCommonReflectedLaw_wf (start params count phi: nat):
+ $ sfWf (sfCLCommonReflectedLaw start params count phi) $ =
+ '(ax_mp (ax_mp sfWf_imp sfCLPredicates_wf) sfCLReflectedRecipe_wf);

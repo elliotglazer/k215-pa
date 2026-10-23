@@ -1,0 +1,149 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k230_substitution.mm1";
+import "k218q_transport.mm1";
+
+theorem k218ILI_prov_transport (G: wff) (a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> k218QProvable b $):
+ $ G -> k218QProvable a $ = '(mpbird (k218QProvableeqd he) hp);
+theorem k218ILI_replace_eq (x y a: nat):
+ $ a = x -> kReplace x y a = y $ =
+'(eqtrd (kReplace_congr eqidd eqidd id) (a1i kReplace_hit));
+theorem k218ILI_name_hit_forward (x y a: nat):
+ $ a = x -> k218QProvable (kImp (kEq x y) (kEq a (kReplace x y a))) $ =
+'(k218ILI_prov_transport
+ (kImp_congr_right (kEqeqd id k218ILI_replace_eq)) (a1i k218IPropI));
+theorem k218ILI_name_miss_forward (x y a: nat):
+ $ a != x -> k218QProvable (kImp (kEq x y) (kEq a (kReplace x y a))) $ =
+'(k218ILI_prov_transport
+ (kImp_congr_right (kEqeqd eqidd kReplace_miss))
+ (a1i (k218QProvable_mp k218IEquality_reflexive k218IPropK)));
+pub theorem k218IEquality_replace_forward (x y a: nat):
+ $ k218QProvable (kImp (kEq x y) (kEq a (kReplace x y a))) $ =
+'(cases k218ILI_name_hit_forward k218ILI_name_miss_forward);
+theorem k218ILI_name_hit_backward (x y a: nat):
+ $ a = x -> k218QProvable (kImp (kEq x y) (kEq (kReplace x y a) a)) $ =
+'(k218ILI_prov_transport
+ (kImp_congr_right (kEqeqd k218ILI_replace_eq id)) (a1i k218IEquality_symmetric));
+theorem k218ILI_name_miss_backward (x y a: nat):
+ $ a != x -> k218QProvable (kImp (kEq x y) (kEq (kReplace x y a) a)) $ =
+'(k218ILI_prov_transport
+ (kImp_congr_right (kEqeqd kReplace_miss eqidd))
+ (a1i (k218QProvable_mp k218IEquality_reflexive k218IPropK)));
+pub theorem k218IEquality_replace_backward (x y a: nat):
+ $ k218QProvable (kImp (kEq x y) (kEq (kReplace x y a) a)) $ =
+'(cases k218ILI_name_hit_backward k218ILI_name_miss_backward);
+
+@_ def k218ILeibnizReady (f x y: nat): wff = $ kBinderAbsent f x /\ kBinderAbsent f y $;
+@_ def k218ILeibnizPair (f x y: nat): wff =
+$ k218QProvable (kImp (kEq x y) (kImp f (kSubst f x y))) /\
+  k218QProvable (kImp (kEq x y) (kImp (kSubst f x y) f)) $;
+@_ abstract def k218ILeibnizClass (x y .f: nat): set = $ {f | k218ILeibnizReady f x y -> k218ILeibnizPair f x y} $;
+pub theorem k218ILeibnizClass_value (x y f: nat):
+ $ f e. k218ILeibnizClass x y <-> (k218ILeibnizReady f x y -> k218ILeibnizPair f x y) $ =
+(named '(elabe ,eqtac));
+
+theorem k218ILI_pair_intro (G: wff) (f x y g: nat)
+ (he: $ G -> kSubst f x y = g $)
+ (hp: $ G -> k218QProvable (kImp (kEq x y) (kImp f g)) $)
+ (hq: $ G -> k218QProvable (kImp (kEq x y) (kImp g f)) $):
+ $ G -> k218ILeibnizPair f x y $ =
+'(iand
+ (k218ILI_prov_transport (kImp_congr_right (kImp_congr_right he)) hp)
+ (k218ILI_prov_transport (kImp_congr_right (kImp_congr_left he)) hq));
+
+theorem k218ILI_syl (a b c: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp b c) -> k218QProvable (kImp a c) $ =
+'(exp @ mpd (syl (mpi k218IPropB k218QProvable_mp) anl) (syl k218QProvable_mp anr));
+theorem k218ILI_all_mono (x a b: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp (kAll x a) (kAll x b)) $ =
+'(syl (mpi (k218QProvable_axiom k218QAxioms_rho2) k218QProvable_mp) k218QProvable_gen);
+theorem k218ILI_imp (G: wff) (h a ap b bp: nat)
+ (ha: $ G -> k218QProvable (kImp h (kImp ap a)) $)
+ (hb: $ G -> k218QProvable (kImp h (kImp b bp)) $):
+ $ G -> k218QProvable (kImp h (kImp (kImp a b) (kImp ap bp))) $ =
+'(sylc k218QProvable_mp hb (syl (mpi k218ITransport_imp_lemma k218QProvable_mp) ha));
+theorem k218ILI_all (G: wff) (h z a b: nat)
+ (hv: $ G -> k218QProvable (kImp h (kAll z h)) $)
+ (ha: $ G -> k218QProvable (kImp h (kImp a b)) $):
+ $ G -> k218QProvable (kImp h (kImp (kAll z a) (kAll z b))) $ =
+'(syl (mpi (k218QProvable_axiom k218QAxioms_rho2) k218ILI_syl)
+ (sylc k218ILI_syl hv (syl k218ILI_all_mono ha)));
+
+theorem k218ILI_zero_pair (x y: nat): $ k218ILeibnizPair 0 x y $ =
+'(trud @ k218ILI_pair_intro (a1i kSubst_zero) (a1i k218ITransport_refl) (a1i k218ITransport_refl));
+theorem k218ILI_mem_pair (x y a b: nat): $ k218ILeibnizPair (kMem a b) x y $ =
+'(trud @ k218ILI_pair_intro (a1i kSubst_kMem)
+ (a1i (k218ITransport_combine k218IEquality_replace_forward k218IEquality_replace_forward k218IEquality_member_transport))
+ (a1i (k218ITransport_combine k218IEquality_replace_backward k218IEquality_replace_backward k218IEquality_member_transport)));
+theorem k218ILI_eq_pair (x y a b: nat): $ k218ILeibnizPair (kEq a b) x y $ =
+'(trud @ k218ILI_pair_intro (a1i kSubst_kEq)
+ (a1i (k218ITransport_combine k218IEquality_replace_forward k218IEquality_replace_forward k218IEquality_equal_transport))
+ (a1i (k218ITransport_combine k218IEquality_replace_backward k218IEquality_replace_backward k218IEquality_equal_transport)));
+
+theorem k218ILI_imp_pair (G: wff) (x y a b: nat)
+ (ha: $ G -> k218ILeibnizPair a x y $) (hb: $ G -> k218ILeibnizPair b x y $):
+ $ G -> k218ILeibnizPair (kImp a b) x y $ =
+'(k218ILI_pair_intro (a1i kSubst_kImp)
+ (k218ILI_imp (syl anr ha) (syl anl hb))
+ (k218ILI_imp (syl anl ha) (syl anr hb)));
+theorem k218ILI_ready_imp_left (x y a b: nat):
+ $ k218ILeibnizReady (kImp a b) x y -> k218ILeibnizReady a x y $ =
+'(iand (syl anl (syl (bi1 kBinderAbsent_kImp) anl))
+ (syl anl (syl (bi1 kBinderAbsent_kImp) anr)));
+theorem k218ILI_ready_imp_right (x y a b: nat):
+ $ k218ILeibnizReady (kImp a b) x y -> k218ILeibnizReady b x y $ =
+'(iand (syl anr (syl (bi1 kBinderAbsent_kImp) anl))
+ (syl anr (syl (bi1 kBinderAbsent_kImp) anr)));
+theorem k218ILI_ready_all_body (x y z a: nat):
+ $ k218ILeibnizReady (kAll z a) x y -> k218ILeibnizReady a x y $ =
+'(iand (syl anr (syl (bi1 kBinderAbsent_kAll) anl))
+ (syl anr (syl (bi1 kBinderAbsent_kAll) anr)));
+theorem k218ILI_ready_all_ne (x y z a: nat):
+ $ k218ILeibnizReady (kAll z a) x y -> z != x /\ z != y $ =
+'(iand (syl necom (syl anl (syl (bi1 kBinderAbsent_kAll) anl)))
+ (syl necom (syl anl (syl (bi1 kBinderAbsent_kAll) anr))));
+theorem k218ILI_all_vacuity (x y z a: nat):
+ $ k218ILeibnizReady (kAll z a) x y ->
+   k218QProvable (kImp (kEq x y) (kAll z (kEq x y))) $ =
+'(syl k218IAnd_right (syl k218QBundle_vacuity k218ILI_ready_all_ne));
+theorem k218ILI_all_pair (G: wff) (x y z a: nat)
+ (hr: $ G -> k218ILeibnizReady (kAll z a) x y $)
+ (ha: $ G -> k218ILeibnizPair a x y $):
+ $ G -> k218ILeibnizPair (kAll z a) x y $ =
+'(k218ILI_pair_intro (syl kSubst_kAll_open (syl anl (syl k218ILI_ready_all_ne hr)))
+ (k218ILI_all (syl k218ILI_all_vacuity hr) (syl anl ha))
+ (k218ILI_all (syl k218ILI_all_vacuity hr) (syl anr ha)));
+
+theorem k218ILI_zero_class (x y: nat): $ 0 e. k218ILeibnizClass x y $ =
+'(mpbir k218ILeibnizClass_value (a1i k218ILI_zero_pair));
+theorem k218ILI_mem_class (x y a b: nat): $ kMem a b e. k218ILeibnizClass x y $ =
+'(mpbir k218ILeibnizClass_value (a1i k218ILI_mem_pair));
+theorem k218ILI_eq_class (x y a b: nat): $ kEq a b e. k218ILeibnizClass x y $ =
+'(mpbir k218ILeibnizClass_value (a1i k218ILI_eq_pair));
+theorem k218ILI_imp_class (x y a b: nat):
+ $ a e. k218ILeibnizClass x y /\ b e. k218ILeibnizClass x y ->
+   kImp a b e. k218ILeibnizClass x y $ =
+'(syl (bi2 k218ILeibnizClass_value) @ exp @ k218ILI_imp_pair
+ (mpd (syl k218ILI_ready_imp_left anr) (syl (bi1 k218ILeibnizClass_value) anll))
+ (mpd (syl k218ILI_ready_imp_right anr) (syl (bi1 k218ILeibnizClass_value) anlr)));
+theorem k218ILI_all_class (x y z a: nat):
+ $ a e. k218ILeibnizClass x y -> kAll z a e. k218ILeibnizClass x y $ =
+'(syl (bi2 k218ILeibnizClass_value) @ exp @ k218ILI_all_pair anr
+ (mpd (syl k218ILI_ready_all_body anr) (syl (bi1 k218ILeibnizClass_value) anl)));
+pub theorem k218ILeibnizClass_closed (x y: nat): $ kRawConstructionClosed (k218ILeibnizClass x y) $ =
+(named '(ian (ian (ian k218ILI_zero_class (ax_gen @ ax_gen @ ian k218ILI_mem_class k218ILI_eq_class))
+ (ax_gen @ ax_gen k218ILI_imp_class)) (ax_gen @ ax_gen k218ILI_all_class)));
+pub theorem k218ILeibniz (f x y: nat):
+ $ kBinderAbsent f x /\ kBinderAbsent f y ->
+   k218QProvable (kImp (kEq x y) (kImp f (kSubst f x y))) /\
+   k218QProvable (kImp (kEq x y) (kImp (kSubst f x y) f)) $ =
+'(mpbi k218ILeibnizClass_value (ax_mp kRaw_induction k218ILeibnizClass_closed));
+pub theorem k218ILeibniz_forward (f x y: nat):
+ $ kBinderAbsent f x /\ kBinderAbsent f y ->
+   k218QProvable (kImp (kEq x y) (kImp f (kSubst f x y))) $ =
+'(syl anl k218ILeibniz);
+pub theorem k218ILeibniz_backward (f x y: nat):
+ $ kBinderAbsent f x /\ kBinderAbsent f y ->
+   k218QProvable (kImp (kEq x y) (kImp (kSubst f x y) f)) $ =
+'(syl anr k218ILeibniz);

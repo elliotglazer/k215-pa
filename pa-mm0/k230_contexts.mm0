@@ -1,0 +1,38 @@
+import "k230_deduction.mm0";
+
+-- Replacement of all hypotheses by actual contextual proofs.
+def kContextProofClass (G .a: nat): set = $ {a | kHypProvable G a} $;
+def kContextSupports (G H: nat): wff = $ traceClassAll (kContextProofClass G) H $;
+
+theorem kContextProofClass_value (G a: nat):
+ $ a e. kContextProofClass G <-> kHypProvable G a $;
+
+theorem kContextSupports_member (G H a: nat):
+ $ kContextSupports G H -> a IN H -> kHypProvable G a $;
+
+theorem kContextSupports_self (G: nat): $ kContextSupports G G $;
+
+theorem kContextSupports_nil (G: nat): $ kContextSupports G 0 $;
+
+theorem kContextSupports_cons (G H a: nat):
+ $ kContextSupports G H -> kHypProvable G a -> kContextSupports G (a : H) $;
+
+theorem kHypRules_refine_sound (G H: nat) (hs: $ kContextSupports G H $):
+ $ traceRuleSound (kHypRules H) (kContextProofClass G) $;
+
+theorem kHypDerives_refine (G H p a: nat) (hs: $ kContextSupports G H $):
+ $ kHypDerives H p a -> kHypProvable G a $;
+
+theorem kHypProvable_refine (G H a: nat) (hs: $ kContextSupports G H $):
+ $ kHypProvable H a -> kHypProvable G a $;
+
+theorem kHypProvable_refine_d (G H a: nat):
+ $ kContextSupports G H -> kHypProvable H a -> kHypProvable G a $;
+
+theorem kContextSupports_inclusion {c: nat} (G H: nat)
+ (hi: $ A. c (c IN H -> c IN G) $):
+ $ kContextSupports G H $;
+
+theorem kHypProvable_monotone {c: nat} (G H a: nat)
+ (hi: $ A. c (c IN H -> c IN G) $):
+ $ kHypProvable H a -> kHypProvable G a $;

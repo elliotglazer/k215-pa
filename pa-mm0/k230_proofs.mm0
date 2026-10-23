@@ -1,0 +1,26 @@
+import "k230_axioms.mm0";
+
+-- A fixed numerical checker for the actual Thm230 axiom/rule calculus.
+-- Its reverse-list representation must still be related to the machine's
+-- enumeration and to the beta-coded representation in the Rocq proof.
+def kMpRules (.c .l .b: nat): set =
+$ S\ c, {l | c e. kAxioms \/ E. b (b IN l /\ kImp b c IN l)} $;
+def kGenRules (.c .l .a .b: nat): set =
+$ S\ c, {l | E. a E. b (b IN l /\ c = kAll a b)} $;
+def kRules: set = $ kMpRules u. kGenRules $;
+def kDerives (p a: nat): wff = $ traceDerives kRules p a $;
+def kInconsistent (.p: nat): wff = $ E. p kDerives p kF $;
+
+theorem kMpRules_value {b: nat} (c l: nat):
+  $ (c, l) e. kMpRules <-> c e. kAxioms \/ E. b (b IN l /\ kImp b c IN l) $;
+theorem kGenRules_value {a b: nat} (c l: nat):
+  $ (c, l) e. kGenRules <-> E. a E. b (b IN l /\ c = kAll a b) $;
+theorem kRules_stable: $ traceAppendStable kRules $;
+theorem kDerives_axiom (a: nat): $ a e. kAxioms -> kDerives (a : 0) a $;
+theorem kDerives_true: $ kDerives (0 : 0) 0 $;
+theorem kDerives_mp (p q a b: nat):
+  $ kDerives p a -> kDerives q (kImp a b) -> kDerives (b : (p ++ q)) b $;
+theorem kDerives_gen (p a b: nat):
+  $ kDerives p b -> kDerives (kAll a b : p) (kAll a b) $;
+theorem kDerives_bundle (a b c: nat):
+  $ c != a /\ c != b -> kDerives (kBundle a b c : 0) (kBundle a b c) $;

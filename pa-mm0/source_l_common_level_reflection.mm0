@@ -1,0 +1,52 @@
+import "source_l_common_level_transport.mm0";
+import "source_l_common_level_setrel.mm0";
+import "source_l_domain.mm0";
+
+def sfCLBallStep (.z: nat): set =
+ $ \ z, (fst z - 1, sfAll (sfImp (sfMem 0 (fst z)) (snd z))) $;
+
+def sfCLBallRaw (y body n: nat): nat = $ rec (y, body) sfCLBallStep n $;
+
+def sfCLBall (n y body: nat): nat = $ snd (sfCLBallRaw (y + n) body n) $;
+
+def sfCLReflection (D count phi beta: nat): nat =
+ $ sfAll (sfImp (sfCLHierarchyAt (suc beta) 0)
+    (sfCLBall count 0 (sfIff (sfRelativize D phi) (sfCLSetRel count phi)))) $;
+
+def sfCLReflectedPoint (start params count phi beta y: nat): nat =
+ $ sfAnd (sfCLPoint start params beta y) (sfCLReflection sfLDomain count phi beta) $;
+
+def sfCLReflectedRecipe (start params count phi: nat): nat =
+ $ sfEx (sfEx (sfCLReflectedPoint (suc (suc start)) params count phi 1 0)) $;
+
+def sfCLCommonReflectedLaw (start params count phi: nat): nat =
+ $ sfImp (sfCLPredicates sfLDomain start params) (sfCLReflectedRecipe start params count phi) $;
+
+theorem sfCLBallRaw_zero (y body: nat): $ sfCLBallRaw y body 0 = (y, body) $;
+
+theorem sfCLBallRaw_suc (y body n: nat):
+ $ sfCLBallRaw y body (suc n) =
+   (fst (sfCLBallRaw y body n) - 1,
+    sfAll (sfImp (sfMem 0 (fst (sfCLBallRaw y body n))) (snd (sfCLBallRaw y body n)))) $;
+
+theorem sfCLBallRaw_count (y body n: nat):
+ $ fst (sfCLBallRaw y body n) = y - n $;
+
+theorem sfCLBall_zero (y body: nat): $ sfCLBall 0 y body = body $;
+
+theorem sfCLBall_suc (n y body: nat):
+ $ sfCLBall (suc n) y body = sfAll (sfImp (sfMem 0 (suc y)) (sfCLBall n (suc y) body)) $;
+
+theorem sfCLBall_wf (n y body: nat) (hb: $ sfWf body $): $ sfWf (sfCLBall n y body) $;
+
+theorem sfCLReflection_wf (D count phi beta: nat) (hd: $ sfWf D $):
+ $ sfWf (sfCLReflection D count phi beta) $;
+
+theorem sfCLReflectedPoint_wf (start params count phi beta y: nat):
+ $ sfWf (sfCLReflectedPoint start params count phi beta y) $;
+
+theorem sfCLReflectedRecipe_wf (start params count phi: nat):
+ $ sfWf (sfCLReflectedRecipe start params count phi) $;
+
+theorem sfCLCommonReflectedLaw_wf (start params count phi: nat):
+ $ sfWf (sfCLCommonReflectedLaw start params count phi) $;

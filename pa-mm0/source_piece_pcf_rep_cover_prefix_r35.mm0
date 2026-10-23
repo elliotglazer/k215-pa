@@ -1,0 +1,41 @@
+import "source_piece_pcf_rep_cover_point_r34.mm0";
+
+import "source_piece_pcf_opening.mm0";
+
+def sfPieceRepCoverTail(k .i:nat):set = $ \ i, k + i $;
+
+theorem sfPieceRepCoverTail_at(k i:nat): $ sfPieceRepCoverTail k @ i = k + i $;
+
+def sfPieceRepCoverMatrix(n:nat):nat = $ sfAll (sfImp (sfPieceDefinableRecipeEnvironment n) (sfMem 0 1)) $;
+
+def sfPieceRepCoverCore(n:nat):nat = $ sfPieceRepImplicationRecipeCover n 1 $;
+
+def sfPieceRepCoverNamed(n X A:nat):nat = $ sfORBinary (sfPieceRepCoverCore n) X A $;
+
+def sfPieceRepCoverProtected(n X:nat):nat = $ sfPieceRepDn3Core n (sfPieceRepCoverPoint (sfPieceRepCoverTail 3) n X) $;
+
+theorem sfPieceRepCoverMatrix_bound(n:nat): $ sfBound (suc (suc n)) (sfPieceRepCoverMatrix n) $;
+
+theorem sfPieceRepCoverCore_bound(n:nat): $ sfBound 2 (sfPieceRepCoverCore n) $;
+
+theorem sfPieceRepCoverCore_wf(n:nat): $ sfWf (sfPieceRepCoverCore n) $;
+
+theorem sfPieceRepCoverNamed_wf(n X A:nat): $ sfWf (sfPieceRepCoverNamed n X A) $;
+
+theorem sfPieceRepCoverNamed_open(n X A:nat): $ sfPieceRepCoverNamed n X A = sfPieceRepEnvironmentCoverAt A X n $;
+
+theorem sfPieceRepCoverNamed_rename(R:set)(n X A:nat): $ sfRename R 0 (sfPieceRepCoverNamed n X A) = sfPieceRepCoverNamed n (R @ X) (R @ A) $;
+
+theorem sfPieceRepCoverNamed_congr(n X A Y B:nat)(hx:$ X = Y $)(ha:$ A = B $): $ sfPieceRepCoverNamed n X A = sfPieceRepCoverNamed n Y B $;
+
+theorem sfPieceRepEnvironmentCoverAt_rename(R:set)(n X A:nat): $ sfRename R 0 (sfPieceRepEnvironmentCoverAt A X n) = sfPieceRepEnvironmentCoverAt (R @ A) (R @ X) n $;
+
+theorem sfPieceRepCoverPoint_map_eq{j:nat}(T U:set)(n X:nat)(h:$ A. j T @ j = U @ j $): $ sfPieceRepCoverPoint T n X = sfPieceRepCoverPoint U n X $;
+
+theorem sfPieceRepCoverMatrix_point(n:nat): $ sfPieceRepCoverMatrix n = sfPieceRepCoverPoint (sfPieceRepCoverTail 2) n 0 $;
+
+theorem sfPieceRepCoverNamed_protected(r n:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $): $ sfPieceRepCoverNamed n r 1 = sfPieceRepCoverProtected n r $;
+
+theorem sfPieceRepCoverPoint_rotate(n:nat): $ sfRename sfPieceRepRotate3 0 (sfPieceRepCoverPoint (sfPieceRepCoverTail 3) n 2) = sfPieceRepCoverPoint (sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfPieceRepCoverTail 3))) n 3 $;
+
+theorem sfPieceRepDn3_box_iterate(n a:nat): $ sfPieceRepDn3Core n (sfPieceRepDn3Box a) = sfPieceRepDn3Core (suc n) a $;

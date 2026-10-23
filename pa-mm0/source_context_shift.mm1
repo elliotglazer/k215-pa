@@ -1,0 +1,82 @@
+import "source_contexts.mm1";
+import "source_shift.mm1";
+
+do (apply (register-eqd 'sfContextWf) '(sfContextWf_congr));
+
+-- The same total syntax normalization used by shift's numerical recursion.
+-- This proves a fact about the actual sfShift function, without an assumed
+-- identification with any other renaming representation.
+pub theorem sfShift_formula_congr (H: wff) (d e a b: nat)
+  (hd: $ H -> d = e $) (ha: $ H -> a = b $):
+  $ H -> sfShift d a = sfShift e b $ = '(syl sreceq2 (preqd hd ha));
+do (apply (register-eqd 'sfShift) '(sfShift_formula_congr));
+
+theorem sfShift_induction_at (c a: nat):
+  $ A. j (j < c -> A. m sfWf (sfShift m j)) ->
+      a < c -> A. m sfWf (sfShift m a) $ =
+(named '(!! eale j ,eqtac));
+theorem sfShift_induction_specialize (d a: nat):
+  $ A. m sfWf (sfShift m a) -> sfWf (sfShift d a) $ =
+(named '(!! eale m ,eqtac));
+theorem sfShift_induction_use {j m: nat} (G: wff j m) (d c a: nat)
+  (hi: $ G -> A. j (j < c -> A. m sfWf (sfShift m j)) $)
+  (ha: $ G -> a < c $):
+  $ G -> sfWf (sfShift d a) $ =
+'(syl sfShift_induction_specialize @ mpd ha (syl sfShift_induction_at hi));
+theorem sfShift_history_wf {j m: nat} (G: wff j m) (d c e a: nat)
+  (hi: $ G -> A. j (j < c -> A. m sfWf (sfShift m j)) $)
+  (ha: $ G -> a < c $) (hk: $ G -> (e, a) < (d, c) $):
+  $ G -> sfWf (sfShiftHistory d c @ (e, a)) $ =
+'(mpbird (srecpeq2d (syl sfShiftHistory_lookup hk)) (sfShift_induction_use hi ha));
+theorem sfShift_if_wf (G p: wff) (a b: nat)
+  (hp: $ G /\ p -> sfWf a $) (hb: $ G -> sfWf b $):
+  $ G -> sfWf (if p a b) $ =
+'(ifbothd srecpeq2 srecpeq2 hp (syl hb anl));
+theorem sfShift_tagZero (c: nat): $ c = 0 -> sfTag c = 0 $ =
+'(eqtrd (modeq1d id) (a1i mod01));
+theorem sfShift_code_positive (G: wff) (c tag: nat)
+  (ht: $ G -> sfTag c = tag $) (hn: $ tag != 0 $):
+  $ G -> 0 < c $ =
+'(syl (bi2 lt01) @ syl (con3 sfShift_tagZero) (mpbiri hn (noteqd (eqeq1d ht))));
+
+theorem sfShiftBody_wf {j m: nat} (G: wff j m) (d c: nat)
+  (hi: $ G -> A. j (j < c -> A. m sfWf (sfShift m j)) $):
+  $ G -> sfWf (sfShiftBody d c (sfShiftHistory d c)) $ =
+'(sfShift_if_wf (a1i sfWf_bot) (sfShift_if_wf (a1i sfWf_mem) (sfShift_if_wf (a1i sfWf_eq) (sfShift_if_wf (sylc sfWf_and (sfShift_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfShift_code_positive anr (ltneri lt01S))))) (sfShift_history_wf (syl hi anl) (syl sfRight_lt (sfShift_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfShift_code_positive anr (ltneri lt01S)))))) (sfShift_if_wf (sylc sfWf_or (sfShift_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfShift_code_positive anr (ltneri lt01S))))) (sfShift_history_wf (syl hi anl) (syl sfRight_lt (sfShift_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfShift_code_positive anr (ltneri lt01S)))))) (sfShift_if_wf (sylc sfWf_imp (sfShift_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfShift_code_positive anr (ltneri lt01S))))) (sfShift_history_wf (syl hi anl) (syl sfRight_lt (sfShift_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfShift_code_positive anr (ltneri lt01S)))))) (sfShift_if_wf (syl sfWf_all (sfShift_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive (syl anl anr) (ltneri lt01S))) (syl sfKey_underBinder_lt (syl sfLeft_lt (sfShift_code_positive (syl anl anr) (ltneri lt01S)))))) (sfShift_if_wf (syl sfWf_ex (sfShift_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive (syl anl anr) (ltneri lt01S))) (syl sfKey_underBinder_lt (syl sfLeft_lt (sfShift_code_positive (syl anl anr) (ltneri lt01S)))))) (a1i sfWf_bot)))))))));
+theorem sfShift_bound_rename (c: nat):
+  $ A. q sfWf (sfShift q c) <-> A. m sfWf (sfShift m c) $ =
+(named '(cbval ,eqtac));
+theorem sfShift_wf_step {j m: nat} (G: wff j m) (c: nat)
+  (hi: $ G -> A. j (j < c -> A. m sfWf (sfShift m j)) $):
+  $ G -> A. m sfWf (sfShift m c) $ =
+'(sylib sfShift_bound_rename @ !! iald q @
+  mpbird (a1i (srecpeq2 sfShift_unfold)) (sfShiftBody_wf hi));
+theorem sfShift_wf_all (c: nat):
+  $ A. m sfWf (sfShift m c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (A. m sfWf (sfShift m j) <-> A. m sfWf (sfShift m c)) $}
+  ,eqtac (sfShift_wf_step anr)));
+pub theorem sfShift_wf (d c: nat): $ sfWf (sfShift d c) $ =
+(named '(ax_mp sfShift_induction_specialize
+  {sfShift_wf_all : $ A. m sfWf (sfShift m c) $}));
+
+@_ abstract def sfShiftMap (.a: nat): set = $ \ a, sfShift 0 a $;
+@_ abstract def sfContextShift (G: nat): nat = $ map sfShiftMap G $;
+
+pub theorem sfShiftMap_value (a: nat): $ sfShiftMap @ a = sfShift 0 a $ =
+(named '(!! applame j ,eqtac));
+pub theorem sfContextShift_nil: $ sfContextShift 0 = 0 $ = 'map0;
+pub theorem sfContextShift_cons (a G: nat):
+  $ sfContextShift (a : G) = sfShift 0 a : sfContextShift G $ =
+'(eqtr mapS (conseq1 sfShiftMap_value));
+pub theorem sfContextShift_congr (H: wff) (G D: nat) (h: $ H -> G = D $):
+  $ H -> sfContextShift G = sfContextShift D $ = '(sfContextShifteqd h);
+
+pub theorem sfContextShift_wf (G: nat): $ sfContextWf (sfContextShift G) $ =
+(named @ induct '(listind) 'G
+  '(mpbir (alleq2 sfContextShift_nil) sfContextWf_nil)
+  '(sylibr (alleq2 sfContextShift_cons) @
+    syl (bi2 sfContextWf_cons) (iand (a1i sfShift_wf) id)));
+pub theorem sfContextShift_preserves_wf (G: nat):
+  $ sfContextWf G -> sfContextWf (sfContextShift G) $ =
+'(a1i sfContextShift_wf);

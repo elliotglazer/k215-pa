@@ -1,0 +1,33 @@
+import "source_piece_pcf_definable_parameters.mm1";
+
+@_ abstract def sfPieceDefinableCanonicalMap(.i:nat): set = $ \ i, suc (suc i) $;
+
+pub theorem sfPieceDefinableCanonicalMap_at(i:nat): $ sfPieceDefinableCanonicalMap @ i = suc (suc i) $ = (named '(applame ,eqtac));
+
+theorem sfPieceDefinableCanonical_undo_zero: $ sfPieceDefinableParametersUndo @ 0 = 2 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_zero) sfPieceRotate_one)));
+
+theorem sfPieceDefinableCanonical_undo_two: $ sfPieceDefinableParametersUndo @ 2 = 1 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_two) sfPieceRotate_zero)));
+
+theorem sfPieceDefinableCanonical_undo_tail(i:nat): $ sfPieceDefinableParametersUndo @ suc (suc (suc i)) = suc (suc (suc i)) $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_tail) sfPieceRotate_tail)));
+
+pub theorem sfPieceDefinableCanonical_head(G:nat): $ nsLocal (sfPieceDefinableParametersStep @ G) (sfMem 2 1) $ = (named '(mpbir (nsLocal_context_eq sfPieceDefinableParametersStep_at) (sfRQ_rewrite (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero sfPieceDefinableCanonical_undo_zero) (eqtr sfRenameIndex_zero sfPieceDefinableCanonical_undo_two))) (ax_mp sfSepLocal_rename (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContext_member_head)))));
+
+theorem sfPieceDefinableCanonical_lift_code(i:nat): $ sfRename sfPieceDefinableParametersUndo 0 (sfShift 0 (sfMem (suc (suc i)) 1)) = sfMem (suc (suc (suc i))) 1 $ = (named '(eqtr (trud (sfRename_congr_formula (a1i (eqtr sfShift_sfMem (sfMemeq sfShiftIndex_zero sfShiftIndex_zero))))) (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero sfPieceDefinableCanonical_undo_tail) (eqtr sfRenameIndex_zero sfPieceDefinableCanonical_undo_two)))));
+
+pub theorem sfPieceDefinableCanonical_lift(G i:nat): $ nsLocal G (sfMem (suc (suc i)) 1) -> nsLocal (sfPieceDefinableParametersStep @ G) (sfMem (suc (suc (suc i))) 1) $ = (named '(syl (bi2 (nsLocal_context_eq sfPieceDefinableParametersStep_at)) (syl (bi1 (nsLocal_formula_eq sfPieceDefinableCanonical_lift_code)) (syl sfSepLocal_rename (syl (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (syl sfSepLocal_shift id))))));
+
+theorem sfPieceDefinableCanonical_members_zero(G:nat): $ sfReflectionDnMembers sfPieceDefinableCanonicalMap (sfPieceDefinableParametersContext 0 G) 1 0 $ = (named '(ax_gen (ax_mp absurd lt02)));
+
+theorem sfPieceDefinableCanonical_members_step_zero(H:wff)(n G:nat): $ H -> 0 < suc n -> nsLocal (sfPieceDefinableParametersContext (suc n) G) (sfMem (sfPieceDefinableCanonicalMap @ 0) 1) $ = (named '(a1i (a1i (mpbir (nsLocal_formula_eq (nsMem_eq sfPieceDefinableCanonicalMap_at eqid)) (mpbir (nsLocal_context_eq sfPieceDefinableParametersContext_suc) sfPieceDefinableCanonical_head)))));
+
+theorem sfPieceDefinableCanonical_members_step_suc(H:wff)(n G i:nat)(hi:$ H -> sfReflectionDnMembers sfPieceDefinableCanonicalMap (sfPieceDefinableParametersContext n G) 1 n $): $ H -> suc i < suc n -> nsLocal (sfPieceDefinableParametersContext (suc n) G) (sfMem (sfPieceDefinableCanonicalMap @ suc i) 1) $ = (named '(exp (syl (bi2 (nsLocal_formula_eq (nsMem_eq sfPieceDefinableCanonicalMap_at eqid))) (syl (bi2 (nsLocal_context_eq sfPieceDefinableParametersContext_suc)) (syl sfPieceDefinableCanonical_lift (syl (bi1 (nsLocal_formula_eq (nsMem_eq sfPieceDefinableCanonicalMap_at eqid))) (mpd (syl (bi2 ltsuc) anr) (syl (syl sfReflectionDnMembers_at hi) anl))))))));
+
+theorem sfPieceDefinableCanonical_members_step_each(H:wff)(n G i:nat)(hi:$ H -> sfReflectionDnMembers sfPieceDefinableCanonicalMap (sfPieceDefinableParametersContext n G) 1 n $): $ H -> i < suc n -> nsLocal (sfPieceDefinableParametersContext (suc n) G) (sfMem (sfPieceDefinableCanonicalMap @ i) 1) $ = (named @ induct '(ind) 'i 'sfPieceDefinableCanonical_members_step_zero '(a1i (sfPieceDefinableCanonical_members_step_suc hi)));
+
+theorem sfPieceDefinableCanonical_members_step_cond(H:wff)(n G:nat)(hi:$ H -> sfReflectionDnMembers sfPieceDefinableCanonicalMap (sfPieceDefinableParametersContext n G) 1 n $): $ H -> sfReflectionDnMembers sfPieceDefinableCanonicalMap (sfPieceDefinableParametersContext (suc n) G) 1 (suc n) $ = (named '(!! iald i @ sfPieceDefinableCanonical_members_step_each hi));
+
+theorem sfPieceDefinableCanonical_members_step(n G:nat): $ sfReflectionDnMembers sfPieceDefinableCanonicalMap (sfPieceDefinableParametersContext n G) 1 n -> sfReflectionDnMembers sfPieceDefinableCanonicalMap (sfPieceDefinableParametersContext (suc n) G) 1 (suc n) $ = (named '(sfPieceDefinableCanonical_members_step_cond id));
+
+pub theorem sfPieceDefinableCanonical_members(n G:nat): $ sfReflectionDnMembers sfPieceDefinableCanonicalMap (sfPieceDefinableParametersContext n G) 1 n $ = (named @ induct '(ind) 'n 'sfPieceDefinableCanonical_members_zero 'sfPieceDefinableCanonical_members_step);
+
+pub theorem sfPieceDefinableCanonical_recipe(n G phi:nat)(hg:$ sfContextWf G $)(hp:$ nsLocal (sfPieceDefinableParametersContext n G) (sfPieceDefinableRecipePoint n phi) $): $ nsLocal G (sfPieceDefinableRecipe n phi) $ = (named '(sfPieceDefinableParameters_introduce hg hp));

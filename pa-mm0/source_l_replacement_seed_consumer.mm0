@@ -1,0 +1,37 @@
+import "source_l_replacement_seed_shape.mm0";
+
+import "source_l_replacement_collected_witness.mm0";
+
+import "source_l_separation_image_collection.mm0";
+
+def sfLReplacementSeedImageBody(phi:nat):nat =
+ $ sfAnd sfLReplacementSeedMetadata
+   (sfLReplacementImageCoverage sfLReplacementSeedParameterMap sfLDomain (sfLReplacementPsi phi) 0) $;
+
+def sfLReplacementSeedImageOutput(phi:nat):nat =
+ $ sfEx (sfEx (sfEx (sfLReplacementSeedImageBody phi))) $;
+
+def sfLReplacementSeedImageFirst(G phi:nat):nat =
+ $ sfEx (sfEx (sfLReplacementSeedImageBody phi)) : sfContextShift G $;
+
+def sfLReplacementSeedImageContext(G phi:nat):nat =
+ $ sfCLWitnessContext (sfLReplacementSeedImageFirst G phi) (sfLReplacementSeedImageBody phi) $;
+
+def sfLReplacementSeedDefinableContext(G n phi:nat):nat =
+ $ sfLReplacementCollectedDefinableContext (sfLReplacementSeedImageContext G phi) 3 (suc n) (sfLReplacementPsi phi) $;
+
+theorem sfLReplacementSeedImageOutput_exact(phi:nat)(hf:$ sfWf phi $):
+ $ sfEx (sfLReplacementSeedRange (sfLReplacementSeedMatrix phi) sfLReplacementSeedMetadata) =
+   sfLReplacementSeedImageOutput phi $;
+
+theorem sfLReplacementWitness_from_seed_output(G n phi:nat)
+ (hb:$ sfBound (suc (suc n)) phi $)
+ (he:$ nsLocal G sfLReplacementLevelExtension $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw (suc (suc n)) (sfLReplacementPsi phi)) $)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hi:$ nsLocal G (sfCLPredicates sfLDomain 0 (suc n)) $)
+ (hp:$ nsLocal G (sfLReplacementSeedImageOutput phi) $)
+ (hd:$ nsLocal (sfLReplacementSeedDefinableContext G n phi)
+  (sfLReplacementImageDefinable (sfLReplacementStartMap 7) sfLDomain (sfLReplacementPsi phi) 0) $):
+ $ nsLocal G (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)) $;

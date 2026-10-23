@@ -1,0 +1,85 @@
+import "zfc_schema_maps.mm1";
+
+import "source_renaming.mm1";
+
+import "k218_source_core_bounds.mm1";
+
+import "k218q_source_k0.mm1";
+
+import "source_theory_prefix.mm1";
+
+@_ def sfK0QSepTaggedIndex (i: nat): nat = $ if (i = 0) 0 (i + 4) $;
+
+@_ abstract def sfK0QSepTaggedMap (.i: nat): set = $ \ i, sfK0QSepTaggedIndex i $;
+
+@_ def sfK0QSepDomainCut (theta: nat): nat = $ (sfAnd (sfMem 0 1) (sfAnd (sfMem 2 0) (sfRename sfSepMap 0 theta))) $;
+
+@_ def sfK0QSepSingleton: nat = $ (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 2) (sfEq 0 1)))) $;
+
+@_ def sfK0QSepTagged (theta: nat): nat = $ (sfOr (sfAnd (sfEq 1 4) (sfEq 0 2)) (sfOr (sfAnd (sfEq 1 3) (sfEq 0 3)) (sfAnd (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 2) (sfEq 0 1)))) (sfAnd (sfMem 0 2) (sfRename sfK0QSepTaggedMap 0 theta))))) $;
+
+@_ def sfK0QSepCutAxiom (n theta: nat): nat = $ sfAllPrefix (suc (suc (suc (suc (suc n))))) (sfK218Kp0 (sfK0QSepTagged (sfK0QSepDomainCut theta))) $;
+
+pub theorem sfK0QSepTaggedMap_value (i: nat):
+ $ sfK0QSepTaggedMap @ i = sfK0QSepTaggedIndex i $ =
+(named '(!! applame j ,eqtac));
+
+pub theorem sfK0QSepTaggedMap_zero:
+ $ sfK0QSepTaggedMap @ 0 = 0 $ =
+'(eqtr sfK0QSepTaggedMap_value (ifpos eqid));
+
+pub theorem sfK0QSepTaggedMap_suc (i: nat):
+ $ sfK0QSepTaggedMap @ suc i = i + 5 $ =
+'(eqtr sfK0QSepTaggedMap_value (eqtr (ifneg peano1) addSass));
+
+theorem qsepPlus4 (i: nat):
+ $ i + 4 = (suc (suc (suc (suc i)))) $ =
+'(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))))));
+
+theorem qsepShift4_bound (n i: nat):
+ $ i < suc n -> i + 4 < (suc (suc (suc (suc (suc n))))) $ =
+'(sylibr (lteq1 qsepPlus4) (syl (bi1 ltsuc) (syl (bi1 ltsuc) (syl (bi1 ltsuc) (bi1 ltsuc)))));
+
+pub theorem sfK0QSepTaggedMap_bound (n i: nat):
+ $ i < suc n -> sfK0QSepTaggedMap @ i < (suc (suc (suc (suc (suc n))))) $ =
+'(sylibr (lteq1 sfK0QSepTaggedMap_value) (sfSchema_if_lt (a1i lt01S) qsepShift4_bound));
+
+theorem qsepTaggedMap_range (n: nat):
+ $ A. i (i < suc n -> sfK0QSepTaggedMap @ i < (suc (suc (suc (suc (suc n)))))) $ =
+(named '(ax_gen {sfK0QSepTaggedMap_bound : $ i < suc n -> sfK0QSepTaggedMap @ i < (suc (suc (suc (suc (suc n))))) $}));
+
+theorem qsepCutMap_range (n: nat):
+ $ A. i (i < suc n -> sfSepMap @ i < (suc (suc (suc n)))) $ =
+(named '(ax_gen {sfSepMap_bound : $ i < suc n -> sfSepMap @ i < (suc (suc (suc n))) $}));
+
+pub theorem sfK0QSepDomainCut_bound (n theta: nat) (hf: $ sfBound (suc n) theta $):
+ $ sfBound (suc (suc (suc n))) (sfK0QSepDomainCut theta) $ =
+(named '(mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc lt01S)) lt01S)) (sfK218Rename_zero_bound qsepCutMap_range hf))))));
+
+pub theorem sfK0QSepTagged_bound (n theta: nat) (hf: $ sfBound (suc n) theta $):
+ $ sfBound (suc (suc (suc (suc (suc n))))) (sfK0QSepTagged theta) $ =
+(named '(mpbir sfBound_sfOr (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc lt01S)))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (sfK218Rename_zero_bound qsepTaggedMap_range hf))))))))));
+
+pub theorem sfK0QSepTaggedCut_bound (n theta: nat) (hf: $ sfBound (suc n) theta $):
+ $ sfBound (suc (suc (suc (suc (suc (suc (suc n))))))) (sfK0QSepTagged (sfK0QSepDomainCut theta)) $ =
+'(sfK0QSepTagged_bound (sfK0QSepDomainCut_bound hf));
+
+pub theorem sfK0QSepCutAxiom_closed (n theta: nat) (hf: $ sfBound (suc n) theta $):
+ $ sfBound 0 (sfK0QSepCutAxiom n theta) $ =
+'(sfK218Kp0_closed (sfK0QSepTaggedCut_bound hf));
+
+pub theorem sfK0QSepCutAxiom_member (n theta: nat) (hf: $ sfBound (suc n) theta $):
+ $ sfK0QSepCutAxiom n theta e. sfK218K0Axioms $ =
+'(ax_mp (ax_mp sfK218K0Instance_member (ax_mp sfBound_wf (sfK0QSepTaggedCut_bound hf))) (sfK0QSepCutAxiom_closed hf));
+
+pub theorem sfK0QSepCutAxiom_proved (n theta: nat) (hf: $ sfBound (suc n) theta $):
+ $ sfTheoryProvable sfK218K0Axioms (sfK0QSepCutAxiom n theta) $ =
+'(ax_mp (ax_mp sfTheoryAxiom_provable_closed sfK218K0Axioms_closed) (sfK0QSepCutAxiom_member hf));
+
+pub theorem sfK0QSepTaggedCut_proved (n theta: nat) (hf: $ sfBound (suc n) theta $):
+ $ sfTheoryProvable sfK218K0Axioms (sfK218Kp0 (sfK0QSepTagged (sfK0QSepDomainCut theta))) $ =
+'(ax_mp (ax_mp sfTheoryProvable_prefix_elim sfK218K0Axioms_closed) (sfK0QSepCutAxiom_proved hf));
+
+pub theorem sfK0QSepCutAxiom_Q_image (n theta: nat) (hf: $ sfBound (suc n) theta $):
+ $ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 (sfK0QSepCutAxiom n theta)) $ =
+'(ax_mp anr (mpbi k218QClosedImageClass_value (ax_mp sfK218K0Axioms_member_image (sfK0QSepCutAxiom_member hf))));

@@ -1,0 +1,139 @@
+import "source_piece_pcf_syntax.mm1";
+import "source_substitution_renaming.mm1";
+import "source_renaming_extensional.mm1";
+import "quotation_binders.mm1";
+
+-- Register the imported definition before deriving equality for its composite map.
+do { (add-eqd-thm 'sfSubstDepthMap 'pcdeSubstDepthMapCong)
+     (add-eqd-thm 'sfRenameDepthMap 'pcdeRenameDepthMapCong) };
+
+@_ def sfPieceEnvironment (E: set) (d X: nat): set =
+ $ sqEnvCons d (sqEnvCons X E) $;
+
+pub theorem sfPieceEnvironment_zero (E: set) (d X: nat):
+ $ sfPieceEnvironment E d X @ 0 = d $ = 'sqEnvCons_zero;
+
+pub theorem sfPieceEnvironment_one (E: set) (d X: nat):
+ $ sfPieceEnvironment E d X @ 1 = X $ =
+'(eqtr sqEnvCons_suc sqEnvCons_zero);
+
+pub theorem sfPieceEnvironment_tail (E: set) (d X i: nat):
+ $ sfPieceEnvironment E d X @ suc (suc i) = E @ i $ =
+'(eqtr sqEnvCons_suc sqEnvCons_suc);
+
+pub theorem sfPieceRotate_zero: $ sfPieceRotate @ 0 = 1 $ =
+'(eqtr sfPieceRotate_value (ax_mp ifpos eqid));
+pub theorem sfPieceRotate_one: $ sfPieceRotate @ 1 = 2 $ =
+'(eqtr sfPieceRotate_value (eqtr (ax_mp ifneg d1ne0) (ax_mp ifpos eqid)));
+pub theorem sfPieceRotate_two: $ sfPieceRotate @ 2 = 0 $ =
+'(eqtr sfPieceRotate_value (eqtr (ax_mp ifneg d2ne0)
+ (eqtr (ax_mp ifneg (ax_mp necom (ltnei d1lt2))) (ax_mp ifpos eqid))));
+
+theorem pcde_sss_ne1 (i: nat): $ suc (suc (suc i)) != 1 $ =
+'(mt (bi1 peano2) peano1);
+theorem pcde_sss_ne2 (i: nat): $ suc (suc (suc i)) != 2 $ =
+'(mt (syl (bi1 peano2) (bi1 peano2)) peano1);
+
+pub theorem sfPieceRotate_tail (i: nat):
+ $ sfPieceRotate @ suc (suc (suc i)) = suc (suc (suc i)) $ =
+'(eqtr sfPieceRotate_value (eqtr (ax_mp ifneg peano1)
+ (eqtr (ax_mp ifneg pcde_sss_ne1) (ax_mp ifneg pcde_sss_ne2))));
+
+@_ def sfPieceDnInstantiateMap (E: set) (d X v: nat): set =
+ $ sfComposeMap (sfSubstDepthMap 0 v)
+    (sfComposeMap (sfRenameDepthMap (sfPieceEnvironment E d X) 1) sfPieceRotate) $;
+
+theorem pcde_step_value (E: set) (d X v i: nat):
+ $ sfPieceDnInstantiateMap E d X v @ i =
+   sfSubstDepthMap 0 v @ (sfRenameDepthMap (sfPieceEnvironment E d X) 1 @ (sfPieceRotate @ i)) $ =
+'(eqtr sfComposeMap_value (appeq2 sfComposeMap_value));
+
+theorem pcde_depth_zero (E: set): $ sfRenameDepthMap E 1 @ 0 = 0 $ =
+'(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound d0lt1));
+
+theorem pcde_depth_suc (E: set) (i: nat):
+ $ sfRenameDepthMap E 1 @ suc i = suc (E @ i) $ =
+'(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)));
+
+theorem pcde_subst_zero (v: nat): $ sfSubstDepthMap 0 v @ 0 = v $ =
+'(eqtr sfSubstDepthMap_value sfSubstIndex_zero);
+
+theorem pcde_subst_suc (v i: nat): $ sfSubstDepthMap 0 v @ suc i = i $ =
+'(eqtr sfSubstDepthMap_value sfSubstIndex_successor);
+
+theorem pcde_map_zero (E: set) (d X v: nat):
+ $ sfPieceDnInstantiateMap E d X v @ 0 = sfPieceEnvironment (sqEnvCons v E) d X @ 0 $ =
+'(eqtr pcde_step_value
+ (eqtr (appeq2 (eqtr (appeq2 sfPieceRotate_zero)
+  (eqtr pcde_depth_suc (suceq sfPieceEnvironment_zero))))
+  (eqtr pcde_subst_suc (eqcom sfPieceEnvironment_zero))));
+
+theorem pcde_map_one (E: set) (d X v: nat):
+ $ sfPieceDnInstantiateMap E d X v @ 1 = sfPieceEnvironment (sqEnvCons v E) d X @ 1 $ =
+'(eqtr pcde_step_value
+ (eqtr (appeq2 (eqtr (appeq2 sfPieceRotate_one)
+  (eqtr pcde_depth_suc (suceq sfPieceEnvironment_one))))
+  (eqtr pcde_subst_suc (eqcom sfPieceEnvironment_one))));
+
+theorem pcde_map_two (E: set) (d X v: nat):
+ $ sfPieceDnInstantiateMap E d X v @ 2 = sfPieceEnvironment (sqEnvCons v E) d X @ 2 $ =
+'(eqtr pcde_step_value
+ (eqtr (appeq2 (eqtr (appeq2 sfPieceRotate_two) pcde_depth_zero))
+  (eqtr pcde_subst_zero (eqcom (eqtr sfPieceEnvironment_tail sqEnvCons_zero)))));
+
+theorem pcde_map_tail (E: set) (d X v i: nat):
+ $ sfPieceDnInstantiateMap E d X v @ suc (suc (suc i)) =
+   sfPieceEnvironment (sqEnvCons v E) d X @ suc (suc (suc i)) $ =
+'(eqtr pcde_step_value
+ (eqtr (appeq2 (eqtr (appeq2 sfPieceRotate_tail)
+  (eqtr pcde_depth_suc (suceq sfPieceEnvironment_tail))))
+  (eqtr pcde_subst_suc (eqcom (eqtr sfPieceEnvironment_tail sqEnvCons_suc)))));
+
+theorem pcde_map_from_two (E: set) (d X v i: nat):
+ $ sfPieceDnInstantiateMap E d X v @ suc (suc i) =
+   sfPieceEnvironment (sqEnvCons v E) d X @ suc (suc i) $ =
+(named @ induct '(ind) 'i 'pcde_map_two '(a1i pcde_map_tail));
+
+theorem pcde_map_from_one (E: set) (d X v i: nat):
+ $ sfPieceDnInstantiateMap E d X v @ suc i =
+   sfPieceEnvironment (sqEnvCons v E) d X @ suc i $ =
+(named @ induct '(ind) 'i 'pcde_map_one '(a1i pcde_map_from_two));
+
+pub theorem sfPieceDnInstantiateMap_at (E: set) (d X v i: nat):
+ $ sfPieceDnInstantiateMap E d X v @ i = sfPieceEnvironment (sqEnvCons v E) d X @ i $ =
+(named @ induct '(ind) 'i 'pcde_map_zero '(a1i pcde_map_from_one));
+
+pub theorem sfPieceDn_instantiate (E: set) (d X v body: nat) (hf: $ sfWf body $):
+ $ sfSubst 0 v (sfRename (sfPieceEnvironment E d X) 1 (sfRename sfPieceRotate 0 body)) =
+   sfRename (sfPieceEnvironment (sqEnvCons v E) d X) 0 body $ =
+(named '(eqtr (trud (sfSubst_congr eqidd eqidd (a1i (ax_mp sfRename_mixed_compose hf))))
+ (eqtr (ax_mp sfSubst_rename_compose hf)
+  (ax_mp (sfRename_extensional (ax_gen sfPieceDnInstantiateMap_at)) hf))));
+
+theorem pcde_guard_rename (E: set) (d X: nat):
+ $ sfRename (sfPieceEnvironment E d X) 1 (sfMem 0 2) = sfMem 0 (suc X) $ =
+'(eqtr sfRename_sfMem (trud (sfMemeqd
+ (a1i (ax_mp sfRenameIndex_bound d0lt1))
+ (a1i (eqtr sfRenameIndex_lift (eqtr (suceq sfRenameIndex_zero)
+  (suceq sfPieceEnvironment_one)))))));
+
+theorem pcde_guard_subst (X v: nat):
+ $ sfSubst 0 v (sfMem 0 (suc X)) = sfMem v X $ =
+'(eqtr sfSubst_sfMem (trud (sfMemeqd (a1i sfSubstIndex_zero) (a1i sfSubstIndex_successor))));
+
+pub theorem sfPieceDn_instance_step (E: set) (d X v body: nat) (hf: $ sfWf body $):
+ $ sfSubst 0 v (sfRename (sfPieceEnvironment E d X) 1
+    (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 body))) =
+   sfImp (sfMem v X) (sfRename (sfPieceEnvironment (sqEnvCons v E) d X) 0 body) $ =
+'(eqtr (trud (sfSubst_congr eqidd eqidd (a1i sfRename_sfImp)))
+ (eqtr sfSubst_sfImp (trud (sfImpeqd
+  (a1i (eqtr (trud (sfSubst_congr eqidd eqidd (a1i pcde_guard_rename))) pcde_guard_subst))
+  (a1i (sfPieceDn_instantiate hf))))));
+
+pub theorem sfPieceDn_step_eliminate (E: set) (G d X v body: nat) (hf: $ sfWf body $):
+ $ nsLocal G (sfRename (sfPieceEnvironment E d X) 0
+    (sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 body)))) ->
+   nsLocal G (sfMem v X) ->
+   nsLocal G (sfRename (sfPieceEnvironment (sqEnvCons v E) d X) 0 body) $ =
+'(syl nsLocal_mp (syl (bi1 (nsLocal_formula_eq (sfPieceDn_instance_step hf)))
+ (syl nsLocal_AllE (bi1 (nsLocal_formula_eq sfRename_sfAll)))));

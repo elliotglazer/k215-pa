@@ -1,0 +1,99 @@
+import "source_formula_equality_transport_quantifiers.mm1";
+
+@_ abstract def sfFormulaEqualityClass (.c .d .x .y: nat): set = $ {c | A. d A. x A. y nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x c) (sfSubst d y c)))} $;
+
+theorem feq_class_value (c: nat):
+ $ c e. sfFormulaEqualityClass <-> A. d A. x A. y nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x c) (sfSubst d y c))) $ =
+(named '(elabe ,eqtac));
+
+theorem feq_class_instance_y (c d x y: nat):
+ $ (A. k nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + k)) (sfImp (sfSubst d x c) (sfSubst d k c)))) -> nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x c) (sfSubst d y c))) $ =
+(named '(!! eale k ,eqtac));
+
+theorem feq_class_instance_x (c d x y: nat):
+ $ (A. j A. k nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + j) (d + k)) (sfImp (sfSubst d j c) (sfSubst d k c)))) -> nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x c) (sfSubst d y c))) $ =
+(named '(syl feq_class_instance_y (!! eale j ,eqtac)));
+
+theorem feq_class_instance (c d x y: nat):
+ $ (A. i A. j A. k nsLocal sfFormulaEqualityContext (sfImp (sfEq (i + j) (i + k)) (sfImp (sfSubst i j c) (sfSubst i k c)))) -> nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x c) (sfSubst d y c))) $ =
+(named '(syl feq_class_instance_x (!! eale i ,eqtac)));
+
+theorem feq_class_at (c d x y: nat):
+ $ c e. sfFormulaEqualityClass -> nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x c) (sfSubst d y c))) $ =
+(named '(syl feq_class_instance (bi1 feq_class_value)));
+
+theorem feq_bot:
+ $ sfBot e. sfFormulaEqualityClass $ =
+(named '(mpbir feq_class_value @ ax_gen @ ax_gen @ ax_gen @ feq_rewrite (eqcom (feqImp_congr eqid (feqImp_congr sfSubst_bot sfSubst_bot))) (ax_mp (feq_local_weaken sfWf_eq (ax_mp (ax_mp sfWf_imp sfWf_bot) sfWf_bot)) (feq_local_identity sfWf_bot))));
+
+theorem feq_atom_mem (a b: nat):
+ $ sfMem a b e. sfFormulaEqualityClass $ =
+(named '(mpbir feq_class_value @ ax_gen @ ax_gen @ ax_gen @ feq_rewrite (eqcom (feqImp_congr eqid (feqImp_congr sfSubst_sfMem sfSubst_sfMem))) (ax_mp (ax_mp (sfFormulaEquality_mem_rule sfWf_eq) sfFormulaEquality_index_local) sfFormulaEquality_index_local)));
+
+theorem feq_atom_eq (a b: nat):
+ $ sfEq a b e. sfFormulaEqualityClass $ =
+(named '(mpbir feq_class_value @ ax_gen @ ax_gen @ ax_gen @ feq_rewrite (eqcom (feqImp_congr eqid (feqImp_congr sfSubst_sfEq sfSubst_sfEq))) (ax_mp (ax_mp (sfFormulaEquality_eq_rule sfWf_eq) sfFormulaEquality_index_local) sfFormulaEquality_index_local)));
+
+theorem feq_atomic:
+ $ sfAtomicClosed sfFormulaEqualityClass $ =
+(named '(ax_gen @ ax_gen @ ian feq_atom_mem feq_atom_eq));
+
+theorem feq_binary_and (a b: nat):
+ $ a e. sfFormulaEqualityClass /\ b e. sfFormulaEqualityClass -> sfAnd a b e. sfFormulaEqualityClass $ =
+(named '(mpbird (a1i feq_class_value) @ !! iald d @ !! iald x @ !! iald y @ mpbird (a1i (nsLocal_formula_eq (feqImp_congr eqid (feqImp_congr sfSubst_sfAnd sfSubst_sfAnd)))) (sylc (sfFormulaEquality_and_rule sfWf_eq sfSubst_wf sfSubst_wf sfSubst_wf sfSubst_wf) (syl feq_class_at anl) (syl feq_class_at anr))));
+
+theorem feq_binary_or (a b: nat):
+ $ a e. sfFormulaEqualityClass /\ b e. sfFormulaEqualityClass -> sfOr a b e. sfFormulaEqualityClass $ =
+(named '(mpbird (a1i feq_class_value) @ !! iald d @ !! iald x @ !! iald y @ mpbird (a1i (nsLocal_formula_eq (feqImp_congr eqid (feqImp_congr sfSubst_sfOr sfSubst_sfOr)))) (sylc (sfFormulaEquality_or_rule sfWf_eq sfSubst_wf sfSubst_wf sfSubst_wf sfSubst_wf) (syl feq_class_at anl) (syl feq_class_at anr))));
+
+theorem feq_binary_imp (a b: nat):
+ $ a e. sfFormulaEqualityClass /\ b e. sfFormulaEqualityClass -> sfImp a b e. sfFormulaEqualityClass $ =
+(named '(mpbird (a1i feq_class_value) @ !! iald d @ !! iald x @ !! iald y @ mpbird (a1i (nsLocal_formula_eq (feqImp_congr eqid (feqImp_congr sfSubst_sfImp sfSubst_sfImp)))) (sylc (sfFormulaEquality_imp_rule sfWf_eq sfSubst_wf sfSubst_wf sfSubst_wf sfSubst_wf) (sylc (sfFormulaEquality_guard_rule sfWf_eq sfWf_eq sfSubst_wf sfSubst_wf) (a1i sfFormulaEquality_sym_local) (syl feq_class_at anl)) (syl feq_class_at anr))));
+
+theorem feq_binary:
+ $ sfBinaryClosed sfFormulaEqualityClass $ =
+(named '(ax_gen @ ax_gen @ iand (iand feq_binary_and feq_binary_or) feq_binary_imp));
+
+theorem feq_shift_guard (d x y: nat):
+ $ sfShift 0 (sfEq (d + x) (d + y)) = sfEq (suc d + x) (suc d + y) $ =
+'(eqtr sfShift_sfEq (feqEq_congr (eqtr sfShiftIndex_zero (eqcom addS1)) (eqtr sfShiftIndex_zero (eqcom addS1))));
+
+theorem feq_quantifier_all (a: nat):
+ $ a e. sfFormulaEqualityClass -> sfAll a e. sfFormulaEqualityClass $ =
+(named '(mpbird (a1i feq_class_value) @ !! iald d @ !! iald x @ !! iald y @ mpbird (a1i (nsLocal_formula_eq (feqImp_congr eqid (feqImp_congr sfSubst_sfAll sfSubst_sfAll)))) (syl (sfFormulaEquality_all_rule sfWf_eq sfSubst_wf sfSubst_wf) (mpbird (a1i (nsLocal_formula_eq (feqImp_congr feq_shift_guard eqid))) feq_class_at))));
+
+theorem feq_quantifier_ex (a: nat):
+ $ a e. sfFormulaEqualityClass -> sfEx a e. sfFormulaEqualityClass $ =
+(named '(mpbird (a1i feq_class_value) @ !! iald d @ !! iald x @ !! iald y @ mpbird (a1i (nsLocal_formula_eq (feqImp_congr eqid (feqImp_congr sfSubst_sfEx sfSubst_sfEx)))) (syl (sfFormulaEquality_ex_rule sfWf_eq sfSubst_wf sfSubst_wf) (mpbird (a1i (nsLocal_formula_eq (feqImp_congr feq_shift_guard eqid))) feq_class_at))));
+
+theorem feq_quantifier:
+ $ sfQuantifierClosed sfFormulaEqualityClass $ =
+(named '(ax_gen @ iand feq_quantifier_all feq_quantifier_ex));
+
+theorem feq_closed:
+ $ sfConstructionClosed sfFormulaEqualityClass $ =
+'(ian (ian (ian feq_bot feq_atomic) feq_binary) feq_quantifier);
+
+pub theorem sfFormulaEquality_subst_local (psi d x y: nat):
+ $ sfWf psi -> nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x psi) (sfSubst d y psi))) $ =
+(named '(syl feq_class_at (ax_mp sfWf_induction feq_closed)));
+
+pub theorem sfFormulaEquality_subst (psi d x y: nat):
+ $ sfWf psi -> zfcProvable (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x psi) (sfSubst d y psi))) $ =
+'(syl (ax_mp nsLocal_to_ZFC sfFormulaEqualityContext_allowed) sfFormulaEquality_subst_local);
+
+pub theorem sfFormulaEquality_subst_bound_local (n psi d x y: nat):
+ $ sfBound n psi -> nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x psi) (sfSubst d y psi))) $ =
+'(syl sfFormulaEquality_subst_local sfBound_wf);
+
+pub theorem sfFormulaEquality_subst_bound (n psi d x y: nat):
+ $ sfBound n psi -> zfcProvable (sfImp (sfEq (d + x) (d + y)) (sfImp (sfSubst d x psi) (sfSubst d y psi))) $ =
+'(syl sfFormulaEquality_subst sfBound_wf);
+
+pub theorem sfFormulaEquality_subst0_local (psi x y: nat):
+ $ sfWf psi -> nsLocal sfFormulaEqualityContext (sfImp (sfEq x y) (sfImp (sfSubst 0 x psi) (sfSubst 0 y psi))) $ =
+'(mpbid (nsLocaleq2d (a1i (feqImp_congr (feqEq_congr add01 add01) eqid))) sfFormulaEquality_subst_local);
+
+pub theorem sfFormulaEquality_subst0 (psi x y: nat):
+ $ sfWf psi -> zfcProvable (sfImp (sfEq x y) (sfImp (sfSubst 0 x psi) (sfSubst 0 y psi))) $ =
+'(syl (ax_mp nsLocal_to_ZFC sfFormulaEqualityContext_allowed) sfFormulaEquality_subst0_local);

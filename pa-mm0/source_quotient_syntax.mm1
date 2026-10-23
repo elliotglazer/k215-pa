@@ -1,0 +1,100 @@
+import "quotient_atom_templates.mm1";
+
+@_ def sfQuotientMem (z a b: nat): nat = $ sfRename (sqAtomEnvironment z a b) 0 sqMemberSource $;
+
+@_ def sfQuotientEq (z a b: nat): nat = $ sfRename (sqAtomEnvironment z a b) 0 sqEqualSource $;
+
+@_ def sfQuotientBody (z c h: nat): nat = $ if (c = 0) 0
+  (if (sfTag c = 1) (sfQuotientMem z (sfLeft c) (sfRight c))
+  (if (sfTag c = 2) (sfQuotientEq z (sfLeft c) (sfRight c))
+  (if (sfTag c = 3) (sfAnd (h @ (z, sfLeft c)) (h @ (z, sfRight c)))
+  (if (sfTag c = 4) (sfOr (h @ (z, sfLeft c)) (h @ (z, sfRight c)))
+  (if (sfTag c = 5) (sfImp (h @ (z, sfLeft c)) (h @ (z, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0)
+    (sfAll (sfImp (sfMem (suc z) 0) (h @ (suc z, sfLeft c))))
+  (if (sfTag c = 7 /\ sfRight c = 0)
+    (sfEx (sfAnd (sfMem (suc z) 0) (h @ (suc z, sfLeft c)))) 0))))))) $;
+
+@_ abstract def sfQuotientStep (.h: nat): set = $ \ h, sfQuotientBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+@_ abstract def sfQuotient (z c: nat): nat = $ srec sfQuotientStep (z, c) $;
+
+@_ abstract def sfQuotientHistory (z c .i: nat): nat = $ \. i e. upto (z, c), srec sfQuotientStep i $;
+
+pub theorem sfQuotientStep_apply (h: nat): $ sfQuotientStep @ h = sfQuotientBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $ = (named '(!! applame j ,eqtac));
+
+pub theorem sfQuotientHistory_size (z c: nat): $ sfHistoryLength (sfQuotientHistory z c) = (z, c) $ = (named '(sreclem eqid));
+
+pub theorem sfQuotientHistory_lookup (z c e a: nat): $ (e, a) < (z, c) -> sfQuotientHistory z c @ (e, a) = sfQuotient e a $ = (named '(syl (apprlame sreceq2) (bi2 elupto)));
+
+pub theorem sfQuotient_unfold (z c: nat): $ sfQuotient z c = sfQuotientBody z c (sfQuotientHistory z c) $ = (named '(eqtr srecval @ eqtr sfQuotientStep_apply @ sfQuotientBodyeq (eqtr (fsteq sfQuotientHistory_size) fstpr) (eqtr (sndeq sfQuotientHistory_size) sndpr) eqid));
+
+theorem sfQuotientBody_sfMem (z c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ sfQuotientBody z c h = sfQuotientMem z (sfLeft c) (sfRight c) $ = '(eqtr (ifneg h0) (ifpos ht));
+
+theorem sfQuotientBody_sfEq (z c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $): $ sfQuotientBody z c h = sfQuotientEq z (sfLeft c) (sfRight c) $ = '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifpos ht)));
+
+theorem sfQuotientBody_sfAnd (z c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ sfQuotientBody z c h = sfAnd (h @ (z, sfLeft c)) (h @ (z, sfRight c)) $ = '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (ifpos ht))));
+
+theorem sfQuotientBody_sfOr (z c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ sfQuotientBody z c h = sfOr (h @ (z, sfLeft c)) (h @ (z, sfRight c)) $ = '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (ifpos ht)))));
+
+theorem sfQuotientBody_sfImp (z c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $): $ sfQuotientBody z c h = sfImp (h @ (z, sfLeft c)) (h @ (z, sfRight c)) $ = '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (ifpos ht))))));
+
+theorem sfQuotientBody_sfAll (z c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $): $ sfQuotientBody z c h = sfAll (sfImp (sfMem (suc z) 0) (h @ (suc z, sfLeft c))) $ = '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (ifpos (ian ht hz))))))));
+
+theorem sfQuotientBody_sfEx (z c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $): $ sfQuotientBody z c h = sfEx (sfAnd (sfMem (suc z) 0) (h @ (suc z, sfLeft c))) $ = '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr (ifneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ifpos (ian ht hz)))))))));
+
+theorem sfQuotientHistory_left (z c a: nat) (he: $ sfLeft c = a $) (ha: $ a < c $): $ sfQuotientHistory z c @ (z, sfLeft c) = sfQuotient (z) a $ = '(eqtr (appeq2 (preq2 he)) (sfQuotientHistory_lookup (sfKey_lt ha)));
+
+theorem sfQuotientHistory_right (z c a: nat) (he: $ sfRight c = a $) (ha: $ a < c $): $ sfQuotientHistory z c @ (z, sfRight c) = sfQuotient (z) a $ = '(eqtr (appeq2 (preq2 he)) (sfQuotientHistory_lookup (sfKey_lt ha)));
+
+theorem sfQuotientHistory_binder (z c a: nat) (he: $ sfLeft c = a $) (ha: $ a < c $): $ sfQuotientHistory z c @ (suc z, sfLeft c) = sfQuotient (suc z) a $ = '(eqtr (appeq2 (preq2 he)) (sfQuotientHistory_lookup (sfKey_underBinder_lt ha)));
+
+pub theorem sfQuotient_bot (z: nat): $ sfQuotient z sfBot = sfBot $ = '(eqtr sfQuotient_unfold (ifpos eqid));
+
+pub theorem sfQuotient_sfMem (z a b: nat): $ sfQuotient z (sfMem a b) = sfQuotientMem z a b $ = '(eqtr sfQuotient_unfold (eqtr (sfQuotientBody_sfMem sfMem_ne_sfBot sfMem_tag) (sfQuotientMemeq eqid sfMem_left sfMem_right)));
+
+pub theorem sfQuotient_sfEq (z a b: nat): $ sfQuotient z (sfEq a b) = sfQuotientEq z a b $ = '(eqtr sfQuotient_unfold (eqtr (sfQuotientBody_sfEq sfEq_ne_sfBot sfEq_tag) (sfQuotientEqeq eqid sfEq_left sfEq_right)));
+
+pub theorem sfQuotient_sfAnd (z a b: nat): $ sfQuotient z (sfAnd a b) = sfAnd (sfQuotient z a) (sfQuotient z b) $ = '(eqtr sfQuotient_unfold (eqtr (sfQuotientBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (sfAndeq (sfQuotientHistory_left sfAnd_left sfAnd_left_lt) (sfQuotientHistory_right sfAnd_right sfAnd_right_lt))));
+
+pub theorem sfQuotient_sfOr (z a b: nat): $ sfQuotient z (sfOr a b) = sfOr (sfQuotient z a) (sfQuotient z b) $ = '(eqtr sfQuotient_unfold (eqtr (sfQuotientBody_sfOr sfOr_ne_sfBot sfOr_tag) (sfOreq (sfQuotientHistory_left sfOr_left sfOr_left_lt) (sfQuotientHistory_right sfOr_right sfOr_right_lt))));
+
+pub theorem sfQuotient_sfImp (z a b: nat): $ sfQuotient z (sfImp a b) = sfImp (sfQuotient z a) (sfQuotient z b) $ = '(eqtr sfQuotient_unfold (eqtr (sfQuotientBody_sfImp sfImp_ne_sfBot sfImp_tag) (sfImpeq (sfQuotientHistory_left sfImp_left sfImp_left_lt) (sfQuotientHistory_right sfImp_right sfImp_right_lt))));
+
+pub theorem sfQuotient_sfAll (z a: nat): $ sfQuotient z (sfAll a) = sfAll (sfImp (sfMem (suc z) 0) (sfQuotient (suc z) a)) $ = '(eqtr sfQuotient_unfold (eqtr (sfQuotientBody_sfAll sfAll_ne_sfBot sfAll_tag sfAll_right) (sfAlleq (sfImpeq2 (sfQuotientHistory_binder sfAll_left sfAll_body_lt)))));
+
+pub theorem sfQuotient_sfEx (z a: nat): $ sfQuotient z (sfEx a) = sfEx (sfAnd (sfMem (suc z) 0) (sfQuotient (suc z) a)) $ = '(eqtr sfQuotient_unfold (eqtr (sfQuotientBody_sfEx sfEx_ne_sfBot sfEx_tag sfEx_right) (sfExeq (sfAndeq2 (sfQuotientHistory_binder sfEx_left sfEx_body_lt)))));
+
+@_ abstract def sfQuotientWfClass (.c .z: nat): set = $ {c | A. z sfWf (sfQuotient z c)} $;
+
+pub theorem sfQWf_value {z: nat} (c: nat): $ c e. sfQuotientWfClass <-> A. z sfWf (sfQuotient z c) $ = (named '(elabe ,eqtac));
+
+theorem sfQWf_depth (z c: nat): $ A. w sfWf (sfQuotient w c) -> sfWf (sfQuotient z c) $ = (named '(!! eale w ,eqtac));
+
+theorem sfQWf_at (z c: nat): $ c e. sfQuotientWfClass -> sfWf (sfQuotient z c) $ = (named '(syl sfQWf_depth {(bi1 sfQWf_value) : $ c e. sfQuotientWfClass -> A. w sfWf (sfQuotient w c) $}));
+
+theorem sfQWf_bot: $ sfBot e. sfQuotientWfClass $ = (named '(mpbir sfQWf_value @ ax_gen @ mpbir (srecpeq2 sfQuotient_bot) sfWf_bot));
+
+theorem sfQWf_mem (a b: nat): $ sfMem a b e. sfQuotientWfClass $ = (named '(mpbir sfQWf_value @ ax_gen @ mpbir (srecpeq2 sfQuotient_sfMem) sfRename_wf));
+
+theorem sfQWf_eq (a b: nat): $ sfEq a b e. sfQuotientWfClass $ = (named '(mpbir sfQWf_value @ ax_gen @ mpbir (srecpeq2 sfQuotient_sfEq) sfRename_wf));
+
+theorem sfQWf_atomic: $ sfAtomicClosed sfQuotientWfClass $ = (named '(ax_gen @ ax_gen @ ian sfQWf_mem sfQWf_eq));
+
+theorem sfQWf_and (a b: nat): $ a e. sfQuotientWfClass /\ b e. sfQuotientWfClass -> sfAnd a b e. sfQuotientWfClass $ = (named '(mpbird (a1i sfQWf_value) @ iald @ mpbird (a1i (srecpeq2 sfQuotient_sfAnd)) (sylc sfWf_and (syl sfQWf_at anl) (syl sfQWf_at anr))));
+
+theorem sfQWf_or (a b: nat): $ a e. sfQuotientWfClass /\ b e. sfQuotientWfClass -> sfOr a b e. sfQuotientWfClass $ = (named '(mpbird (a1i sfQWf_value) @ iald @ mpbird (a1i (srecpeq2 sfQuotient_sfOr)) (sylc sfWf_or (syl sfQWf_at anl) (syl sfQWf_at anr))));
+
+theorem sfQWf_imp (a b: nat): $ a e. sfQuotientWfClass /\ b e. sfQuotientWfClass -> sfImp a b e. sfQuotientWfClass $ = (named '(mpbird (a1i sfQWf_value) @ iald @ mpbird (a1i (srecpeq2 sfQuotient_sfImp)) (sylc sfWf_imp (syl sfQWf_at anl) (syl sfQWf_at anr))));
+
+theorem sfQWf_binary: $ sfBinaryClosed sfQuotientWfClass $ = (named '(ax_gen @ ax_gen @ iand (iand sfQWf_and sfQWf_or) sfQWf_imp));
+
+theorem sfQWf_all (a: nat): $ a e. sfQuotientWfClass -> sfAll a e. sfQuotientWfClass $ = (named '(mpbird (a1i sfQWf_value) @ iald @ mpbird (a1i (srecpeq2 sfQuotient_sfAll)) (syl sfWf_all (sylc sfWf_imp (a1i sfWf_mem) sfQWf_at))));
+
+theorem sfQWf_ex (a: nat): $ a e. sfQuotientWfClass -> sfEx a e. sfQuotientWfClass $ = (named '(mpbird (a1i sfQWf_value) @ iald @ mpbird (a1i (srecpeq2 sfQuotient_sfEx)) (syl sfWf_ex (sylc sfWf_and (a1i sfWf_mem) sfQWf_at))));
+
+theorem sfQWf_quantifier: $ sfQuantifierClosed sfQuotientWfClass $ = (named '(ax_gen @ iand sfQWf_all sfQWf_ex));
+
+pub theorem sfQWf_closed: $ sfConstructionClosed sfQuotientWfClass $ = '(ian (ian (ian sfQWf_bot sfQWf_atomic) sfQWf_binary) sfQWf_quantifier);
+
+pub theorem sfQuotient_wf (z c: nat): $ sfWf c -> sfWf (sfQuotient z c) $ = '(syl sfQWf_at (ax_mp sfWf_induction sfQWf_closed));

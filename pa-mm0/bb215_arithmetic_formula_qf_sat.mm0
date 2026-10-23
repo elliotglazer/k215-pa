@@ -1,0 +1,31 @@
+import "bb215_arithmetic_formula_term_value.mm0";
+
+import "pa_formula_syntax.mm0";
+
+def bb215ArithmeticFormulaQFSatBody (E: set) (c h: nat): wff = $ ifp (c = 0) (0 != 0)
+ (ifp (sfTag c = 1) (bb215ArithmeticFormulaTermValue E (sfLeft c) = bb215ArithmeticFormulaTermValue E (sfRight c))
+ (ifp (sfTag c = 3) (sfLeft c e. h /\ sfRight c e. h)
+ (ifp (sfTag c = 4) (sfLeft c e. h \/ sfRight c e. h)
+ (ifp (sfTag c = 5) (sfLeft c e. h -> sfRight c e. h) (0 != 0))))) $;
+
+def bb215ArithmeticFormulaQFSatStep (E: set) (.c .h: nat): set = $ S\ c, {h | bb215ArithmeticFormulaQFSatBody E c h} $;
+
+def bb215ArithmeticFormulaQFSat (E: set) (c: nat): wff = $ srecp (bb215ArithmeticFormulaQFSatStep E) c $;
+
+def bb215ArithmeticFormulaQFSatPrevious (E: set) (c .i: nat): nat = $ sep (upto c) {i | srecp (bb215ArithmeticFormulaQFSatStep E) i} $;
+
+theorem bb215ArithmeticFormulaQFSatStep_value (E: set) (c h: nat): $ (c, h) e. bb215ArithmeticFormulaQFSatStep E <-> bb215ArithmeticFormulaQFSatBody E c h $;
+
+theorem bb215ArithmeticFormulaQFSatPrevious_value (E: set) (c a: nat): $ a e. bb215ArithmeticFormulaQFSatPrevious E c <-> a < c /\ bb215ArithmeticFormulaQFSat E a $;
+
+theorem bb215ArithmeticFormulaQFSat_unfold (E: set) (c: nat): $ bb215ArithmeticFormulaQFSat E c <-> bb215ArithmeticFormulaQFSatBody E c (bb215ArithmeticFormulaQFSatPrevious E c) $;
+
+theorem bb215ArithmeticFormulaQFSat_false (E: set): $ bb215ArithmeticFormulaQFSat E paFormulaFalse <-> 0 != 0 $;
+
+theorem bb215ArithmeticFormulaQFSat_equal (E: set) (a b: nat): $ bb215ArithmeticFormulaQFSat E (paFormulaEqual a b) <-> bb215ArithmeticFormulaTermValue E a = bb215ArithmeticFormulaTermValue E b $;
+
+theorem bb215ArithmeticFormulaQFSat_and (E: set) (a b: nat): $ bb215ArithmeticFormulaQFSat E (paFormulaAnd a b) <-> (bb215ArithmeticFormulaQFSat E a /\ bb215ArithmeticFormulaQFSat E b) $;
+
+theorem bb215ArithmeticFormulaQFSat_or (E: set) (a b: nat): $ bb215ArithmeticFormulaQFSat E (paFormulaOr a b) <-> (bb215ArithmeticFormulaQFSat E a \/ bb215ArithmeticFormulaQFSat E b) $;
+
+theorem bb215ArithmeticFormulaQFSat_imp (E: set) (a b: nat): $ bb215ArithmeticFormulaQFSat E (paFormulaImp a b) <-> (bb215ArithmeticFormulaQFSat E a -> bb215ArithmeticFormulaQFSat E b) $;

@@ -1,0 +1,101 @@
+-- Dominated-rho8 K215 calculus. Shared arithmetic codes only; no K218 provability import.
+import "k215_proofs.mm1";
+import "trace_soundness.mm1";
+
+do (apply (register-eqd 'kImp) '(k215Imp_congr k215Imp_congr_left k215Imp_congr_right));
+do (apply (register-eqd 'kAll) '(k215All_congr k215All_congr_left k215All_congr_right));
+
+theorem k215Derives_congr (G: wff) (p q a b: nat)
+  (h1: $ G -> p = q $) (h2: $ G -> a = b $):
+  $ G -> (k215Derives p a <-> k215Derives q b) $ =
+'(aneqd (traceValideq2d h1) (lmemeqd h2 h1));
+theorem k215Derives_congr_left (G: wff) (p q a: nat) (h: $ G -> p = q $):
+  $ G -> (k215Derives p a <-> k215Derives q a) $ = '(k215Derives_congr h eqidd);
+theorem k215Derives_congr_right (G: wff) (p a b: nat) (h: $ G -> a = b $):
+  $ G -> (k215Derives p a <-> k215Derives p b) $ = '(k215Derives_congr eqidd h);
+do (apply (register-eqd 'k215Derives)
+  '(k215Derives_congr k215Derives_congr_left k215Derives_congr_right));
+
+@_ abstract def k215MPClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (a e. P /\ kImp a b e. P -> b e. P) $;
+@_ abstract def k215GenClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (b e. P -> kAll a b e. P) $;
+@_ def k215Closed (P: set): wff =
+  $ k215Axioms C_ P /\ k215MPClosed P /\ k215GenClosed P $;
+@_ abstract def k215Provable (a: nat) (.p: nat): wff = $ E. p k215Derives p a $;
+@_ abstract def k215Theorems (.a: nat): set = $ {a | k215Provable a} $;
+
+pub theorem k215MPClosed_apply (P: set) (a b: nat):
+  $ k215MPClosed P -> a e. P /\ kImp a b e. P -> b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+pub theorem k215GenClosed_apply (P: set) (a b: nat):
+  $ k215GenClosed P -> b e. P -> kAll a b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+theorem k215Proof_mp_payload (P: set) (a c l: nat):
+  $ k215MPClosed P /\ traceClassAll P l ->
+    (a IN l /\ kImp a c IN l) -> c e. P $ =
+'(exp @ mpd
+  (iand (mpd (syl anl anr) (syl traceClassAll_get (syl anr anl)))
+        (mpd (syl anr anr) (syl traceClassAll_get (syl anr anl))))
+  (syl k215MPClosed_apply (syl anl anl)));
+theorem k215Proof_mp_exists {a: nat} (P: set) (c l: nat):
+  $ k215MPClosed P /\ traceClassAll P l ->
+    E. a (a IN l /\ kImp a c IN l) -> c e. P $ =
+(named '(eexd k215Proof_mp_payload));
+theorem k215Proof_mp_rule (P: set) (c l: nat):
+  $ k215Closed P /\ traceClassAll P l -> (c, l) e. k215MpRules -> c e. P $ =
+(named '(syl5bi k215MpRules_value @ eord
+  (syl ssel (syl anl (syl anl anl)))
+  (syl k215Proof_mp_exists @ iand (syl anr (syl anl anl)) anr)));
+
+theorem k215Proof_gen_payload (P: set) (a b c l: nat):
+  $ k215GenClosed P /\ traceClassAll P l ->
+    (b IN l /\ c = kAll a b) -> c e. P $ =
+'(exp @ mpd
+  (mpd (mpd (syl anl anr) (syl traceClassAll_get (syl anr anl)))
+       (syl k215GenClosed_apply (syl anl anl)))
+  (bi2d (eleq1d (syl anr anr))));
+theorem k215Proof_gen_exists {a b: nat} (P: set) (c l: nat):
+  $ k215GenClosed P /\ traceClassAll P l ->
+    E. a E. b (b IN l /\ c = kAll a b) -> c e. P $ =
+(named '(eexd @ eexd k215Proof_gen_payload));
+theorem k215Proof_gen_rule (P: set) (c l: nat):
+  $ k215Closed P /\ traceClassAll P l -> (c, l) e. k215GenRules -> c e. P $ =
+(named '(syl5bi k215GenRules_value @ syl k215Proof_gen_exists @
+  iand (syl anr anl) anr));
+theorem k215Proof_rule (P: set) (c l: nat):
+  $ k215Closed P /\ traceClassAll P l -> (c, l) e. k215Rules -> c e. P $ =
+'(syl5bi elun @ eord k215Proof_mp_rule k215Proof_gen_rule);
+pub theorem k215Closed_ruleSound (P: set): $ k215Closed P -> traceRuleSound k215Rules P $ =
+(named '(iald @ iald @ exp k215Proof_rule));
+pub theorem k215Derives_induction (P: set) (p a: nat):
+  $ k215Closed P -> k215Derives p a -> a e. P $ =
+'(syl traceDerives_class k215Closed_ruleSound);
+pub theorem k215Provable_intro (p a: nat): $ k215Derives p a -> k215Provable a $ =
+(named '(iexe ,eqtac));
+pub theorem k215Provable_induction (P: set) (a: nat):
+  $ k215Closed P -> k215Provable a -> a e. P $ =
+(named '(eexd k215Derives_induction));
+pub theorem k215Provable_axiom (a: nat): $ a e. k215Axioms -> k215Provable a $ =
+'(syl k215Provable_intro k215Derives_axiom);
+theorem k215Provable_mp_witnesses (p q a b: nat):
+  $ k215Derives p a -> k215Derives q (kImp a b) -> k215Provable b $ =
+'(syl6 k215Provable_intro k215Derives_mp);
+pub theorem k215Provable_mp (a b: nat):
+  $ k215Provable a -> k215Provable (kImp a b) -> k215Provable b $ =
+(named '(eex @ eexd k215Provable_mp_witnesses));
+pub theorem k215Provable_gen (a b: nat): $ k215Provable b -> k215Provable (kAll a b) $ =
+(named '(eex @ syl k215Provable_intro k215Derives_gen));
+pub theorem k215Theorems_value (a: nat): $ a e. k215Theorems <-> k215Provable a $ =
+(named '(elabe ,eqtac));
+pub theorem k215Theorems_closed: $ k215Closed k215Theorems $ =
+(named '(ian
+  (ian (ax_gen @ syl (bi2 k215Theorems_value) k215Provable_axiom)
+       (ax_gen @ ax_gen @ syl (bi2 k215Theorems_value) @
+         mpd (syl (bi1 k215Theorems_value) anr) @
+           syl k215Provable_mp (syl (bi1 k215Theorems_value) anl)))
+  (ax_gen @ ax_gen @ syl (bi2 k215Theorems_value) @
+    syl k215Provable_gen (bi1 k215Theorems_value))));
+pub theorem k215Theorems_least (P: set): $ k215Closed P -> k215Theorems C_ P $ =
+(named '(iald @ syl5 (bi1 k215Theorems_value) k215Provable_induction));

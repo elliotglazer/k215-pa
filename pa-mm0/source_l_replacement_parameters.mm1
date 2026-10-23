@@ -1,0 +1,30 @@
+import "source_l_replacement_schema.mm1";
+import "source_l_separation_image_parameter_inputs.mm1";
+
+theorem lrp_cons_sub(a G H:nat)(hs:$ sfContextSub G H $):
+ $ sfContextSub (a : G) (a : H) $ =
+ '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss
+  (ian sfContext_member_head (ax_mp (ax_mp sfContextSub_trans hs) sfContextSub_cons))));
+
+pub theorem sfLReplacement_parameter_inputs(G n phi:nat)(hg:$ sfContextWf G $):
+ $ nsLocal (sfLReplacementInputOverContext (sfLSeparationImageParameterContext sfLDomain n G) phi)
+   (sfCLPredicates sfLDomain 0 (suc n)) $ =
+ '(mpbir (nsLocal_context_eq (conseq eqid sfContextShift_cons))
+  (ax_mp (ax_mp (ax_mp nsLocal_weaken
+   (mpbir sfContextWf_cons (ian sfLDomain_wf
+    (mpbir sfContextWf_cons (ian sfShift_wf sfContextShift_wf)))))
+   (lrp_cons_sub sfContextSub_cons))
+   (sfLSeparationImageAllInputPredicates sfLDomain_bound hg)));
+
+pub theorem sfLReplacement_schema_from_parameter_witness(G phi n:nat)
+ (hg:$ sfContextWf G $)(hbase:$ all (sfTheoryProofClass zfrAxioms) G $)
+ (hb:$ sfBound (suc (suc n)) phi $)
+ (hw:$ nsLocal (sfLReplacementInputOverContext (sfLSeparationImageParameterContext sfLDomain n G) phi)
+    (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $ =
+ '(ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed) hbase)
+  (sfRQ_rewrite (eqcom sfRelativize_prefix)
+   (sfLSeparationImage_guard_prefix sfLDomain_wf hg
+    (sfLReplacement_open_in_context
+      (sfLSeparationImageParameterContext_wf sfLDomain_wf hg)
+      (ax_mp sfBound_wf hb) hw))));

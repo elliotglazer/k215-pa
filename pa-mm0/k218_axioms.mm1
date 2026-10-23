@@ -1,0 +1,50 @@
+-- Replayed in the distinct exact SeedG calculus. No K230 proof predicate is assumed.
+import "k218_codes.mm1";
+
+@_ def k218AxBody (n a b c u: nat): wff =
+$ n = kRho1 a b \/ (n = kRho2 a b c \/ (n = kRho3 a b c \/
+ (n = kRho4 a b c \/ (n = kRho5 a b c \/ (n = kRho6 a b \/
+ (n = k218RhoG a b c \/ (n = kRho8 a b c u \/
+ (c != a /\ c != b /\ n = k218Bundle a b c)))))))) $;
+
+@_ abstract def k218Axioms (.n .a .b .c .u: nat): set =
+$ {n | n = 0 \/ E. a E. b E. c E. u k218AxBody n a b c u} $;
+
+pub theorem k218Axioms_value {a b c u: nat} (n: nat):
+  $ n e. k218Axioms <-> n = 0 \/ E. a E. b E. c E. u k218AxBody n a b c u $ =
+(named '(elabe ,eqtac));
+
+pub theorem k218Axioms_true: $ 0 e. k218Axioms $ =
+(named '(mpbir k218Axioms_value @ ax_mp orl eqid));
+
+pub theorem k218Axioms_instance (n a b c u: nat):
+  $ k218AxBody n a b c u -> n e. k218Axioms $ =
+(named '(syl (bi2 k218Axioms_value) @ syl orr @
+  syl (iexe ,eqtac) @ syl (iexe ,eqtac) @ syl (iexe ,eqtac) (iexe ,eqtac)));
+
+pub theorem k218Axioms_rho1 (a b: nat): $ kRho1 a b e. k218Axioms $ =
+(named '(k218Axioms_instance @ ax_mp orl eqid));
+pub theorem k218Axioms_rho2 (a b c: nat): $ kRho2 a b c e. k218Axioms $ =
+(named '(k218Axioms_instance (ax_mp orr (ax_mp orl eqid))));
+
+pub theorem k218Axioms_rho3 (a b c: nat): $ kRho3 a b c e. k218Axioms $ =
+(named '(k218Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orl eqid)))));
+
+pub theorem k218Axioms_rho4 (a b c: nat): $ kRho4 a b c e. k218Axioms $ =
+(named '(k218Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))));
+
+pub theorem k218Axioms_rho5 (a b c: nat): $ kRho5 a b c e. k218Axioms $ =
+(named '(k218Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))))));
+
+pub theorem k218Axioms_rho6 (a b: nat): $ kRho6 a b e. k218Axioms $ =
+(named '(k218Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))))));
+
+pub theorem k218Axioms_G (a b c: nat): $ k218RhoG a b c e. k218Axioms $ =
+(named '(k218Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))))))));
+
+pub theorem k218Axioms_rho8 (a b c u: nat): $ kRho8 a b c u e. k218Axioms $ =
+(named '(k218Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))))))));
+
+pub theorem k218Axioms_bundle (a b c: nat): $ c != a /\ c != b -> k218Bundle a b c e. k218Axioms $ =
+(named '(syl k218Axioms_instance (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (iand id (a1i eqid))))))))))));
+

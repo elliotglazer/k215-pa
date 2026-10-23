@@ -1,0 +1,59 @@
+import "source_reflection_least_cond_relation.mm0";
+
+def rlcOrdF0: nat = $ sfMem 0 1 $;
+
+def rlcOrdF1: nat = $ sfMem 0 2 $;
+
+def rlcOrdF2: nat = $ sfMem 0 3 $;
+
+def rlcOrdF3: nat = $ sfImp rlcOrdF0 rlcOrdF1 $;
+
+def rlcOrdF4: nat = $ sfImp rlcOrdF0 rlcOrdF2 $;
+
+def rlcOrdF5: nat = $ sfAll rlcOrdF3 $;
+
+def rlcOrdF6: nat = $ sfAll rlcOrdF4 $;
+
+def rlcOrdF7: nat = $ sfImp rlcOrdF0 rlcOrdF5 $;
+
+def rlcOrdF8: nat = $ sfImp rlcOrdF1 rlcOrdF6 $;
+
+def rlcOrdF9: nat = $ sfAll rlcOrdF7 $;
+
+def rlcOrdF10: nat = $ sfAll rlcOrdF8 $;
+
+def rlcOrdF11: nat = $ sfImp rlcOrdF0 rlcOrdF9 $;
+
+def rlcOrdF12: nat = $ sfImp rlcOrdF1 rlcOrdF9 $;
+
+def rlcOrdF13: nat = $ sfAll rlcOrdF11 $;
+
+def rlcOrdF14: nat = $ sfAll rlcOrdF12 $;
+
+def rlcOrdF15: nat = $ sfAnd rlcOrdF9 rlcOrdF13 $;
+
+def rlcOrdF16: nat = $ sfAnd rlcOrdF10 rlcOrdF14 $;
+
+def sfReflectionCond(level P x d:nat):nat = $ sfImp (sfSubst 0 x sfLeastOrdinalPredicate) (sfAnd (sfMem x d) (sfAll (sfImp (sfORBinary level (suc x) 0) (sfORBinary P (suc d) 0)))) $;
+
+def sfReflectionCondCandidate(level P:nat):nat = $ sfReflectionCond level P 1 0 $;
+
+def sfReflectionCondStep(level P:nat):nat = $ sfReflectionLeastMatrix (sfReflectionCondCandidate level P) $;
+
+def sfReflectionCondGuard(level P:nat):wff = $ sfBound 2 level /\ sfBound 2 P $;
+
+theorem sfReflectionOrdinalAtOne_bound: $ sfBound 2 (sfSubst 0 1 sfLeastOrdinalPredicate) $;
+
+theorem sfReflectionCond_wf(level P x d:nat): $ sfWf (sfReflectionCond level P x d) $;
+
+theorem sfReflectionCondCandidate_bound_meta(level P:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfBound 2 (sfReflectionCondCandidate level P) $;
+
+theorem sfReflectionCondCandidate_bound(level P:nat): $ sfReflectionCondGuard level P -> sfBound 2 (sfReflectionCondCandidate level P) $;
+
+theorem sfReflectionCond_least(level P:nat): $ sfReflectionCondGuard level P -> sfTheoryProvable zfrAxioms (sfLeastOrdinalLaw (sfReflectionCondCandidate level P)) $;
+
+theorem sfReflectionCond_functional(level P:nat): $ sfReflectionCondGuard level P -> sfTheoryProvable zfrAxioms (sfReflectionLeastGFun (sfReflectionCondCandidate level P)) $;
+
+theorem sfReflectionCond_total_if(level P:nat): $ sfReflectionCondGuard level P -> sfTheoryProvable zfrAxioms (sfReflectionLeastTotalLaw (sfReflectionCondCandidate level P)) $;
+
+theorem sfReflectionCondStep_bound(level P:nat): $ sfReflectionCondGuard level P -> sfBound 2 (sfReflectionCondStep level P) $;

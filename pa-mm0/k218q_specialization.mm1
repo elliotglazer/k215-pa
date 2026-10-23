@@ -1,0 +1,115 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_contextual_quantifiers.mm1";
+import "k218q_leibniz.mm1";
+
+theorem k218INS_replace_hit (x y a: nat):
+ $ a = x -> x != y -> x != kReplace x y a $ =
+'(bi2d (noteqd (eqeq2d (eqtrd (kReplace_congr eqidd eqidd id) (a1i kReplace_hit)))));
+theorem k218INS_replace_miss (x y a: nat):
+ $ a != x -> x != y -> x != kReplace x y a $ =
+'(a1d @ mpbird (noteqd (eqeq2d kReplace_miss)) necom);
+pub theorem k218IReplace_avoids_source (x y a: nat):
+ $ x != y -> x != kReplace x y a $ =
+'(cases k218INS_replace_hit k218INS_replace_miss);
+
+@_ abstract def k218ISubstOutputFreshClass (x y .f: nat): set =
+$ {f | x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x} $;
+pub theorem k218ISubstOutputFresh_value (x y f: nat):
+ $ f e. k218ISubstOutputFreshClass x y <->
+   (x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x) $ =
+(named '(elabe ,eqtac));
+theorem k218INS_fresh_transport (G: wff) (a b x: nat)
+ (he: $ G -> a = b $) (hf: $ G -> kFresh b x $):
+ $ G -> kFresh a x $ = '(mpbird (kFresh_congr he eqidd) hf);
+theorem k218INS_fresh_zero (x y: nat): $ 0 e. k218ISubstOutputFreshClass x y $ =
+'(mpbir k218ISubstOutputFresh_value @ k218INS_fresh_transport (a1i kSubst_zero) (a1i kFresh_zero));
+theorem k218INS_fresh_mem (x y a b: nat): $ kMem a b e. k218ISubstOutputFreshClass x y $ =
+'(mpbir k218ISubstOutputFresh_value @ k218INS_fresh_transport (a1i kSubst_kMem) @
+ syl (bi2 kFresh_kMem) @ iand
+ (syl k218IReplace_avoids_source anl) (syl k218IReplace_avoids_source anl));
+theorem k218INS_fresh_eq (x y a b: nat): $ kEq a b e. k218ISubstOutputFreshClass x y $ =
+'(mpbir k218ISubstOutputFresh_value @ k218INS_fresh_transport (a1i kSubst_kEq) @
+ syl (bi2 kFresh_kEq) @ iand
+ (syl k218IReplace_avoids_source anl) (syl k218IReplace_avoids_source anl));
+theorem k218INS_fresh_imp (x y a b: nat):
+ $ a e. k218ISubstOutputFreshClass x y /\ b e. k218ISubstOutputFreshClass x y ->
+   kImp a b e. k218ISubstOutputFreshClass x y $ =
+'(syl (bi2 k218ISubstOutputFresh_value) @ exp @
+ k218INS_fresh_transport (a1i kSubst_kImp) @ syl (bi2 kFresh_kImp) @ iand
+ (mpd (iand (syl anl anr) (syl anl (syl (bi1 kBinderAbsent_kImp) (syl anr anr))))
+      (syl (bi1 k218ISubstOutputFresh_value) anll))
+ (mpd (iand (syl anl anr) (syl anr (syl (bi1 kBinderAbsent_kImp) (syl anr anr))))
+      (syl (bi1 k218ISubstOutputFresh_value) anlr)));
+theorem k218INS_fresh_all (x y z a: nat):
+ $ a e. k218ISubstOutputFreshClass x y -> kAll z a e. k218ISubstOutputFreshClass x y $ =
+'(syl (bi2 k218ISubstOutputFresh_value) @ exp @
+ k218INS_fresh_transport
+ (syl kSubst_kAll_open (syl necom (syl anl (syl (bi1 kBinderAbsent_kAll) (syl anr anr))))) @
+ syl (bi2 kFresh_kAll) @ iand
+ (syl anl (syl (bi1 kBinderAbsent_kAll) (syl anr anr)))
+ (mpd (iand (syl anl anr) (syl anr (syl (bi1 kBinderAbsent_kAll) (syl anr anr))))
+      (syl (bi1 k218ISubstOutputFresh_value) anl)));
+pub theorem k218ISubstOutputFresh_closed (x y: nat):
+ $ kRawConstructionClosed (k218ISubstOutputFreshClass x y) $ =
+(named '(ian (ian (ian k218INS_fresh_zero (ax_gen @ ax_gen @ ian k218INS_fresh_mem k218INS_fresh_eq))
+ (ax_gen @ ax_gen k218INS_fresh_imp)) (ax_gen @ ax_gen k218INS_fresh_all)));
+pub theorem k218ISubst_output_fresh (f x y: nat):
+ $ x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x $ =
+'(mpbi k218ISubstOutputFresh_value (ax_mp kRaw_induction k218ISubstOutputFresh_closed));
+pub theorem k218ISubst_output_vacuity (f x y: nat):
+ $ x != y /\ kBinderAbsent f x ->
+   k218QProvable (kImp (kSubst f x y) (kAll x (kSubst f x y))) $ =
+'(syl k218QFresh_vacuity k218ISubst_output_fresh);
+
+-- Arithmetic-premise versions of the existing finite quantifier macros.
+theorem k218INS_syl (a b c: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp b c) -> k218QProvable (kImp a c) $ =
+'(exp @ mpd (syl (mpi k218IPropB k218QProvable_mp) anl) (syl k218QProvable_mp anr));
+theorem k218INS_all (x a b: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp (kAll x a) (kAll x b)) $ =
+'(syl (mpi (k218QProvable_axiom k218QAxioms_rho2) k218QProvable_mp) k218QProvable_gen);
+theorem k218INS_not (a b: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp (kNot b) (kNot a)) $ =
+'(mpi k218IPropContra k218QProvable_mp);
+theorem k218INS_flip (h a b: nat):
+ $ k218QProvable (kImp h (kImp a b)) -> k218QProvable (kImp a (kImp h b)) $ =
+'(mpi k218IPropC k218QProvable_mp);
+theorem k218INS_exists_mono (x a b: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp (kExists x a) (kExists x b)) $ =
+'(syl k218INS_not (syl k218INS_all k218INS_not));
+theorem k218INS_exists_collapse (x a: nat):
+ $ k218QProvable (kImp a (kAll x a)) -> k218QProvable (kImp (kExists x a) a) $ =
+'(syl (mpi (k218QProvable_axiom k218QAxioms_rho6) k218INS_syl) k218INS_exists_mono);
+theorem k218INS_apply_right (G: wff) (a b c: nat)
+ (hb: $ k218QProvable b $) (h: $ G -> k218QProvable (kImp a (kImp b c)) $):
+ $ G -> k218QProvable (kImp a c) $ =
+'(syl (ax_mp k218QProvable_mp hb) (syl k218INS_flip h));
+pub theorem k218INamed_specialization_macro (G: wff) (x y f v: nat)
+ (he: $ G -> k218QProvable (kImp (kEq x y) (kImp f v)) $)
+ (hv: $ G -> k218QProvable (kImp v (kAll x v)) $):
+ $ G -> k218QProvable (kImp (kAll x f) v) $ =
+'(sylc k218INS_syl
+ (k218INS_apply_right (k218QProvable_axiom k218QAxioms_rho1)
+  (syl (mpi k218IAll_exists k218INS_syl) (syl k218INS_all (syl k218INS_flip he))))
+ (syl k218INS_exists_collapse hv));
+pub theorem k218INamed_exists_intro_macro (G: wff) (x y f v: nat)
+ (he: $ G -> k218QProvable (kImp (kEq x y) (kImp v f)) $)
+ (hv: $ G -> k218QProvable (kImp v (kAll x v)) $):
+ $ G -> k218QProvable (kImp v (kExists x f)) $ =
+'(k218INS_apply_right (k218QProvable_axiom k218QAxioms_rho1)
+ (syl (mpi k218IAll_exists k218INS_syl)
+  (sylc k218INS_syl hv (syl k218INS_all (syl k218INS_flip he)))));
+
+pub theorem k218INamed_specialization (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kBinderAbsent f y ->
+   k218QProvable (kImp (kAll x f) (kSubst f x y)) $ =
+'(exp @ exp @ k218INamed_specialization_macro
+ (syl k218ILeibniz_forward (iand anlr anr))
+ (syl k218ISubst_output_vacuity anl));
+pub theorem k218INamed_exists_intro (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kBinderAbsent f y ->
+   k218QProvable (kImp (kSubst f x y) (kExists x f)) $ =
+'(exp @ exp @ k218INamed_exists_intro_macro
+ (syl k218ILeibniz_backward (iand anlr anr))
+ (syl k218ISubst_output_vacuity anl));

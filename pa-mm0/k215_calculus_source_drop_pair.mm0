@@ -1,0 +1,20 @@
+import "k215_calculus_source_drop_loops.mm0";
+import "k215_literal_runtime_reach.mm0";
+import "k215_calculus_source_pairing.mm0";
+import "k215_calculus_source_drop_lookups.mm0";
+
+def k215PairAt4704State (pc a b t c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) b (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) a t (k215PR8 c)) $;
+
+theorem k215PairAt4704ReachIn (a b t c: nat): $ k215PReach (k215PairAt4704State k215PNum4704 a b t c) (k215PairAt4704State k215PNum4708 (a + b) 0 (t + b) c) $;
+
+theorem k215PairAt4704Cycle (a b t k c: nat): $ a + b = suc k -> k215PReach (k215PairAt4704State k215PNum4704 a b t c) (k215PairAt4704State k215PNum4704 0 k (suc (t + b)) c) $;
+
+theorem k215PairAt4704Base (t c: nat): $ k215PReach (k215PairAt4704State k215PNum4704 0 0 t c) (k215PairAt4704State k215PNum4714 0 0 t c) $;
+
+def k215PairAt4704Run (a b t c: nat): wff =
+ $ k215PReach (k215PairAt4704State k215PNum4704 a b t c) (k215PairAt4704State k215PNum4714 0 0 (t + (a, b)) c) $;
+
+def k215PairAt4704Claim (k c: nat) (.a .b .t: nat): wff =
+ $ A. a A. b A. t (a + b = k -> k215PairAt4704Run a b t c) $;
+
+theorem k215PairMacro4704 (a b t c: nat): $ k215PReach (k215PairAt4704State k215PNum4704 a b t c) (k215PairAt4704State k215PNum4714 0 0 (t + (a, b)) c) $;

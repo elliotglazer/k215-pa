@@ -1,0 +1,73 @@
+import "source_k_upper_trace.mm1";
+
+import "source_renaming_depth.mm1";
+
+def sfUpperTraceBodyMap: set = $ sfComposeMap (sfRenameDepthMap sfSepMap 1) sfUpperTraceMap $;
+
+def sfUpperTraceBody (phi: nat): nat = $ sfEx (sfAnd (sfMem 0 4) (sfRename sfUpperTraceBodyMap 0 phi)) $;
+
+def sfUpperTraceProfile (phi: nat): nat = $ sfAll (sfIff (sfMem 0 1) (sfAnd (sfMem 0 2) (sfUpperTraceBody phi))) $;
+
+def sfUpperTraceExistence (phi: nat): nat = $ sfAll (sfEx (sfUpperTraceProfile phi)) $;
+
+def sfUpperTraceWitnessAt (phi b: nat): nat = $ sfSubst 0 b (sfEx (sfUpperTraceProfile phi)) $;
+
+pub theorem sfUpperTraceMap_zero:
+ $ sfUpperTraceMap @ 0 = 1 $ =
+'(eqtr sfUpperTraceMap_value (ifpos eqid));
+
+pub theorem sfUpperTraceMap_one:
+ $ sfUpperTraceMap @ 1 = 0 $ =
+'(eqtr sfUpperTraceMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+
+pub theorem sfUpperTraceMap_tail (i: nat):
+ $ sfUpperTraceMap @ suc (suc i) = suc (suc (suc i)) $ =
+'(eqtr sfUpperTraceMap_value (eqtr (ifneg peano1) (ifneg (mt (bi1 peano2) peano1))));
+
+pub theorem sfUpperTraceBodyMap_value (i: nat):
+ $ sfUpperTraceBodyMap @ i = sfRenameIndex sfSepMap 1 (sfUpperTraceMap @ i) $ =
+'(eqtr sfComposeMap_value sfRenameDepthMap_value);
+
+theorem sfUTN_index_one:
+ $ sfRenameIndex sfSepMap 1 1 = 1 $ =
+'(eqtr sfRenameIndex_lift (eqtr (suceq sfRenameIndex_zero) (suceq sfSepMap_zero)));
+
+pub theorem sfUpperTraceBodyMap_zero:
+ $ sfUpperTraceBodyMap @ 0 = 1 $ =
+'(eqtr sfUpperTraceBodyMap_value (eqtr (trud (sfRenameIndex_congr_index (a1i sfUpperTraceMap_zero))) sfUTN_index_one));
+
+pub theorem sfUpperTraceBodyMap_one:
+ $ sfUpperTraceBodyMap @ 1 = 0 $ =
+'(eqtr sfUpperTraceBodyMap_value (eqtr (trud (sfRenameIndex_congr_index (a1i sfUpperTraceMap_one))) (ax_mp sfRenameIndex_bound lt01S)));
+
+pub theorem sfUpperTraceBodyMap_tail (i: nat):
+ $ sfUpperTraceBodyMap @ suc (suc i) = suc (suc i) + 3 $ =
+'(eqtr sfUpperTraceBodyMap_value @ eqtr (trud (sfRenameIndex_congr_index (a1i sfUpperTraceMap_tail))) @ eqtr sfRenameIndex_lift @ eqtr (suceq sfRenameIndex_zero) @ eqtr (suceq sfSepMap_suc) (eqcom addS1));
+
+theorem sfUTN_index_zero:
+ $ sfRenameIndex sfSepMap 1 0 = 0 $ =
+'(ax_mp sfRenameIndex_bound lt01S);
+
+theorem sfUTN_index_two:
+ $ sfRenameIndex sfSepMap 1 2 = 4 $ =
+'(eqtr sfRenameIndex_lift @ eqtr (suceq sfRenameIndex_zero) @ eqtr (suceq sfSepMap_suc) (suceq add01));
+
+theorem sfUTN_mem:
+ $ sfRename sfSepMap 1 (sfMem 0 2) = sfMem 0 4 $ =
+'(eqtr sfRename_sfMem (trud (sfMemeqd (a1i sfUTN_index_zero) (a1i sfUTN_index_two))));
+
+pub theorem sfUpperTraceBody_normalize (phi: nat):
+ $ sfWf phi -> sfRename sfSepMap 0 (sfUpperTracePredicate phi) = sfUpperTraceBody phi $ =
+'(eqtrd (a1i sfRename_sfEx) @ sfExeqd @ eqtrd (a1i sfRename_sfAnd) @ sfAndeqd (a1i sfUTN_mem) sfRename_mixed_compose);
+
+pub theorem sfUpperTraceExistence_normalize (phi: nat):
+ $ sfWf phi -> sfUpperTraceSeparation phi = sfUpperTraceExistence phi $ =
+'(sfSeparation_congr sfUpperTraceBody_normalize);
+
+pub theorem sfUpperTraceExistence_zfr (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (sfUpperTraceExistence phi) $ =
+'(mpbid (sfTheoryProvable_congr (syl sfUpperTraceExistence_normalize sfBound_wf)) sfUpperTraceSeparation_zfr);
+
+pub theorem sfUpperTraceWitnessAt_zfr (phi n b: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (sfUpperTraceWitnessAt phi b) $ =
+'(syl sfTheoryProvable_allE sfUpperTraceExistence_zfr);

@@ -1,0 +1,75 @@
+import "k215_literal_iteration.mm1";
+
+@_ abstract def bb215Action (T q b: nat): nat = $ nth (q, b) T - 1 $;
+
+@_ abstract def bb215Valid (T .q .b: nat): wff = $ A. q A. b (q < k215Num215 -> b < 2 -> k215TMValidAction (bb215Action T q b)) $;
+
+@_ abstract def bb215Step (T s: nat): nat = $ if (k215TMQ s < k215Num215) (k215TMMove (bb215Action T (k215TMQ s) (k215TMR s % 2)) (k215TML s) (k215TMR s)) s $;
+
+@_ abstract def bb215Run (T n s .x: nat): nat = $ rec s (\ x, bb215Step T x) n $;
+
+@_ abstract def bb215Halted (T n: nat): wff = $ k215TMQ (bb215Run T n k215TMInitial) = k215Num215 $;
+
+@_ abstract def bb215Halts (T .n: nat): wff = $ E. n bb215Halted T n $;
+
+@_ abstract def bb215Upper (b .T: nat): wff = $ A. T (bb215Valid T -> bb215Halts T -> bb215Halted T b) $;
+
+@_ abstract def bb215First (T b .n: nat): wff = $ bb215Halted T b /\ A. n (n < b -> ~bb215Halted T n) $;
+
+@_ abstract def bb215Value (b .T: nat): wff = $ bb215Upper b /\ E. T (bb215Valid T /\ bb215First T b) $;
+
+@_ abstract def bb215RepresentsLiteral (T .q .b: nat): wff = $ bb215Valid T /\ A. q A. b ((q < k215Num215 /\ b < 2) -> bb215Action T q b = k215TMAction q b) $;
+
+pub theorem bb215Run_zero (T s: nat): $ bb215Run T 0 s = s $ = (named 'rec0);
+
+pub theorem bb215Run_succ (T n s: nat): $ bb215Run T (suc n) s = bb215Step T (bb215Run T n s) $ = '(eqtr recS @ ! applame $ bb215Run T n s $ _ x _ bb215Stepeq2);
+
+pub theorem bb215Step_stopped (T s: nat): $ k215TMQ s = k215Num215 -> bb215Step T s = s $ = '(syl ifneg (mpbiri ltirr (noteqd (lteq1d id))));
+
+pub theorem bb215Run_stopped (T n s: nat): $ k215TMQ s = k215Num215 -> bb215Run T n s = s $ = (named @ induct '(indd) 'n '(a1i bb215Run_zero) '(eqtrd (a1i bb215Run_succ) (eqtrd (bb215Stepeq2d anr) (syl bb215Step_stopped anl))));
+
+pub theorem bb215Run_add (T m n s: nat): $ bb215Run T (m + n) s = bb215Run T n (bb215Run T m s) $ = (named @ induct '(ind) 'n '(eqtr (bb215Runeq2 add0) (eqcom bb215Run_zero)) '(eqtrd (a1i (bb215Runeq2 addS)) (eqtrd (a1i bb215Run_succ) (eqtrd (bb215Stepeq2d id) (a1i (eqcom bb215Run_succ))))));
+
+pub theorem bb215Halted_halting (T n: nat): $ bb215Halted T n -> bb215Halts T $ = (named '(iexe ,eqtac));
+
+pub theorem bb215Value_upper (b: nat): $ bb215Value b -> bb215Upper b $ = (named 'anl);
+
+pub theorem bb215Upper_at (b T: nat): $ bb215Upper b -> bb215Valid T -> bb215Halts T -> bb215Halted T b $ = (named '(eale ,eqtac));
+
+pub theorem bb215Upper_decides (b T: nat): $ bb215Upper b -> bb215Valid T -> (bb215Halts T <-> bb215Halted T b) $ = '(exp @ ibid (mpd anr (syl bb215Upper_at anl)) (a1i bb215Halted_halting));
+
+theorem bb215_index_bound (q b: nat): $ (q < k215Num215 /\ b < 2) -> (q, b) < (k215Num215, 2) $ = '(ltletrd (syl (bi1 ltpr1) anl) (syl (bi1 lepr2) (syl ltle anr)));
+
+theorem bb215_literal_table_lookup (q b: nat): $ (q < k215Num215 /\ b < 2) -> bb215Action (lfn (\ i, k215TMAction (fst i) (snd i)) (k215Num215, 2)) q b = k215TMAction q b $ = (named '(eqtrd (subeq1d (syl nthlfn bb215_index_bound)) (eqtrd (a1i sucsub1) (a1i (eqtr (!! applame i ,eqtac) (k215TMActioneq fstpr sndpr))))));
+
+theorem bb215_literal_table_valid_at (q b: nat): $ q < k215Num215 -> b < 2 -> k215TMValidAction (bb215Action (lfn (\ i, k215TMAction (fst i) (snd i)) (k215Num215, 2)) q b) $ = (named '(exp @ mpbird (k215TMValidActioneqd bb215_literal_table_lookup) (a1i k215TMAction_valid)));
+
+theorem bb215_literal_table_valid: $ bb215Valid (lfn (\ i, k215TMAction (fst i) (snd i)) (k215Num215, 2)) $ = (named '(ax_gen (ax_gen bb215_literal_table_valid_at)));
+
+theorem bb215_literal_table_represents: $ bb215RepresentsLiteral (lfn (\ i, k215TMAction (fst i) (snd i)) (k215Num215, 2)) $ = (named '(iani bb215_literal_table_valid (ax_gen (ax_gen bb215_literal_table_lookup))));
+
+pub theorem bb215Literal_has_table {T: nat}: $ E. T bb215RepresentsLiteral T $ = (named '(ax_mp (iexe ,eqtac) bb215_literal_table_represents));
+
+pub theorem bb215Represents_valid (T: nat): $ bb215RepresentsLiteral T -> bb215Valid T $ = (named 'anl);
+
+theorem bb215_action_take_q (T q: nat): $ (A. j A. b ((j < k215Num215 /\ b < 2) -> bb215Action T j b = k215TMAction j b)) -> A. b ((q < k215Num215 /\ b < 2) -> bb215Action T q b = k215TMAction q b) $ = (named '(!! eale j ,eqtac));
+
+theorem bb215_action_take_b (T q b: nat): $ (A. j ((q < k215Num215 /\ j < 2) -> bb215Action T q j = k215TMAction q j)) -> (q < k215Num215 /\ b < 2) -> bb215Action T q b = k215TMAction q b $ = (named '(!! eale j ,eqtac));
+
+theorem bb215Represents_action_first (T q: nat): $ bb215RepresentsLiteral T -> A. b ((q < k215Num215 /\ b < 2) -> bb215Action T q b = k215TMAction q b) $ = (named '(syl bb215_action_take_q anr));
+
+pub theorem bb215Represents_action (T q b: nat): $ bb215RepresentsLiteral T -> (q < k215Num215 /\ b < 2) -> bb215Action T q b = k215TMAction q b $ = (named '(syl bb215_action_take_b bb215Represents_action_first));
+
+pub theorem bb215Represents_step (T s: nat): $ bb215RepresentsLiteral T -> bb215Step T s = k215TMStep s $ = '(casesda (eqtrd (syl ifpos anr) (eqtrd (k215TMMoveeq1d (mpd (iand anr (a1i (modlt d2ne0))) (syl bb215Represents_action anl))) (eqcomd (syl k215TMStep_active anr)))) (eqtr4d (syl ifneg anr) (syl k215TMStep_halted anr)));
+
+pub theorem bb215Represents_run (T n s: nat): $ bb215RepresentsLiteral T -> bb215Run T n s = k215TMRun n s $ = (named @ induct '(indd) 'n '(a1i (eqtr bb215Run_zero (eqcom k215TMRun_zero))) '(eqtrd (a1i bb215Run_succ) (eqtrd (bb215Stepeq2d anr) (eqtrd (syl bb215Represents_step anl) (a1i (eqcom k215TMRun_succ))))));
+
+pub theorem bb215Represents_halted (T n: nat): $ bb215RepresentsLiteral T -> (bb215Halted T n <-> k215TMQ (k215TMRun n k215TMInitial) = k215Num215) $ = '(eqeq1d (k215TMQeqd bb215Represents_run));
+
+pub theorem bb215Represents_halts (T: nat): $ bb215RepresentsLiteral T -> (bb215Halts T <-> k215LiteralHalts) $ = (named '(exeqd bb215Represents_halted));
+
+theorem bb215_upper_literal_at (b T: nat): $ bb215RepresentsLiteral T -> bb215Upper b -> (k215LiteralHalts <-> k215TMQ (k215TMRun b k215TMInitial) = k215Num215) $ = '(exp @ bitrd (bitrd (bicomd (syl bb215Represents_halts anl)) (mpd (syl bb215Represents_valid anl) (syl bb215Upper_decides anr))) (syl bb215Represents_halted anl));
+
+pub theorem bb215Upper_decides_literal (b: nat): $ bb215Upper b -> (k215LiteralHalts <-> k215TMQ (k215TMRun b k215TMInitial) = k215Num215) $ = (named '(ax_mp (eex bb215_upper_literal_at) bb215Literal_has_table));
+
+pub theorem bb215Value_decides_literal (b: nat): $ bb215Value b -> (k215LiteralHalts <-> k215TMQ (k215TMRun b k215TMInitial) = k215Num215) $ = '(syl bb215Upper_decides_literal bb215Value_upper);

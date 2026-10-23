@@ -1,0 +1,44 @@
+import "extracted_named_support.mm0";
+
+-- Local rules for the actual quotient quotation; no translated axiom is assumed.
+def exNamedLocal (H: nat) (E: set) (k d c: nat): wff =
+ $ kHypProvable H (sfNamedTemplate E k d c) $;
+
+theorem exNamedLocal_assumption (H: nat) (E: set) (k d a: nat):
+ $ sfNamedTemplate E k d a IN H -> exNamedLocal H E k d a $;
+
+theorem exNamedLocal_peirce (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d (sfImp (sfImp (sfImp a b) a) a) $;
+
+theorem exNamedLocal_impI (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal ((sfNamedTemplate E k d a) : H) E k d b ->
+   exNamedLocal H E k d (sfImp a b) $;
+
+theorem exNamedLocal_impE (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d a -> exNamedLocal H E k d (sfImp a b) ->
+   exNamedLocal H E k d b $;
+
+theorem exNamedLocal_botE (H: nat) (E: set) (k d a: nat):
+ $ exNamedLocal H E k d sfBot -> exNamedLocal H E k d a $;
+
+theorem exNamedLocal_andI (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d a -> exNamedLocal H E k d b ->
+   exNamedLocal H E k d (sfAnd a b) $;
+
+theorem exNamedLocal_andE1 (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d (sfAnd a b) -> exNamedLocal H E k d a $;
+
+theorem exNamedLocal_andE2 (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d (sfAnd a b) -> exNamedLocal H E k d b $;
+
+theorem exNamedLocal_orI1 (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d a -> exNamedLocal H E k d (sfOr a b) $;
+
+theorem exNamedLocal_orI2 (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d b -> exNamedLocal H E k d (sfOr a b) $;
+
+theorem exNamedLocal_orE (H: nat) (E: set) (k d a b c: nat):
+ $ exNamedLocal H E k d (sfOr a b) ->
+   exNamedLocal ((sfNamedTemplate E k d a) : H) E k d c ->
+   exNamedLocal ((sfNamedTemplate E k d b) : H) E k d c ->
+   exNamedLocal H E k d c $;

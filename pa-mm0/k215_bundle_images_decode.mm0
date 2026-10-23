@@ -1,0 +1,21 @@
+import "raw_source_image.mm0";
+import "k218_codes.mm0";
+import "zfc_irreflexive.mm0";
+
+-- k218Bundle a b c uses c both as a variable label and as the code of its matrix formula.
+-- k215BundleG a b k q separates the two roles; k218Bundle a b c = k215BundleG a b c c.
+def k215BundleSeedG (a b k q: nat): nat =
+ $ (kAll k (kImp (kAll b (kImp (kMem b k) (kImp (kAll a (kImp q (kImp (kAll a (kImp (kAll k (kImp (kMem k a) (kMem k b))) (kAll b (kImp q (kImp (kAll b (kImp q (kImp (kMem b k) kF))) kF))))) kF))) kF))) (kImp (kAll b (kImp q (kImp (kAll b (kImp q (kImp (kMem b k) kF))) kF))) kF))) $;
+def k215BundleG (a b k q: nat): nat =
+ $ kNot (kImp (kImp (kMem a b) (kAll k (kMem a b))) (k215BundleSeedG a b k q)) $;
+
+-- The decoded source formula, with the matrix Q = rawDecode q left opaque.
+def k215DecSeedG (a b k Q: nat): nat =
+ $ (sfAll (sfRename (rawBinderMap k) 0 (sfImp (sfAll (sfRename (rawBinderMap b) 0 (sfImp (sfMem b k) (sfImp (sfAll (sfRename (rawBinderMap a) 0 (sfImp Q (sfImp (sfAll (sfRename (rawBinderMap a) 0 (sfImp (sfAll (sfRename (rawBinderMap k) 0 (sfImp (sfMem k a) (sfMem k b)))) (sfAll (sfRename (rawBinderMap b) 0 (sfImp Q (sfImp (sfAll (sfRename (rawBinderMap b) 0 (sfImp Q (sfImp (sfMem b k) (sfMem 0 0))))) (sfMem 0 0)))))))) (sfMem 0 0))))) (sfMem 0 0))))) (sfImp (sfAll (sfRename (rawBinderMap b) 0 (sfImp Q (sfImp (sfAll (sfRename (rawBinderMap b) 0 (sfImp Q (sfImp (sfMem b k) (sfMem 0 0))))) (sfMem 0 0))))) (sfMem 0 0))))) $;
+def k215DecBundleG (a b k Q: nat): nat =
+ $ (sfImp (sfImp (sfImp (sfMem a b) (sfAll (sfRename (rawBinderMap k) 0 (sfMem a b)))) (k215DecSeedG a b k Q)) (sfMem 0 0)) $;
+
+theorem k215Bundle_general (a b c: nat): $ k218Bundle a b c = k215BundleG a b c c $;
+
+theorem k215BundleG_decode (a b k q: nat):
+ $ rawDecode (k215BundleG a b k q) = k215DecBundleG a b k (rawDecode q) $;

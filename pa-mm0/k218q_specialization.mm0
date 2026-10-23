@@ -1,0 +1,36 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_contextual_quantifiers.mm0";
+import "k218q_leibniz.mm0";
+
+-- Substitution removes its source name if that name has no binder occurrence.
+theorem k218IReplace_avoids_source (x y a: nat):
+ $ x != y -> x != kReplace x y a $;
+def k218ISubstOutputFreshClass (x y .f: nat): set =
+$ {f | x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x} $;
+theorem k218ISubstOutputFresh_value (x y f: nat):
+ $ f e. k218ISubstOutputFreshClass x y <->
+   (x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x) $;
+theorem k218ISubstOutputFresh_closed (x y: nat):
+ $ kRawConstructionClosed (k218ISubstOutputFreshClass x y) $;
+theorem k218ISubst_output_fresh (f x y: nat):
+ $ x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x $;
+theorem k218ISubst_output_vacuity (f x y: nat):
+ $ x != y /\ kBinderAbsent f x ->
+   k218QProvable (kImp (kSubst f x y) (kAll x (kSubst f x y))) $;
+
+theorem k218INamed_specialization_macro (G: wff) (x y f v: nat)
+ (he: $ G -> k218QProvable (kImp (kEq x y) (kImp f v)) $)
+ (hv: $ G -> k218QProvable (kImp v (kAll x v)) $):
+ $ G -> k218QProvable (kImp (kAll x f) v) $;
+theorem k218INamed_exists_intro_macro (G: wff) (x y f v: nat)
+ (he: $ G -> k218QProvable (kImp (kEq x y) (kImp v f)) $)
+ (hv: $ G -> k218QProvable (kImp v (kAll x v)) $):
+ $ G -> k218QProvable (kImp v (kExists x f)) $;
+
+theorem k218INamed_specialization (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kBinderAbsent f y ->
+   k218QProvable (kImp (kAll x f) (kSubst f x y)) $;
+theorem k218INamed_exists_intro (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kBinderAbsent f y ->
+   k218QProvable (kImp (kSubst f x y) (kExists x f)) $;

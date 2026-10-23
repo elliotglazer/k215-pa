@@ -1,0 +1,256 @@
+import "source_piece_pcf_rep_offsets_r7.mm1";
+import "source_piece_pcf_rep_induction_r6.mm1";
+
+@_ def sfPieceRepDomain(e d:nat):nat = $ (sfAnd (sfAll (sfImp (sfMem 0 (suc d)) (sfEx (sfAnd (sfMem 0 (suc (suc e))) (sfEx (sfAnd (sfMem 0 1) (sfEx (sfAnd (sfMem 0 1) (sfAnd (sfAnd (sfEx (sfAnd (sfMem 0 3) (sfAnd (sfMem 4 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 5)))))) (sfEx (sfAnd (sfMem 0 3) (sfAnd (sfAnd (sfMem 4 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 5) (sfEq 0 2)))))))) (sfAll (sfImp (sfMem 0 3) (sfOr (sfAnd (sfMem 4 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 5)))) (sfAnd (sfAnd (sfMem 4 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 5) (sfEq 0 2))))))))))))))))) (sfAll (sfImp (sfMem 0 (suc e)) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 3) (sfAll (sfImp (sfMem 0 1) (sfImp (sfAnd (sfAnd (sfEx (sfAnd (sfMem 0 5) (sfAnd (sfMem 3 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 4)))))) (sfEx (sfAnd (sfMem 0 5) (sfAnd (sfAnd (sfMem 3 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 4) (sfEq 0 2)))))))) (sfAll (sfImp (sfMem 0 5) (sfOr (sfAnd (sfMem 3 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 4)))) (sfAnd (sfAnd (sfMem 3 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 4) (sfEq 0 2))))))))) (sfMem 2 (suc (suc (suc (suc (suc d)))))))))))))))))) $;
+
+pub theorem sfPieceRepDomain_wf(e d:nat):
+ $ sfWf (sfPieceRepDomain e d) $ =
+ '(ax_mp (ax_mp sfWf_and (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_eq)))))) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem)) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq)))))))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_eq)))) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem)) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq))))))))))))))))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_eq)))))) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem)) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq)))))))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_eq)))) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem)) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq))))))))) sfWf_mem))))))))))));
+
+pub theorem sfPieceRepDomain_eq(e d f g:nat)(he:$ e = f $)(hd:$ d = g $):
+ $ sfPieceRepDomain e d = sfPieceRepDomain f g $ =
+ '(nsAnd_eq (nsAll_eq (nsImp_eq (nsMem_eq eqid (suceq hd)) (nsEx_eq (nsAnd_eq (nsMem_eq eqid (suceq (suceq he))) (nsEx_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsEx_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsAnd_eq (nsAnd_eq (nsEx_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsAnd_eq (nsMem_eq eqid eqid) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsEq_eq eqid eqid)))))) (nsEx_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsAnd_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsMem_eq eqid eqid)) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsOr_eq (nsEq_eq eqid eqid) (nsEq_eq eqid eqid)))))))) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsOr_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsEq_eq eqid eqid)))) (nsAnd_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsMem_eq eqid eqid)) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsOr_eq (nsEq_eq eqid eqid) (nsEq_eq eqid eqid))))))))))))))))) (nsAll_eq (nsImp_eq (nsMem_eq eqid (suceq he)) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsImp_eq (nsAnd_eq (nsAnd_eq (nsEx_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsAnd_eq (nsMem_eq eqid eqid) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsEq_eq eqid eqid)))))) (nsEx_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsAnd_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsMem_eq eqid eqid)) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsOr_eq (nsEq_eq eqid eqid) (nsEq_eq eqid eqid)))))))) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsOr_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsEq_eq eqid eqid)))) (nsAnd_eq (nsAnd_eq (nsMem_eq eqid eqid) (nsMem_eq eqid eqid)) (nsAll_eq (nsImp_eq (nsMem_eq eqid eqid) (nsOr_eq (nsEq_eq eqid eqid) (nsEq_eq eqid eqid))))))))) (nsMem_eq eqid (suceq (suceq (suceq (suceq (suceq hd))))))))))))))))));
+
+pub theorem sfPieceRepDomain_rename(R:set)(k e d:nat):
+ $ sfRename R k (sfPieceRepDomain e d) = sfPieceRepDomain (sfRenameIndex R k e) (sfRenameIndex R k d) $ =
+ '(eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq eqid)))) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq eqid)))))) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))))) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfRenameIndex_bound lt01S))))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfOr (nsOr_eq (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr sfRename_sfOr (nsOr_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))) (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfRenameIndex_bound lt01S))))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfOr (nsOr_eq (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))))))))))))))))))))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq eqid)))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfRenameIndex_bound lt01S))))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfOr (nsOr_eq (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfRename_sfOr (nsOr_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))) (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfRenameIndex_bound lt01S))))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfOr (nsOr_eq (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq eqid))))))))))))))))))))))))))))))))))));
+
+pub theorem sfPieceRepDomain_subst(k t e d:nat):
+ $ sfSubst k t (sfPieceRepDomain e d) = sfPieceRepDomain (sfSubstIndex k t e) (sfSubstIndex k t d) $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq eqid)))) (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq eqid)))))) (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))))) (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))) (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))))))))))))))))))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq eqid)))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))) (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))) (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq eqid))))))))))))))))))))))))))))))))))));
+
+theorem pcrd_domain_shift(e d:nat):
+ $ sfShift 0 (sfPieceRepDomain e d) = sfPieceRepDomain (suc e) (suc d) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepDomain_wf)) (eqtr sfPieceRepDomain_rename (sfPieceRepDomain_eq (eqtr sfRenameIndex_zero sfSuccessorMap_value) (eqtr sfRenameIndex_zero sfSuccessorMap_value))));
+
+theorem pcrd_domain_shift2(e d:nat):
+ $ sfShift 0 (sfShift 0 (sfPieceRepDomain e d)) = sfPieceRepDomain (suc (suc e)) (suc (suc d)) $ =
+ '(eqtr (trud (sfShift_formula_congr (a1i eqid) (a1i pcrd_domain_shift))) pcrd_domain_shift);
+
+theorem pcrd_extension_shift(e v z:nat):
+ $ sfShift 0 (sfPieceRepExtension e v z) = sfPieceRepExtension (suc e) (suc v) (suc z) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepExtension_wf)) (eqtr sfPieceRepExtension_rename (sfPieceRepExtension_eq (eqtr sfRenameIndex_zero sfSuccessorMap_value) (eqtr sfRenameIndex_zero sfSuccessorMap_value) (eqtr sfRenameIndex_zero sfSuccessorMap_value))));
+
+theorem pcrd_num_eq(n x y:nat)(h:$ x = y $):
+ $ sfPieceNumeral n x = sfPieceNumeral n y $ =
+ '(trud (sfSubst_congr (a1i eqid) (a1i h) (a1i eqid)));
+
+theorem pcrd_num_shift(n x:nat):
+ $ sfShift 0 (sfPieceNumeral n x) = sfPieceNumeral n (suc x) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceNumeral_wf)) (eqtr sfPieceNumeral_rename (pcrd_num_eq sfSuccessorMap_value)));
+
+@_ def sfPieceRepDomainBaseLaw:nat = $ (sfAll (sfAll (sfImp (sfPieceRepEmpty 1) (sfImp (sfPieceRepEmpty 0) (sfPieceRepDomain 1 0))))) $;
+
+theorem pcrd_base_wf:
+ $ sfWf sfPieceRepDomainBaseLaw $ =
+ '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfPieceRepEmpty_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepEmpty_wf) sfPieceRepDomain_wf))));
+
+theorem pcrd_base_shift:
+ $ sfShift 0 sfPieceRepDomainBaseLaw = sfPieceRepDomainBaseLaw $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor pcrd_base_wf)) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfPieceRepEmpty_rename (sfPieceRepEmpty_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfImp (nsImp_eq (eqtr sfPieceRepEmpty_rename (sfPieceRepEmpty_eq (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfPieceRepDomain_rename (sfPieceRepDomain_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfRenameIndex_bound lt01S))))))))))));
+
+theorem pcrd_base_open0(e:nat):
+ $ sfSubst 0 e (sfAll (sfImp (sfPieceRepEmpty 1) (sfImp (sfPieceRepEmpty 0) (sfPieceRepDomain 1 0)))) = (sfAll (sfImp (sfPieceRepEmpty (suc e)) (sfImp (sfPieceRepEmpty 0) (sfPieceRepDomain (suc e) 0)))) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepEmpty_subst (sfPieceRepEmpty_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepEmpty_subst (sfPieceRepEmpty_eq (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S)))))))));
+
+theorem pcrd_base_inst0(G e:nat):
+ $ nsLocal G sfPieceRepDomainBaseLaw -> nsLocal G (sfAll (sfImp (sfPieceRepEmpty (suc e)) (sfImp (sfPieceRepEmpty 0) (sfPieceRepDomain (suc e) 0)))) $ =
+ '(syl (bi1 (nsLocal_formula_eq pcrd_base_open0)) nsLocal_AllE);
+
+theorem pcrd_base_open1(e d:nat):
+ $ sfSubst 0 d (sfImp (sfPieceRepEmpty (suc e)) (sfImp (sfPieceRepEmpty 0) (sfPieceRepDomain (suc e) 0))) = (sfImp (sfPieceRepEmpty e) (sfImp (sfPieceRepEmpty d) (sfPieceRepDomain e d))) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepEmpty_subst (sfPieceRepEmpty_eq sfSubstIndex_successor)) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepEmpty_subst (sfPieceRepEmpty_eq sfSubstIndex_zero)) (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq sfSubstIndex_successor sfSubstIndex_zero))))));
+
+theorem pcrd_base_inst1(G e d:nat):
+ $ nsLocal G sfPieceRepDomainBaseLaw -> nsLocal G (sfImp (sfPieceRepEmpty e) (sfImp (sfPieceRepEmpty d) (sfPieceRepDomain e d))) $ =
+ '(syl (syl (bi1 (nsLocal_formula_eq pcrd_base_open1)) nsLocal_AllE) pcrd_base_inst0);
+
+pub theorem pcrd_base_use(G e d:nat):
+ $ nsLocal G sfPieceRepDomainBaseLaw -> nsLocal G (sfPieceRepEmpty e) -> nsLocal G (sfPieceRepEmpty d) -> nsLocal G (sfPieceRepDomain e d) $ =
+ '(syl (syl6 nsLocal_mp nsLocal_mp) pcrd_base_inst1);
+
+@_ def sfPieceRepDomainStepLaw:nat = $ (sfAll (sfAll (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension 4 3 2) (sfImp (sfPieceRepDomain 4 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain 2 0))))))))) $;
+
+theorem pcrd_step_wf:
+ $ sfWf sfPieceRepDomainStepLaw $ =
+ '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfPieceRepExtension_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepDomain_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) sfPieceRepDomain_wf))))))));
+
+theorem pcrd_step_shift:
+ $ sfShift 0 sfPieceRepDomainStepLaw = sfPieceRepDomainStepLaw $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor pcrd_step_wf)) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfPieceRepExtension_rename (sfPieceRepExtension_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr sfRename_sfImp (nsImp_eq (eqtr sfPieceRepDomain_rename (sfPieceRepDomain_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_rename (sfPieceRepSuccessor_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfRenameIndex_bound lt01S))) (eqtr sfPieceRepDomain_rename (sfPieceRepDomain_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))) (ax_mp sfRenameIndex_bound lt01S))))))))))))))))))));
+
+theorem pcrd_step_open0(e:nat):
+ $ sfSubst 0 e (sfAll (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension 4 3 2) (sfImp (sfPieceRepDomain 4 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain 2 0)))))))) = (sfAll (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension (suc (suc (suc (suc e)))) 3 2) (sfImp (sfPieceRepDomain (suc (suc (suc (suc e)))) 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain 2 0)))))))) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepExtension_subst (sfPieceRepExtension_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))))) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))))) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))) (ax_mp sfSubstIndex_bound lt01S)))))))))))))))));
+
+theorem pcrd_step_inst0(G e:nat):
+ $ nsLocal G sfPieceRepDomainStepLaw -> nsLocal G (sfAll (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension (suc (suc (suc (suc e)))) 3 2) (sfImp (sfPieceRepDomain (suc (suc (suc (suc e)))) 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain 2 0)))))))) $ =
+ '(syl (bi1 (nsLocal_formula_eq pcrd_step_open0)) nsLocal_AllE);
+
+theorem pcrd_step_open1(e v:nat):
+ $ sfSubst 0 v (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension (suc (suc (suc (suc e)))) 3 2) (sfImp (sfPieceRepDomain (suc (suc (suc (suc e)))) 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain 2 0))))))) = (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension (suc (suc (suc e))) (suc (suc (suc v))) 2) (sfImp (sfPieceRepDomain (suc (suc (suc e))) 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain 2 0))))))) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepExtension_subst (sfPieceRepExtension_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))))) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))) (ax_mp sfSubstIndex_bound lt01S)))))))))))))));
+
+theorem pcrd_step_inst1(G e v:nat):
+ $ nsLocal G sfPieceRepDomainStepLaw -> nsLocal G (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension (suc (suc (suc e))) (suc (suc (suc v))) 2) (sfImp (sfPieceRepDomain (suc (suc (suc e))) 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain 2 0))))))) $ =
+ '(syl (syl (bi1 (nsLocal_formula_eq pcrd_step_open1)) nsLocal_AllE) pcrd_step_inst0);
+
+theorem pcrd_step_open2(e v z:nat):
+ $ sfSubst 0 z (sfAll (sfAll (sfImp (sfPieceRepExtension (suc (suc (suc e))) (suc (suc (suc v))) 2) (sfImp (sfPieceRepDomain (suc (suc (suc e))) 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain 2 0)))))) = (sfAll (sfAll (sfImp (sfPieceRepExtension (suc (suc e)) (suc (suc v)) (suc (suc z))) (sfImp (sfPieceRepDomain (suc (suc e)) 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain (suc (suc z)) 0)))))) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepExtension_subst (sfPieceRepExtension_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (ax_mp sfSubstIndex_bound lt01S)))))))))))));
+
+theorem pcrd_step_inst2(G e v z:nat):
+ $ nsLocal G sfPieceRepDomainStepLaw -> nsLocal G (sfAll (sfAll (sfImp (sfPieceRepExtension (suc (suc e)) (suc (suc v)) (suc (suc z))) (sfImp (sfPieceRepDomain (suc (suc e)) 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain (suc (suc z)) 0)))))) $ =
+ '(syl (syl (bi1 (nsLocal_formula_eq pcrd_step_open2)) nsLocal_AllE) pcrd_step_inst1);
+
+theorem pcrd_step_open3(e v z d:nat):
+ $ sfSubst 0 d (sfAll (sfImp (sfPieceRepExtension (suc (suc e)) (suc (suc v)) (suc (suc z))) (sfImp (sfPieceRepDomain (suc (suc e)) 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain (suc (suc z)) 0))))) = (sfAll (sfImp (sfPieceRepExtension (suc e) (suc v) (suc z)) (sfImp (sfPieceRepDomain (suc e) (suc d)) (sfImp (sfPieceRepSuccessor (suc d) 0) (sfPieceRepDomain (suc z) 0))))) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepExtension_subst (sfPieceRepExtension_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (ax_mp sfSubstIndex_bound lt01S)))))))))));
+
+theorem pcrd_step_inst3(G e v z d:nat):
+ $ nsLocal G sfPieceRepDomainStepLaw -> nsLocal G (sfAll (sfImp (sfPieceRepExtension (suc e) (suc v) (suc z)) (sfImp (sfPieceRepDomain (suc e) (suc d)) (sfImp (sfPieceRepSuccessor (suc d) 0) (sfPieceRepDomain (suc z) 0))))) $ =
+ '(syl (syl (bi1 (nsLocal_formula_eq pcrd_step_open3)) nsLocal_AllE) pcrd_step_inst2);
+
+theorem pcrd_step_open4(e v z d u:nat):
+ $ sfSubst 0 u (sfImp (sfPieceRepExtension (suc e) (suc v) (suc z)) (sfImp (sfPieceRepDomain (suc e) (suc d)) (sfImp (sfPieceRepSuccessor (suc d) 0) (sfPieceRepDomain (suc z) 0)))) = (sfImp (sfPieceRepExtension e v z) (sfImp (sfPieceRepDomain e d) (sfImp (sfPieceRepSuccessor d u) (sfPieceRepDomain z u)))) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepExtension_subst (sfPieceRepExtension_eq sfSubstIndex_successor sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq sfSubstIndex_successor sfSubstIndex_zero)) (eqtr sfPieceRepDomain_subst (sfPieceRepDomain_eq sfSubstIndex_successor sfSubstIndex_zero))))))));
+
+theorem pcrd_step_inst4(G e v z d u:nat):
+ $ nsLocal G sfPieceRepDomainStepLaw -> nsLocal G (sfImp (sfPieceRepExtension e v z) (sfImp (sfPieceRepDomain e d) (sfImp (sfPieceRepSuccessor d u) (sfPieceRepDomain z u)))) $ =
+ '(syl (syl (bi1 (nsLocal_formula_eq pcrd_step_open4)) nsLocal_AllE) pcrd_step_inst3);
+
+pub theorem pcrd_step_use(G e v z d u:nat):
+ $ nsLocal G sfPieceRepDomainStepLaw -> nsLocal G (sfPieceRepExtension e v z) -> nsLocal G (sfPieceRepDomain e d) -> nsLocal G (sfPieceRepSuccessor d u) -> nsLocal G (sfPieceRepDomain z u) $ =
+ '(syl (syl6 (syl6 nsLocal_mp nsLocal_mp) nsLocal_mp) pcrd_step_inst4);
+
+@_ def pcrdEnvBody(T:set)(r h n e:nat):nat = $ sfAnd (sfPieceEnv (sfPieceRepOffset T (suc r) (suc h)) n 0) (sfPieceRepExtension 0 (suc (h + (T @ r))) (suc e)) $;
+
+@_ def pcrdNumBody(n z:nat):nat = $ sfAnd (sfPieceNumeral n 0) (sfPieceRepSuccessor 0 (suc (suc z))) $;
+
+@_ def pcrdFirstContext(T:set)(G r h n e:nat):nat = $ pcrdEnvBody T r h n e : sfContextShift G $;
+
+@_ def pcrdSecondContext(T:set)(G r h n e z:nat):nat = $ pcrdNumBody n z : sfContextShift (pcrdFirstContext T G r h n e) $;
+
+@_ def sfPieceEnvDomainGood(T:set)(n .J .r .h .e .z:nat):wff = $ A. J A. r A. h A. e A. z (nsLocal J sfPieceRepDomainBaseLaw -> nsLocal J sfPieceRepDomainStepLaw -> nsLocal J (sfPieceEnv (sfPieceRepOffset T r h) n e) -> nsLocal J (sfPieceNumeral n z) -> nsLocal J (sfPieceRepDomain e z)) $;
+
+theorem pcrd_good_zero_at(T:set)(G r h e z:nat):
+ $ (nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) 0 e)) -> (nsLocal G (sfPieceNumeral 0 z)) -> (nsLocal G (sfPieceRepDomain e z)) $ =
+ '(exp (exp (exp (mpd (mpd anr (a1i (bi1 (nsLocal_formula_eq sfPieceNumeral_zero)))) (mpd (mpd (anwl anr) (a1i (bi1 (nsLocal_formula_eq sfPieceEnv_zero)))) (mpd (anwl (anwl (anwl id))) (a1i pcrd_base_use)))))));
+
+@_ def pcrdGoodAt1(T:set)(n G .r .h .e .z:nat):wff = $ A. r A. h A. e A. z ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+theorem pcrd_good_part1(T:set)(n G:nat):
+ $ sfPieceEnvDomainGood T n -> pcrdGoodAt1 T n G $ =
+ (named '(!! eale j0 ,eqtac));
+
+@_ def pcrdGoodAt2(T:set)(n G r .h .e .z:nat):wff = $ A. h A. e A. z ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+theorem pcrd_good_part2(T:set)(n G r:nat):
+ $ pcrdGoodAt1 T n G -> pcrdGoodAt2 T n G r $ =
+ (named '(!! eale j0 ,eqtac));
+
+@_ def pcrdGoodAt3(T:set)(n G r h .e .z:nat):wff = $ A. e A. z ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+theorem pcrd_good_part3(T:set)(n G r h:nat):
+ $ pcrdGoodAt2 T n G r -> pcrdGoodAt3 T n G r h $ =
+ (named '(!! eale j0 ,eqtac));
+
+@_ def pcrdGoodAt4(T:set)(n G r h e .z:nat):wff = $ A. z ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+theorem pcrd_good_part4(T:set)(n G r h e:nat):
+ $ pcrdGoodAt3 T n G r h -> pcrdGoodAt4 T n G r h e $ =
+ (named '(!! eale j0 ,eqtac));
+
+@_ def pcrdGoodAt5(T:set)(n G r h e z:nat):wff = $ ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+theorem pcrd_good_part5(T:set)(n G r h e z:nat):
+ $ pcrdGoodAt4 T n G r h e -> pcrdGoodAt5 T n G r h e z $ =
+ (named '(!! eale j0 ,eqtac));
+
+theorem pcrd_good_at(T:set)(G r h n e z:nat):
+ $ sfPieceEnvDomainGood T n -> (nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z)) $ =
+ '(syl pcrd_good_part5 (syl pcrd_good_part4 (syl pcrd_good_part3 (syl pcrd_good_part2 pcrd_good_part1))));
+
+theorem pcrd_good_zero(T:set):
+ $ sfPieceEnvDomainGood T 0 $ =
+ (named '(ax_gen (ax_gen (ax_gen (ax_gen (ax_gen pcrd_good_zero_at))))));
+
+theorem pcrd_first_wf(T:set)(G r h n e:nat):
+ $ sfContextWf (pcrdFirstContext T G r h n e) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfPieceEnv_wf) sfPieceRepExtension_wf) sfContextShift_wf));
+
+theorem pcrd_first_hyp(T:set)(G r h n e:nat):
+ $ (nsLocal (pcrdFirstContext T G r h n e) (pcrdEnvBody T r h n e)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp pcrd_first_wf) sfContext_member_head);
+
+theorem pcrd_first_env(T:set)(G r h n e:nat):
+ $ (nsLocal (pcrdFirstContext T G r h n e) (sfPieceEnv (sfPieceRepOffset T (suc r) (suc h)) n 0)) $ =
+ '(ax_mp nsLocal_CE1 pcrd_first_hyp);
+
+theorem pcrd_first_ext(T:set)(G r h n e:nat):
+ $ (nsLocal (pcrdFirstContext T G r h n e) (sfPieceRepExtension 0 (suc (h + (T @ r))) (suc e))) $ =
+ '(ax_mp nsLocal_CE2 pcrd_first_hyp);
+
+theorem pcrd_second_wf(T:set)(G r h n e z:nat):
+ $ sfContextWf (pcrdSecondContext T G r h n e z) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfPieceNumeral_wf) sfPieceRepSuccessor_wf) sfContextShift_wf));
+
+theorem pcrd_second_hyp(T:set)(G r h n e z:nat):
+ $ (nsLocal (pcrdSecondContext T G r h n e z) (pcrdNumBody n z)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp pcrd_second_wf) sfContext_member_head);
+
+theorem pcrd_second_num(T:set)(G r h n e z:nat):
+ $ (nsLocal (pcrdSecondContext T G r h n e z) (sfPieceNumeral n 0)) $ =
+ '(ax_mp nsLocal_CE1 pcrd_second_hyp);
+
+theorem pcrd_second_succ(T:set)(G r h n e z:nat):
+ $ (nsLocal (pcrdSecondContext T G r h n e z) (sfPieceRepSuccessor 0 (suc (suc z)))) $ =
+ '(ax_mp nsLocal_CE2 pcrd_second_hyp);
+
+theorem pcrd_second_env(T:set)(G r h n e z:nat):
+ $ (nsLocal (pcrdSecondContext T G r h n e z) (sfPieceEnv (sfPieceRepOffset T (suc r) (suc (suc h))) n 1)) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken pcrd_second_wf) sfContextSub_cons) (mpbi (nsLocal_formula_eq sfPieceEnv_offset_shift) (ax_mp sfSepLocal_shift pcrd_first_env)));
+
+theorem pcrd_second_ext(T:set)(G r h n e z:nat):
+ $ (nsLocal (pcrdSecondContext T G r h n e z) (sfPieceRepExtension 1 (suc (suc (h + (T @ r)))) (suc (suc e)))) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken pcrd_second_wf) sfContextSub_cons) (mpbi (nsLocal_formula_eq pcrd_extension_shift) (ax_mp sfSepLocal_shift pcrd_first_ext)));
+
+theorem pcrd_lift_first(T:set)(G r h n e a:nat)(hz:$ sfShift 0 a = a $):
+ $ (nsLocal G a) -> (nsLocal (pcrdFirstContext T G r h n e) a) $ =
+ '(syl (ax_mp (ax_mp nsLocal_weaken pcrd_first_wf) sfContextSub_cons) (syl (bi1 (nsLocal_formula_eq hz)) sfSepLocal_shift));
+
+theorem pcrd_lift_second(T:set)(G r h n e z a:nat)(hz:$ sfShift 0 a = a $):
+ $ (nsLocal (pcrdFirstContext T G r h n e) a) -> (nsLocal (pcrdSecondContext T G r h n e z) a) $ =
+ '(syl (ax_mp (ax_mp nsLocal_weaken pcrd_second_wf) sfContextSub_cons) (syl (bi1 (nsLocal_formula_eq hz)) sfSepLocal_shift));
+
+theorem pcrd_base_to_second(T:set)(G r h n e z:nat):
+ $ (nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal (pcrdSecondContext T G r h n e z) sfPieceRepDomainBaseLaw) $ =
+ '(syl (pcrd_lift_second pcrd_base_shift) (pcrd_lift_first pcrd_base_shift));
+
+theorem pcrd_step_to_second(T:set)(G r h n e z:nat):
+ $ (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal (pcrdSecondContext T G r h n e z) sfPieceRepDomainStepLaw) $ =
+ '(syl (pcrd_lift_second pcrd_step_shift) (pcrd_lift_first pcrd_step_shift));
+
+theorem pcrd_inner_domain(T:set)(G r h n e z:nat):
+ $ sfPieceEnvDomainGood T n -> (nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal (pcrdSecondContext T G r h n e z) (sfShift 0 (sfShift 0 (sfPieceRepDomain e z)))) $ =
+ '(exp (exp (mpd (mpd (a1i pcrd_second_succ) (mpd (mpd (a1i pcrd_second_num) (mpd (a1i pcrd_second_env) (mpd (mpd anr (a1i pcrd_step_to_second)) (mpd (mpd (anwl anr) (a1i pcrd_base_to_second)) (mpd (anwl (anwl id)) (a1i pcrd_good_at)))))) (mpd (a1i pcrd_second_ext) (mpd (mpd anr (a1i pcrd_step_to_second)) (a1i pcrd_step_use))))) (a1i (bi2 (nsLocal_formula_eq pcrd_domain_shift2))))));
+
+theorem pcrd_first_num(T:set)(G r h n e z:nat):
+ $ (nsLocal G (sfPieceNumeral (suc n) z)) -> (nsLocal (pcrdFirstContext T G r h n e) (sfEx (pcrdNumBody n z))) $ =
+ '(syl (bi1 (nsLocal_formula_eq sfPieceNumeral_suc_normal)) (syl (ax_mp (ax_mp nsLocal_weaken pcrd_first_wf) sfContextSub_cons) (syl (bi1 (nsLocal_formula_eq pcrd_num_shift)) sfSepLocal_shift)));
+
+theorem pcrd_good_step_at(T:set)(G r h n e z:nat):
+ $ sfPieceEnvDomainGood T n -> (nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) (suc n) e)) -> (nsLocal G (sfPieceNumeral (suc n) z)) -> (nsLocal G (sfPieceRepDomain e z)) $ =
+ '(exp (exp (exp (exp (mpd (mpd (mpd (anwl (anwl anr)) (mpd (anwl (anwl (anwl anr))) (mpd (anwl (anwl (anwl (anwl id)))) (a1i pcrd_inner_domain)))) (mpd (mpd anr (a1i pcrd_first_num)) (a1i (sfLocal_exE sfShift_wf)))) (mpd (mpd (anwl anr) (a1i (bi1 (nsLocal_formula_eq sfPieceEnv_offset_suc)))) (a1i (sfLocal_exE sfPieceRepDomain_wf))))))));
+
+theorem pcrd_good_step(T:set)(n:nat):
+ $ sfPieceEnvDomainGood T n -> sfPieceEnvDomainGood T (suc n) $ =
+ (named '(iald (iald (iald (iald (iald pcrd_good_step_at))))));
+
+pub theorem sfPieceEnv_domain_induction(T:set)(n:nat):
+ $ sfPieceEnvDomainGood T n $ =
+ (named @ induct '(ind) 'n 'pcrd_good_zero 'pcrd_good_step);
+
+pub theorem sfPieceEnv_domain_from_laws(T:set)(G n e z:nat)(hb:$ nsLocal G sfPieceRepDomainBaseLaw $)(hs:$ nsLocal G sfPieceRepDomainStepLaw $)(he:$ nsLocal G (sfPieceEnv T n e) $)(hn:$ nsLocal G (sfPieceNumeral n z) $):
+ $ (nsLocal G (sfPieceRepDomain e z)) $ =
+ '(ax_mp (ax_mp (ax_mp (ax_mp (ax_mp pcrd_good_at sfPieceEnv_domain_induction) hb) hs) (mpbir (nsLocal_formula_eq sfPieceEnv_offset_origin) he)) hn);

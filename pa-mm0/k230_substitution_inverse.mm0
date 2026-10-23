@@ -1,0 +1,21 @@
+import "k230_specialization.mm0";
+
+def kFreshAboveClass (x .c: nat): set = $ {c | c <= x -> kFresh c x} $;
+
+theorem kFresh_above (c x: nat): $ c <= x -> kFresh c x $;
+
+theorem kReplace_undo (x y a: nat):
+ $ a != y -> kReplace y x (kReplace x y a) = a $;
+
+def kSubstUndoClass (x y .c: nat): set =
+ $ {c | kFresh c y /\ kBinderAbsent c x -> kSubst (kSubst c x y) y x = c} $;
+
+theorem kSubst_undo (c x y: nat):
+ $ kFresh c y -> kBinderAbsent c x -> kSubst (kSubst c x y) y x = c $;
+
+def kSubstBinderClass (x y z .c: nat): set =
+ $ {c | kBinderAbsent c z -> kBinderAbsent (kSubst c x y) z} $;
+
+theorem kBinderAbsent_substitution (c x y z: nat):
+ $ kBinderAbsent c z -> kBinderAbsent (kSubst c x y) z $;
+

@@ -1,0 +1,88 @@
+import "source_l_common_level_ball_use.mm1";
+
+@_ def sfLReplacementPrefixSubstLaw(t n body:nat)(.k:nat):wff =
+ $ A. k sfSubst k t (sfAllPrefix n body) = sfAllPrefix n (sfSubst (n + k) t body) $;
+
+@_ def sfLReplacementPrefixElimLaw(R:set)(n:nat)(.G .body:nat):wff =
+ $ A. G A. body (nsLocal G (sfAllPrefix n body) ->
+  nsLocal G (sfRename (sfCLBallEnv R n) 0 body)) $;
+
+theorem lrpe_subst_at(t n body k:nat):
+ $ sfLReplacementPrefixSubstLaw t n body ->
+  sfSubst k t (sfAllPrefix n body) = sfAllPrefix n (sfSubst (n + k) t body) $ =
+ (named '(!! eale j ,eqtac));
+
+theorem lrpe_subst_base(t body:nat): $ sfLReplacementPrefixSubstLaw t 0 body $ =
+ (named '(ax_gen @ eqtr (sfSubsteq3 sfAllPrefix_zero) @
+  eqtr (sfSubsteq1 (eqcom add01)) (eqcom sfAllPrefix_zero)));
+
+theorem lrpe_subst_step_each(t n body k:nat):
+ $ sfLReplacementPrefixSubstLaw t n body ->
+  sfSubst k t (sfAllPrefix (suc n) body) = sfAllPrefix (suc n) (sfSubst (suc n + k) t body) $ =
+ '(eqtrd (a1i (sfSubsteq3 sfAllPrefix_suc))
+  (eqtrd (a1i sfSubst_sfAll)
+   (eqtrd (sfAlleqd (eqtrd lrpe_subst_at
+     (a1i (sfAllPrefixeq2 (sfSubsteq1 (eqcom addSass))))))
+    (a1i (eqcom sfAllPrefix_suc)))));
+
+theorem lrpe_subst_step(t n body:nat):
+ $ sfLReplacementPrefixSubstLaw t n body -> sfLReplacementPrefixSubstLaw t (suc n) body $ =
+ (named '(!! iald k @ lrpe_subst_step_each));
+
+theorem lrpe_subst_all(t n body:nat): $ sfLReplacementPrefixSubstLaw t n body $ =
+ (named @ induct '(ind) 'n 'lrpe_subst_base 'lrpe_subst_step);
+
+pub theorem sfLReplacementPrefix_subst(t n body k:nat):
+ $ sfSubst k t (sfAllPrefix n body) = sfAllPrefix n (sfSubst (n + k) t body) $ =
+ '(ax_mp lrpe_subst_at lrpe_subst_all);
+
+theorem lrpe_at(R:set)(n G body:nat):
+ $ sfLReplacementPrefixElimLaw R n -> nsLocal G (sfAllPrefix n body) ->
+  nsLocal G (sfRename (sfCLBallEnv R n) 0 body) $ =
+ (named '(!! ealie g @ !! ealde c @ bi1d ,eqtac));
+
+theorem lrpe_zero_rename(R:set)(body:nat):
+ $ sfWf body -> sfRename (sfCLBallEnv R 0) 0 body = body $ =
+ '(eqtrd (a1i (trud (sfRename_congr_graph (a1i sfCLBallEnv_zero)))) sfRename_identity);
+
+theorem lrpe_base_cond(R:set)(H:wff)(G body:nat)
+ (hp:$ H -> nsLocal G (sfAllPrefix 0 body) $):
+ $ H -> nsLocal G (sfRename (sfCLBallEnv R 0) 0 body) $ =
+ '(mpbird (nsLocaleq2d (syl lrpe_zero_rename
+   (syl nsLocal_wf (syl (bi1 (nsLocal_formula_eq sfAllPrefix_zero)) hp))))
+  (syl (bi1 (nsLocal_formula_eq sfAllPrefix_zero)) hp));
+
+theorem lrpe_base(R:set): $ sfLReplacementPrefixElimLaw R 0 $ =
+ (named '(ax_gen @ ax_gen @ lrpe_base_cond id));
+
+theorem lrpe_outer(R:set)(H:wff)(n G body:nat)
+ (hp:$ H -> nsLocal G (sfAllPrefix (suc n) body) $):
+ $ H -> nsLocal G (sfAllPrefix n (sfSubst n (R @ n) body)) $ =
+ '(syl (bi1 (nsLocal_formula_eq
+   (eqtr sfLReplacementPrefix_subst (sfAllPrefixeq2 (sfSubsteq1 add02)))))
+  (syl nsLocal_AllE (syl (bi1 (nsLocal_formula_eq sfAllPrefix_suc)) hp)));
+
+theorem lrpe_step_cond(R:set)(H:wff)(n G body:nat)
+ (hi:$ H -> sfLReplacementPrefixElimLaw R n $)
+ (hp:$ H -> nsLocal G (sfAllPrefix (suc n) body) $):
+ $ H -> nsLocal G (sfRename (sfCLBallEnv R (suc n)) 0 body) $ =
+ '(mpbid (nsLocaleq2d (syl sfCLBallEnv_subst
+   (syl (bi1 sfWf_allPrefix) (syl nsLocal_wf hp))))
+  (mpd (lrpe_outer hp) (syl lrpe_at hi)));
+
+theorem lrpe_step_each(R:set)(n G body:nat):
+ $ sfLReplacementPrefixElimLaw R n -> nsLocal G (sfAllPrefix (suc n) body) ->
+  nsLocal G (sfRename (sfCLBallEnv R (suc n)) 0 body) $ =
+ '(exp (lrpe_step_cond anl anr));
+
+theorem lrpe_step(R:set)(n:nat):
+ $ sfLReplacementPrefixElimLaw R n -> sfLReplacementPrefixElimLaw R (suc n) $ =
+ (named '(!! iald G @ !! iald body @ lrpe_step_each));
+
+theorem lrpe_all(R:set)(n:nat): $ sfLReplacementPrefixElimLaw R n $ =
+ (named @ induct '(ind) 'n 'lrpe_base 'lrpe_step);
+
+pub theorem sfLReplacementPrefix_eliminate(R:set)(n G body:nat)
+ (hp:$ nsLocal G (sfAllPrefix n body) $):
+ $ nsLocal G (sfRename (sfCLBallEnv R n) 0 body) $ =
+ '(ax_mp (ax_mp lrpe_at lrpe_all) hp);

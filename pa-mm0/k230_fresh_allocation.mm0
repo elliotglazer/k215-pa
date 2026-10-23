@@ -1,0 +1,24 @@
+import "k230_substitution_inverse.mm0";
+
+-- A numeric fresh-name choice for an arbitrary finite context and formulas.
+def kFreshAllocate (G a b reserved: nat): nat = $ suc (((G + a) + b) + reserved) $;
+
+theorem kContextFresh_above (G x: nat):
+ $ G <= x -> kContextFresh G x $;
+
+theorem kFreshAllocate_above_context (G a b reserved: nat):
+ $ G < kFreshAllocate G a b reserved $;
+theorem kFreshAllocate_above_left (G a b reserved: nat):
+ $ a < kFreshAllocate G a b reserved $;
+theorem kFreshAllocate_above_right (G a b reserved: nat):
+ $ b < kFreshAllocate G a b reserved $;
+theorem kFreshAllocate_above_reserved (G a b reserved: nat):
+ $ reserved < kFreshAllocate G a b reserved $;
+theorem kFreshAllocate_nonzero (G a b reserved: nat):
+ $ kFreshAllocate G a b reserved != 0 $;
+theorem kFreshAllocate_context (G a b reserved: nat):
+ $ kContextFresh G (kFreshAllocate G a b reserved) $;
+theorem kFreshAllocate_left (G a b reserved: nat):
+ $ kFresh a (kFreshAllocate G a b reserved) $;
+theorem kFreshAllocate_right (G a b reserved: nat):
+ $ kFresh b (kFreshAllocate G a b reserved) $;

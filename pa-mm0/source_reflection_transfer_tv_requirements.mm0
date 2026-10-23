@@ -1,0 +1,35 @@
+import "source_reflection_transfer_tv_step.mm0";
+
+import "source_structural_induction.mm0";
+
+def sfTVRequirementsBody(D y c h:nat):nat = $ if (c = 0) (sfEq 0 0) (if (sfTag c = 1) (sfEq 0 0) (if (sfTag c = 2) (sfEq 0 0) (if (sfTag c = 3) (sfAnd (h @ (y, sfLeft c)) (h @ (y, sfRight c))) (if (sfTag c = 4) (sfAnd (h @ (y, sfLeft c)) (h @ (y, sfRight c))) (if (sfTag c = 5) (sfAnd (h @ (y, sfLeft c)) (h @ (y, sfRight c))) (if (sfTag c = 6 /\ sfRight c = 0) (sfAnd (sfReflectionEwAt D (sfImp (sfRelativize D (sfLeft c)) sfBot) y) (sfAll (sfImp (sfMem 0 (suc y)) (h @ (suc y, sfLeft c))))) (if (sfTag c = 7 /\ sfRight c = 0) (sfAnd (sfReflectionEwAt D (sfRelativize D (sfLeft c)) y) (sfAll (sfImp (sfMem 0 (suc y)) (h @ (suc y, sfLeft c))))) (sfEq 0 0)))))))) $;
+
+def sfTVRequirementsStep(D:nat)(.h:nat):set = $ \ h, sfTVRequirementsBody D (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+def sfTVRequirements(D y c:nat):nat = $ srec (sfTVRequirementsStep D) (y, c) $;
+
+def sfTVRequirementsHistory(D y c:nat)(.i:nat):nat = $ \. i e. upto (y, c), srec (sfTVRequirementsStep D) i $;
+
+theorem sfTVRequirementsStep_apply(D h:nat): $ sfTVRequirementsStep D @ h = sfTVRequirementsBody D (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+theorem sfTVRequirementsHistory_size(D y c:nat): $ sfHistoryLength (sfTVRequirementsHistory D y c) = (y, c) $;
+
+theorem sfTVRequirementsHistory_lookup(D y c e a:nat): $ (e, a) < (y, c) -> sfTVRequirementsHistory D y c @ (e, a) = sfTVRequirements D e a $;
+
+theorem sfTVRequirements_unfold(D y c:nat): $ sfTVRequirements D y c = sfTVRequirementsBody D y c (sfTVRequirementsHistory D y c) $;
+
+theorem sfTVRequirements_bot(D y:nat): $ sfTVRequirements D y sfBot = sfEq 0 0 $;
+
+theorem sfTVRequirements_sfMem(D y a b:nat): $ sfTVRequirements D y (sfMem a b) = sfEq 0 0 $;
+
+theorem sfTVRequirements_sfEq(D y a b:nat): $ sfTVRequirements D y (sfEq a b) = sfEq 0 0 $;
+
+theorem sfTVRequirements_sfAnd(D y a b:nat): $ sfTVRequirements D y (sfAnd a b) = sfAnd (sfTVRequirements D y a) (sfTVRequirements D y b) $;
+
+theorem sfTVRequirements_sfOr(D y a b:nat): $ sfTVRequirements D y (sfOr a b) = sfAnd (sfTVRequirements D y a) (sfTVRequirements D y b) $;
+
+theorem sfTVRequirements_sfImp(D y a b:nat): $ sfTVRequirements D y (sfImp a b) = sfAnd (sfTVRequirements D y a) (sfTVRequirements D y b) $;
+
+theorem sfTVRequirements_sfAll(D y a:nat): $ sfTVRequirements D y (sfAll a) = sfAnd (sfReflectionEwAt D (sfImp (sfRelativize D a) sfBot) y) (sfAll (sfImp (sfMem 0 (suc y)) (sfTVRequirements D (suc y) a))) $;
+
+theorem sfTVRequirements_sfEx(D y a:nat): $ sfTVRequirements D y (sfEx a) = sfAnd (sfReflectionEwAt D (sfRelativize D a) y) (sfAll (sfImp (sfMem 0 (suc y)) (sfTVRequirements D (suc y) a))) $;

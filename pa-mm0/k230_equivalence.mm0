@@ -1,0 +1,45 @@
+import "k230_transport.mm0";
+import "source_named_template.mm0";
+
+def kEquivalent (a b: nat): wff =
+ $ kProvable (kImp a b) /\ kProvable (kImp b a) $;
+
+theorem kEqProv_mp (G: wff) (a b: nat)
+ (ha: $ G -> kProvable a $) (hi: $ G -> kProvable (kImp a b) $):
+ $ G -> kProvable b $;
+theorem kEqProv_syl (G: wff) (a b c: nat)
+ (hab: $ G -> kProvable (kImp a b) $) (hbc: $ G -> kProvable (kImp b c) $):
+ $ G -> kProvable (kImp a c) $;
+theorem kEqProv_all (G: wff) (x a b: nat)
+ (h: $ G -> kProvable (kImp a b) $):
+ $ G -> kProvable (kImp (kAll x a) (kAll x b)) $;
+theorem kEqProv_not (G: wff) (a b: nat)
+ (h: $ G -> kProvable (kImp a b) $):
+ $ G -> kProvable (kImp (kNot b) (kNot a)) $;
+theorem kEqProv_imp (G: wff) (a ap b bp: nat)
+ (ha: $ G -> kProvable (kImp ap a) $)
+ (hb: $ G -> kProvable (kImp b bp) $):
+ $ G -> kProvable (kImp (kImp a b) (kImp ap bp)) $;
+
+theorem kEquivalent_refl (a: nat): $ kEquivalent a a $;
+theorem kEquivalent_sym (a b: nat): $ kEquivalent a b -> kEquivalent b a $;
+theorem kEquivalent_trans (a b c: nat):
+ $ kEquivalent a b /\ kEquivalent b c -> kEquivalent a c $;
+theorem kEquivalent_imp (a ap b bp: nat):
+ $ kEquivalent a ap /\ kEquivalent b bp -> kEquivalent (kImp a b) (kImp ap bp) $;
+theorem kEquivalent_not (a b: nat):
+ $ kEquivalent a b -> kEquivalent (kNot a) (kNot b) $;
+theorem kEquivalent_and (a ap b bp: nat):
+ $ kEquivalent a ap /\ kEquivalent b bp -> kEquivalent (kAnd a b) (kAnd ap bp) $;
+theorem kEquivalent_or (a ap b bp: nat):
+ $ kEquivalent a ap /\ kEquivalent b bp -> kEquivalent (kDisj a b) (kDisj ap bp) $;
+theorem kEquivalent_all (x a b: nat):
+ $ kEquivalent a b -> kEquivalent (kAll x a) (kAll x b) $;
+theorem kEquivalent_exists (x a b: nat):
+ $ kEquivalent a b -> kEquivalent (kExists x a) (kExists x b) $;
+theorem kEquivalent_guarded_all (x guard a b: nat):
+ $ kEquivalent a b ->
+   kEquivalent (kAll x (kImp guard a)) (kAll x (kImp guard b)) $;
+theorem kEquivalent_guarded_exists (x guard a b: nat):
+ $ kEquivalent a b ->
+   kEquivalent (kExists x (kAnd guard a)) (kExists x (kAnd guard b)) $;

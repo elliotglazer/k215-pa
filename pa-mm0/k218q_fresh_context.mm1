@@ -1,0 +1,42 @@
+import "k218q_contextual_quantifiers.mm1";
+import "k218q_equivalence.mm1";
+import "k218q_contexts.mm1";
+import "k218q_disjunction.mm1";
+import "k230_fresh_allocation.mm1";
+
+pub theorem k218IContextFresh_vacuous (G x: nat):
+  $ kContextFresh G x -> k218IContextVacuous G x $ =
+(named '(iald @ syl6 k218QFresh_vacuity kContextFresh_member));
+pub theorem k218IHypProvable_gen_fresh (G x a: nat) (hf: $ kContextFresh G x $):
+  $ k218IHypProvable G a -> k218IHypProvable G (kAll x a) $ =
+'(k218IHypProvable_gen (ax_mp k218IContextFresh_vacuous hf));
+pub theorem k218QEquivForward (G: wff) (H a b: nat)
+ (he: $ G -> k218IEquivalent a b $) (ha: $ G -> k218IHypProvable H a $):
+ $ G -> k218IHypProvable H b $ =
+'(sylc k218IHypProvable_mp ha (syl k218IHypProvable_seed (syl anl he)));
+pub theorem k218QEquivBackward (G: wff) (H a b: nat)
+ (he: $ G -> k218IEquivalent a b $) (hb: $ G -> k218IHypProvable H b $):
+ $ G -> k218IHypProvable H a $ =
+'(sylc k218IHypProvable_mp hb (syl k218IHypProvable_seed (syl anr he)));
+pub theorem k218QHypTransport (G: wff) (H a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> k218IHypProvable H b $):
+ $ G -> k218IHypProvable H a $ = '(mpbird (k218IHypProvableeq2d he) hp);
+pub theorem k218QProvTransport (G: wff) (a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> k218QProvable b $):
+ $ G -> k218QProvable a $ = '(mpbird (k218QProvableeqd he) hp);
+pub theorem k218QHypMp (G: wff) (H a b: nat)
+ (ha: $ G -> k218IHypProvable H a $) (hi: $ G -> k218IHypProvable H (kImp a b) $):
+ $ G -> k218IHypProvable H b $ = '(sylc k218IHypProvable_mp ha hi);
+pub theorem k218IHyp_andI (H a b: nat):
+ $ k218IHypProvable H a -> k218IHypProvable H b -> k218IHypProvable H (kAnd a b) $ =
+'(syl (com12 k218IHypProvable_mp)
+  (mpi (ax_mp k218IHypProvable_seed k218IPropAndIntro) k218IHypProvable_mp));
+pub theorem k218IHyp_orE (H a b c: nat):
+ $ k218IHypProvable H (kImp (kNot a) b) ->
+   k218IHypProvable (a : H) c -> k218IHypProvable (b : H) c -> k218IHypProvable H c $ =
+'(exp @ exp @ sylc k218IHypProvable_mp (syl anl anl)
+  (sylc k218IHypProvable_mp (syl k218IHypProvable_deduction anr)
+    (sylc k218IHypProvable_mp (syl k218IHypProvable_deduction (syl anr anl))
+      (a1i (ax_mp k218IHypProvable_seed k218IPropOrElim)))));
+pub theorem k218IContextSupports_weaken (H a: nat): $ k218IContextSupports (a : H) H $ =
+(named '(k218IContextSupports_inclusion (ax_gen (syl (bi2 lmemS) orr))));

@@ -1,0 +1,82 @@
+import "k215_calculus_iterator_algebra.mm0";
+
+def k215InstructionMake (ac x y r: nat): nat =
+ $ if (ac = 0) (k215CmdNIP r)
+   (if (ac = 1) (k215CmdDROP r)
+     (if (ac = 2) (k215CmdMP x r) (k215CmdAX (ac - 3) x y r))) $;
+
+def k215InstructionPrefix (c r: nat): nat =
+ $ k215InstructionMake (fst c) (fst (snd c)) (fst (snd (snd c))) r $;
+
+theorem k215InstructionPrefix_NIP (r: nat):
+ $ k215InstructionPrefix (k215CmdNIP 0) r = k215CmdNIP r $;
+
+theorem k215InstructionPrefix_DROP (r: nat):
+ $ k215InstructionPrefix (k215CmdDROP 0) r = k215CmdDROP r $;
+
+theorem k215InstructionPrefix_MP (x r: nat):
+ $ k215InstructionPrefix (k215CmdMP x 0) r = k215CmdMP x r $;
+
+theorem k215InstructionPrefix_AX (c y x r: nat):
+ $ k215InstructionPrefix (k215CmdAX c y x 0) r = k215CmdAX c y x r $;
+
+def k215ProgramStep (.z: nat): set =
+ $ \ z, suc (k215InstructionPrefix (fst z) (pi22 z)) $;
+
+def k215ProgramPrefix (L r: nat): nat = $ lrec r k215ProgramStep L $;
+
+theorem k215ProgramPrefix_nil (r: nat): $ k215ProgramPrefix 0 r = r $;
+
+theorem k215ProgramPrefix_cons (c L r: nat):
+ $ k215ProgramPrefix (c : L) r = suc (k215InstructionPrefix c (k215ProgramPrefix L r)) $;
+
+theorem k215ProgramPrefix_append (L M r: nat):
+ $ k215ProgramPrefix (L ++ M) r = k215ProgramPrefix L (k215ProgramPrefix M r) $;
+
+theorem k215ProgramPrefix_cons_positive (c L r: nat):
+ $ k215ProgramPrefix (c : L) r != 0 $;
+
+def k215Rebase (q pl np: nat): nat =
+ $ k218EnumState pl np (k218EnumTW q) (k218EnumWS q) (k218EnumD q) (k218EnumH q) $;
+
+theorem k215Rebase_state (pl np t w d h r n: nat):
+ $ k215Rebase (k218EnumState pl np t w d h) r n = k218EnumState r n t w d h $;
+
+theorem k215Rebase_rebase (q r n s m: nat):
+ $ k215Rebase (k215Rebase q r n) s m = k215Rebase q s m $;
+
+def k215RunsTo (n s t: nat): wff =
+ $ k215EnumIter n s = 0 \/ k215EnumIter n s = suc t $;
+
+theorem k215RunsTo_refl (s: nat): $ k215RunsTo 0 s s $;
+
+theorem k215RunsTo_comp (n m s t u: nat):
+ $ k215RunsTo n s t -> k215RunsTo m t u -> k215RunsTo (n + m) s u $;
+
+def k215ProgramRuns (L q q1: nat) (.r .np: nat): wff =
+ $ A. r A. np
+   k215RunsTo (len L) (k215Rebase q (k215ProgramPrefix L r) np) (k215Rebase q1 r np) $;
+
+def k215Realizes (L a: nat) (.t .w: nat): wff =
+ $ A. t A. w k215ProgramRuns L (k218EnumState 0 0 t w 0 0) (k218EnumState 0 0 a w 0 0) $;
+
+def k215Realizable (a: nat) (.L: nat): wff = $ E. L k215Realizes L a $;
+
+theorem k215ProgramRuns_at (L q q1 r np: nat):
+ $ k215ProgramRuns L q q1 ->
+   k215RunsTo (len L) (k215Rebase q (k215ProgramPrefix L r) np) (k215Rebase q1 r np) $;
+
+theorem k215Realizes_at (L a t w: nat):
+ $ k215Realizes L a -> k215ProgramRuns L (k218EnumState 0 0 t w 0 0) (k218EnumState 0 0 a w 0 0) $;
+
+theorem k215Realizable_intro (L a: nat): $ k215Realizes L a -> k215Realizable a $;
+
+theorem k215ProgramRuns_nil (q: nat): $ k215ProgramRuns 0 q q $;
+
+theorem k215ProgramRuns_append (L M q q1 q2: nat):
+ $ k215ProgramRuns L q q1 -> k215ProgramRuns M q1 q2 -> k215ProgramRuns (L ++ M) q q2 $;
+
+theorem k215Realizes_run (L a t w r np: nat):
+ $ k215Realizes L a ->
+   k215RunsTo (len L) (k218EnumState (k215ProgramPrefix L r) np t w 0 0)
+     (k218EnumState r np a w 0 0) $;

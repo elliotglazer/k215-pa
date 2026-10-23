@@ -1,0 +1,18 @@
+import "source_piece_pcf_bounds.mm0";
+
+def sfPieceQMap (.i: nat): set =
+ $ \ i, if (i = 1) 2 (if (i = 2) 1 i) $;
+
+def sfPieceQ (domain level count phi: nat): nat =
+ $ sfRename sfPieceQMap 0 (sfPieceDn count (sfPieceD0 domain level phi)) $;
+
+theorem sfPieceQMap_value (i: nat):
+ $ sfPieceQMap @ i = if (i = 1) 2 (if (i = 2) 1 i) $;
+
+theorem sfPieceQ_wf (domain level count phi: nat):
+ $ sfWf (sfPieceQ domain level count phi) $;
+
+theorem sfPieceQ_bound (domain level count n phi: nat):
+ $ sfBound 1 domain -> sfBound 2 level ->
+   sfBound (suc (suc count) + n) phi ->
+   sfBound (suc (suc (suc n))) (sfPieceQ domain level count phi) $;

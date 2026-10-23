@@ -1,0 +1,61 @@
+-- Distinct K215 command iteration; source and literal correspondence are separate.
+import "k215_calculus_commands.mm1";
+
+do (apply (register-eqd 'k215EnumStep) '(k215EnumStepeqd));
+do (apply (register-eqd 'k218EnumOptionGood) '(k218EnumOptionGoodeqd));
+
+-- The pinned K215 blank startup reaches this clean logical seed.
+-- Its relation to the literal startup is proved in the runtime layer.
+@_ def k215EnumInitial: nat = $ k218EnumState 0 4 0 0 0 0 $;
+pub theorem k215EnumInitial_good: $ k218EnumStateGood k215EnumInitial $ =
+ '(trud @ k218EnumGood_intro (a1i k218Provable_true) (a1i k218Provable_true) (a1i k218GoodStack_zero));
+
+@_ def k215EnumAdvance (r: nat): nat = $ if (r = 0) 0 (k215EnumStep (r - 1)) $;
+@_ abstract def k215EnumIter (n s .r: nat): nat =
+  $ rec (suc s) (\ r, k215EnumAdvance r) n $;
+@_ abstract def k215EnumHalts (.n: nat): wff = $ E. n k215EnumIter n k215EnumInitial = 0 $;
+
+theorem k215EnumOption_eq (a b: nat) (h: $ a = b $):
+  $ k218EnumOptionGood a <-> k218EnumOptionGood b $ =
+'(ax_mp (k218EnumOptionGoodeqd id) h);
+pub theorem k215EnumAdvance_zero: $ k215EnumAdvance 0 = 0 $ = '(ifpos eqid);
+pub theorem k215EnumAdvance_some (s: nat): $ k215EnumAdvance (suc s) = k215EnumStep s $ =
+'(eqtr (ifneg peano1) (ax_mp (k215EnumStepeqd id) sucsub1));
+pub theorem k215EnumIter_zero (s: nat): $ k215EnumIter 0 s = suc s $ = (named 'rec0);
+pub theorem k215EnumIter_succ (n s: nat):
+  $ k215EnumIter (suc n) s = k215EnumAdvance (k215EnumIter n s) $ =
+'(eqtr recS @ ! applame $ k215EnumIter n s $ _ r _ k215EnumAdvanceeq);
+
+theorem k215EnumAdvance_good_zero:
+  $ k218EnumOptionGood 0 -> k218EnumOptionGood (k215EnumAdvance 0) $ =
+'(bi2 (k215EnumOption_eq k215EnumAdvance_zero));
+theorem k215EnumAdvance_good_succ (s: nat):
+  $ k218EnumOptionGood (suc s) -> k218EnumOptionGood (k215EnumAdvance (suc s)) $ =
+'(syl (bi2 (k215EnumOption_eq k215EnumAdvance_some)) @
+  syl k215EnumStep_good (bi1 k218EnumOption_some));
+pub theorem k215EnumAdvance_good (r: nat):
+  $ k218EnumOptionGood r -> k218EnumOptionGood (k215EnumAdvance r) $ =
+(named @ induct '(ind) 'r 'k215EnumAdvance_good_zero '(a1i k215EnumAdvance_good_succ));
+
+theorem k215EnumIter_good_zero (s: nat):
+  $ k218EnumStateGood s -> k218EnumOptionGood (k215EnumIter 0 s) $ =
+'(syl (bi2 (k215EnumOption_eq k215EnumIter_zero)) (bi2 k218EnumOption_some));
+theorem k215EnumIter_good_step (n s: nat):
+  $ k218EnumStateGood s /\ k218EnumOptionGood (k215EnumIter n s) ->
+    k218EnumOptionGood (k215EnumIter (suc n) s) $ =
+'(syl (bi2 (k215EnumOption_eq k215EnumIter_succ)) (syl k215EnumAdvance_good anr));
+pub theorem k215EnumIter_good (n s: nat):
+  $ k218EnumStateGood s -> k218EnumOptionGood (k215EnumIter n s) $ =
+(named @ induct '(indd) 'n 'k215EnumIter_good_zero 'k215EnumIter_good_step);
+pub theorem k215EnumIter_initial_good (n: nat):
+  $ k218EnumOptionGood (k215EnumIter n k215EnumInitial) $ =
+'(k215EnumIter_good k215EnumInitial_good);
+theorem k215EnumHalts_at (n: nat): $ k215EnumIter n k215EnumInitial = 0 -> k218Provable 1 $ =
+'(syl (bi1 k218EnumOption_zero) @
+  mpbid (k218EnumOptionGoodeqd id) (a1i k215EnumIter_initial_good));
+theorem k215EnumHalts_raw: $ k215EnumHalts -> k218Inconsistent $ =
+(named '(eex k215EnumHalts_at));
+pub theorem k215EnumHalts_sound: $ k215EnumHalts -> k215Inconsistent $ =
+ '(syl k215Cal_Inconsistent_reverse k215EnumHalts_raw);
+pub theorem k215Enum_nonhalting: $ ~k215Inconsistent -> ~k215EnumHalts $ =
+ '(con3 k215EnumHalts_sound);

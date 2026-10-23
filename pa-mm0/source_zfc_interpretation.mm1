@@ -1,0 +1,77 @@
+import "source_relative_internal.mm1";
+
+def sfZFCFixedImages (T: set) (D .a: nat): wff = $ A. a (zfcFixed a -> sfTheoryProvable T (sfRelativize D a)) $;
+
+def sfZFCSeparationImages (T: set) (D .phi .n: nat): wff = $ A. phi A. n (sfBound (suc n) phi -> sfTheoryProvable T (sfRelativize D (zfcSeparationCode phi n))) $;
+
+def sfZFCReplacementImages (T: set) (D .phi .n: nat): wff = $ A. phi A. n (sfBound (suc (suc n)) phi -> sfTheoryProvable T (sfRelativize D (zfcReplacementCode phi n))) $;
+
+def sfZFCImageFamilies (T: set) (D: nat): wff = $ sfZFCFixedImages T D /\ (sfZFCSeparationImages T D /\ sfZFCReplacementImages T D) $;
+
+pub theorem sfZFCFixedImages_at (T: set) (D a: nat):
+ $ sfZFCFixedImages T D -> zfcFixed a -> sfTheoryProvable T (sfRelativize D a) $ =
+(named '(!! ealie x @ bi1d ,eqtac));
+
+pub theorem sfZFCSeparationImages_at (T: set) (D phi n: nat):
+ $ sfZFCSeparationImages T D -> sfBound (suc n) phi -> sfTheoryProvable T (sfRelativize D (zfcSeparationCode phi n)) $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+theorem sfZFCSeparation_witness_image (T: set) (D a phi n: nat):
+ $ sfZFCSeparationImages T D -> (sfBound (suc n) phi /\ a = zfcSeparationCode phi n) -> sfTheoryProvable T (sfRelativize D a) $ =
+'(exp @ mpbird (sfTheoryProvable_congr (sfRelativizeeq2d (syl anr anr))) (mpd (syl anl anr) (syl sfZFCSeparationImages_at anl)));
+
+pub theorem sfZFCClosedSeparation_image (T: set) (D a: nat):
+ $ sfZFCSeparationImages T D -> zfcClosedSeparation a -> sfTheoryProvable T (sfRelativize D a) $ =
+(named '(syl5 anr (eexd @ eexd sfZFCSeparation_witness_image)));
+
+pub theorem sfZFCReplacementImages_at (T: set) (D phi n: nat):
+ $ sfZFCReplacementImages T D -> sfBound (suc (suc n)) phi -> sfTheoryProvable T (sfRelativize D (zfcReplacementCode phi n)) $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+theorem sfZFCReplacement_witness_image (T: set) (D a phi n: nat):
+ $ sfZFCReplacementImages T D -> (sfBound (suc (suc n)) phi /\ a = zfcReplacementCode phi n) -> sfTheoryProvable T (sfRelativize D a) $ =
+'(exp @ mpbird (sfTheoryProvable_congr (sfRelativizeeq2d (syl anr anr))) (mpd (syl anl anr) (syl sfZFCReplacementImages_at anl)));
+
+pub theorem sfZFCClosedReplacement_image (T: set) (D a: nat):
+ $ sfZFCReplacementImages T D -> zfcClosedReplacement a -> sfTheoryProvable T (sfRelativize D a) $ =
+(named '(syl5 anr (eexd @ eexd sfZFCReplacement_witness_image)));
+
+pub theorem sfZFCImageFamilies_axiom (T: set) (D a: nat):
+ $ sfZFCImageFamilies T D -> a e. zfcAxioms -> sfTheoryProvable T (sfRelativize D a) $ =
+'(syl5 (bi1 zfcAxioms_value) @ eord (syl sfZFCFixedImages_at anl) (eord (syl sfZFCClosedSeparation_image (syl anl anr)) (syl sfZFCClosedReplacement_image (syl anr anr))));
+
+pub theorem sfZFCImageFamilies_relative (T: set) (D: nat):
+ $ sfZFCImageFamilies T D -> sfRelativeAxiomImages zfcAxioms T D $ =
+(named '(iald @ syl6 (bi2 sfRelativeAxiomClass_value) sfZFCImageFamilies_axiom));
+
+pub theorem sfZFCRelative_axiom_at (T: set) (D a: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> a e. zfcAxioms -> sfTheoryProvable T (sfRelativize D a) $ =
+'(syl6 (bi1 sfRelativeAxiomClass_value) ssel);
+
+pub theorem sfZFCRelative_fixed (T: set) (D: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> sfZFCFixedImages T D $ =
+(named '(iald @ syl5 zfcFixed_member sfZFCRelative_axiom_at));
+
+pub theorem sfZFCRelative_separation (T: set) (D: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> sfZFCSeparationImages T D $ =
+(named '(iald @ iald @ syl5 zfcSeparationCode_member sfZFCRelative_axiom_at));
+
+pub theorem sfZFCRelative_replacement (T: set) (D: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> sfZFCReplacementImages T D $ =
+(named '(iald @ iald @ syl5 zfcReplacementCode_member sfZFCRelative_axiom_at));
+
+pub theorem sfZFCImageFamilies_from_relative (T: set) (D: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> sfZFCImageFamilies T D $ =
+'(iand sfZFCRelative_fixed (iand sfZFCRelative_separation sfZFCRelative_replacement));
+
+pub theorem sfZFCImageFamilies_iff (T: set) (D: nat):
+ $ sfZFCImageFamilies T D <-> sfRelativeAxiomImages zfcAxioms T D $ =
+'(ibii sfZFCImageFamilies_relative sfZFCImageFamilies_from_relative);
+
+pub theorem sfZFCImageFamilies_transfer (T: set) (D a: nat) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+ $ sfZFCImageFamilies T D -> sfTheoryProvable T (sfEx D) -> sfBound 0 a -> zfcProvable a -> sfTheoryProvable T (sfRelativize D a) $ =
+(named '(exp @ exp @ syl5 (bi2 sfTheoryProvable_zfc) @ mpd anr @ sfRelativeTheory_transfer_d ht hd (syl sfZFCImageFamilies_relative (syl anl anl)) (syl anr anl)));
+
+pub theorem sfZFCImageFamilies_refutation (T: set) (D: nat) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+ $ sfZFCImageFamilies T D -> sfTheoryProvable T (sfEx D) -> zfcInconsistent -> sfTheoryProvable T sfBot $ =
+(named '(exp @ syl5 (bi2 sfTheoryProvable_zfc) @ sfRelativeTheory_refutation_d ht hd (syl sfZFCImageFamilies_relative anl) anr));

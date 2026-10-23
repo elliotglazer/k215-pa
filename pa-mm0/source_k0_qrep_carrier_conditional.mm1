@@ -1,0 +1,57 @@
+import "source_k0_qrep_carrier.mm1";
+
+@_ abstract def qrcSafeEnvironment (P: wff) (E: set) (.i: nat): set = $ {i | ifp P (i e. E) (i e. sqZeroEnvironment)} $;
+
+@_ abstract def qrcResult (E: set) (k phi: nat): nat = $ kImp kEmptyMarker (sqQuote E 1 k 0 (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi))) $;
+
+theorem qrcEnvironment_positive (P: wff) (E: set):
+ $ P -> qrcSafeEnvironment P E == E $ =
+(named '(!! eqab1d i ifppos));
+
+theorem qrcEnvironment_negative (P: wff) (E: set):
+ $ ~P -> qrcSafeEnvironment P E == sqZeroEnvironment $ =
+(named '(!! eqab1d i ifpneg));
+
+theorem qrcSafe_base (P: wff) (k: nat) (hp: $ P -> 2 < k $):
+ $ 2 < if P k 3 $ =
+'(cases (mpbird (lteq2d ifpos) hp) (mpbird (lteq2d ifneg) (a1i ltsucid)));
+
+theorem qrcSafe_bound (P: wff) (n phi: nat) (hp: $ P -> sfBound n phi $):
+ $ sfBound n (if P phi sfBot) $ =
+'(cases (mpbird (srecpeq2d (preq2d ifpos)) hp) (mpbird (srecpeq2d (preq2d ifneg)) (a1i sfBound_bot)));
+
+theorem qrcZeroEnvironment_below (n: nat):
+ $ sqEnvBelow sqZeroEnvironment n 3 $ =
+(named '(ax_gen (a1i (mpbir (lteq1 sqZeroEnvironment_value) lt01S))));
+
+theorem qrcEnvironment_below_positive (P: wff) (E: set) (n k: nat):
+ $ P -> (sqEnvBelow (qrcSafeEnvironment P E) n (if P k 3) <-> sqEnvBelow E n k) $ =
+(named '(!! aleqd i @ imeq2d (lteqd (appeq1d qrcEnvironment_positive) ifpos)));
+
+theorem qrcEnvironment_below_negative (P: wff) (E: set) (n k: nat):
+ $ ~P -> (sqEnvBelow (qrcSafeEnvironment P E) n (if P k 3) <-> sqEnvBelow sqZeroEnvironment n 3) $ =
+(named '(!! aleqd i @ imeq2d (lteqd (appeq1d qrcEnvironment_negative) ifneg)));
+
+theorem qrcSafe_environment (P: wff) (E: set) (n k: nat) (hp: $ P -> sqEnvBelow E n k $):
+ $ sqEnvBelow (qrcSafeEnvironment P E) n (if P k 3) $ =
+'(cases (mpbird qrcEnvironment_below_positive hp) (mpbird qrcEnvironment_below_negative (a1i qrcZeroEnvironment_below)));
+
+theorem qrcResult_recover (P: wff) (E: set) (k phi: nat):
+ $ P -> qrcResult (qrcSafeEnvironment P E) (if P k 3) (if P phi sfBot) = qrcResult E k phi $ =
+'(qrcResulteqd qrcEnvironment_positive ifpos ifpos);
+
+theorem qrcSafe_image (P: wff) (E: set) (n k phi: nat)
+ (hf: $ P -> sfBound (suc (suc n)) phi $) (hk: $ P -> 2 < k $)
+ (he: $ P -> sqEnvBelow E n k $):
+ $ k218QProvable (qrcResult (qrcSafeEnvironment P E) (if P k 3) (if P phi sfBot)) $ =
+'(sfK0QRepCarrier_image (qrcSafe_bound hf) (qrcSafe_base hk) (qrcSafe_environment he));
+
+pub theorem sfK0QRepCarrier_image_d (G: wff) (E: set) (n k phi: nat)
+ (hf: $ G -> sfBound (suc (suc n)) phi $) (hk: $ G -> 2 < k $)
+ (he: $ G -> sqEnvBelow E n k $):
+ $ G -> k218QProvable (kImp kEmptyMarker (sqQuote E 1 k 0 (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi)))) $ =
+'(mpbid (k218QProvableeqd qrcResult_recover) (a1i (qrcSafe_image hf hk he)));
+
+pub theorem sfK0QRepCarrier_image_curried (E: set) (n k phi: nat):
+ $ sfBound (suc (suc n)) phi -> 2 < k -> sqEnvBelow E n k -> k218QProvable (kImp kEmptyMarker (sqQuote E 1 k 0 (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi)))) $ =
+'(exp (exp (sfK0QRepCarrier_image_d anll (syl anr anl) anr)));

@@ -1,0 +1,19 @@
+import "k230_bootstrap.mm0";
+import "k230_vacuity.mm0";
+
+-- The fixed marker and domain assumptions of the quotient interpretation
+-- can be eliminated using actual K proofs of their existential closures.
+def kQuotientDomain: nat = $ kMem 1 3 $;
+def kQuotientContext: nat = $ kQuotientDomain : (kEmptyMarker : 0) $;
+
+theorem kEmptyMarker_fresh_three: $ kFresh kEmptyMarker 3 $;
+theorem kEmptyMarker_context_fresh_three: $ kContextFresh (kEmptyMarker : 0) 3 $;
+
+theorem kBootstrap_domain_discharge:
+ $ kHypProvable kQuotientContext kF -> kHypProvable (kEmptyMarker : 0) kF $;
+
+theorem kBootstrap_marker_discharge:
+ $ kHypProvable (kEmptyMarker : 0) kF -> kProvable kF $;
+
+theorem kBootstrap_refutation:
+ $ kHypProvable kQuotientContext kF -> kProvable kF $;

@@ -1,0 +1,18 @@
+import "source_l_replacement_core_assembly.mm0";
+
+import "source_piece_pcf_rep_r37_kernel_cl_carrier.mm0";
+
+-- Rocq Z_cl `cl_op_g` at k = 5, for an arbitrary base B:
+-- forall A B C R s (Cl(B,C) -> R in C -> s in C -> A in C -> exists Y (Y in C /\ Op5(R,s,A,Y))),
+-- where Op5(R,s,A,Y) is `Op 5 R s A Y` = SepOf A Y (SC R s .) = sfLSeparationOp5 R s A Y.
+-- Open layout: s = 0, R = 1, C = 2, B = 3, A = 4.
+def sfLClOp5Body: nat =
+ $ sfImp (sfPieceRepClosure 3 2) (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfImp (sfMem 4 2)
+   (sfEx (sfAnd (sfMem 0 3) (sfLSeparationOp5 2 1 5 0)))))) $;
+
+def sfLClOp5Law: nat = $ sfAll (sfAll (sfAll (sfAll (sfAll sfLClOp5Body)))) $;
+
+-- sfLOp5Law from cl_op_g at k = 5 and the carrier law A in Cl(A u {A}) (Rocq `clA_in`,
+-- natively proved by the r37 kernel).
+theorem sfLOp5Law_from_cl_op5(hO:$ sfTheoryProvable zfrAxioms sfLClOp5Law $):
+ $ sfTheoryProvable zfrAxioms sfLOp5Law $;

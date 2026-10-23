@@ -1,0 +1,31 @@
+import "bb215_arithmetic_formula_depth_twenty_sat.mm0";
+
+import "pa_source_interpretation_nat_term_assignment.mm0";
+
+def bb215ArithmeticFormulaDepthTwentyoneSatBody (E: set) (c h .x: nat): wff = $ ifp (c = 0) (0 != 0) (ifp (sfTag c = 1) (bb215ArithmeticFormulaTermValue E (sfLeft c) = bb215ArithmeticFormulaTermValue E (sfRight c)) (ifp (sfTag c = 3) (sfLeft c e. h /\ sfRight c e. h) (ifp (sfTag c = 4) (sfLeft c e. h \/ sfRight c e. h) (ifp (sfTag c = 5) (sfLeft c e. h -> sfRight c e. h) (ifp (sfTag c = 6 /\ sfRight c = 0) (A. x bb215ArithmeticFormulaDepthTwentySat (paNatTermConsEnvironment E x) (sfLeft c)) (ifp (sfTag c = 7 /\ sfRight c = 0) (E. x bb215ArithmeticFormulaDepthTwentySat (paNatTermConsEnvironment E x) (sfLeft c)) (0 != 0))))))) $;
+
+def bb215ArithmeticFormulaDepthTwentyoneSatStep (E: set) (.c .h: nat): set = $ S\ c, {h | bb215ArithmeticFormulaDepthTwentyoneSatBody E c h} $;
+
+def bb215ArithmeticFormulaDepthTwentyoneSat (E: set) (c: nat): wff = $ srecp (bb215ArithmeticFormulaDepthTwentyoneSatStep E) c $;
+
+def bb215ArithmeticFormulaDepthTwentyoneSatPrevious (E: set) (c .i: nat): nat = $ sep (upto c) {i | srecp (bb215ArithmeticFormulaDepthTwentyoneSatStep E) i} $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSatStep_value (E: set) (c h: nat): $ (c, h) e. bb215ArithmeticFormulaDepthTwentyoneSatStep E <-> bb215ArithmeticFormulaDepthTwentyoneSatBody E c h $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSatPrevious_value (E: set) (c a: nat): $ a e. bb215ArithmeticFormulaDepthTwentyoneSatPrevious E c <-> a < c /\ bb215ArithmeticFormulaDepthTwentyoneSat E a $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSat_unfold (E: set) (c: nat): $ bb215ArithmeticFormulaDepthTwentyoneSat E c <-> bb215ArithmeticFormulaDepthTwentyoneSatBody E c (bb215ArithmeticFormulaDepthTwentyoneSatPrevious E c) $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSat_false (E: set): $ bb215ArithmeticFormulaDepthTwentyoneSat E paFormulaFalse <-> 0 != 0 $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSat_equal (E: set) (a b: nat): $ bb215ArithmeticFormulaDepthTwentyoneSat E (paFormulaEqual a b) <-> bb215ArithmeticFormulaTermValue E a = bb215ArithmeticFormulaTermValue E b $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSat_and (E: set) (a b: nat): $ bb215ArithmeticFormulaDepthTwentyoneSat E (paFormulaAnd a b) <-> (bb215ArithmeticFormulaDepthTwentyoneSat E a /\ bb215ArithmeticFormulaDepthTwentyoneSat E b) $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSat_or (E: set) (a b: nat): $ bb215ArithmeticFormulaDepthTwentyoneSat E (paFormulaOr a b) <-> (bb215ArithmeticFormulaDepthTwentyoneSat E a \/ bb215ArithmeticFormulaDepthTwentyoneSat E b) $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSat_imp (E: set) (a b: nat): $ bb215ArithmeticFormulaDepthTwentyoneSat E (paFormulaImp a b) <-> (bb215ArithmeticFormulaDepthTwentyoneSat E a -> bb215ArithmeticFormulaDepthTwentyoneSat E b) $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSat_all (E: set) (a: nat) {x: nat}: $ bb215ArithmeticFormulaDepthTwentyoneSat E (paFormulaAll a) <-> A. x bb215ArithmeticFormulaDepthTwentySat (paNatTermConsEnvironment E x) a $;
+
+theorem bb215ArithmeticFormulaDepthTwentyoneSat_ex (E: set) (a: nat) {x: nat}: $ bb215ArithmeticFormulaDepthTwentyoneSat E (paFormulaEx a) <-> E. x bb215ArithmeticFormulaDepthTwentySat (paNatTermConsEnvironment E x) a $;

@@ -1,0 +1,28 @@
+import "k230_equality.mm0";
+
+theorem kTransport_imp_lemma (h a ap b bp: nat): $ kProvable (kImp (kImp h (kImp ap a)) (kImp (kImp h (kImp b bp)) (kImp h (kImp (kImp a b) (kImp ap bp))))) $;
+
+theorem kTransport_imp (h a ap b bp: nat)
+  (ha: $ kProvable (kImp h (kImp ap a)) $)
+  (hb: $ kProvable (kImp h (kImp b bp)) $):
+  $ kProvable (kImp h (kImp (kImp a b) (kImp ap bp))) $;
+
+theorem kTransport_combine_lemma (h r s a b: nat): $ kProvable (kImp (kImp h r) (kImp (kImp h s) (kImp (kImp r (kImp s (kImp a b))) (kImp h (kImp a b))))) $;
+
+theorem kTransport_combine (h r s a b: nat)
+  (hr: $ kProvable (kImp h r) $)
+  (hs: $ kProvable (kImp h s) $)
+  (ht: $ kProvable (kImp r (kImp s (kImp a b))) $):
+  $ kProvable (kImp h (kImp a b)) $;
+
+theorem kEquality_member_transport (a ap b bp: nat): $ kProvable (kImp (kEq a ap) (kImp (kEq b bp) (kImp (kMem a b) (kMem ap bp)))) $;
+
+theorem kEquality_equal_transport (a ap b bp: nat): $ kProvable (kImp (kEq a ap) (kImp (kEq b bp) (kImp (kEq a b) (kEq ap bp)))) $;
+
+theorem kTransport_refl (h a: nat):
+  $ kProvable (kImp h (kImp a a)) $;
+
+theorem kTransport_all (h z a b: nat)
+  (hv: $ kProvable (kImp h (kAll z h)) $)
+  (hab: $ kProvable (kImp h (kImp a b)) $):
+  $ kProvable (kImp h (kImp (kAll z a) (kAll z b))) $;

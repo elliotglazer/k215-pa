@@ -1,0 +1,220 @@
+import "source_l_choice_defs.mm1";
+
+-- Instantiating the premise sentences of the Choice-in-L argument.
+
+theorem chi_d_rename (R: set) (x: nat): $ sfRename R 0 (sfLChoiceD x) = sfLChoiceD (R @ x) $ =
+'(eqtr (sfCLInstance_rename sfLDomain_bound) (sfLChoiceDeq sfRenameIndex_zero));
+
+theorem chi_e1 (d: nat): $ sqEnvCons d sfIdentityMap @ 0 = d $ = 'sqEnvCons_zero;
+
+theorem chi_ord_inst (d: nat):
+ $ sfRename (sqEnvCons d sfIdentityMap) 0 (sfCLOrdinalAt 0) = sfCLOrdinalAt d $ =
+'(eqtr cl2_ord_rename (sfCLOrdinalAteq chi_e1));
+
+theorem chi_dwf (x: nat): $ sfWf (sfLChoiceD x) $ = 'sfRename_wf;
+
+theorem chi_relwf (c: nat): $ sfWf (sfRelativize sfLDomain c) $ =
+'(ax_mp sfRelativize_wf sfLDomain_wf);
+
+theorem chi_relren (R: set) (n c: nat) (hc: $ sfWf c $):
+ $ sfRename R n (sfRelativize sfLDomain c) = sfRelativize sfLDomain (sfRename R n c) $ =
+'(ax_mp (ax_mp sfRelativize_rename sfLDomain_bound) hc);
+
+------------------------------------------------------------------------
+-- Plain premise sentences, instantiated by renaming.
+
+theorem chi_ordl_body_wf: $ sfWf (sfImp (sfCLOrdinalAt 0) (sfLChoiceD 0)) $ =
+'(ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf) chi_dwf);
+
+theorem chi_ordl_eq (d: nat):
+ $ sfRename (sqEnvCons d sfIdentityMap) 0 (sfImp (sfCLOrdinalAt 0) (sfLChoiceD 0)) =
+   sfImp (sfCLOrdinalAt d) (sfLChoiceD d) $ =
+'(eqtr sfRename_sfImp (nsImp_eq chi_ord_inst (eqtr chi_d_rename (sfLChoiceDeq chi_e1))));
+
+pub theorem sfLChoice_ordl_use (G d: nat) (h: $ nsLocal G sfLChoiceOrdL $)
+ (hO: $ nsLocal G (sfCLOrdinalAt d) $): $ nsLocal G (sfLChoiceD d) $ =
+'(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq chi_ordl_eq)
+  (ax_mp (cl2_all_cons chi_ordl_body_wf)
+   (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all chi_ordl_body_wf))) h)))) hO);
+
+theorem chi_od_body_wf: $ sfWf (sfImp (sfCLOrdinalAt 0) (sfRelativize sfLDomain (sfCLOrdinalAt 0))) $ =
+'(ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf) chi_relwf);
+
+theorem chi_od_eq (d: nat):
+ $ sfRename (sqEnvCons d sfIdentityMap) 0 (sfImp (sfCLOrdinalAt 0) (sfRelativize sfLDomain (sfCLOrdinalAt 0))) =
+   sfImp (sfCLOrdinalAt d) (sfRelativize sfLDomain (sfCLOrdinalAt d)) $ =
+'(eqtr sfRename_sfImp (nsImp_eq chi_ord_inst
+  (eqtr (chi_relren sfCLOrdinalAt_wf) (sfRelativizeeq2 chi_ord_inst))));
+
+pub theorem sfLChoice_orddown_use (G d: nat) (h: $ nsLocal G sfLChoiceOrdDown $)
+ (hO: $ nsLocal G (sfCLOrdinalAt d) $):
+ $ nsLocal G (sfRelativize sfLDomain (sfCLOrdinalAt d)) $ =
+'(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq chi_od_eq)
+  (ax_mp (cl2_all_cons chi_od_body_wf)
+   (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all chi_od_body_wf))) h)))) hO);
+
+theorem chi_unique_body_wf:
+ $ sfWf (sfImp (sfCLOrdinalAt 2) (sfImp (sfCLHierarchyAt 2 1) (sfImp (sfCLHierarchyAt 2 0) (sfEq 1 0)))) $ =
+'(ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf) (ax_mp (ax_mp sfWf_imp sfCLHierarchyAt_wf)
+  (ax_mp (ax_mp sfWf_imp sfCLHierarchyAt_wf) sfWf_eq)));
+
+theorem chi_e3_2 (a y z: nat): $ sqEnvCons z (sqEnvCons y (sqEnvCons a sfIdentityMap)) @ 2 = a $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero));
+theorem chi_e3_1 (a y z: nat): $ sqEnvCons z (sqEnvCons y (sqEnvCons a sfIdentityMap)) @ 1 = y $ =
+'(eqtr sqEnvCons_suc sqEnvCons_zero);
+theorem chi_e3_0 (a y z: nat): $ sqEnvCons z (sqEnvCons y (sqEnvCons a sfIdentityMap)) @ 0 = z $ =
+'sqEnvCons_zero;
+
+theorem chi_unique_eq (a y z: nat):
+ $ sfRename (sqEnvCons z (sqEnvCons y (sqEnvCons a sfIdentityMap))) 0
+    (sfImp (sfCLOrdinalAt 2) (sfImp (sfCLHierarchyAt 2 1) (sfImp (sfCLHierarchyAt 2 0) (sfEq 1 0)))) =
+   sfImp (sfCLOrdinalAt a) (sfImp (sfCLHierarchyAt a y) (sfImp (sfCLHierarchyAt a z) (sfEq y z))) $ =
+'(eqtr sfRename_sfImp (nsImp_eq (eqtr cl2_ord_rename (sfCLOrdinalAteq chi_e3_2))
+  (eqtr sfRename_sfImp (nsImp_eq (eqtr cl2_hier_rename (sfCLHierarchyAteq chi_e3_2 chi_e3_1))
+   (eqtr sfRename_sfImp (nsImp_eq (eqtr cl2_hier_rename (sfCLHierarchyAteq chi_e3_2 chi_e3_0))
+    (eqtr sfRename_sfEq (nsEq_eq (eqtr sfRenameIndex_zero chi_e3_1) (eqtr sfRenameIndex_zero chi_e3_0)))))))));
+
+pub theorem sfLChoice_unique_use (G a y z: nat) (h: $ nsLocal G sfLChoiceUnique $)
+ (ha: $ nsLocal G (sfCLOrdinalAt a) $) (hy: $ nsLocal G (sfCLHierarchyAt a y) $)
+ (hz: $ nsLocal G (sfCLHierarchyAt a z) $): $ nsLocal G (sfEq y z) $ =
+'(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+  (mpbi (nsLocal_formula_eq chi_unique_eq)
+   (ax_mp (cl2_all_cons chi_unique_body_wf)
+    (ax_mp (cl2_all_cons (ax_mp sfWf_all chi_unique_body_wf))
+     (ax_mp (cl2_all_cons (ax_mp sfWf_all (ax_mp sfWf_all chi_unique_body_wf)))
+      (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity
+        (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all chi_unique_body_wf))))) h))))))
+  ha)) hy)) hz);
+
+theorem chi_up_body_wf:
+ $ sfWf (sfImp (sfLChoiceD 1) (sfImp (sfLChoiceD 0)
+    (sfImp (sfRelativize sfLDomain (sfCLHierarchyAt 1 0)) (sfCLHierarchyAt 1 0)))) $ =
+'(ax_mp (ax_mp sfWf_imp chi_dwf) (ax_mp (ax_mp sfWf_imp chi_dwf)
+  (ax_mp (ax_mp sfWf_imp chi_relwf) sfCLHierarchyAt_wf)));
+
+theorem chi_e2_1 (a y: nat): $ sqEnvCons y (sqEnvCons a sfIdentityMap) @ 1 = a $ =
+'(eqtr sqEnvCons_suc sqEnvCons_zero);
+theorem chi_e2_0 (a y: nat): $ sqEnvCons y (sqEnvCons a sfIdentityMap) @ 0 = y $ = 'sqEnvCons_zero;
+
+theorem chi_up_hier (a y: nat):
+ $ sfRename (sqEnvCons y (sqEnvCons a sfIdentityMap)) 0 (sfCLHierarchyAt 1 0) = sfCLHierarchyAt a y $ =
+'(eqtr cl2_hier_rename (sfCLHierarchyAteq chi_e2_1 chi_e2_0));
+
+theorem chi_up_eq (a y: nat):
+ $ sfRename (sqEnvCons y (sqEnvCons a sfIdentityMap)) 0
+    (sfImp (sfLChoiceD 1) (sfImp (sfLChoiceD 0)
+     (sfImp (sfRelativize sfLDomain (sfCLHierarchyAt 1 0)) (sfCLHierarchyAt 1 0)))) =
+   sfImp (sfLChoiceD a) (sfImp (sfLChoiceD y)
+    (sfImp (sfRelativize sfLDomain (sfCLHierarchyAt a y)) (sfCLHierarchyAt a y))) $ =
+'(eqtr sfRename_sfImp (nsImp_eq (eqtr chi_d_rename (sfLChoiceDeq chi_e2_1))
+  (eqtr sfRename_sfImp (nsImp_eq (eqtr chi_d_rename (sfLChoiceDeq chi_e2_0))
+   (eqtr sfRename_sfImp (nsImp_eq
+    (eqtr (chi_relren sfCLHierarchyAt_wf) (sfRelativizeeq2 chi_up_hier))
+    chi_up_hier))))));
+
+pub theorem sfLChoice_up_use (G a y: nat) (h: $ nsLocal G sfLChoiceUp $)
+ (ha: $ nsLocal G (sfLChoiceD a) $) (hy: $ nsLocal G (sfLChoiceD y) $)
+ (hl: $ nsLocal G (sfRelativize sfLDomain (sfCLHierarchyAt a y)) $):
+ $ nsLocal G (sfCLHierarchyAt a y) $ =
+'(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+  (mpbi (nsLocal_formula_eq chi_up_eq)
+   (ax_mp (cl2_all_cons chi_up_body_wf)
+    (ax_mp (cl2_all_cons (ax_mp sfWf_all chi_up_body_wf))
+     (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity
+       (ax_mp sfWf_all (ax_mp sfWf_all chi_up_body_wf)))) h)))))
+  ha)) hy)) hl);
+
+------------------------------------------------------------------------
+-- Relativized premise sentences, instantiated with sfRelative_AllE.
+
+theorem chi_rel_mp (G P Q: nat) (h: $ nsLocal G (sfRelativize sfLDomain (sfImp P Q)) $)
+ (hp: $ nsLocal G (sfRelativize sfLDomain P) $): $ nsLocal G (sfRelativize sfLDomain Q) $ =
+'(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq sfRelativize_sfImp) h)) hp);
+
+theorem chi_dsub (G x: nat) (h: $ nsLocal G (sfLChoiceD x) $):
+ $ nsLocal G (sfSubst 0 x sfLDomain) $ =
+'(mpbi (nsLocal_formula_eq (sfLUnaryAt_to_subst sfLDomain_bound)) h);
+
+theorem chi_t1_body_wf: $ sfWf (sfImp (sfCLOrdinalAt 0) (sfEx (sfCLHierarchyAt 1 0))) $ =
+'(ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf) (ax_mp sfWf_ex sfCLHierarchyAt_wf));
+
+theorem chi_ord_subst0 (d: nat): $ sfSubst 0 d (sfCLOrdinalAt 0) = sfCLOrdinalAt d $ =
+'(eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq sfSubstIndex_zero));
+
+theorem chi_hier_subst1 (d: nat): $ sfSubst 1 d (sfCLHierarchyAt 1 0) = sfCLHierarchyAt (suc d) 0 $ =
+'(eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq (eqtr sfSubstIndex_hit add12) (ax_mp sfSubstIndex_bound lt01S)));
+
+theorem chi_t1_subst (d: nat):
+ $ sfSubst 0 d (sfImp (sfCLOrdinalAt 0) (sfEx (sfCLHierarchyAt 1 0))) =
+   sfImp (sfCLOrdinalAt d) (sfEx (sfCLHierarchyAt (suc d) 0)) $ =
+'(eqtr sfSubst_sfImp (nsImp_eq chi_ord_subst0 (eqtr sfSubst_sfEx (nsEx_eq chi_hier_subst1))));
+
+pub theorem sfLChoice_t1_use (G d: nat) (h: $ nsLocal G (sfRelativize sfLDomain sfLChoiceT1) $)
+ (hD: $ nsLocal G (sfLChoiceD d) $) (hO: $ nsLocal G (sfRelativize sfLDomain (sfCLOrdinalAt d)) $):
+ $ nsLocal G (sfRelativize sfLDomain (sfEx (sfCLHierarchyAt (suc d) 0))) $ =
+'(chi_rel_mp (mpbi (nsLocal_formula_eq (sfRelativizeeq2 chi_t1_subst))
+   (sfRelative_AllE sfLDomain_bound chi_t1_body_wf h (chi_dsub hD))) hO);
+
+theorem chi_ac_bound2: $ sfBound 2 sfLChoiceMatrix $ =
+'(ax_mp (ax_mp sfBound_mono sfLChoiceMatrix_bound) (mpbi lesuc le01));
+
+theorem chi_q2_wf: $ sfWf (sfImp (sfMem 0 1) sfLChoiceMatrix) $ =
+'(ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfBound_wf sfLChoiceMatrix_bound));
+
+theorem chi_q1_wf: $ sfWf (sfImp (sfCLHierarchyAt 1 0) (sfAll (sfImp (sfMem 0 1) sfLChoiceMatrix))) $ =
+'(ax_mp (ax_mp sfWf_imp sfCLHierarchyAt_wf) (ax_mp sfWf_all chi_q2_wf));
+
+theorem chi_t2_body_wf:
+ $ sfWf (sfImp (sfCLOrdinalAt 0) (sfAll (sfImp (sfCLHierarchyAt 1 0) (sfAll (sfImp (sfMem 0 1) sfLChoiceMatrix))))) $ =
+'(ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf) (ax_mp sfWf_all chi_q1_wf));
+
+theorem chi_q1s_wf (a: nat):
+ $ sfWf (sfImp (sfCLHierarchyAt (suc a) 0) (sfAll (sfImp (sfMem 0 1) sfLChoiceMatrix))) $ =
+'(ax_mp (ax_mp sfWf_imp sfCLHierarchyAt_wf) (ax_mp sfWf_all chi_q2_wf));
+
+theorem chi_q2s_wf (y: nat): $ sfWf (sfImp (sfMem 0 (suc y)) sfLChoiceMatrix) $ =
+'(ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfBound_wf sfLChoiceMatrix_bound));
+
+theorem chi_t2_subst1 (a: nat):
+ $ sfSubst 0 a (sfImp (sfCLOrdinalAt 0) (sfAll (sfImp (sfCLHierarchyAt 1 0) (sfAll (sfImp (sfMem 0 1) sfLChoiceMatrix))))) =
+   sfImp (sfCLOrdinalAt a) (sfAll (sfImp (sfCLHierarchyAt (suc a) 0) (sfAll (sfImp (sfMem 0 1) sfLChoiceMatrix)))) $ =
+'(eqtr sfSubst_sfImp (nsImp_eq chi_ord_subst0 (eqtr sfSubst_sfAll (nsAll_eq
+  (eqtr sfSubst_sfImp (nsImp_eq chi_hier_subst1 (eqtr sfSubst_sfAll (nsAll_eq
+   (eqtr sfSubst_sfImp (nsImp_eq
+    (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound d0lt2) (ax_mp sfSubstIndex_bound d1lt2)))
+    (ax_mp sfSubst_bound_identity chi_ac_bound2)))))))))));
+
+theorem chi_t2_subst2 (a y: nat):
+ $ sfSubst 0 y (sfImp (sfCLHierarchyAt (suc a) 0) (sfAll (sfImp (sfMem 0 1) sfLChoiceMatrix))) =
+   sfImp (sfCLHierarchyAt a y) (sfAll (sfImp (sfMem 0 (suc y)) sfLChoiceMatrix)) $ =
+'(eqtr sfSubst_sfImp (nsImp_eq
+  (eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq sfSubstIndex_successor sfSubstIndex_zero))
+  (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq
+   (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_hit add12)))
+   (ax_mp sfSubst_bound_identity sfLChoiceMatrix_bound)))))));
+
+theorem chi_t2_subst3 (x y: nat):
+ $ sfSubst 0 x (sfImp (sfMem 0 (suc y)) sfLChoiceMatrix) =
+   sfImp (sfMem x y) (sfSubst 0 x sfLChoiceMatrix) $ =
+'(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor)) eqid));
+
+pub theorem sfLChoice_t2_use (G a y x: nat) (h: $ nsLocal G (sfRelativize sfLDomain sfLChoiceT2) $)
+ (hDa: $ nsLocal G (sfLChoiceD a) $) (hOa: $ nsLocal G (sfRelativize sfLDomain (sfCLOrdinalAt a)) $)
+ (hDy: $ nsLocal G (sfLChoiceD y) $) (hLy: $ nsLocal G (sfRelativize sfLDomain (sfCLHierarchyAt a y)) $)
+ (hDx: $ nsLocal G (sfLChoiceD x) $) (hm: $ nsLocal G (sfMem x y) $):
+ $ nsLocal G (sfRelativize sfLDomain (sfLChoiceAC x)) $ =
+'(mpbi (nsLocal_formula_eq (sfRelativizeeq2 (eqcom (sfLUnaryAt_to_subst sfLChoiceMatrix_bound))))
+  (chi_rel_mp
+   (mpbi (nsLocal_formula_eq (sfRelativizeeq2 chi_t2_subst3))
+    (sfRelative_AllE sfLDomain_bound chi_q2s_wf
+     (chi_rel_mp
+      (mpbi (nsLocal_formula_eq (sfRelativizeeq2 chi_t2_subst2))
+       (sfRelative_AllE sfLDomain_bound chi_q1s_wf
+        (chi_rel_mp
+         (mpbi (nsLocal_formula_eq (sfRelativizeeq2 chi_t2_subst1))
+          (sfRelative_AllE sfLDomain_bound chi_t2_body_wf h (chi_dsub hDa)))
+         hOa)
+        (chi_dsub hDy)))
+      hLy)
+     (chi_dsub hDx)))
+   (mpbir (nsLocal_formula_eq sfRelativize_sfMem) hm)));

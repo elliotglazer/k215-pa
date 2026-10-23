@@ -1,0 +1,66 @@
+import "k218_vacuity_image.mm1";
+
+@_ def k218QProvable (a: nat): wff = $ k218Provable (k218Translate a) $;
+@_ abstract def k218QTheorems (.a: nat): set = $ {a | k218QProvable a} $;
+@_ def k218QAxBody (n a b c u: nat): wff =
+  $ n = kRho1 a b \/ (n = kRho2 a b c \/ (n = kRho3 a b c \/
+    (n = kRho4 a b c \/ (n = kRho5 a b c \/ (n = kRho6 a b \/
+    (n = kRho7 a b c \/ n = kRho8 a b c u)))))) $;
+@_ abstract def k218QAxioms (.n .a .b .c .u: nat): set =
+  $ {n | n = 0 \/ E. a E. b E. c E. u k218QAxBody n a b c u} $;
+
+pub theorem k218QTheorems_value (a: nat): $ a e. k218QTheorems <-> k218QProvable a $ =
+(named '(elabe ,eqtac));
+pub theorem k218QAxioms_value {a b c u: nat} (n: nat):
+  $ n e. k218QAxioms <-> n = 0 \/ E. a E. b E. c E. u k218QAxBody n a b c u $ =
+(named '(elabe ,eqtac));
+pub theorem k218QAxioms_true: $ 0 e. k218QAxioms $ =
+(named '(mpbir k218QAxioms_value (ax_mp orl eqid)));
+theorem k218QAxioms_instance (n a b c u: nat):
+  $ k218QAxBody n a b c u -> n e. k218QAxioms $ =
+(named '(syl (bi2 k218QAxioms_value) @ syl orr @
+  syl (iexe ,eqtac) @ syl (iexe ,eqtac) @ syl (iexe ,eqtac) (iexe ,eqtac)));
+pub theorem k218QAxioms_rho1 (a b: nat): $ kRho1 a b e. k218QAxioms $ =
+(named '(k218QAxioms_instance @ ax_mp orl eqid));
+pub theorem k218QAxioms_rho2 (a b c: nat): $ kRho2 a b c e. k218QAxioms $ =
+(named '(k218QAxioms_instance @ ax_mp orr @ ax_mp orl eqid));
+pub theorem k218QAxioms_rho3 (a b c: nat): $ kRho3 a b c e. k218QAxioms $ =
+(named '(k218QAxioms_instance @ ax_mp orr @ ax_mp orr @ ax_mp orl eqid));
+pub theorem k218QAxioms_rho4 (a b c: nat): $ kRho4 a b c e. k218QAxioms $ =
+(named '(k218QAxioms_instance @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orl eqid));
+pub theorem k218QAxioms_rho5 (a b c: nat): $ kRho5 a b c e. k218QAxioms $ =
+(named '(k218QAxioms_instance @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orl eqid));
+pub theorem k218QAxioms_rho6 (a b: nat): $ kRho6 a b e. k218QAxioms $ =
+(named '(k218QAxioms_instance @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orl eqid));
+pub theorem k218QAxioms_rho7 (a b c: nat): $ kRho7 a b c e. k218QAxioms $ =
+(named '(k218QAxioms_instance @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orl eqid));
+pub theorem k218QAxioms_rho8 (a b c u: nat): $ kRho8 a b c u e. k218QAxioms $ =
+(named '(k218QAxioms_instance @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr @ ax_mp orr eqid));
+
+theorem k218QB_transport (n q: nat) (hq: $ k218QProvable q $):
+  $ n = q -> k218QProvable n $ = '(mpbiri hq (k218QProvableeqd id));
+theorem k218QB_rows (n a b c u: nat):
+  $ k218QAxBody n a b c u -> k218QProvable n $ =
+'(eori (k218QB_transport k218Translated_rho1) @
+  eori (k218QB_transport k218Translated_rho2) @
+  eori (k218QB_transport k218Translated_rho3) @
+  eori (k218QB_transport k218Translated_rho4) @
+  eori (k218QB_transport k218Translated_rho5) @
+  eori (k218QB_transport k218Translated_rho6) @
+  eori (k218QB_transport k218Translated_rho7) (k218QB_transport k218Translated_rho8));
+theorem k218QB_family {a b c u: nat} (n: nat):
+  $ E. a E. b E. c E. u k218QAxBody n a b c u -> k218QProvable n $ =
+(named '(eex @ eex @ eex @ eex k218QB_rows));
+theorem k218QB_true: $ k218QProvable 0 $ =
+'(mpbir (k218Provableeq k218Translate_zero) (k218Provable_axiom k218Axioms_true));
+pub theorem k218QProvable_axiom (a: nat): $ a e. k218QAxioms -> k218QProvable a $ =
+(named '(syl (eori (k218QB_transport k218QB_true) k218QB_family) (bi1 k218QAxioms_value)));
+pub theorem k218QProvable_mp (a b: nat):
+  $ k218QProvable a -> k218QProvable (kImp a b) -> k218QProvable b $ = 'k218Translated_mp;
+pub theorem k218QProvable_gen (x a: nat): $ k218QProvable a -> k218QProvable (kAll x a) $ = 'k218Translated_gen;
+pub theorem k218QFresh_vacuity (a x: nat):
+  $ kFresh a x -> k218QProvable (kImp a (kAll x a)) $ =
+'(mpbird (a1i (k218Provableeq
+    (eqtr k218Translate_kImp (kImpeq2 k218Translate_kAll)))) k218Translate_fresh_vacuity);
+pub theorem k218QBundle_vacuity (a b c: nat):
+  $ c != a /\ c != b -> k218QProvable (kVacuity a b c) $ = 'k218Translated_vacuity;

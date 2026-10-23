@@ -1,0 +1,27 @@
+import "source_k_upper_trace_normalize.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+theorem sfLocal_all_from_pure_imp (G a b: nat) (hg: $ sfContextWf G $) (h: $ nsLocal 0 (sfImp a b) $):
+ $ nsLocal G (sfAll a) -> nsLocal G (sfAll b) $;
+
+theorem sfTracePoint_parent (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal 0 (sfImp (sfIff a (sfAnd b c)) (sfImp a b)) $;
+
+theorem sfTracePoint_relation (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal 0 (sfImp (sfIff a (sfAnd b c)) (sfImp a c)) $;
+
+theorem sfTracePoint_admit (a b c: nat) (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal 0 (sfImp (sfIff a (sfAnd b c)) (sfImp b (sfImp c a))) $;
+
+theorem sfUpperTraceBody_wf (phi: nat):
+ $ sfWf (sfUpperTraceBody phi) $;
+
+theorem sfUpperTrace_profile_parent (G phi: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfUpperTraceProfile phi) -> nsLocal G (sfAll (sfImp (sfMem 0 1) (sfMem 0 2))) $;
+
+theorem sfUpperTrace_profile_relation (G phi: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfUpperTraceProfile phi) -> nsLocal G (sfAll (sfImp (sfMem 0 1) (sfUpperTraceBody phi))) $;
+
+theorem sfUpperTrace_profile_admit (G phi: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfUpperTraceProfile phi) -> nsLocal G (sfAll (sfImp (sfMem 0 2) (sfImp (sfUpperTraceBody phi) (sfMem 0 1)))) $;

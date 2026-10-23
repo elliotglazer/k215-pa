@@ -1,0 +1,59 @@
+import "source_l_replacement_witness_transport.mm1";
+import "source_l_replacement_common_reflected.mm1";
+
+@_ def sfLReplacementReflectedImageBody(start n psi:nat):nat =
+ $ sfAnd (sfCLReflectedPoint (suc (suc start)) n (suc n) psi 1 0)
+    (sfLReplacementImageCoverage (sfLReplacementShift2Map (sfLReplacementStartMap start)) sfLDomain psi 0) $;
+
+@_ def sfLReplacementReflectedImageContext(G start n psi:nat):nat =
+ $ sfCLWitnessContext G (sfLReplacementReflectedImageBody start n psi) $;
+
+pub theorem sfLReplacementCoverage_map{j:nat}(T U:set)(D psi Y:nat)
+ (hf:$ sfWf psi $)(h:$ A. j T @ j = U @ j $):
+ $ sfLReplacementImageCoverage T D psi Y = sfLReplacementImageCoverage U D psi Y $ =
+ '(nsAll_eq (nsImp_eq eqid (nsImp_eq
+  (sfRelativizeeq2 (ax_mp (sfRename_extensional h) hf)) eqid)));
+
+theorem lrrw_shift2_start_at(start i:nat):
+ $ sfLReplacementShift2Map (sfLReplacementStartMap start) @ i =
+   sfLReplacementStartMap (suc (suc start)) @ i $ =
+ '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+  (eqtr (suceq (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+   (eqtr (suceq sfLReplacementStartMap_at) (eqcom addS)))))
+   (eqtr (eqcom addS) (eqcom sfLReplacementStartMap_at)))));
+
+theorem lrrw_body_wf(start n psi:nat):
+ $ sfWf (sfLReplacementReflectedImageBody start n psi) $ =
+ '(ax_mp (ax_mp sfWf_and sfCLReflectedPoint_wf)
+  (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfLDomain_wf)
+   (ax_mp (ax_mp sfWf_imp (ax_mp sfRelativize_wf sfLDomain_wf)) sfWf_mem))));
+
+theorem lrrw_context_wf(G start n psi:nat):
+ $ sfContextWf (sfLReplacementReflectedImageContext G start n psi) $ =
+ '(mpbir sfContextWf_cons (ian lrrw_body_wf sfContextShift_wf));
+
+theorem lrrw_point(G start n psi:nat):
+ $ nsLocal (sfLReplacementReflectedImageContext G start n psi)
+   (sfLReplacementReflectedImageBody start n psi) $ =
+ '(ax_mp (ax_mp nsLocal_hyp lrrw_context_wf) sfContext_member_head);
+
+theorem lrrw_coverage(G start n psi:nat)(hf:$ sfWf psi $):
+ $ nsLocal (sfLReplacementReflectedImageContext G start n psi)
+  (sfLReplacementImageCoverage (sfLReplacementStartMap (suc (suc start))) sfLDomain psi 0) $ =
+ (named '(sfRQ_rewrite
+   (sfLReplacementCoverage_map hf (!! ax_gen i @ ! lrrw_shift2_start_at start i))
+   (ax_mp nsLocal_CE2 lrrw_point)));
+
+pub theorem sfLReplacementWitness_from_reflected_recipe(G start n psi:nat)
+ (hb:$ sfBound (suc n) psi $)
+ (hp:$ nsLocal G (sfLReplacementReflectedRecipe (sfLReplacementStartMap start) start n (suc n) psi) $)
+ (hd:$ nsLocal (sfLReplacementReflectedImageContext G start n psi)
+   (sfLReplacementImageDefinable (sfLReplacementStartMap (suc (suc start))) sfLDomain psi 0) $):
+ $ nsLocal G (sfLReplacementImageWitness (sfLReplacementStartMap start) sfLDomain psi) $ =
+ '(sfLReplacementDoubleEx_eliminate lrrw_body_wf
+  (sfLReplacementImageWitness_wf sfLDomain_bound) hp
+  (sfRQ_rewrite
+   (eqcom (eqtr (sfShifteq2 (sfLReplacementStartWitness_shift sfLDomain_bound (ax_mp sfBound_wf hb)))
+    (sfLReplacementStartWitness_shift sfLDomain_bound (ax_mp sfBound_wf hb))))
+   (sfLReplacementWitness_from_reflected_point hb (ax_mp nsLocal_CE1 lrrw_point) hd
+    (lrrw_coverage (ax_mp sfBound_wf hb)))));

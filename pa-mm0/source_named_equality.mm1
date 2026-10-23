@@ -1,0 +1,71 @@
+import "k218_role_substitution.mm1";
+
+import "quotation_binders_absent.mm1";
+
+import "k218q_leibniz.mm1";
+
+import "quotation_supported_environment.mm1";
+
+pub theorem sfNamed_binary_input_congr_meta (E: set) (n R y u v psi: nat) (h0: $ sfBound (suc (suc n)) psi $) (h1: $ u < R $) (h2: $ v < R $) (h3: $ u != 0 $) (h4: $ u != y $) (h5: $ sqEnvAvoid E n u $):
+ $ k218QProvable (kImp (kEq u v) (kImp (sfNamedTemplate (sqEnvCons y (sqEnvCons u E)) R 0 psi) (sfNamedTemplate (sqEnvCons y (sqEnvCons v E)) R 0 psi))) $ =
+'(mpbi (k218QProvableeq (kImpeq2 (kImpeq2 (k218RoleInput_substitution h1 h3 h4 h5 h0)))) (ax_mp k218ILeibniz_forward (ian (ax_mp (sfNamedTemplate_binder_absent h1) (ax_mp sfBound_wf h0)) (ax_mp (sfNamedTemplate_binder_absent h2) (ax_mp sfBound_wf h0)))));
+
+@_ abstract def sneSafeEnvironment (P: wff) (E: set) (.i: nat): set = $ {i | ifp P (i e. E) (i e. sqZeroEnvironment)} $;
+
+@_ abstract def sneResult (E: set) (R y u v psi: nat): nat = $ kImp (kEq u v) (kImp (sfNamedTemplate (sqEnvCons y (sqEnvCons u E)) R 0 psi) (sfNamedTemplate (sqEnvCons y (sqEnvCons v E)) R 0 psi)) $;
+
+theorem sneEnvironment_positive (P: wff) (E: set):
+ $ P -> sneSafeEnvironment P E == E $ =
+(named '(!! eqab1d i ifppos));
+
+theorem sneEnvironment_negative (P: wff) (E: set):
+ $ ~P -> sneSafeEnvironment P E == sqZeroEnvironment $ =
+(named '(!! eqab1d i ifpneg));
+
+theorem sneSafe_less (P: wff) (a R: nat) (hp: $ P -> a < R $):
+ $ if P a 1 < if P R 2 $ =
+'(cases (mpbird (lteqd ifpos ifpos) hp) (mpbird (lteqd ifneg ifneg) (a1i ltsucid)));
+
+theorem sneSafe_nonzero (P: wff) (u: nat) (hp: $ P -> u != 0 $):
+ $ if P u 1 != 0 $ =
+'(cases (mpbird (noteqd (eqeq1d ifpos)) hp) (mpbird (noteqd (eqeq1d ifneg)) (a1i peano1)));
+
+theorem sneSafe_distinct (P: wff) (u y: nat) (hp: $ P -> u != y $):
+ $ if P u 1 != if P y 0 $ =
+'(cases (mpbird (noteqd (eqeqd ifpos ifpos)) hp) (mpbird (noteqd (eqeqd ifneg ifneg)) (a1i peano1)));
+
+theorem sneSafe_bound (P: wff) (n psi: nat) (hp: $ P -> sfBound n psi $):
+ $ sfBound n (if P psi sfBot) $ =
+'(cases (mpbird (srecpeq2d (preq2d ifpos)) hp) (mpbird (srecpeq2d (preq2d ifneg)) (a1i sfBound_bot)));
+
+theorem sneZeroEnvironment_avoid (n: nat):
+ $ sqEnvAvoid sqZeroEnvironment n 1 $ =
+(named '(ax_gen (a1i (mpbir (noteqi (eqeq2 sqZeroEnvironment_value)) peano1))));
+
+theorem sneEnvironment_avoid_positive (P: wff) (E: set) (n u: nat):
+ $ P -> (sqEnvAvoid (sneSafeEnvironment P E) n (if P u 1) <-> sqEnvAvoid E n u) $ =
+'(sqEnvAvoideqd sneEnvironment_positive (a1i eqid) ifpos);
+
+theorem sneEnvironment_avoid_negative (P: wff) (E: set) (n u: nat):
+ $ ~P -> (sqEnvAvoid (sneSafeEnvironment P E) n (if P u 1) <-> sqEnvAvoid sqZeroEnvironment n 1) $ =
+'(sqEnvAvoideqd sneEnvironment_negative (a1i eqid) ifneg);
+
+theorem sneSafe_environment (P: wff) (E: set) (n u: nat) (hp: $ P -> sqEnvAvoid E n u $):
+ $ sqEnvAvoid (sneSafeEnvironment P E) n (if P u 1) $ =
+'(cases (mpbird sneEnvironment_avoid_positive hp) (mpbird sneEnvironment_avoid_negative (a1i sneZeroEnvironment_avoid)));
+
+theorem sneResult_recover (P: wff) (E: set) (R y u v psi: nat):
+ $ P -> sneResult (sneSafeEnvironment P E) (if P R 2) (if P y 0) (if P u 1) (if P v 1) (if P psi sfBot) = sneResult E R y u v psi $ =
+'(sneResulteqd sneEnvironment_positive ifpos ifpos ifpos ifpos ifpos);
+
+theorem sneSafe_proof (G: wff) (E: set) (n R y u v psi: nat) (h0: $ G -> sfBound (suc (suc n)) psi $) (h1: $ G -> u < R $) (h2: $ G -> v < R $) (h3: $ G -> u != 0 $) (h4: $ G -> u != y $) (h5: $ G -> sqEnvAvoid E n u $):
+ $ k218QProvable (sneResult (sneSafeEnvironment G E) (if G R 2) (if G y 0) (if G u 1) (if G v 1) (if G psi sfBot)) $ =
+'(sfNamed_binary_input_congr_meta (sneSafe_bound h0) (sneSafe_less h1) (sneSafe_less h2) (sneSafe_nonzero h3) (sneSafe_distinct h4) (sneSafe_environment h5));
+
+pub theorem sfNamed_binary_input_congr_d (G: wff) (E: set) (n R y u v psi: nat) (h0: $ G -> sfBound (suc (suc n)) psi $) (h1: $ G -> u < R $) (h2: $ G -> v < R $) (h3: $ G -> u != 0 $) (h4: $ G -> u != y $) (h5: $ G -> sqEnvAvoid E n u $):
+ $ G -> k218QProvable (kImp (kEq u v) (kImp (sfNamedTemplate (sqEnvCons y (sqEnvCons u E)) R 0 psi) (sfNamedTemplate (sqEnvCons y (sqEnvCons v E)) R 0 psi))) $ =
+'(mpbid (k218QProvableeqd sneResult_recover) (a1i (sneSafe_proof h0 h1 h2 h3 h4 h5)));
+
+pub theorem sfNamed_binary_input_congr (E: set) (n R y u v psi: nat):
+ $ sfBound (suc (suc n)) psi -> u < R -> v < R -> u != 0 -> u != y -> sqEnvAvoid E n u -> k218QProvable (kImp (kEq u v) (kImp (sfNamedTemplate (sqEnvCons y (sqEnvCons u E)) R 0 psi) (sfNamedTemplate (sqEnvCons y (sqEnvCons v E)) R 0 psi))) $ =
+(named '(exp @ exp @ exp @ exp @ exp @ sfNamed_binary_input_congr_d (syl (syl (syl (syl (syl id anl) anl) anl) anl) anl) (syl (syl (syl (syl anr anl) anl) anl) anl) (syl (syl (syl anr anl) anl) anl) (syl (syl anr anl) anl) (syl anr anl) anr));

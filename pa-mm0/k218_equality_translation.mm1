@@ -1,0 +1,86 @@
+import "k218_equality_laws.mm1";
+
+-- A numerical, course-of-values translation of every four-tag formula code.
+-- Raw equality is replaced by its membership-only extensional interpretation.
+@_ def k218TranslateBody (c h: nat): nat =
+$ if (rawTag c = 1) (kMem (rawLeft c) (rawRight c))
+  (if (rawTag c = 3) (k218EqInd (rawLeft c) (rawRight c))
+  (if (rawTag c = 2) (kAll (rawLeft c) (h @ rawRight c))
+  (if (0 < c) (kImp (h @ rawLeft c) (h @ rawRight c)) 0))) $;
+@_ abstract def k218TranslateStep (.h: nat): set =
+  $ \ h, k218TranslateBody (sfHistoryLength h) h $;
+@_ abstract def k218Translate (c: nat): nat = $ srec k218TranslateStep c $;
+@_ abstract def k218TranslateHistory (c .i: nat): nat =
+  $ \. i e. upto c, srec k218TranslateStep i $;
+
+pub theorem k218TranslateStep_apply (h: nat):
+  $ k218TranslateStep @ h = k218TranslateBody (sfHistoryLength h) h $ =
+(named '(!! applame j ,eqtac));
+pub theorem k218TranslateHistory_size (c: nat):
+  $ sfHistoryLength (k218TranslateHistory c) = c $ =
+(named '(sreclem eqid));
+pub theorem k218TranslateHistory_lookup (c a: nat):
+  $ a < c -> k218TranslateHistory c @ a = k218Translate a $ =
+(named '(syl (apprlame sreceq2) (bi2 elupto)));
+pub theorem k218Translate_unfold (c: nat):
+  $ k218Translate c = k218TranslateBody c (k218TranslateHistory c) $ =
+(named '(eqtr srecval @ eqtr k218TranslateStep_apply @
+  k218TranslateBodyeq k218TranslateHistory_size eqid));
+pub theorem k218Translate_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> k218Translate a = k218Translate b $ = '(sreceq2d h);
+do (apply (register-eqd 'k218Translate) '(k218Translate_congr));
+
+theorem k218ET_mem (c h: nat) (ht: $ rawTag c = 1 $):
+  $ k218TranslateBody c h = kMem (rawLeft c) (rawRight c) $ = '(ifpos ht);
+theorem k218ET_eq (c h: nat) (ht: $ rawTag c = 3 $):
+  $ k218TranslateBody c h = k218EqInd (rawLeft c) (rawRight c) $ =
+'(eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifpos ht));
+theorem k218ET_all (c h: nat) (ht: $ rawTag c = 2 $):
+  $ k218TranslateBody c h = kAll (rawLeft c) (h @ rawRight c) $ =
+'(eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) @
+  eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei ltsucid))) (ifpos ht));
+theorem k218ET_imp (c h: nat) (ht: $ rawTag c = 0 $):
+  $ 0 < c -> k218TranslateBody c h = kImp (h @ rawLeft c) (h @ rawRight c) $ =
+'(eqtrd (a1i (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S)))) @
+  eqtrd (a1i (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S)))) @
+  eqtrd (a1i (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S)))) ifpos);
+theorem k218ET_zero (h: nat): $ k218TranslateBody 0 h = 0 $ =
+'(eqtr (ifneg (mpbir (noteq (eqeq1 mod01)) (ltnei lt01S))) @
+  eqtr (ifneg (mpbir (noteq (eqeq1 mod01)) (ltnei lt01S))) @
+  eqtr (ifneg (mpbir (noteq (eqeq1 mod01)) (ltnei lt01S))) (ifneg ltirr));
+
+pub theorem k218Translate_zero: $ k218Translate 0 = 0 $ =
+'(eqtr k218Translate_unfold k218ET_zero);
+pub theorem k218Translate_kMem (a b: nat):
+  $ k218Translate (kMem a b) = kMem a b $ =
+'(eqtr k218Translate_unfold @ eqtr (k218ET_mem kMem_tag) @
+  kMemeq raw_kMem_left raw_kMem_right);
+pub theorem k218Translate_kEq (a b: nat):
+  $ k218Translate (kEq a b) = k218EqInd a b $ =
+'(eqtr k218Translate_unfold @ eqtr (k218ET_eq kEq_tag) @
+  k218EqIndeq raw_kEq_left raw_kEq_right);
+pub theorem k218Translate_kAll (x a: nat):
+  $ k218Translate (kAll x a) = kAll x (k218Translate a) $ =
+'(eqtr k218Translate_unfold @ eqtr (k218ET_all kAll_tag) @
+  kAlleq raw_kAll_left
+    (eqtr (appeq2 raw_kAll_right) (k218TranslateHistory_lookup raw_kAll_body_lt)));
+pub theorem k218Translate_kImp_nonzero (a b: nat):
+  $ kImp a b != 0 -> k218Translate (kImp a b) = kImp (k218Translate a) (k218Translate b) $ =
+'(eqtrd (a1i k218Translate_unfold) @ eqtrd (syl (k218ET_imp kImp_tag) (bi2 lt01)) @
+  kImpeqd
+    (eqtrd (a1i (appeq2 raw_kImp_left)) (syl k218TranslateHistory_lookup raw_kImp_left_lt))
+    (eqtrd (a1i (appeq2 raw_kImp_right)) (syl k218TranslateHistory_lookup raw_kImp_right_lt)));
+
+theorem k218ET_imp_zero (a b: nat):
+  $ kImp a b = 0 -> k218Translate (kImp a b) = kImp (k218Translate a) (k218Translate b) $ =
+'(eqtrd (eqtrd (k218Translate_congr id) (a1i k218Translate_zero))
+  (eqcomd (eqtrd
+    (kImpeqd
+      (eqtrd (k218Translate_congr (syl anl (bi1 raw_kImp_zero_iff))) (a1i k218Translate_zero))
+      (eqtrd (k218Translate_congr (syl anr (bi1 raw_kImp_zero_iff))) (a1i k218Translate_zero)))
+    (a1i raw_kImp_zero))));
+pub theorem k218Translate_kImp (a b: nat):
+  $ k218Translate (kImp a b) = kImp (k218Translate a) (k218Translate b) $ =
+'(cases k218ET_imp_zero k218Translate_kImp_nonzero);
+pub theorem k218Translate_kF: $ k218Translate kF = kF $ =
+'(eqtr (sreceq2 (eqcom kMem_zero)) @ eqtr k218Translate_kMem kMem_zero);

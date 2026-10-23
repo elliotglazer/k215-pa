@@ -1,0 +1,18 @@
+import "k215_literal_runtime_native_interface.mm1";
+pub theorem k215PNativeAtEq (pc target g regs w rest: nat):
+ $ pc = target -> k215PNativeOutcome g (k215PState target regs) w rest ->
+   k215PNativeOutcome g (k215PState pc regs) w rest $ =
+ '(bi2d (k215PNativeOutcomeeq2d (k215PStateeq1d id)));
+pub theorem k215PInterval_eq (lo pc: nat):
+ $ lo <= pc /\ pc < suc lo -> pc = lo $ =
+ '(leasymd (syl (bi2 leltsuc) anr) anl);
+pub theorem k215PNativeIntervalLeaf (lo pc g regs w rest: nat)
+ (h: $ k215PNativeOutcome g (k215PState lo regs) w rest $):
+ $ lo <= pc /\ pc < suc lo -> k215PNativeOutcome g (k215PState pc regs) w rest $ =
+ '(mpi h (syl k215PNativeAtEq k215PInterval_eq));
+pub theorem k215PNativeIntervalJoin (G: wff) (lo mid hi pc: nat)
+ (left: $ lo <= pc /\ pc < mid -> G $)
+ (right: $ mid <= pc /\ pc < hi -> G $):
+ $ lo <= pc /\ pc < hi -> G $ =
+ '(casesda (syl left (iand (syl anl anl) anr))
+   (syl right (iand (syl (bi2 lenlt) anr) (syl anr anl))));

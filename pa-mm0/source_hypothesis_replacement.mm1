@@ -1,0 +1,48 @@
+import "zfc_irreflexive.mm1";
+
+-- Coverage consists of actual finite local proofs, not semantic validity.
+@_ def sfLocalProofClass (J .a: nat): set = $ {a | nsLocal J a} $;
+@_ def sfLocalCoverage (J H: nat): wff = $ all (sfLocalProofClass J) H $;
+
+pub theorem sfLocalProofClass_value (J a: nat):
+ $ a e. sfLocalProofClass J <-> nsLocal J a $ =
+(named '(elabe ,eqtac));
+pub theorem sfLocalCoverage_nil (J: nat): $ sfLocalCoverage J 0 $ = 'all0;
+pub theorem sfLocalCoverage_cons (J a H: nat):
+ $ sfLocalCoverage J (a : H) <-> nsLocal J a /\ sfLocalCoverage J H $ =
+'(bitr allS (aneq1i sfLocalProofClass_value));
+pub theorem sfLocalCoverage_member (J H a: nat):
+ $ sfLocalCoverage J H -> a IN H -> nsLocal J a $ =
+'(syl6 (bi1 sfLocalProofClass_value) elall);
+pub theorem sfLocalCoverage_value {a: nat} (J H: nat):
+ $ sfLocalCoverage J H <-> A. a (a IN H -> nsLocal J a) $ =
+(named '(bitr allal2 @ aleqi @ imeq2i sfLocalProofClass_value));
+pub theorem sfLocalCoverage_self (J: nat):
+ $ sfContextWf J -> sfLocalCoverage J J $ =
+(named '(syl (bi2 sfLocalCoverage_value) @ iald nsLocal_hyp));
+
+theorem sfHR_empty_sub (J: nat): $ sfContextSub 0 J $ =
+(named '(ax_gen @ absurd lmem0));
+theorem sfHR_at (J H f: nat):
+ $ (A. b (sfLocalCoverage J H -> nsLocal H b -> nsLocal J b)) ->
+ sfLocalCoverage J H -> nsLocal H f -> nsLocal J f $ =
+(named '(!! eale b ,eqtac));
+theorem sfHR_step_raw (J H a: nat):
+ $ (A. b (sfLocalCoverage J H -> nsLocal H b -> nsLocal J b)) ->
+ A. f (sfLocalCoverage J (a : H) -> nsLocal (a : H) f -> nsLocal J f) $ =
+(named '(iald @ exp @ exp @
+ mpd (syl anl (syl (bi1 sfLocalCoverage_cons) anlr)) @
+ syl nsLocal_mp @ mpd (syl nsLocal_II anr) @
+ mpd (syl anr (syl (bi1 sfLocalCoverage_cons) anlr)) (syl sfHR_at anll)));
+theorem sfHR_step (J H a: nat):
+ $ (A. b (sfLocalCoverage J H -> nsLocal H b -> nsLocal J b)) ->
+ A. b (sfLocalCoverage J (a : H) -> nsLocal (a : H) b -> nsLocal J b) $ =
+(named '(syl (bi2 (cbval ,eqtac)) sfHR_step_raw));
+theorem sfHR_uniform (J H: nat):
+ $ sfContextWf J -> A. f (sfLocalCoverage J H -> nsLocal H f -> nsLocal J f) $ =
+(named @ induct '(listind) 'H
+ '(iald @ a1d (mpi sfHR_empty_sub nsLocal_weaken))
+ '(syl6 sfHR_step id));
+pub theorem sfLocal_hypothesis_replacement (J H f: nat):
+ $ sfContextWf J -> sfLocalCoverage J H -> nsLocal H f -> nsLocal J f $ =
+(named '(syl sfHR_at sfHR_uniform));

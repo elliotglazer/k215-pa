@@ -1,0 +1,24 @@
+import "k218q_seed_witness.mm1";
+import "k218q_specialization.mm1";
+
+pub theorem k218QFalse_vacuity_one:
+ $ k218QProvable (kImp kF (kAll 1 kF)) $ =
+'(ax_mp k218QFresh_vacuity kRaw_self_fresh);
+
+pub theorem k218QFalse_conjunction_exists (q: nat):
+ $ k218QProvable (kImp (kExists 1 (kAnd kF q)) kF) $ =
+'(k218IProvable_syl (k218IExists_mono k218IPropAndLeft)
+  (k218IExists_collapse k218QFalse_vacuity_one));
+
+pub theorem k218QFalse_closure_empty (c: nat):
+ $ k218QProvable (kImp (k218Closure 1 3 c kF)
+     (kAll 3 (kNot (kMem 3 c)))) $ =
+'(k218IAll_mono
+  (k218IImp_apply_right k218QFalse_conjunction_exists k218IPropB));
+
+pub theorem k218QEmpty_witness:
+ $ k218QProvable (kExists (k218QSeedCode kF)
+     (kAll 3 (kNot (kMem 3 (k218QSeedCode kF))))) $ =
+'(ax_mp (ax_mp k218QProvable_mp k218QSeed_witness)
+  (k218IExists_mono
+    (k218IProvable_syl k218IPropAndLeft k218QFalse_closure_empty)));

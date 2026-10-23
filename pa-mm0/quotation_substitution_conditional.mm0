@@ -1,0 +1,48 @@
+import "quotation_substitution.mm0";
+
+theorem qsSubst_kF_when (x y: nat): $ x != 0 -> kSubst kF x y = kF $;
+theorem qsSubst_kNot_when (a x y: nat):
+ $ x != 0 -> kSubst (kNot a) x y = kNot (kSubst a x y) $;
+theorem qsSubst_kAnd_when (a b x y: nat):
+ $ x != 0 -> kSubst (kAnd a b) x y = kAnd (kSubst a x y) (kSubst b x y) $;
+theorem qsSubst_kDisj_when (a b x y: nat):
+ $ x != 0 -> kSubst (kDisj a b) x y = kDisj (kSubst a x y) (kSubst b x y) $;
+theorem qsSubst_kExists_when (a b x y: nat):
+ $ x != 0 -> a != x -> kSubst (kExists a b) x y = kExists a (kSubst b x y) $;
+
+-- BEGIN CONDITIONAL STRUCTURAL PROOFS
+
+def ntSubWhenClass (E: set) (k x y .c .d: nat): set =
+$ {c | A. d (x != 0 -> kSubst (sfNamedTemplate E k d c) x y =
+ sfNamedTemplate (kReplaceEnvironment x y E) k d c)} $;
+
+theorem ntSW_value {d: nat} (E: set) (k x y: nat) (c: nat):
+ $ c e. ntSubWhenClass E k x y <-> A. d (x != 0 -> kSubst (sfNamedTemplate E k d c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k d c) $;
+
+theorem sfNamedTemplate_substitution_when (E: set) (k d c x y: nat) (hk: $ x < k $):
+ $ x != 0 -> sfWf c -> kSubst (sfNamedTemplate E k d c) x y =
+ sfNamedTemplate (kReplaceEnvironment x y E) k d c $;
+
+theorem sqEqual_substitution_when (t a b k x y: nat) (hk: $ x < k $):
+ $ x != 0 -> kSubst (sqEqual t a b k) x y = sqEqual (kReplace x y t) (kReplace x y a) (kReplace x y b) k $;
+
+theorem sqMember_substitution_when (t a b k x y: nat) (hk: $ x < k $):
+ $ x != 0 -> kSubst (sqMember t a b k) x y = sqMember (kReplace x y t) (kReplace x y a) (kReplace x y b) k $;
+
+def ntSCClass (E: set) (n k y .c .d: nat): set =
+ $ {c | A. d ((k != 0 /\ sqEnvAvoid E n k) -> sfBound (d + suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) d (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) d (c))} $;
+
+theorem ntSC_value {d: nat} (E: set) (n k y: nat) (c: nat):
+ $ c e. ntSCClass E n k y <-> A. d ((k != 0 /\ sqEnvAvoid E n k) -> sfBound (d + suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) d (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) d (c)) $;
+
+theorem sfNamedTemplate_substitution_cons_when (E: set) (n k y: nat) (c: nat):
+ $ k != 0 -> sqEnvAvoid E n k -> sfBound (suc n) c -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) 0 (c)) k y = sfNamedTemplate (sqEnvCons y E) (suc k) 0 (c) $;
+
+def qqSCClass (E: set) (n t k y .c .d: nat): set =
+ $ {c | A. d ((k != 0 /\ (k != t /\ sqEnvAvoid E n k)) -> sfBound (d + suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) d (c)) k y = sqQuote (sqEnvCons y E) t (suc k) d (c))} $;
+
+theorem qqSC_value {d: nat} (E: set) (n t k y: nat) (c: nat):
+ $ c e. qqSCClass E n t k y <-> A. d ((k != 0 /\ (k != t /\ sqEnvAvoid E n k)) -> sfBound (d + suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) d (c)) k y = sqQuote (sqEnvCons y E) t (suc k) d (c)) $;
+
+theorem sqQuote_substitution_cons_when (E: set) (n t k y: nat) (c: nat):
+ $ k != 0 -> k != t -> sqEnvAvoid E n k -> sfBound (suc n) c -> kSubst (sqQuote (sqEnvCons k E) t (suc k) 0 (c)) k y = sqQuote (sqEnvCons y E) t (suc k) 0 (c) $;

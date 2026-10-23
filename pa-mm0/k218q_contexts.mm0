@@ -1,0 +1,40 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_deduction.mm0";
+
+-- Replacement of all hypotheses by actual contextual proofs.
+def k218IContextProofClass (G .a: nat): set = $ {a | k218IHypProvable G a} $;
+def k218IContextSupports (G H: nat): wff = $ traceClassAll (k218IContextProofClass G) H $;
+
+theorem k218IContextProofClass_value (G a: nat):
+ $ a e. k218IContextProofClass G <-> k218IHypProvable G a $;
+
+theorem k218IContextSupports_member (G H a: nat):
+ $ k218IContextSupports G H -> a IN H -> k218IHypProvable G a $;
+
+theorem k218IContextSupports_self (G: nat): $ k218IContextSupports G G $;
+
+theorem k218IContextSupports_nil (G: nat): $ k218IContextSupports G 0 $;
+
+theorem k218IContextSupports_cons (G H a: nat):
+ $ k218IContextSupports G H -> k218IHypProvable G a -> k218IContextSupports G (a : H) $;
+
+theorem k218IHypRules_refine_sound (G H: nat) (hs: $ k218IContextSupports G H $):
+ $ traceRuleSound (k218IHypRules H) (k218IContextProofClass G) $;
+
+theorem k218IHypDerives_refine (G H p a: nat) (hs: $ k218IContextSupports G H $):
+ $ k218IHypDerives H p a -> k218IHypProvable G a $;
+
+theorem k218IHypProvable_refine (G H a: nat) (hs: $ k218IContextSupports G H $):
+ $ k218IHypProvable H a -> k218IHypProvable G a $;
+
+theorem k218IHypProvable_refine_d (G H a: nat):
+ $ k218IContextSupports G H -> k218IHypProvable H a -> k218IHypProvable G a $;
+
+theorem k218IContextSupports_inclusion {c: nat} (G H: nat)
+ (hi: $ A. c (c IN H -> c IN G) $):
+ $ k218IContextSupports G H $;
+
+theorem k218IHypProvable_monotone {c: nat} (G H a: nat)
+ (hi: $ A. c (c IN H -> c IN G) $):
+ $ k218IHypProvable H a -> k218IHypProvable G a $;

@@ -1,0 +1,40 @@
+import "source_piece_conjunction_proofs.mm1";
+import "source_l_common_level_point_rules.mm1";
+import "source_l_common_level_ball_use.mm1";
+
+@_ def sfLSeparationImageParameterMap(start .i:nat):set = $ \ i, suc i + start $;
+
+pub theorem sfLSeparationImageParameterMap_at(start i:nat):
+ $ sfLSeparationImageParameterMap start @ i = suc i + start $ = (named '(applame ,eqtac));
+
+pub theorem sfLSeparationImageParameterMap_zero:
+ $ sfLSeparationImageParameterMap 0 == sfSuccessorMap $ =
+ (named '(lameq @ ax_gen @ add02));
+
+pub theorem sfLSeparationImageMembership_target(G start Y n:nat)
+ (hp:$ nsLocal G (sfCLMembership start Y (suc n)) $):
+ $ nsLocal G (sfMem start Y) $ =
+ '(mpbi (nsLocal_formula_eq (eqtr sfCLMemberRows_value (nsMem_eq add01 eqid)))
+   (ax_mp (ax_mp sfCLRowProofs_at (ax_mp sfPieceFold_project hp)) lt01S));
+
+theorem slSepMembership_row(G start Y n i:nat)
+ (hp:$ nsLocal G (sfCLMembership start Y (suc n)) $):
+ $ i < n -> nsLocal G (sfCLBallMemberRows (sfLSeparationImageParameterMap start) Y @ i) $ =
+ '(syl (bi2 (nsLocal_formula_eq (eqtr sfCLBallMemberRows_value
+      (eqtr (nsMem_eq sfLSeparationImageParameterMap_at eqid) (eqcom sfCLMemberRows_value)))))
+    (syl (ax_mp sfCLRowProofs_at (ax_mp sfPieceFold_project hp)) (bi1 ltsuc)));
+
+pub theorem sfLSeparationImageMembership_rows(G start Y n:nat)
+ (hp:$ nsLocal G (sfCLMembership start Y (suc n)) $):
+ $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageParameterMap start) Y) G n $ =
+ (named '(!! ax_gen i @ slSepMembership_row hp));
+
+pub theorem sfLSeparationImageReflected_target(G start Y beta n count phi:nat)
+ (hp:$ nsLocal G (sfCLReflectedPoint start (suc n) count phi beta Y) $):
+ $ nsLocal G (sfMem start Y) $ =
+ '(sfLSeparationImageMembership_target (ax_mp sfCLPoint_members (ax_mp sfCLReflectedPoint_forget hp)));
+
+pub theorem sfLSeparationImageReflected_rows(G start Y beta n count phi:nat)
+ (hp:$ nsLocal G (sfCLReflectedPoint start (suc n) count phi beta Y) $):
+ $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageParameterMap start) Y) G n $ =
+ '(sfLSeparationImageMembership_rows (ax_mp sfCLPoint_members (ax_mp sfCLReflectedPoint_forget hp)));

@@ -1,0 +1,29 @@
+import "source_piece_pcf_rep_transport.mm0";
+
+import "source_l_common_level_setrel_renaming.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def sfPieceRepresentationAt (T:set) (G A R phi e:nat): wff = $ nsLocal G (sfIff (sfMem e R) (sfCLSetRel A (sfRename T 0 phi))) $;
+
+theorem sfPieceDefinableBot_empty_eliminate (G R e:nat) (he:$ nsLocal G (sfPieceRepEmpty R) $): $ nsLocal G (sfImp (sfMem e R) sfBot) $;
+
+theorem sfPieceDefinableBot_member_iff (G R e:nat) (he:$ nsLocal G (sfPieceRepEmpty R) $): $ nsLocal G (sfIff (sfMem e R) sfBot) $;
+
+theorem sfPieceDefinableBot_matrix (T:set) (A:nat): $ sfCLSetRel A (sfRename T 0 sfBot) = sfBot $;
+
+theorem sfPieceDefinableBot_represents (T:set) (G A R e:nat) (he:$ nsLocal G (sfPieceRepEmpty R) $): $ sfPieceRepresentationAt T G A R sfBot e $;
+
+theorem sfPieceDefinableBot_profile (G R:nat) (he:$ nsLocal G (sfPieceRepEmpty R) $): $ nsLocal G (sfAll (sfIff (sfMem 0 (suc R)) sfBot)) $;
+
+def sfPieceDefinableBotWitnessBody (C:nat): nat = $ sfAnd (sfMem 0 (suc C)) (sfAll (sfIff (sfMem 0 1) sfBot)) $;
+
+def sfPieceDefinableBotWitness (C:nat): nat = $ sfEx (sfPieceDefinableBotWitnessBody C) $;
+
+theorem sfPieceDefinableBotWitness_wf (C:nat): $ sfWf (sfPieceDefinableBotWitness C) $;
+
+theorem sfPieceDefinableBotWitness_open (C R:nat): $ sfSubst 0 R (sfPieceDefinableBotWitnessBody C) = sfAnd (sfMem R C) (sfAll (sfIff (sfMem 0 (suc R)) sfBot)) $;
+
+theorem sfPieceDefinableBotWitness_intro (G C R:nat) (he:$ nsLocal G (sfPieceRepEmpty R) $) (hm:$ nsLocal G (sfMem R C) $): $ nsLocal G (sfPieceDefinableBotWitness C) $;
+
+theorem sfPieceDefinableBotWitness_from_empty (G C:nat) (he:$ nsLocal G (sfEx (sfAnd (sfPieceRepEmpty 0) (sfMem 0 (suc C)))) $): $ nsLocal G (sfPieceDefinableBotWitness C) $;

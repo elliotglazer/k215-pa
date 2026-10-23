@@ -1,0 +1,43 @@
+import "source_k0_qrep_witness_syntax.mm1";
+
+import "k218q_alpha.mm1";
+
+theorem qrepProfileAlpha_subst (E: set) (n t a c u w q y x R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hwR: $ w < R $) (hqR: $ q < R $) (hw0: $ w != 0 $) (hq0: $ q != 0 $)
+ (hwt: $ w != t $) (hwu: $ w != u $) (hwq: $ w != q $)
+ (hqt: $ q != t $) (hqu: $ q != u $)
+ (hew: $ sqEnvAvoid E n w $) (heq: $ sqEnvAvoid E n q $):
+ $ kSubst (kAnd (kMem t w) (sfK0QRepRelation E t R u w phi)) w q = (kAnd (kMem t q) (sfK0QRepRelation E t R u q phi)) $ =
+'(eqtr (qsSubst_kAnd hw0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (necom hwt)) kReplace_hit)) (sfK0QRepRelation_output_substitution hf hwR hw0 hwt hwu hew)));
+
+theorem qrepProfileAlpha_absent (E: set) (n t a c u w q y x R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hwR: $ w < R $) (hqR: $ q < R $) (hw0: $ w != 0 $) (hq0: $ q != 0 $)
+ (hwt: $ w != t $) (hwu: $ w != u $) (hwq: $ w != q $)
+ (hqt: $ q != t $) (hqu: $ q != u $)
+ (hew: $ sqEnvAvoid E n w $) (heq: $ sqEnvAvoid E n q $):
+ $ kBinderAbsent (kAnd (kMem t w) (sfK0QRepRelation E t R u w phi)) w $ =
+'(ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sqQuote_binder_absent hwR) (ax_mp sfBound_wf hf)));
+
+theorem qrepProfileAlpha_fresh (E: set) (n t a c u w q y x R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hwR: $ w < R $) (hqR: $ q < R $) (hw0: $ w != 0 $) (hq0: $ q != 0 $)
+ (hwt: $ w != t $) (hwu: $ w != u $) (hwq: $ w != q $)
+ (hqt: $ q != t $) (hqu: $ q != u $)
+ (hew: $ sqEnvAvoid E n w $) (heq: $ sqEnvAvoid E n q $):
+ $ kFresh (kAnd (kMem t w) (sfK0QRepRelation E t R u w phi)) q $ =
+'(ax_mp (ax_mp (ax_mp kFresh_and_intro hq0) (mpbir kFresh_kMem (ian hqt (necom hwq)))) (ax_mp (ax_mp (sqQuote_fresh hqR hq0 hqt) (mpbir (sfBoundeq1 add01) hf)) (ax_mp (ax_mp k218RoleAvoid_cons hqu) (ax_mp (ax_mp k218RoleAvoid_cons (necom hwq)) heq))));
+
+theorem qrepProfileAlpha_exists (E: set) (n t a c u w q y x R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hwR: $ w < R $) (hqR: $ q < R $) (hw0: $ w != 0 $) (hq0: $ q != 0 $)
+ (hwt: $ w != t $) (hwu: $ w != u $) (hwq: $ w != q $)
+ (hqt: $ q != t $) (hqu: $ q != u $)
+ (hew: $ sqEnvAvoid E n w $) (heq: $ sqEnvAvoid E n q $):
+ $ k218IEquivalent (kExists w (kAnd (kMem t w) (sfK0QRepRelation E t R u w phi))) (kExists q (kAnd (kMem t q) (sfK0QRepRelation E t R u q phi))) $ =
+'(mpbi (k218IEquivalenteq2 (kExistseq2 (! qrepProfileAlpha_subst $ E $ $ n $ $ t $ $ a $ $ c $ $ u $ $ w $ $ q $ $ y $ $ x $ $ R $ $ phi $ hf hwR hqR hw0 hq0 hwt hwu hwq hqt hqu hew heq))) (ax_mp (ax_mp (ax_mp k218IAlpha_exists hwq) (! qrepProfileAlpha_absent $ E $ $ n $ $ t $ $ a $ $ c $ $ u $ $ w $ $ q $ $ y $ $ x $ $ R $ $ phi $ hf hwR hqR hw0 hq0 hwt hwu hwq hqt hqu hew heq)) (! qrepProfileAlpha_fresh $ E $ $ n $ $ t $ $ a $ $ c $ $ u $ $ w $ $ q $ $ y $ $ x $ $ R $ $ phi $ hf hwR hqR hw0 hq0 hwt hwu hwq hqt hqu hew heq)));
+
+pub theorem sfK0QRepRawProfile_antecedent_alpha (E: set) (n t a c u w q y x R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hwR: $ w < R $) (hqR: $ q < R $) (hw0: $ w != 0 $) (hq0: $ q != 0 $)
+ (hwt: $ w != t $) (hwu: $ w != u $) (hwq: $ w != q $)
+ (hqt: $ q != t $) (hqu: $ q != u $)
+ (hew: $ sqEnvAvoid E n w $) (heq: $ sqEnvAvoid E n q $):
+ $ k218IEquivalent (sfK0QRepRawProfile E t a c u w y x R phi) (sfK0QRepRawProfile E t a c u q y x R phi) $ =
+(named '(ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl k218IEquivalent_refl)))) k218IEquivalent_refl)) (ax_mp k218IEquivalent_imp (ian (! qrepProfileAlpha_exists $ E $ $ n $ $ t $ $ a $ $ c $ $ u $ $ w $ $ q $ $ y $ $ x $ $ R $ $ phi $ hf hwR hqR hw0 hq0 hwt hwu hwq hqt hqu hew heq) (ax_mp k218IEquivalent_exists (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl k218IEquivalent_refl)))) k218IEquivalent_refl)) k218IEquivalent_refl)))) k218IEquivalent_refl)))))))) (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_all (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl k218IEquivalent_refl)))) k218IEquivalent_refl)) (ax_mp k218IEquivalent_exists (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl k218IEquivalent_refl)))) k218IEquivalent_refl)) (ax_mp k218IEquivalent_imp (ian k218IEquivalent_refl k218IEquivalent_refl)))) k218IEquivalent_refl)))))) k218IEquivalent_refl)))) k218IEquivalent_refl)) k218IEquivalent_refl)))) k218IEquivalent_refl)));

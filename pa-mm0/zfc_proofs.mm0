@@ -1,0 +1,42 @@
+import "zfc_axioms.mm0";
+import "source_nd_quantifiers.mm0";
+
+-- Concrete arithmetic ZFC proof predicate. The contexts and proof lists
+-- use Peano coding; calibration to the published beta representation
+-- remains a separate theorem, not a parameter of this predicate.
+def zfcContext (G: nat): wff = $ all zfcAxioms G $;
+def zfcProvable (f .G .p: nat): wff =
+$ E. G E. p (zfcContext G /\ sfNDFullDerives p (sfSequent G f)) $;
+def zfcInconsistent: wff = $ zfcProvable sfBot $;
+
+theorem zfcContext_nil: $ zfcContext 0 $;
+theorem zfcContext_cons (a G: nat):
+  $ zfcContext (a : G) <-> a e. zfcAxioms /\ zfcContext G $;
+theorem zfcContext_append (G D: nat):
+  $ zfcContext (G ++ D) <-> zfcContext G /\ zfcContext D $;
+theorem zfcContext_member_closed (G a: nat):
+  $ zfcContext G -> a IN G -> sfBound 0 a $;
+theorem zfcContext_wf (G: nat): $ zfcContext G -> sfContextWf G $;
+theorem zfcProof_formula_wf (G p a: nat):
+  $ sfNDFullDerives p (sfSequent G a) -> sfWf a $;
+theorem zfcProvable_intro (G p f: nat):
+  $ zfcContext G /\ sfNDFullDerives p (sfSequent G f) -> zfcProvable f $;
+theorem zfcProvable_wf (f: nat): $ zfcProvable f -> sfWf f $;
+theorem zfcAxiom_provable (a: nat): $ a e. zfcAxioms -> zfcProvable a $;
+
+theorem zfcContextSub_append_left (G D: nat): $ sfContextSub G (G ++ D) $;
+theorem zfcContextSub_append_right (G D: nat): $ sfContextSub D (G ++ D) $;
+theorem zfcProof_weaken (G D p a: nat):
+  $ sfContextWf D -> sfContextSub G D -> sfNDFullDerives p (sfSequent G a) ->
+    sfNDFullDerives (sfSequent D a : p) (sfSequent D a) $;
+
+def zfcMPProof (G D p q a b: nat): nat =
+$ sfSequent (G ++ D) b :
+    ((sfSequent (G ++ D) (sfImp a b) : p) ++
+     (sfSequent (G ++ D) a : q)) $;
+theorem zfcProof_mp (G D p q a b: nat):
+  $ sfContextWf (G ++ D) -> sfNDFullDerives p (sfSequent G (sfImp a b)) ->
+    sfNDFullDerives q (sfSequent D a) ->
+    sfNDFullDerives (zfcMPProof G D p q a b) (sfSequent (G ++ D) b) $;
+theorem zfcProvable_mp (a b: nat):
+  $ zfcProvable (sfImp a b) -> zfcProvable a -> zfcProvable b $;

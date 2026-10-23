@@ -1,0 +1,102 @@
+import "source_l_common_level_two_inst.mm1";
+
+-- The join step: two points with comparable ordinals give one level containing both.
+
+theorem cl2_pt_lev (G d y k: nat) (h: $ nsLocal G (sfCL2Pt d y k) $):
+ $ nsLocal G (sfCL2Lev d y) $ = '(ax_mp nsLocal_CE1 h);
+
+theorem cl2_pt_ord (G d y k: nat) (h: $ nsLocal G (sfCL2Pt d y k) $):
+ $ nsLocal G (sfCLOrdinalAt d) $ = '(ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 h));
+
+theorem cl2_pt_hier (G d y k: nat) (h: $ nsLocal G (sfCL2Pt d y k) $):
+ $ nsLocal G (sfCLHierarchyAt d y) $ = '(ax_mp nsLocal_CE2 (ax_mp nsLocal_CE1 h));
+
+theorem cl2_pt_mem (G d y k: nat) (h: $ nsLocal G (sfCL2Pt d y k) $):
+ $ nsLocal G (sfMem k y) $ = '(ax_mp nsLocal_CE2 h);
+
+theorem cl2_both_intro (G d y k m: nat) (hl: $ nsLocal G (sfCL2Lev d y) $)
+ (hk: $ nsLocal G (sfMem k y) $) (hm: $ nsLocal G (sfMem m y) $):
+ $ nsLocal G (sfCL2Both d y k m) $ =
+'(ax_mp (ax_mp sfLocal_and hl) (ax_mp (ax_mp sfLocal_and hk) hm));
+
+theorem cl2_mem_subst1 (d x: nat):
+ $ sfSubst 1 d (sfMem (suc (suc x)) 0) = sfMem (suc x) 0 $ =
+'(eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor))
+  (ax_mp sfSubstIndex_bound lt01S)));
+
+theorem cl2_both_subst1 (d x z: nat):
+ $ sfSubst 1 d (sfCL2Both 1 0 (suc (suc x)) (suc (suc z))) = sfCL2Both (suc d) 0 (suc x) (suc z) $ =
+'(eqtr sfSubst_sfAnd (nsAnd_eq
+  (eqtr sfSubst_sfAnd (nsAnd_eq
+   (eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq (eqtr sfSubstIndex_hit add12)))
+   (eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq (eqtr sfSubstIndex_hit add12)
+     (ax_mp sfSubstIndex_bound lt01S)))))
+  (eqtr sfSubst_sfAnd (nsAnd_eq cl2_mem_subst1 cl2_mem_subst1))));
+
+theorem cl2_both_outer (d x z: nat):
+ $ sfSubst 0 d (sfEx (sfCL2Both 1 0 (suc (suc x)) (suc (suc z)))) =
+   sfEx (sfCL2Both (suc d) 0 (suc x) (suc z)) $ =
+'(eqtr sfSubst_sfEx (nsEx_eq cl2_both_subst1));
+
+theorem cl2_mem_subst0 (y x: nat):
+ $ sfSubst 0 y (sfMem (suc x) 0) = sfMem x y $ =
+'(eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_successor sfSubstIndex_zero));
+
+theorem cl2_both_inner (d y x z: nat):
+ $ sfSubst 0 y (sfCL2Both (suc d) 0 (suc x) (suc z)) = sfCL2Both d y x z $ =
+'(eqtr sfSubst_sfAnd (nsAnd_eq
+  (eqtr sfSubst_sfAnd (nsAnd_eq
+   (eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq sfSubstIndex_successor))
+   (eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq sfSubstIndex_successor sfSubstIndex_zero))))
+  (eqtr sfSubst_sfAnd (nsAnd_eq cl2_mem_subst0 cl2_mem_subst0))));
+
+theorem cl2_bothex_intro (G d y x z: nat) (h: $ nsLocal G (sfCL2Both d y x z) $):
+ $ nsLocal G (sfCL2BothEx (suc (suc x)) (suc (suc z))) $ =
+'(ax_mp (ax_mp nsLocal_ExI (ax_mp sfWf_ex cl2_both_wf))
+  (mpbi (nsLocal_formula_eq (eqcom cl2_both_outer))
+   (ax_mp (ax_mp nsLocal_ExI cl2_both_wf)
+    (mpbi (nsLocal_formula_eq (eqcom cl2_both_inner)) h))));
+
+theorem cl2_wk (G x phi: nat) (hx: $ sfWf x $) (hg: $ sfContextWf G $) (h: $ nsLocal G phi $):
+ $ nsLocal (x : G) phi $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian hx hg))) sfContextSub_cons) h);
+
+theorem cl2_branch_a (G d1 y1 d2 y2 ka kb: nat) (hg: $ sfContextWf G $)
+ (hS: $ nsLocal G sfCL2Sub $)
+ (hp1: $ nsLocal G (sfCL2Pt d1 y1 ka) $) (hp2: $ nsLocal G (sfCL2Pt d2 y2 kb) $):
+ $ nsLocal (sfCLSubset d1 d2 : G) (sfCL2BothEx (suc (suc ka)) (suc (suc kb))) $ =
+'(cl2_bothex_intro (cl2_both_intro
+  (cl2_pt_lev (cl2_wk cl2_subset_wf hg hp2))
+  (ax_mp (sfCLSubset_use
+    (sfCL2_sub_use (cl2_wk cl2_subset_wf hg hS)
+      (cl2_pt_ord (cl2_wk cl2_subset_wf hg hp2))
+      (cl2_pt_ord (cl2_wk cl2_subset_wf hg hp1))
+      (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian cl2_subset_wf hg))) sfContext_member_head)
+      (cl2_pt_hier (cl2_wk cl2_subset_wf hg hp2))
+      (cl2_pt_hier (cl2_wk cl2_subset_wf hg hp1))))
+    (cl2_pt_mem (cl2_wk cl2_subset_wf hg hp1)))
+  (cl2_pt_mem (cl2_wk cl2_subset_wf hg hp2))));
+
+theorem cl2_branch_b (G d1 y1 d2 y2 ka kb: nat) (hg: $ sfContextWf G $)
+ (hS: $ nsLocal G sfCL2Sub $)
+ (hp1: $ nsLocal G (sfCL2Pt d1 y1 ka) $) (hp2: $ nsLocal G (sfCL2Pt d2 y2 kb) $):
+ $ nsLocal (sfCLSubset d2 d1 : G) (sfCL2BothEx (suc (suc ka)) (suc (suc kb))) $ =
+'(cl2_bothex_intro (cl2_both_intro
+  (cl2_pt_lev (cl2_wk cl2_subset_wf hg hp1))
+  (cl2_pt_mem (cl2_wk cl2_subset_wf hg hp1))
+  (ax_mp (sfCLSubset_use
+    (sfCL2_sub_use (cl2_wk cl2_subset_wf hg hS)
+      (cl2_pt_ord (cl2_wk cl2_subset_wf hg hp1))
+      (cl2_pt_ord (cl2_wk cl2_subset_wf hg hp2))
+      (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian cl2_subset_wf hg))) sfContext_member_head)
+      (cl2_pt_hier (cl2_wk cl2_subset_wf hg hp1))
+      (cl2_pt_hier (cl2_wk cl2_subset_wf hg hp2))))
+    (cl2_pt_mem (cl2_wk cl2_subset_wf hg hp2)))));
+
+pub theorem sfCL2_join (G d1 y1 d2 y2 ka kb: nat) (hg: $ sfContextWf G $)
+ (hS: $ nsLocal G sfCL2Sub $) (hC: $ nsLocal G sfCL2Cmp $)
+ (hp1: $ nsLocal G (sfCL2Pt d1 y1 ka) $) (hp2: $ nsLocal G (sfCL2Pt d2 y2 kb) $):
+ $ nsLocal G (sfCL2BothEx (suc (suc ka)) (suc (suc kb))) $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_DE (sfCL2_cmp_use hC (cl2_pt_ord hp1) (cl2_pt_ord hp2)))
+  (cl2_branch_a hg hS hp1 hp2))
+  (cl2_branch_b hg hS hp1 hp2));

@@ -1,0 +1,154 @@
+import "k230_substitution.mm1";
+import "quotation_binders.mm1";
+
+-- Binder absence ignores all atom argument names, including the tag.
+pub theorem kBinderAbsent_kF (x: nat): $ kBinderAbsent kF x $ =
+'(mpbi (trud (kBinderAbsent_congr (a1i kMem_zero) eqidd)) kBinderAbsent_kMem);
+pub theorem kBinderAbsent_not_intro (a x: nat):
+ $ kBinderAbsent a x -> kBinderAbsent (kNot a) x $ =
+'(syl (bi2 kBinderAbsent_kImp) (iand id (a1i kBinderAbsent_kF)));
+pub theorem kBinderAbsent_and_intro (a b x: nat):
+ $ kBinderAbsent a x -> kBinderAbsent b x -> kBinderAbsent (kAnd a b) x $ =
+'(syl6 kBinderAbsent_not_intro @ syl5 kBinderAbsent_not_intro (exp (bi2 kBinderAbsent_kImp)));
+pub theorem kBinderAbsent_disj_intro (a b x: nat):
+ $ kBinderAbsent a x -> kBinderAbsent b x -> kBinderAbsent (kDisj a b) x $ =
+'(syl (exp (bi2 kBinderAbsent_kImp)) kBinderAbsent_not_intro);
+pub theorem kBinderAbsent_all_intro (a b x: nat):
+ $ x != a -> kBinderAbsent b x -> kBinderAbsent (kAll a b) x $ =
+'(exp (bi2 kBinderAbsent_kAll));
+pub theorem kBinderAbsent_exists_intro (a b x: nat):
+ $ x != a -> kBinderAbsent b x -> kBinderAbsent (kExists a b) x $ =
+'(syl6 kBinderAbsent_not_intro @ syl5 kBinderAbsent_not_intro kBinderAbsent_all_intro);
+
+@_ abstract def ntAbsentClass (E: set) (k x: nat) (.c .d: nat): set =
+ $ {c | A. d kBinderAbsent (sfNamedTemplate E k d c) x} $;
+pub theorem ntAbsent_value {d: nat} (E: set) (k x c: nat):
+ $ c e. ntAbsentClass E k x <-> A. d kBinderAbsent (sfNamedTemplate E k d c) x $ =
+(named '(elabe ,eqtac));
+theorem ntAbsent_depth (E: set) (k x d c: nat):
+ $ (A. j kBinderAbsent (sfNamedTemplate E k j c) x) -> kBinderAbsent (sfNamedTemplate E k d c) x $ =
+(named '(!! eale j ,eqtac));
+theorem ntAbsent_at (E: set) (k x d c: nat):
+ $ c e. ntAbsentClass E k x -> kBinderAbsent (sfNamedTemplate E k d c) x $ =
+(named '(syl ntAbsent_depth (bi1 ntAbsent_value)));
+theorem ntAbsent_bot (E: set) (k x: nat): $ sfBot e. ntAbsentClass E k x $ =
+(named '(mpbir ntAbsent_value @ ax_gen @
+ mpbir (trud (kBinderAbsent_congr (a1i sfNamedTemplate_bot) eqidd)) kBinderAbsent_kF));
+theorem ntAbsent_mem (E: set) (k x a b: nat):
+ $ sfMem a b e. ntAbsentClass E k x $ =
+(named '(mpbir ntAbsent_value @ ax_gen @
+ mpbir (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfMem) eqidd)) kBinderAbsent_kMem));
+theorem ntAbsent_eq (E: set) (k x a b: nat):
+ $ sfEq a b e. ntAbsentClass E k x $ =
+(named '(mpbir ntAbsent_value @ ax_gen @
+ mpbir (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfEq) eqidd)) kBinderAbsent_kEq));
+theorem ntAbsent_atomic (E: set) (k x: nat): $ sfAtomicClosed (ntAbsentClass E k x) $ =
+(named '(ax_gen @ ax_gen @ ian ntAbsent_mem ntAbsent_eq));
+theorem ntAbsent_and (E: set) (k x a b: nat):
+ $ a e. ntAbsentClass E k x /\ b e. ntAbsentClass E k x -> sfAnd a b e. ntAbsentClass E k x $ =
+(named '(mpbird (a1i ntAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfAnd) eqidd))) @
+ mpd (syl ntAbsent_at anr) (syl kBinderAbsent_and_intro (syl ntAbsent_at anl))));
+theorem ntAbsent_or (E: set) (k x a b: nat):
+ $ a e. ntAbsentClass E k x /\ b e. ntAbsentClass E k x -> sfOr a b e. ntAbsentClass E k x $ =
+(named '(mpbird (a1i ntAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfOr) eqidd))) @
+ mpd (syl ntAbsent_at anr) (syl kBinderAbsent_disj_intro (syl ntAbsent_at anl))));
+theorem ntAbsent_imp (E: set) (k x a b: nat):
+ $ a e. ntAbsentClass E k x /\ b e. ntAbsentClass E k x -> sfImp a b e. ntAbsentClass E k x $ =
+(named '(mpbird (a1i ntAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfImp) eqidd))) @
+ mpd (syl ntAbsent_at anr) (syl (exp (bi2 kBinderAbsent_kImp)) (syl ntAbsent_at anl))));
+theorem ntAbsent_binary (E: set) (k x: nat): $ sfBinaryClosed (ntAbsentClass E k x) $ =
+(named '(ax_gen @ ax_gen @ iand (iand ntAbsent_and ntAbsent_or) ntAbsent_imp));
+theorem ntAbsent_all (E: set) (k x a: nat) (hk: $ x < k $):
+ $ a e. ntAbsentClass E k x -> sfAll a e. ntAbsentClass E k x $ =
+(named '(mpbird (a1i ntAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfAll) eqidd))) @
+ syl (ax_mp kBinderAbsent_all_intro (ltnei (ltletr hk leaddid1))) ntAbsent_at));
+theorem ntAbsent_ex (E: set) (k x a: nat) (hk: $ x < k $):
+ $ a e. ntAbsentClass E k x -> sfEx a e. ntAbsentClass E k x $ =
+(named '(mpbird (a1i ntAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfEx) eqidd))) @
+ syl (ax_mp kBinderAbsent_exists_intro (ltnei (ltletr hk leaddid1))) ntAbsent_at));
+theorem ntAbsent_quantifier (E: set) (k x: nat) (hk: $ x < k $):
+ $ sfQuantifierClosed (ntAbsentClass E k x) $ =
+(named '(ax_gen @ iand (ntAbsent_all hk) (ntAbsent_ex hk)));
+theorem ntAbsent_closed (E: set) (k x: nat) (hk: $ x < k $):
+ $ sfConstructionClosed (ntAbsentClass E k x) $ =
+'(ian (ian (ian ntAbsent_bot ntAbsent_atomic) ntAbsent_binary) (ntAbsent_quantifier hk));
+pub theorem sfNamedTemplate_binder_absent (E: set) (k d c x: nat) (hk: $ x < k $):
+ $ sfWf c -> kBinderAbsent (sfNamedTemplate E k d c) x $ =
+'(syl ntAbsent_at (ax_mp sfWf_induction (ntAbsent_closed hk)));
+pub theorem sqEqual_binder_absent (t a b k x: nat) (hk: $ x < k $):
+ $ kBinderAbsent (sqEqual t a b k) x $ =
+'(ax_mp (sfNamedTemplate_binder_absent hk) sqEqualSource_wf);
+pub theorem sqMember_binder_absent (t a b k x: nat) (hk: $ x < k $):
+ $ kBinderAbsent (sqMember t a b k) x $ =
+'(ax_mp (sfNamedTemplate_binder_absent hk) sqMemberSource_wf);
+
+@_ abstract def qqAbsentClass (E: set) (t k x: nat) (.c .d: nat): set =
+ $ {c | A. d kBinderAbsent (sqQuote E t k d c) x} $;
+pub theorem qqAbsent_value {d: nat} (E: set) (t k x c: nat):
+ $ c e. qqAbsentClass E t k x <-> A. d kBinderAbsent (sqQuote E t k d c) x $ =
+(named '(elabe ,eqtac));
+theorem qqAbsent_depth (E: set) (t k x d c: nat):
+ $ (A. j kBinderAbsent (sqQuote E t k j c) x) -> kBinderAbsent (sqQuote E t k d c) x $ =
+(named '(!! eale j ,eqtac));
+theorem qqAbsent_at (E: set) (t k x d c: nat):
+ $ c e. qqAbsentClass E t k x -> kBinderAbsent (sqQuote E t k d c) x $ =
+(named '(syl qqAbsent_depth (bi1 qqAbsent_value)));
+theorem qqAbsent_bot (E: set) (t k x: nat): $ sfBot e. qqAbsentClass E t k x $ =
+(named '(mpbir qqAbsent_value @ ax_gen @
+ mpbir (trud (kBinderAbsent_congr (a1i sqQuote_bot) eqidd)) kBinderAbsent_kF));
+theorem qqAbsent_mem (E: set) (t k x a b: nat) (hk: $ x < k $):
+ $ sfMem a b e. qqAbsentClass E t k x $ =
+(named '(mpbir qqAbsent_value @ ax_gen @
+ mpbir (trud (kBinderAbsent_congr (a1i sqQuote_sfMem) eqidd))
+ (sqMember_binder_absent (ltletr hk leaddid1))));
+theorem qqAbsent_eq (E: set) (t k x a b: nat) (hk: $ x < k $):
+ $ sfEq a b e. qqAbsentClass E t k x $ =
+(named '(mpbir qqAbsent_value @ ax_gen @
+ mpbir (trud (kBinderAbsent_congr (a1i sqQuote_sfEq) eqidd))
+ (sqEqual_binder_absent (ltletr hk leaddid1))));
+theorem qqAbsent_atomic (E: set) (t k x: nat) (hk: $ x < k $):
+ $ sfAtomicClosed (qqAbsentClass E t k x) $ =
+(named '(ax_gen @ ax_gen @ ian (qqAbsent_mem hk) (qqAbsent_eq hk)));
+theorem qqAbsent_and (E: set) (t k x a b: nat):
+ $ a e. qqAbsentClass E t k x /\ b e. qqAbsentClass E t k x -> sfAnd a b e. qqAbsentClass E t k x $ =
+(named '(mpbird (a1i qqAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfAnd) eqidd))) @
+ mpd (syl qqAbsent_at anr) (syl kBinderAbsent_and_intro (syl qqAbsent_at anl))));
+theorem qqAbsent_or (E: set) (t k x a b: nat):
+ $ a e. qqAbsentClass E t k x /\ b e. qqAbsentClass E t k x -> sfOr a b e. qqAbsentClass E t k x $ =
+(named '(mpbird (a1i qqAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfOr) eqidd))) @
+ mpd (syl qqAbsent_at anr) (syl kBinderAbsent_disj_intro (syl qqAbsent_at anl))));
+theorem qqAbsent_imp (E: set) (t k x a b: nat):
+ $ a e. qqAbsentClass E t k x /\ b e. qqAbsentClass E t k x -> sfImp a b e. qqAbsentClass E t k x $ =
+(named '(mpbird (a1i qqAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfImp) eqidd))) @
+ mpd (syl qqAbsent_at anr) (syl (exp (bi2 kBinderAbsent_kImp)) (syl qqAbsent_at anl))));
+theorem qqAbsent_binary (E: set) (t k x: nat): $ sfBinaryClosed (qqAbsentClass E t k x) $ =
+(named '(ax_gen @ ax_gen @ iand (iand qqAbsent_and qqAbsent_or) qqAbsent_imp));
+theorem qqAbsent_all (E: set) (t k x a: nat) (hk: $ x < k $):
+ $ a e. qqAbsentClass E t k x -> sfAll a e. qqAbsentClass E t k x $ =
+(named '(mpbird (a1i qqAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfAll) eqidd))) @
+ syl (ax_mp kBinderAbsent_all_intro (ltnei (ltletr hk leaddid1))) @
+ syl (ax_mp (exp (bi2 kBinderAbsent_kImp)) kBinderAbsent_kMem) qqAbsent_at));
+theorem qqAbsent_ex (E: set) (t k x a: nat) (hk: $ x < k $):
+ $ a e. qqAbsentClass E t k x -> sfEx a e. qqAbsentClass E t k x $ =
+(named '(mpbird (a1i qqAbsent_value) @ !! iald d @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfEx) eqidd))) @
+ syl (ax_mp kBinderAbsent_exists_intro (ltnei (ltletr hk leaddid1))) @
+ syl (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) qqAbsent_at));
+theorem qqAbsent_quantifier (E: set) (t k x: nat) (hk: $ x < k $):
+ $ sfQuantifierClosed (qqAbsentClass E t k x) $ =
+(named '(ax_gen @ iand (qqAbsent_all hk) (qqAbsent_ex hk)));
+theorem qqAbsent_closed (E: set) (t k x: nat) (hk: $ x < k $):
+ $ sfConstructionClosed (qqAbsentClass E t k x) $ =
+'(ian (ian (ian qqAbsent_bot (qqAbsent_atomic hk)) qqAbsent_binary) (qqAbsent_quantifier hk));
+pub theorem sqQuote_binder_absent (E: set) (t k d c x: nat) (hk: $ x < k $):
+ $ sfWf c -> kBinderAbsent (sqQuote E t k d c) x $ =
+'(syl qqAbsent_at (ax_mp sfWf_induction (qqAbsent_closed hk)));

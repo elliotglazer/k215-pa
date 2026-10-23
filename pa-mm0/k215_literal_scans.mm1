@@ -1,0 +1,177 @@
+import "k215_literal_tape.mm1";
+import "k215_literal_iteration.mm1";
+
+do (apply (register-eqd 'k215TmPush) '(k215TmPusheqd));
+do (apply (register-eqd 'k215TmHead) '(k215TmHeadeqd));
+do (apply (register-eqd 'k215TmTail) '(k215TmTaileqd));
+do (apply (register-eqd 'k215TMState) '(k215TMStateeqd));
+do (apply (register-eqd 'k215TMStep) '(k215TMStepeqd));
+do (apply (register-eqd 'k215TMRun) '(k215TMRuneqd));
+do (apply (register-eqd 'k215TMAction) '(k215TMActioneqd));
+do (apply (register-eqd 'k215TMMove) '(k215TMMoveeqd));
+
+-- Repeated low-order tape bits followed by an arbitrary finite remainder.
+@_ abstract def k215TmRepeat (b n r: nat) (.z: nat): nat =
+ $ rec r (\ z, k215TmPush b z) n $;
+pub theorem k215TmRepeat_zero (b r: nat): $ k215TmRepeat b 0 r = r $ = (named 'rec0);
+pub theorem k215TmRepeat_succ (b n r: nat):
+ $ k215TmRepeat b (suc n) r = k215TmPush b (k215TmRepeat b n r) $ =
+ '(eqtr recS @ ! applame $ k215TmRepeat b n r $ _ z _ k215TmPusheq2);
+pub theorem k215TmRepeat_push (b n r: nat):
+ $ k215TmRepeat b n (k215TmPush b r) = k215TmPush b (k215TmRepeat b n r) $ =
+ (named @ induct '(ind) 'n
+  '(eqtr k215TmRepeat_zero (eqcom (k215TmPusheq2 k215TmRepeat_zero)))
+  '(eqtrd (a1i k215TmRepeat_succ)
+    (eqtrd (k215TmPusheq2d id) (a1i (eqcom (k215TmPusheq2 k215TmRepeat_succ))))));
+
+-- Left-oriented zipper: the current cell is the first bit of l.
+@_ def k215TmLeftState (q l r: nat): nat =
+ $ k215TMState q (k215TmTail l) (k215TmPush (k215TmHead l) r) $;
+pub theorem k215TmLeftState_push (q b l r: nat):
+ $ b <= 1 -> k215TmLeftState q (k215TmPush b l) r = k215TMState q l (k215TmPush b r) $ =
+ '(k215TMStateeqd eqidd k215TmPush_tail (k215TmPusheq1d k215TmPush_head));
+
+theorem k215TmStep_state (q l r: nat):
+ $ q < k215Num215 -> k215TMStep (k215TMState q l r) = k215TMMove (k215TMAction q (k215TmHead r)) l r $ =
+ '(eqtrd (syl k215TMStep_active (bi2 (lteq1 k215TMState_Q)))
+   (a1i (k215TMMoveeq (k215TMActioneq k215TMState_Q (modeq1 k215TMState_R)) k215TMState_L k215TMState_R)));
+theorem k215TmMove_right_tuple (q w l r: nat):
+ $ k215TMMove (w, 1, q) l r = k215TMState q (k215TmPush w l) (k215TmTail r) $ =
+ '(eqtr (ax_mp k215TMMove_right (mpbir (noteq (eqeq1 k215TMState_L)) d1ne0))
+   (k215TMStateeq k215TMState_R (k215TmPusheq1 k215TMState_Q) eqid));
+theorem k215TmMove_left_tuple (q w l r: nat):
+ $ k215TMMove (w, 0, q) l r =
+   k215TMState q (k215TmTail l) (k215TmPush (k215TmHead l) (k215TmPush w (k215TmTail r))) $ =
+ '(eqtr (ax_mp k215TMMove_left k215TMState_L)
+   (k215TMStateeq k215TMState_R eqid (k215TmPusheq2 (k215TmPusheq1 k215TMState_Q))));
+
+theorem k215TmStep_right_of (q q1 b w l r: nat)
+ (hq: $ q < k215Num215 $) (hb: $ b <= 1 $) (ha: $ k215TMAction q b = (w, 1, q1) $):
+ $ k215TMStep (k215TMState q l (k215TmPush b r)) = k215TMState q1 (k215TmPush w l) r $ =
+ '(eqtr (ax_mp k215TmStep_state hq)
+   (eqtr (k215TMMoveeq1 (eqtr (k215TMActioneq2 (ax_mp k215TmPush_head hb)) ha))
+     (eqtr k215TmMove_right_tuple (k215TMStateeq3 (ax_mp k215TmPush_tail hb)))));
+theorem k215TmStep_left_of (q q1 b w l r: nat)
+ (hq: $ q < k215Num215 $) (hb: $ b <= 1 $) (ha: $ k215TMAction q b = (w, 0, q1) $):
+ $ k215TMStep (k215TMState q l (k215TmPush b r)) =
+   k215TMState q1 (k215TmTail l) (k215TmPush (k215TmHead l) (k215TmPush w r)) $ =
+ '(eqtr (ax_mp k215TmStep_state hq)
+   (eqtr (k215TMMoveeq1 (eqtr (k215TMActioneq2 (ax_mp k215TmPush_head hb)) ha))
+     (eqtr k215TmMove_left_tuple (k215TMStateeq3 (k215TmPusheq2 (k215TmPusheq2 (ax_mp k215TmPush_tail hb)))))));
+theorem k215TmStep_left_zipper_of (q q1 b w l r: nat)
+ (hq: $ q < k215Num215 $) (hb: $ b <= 1 $) (ha: $ k215TMAction q b = (w, 0, q1) $):
+ $ k215TMStep (k215TmLeftState q (k215TmPush b l) r) = k215TmLeftState q1 l (k215TmPush w r) $ =
+ '(eqtr (k215TMStepeq (ax_mp k215TmLeftState_push hb)) (k215TmStep_left_of hq hb ha));
+
+pub theorem k215TmRun_one (s: nat): $ k215TMRun 1 s = k215TMStep s $ =
+ '(eqtr k215TMRun_succ (k215TMStepeq k215TMRun_zero));
+pub theorem k215TmRun_after_step (n s t: nat):
+ $ k215TMStep s = t -> k215TMRun (suc n) s = k215TMRun n t $ =
+ '(eqtrd (a1i (k215TMRuneq1 (eqcom add11)))
+   (eqtrd (a1i k215TMRun_add) (k215TMRuneq2d (eqtrd (a1i k215TmRun_one) id))));
+
+pub theorem k215TmStep_right (q q1 b w l r: nat):
+ $ q < k215Num215 /\ b <= 1 /\ k215TMAction q b = (w, 1, q1) ->
+   k215TMStep (k215TMState q l (k215TmPush b r)) = k215TMState q1 (k215TmPush w l) r $ =
+ '(eqtrd (syl k215TmStep_state anll)
+   (eqtrd (k215TMMoveeq1d (eqtrd (k215TMActioneq2d (syl k215TmPush_head anlr)) anr))
+     (eqtrd (a1i k215TmMove_right_tuple) (k215TMStateeq3d (syl k215TmPush_tail anlr)))));
+pub theorem k215TmStep_left (q q1 b w l r: nat):
+ $ q < k215Num215 /\ b <= 1 /\ k215TMAction q b = (w, 0, q1) ->
+   k215TMStep (k215TMState q l (k215TmPush b r)) = k215TmLeftState q1 l (k215TmPush w r) $ =
+ '(eqtrd (syl k215TmStep_state anll)
+   (eqtrd (k215TMMoveeq1d (eqtrd (k215TMActioneq2d (syl k215TmPush_head anlr)) anr))
+     (eqtrd (a1i k215TmMove_left_tuple)
+       (k215TMStateeq3d (k215TmPusheq2d (k215TmPusheq2d (syl k215TmPush_tail anlr)))))));
+pub theorem k215TmStep_left_zipper (q q1 b w l r: nat):
+ $ q < k215Num215 /\ b <= 1 /\ k215TMAction q b = (w, 0, q1) ->
+   k215TMStep (k215TmLeftState q (k215TmPush b l) r) = k215TmLeftState q1 l (k215TmPush w r) $ =
+ '(eqtrd (k215TMStepeqd (syl k215TmLeftState_push anlr)) k215TmStep_left);
+
+@_ def k215TmScanRightLoop (q b w: nat): wff =
+ $ q < k215Num215 /\ b <= 1 /\ k215TMAction q b = (w, 1, q) $;
+@_ def k215TmScanLeftLoop (q b w: nat): wff =
+ $ q < k215Num215 /\ b <= 1 /\ k215TMAction q b = (w, 0, q) $;
+@_ abstract def k215TmScanRightClaim (q b w n: nat) (.l .r: nat): wff =
+ $ A. l A. r k215TMRun n (k215TMState q l (k215TmRepeat b n r)) = k215TMState q (k215TmRepeat w n l) r $;
+@_ abstract def k215TmScanLeftClaim (q b w n: nat) (.l .r: nat): wff =
+ $ A. l A. r k215TMRun n (k215TmLeftState q (k215TmRepeat b n l) r) = k215TmLeftState q l (k215TmRepeat w n r) $;
+
+theorem k215TmScanRightClaim_at (q b w n l r: nat):
+ $ k215TmScanRightClaim q b w n ->
+   k215TMRun n (k215TMState q l (k215TmRepeat b n r)) = k215TMState q (k215TmRepeat w n l) r $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215TmScanLeftClaim_at (q b w n l r: nat):
+ $ k215TmScanLeftClaim q b w n ->
+   k215TMRun n (k215TmLeftState q (k215TmRepeat b n l) r) = k215TmLeftState q l (k215TmRepeat w n r) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215TmScanRight_zero_at (q b w l r: nat):
+ $ k215TMRun 0 (k215TMState q l (k215TmRepeat b 0 r)) = k215TMState q (k215TmRepeat w 0 l) r $ =
+ '(eqtr k215TMRun_zero (k215TMStateeq eqid (eqcom k215TmRepeat_zero) k215TmRepeat_zero));
+theorem k215TmScanLeft_zero_at (q b w l r: nat):
+ $ k215TMRun 0 (k215TmLeftState q (k215TmRepeat b 0 l) r) = k215TmLeftState q l (k215TmRepeat w 0 r) $ =
+ '(eqtr k215TMRun_zero (k215TmLeftStateeq eqid k215TmRepeat_zero (eqcom k215TmRepeat_zero)));
+
+theorem k215TmScanRight_step_raw (q b w l r: nat):
+ $ k215TmScanRightLoop q b w ->
+   k215TMStep (k215TMState q l (k215TmPush b r)) = k215TMState q (k215TmPush w l) r $ =
+ '(eqtrd (syl k215TmStep_state anll)
+   (eqtrd (k215TMMoveeq1d (eqtrd (k215TMActioneq2d (syl k215TmPush_head anlr)) anr))
+     (eqtrd (a1i k215TmMove_right_tuple) (k215TMStateeq3d (syl k215TmPush_tail anlr)))));
+theorem k215TmScanLeft_step_raw (q b w l r: nat):
+ $ k215TmScanLeftLoop q b w ->
+   k215TMStep (k215TMState q l (k215TmPush b r)) = k215TmLeftState q l (k215TmPush w r) $ =
+ '(eqtrd (syl k215TmStep_state anll)
+   (eqtrd (k215TMMoveeq1d (eqtrd (k215TMActioneq2d (syl k215TmPush_head anlr)) anr))
+     (eqtrd (a1i k215TmMove_left_tuple)
+       (k215TMStateeq3d (k215TmPusheq2d (k215TmPusheq2d (syl k215TmPush_tail anlr)))))));
+theorem k215TmScanLeft_step_zipper (q b w l r: nat):
+ $ k215TmScanLeftLoop q b w ->
+   k215TMStep (k215TmLeftState q (k215TmPush b l) r) = k215TmLeftState q l (k215TmPush w r) $ =
+ '(eqtrd (k215TMStepeqd (syl k215TmLeftState_push anlr)) k215TmScanLeft_step_raw);
+
+theorem k215TmScanRight_step_one (q b w n l r: nat):
+ $ k215TmScanRightLoop q b w -> k215TMStep (k215TMState q l (k215TmRepeat b (suc n) r)) =
+   k215TMState q (k215TmPush w l) (k215TmRepeat b n r) $ =
+ '(eqtrd (a1i (k215TMStepeq (k215TMStateeq3 k215TmRepeat_succ)))
+   k215TmScanRight_step_raw);
+theorem k215TmScanLeft_step_one (q b w n l r: nat):
+ $ k215TmScanLeftLoop q b w -> k215TMStep (k215TmLeftState q (k215TmRepeat b (suc n) l) r) =
+   k215TmLeftState q (k215TmRepeat b n l) (k215TmPush w r) $ =
+ '(eqtrd (a1i (k215TMStepeq (k215TmLeftStateeq2 k215TmRepeat_succ)))
+   k215TmScanLeft_step_zipper);
+
+theorem k215TmScanRight_step_at (q b w n l r: nat):
+ $ k215TmScanRightLoop q b w /\ k215TmScanRightClaim q b w n ->
+   k215TMRun (suc n) (k215TMState q l (k215TmRepeat b (suc n) r)) =
+     k215TMState q (k215TmRepeat w (suc n) l) r $ =
+ '(eqtrd (syl k215TmRun_after_step (syl k215TmScanRight_step_one anl))
+   (eqtrd (syl k215TmScanRightClaim_at anr)
+     (a1i (k215TMStateeq2 (eqtr k215TmRepeat_push (eqcom k215TmRepeat_succ))))));
+theorem k215TmScanLeft_step_at (q b w n l r: nat):
+ $ k215TmScanLeftLoop q b w /\ k215TmScanLeftClaim q b w n ->
+   k215TMRun (suc n) (k215TmLeftState q (k215TmRepeat b (suc n) l) r) =
+     k215TmLeftState q l (k215TmRepeat w (suc n) r) $ =
+ '(eqtrd (syl k215TmRun_after_step (syl k215TmScanLeft_step_one anl))
+   (eqtrd (syl k215TmScanLeftClaim_at anr)
+     (a1i (k215TmLeftStateeq3 (eqtr k215TmRepeat_push (eqcom k215TmRepeat_succ))))));
+
+theorem k215TmScanRight_all (q b w n: nat):
+ $ k215TmScanRightLoop q b w -> k215TmScanRightClaim q b w n $ =
+ (named @ induct '(indd) 'n
+  '(a1i (ax_gen (ax_gen k215TmScanRight_zero_at)))
+  '(iald @ iald k215TmScanRight_step_at));
+theorem k215TmScanLeft_all (q b w n: nat):
+ $ k215TmScanLeftLoop q b w -> k215TmScanLeftClaim q b w n $ =
+ (named @ induct '(indd) 'n
+  '(a1i (ax_gen (ax_gen k215TmScanLeft_zero_at)))
+  '(iald @ iald k215TmScanLeft_step_at));
+pub theorem k215TmScan_right (q b w n l r: nat):
+ $ k215TmScanRightLoop q b w ->
+   k215TMRun n (k215TMState q l (k215TmRepeat b n r)) = k215TMState q (k215TmRepeat w n l) r $ =
+ '(syl k215TmScanRightClaim_at k215TmScanRight_all);
+pub theorem k215TmScan_left (q b w n l r: nat):
+ $ k215TmScanLeftLoop q b w ->
+   k215TMRun n (k215TmLeftState q (k215TmRepeat b n l) r) = k215TmLeftState q l (k215TmRepeat w n r) $ =
+ '(syl k215TmScanLeftClaim_at k215TmScanLeft_all);
+

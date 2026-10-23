@@ -1,0 +1,275 @@
+import "source_piece_pcf_rep_case_common.mm1";
+
+import "source_piece_pcf_definable_difference_use.mm1";
+
+import "source_piece_pcf_definable_union_use.mm1";
+
+import "source_piece_pcf_definable_existential_recipe.mm1";
+
+import "source_piece_pcf_rep_cover_bridge_r46.mm1";
+
+-- Imp case: eliminate l (for a), r (for b), the environment cover U of A^n, the difference
+-- d = U - l and the union w = d u r; conclude Named n (a -> b) w A by renaming one closed
+-- derivation of sfPieceRepImplicationNamed_recipe.
+
+theorem pcri_ctx_wf (n a b: nat):
+  $ sfContextWf (sfPieceRepEnvironmentCoverAt 1 4 n :
+      (sfPieceRepImplicationNamedUnion 5 3 0 :
+        (sfPieceDefinableConjunctionDifference 4 2 5 :
+          (sfPieceDefinableNamed n b 3 1 : (sfPieceDefinableNamed n a 2 1 : 0))))) $ =
+'(mpbir sfContextWf_cons (ian sfPieceDefinableExistential_cover_wf
+  (mpbir sfContextWf_cons (ian sfPieceRepImplicationNamedUnion_wf
+    (mpbir sfContextWf_cons (ian sfPieceDefinableConjunctionDifference_wf
+      (mpbir sfContextWf_cons (ian sfORBinary_wf
+        (mpbir sfContextWf_cons (ian sfORBinary_wf sfContextWf_nil))))))))));
+
+theorem pcri_pure (n a b: nat) (hba: $ sfBound n a $) (hbb: $ sfBound n b $):
+  $ nsLocal 0 (sfImp (sfPieceDefinableNamed n a 2 1)
+      (sfImp (sfPieceDefinableNamed n b 3 1)
+        (sfImp (sfPieceDefinableConjunctionDifference 4 2 5)
+          (sfImp (sfPieceRepImplicationNamedUnion 5 3 0)
+            (sfImp (sfPieceRepEnvironmentCoverAt 1 4 n)
+              (sfPieceDefinableNamed n (sfImp a b) 0 1)))))) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II
+  (sfRQ_rewrite (eqcom (sfPieceRepCase_named01 (mpbir sfBound_sfImp (ian hba hbb))))
+    (sfPieceRepImplicationNamed_recipe hba hbb
+      (ax_mp (ax_mp nsLocal_hyp pcri_ctx_wf)
+        (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orr
+          (mpbir lmemS (orl eqid)))))))))))
+      (ax_mp (ax_mp nsLocal_hyp pcri_ctx_wf)
+        (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orl eqid)))))))))
+      (ax_mp (ax_mp nsLocal_hyp pcri_ctx_wf)
+        (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orl eqid)))))))
+      (ax_mp (ax_mp nsLocal_hyp pcri_ctx_wf)
+        (mpbir lmemS (orr (mpbir lmemS (orl eqid)))))
+      (ax_mp (ax_mp nsLocal_hyp pcri_ctx_wf)
+        (mpbir lmemS (orl eqid))))))))));
+
+-- The renaming 0 -> w, 1 -> A, 2 -> l, 3 -> r, 4 -> U, 5 -> d.
+theorem pcri_m0 (w A l r U d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons U (sqEnvCons d sfIdentityMap))))) @ 0 = w $ =
+'sqEnvCons_zero;
+theorem pcri_m1 (w A l r U d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons U (sqEnvCons d sfIdentityMap))))) @ 1 = A $ =
+'(eqtr sqEnvCons_suc sqEnvCons_zero);
+theorem pcri_m2 (w A l r U d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons U (sqEnvCons d sfIdentityMap))))) @ 2 = l $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero));
+theorem pcri_m3 (w A l r U d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons U (sqEnvCons d sfIdentityMap))))) @ 3 = r $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)));
+theorem pcri_m4 (w A l r U d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons U (sqEnvCons d sfIdentityMap))))) @ 4 = U $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))));
+theorem pcri_m5 (w A l r U d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons U (sqEnvCons d sfIdentityMap))))) @ 5 = d $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc
+  (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem pcri_rename_eq (n a b w A l r U d: nat) (hba: $ sfBound n a $) (hbb: $ sfBound n b $):
+  $ sfRename (sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons U (sqEnvCons d sfIdentityMap)))))) 0
+      (sfImp (sfPieceDefinableNamed n a 2 1)
+        (sfImp (sfPieceDefinableNamed n b 3 1)
+          (sfImp (sfPieceDefinableConjunctionDifference 4 2 5)
+            (sfImp (sfPieceRepImplicationNamedUnion 5 3 0)
+              (sfImp (sfPieceRepEnvironmentCoverAt 1 4 n)
+                (sfPieceDefinableNamed n (sfImp a b) 0 1)))))) =
+    sfImp (sfPieceDefinableNamed n a l A)
+      (sfImp (sfPieceDefinableNamed n b r A)
+        (sfImp (sfPieceDefinableConjunctionDifference U l d)
+          (sfImp (sfPieceRepImplicationNamedUnion d r w)
+            (sfImp (sfPieceRepEnvironmentCoverAt A U n)
+              (sfPieceDefinableNamed n (sfImp a b) w A))))) $ =
+'(eqtr sfRename_sfImp (sfImpeq
+  (eqtr (sfPieceDefinableNamed_rename hba)
+    (sfPieceDefinableNamed_congr hba (eqtr sfRenameIndex_zero pcri_m2) (eqtr sfRenameIndex_zero pcri_m1)))
+  (eqtr sfRename_sfImp (sfImpeq
+    (eqtr (sfPieceDefinableNamed_rename hbb)
+      (sfPieceDefinableNamed_congr hbb (eqtr sfRenameIndex_zero pcri_m3) (eqtr sfRenameIndex_zero pcri_m1)))
+    (eqtr sfRename_sfImp (sfImpeq
+      (eqtr sfPieceDefinableConjunctionDifference_rename
+        (sfPieceDefinableConjunctionDifference_congr pcri_m4 pcri_m2 pcri_m5))
+      (eqtr sfRename_sfImp (sfImpeq
+        (eqtr sfPieceRepImplicationNamedUnion_rename
+          (sfPieceRepImplicationNamedUnion_congr pcri_m5 pcri_m3 pcri_m0))
+        (eqtr sfRename_sfImp (sfImpeq
+          (eqtr sfPieceRepEnvironmentCoverAt_rename
+            (sfPieceDefinableExistential_cover_congr pcri_m1 pcri_m4))
+          (eqtr (sfPieceDefinableNamed_rename (mpbir sfBound_sfImp (ian hba hbb)))
+            (sfPieceDefinableNamed_congr (mpbir sfBound_sfImp (ian hba hbb))
+              (eqtr sfRenameIndex_zero pcri_m0) (eqtr sfRenameIndex_zero pcri_m1)))))))))))));
+
+pub theorem sfPieceRepCaseImp_rule (G n a b w A l r U d: nat)
+  (hg: $ sfContextWf G $) (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hL: $ nsLocal G (sfPieceDefinableNamed n a l A) $)
+  (hR: $ nsLocal G (sfPieceDefinableNamed n b r A) $)
+  (hD: $ nsLocal G (sfPieceDefinableConjunctionDifference U l d) $)
+  (hU: $ nsLocal G (sfPieceRepImplicationNamedUnion d r w) $)
+  (hC: $ nsLocal G (sfPieceRepEnvironmentCoverAt A U n) $):
+  $ nsLocal G (sfPieceDefinableNamed n (sfImp a b) w A) $ =
+'(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp (ax_mp nsLocal_weaken hg) all0)
+    (sfRQ_rewrite (pcri_rename_eq hba hbb)
+      (mpbi (nsLocal_context_eq sfContextRename_nil)
+        (ax_mp sfSepLocal_rename (pcri_pure hba hbb)))))) hL)) hR)) hD)) hU)) hC);
+
+theorem pcri_sshift (x y: nat):
+  $ sfShift 0 (sfPieceRepSuccessor x y) = sfPieceRepSuccessor (suc x) (suc y) $ =
+'(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepSuccessor_wf))
+  (eqtr sfPieceRepSuccessor_rename
+    (sfPieceRepSuccessor_eq (eqtr sfRenameIndex_zero sfSuccessorMap_value)
+      (eqtr sfRenameIndex_zero sfSuccessorMap_value))));
+
+-- Level 5: w = 0, d = 1, U = 2, r = 3, l = 4.
+theorem pcri_l5 (G4 A4 C4 n a b: nat) (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hl: $ nsLocal G4 (sfPieceDefinableNamed n a 3 A4) $)
+  (hr: $ nsLocal G4 (sfPieceDefinableNamed n b 2 A4) $)
+  (hd: $ nsLocal G4 (sfPieceDefinableConjunctionDifference 1 3 0) $)
+  (hcv: $ nsLocal G4 (sfPieceRepEnvironmentCoverAt A4 1 n) $):
+  $ nsLocal (sfPieceDefinableUnionWitnessBody 0 2 C4 : sfContextShift G4)
+      (sfShift 0 (sfPieceDefinableWitness A4 C4 n (sfImp a b))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfImp (ian hba hbb))))
+  (sfPieceDefinableWitness_intro (mpbir sfBound_sfImp (ian hba hbb))
+    (ax_mp nsLocal_CE1 (sfPieceRepCase_head sfPieceDefinableUnionWitnessBody_wf))
+    (sfPieceRepCaseImp_rule (sfPieceRepCase_ctx sfPieceDefinableUnionWitnessBody_wf) hba hbb
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hba)
+        (sfPieceDefinableExistential_under sfPieceDefinableUnionWitnessBody_wf hl))
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hbb)
+        (sfPieceDefinableExistential_under sfPieceDefinableUnionWitnessBody_wf hr))
+      (sfRQ_rewrite sfPieceDefinableConjunctionDifference_shift
+        (sfPieceDefinableExistential_under sfPieceDefinableUnionWitnessBody_wf hd))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head sfPieceDefinableUnionWitnessBody_wf))
+      (sfRQ_rewrite sfPieceDefinableExistential_cover_shift
+        (sfPieceDefinableExistential_under sfPieceDefinableUnionWitnessBody_wf hcv)))));
+
+-- Level 4: d = 0, U = 1, r = 2, l = 3; produce w = d u r.
+theorem pcri_l4 (G3 A3 B3 C3 n a b: nat)
+  (hg3: $ sfContextWf G3 $) (hbg3: $ sfContextSub sfLBackground G3 $)
+  (hc3: $ nsLocal G3 (sfPieceRepClosure B3 C3) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hrm: $ nsLocal G3 (sfMem 1 C3) $)
+  (hl: $ nsLocal G3 (sfPieceDefinableNamed n a 2 A3) $)
+  (hr: $ nsLocal G3 (sfPieceDefinableNamed n b 1 A3) $)
+  (hcv: $ nsLocal G3 (sfPieceRepEnvironmentCoverAt A3 0 n) $):
+  $ nsLocal (sfPieceDefinableDifferenceWitnessBody 0 2 C3 : sfContextShift G3)
+      (sfShift 0 (sfPieceDefinableWitness A3 C3 n (sfImp a b))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfImp (ian hba hbb))))
+  (ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+    (sfPieceDefinableUnion_produce
+      (sfPieceRepCase_bg_under hg3 hbg3)
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hc3))
+      (ax_mp nsLocal_CE1 (sfPieceRepCase_head sfPieceDefinableDifferenceWitnessBody_wf))
+      (sfRQ_rewrite sfPieceRepCase_mshift
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hrm))))
+    (pcri_l5 hba hbb
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hba)
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hl))
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hbb)
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hr))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head sfPieceDefinableDifferenceWitnessBody_wf))
+      (sfRQ_rewrite sfPieceDefinableExistential_cover_shift
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hcv)))));
+
+-- Level 3: U = 0, r = 1, l = 2; produce d = U - l.
+theorem pcri_l3 (G2 A2 B2 C2 n a b: nat)
+  (hg2: $ sfContextWf G2 $) (hbg2: $ sfContextSub sfLBackground G2 $)
+  (hc2: $ nsLocal G2 (sfPieceRepClosure B2 C2) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hlm: $ nsLocal G2 (sfMem 1 C2) $) (hrm: $ nsLocal G2 (sfMem 0 C2) $)
+  (hl: $ nsLocal G2 (sfPieceDefinableNamed n a 1 A2) $)
+  (hr: $ nsLocal G2 (sfPieceDefinableNamed n b 0 A2) $):
+  $ nsLocal (sfPieceRepEnvironmentCoverBody A2 C2 n : sfContextShift G2)
+      (sfShift 0 (sfPieceDefinableWitness A2 C2 n (sfImp a b))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfImp (ian hba hbb))))
+  (ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+    (sfPieceDefinableDifference_produce
+      (sfPieceRepCase_bg_under hg2 hbg2)
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hc2))
+      sfPieceRepCoverWitnessContext_member
+      (sfRQ_rewrite sfPieceRepCase_mshift
+        (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hlm))))
+    (pcri_l4
+      (sfPieceRepCase_ctx sfPieceRepEnvironmentCoverBody_wf)
+      (sfPieceRepCase_bg_under hg2 hbg2)
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hc2))
+      hba hbb
+      (sfRQ_rewrite sfPieceRepCase_mshift
+        (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hrm))
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hba)
+        (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hl))
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hbb)
+        (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hr))
+      sfPieceRepCoverWitnessContext_cover)));
+
+-- Level 2: r = 0, l = 1; produce the environment cover U of A^n.
+theorem pcri_l2 (G1 A1 B1 C1 n a b: nat)
+  (hg1: $ sfContextWf G1 $) (hbg1: $ sfContextSub sfLBackground G1 $)
+  (hs1: $ nsLocal G1 (sfPieceRepSuccessor A1 B1) $)
+  (hc1: $ nsLocal G1 (sfPieceRepClosure B1 C1) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hlm: $ nsLocal G1 (sfMem 0 C1) $)
+  (hl: $ nsLocal G1 (sfPieceDefinableNamed n a 0 A1) $):
+  $ nsLocal (sfAnd (sfMem 0 (suc C1)) (sfPieceDefinableNamed n b 0 (suc A1)) : sfContextShift G1)
+      (sfShift 0 (sfPieceDefinableWitness A1 C1 n (sfImp a b))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfImp (ian hba hbb))))
+  (ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+    (sfPieceRepEnvironmentCover_background
+      (sfPieceRepCase_ctx (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))
+      (sfPieceRepCase_bg_under hg1 hbg1)
+      (sfRQ_rewrite pcri_sshift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hs1))
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hc1))))
+    (pcri_l3
+      (sfPieceRepCase_ctx (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))
+      (sfPieceRepCase_bg_under hg1 hbg1)
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hc1))
+      hba hbb
+      (sfRQ_rewrite sfPieceRepCase_mshift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hlm))
+      (ax_mp nsLocal_CE1 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf)))
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hba)
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hl))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))))));
+
+-- Level 1: l = 0.
+theorem pcri_l1 (G A B C n a b: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hwb: $ nsLocal G (sfPieceDefinableWitness A C n b) $):
+  $ nsLocal (sfAnd (sfMem 0 (suc C)) (sfPieceDefinableNamed n a 0 (suc A)) : sfContextShift G)
+      (sfShift 0 (sfPieceDefinableWitness A C n (sfImp a b))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfImp (ian hba hbb))))
+  (ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+    (sfRQ_rewrite (sfPieceDefinableNamed_witness_eq hbb)
+      (sfRQ_rewrite (sfPieceRepCase_wshift hbb)
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hwb))))
+    (pcri_l2
+      (sfPieceRepCase_ctx (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))
+      (sfPieceRepCase_bg_under hg hbg)
+      (sfRQ_rewrite pcri_sshift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hs))
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hc))
+      hba hbb
+      (ax_mp nsLocal_CE1 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf)))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))))));
+
+pub theorem sfPieceRepCaseImp (G A B C n a b: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hwa: $ nsLocal G (sfPieceDefinableWitness A C n a) $)
+  (hwb: $ nsLocal G (sfPieceDefinableWitness A C n b) $):
+  $ nsLocal G (sfPieceDefinableWitness A C n (sfImp a b)) $ =
+'(ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+  (sfRQ_rewrite (sfPieceDefinableNamed_witness_eq hba) hwa))
+  (pcri_l1 hg hbg hs hc hba hbb hwb));

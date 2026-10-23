@@ -1,0 +1,17 @@
+import "bb215_arithmetic_formula_step.mm0";
+
+import "bb215_arithmetic_formula_run_graph.mm0";
+
+def bb215ArithmeticFormulaRunScalarClosure (m c T n .i .x .y: nat): wff = $ A. i (i < n -> A. x (bb215ArithmeticFormulaHistoryPairGraph m c i x -> A. y (bb215ArithmeticFormulaStepGraph T x y -> bb215ArithmeticFormulaHistoryPairGraph m c (suc i) y))) $;
+
+theorem bb215ArithmeticFormulaRunScalarClosure_packed (m c T n: nat) {i x: nat}: $ bb215ArithmeticFormulaRunScalarClosure m c T n <-> bb215ArithmeticFormulaRecClosure (m, c) (bb215ArithmeticFormulaRunStep T) n $;
+
+def bb215ArithmeticFormulaRunScalarCertificate (m c T n v .y: nat): wff = $ bb215ArithmeticFormulaHistoryPairGraph m c 0 0 /\ bb215ArithmeticFormulaRunScalarClosure m c T n /\ A. y (bb215ArithmeticFormulaHistoryPairGraph m c n y -> y = v) $;
+
+theorem bb215ArithmeticFormulaRunScalarCertificate_packed (m c T n v: nat) {y: nat}: $ bb215ArithmeticFormulaRunScalarCertificate m c T n v <-> bb215ArithmeticFormulaRecCertificate (m, c) k215TMInitial (bb215ArithmeticFormulaRunStep T) n v $;
+
+def bb215ArithmeticFormulaRunScalarGraph (T n v .m .c: nat): wff = $ E. m E. c bb215ArithmeticFormulaRunScalarCertificate m c T n v $;
+
+theorem bb215ArithmeticFormulaRunScalarGraph_packed (T n v: nat) {m c a: nat}: $ bb215ArithmeticFormulaRunScalarGraph T n v <-> bb215ArithmeticFormulaRunGraph T n v $;
+
+theorem bb215ArithmeticFormulaRunScalarGraph_correct (T n v: nat): $ bb215ArithmeticFormulaRunScalarGraph T n v <-> bb215Run T n k215TMInitial = v $;

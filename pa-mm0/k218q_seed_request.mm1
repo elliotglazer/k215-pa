@@ -1,0 +1,43 @@
+import "k218q_bound_vacuity.mm1";
+import "k218q_seed_witness.mm1";
+import "quotation_binders_absent.mm1";
+
+@_ def k218QRootRequest (b c d: nat): nat =
+ $ kImp (kExists b d) (kExists b (kAnd d (kMem b c))) $;
+
+@_ def k218QRootSeed (a b c d: nat): nat =
+ $ kExists c (kAnd (k218Closure a b c d) (k218QRootRequest b c d)) $;
+
+pub theorem k218QRequest_root (b c d: nat)
+ (hb: $ b != 0 $) (hd: $ kBinderAbsent d b $):
+ $ k218QProvable (kImp (kRequest b c d) (k218QRootRequest b c d)) $ =
+'(k218IExists_elimination
+  (k218QBound_exists_vacuity hb (k218QBinderAbsent_and hd kBinderAbsent_kMem)));
+
+theorem k218QAnd_right_mono (p q r: nat)
+ (h: $ k218QProvable (kImp q r) $):
+ $ k218QProvable (kImp (kAnd p q) (kAnd p r)) $ =
+'(k218QProvable_mp (k218IProvable_syl k218IPropAndRight h)
+  (k218QProvable_mp (k218IProvable_syl k218IPropAndLeft k218IPropAndIntro)
+    k218IPropS));
+
+pub theorem k218QSeedWitness_root (a b c d: nat)
+ (hb: $ b != 0 $) (hd: $ kBinderAbsent d b $):
+ $ k218QProvable (kImp (k218QSeedWitness a b c d) (k218QRootSeed a b c d)) $ =
+'(k218IExists_mono (k218QAnd_right_mono (k218QRequest_root hb hd)));
+
+pub theorem k218QRootSeed_instance (d: nat) (hd: $ kBinderAbsent d 3 $):
+ $ k218QProvable (k218QRootSeed 1 3 (k218QSeedCode d) d) $ =
+'(ax_mp (ax_mp k218QProvable_mp k218QSeed_witness)
+  (k218QSeedWitness_root (ltneri lt01S) hd));
+
+pub theorem k218QRootSeed_universal (d: nat) (hd: $ kBinderAbsent d 3 $):
+ $ k218QProvable (kAll 1 (k218QRootSeed 1 3 (k218QSeedCode d) d)) $ =
+'(ax_mp k218QProvable_gen (k218QRootSeed_instance hd));
+
+pub theorem k218QNamedRootSeed (E: set) (k f: nat)
+ (hk: $ 3 < k $) (hf: $ sfWf f $):
+ $ k218QProvable (kAll 1
+     (k218QRootSeed 1 3 (k218QSeedCode (sfNamedTemplate E k 0 f))
+       (sfNamedTemplate E k 0 f))) $ =
+'(k218QRootSeed_universal (ax_mp (sfNamedTemplate_binder_absent hk) hf));

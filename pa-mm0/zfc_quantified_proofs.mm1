@@ -1,0 +1,54 @@
+import "zfc_proofs.mm1";
+import "source_syntax_laws.mm1";
+
+theorem zfcQuantSequent_congr (H: wff) (a u b v: nat)
+  (h0: $ H -> a = u $) (h1: $ H -> b = v $):
+  $ H -> sfSequent a b = sfSequent u v $ = '(sfSequent_congr h0 h1);
+do (apply (register-eqd 'sfSequent)
+  '(zfcQuantSequent_congr sfSequent_congr_context sfSequent_congr_formula));
+do (apply (register-eqd 'sfAll) '(sfAll_congr));
+do (apply (register-eqd 'sfSubst) '(sfSubst_congr));
+theorem zfcQuantFullDerives_congr (H: wff) (p q a b: nat)
+  (hp: $ H -> p = q $) (ha: $ H -> a = b $):
+  $ H -> (sfNDFullDerives p a <-> sfNDFullDerives q b) $ =
+'(aneqd (trueeqd (lreceq3d hp)) (lmemeqd ha hp));
+do (apply (register-eqd 'sfNDFullDerives) '(zfcQuantFullDerives_congr));
+theorem zfcQuantContext_congr (H: wff) (G D: nat) (h: $ H -> G = D $):
+  $ H -> (zfcContext G <-> zfcContext D) $ = '(alleq2d h);
+do (apply (register-eqd 'zfcContext) '(zfcQuantContext_congr));
+do (apply (register-eqd 'sfContextShift) '(sfContextShift_congr));
+
+pub theorem zfcContext_shift_identity (G: nat):
+  $ zfcContext G -> sfContextShift G = G $ =
+(named @ induct '(listind) 'G
+  '(a1i sfContextShift_nil)
+  '(exp @ eqtrd (a1i sfContextShift_cons) @ conseqd
+    (syl sfShift_closed_identity @ syl zfcAxioms_closed @
+      syl anl @ syl (bi1 zfcContext_cons) anr)
+    (mpd (syl anr (syl (bi1 zfcContext_cons) anr)) anl)));
+
+@_ def zfcGenProof (G p a: nat): nat = $ sfSequent G (sfAll a) : p $;
+@_ def zfcInstantiateProof (G p a t: nat): nat = $ sfSequent G (sfSubst 0 t a) : p $;
+
+pub theorem zfcProof_gen (G p a: nat):
+  $ zfcContext G -> sfNDFullDerives p (sfSequent G a) ->
+    sfNDFullDerives (zfcGenProof G p a) (sfSequent G (sfAll a)) $ =
+'(exp @ mpd
+  (mpbird (zfcQuantFullDerives_congr (a1i eqid)
+    (sfSequent_congr_context (syl zfcContext_shift_identity anl))) anr)
+  (syl sfNDFullDerives_AllI @ sylc sfRowWf_sequent_intro
+    (syl zfcContext_wf anl) (syl sfWf_all (syl zfcProof_formula_wf anr))));
+
+pub theorem zfcProvable_gen (a: nat):
+  $ zfcProvable a -> zfcProvable (sfAll a) $ =
+(named '(eex @ eex @ syl zfcProvable_intro @ iand anl (imp zfcProof_gen)));
+
+pub theorem zfcProof_allE (G p a t: nat):
+  $ zfcContext G -> sfNDFullDerives p (sfSequent G (sfAll a)) ->
+    sfNDFullDerives (zfcInstantiateProof G p a t) (sfSequent G (sfSubst 0 t a)) $ =
+'(exp @ mpd anr @ syl sfNDFullDerives_AllE @
+  sylc sfRowWf_sequent_intro (syl zfcContext_wf anl) (a1i sfSubst_wf));
+
+pub theorem zfcProvable_allE (a t: nat):
+  $ zfcProvable (sfAll a) -> zfcProvable (sfSubst 0 t a) $ =
+(named '(eex @ eex @ syl zfcProvable_intro @ iand anl (imp zfcProof_allE)));

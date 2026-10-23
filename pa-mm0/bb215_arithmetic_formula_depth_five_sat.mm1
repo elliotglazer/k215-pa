@@ -1,0 +1,47 @@
+import "bb215_arithmetic_formula_depth_four_sat.mm1";
+
+import "pa_source_interpretation_nat_term_assignment.mm1";
+
+@_ abstract def bb215ArithmeticFormulaDepthFiveSatBody (E: set) (c h .x: nat): wff = $ ifp (c = 0) (0 != 0) (ifp (sfTag c = 1) (bb215ArithmeticFormulaTermValue E (sfLeft c) = bb215ArithmeticFormulaTermValue E (sfRight c)) (ifp (sfTag c = 3) (sfLeft c e. h /\ sfRight c e. h) (ifp (sfTag c = 4) (sfLeft c e. h \/ sfRight c e. h) (ifp (sfTag c = 5) (sfLeft c e. h -> sfRight c e. h) (ifp (sfTag c = 6 /\ sfRight c = 0) (A. x bb215ArithmeticFormulaDepthFourSat (paNatTermConsEnvironment E x) (sfLeft c)) (ifp (sfTag c = 7 /\ sfRight c = 0) (E. x bb215ArithmeticFormulaDepthFourSat (paNatTermConsEnvironment E x) (sfLeft c)) (0 != 0))))))) $;
+
+@_ abstract def bb215ArithmeticFormulaDepthFiveSatStep (E: set) (.c .h: nat): set = $ S\ c, {h | bb215ArithmeticFormulaDepthFiveSatBody E c h} $;
+
+@_ abstract def bb215ArithmeticFormulaDepthFiveSat (E: set) (c: nat): wff = $ srecp (bb215ArithmeticFormulaDepthFiveSatStep E) c $;
+
+@_ abstract def bb215ArithmeticFormulaDepthFiveSatPrevious (E: set) (c .i: nat): nat = $ sep (upto c) {i | srecp (bb215ArithmeticFormulaDepthFiveSatStep E) i} $;
+
+pub theorem bb215ArithmeticFormulaDepthFiveSatStep_value (E: set) (c h: nat): $ (c, h) e. bb215ArithmeticFormulaDepthFiveSatStep E <-> bb215ArithmeticFormulaDepthFiveSatBody E c h $ = (named '(elsabe @ elabed ,eqtac));
+
+pub theorem bb215ArithmeticFormulaDepthFiveSatPrevious_value (E: set) (c a: nat): $ a e. bb215ArithmeticFormulaDepthFiveSatPrevious E c <-> a < c /\ bb215ArithmeticFormulaDepthFiveSat E a $ = (named '(bitr elsep @ bitr (aneq1i elupto) (aneq2i (elabe ,eqtac))));
+
+pub theorem bb215ArithmeticFormulaDepthFiveSat_unfold (E: set) (c: nat): $ bb215ArithmeticFormulaDepthFiveSat E c <-> bb215ArithmeticFormulaDepthFiveSatBody E c (bb215ArithmeticFormulaDepthFiveSatPrevious E c) $ = (named '(bitr srecpval bb215ArithmeticFormulaDepthFiveSatStep_value));
+
+theorem bb215ArithmeticFormulaDepthFiveSatBody_Equal (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ bb215ArithmeticFormulaDepthFiveSatBody E c h <-> bb215ArithmeticFormulaTermValue E (sfLeft c) = bb215ArithmeticFormulaTermValue E (sfRight c) $ = (named '(bitr (ifpneg h0) (ifppos ht)));
+
+theorem bb215ArithmeticFormulaDepthFiveSatBody_And (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ bb215ArithmeticFormulaDepthFiveSatBody E c h <-> sfLeft c e. h /\ sfRight c e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (ifppos ht))));
+
+theorem bb215ArithmeticFormulaDepthFiveSatBody_Or (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ bb215ArithmeticFormulaDepthFiveSatBody E c h <-> sfLeft c e. h \/ sfRight c e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht)))));
+
+theorem bb215ArithmeticFormulaDepthFiveSatBody_Imp (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 5 $): $ bb215ArithmeticFormulaDepthFiveSatBody E c h <-> sfLeft c e. h -> sfRight c e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht))))));
+
+theorem bb215ArithmeticFormulaDepthFiveSatBody_All (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $): $ bb215ArithmeticFormulaDepthFiveSatBody E c h <-> A. x bb215ArithmeticFormulaDepthFourSat (paNatTermConsEnvironment E x) (sfLeft c) $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos (ian ht hz))))))));
+
+theorem bb215ArithmeticFormulaDepthFiveSatBody_Ex (E: set) (c h: nat) {x: nat} (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $): $ bb215ArithmeticFormulaDepthFiveSatBody E c h <-> E. x bb215ArithmeticFormulaDepthFourSat (paNatTermConsEnvironment E x) (sfLeft c) $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid)))) (ifppos (ian ht hz)))))))));
+
+theorem bb215ArithmeticFormulaDepthFiveSatPrevious_child (E: set) (c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $): $ sfLeft c e. bb215ArithmeticFormulaDepthFiveSatPrevious E c <-> bb215ArithmeticFormulaDepthFiveSat E a $ = (named '(bitr (eleq1 hl) (bitr bb215ArithmeticFormulaDepthFiveSatPrevious_value (bian1 ha))));
+
+theorem bb215ArithmeticFormulaDepthFiveSatPrevious_right (E: set) (c a: nat) (hl: $ sfRight c = a $) (ha: $ a < c $): $ sfRight c e. bb215ArithmeticFormulaDepthFiveSatPrevious E c <-> bb215ArithmeticFormulaDepthFiveSat E a $ = (named '(bitr (eleq1 hl) (bitr bb215ArithmeticFormulaDepthFiveSatPrevious_value (bian1 ha))));
+
+pub theorem bb215ArithmeticFormulaDepthFiveSat_false (E: set): $ bb215ArithmeticFormulaDepthFiveSat E paFormulaFalse <-> 0 != 0 $ = (named '(bitr bb215ArithmeticFormulaDepthFiveSat_unfold (ifppos eqid)));
+
+pub theorem bb215ArithmeticFormulaDepthFiveSat_equal (E: set) (a b: nat): $ bb215ArithmeticFormulaDepthFiveSat E (paFormulaEqual a b) <-> bb215ArithmeticFormulaTermValue E a = bb215ArithmeticFormulaTermValue E b $ = (named '(bitr bb215ArithmeticFormulaDepthFiveSat_unfold (bitr (bb215ArithmeticFormulaDepthFiveSatBody_Equal sfMem_ne_sfBot sfMem_tag) (eqeq (bb215ArithmeticFormulaTermValueeq2 sfMem_left) (bb215ArithmeticFormulaTermValueeq2 sfMem_right)))));
+
+pub theorem bb215ArithmeticFormulaDepthFiveSat_and (E: set) (a b: nat): $ bb215ArithmeticFormulaDepthFiveSat E (paFormulaAnd a b) <-> (bb215ArithmeticFormulaDepthFiveSat E a /\ bb215ArithmeticFormulaDepthFiveSat E b) $ = (named '(bitr bb215ArithmeticFormulaDepthFiveSat_unfold (bitr (bb215ArithmeticFormulaDepthFiveSatBody_And sfAnd_ne_sfBot sfAnd_tag) (aneq (bb215ArithmeticFormulaDepthFiveSatPrevious_child sfAnd_left sfAnd_left_lt) (bb215ArithmeticFormulaDepthFiveSatPrevious_right sfAnd_right sfAnd_right_lt)))));
+
+pub theorem bb215ArithmeticFormulaDepthFiveSat_or (E: set) (a b: nat): $ bb215ArithmeticFormulaDepthFiveSat E (paFormulaOr a b) <-> (bb215ArithmeticFormulaDepthFiveSat E a \/ bb215ArithmeticFormulaDepthFiveSat E b) $ = (named '(bitr bb215ArithmeticFormulaDepthFiveSat_unfold (bitr (bb215ArithmeticFormulaDepthFiveSatBody_Or sfOr_ne_sfBot sfOr_tag) (oreq (bb215ArithmeticFormulaDepthFiveSatPrevious_child sfOr_left sfOr_left_lt) (bb215ArithmeticFormulaDepthFiveSatPrevious_right sfOr_right sfOr_right_lt)))));
+
+pub theorem bb215ArithmeticFormulaDepthFiveSat_imp (E: set) (a b: nat): $ bb215ArithmeticFormulaDepthFiveSat E (paFormulaImp a b) <-> (bb215ArithmeticFormulaDepthFiveSat E a -> bb215ArithmeticFormulaDepthFiveSat E b) $ = (named '(bitr bb215ArithmeticFormulaDepthFiveSat_unfold (bitr (bb215ArithmeticFormulaDepthFiveSatBody_Imp sfImp_ne_sfBot sfImp_tag) (imeqi (bb215ArithmeticFormulaDepthFiveSatPrevious_child sfImp_left sfImp_left_lt) (bb215ArithmeticFormulaDepthFiveSatPrevious_right sfImp_right sfImp_right_lt)))));
+
+pub theorem bb215ArithmeticFormulaDepthFiveSat_all (E: set) (a: nat) {x: nat}: $ bb215ArithmeticFormulaDepthFiveSat E (paFormulaAll a) <-> A. x bb215ArithmeticFormulaDepthFourSat (paNatTermConsEnvironment E x) a $ = (named '(bitr bb215ArithmeticFormulaDepthFiveSat_unfold (bitr (bb215ArithmeticFormulaDepthFiveSatBody_All sfAll_ne_sfBot sfAll_tag sfAll_right) (!! aleqi x (bb215ArithmeticFormulaDepthFourSateq2 sfAll_left)))));
+
+pub theorem bb215ArithmeticFormulaDepthFiveSat_ex (E: set) (a: nat) {x: nat}: $ bb215ArithmeticFormulaDepthFiveSat E (paFormulaEx a) <-> E. x bb215ArithmeticFormulaDepthFourSat (paNatTermConsEnvironment E x) a $ = (named '(bitr bb215ArithmeticFormulaDepthFiveSat_unfold (bitr (bb215ArithmeticFormulaDepthFiveSatBody_Ex sfEx_ne_sfBot sfEx_tag sfEx_right) (!! exeqi x (bb215ArithmeticFormulaDepthFourSateq2 sfEx_left)))));

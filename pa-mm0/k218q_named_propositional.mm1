@@ -1,0 +1,66 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm1";
+import "k218q_rebase.mm1";
+import "k218q_named_support.mm1";
+
+@_ def k218INamedLocal (H: nat) (E: set) (k d c: nat): wff =
+ $ k218IHypProvable H (sfNamedTemplate E k d c) $;
+
+pub theorem k218INamedLocal_assumption (H: nat) (E: set) (k d a: nat):
+ $ sfNamedTemplate E k d a IN H -> k218INamedLocal H E k d a $ =
+'k218IHypProvable_assumption;
+
+pub theorem k218INamedLocal_peirce (H: nat) (E: set) (k d a b: nat):
+ $ k218INamedLocal H E k d (sfImp (sfImp (sfImp a b) a) a) $ =
+'(mpbir (k218IHypProvableeq2 (eqtr sfNamedTemplate_sfImp
+  (kImpeq1 (eqtr sfNamedTemplate_sfImp (kImpeq1 sfNamedTemplate_sfImp)))))
+  (k218IHypProvable_seed k218IPropP));
+
+pub theorem k218INamedLocal_impI (H: nat) (E: set) (k d a b: nat):
+ $ k218INamedLocal ((sfNamedTemplate E k d a) : H) E k d b ->
+   k218INamedLocal H E k d (sfImp a b) $ =
+'(syl (bi2 (k218IHypProvableeq2 sfNamedTemplate_sfImp)) k218IHypProvable_deduction);
+
+pub theorem k218INamedLocal_impE (H: nat) (E: set) (k d a b: nat):
+ $ k218INamedLocal H E k d a -> k218INamedLocal H E k d (sfImp a b) ->
+   k218INamedLocal H E k d b $ =
+'(syl5bi (k218IHypProvableeq2 sfNamedTemplate_sfImp) k218IHypProvable_mp);
+
+pub theorem k218INamedLocal_botE (H: nat) (E: set) (k d a: nat):
+ $ k218INamedLocal H E k d sfBot -> k218INamedLocal H E k d a $ =
+'(syl (mpi (k218IHypProvable_seed k218IPropF) k218IHypProvable_mp)
+  (bi1 (k218IHypProvableeq2 sfNamedTemplate_bot)));
+
+
+pub theorem k218INamedLocal_andI (H: nat) (E: set) (k d a b: nat):
+ $ k218INamedLocal H E k d a -> k218INamedLocal H E k d b ->
+   k218INamedLocal H E k d (sfAnd a b) $ =
+'(syl6 (bi2 (k218IHypProvableeq2 sfNamedTemplate_sfAnd)) k218IHyp_andI);
+
+pub theorem k218INamedLocal_andE1 (H: nat) (E: set) (k d a b: nat):
+ $ k218INamedLocal H E k d (sfAnd a b) -> k218INamedLocal H E k d a $ =
+'(syl (mpi (k218IHypProvable_seed k218IPropAndLeft) k218IHypProvable_mp)
+  (bi1 (k218IHypProvableeq2 sfNamedTemplate_sfAnd)));
+
+pub theorem k218INamedLocal_andE2 (H: nat) (E: set) (k d a b: nat):
+ $ k218INamedLocal H E k d (sfAnd a b) -> k218INamedLocal H E k d b $ =
+'(syl (mpi (k218IHypProvable_seed k218IPropAndRight) k218IHypProvable_mp)
+  (bi1 (k218IHypProvableeq2 sfNamedTemplate_sfAnd)));
+
+pub theorem k218INamedLocal_orI1 (H: nat) (E: set) (k d a b: nat):
+ $ k218INamedLocal H E k d a -> k218INamedLocal H E k d (sfOr a b) $ =
+'(syl (bi2 (k218IHypProvableeq2 sfNamedTemplate_sfOr))
+  (mpi (k218IHypProvable_seed k218IPropB3) k218IHypProvable_mp));
+
+pub theorem k218INamedLocal_orI2 (H: nat) (E: set) (k d a b: nat):
+ $ k218INamedLocal H E k d b -> k218INamedLocal H E k d (sfOr a b) $ =
+'(syl (bi2 (k218IHypProvableeq2 sfNamedTemplate_sfOr))
+  (mpi (k218IHypProvable_seed k218IPropK) k218IHypProvable_mp));
+
+
+pub theorem k218INamedLocal_orE (H: nat) (E: set) (k d a b c: nat):
+ $ k218INamedLocal H E k d (sfOr a b) ->
+   k218INamedLocal ((sfNamedTemplate E k d a) : H) E k d c ->
+   k218INamedLocal ((sfNamedTemplate E k d b) : H) E k d c ->
+   k218INamedLocal H E k d c $ =
+'(sylbi (k218IHypProvableeq2 sfNamedTemplate_sfOr) k218IHyp_orE);

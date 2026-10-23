@@ -1,0 +1,34 @@
+import "source_l_replacement_definable_law.mm0";
+
+import "source_l_separation_image_def0.mm0";
+
+-- Next level (Rocq Z_L: L_{a+1} = Def(L_a)). Free variables: Y = 0, a = 1.
+-- For an ordinal a and Y = L_a there is D with Def0 Y D all of whose elements are in L.
+def sfLNextDefBody: nat =
+ $ sfImp (sfCLOrdinalAt 1) (sfImp (sfCLHierarchyAt 1 0)
+   (sfEx (sfAnd (sfLSeparationDef0 1 0) (sfAll (sfImp (sfMem 0 1) sfLDomain))))) $;
+
+def sfLNextDefLaw: nat = $ sfAllPrefix 2 sfLNextDefBody $;
+
+-- The profile {z in Y | psi^Y(z, params)} of the Replacement law, read one binder deeper.
+def sfLLevelDefinableProfile(psi:nat):nat =
+ $ sfShift (suc 0)
+   (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi (suc 0) 0) $;
+
+-- The Definability Lemma at a level (Rocq Z_cl `definable`): for an ordinal a, Y = L_a and
+-- parameters in Y, every D with Def0 Y D contains X = {z in Y | psi^Y(z, params)}.
+-- Free variables: Y = 0, a = 1, parameters 2 .. m+1 (the layout of sfLReplacementDefinableBody).
+def sfLLevelDefinableBody(m psi:nat):nat =
+ $ sfImp (sfLReplacementDefinableAntecedent m)
+   (sfAll (sfImp (sfLSeparationDef0 1 0)
+     (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi))))) $;
+
+def sfLLevelDefinableLaw(m psi:nat):nat =
+ $ sfAllPrefix (m + 2) (sfLLevelDefinableBody m psi) $;
+
+-- The closed Replacement definability law follows from the level Definability Lemma
+-- and the next-level law. No other premise is used.
+theorem sfLReplacementDefinableLaw_from_level(m psi:nat)
+ (hU:$ sfTheoryProvable zfrAxioms (sfLLevelDefinableLaw m psi) $)
+ (hN:$ sfTheoryProvable zfrAxioms sfLNextDefLaw $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m psi) $;

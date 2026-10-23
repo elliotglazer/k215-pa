@@ -1,0 +1,21 @@
+import "k218q_seed_normalized.mm1";
+
+@_ def k218QSeedWitness (a b c d: nat): nat =
+ $ kExists c (kAnd (k218Closure a b c d) (kRequest b c d)) $;
+
+pub theorem k218QNegImp_right (p q: nat):
+ $ k218QProvable (kImp (kNot (kImp p q)) (kNot q)) $ =
+'(k218INot_mono k218IPropK);
+
+pub theorem k218QSeedY_witness (a b c d: nat):
+ $ k218QProvable (kImp (k218SeedY a b c d) (k218QSeedWitness a b c d)) $ =
+'(k218IProvable_syl k218QNegImp_right
+  (k218INot_mono (k218IAll_mono k218IPropDNE)));
+
+pub theorem k218QSeed_witness (d: nat):
+ $ k218QProvable (k218QSeedWitness 1 3 (k218QSeedCode d) d) $ =
+'(ax_mp (ax_mp k218QProvable_mp k218QSeed_normalized) k218QSeedY_witness);
+
+pub theorem k218QSeed_witness_universal (d: nat):
+ $ k218QProvable (kAll 1 (k218QSeedWitness 1 3 (k218QSeedCode d) d)) $ =
+'(ax_mp k218QProvable_gen k218QSeed_witness);

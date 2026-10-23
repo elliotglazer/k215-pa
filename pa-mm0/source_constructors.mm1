@@ -1,0 +1,523 @@
+import "fol_kernel.mm1";
+
+-- Exact eight-tag set-formula encoding from SetFormulaCodes.v.
+-- The payload uses the pinned Peano library's right-oriented Cantor pairing.
+
+@_ def sfBot: nat = $ 0 $;
+@_ def sfNode (t a b: nat): nat = $ 8 * (a, b) + t $;
+@_ def sfMem (a b: nat): nat = $ sfNode 1 a b $;
+@_ def sfEq (a b: nat): nat = $ sfNode 2 a b $;
+@_ def sfAnd (a b: nat): nat = $ sfNode 3 a b $;
+@_ def sfOr (a b: nat): nat = $ sfNode 4 a b $;
+@_ def sfImp (a b: nat): nat = $ sfNode 5 a b $;
+@_ def sfAll (a: nat): nat = $ sfNode 6 a 0 $;
+@_ def sfEx (a: nat): nat = $ sfNode 7 a 0 $;
+@_ def sfTag (a: nat): nat = $ a % 8 $;
+@_ def sfLeft (a: nat): nat = $ fst (a // 8) $;
+@_ def sfRight (a: nat): nat = $ snd (a // 8) $;
+
+pub theorem sfNode_tag (t a b: nat):
+  $ t < 8 -> sfTag (sfNode t a b) = t $ =
+'(syl muladdmod2lt (iand (a1i peano1) id));
+
+pub theorem sfNode_quot (t a b: nat):
+  $ t < 8 -> sfNode t a b // 8 = (a, b) $ =
+'(syl muladddiv2lt (iand (a1i peano1) id));
+
+pub theorem sfNode_left (t a b: nat):
+  $ t < 8 -> sfLeft (sfNode t a b) = a $ =
+'(syl6eq fstpr (syl fsteq sfNode_quot));
+
+pub theorem sfNode_right (t a b: nat):
+  $ t < 8 -> sfRight (sfNode t a b) = b $ =
+'(syl6eq sndpr (syl sndeq sfNode_quot));
+
+pub theorem sfMem_tag (a b: nat):
+  $ sfTag (sfMem a b) = 1 $ =
+'(sfNode_tag (mpbi ltsuc lt01S));
+
+pub theorem sfMem_left (a b: nat):
+  $ sfLeft (sfMem a b) = a $ =
+'(sfNode_left (mpbi ltsuc lt01S));
+
+pub theorem sfMem_right (a b: nat):
+  $ sfRight (sfMem a b) = b $ =
+'(sfNode_right (mpbi ltsuc lt01S));
+
+pub theorem sfEq_tag (a b: nat):
+  $ sfTag (sfEq a b) = 2 $ =
+'(sfNode_tag (mpbi ltsuc (mpbi ltsuc lt01S)));
+
+pub theorem sfEq_left (a b: nat):
+  $ sfLeft (sfEq a b) = a $ =
+'(sfNode_left (mpbi ltsuc (mpbi ltsuc lt01S)));
+
+pub theorem sfEq_right (a b: nat):
+  $ sfRight (sfEq a b) = b $ =
+'(sfNode_right (mpbi ltsuc (mpbi ltsuc lt01S)));
+
+pub theorem sfAnd_tag (a b: nat):
+  $ sfTag (sfAnd a b) = 3 $ =
+'(sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+pub theorem sfAnd_left (a b: nat):
+  $ sfLeft (sfAnd a b) = a $ =
+'(sfNode_left (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+pub theorem sfAnd_right (a b: nat):
+  $ sfRight (sfAnd a b) = b $ =
+'(sfNode_right (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+pub theorem sfOr_tag (a b: nat):
+  $ sfTag (sfOr a b) = 4 $ =
+'(sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem sfOr_left (a b: nat):
+  $ sfLeft (sfOr a b) = a $ =
+'(sfNode_left (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem sfOr_right (a b: nat):
+  $ sfRight (sfOr a b) = b $ =
+'(sfNode_right (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem sfImp_tag (a b: nat):
+  $ sfTag (sfImp a b) = 5 $ =
+'(sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))));
+
+pub theorem sfImp_left (a b: nat):
+  $ sfLeft (sfImp a b) = a $ =
+'(sfNode_left (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))));
+
+pub theorem sfImp_right (a b: nat):
+  $ sfRight (sfImp a b) = b $ =
+'(sfNode_right (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))));
+
+pub theorem sfAll_tag (a: nat):
+  $ sfTag (sfAll a) = 6 $ =
+'(sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))));
+
+pub theorem sfAll_left (a: nat):
+  $ sfLeft (sfAll a) = a $ =
+'(sfNode_left (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))));
+
+pub theorem sfAll_right (a: nat):
+  $ sfRight (sfAll a) = 0 $ =
+'(sfNode_right (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))));
+
+pub theorem sfEx_tag (a: nat):
+  $ sfTag (sfEx a) = 7 $ =
+'(sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))));
+
+pub theorem sfEx_left (a: nat):
+  $ sfLeft (sfEx a) = a $ =
+'(sfNode_left (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))));
+
+pub theorem sfEx_right (a: nat):
+  $ sfRight (sfEx a) = 0 $ =
+'(sfNode_right (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))));
+
+theorem sfScale8_ge (a: nat):
+  $ a <= 8 * a $ =
+'(mpbi (leeq1 mul11) (lemul1a le11S));
+
+theorem sfNode_payload_lt (t a b: nat):
+  $ 0 < t -> (a, b) < sfNode t a b $ =
+'(syl (lelttr sfScale8_ge) @ sylib (lteq1 add0) (bi1 ltadd2));
+
+theorem sfNode_left_lt (t a b: nat):
+  $ 0 < t -> a < sfNode t a b $ =
+'(syl (lelttr leprid1) sfNode_payload_lt);
+
+theorem sfNode_right_lt (t a b: nat):
+  $ 0 < t -> b < sfNode t a b $ =
+'(syl (lelttr leprid2) sfNode_payload_lt);
+
+theorem sfNode_positive (t a b: nat):
+  $ 0 < t -> 0 < sfNode t a b $ =
+'(syl (lelttr le01) sfNode_payload_lt);
+
+theorem sfTag_ne (a b: nat):
+  $ sfTag a != sfTag b -> a != b $ =
+'(con3 modeq1);
+
+pub theorem sfMem_positive (a b: nat):
+  $ 0 < sfMem a b $ =
+'(sfNode_positive lt01S);
+
+pub theorem sfMem_ne_sfBot (a b: nat):
+  $ sfMem a b != sfBot $ =
+'(mpbi lt01 sfMem_positive);
+
+pub theorem sfMem_injective (a b c d: nat):
+  $ sfMem a b = sfMem c d <-> a = c /\ b = d $ =
+'(bitr addcan1 @ bitr (mulcan2 peano1) prth);
+
+pub theorem sfMem_left_lt (a b: nat):
+  $ a < sfMem a b $ =
+'(sfNode_left_lt lt01S);
+
+pub theorem sfMem_right_lt (a b: nat):
+  $ b < sfMem a b $ =
+'(sfNode_right_lt lt01S);
+
+pub theorem sfEq_positive (a b: nat):
+  $ 0 < sfEq a b $ =
+'(sfNode_positive lt01S);
+
+pub theorem sfEq_ne_sfBot (a b: nat):
+  $ sfEq a b != sfBot $ =
+'(mpbi lt01 sfEq_positive);
+
+pub theorem sfEq_injective (a b c d: nat):
+  $ sfEq a b = sfEq c d <-> a = c /\ b = d $ =
+'(bitr addcan1 @ bitr (mulcan2 peano1) prth);
+
+pub theorem sfEq_left_lt (a b: nat):
+  $ a < sfEq a b $ =
+'(sfNode_left_lt lt01S);
+
+pub theorem sfEq_right_lt (a b: nat):
+  $ b < sfEq a b $ =
+'(sfNode_right_lt lt01S);
+
+pub theorem sfAnd_positive (a b: nat):
+  $ 0 < sfAnd a b $ =
+'(sfNode_positive lt01S);
+
+pub theorem sfAnd_ne_sfBot (a b: nat):
+  $ sfAnd a b != sfBot $ =
+'(mpbi lt01 sfAnd_positive);
+
+pub theorem sfAnd_injective (a b c d: nat):
+  $ sfAnd a b = sfAnd c d <-> a = c /\ b = d $ =
+'(bitr addcan1 @ bitr (mulcan2 peano1) prth);
+
+pub theorem sfAnd_left_lt (a b: nat):
+  $ a < sfAnd a b $ =
+'(sfNode_left_lt lt01S);
+
+pub theorem sfAnd_right_lt (a b: nat):
+  $ b < sfAnd a b $ =
+'(sfNode_right_lt lt01S);
+
+pub theorem sfOr_positive (a b: nat):
+  $ 0 < sfOr a b $ =
+'(sfNode_positive lt01S);
+
+pub theorem sfOr_ne_sfBot (a b: nat):
+  $ sfOr a b != sfBot $ =
+'(mpbi lt01 sfOr_positive);
+
+pub theorem sfOr_injective (a b c d: nat):
+  $ sfOr a b = sfOr c d <-> a = c /\ b = d $ =
+'(bitr addcan1 @ bitr (mulcan2 peano1) prth);
+
+pub theorem sfOr_left_lt (a b: nat):
+  $ a < sfOr a b $ =
+'(sfNode_left_lt lt01S);
+
+pub theorem sfOr_right_lt (a b: nat):
+  $ b < sfOr a b $ =
+'(sfNode_right_lt lt01S);
+
+pub theorem sfImp_positive (a b: nat):
+  $ 0 < sfImp a b $ =
+'(sfNode_positive lt01S);
+
+pub theorem sfImp_ne_sfBot (a b: nat):
+  $ sfImp a b != sfBot $ =
+'(mpbi lt01 sfImp_positive);
+
+pub theorem sfImp_injective (a b c d: nat):
+  $ sfImp a b = sfImp c d <-> a = c /\ b = d $ =
+'(bitr addcan1 @ bitr (mulcan2 peano1) prth);
+
+pub theorem sfImp_left_lt (a b: nat):
+  $ a < sfImp a b $ =
+'(sfNode_left_lt lt01S);
+
+pub theorem sfImp_right_lt (a b: nat):
+  $ b < sfImp a b $ =
+'(sfNode_right_lt lt01S);
+
+pub theorem sfAll_positive (a: nat):
+  $ 0 < sfAll a $ =
+'(sfNode_positive lt01S);
+
+pub theorem sfAll_ne_sfBot (a: nat):
+  $ sfAll a != sfBot $ =
+'(mpbi lt01 sfAll_positive);
+
+pub theorem sfAll_injective (a b: nat):
+  $ sfAll a = sfAll b <-> a = b $ =
+'(bitr addcan1 @ bitr (mulcan2 peano1) @ bitr prth (bian2 eqid));
+
+pub theorem sfAll_body_lt (a: nat):
+  $ a < sfAll a $ =
+'(sfNode_left_lt lt01S);
+
+pub theorem sfEx_positive (a: nat):
+  $ 0 < sfEx a $ =
+'(sfNode_positive lt01S);
+
+pub theorem sfEx_ne_sfBot (a: nat):
+  $ sfEx a != sfBot $ =
+'(mpbi lt01 sfEx_positive);
+
+pub theorem sfEx_injective (a b: nat):
+  $ sfEx a = sfEx b <-> a = b $ =
+'(bitr addcan1 @ bitr (mulcan2 peano1) @ bitr prth (bian2 eqid));
+
+pub theorem sfEx_body_lt (a: nat):
+  $ a < sfEx a $ =
+'(sfNode_left_lt lt01S);
+
+pub theorem sfMem_ne_sfEq (a b c d: nat):
+  $ sfMem a b != sfEq c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfMem_tag sfEq_tag)) (ltnei (mpbi ltsuc lt01S))));
+
+pub theorem sfMem_ne_sfAnd (a b c d: nat):
+  $ sfMem a b != sfAnd c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfMem_tag sfAnd_tag)) (ltnei (mpbi ltsuc lt01S))));
+
+pub theorem sfMem_ne_sfOr (a b c d: nat):
+  $ sfMem a b != sfOr c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfMem_tag sfOr_tag)) (ltnei (mpbi ltsuc lt01S))));
+
+pub theorem sfMem_ne_sfImp (a b c d: nat):
+  $ sfMem a b != sfImp c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfMem_tag sfImp_tag)) (ltnei (mpbi ltsuc lt01S))));
+
+pub theorem sfMem_ne_sfAll (a b c: nat):
+  $ sfMem a b != sfAll c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfMem_tag sfAll_tag)) (ltnei (mpbi ltsuc lt01S))));
+
+pub theorem sfMem_ne_sfEx (a b c: nat):
+  $ sfMem a b != sfEx c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfMem_tag sfEx_tag)) (ltnei (mpbi ltsuc lt01S))));
+
+pub theorem sfEq_ne_sfAnd (a b c d: nat):
+  $ sfEq a b != sfAnd c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfEq_tag sfAnd_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem sfEq_ne_sfOr (a b c d: nat):
+  $ sfEq a b != sfOr c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfEq_tag sfOr_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem sfEq_ne_sfImp (a b c d: nat):
+  $ sfEq a b != sfImp c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfEq_tag sfImp_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem sfEq_ne_sfAll (a b c: nat):
+  $ sfEq a b != sfAll c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfEq_tag sfAll_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem sfEq_ne_sfEx (a b c: nat):
+  $ sfEq a b != sfEx c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfEq_tag sfEx_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem sfAnd_ne_sfOr (a b c d: nat):
+  $ sfAnd a b != sfOr c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfAnd_tag sfOr_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))));
+
+pub theorem sfAnd_ne_sfImp (a b c d: nat):
+  $ sfAnd a b != sfImp c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfAnd_tag sfImp_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))));
+
+pub theorem sfAnd_ne_sfAll (a b c: nat):
+  $ sfAnd a b != sfAll c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfAnd_tag sfAll_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))));
+
+pub theorem sfAnd_ne_sfEx (a b c: nat):
+  $ sfAnd a b != sfEx c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfAnd_tag sfEx_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))));
+
+pub theorem sfOr_ne_sfImp (a b c d: nat):
+  $ sfOr a b != sfImp c d $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfOr_tag sfImp_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))));
+
+pub theorem sfOr_ne_sfAll (a b c: nat):
+  $ sfOr a b != sfAll c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfOr_tag sfAll_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))));
+
+pub theorem sfOr_ne_sfEx (a b c: nat):
+  $ sfOr a b != sfEx c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfOr_tag sfEx_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))));
+
+pub theorem sfImp_ne_sfAll (a b c: nat):
+  $ sfImp a b != sfAll c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfImp_tag sfAll_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))));
+
+pub theorem sfImp_ne_sfEx (a b c: nat):
+  $ sfImp a b != sfEx c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfImp_tag sfEx_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))));
+
+pub theorem sfAll_ne_sfEx (a c: nat):
+  $ sfAll a != sfEx c $ =
+'(sfTag_ne (mpbir (noteq (eqeq sfAll_tag sfEx_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))));
+
+pub theorem sfTag_bound (a: nat):
+  $ sfTag a < 8 $ =
+'(modlt peano1);
+
+pub theorem sf_reconstruct (a: nat):
+  $ sfNode (sfTag a) (sfLeft a) (sfRight a) = a $ =
+'(eqtr (addeq1 (muleq2 fstsnd)) divmod);
+
+pub theorem sfQuot_lt (a: nat):
+  $ 0 < a -> a // 8 < a $ =
+'(sylibr (divltmul1 peano1) @ sylib (lteq1 mul11) @ mpbii (mpbi ltsuc lt01S) ltmul1);
+
+pub theorem sfLeft_lt (a: nat):
+  $ 0 < a -> sfLeft a < a $ =
+'(lelttrd (a1i fstleid) sfQuot_lt);
+
+pub theorem sfRight_lt (a: nat):
+  $ 0 < a -> sfRight a < a $ =
+'(lelttrd (a1i sndleid) sfQuot_lt);
+
+pub theorem sfBot_tag:
+  $ sfTag sfBot = 0 $ =
+'mod01;
+
+pub theorem sfBot_left:
+  $ sfLeft sfBot = 0 $ =
+'(eqtr (fsteq div01) (eqtr3 (fsteq pr0) fstpr));
+
+pub theorem sfBot_right:
+  $ sfRight sfBot = 0 $ =
+'(eqtr (sndeq div01) (eqtr3 (sndeq pr0) sndpr));
+
+pub theorem sfMem_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfMem a c = sfMem b d $ =
+'(addeq1d (muleq2d (preqd h1 h2)));
+
+pub theorem sfMem_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfMem a c = sfMem b c $ =
+'(addeq1d (muleq2d (preq1d h)));
+
+pub theorem sfMem_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfMem a b = sfMem a c $ =
+'(addeq1d (muleq2d (preq2d h)));
+
+pub theorem sfMem_eq_left (a b c: nat):
+  $ a = b -> sfMem a c = sfMem b c $ =
+'(sfMem_congr_left id);
+
+pub theorem sfMem_eq_right (a b c: nat):
+  $ b = c -> sfMem a b = sfMem a c $ =
+'(sfMem_congr_right id);
+
+pub theorem sfEq_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfEq a c = sfEq b d $ =
+'(addeq1d (muleq2d (preqd h1 h2)));
+
+pub theorem sfEq_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfEq a c = sfEq b c $ =
+'(addeq1d (muleq2d (preq1d h)));
+
+pub theorem sfEq_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfEq a b = sfEq a c $ =
+'(addeq1d (muleq2d (preq2d h)));
+
+pub theorem sfEq_eq_left (a b c: nat):
+  $ a = b -> sfEq a c = sfEq b c $ =
+'(sfEq_congr_left id);
+
+pub theorem sfEq_eq_right (a b c: nat):
+  $ b = c -> sfEq a b = sfEq a c $ =
+'(sfEq_congr_right id);
+
+pub theorem sfAnd_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfAnd a c = sfAnd b d $ =
+'(addeq1d (muleq2d (preqd h1 h2)));
+
+pub theorem sfAnd_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfAnd a c = sfAnd b c $ =
+'(addeq1d (muleq2d (preq1d h)));
+
+pub theorem sfAnd_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfAnd a b = sfAnd a c $ =
+'(addeq1d (muleq2d (preq2d h)));
+
+pub theorem sfAnd_eq_left (a b c: nat):
+  $ a = b -> sfAnd a c = sfAnd b c $ =
+'(sfAnd_congr_left id);
+
+pub theorem sfAnd_eq_right (a b c: nat):
+  $ b = c -> sfAnd a b = sfAnd a c $ =
+'(sfAnd_congr_right id);
+
+pub theorem sfOr_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfOr a c = sfOr b d $ =
+'(addeq1d (muleq2d (preqd h1 h2)));
+
+pub theorem sfOr_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfOr a c = sfOr b c $ =
+'(addeq1d (muleq2d (preq1d h)));
+
+pub theorem sfOr_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfOr a b = sfOr a c $ =
+'(addeq1d (muleq2d (preq2d h)));
+
+pub theorem sfOr_eq_left (a b c: nat):
+  $ a = b -> sfOr a c = sfOr b c $ =
+'(sfOr_congr_left id);
+
+pub theorem sfOr_eq_right (a b c: nat):
+  $ b = c -> sfOr a b = sfOr a c $ =
+'(sfOr_congr_right id);
+
+pub theorem sfImp_congr (G: wff) (a b c d: nat)
+    (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> sfImp a c = sfImp b d $ =
+'(addeq1d (muleq2d (preqd h1 h2)));
+
+pub theorem sfImp_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> sfImp a c = sfImp b c $ =
+'(addeq1d (muleq2d (preq1d h)));
+
+pub theorem sfImp_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> sfImp a b = sfImp a c $ =
+'(addeq1d (muleq2d (preq2d h)));
+
+pub theorem sfImp_eq_left (a b c: nat):
+  $ a = b -> sfImp a c = sfImp b c $ =
+'(sfImp_congr_left id);
+
+pub theorem sfImp_eq_right (a b c: nat):
+  $ b = c -> sfImp a b = sfImp a c $ =
+'(sfImp_congr_right id);
+
+pub theorem sfAll_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> sfAll a = sfAll b $ =
+'(addeq1d (muleq2d (preq1d h)));
+
+pub theorem sfAll_eq (a b: nat):
+  $ a = b -> sfAll a = sfAll b $ =
+'(sfAll_congr id);
+
+pub theorem sfEx_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> sfEx a = sfEx b $ =
+'(addeq1d (muleq2d (preq1d h)));
+
+pub theorem sfEx_eq (a b: nat):
+  $ a = b -> sfEx a = sfEx b $ =
+'(sfEx_congr id);
+
+do (apply (register-eqd 'sfMem) '(sfMem_congr sfMem_congr_left sfMem_congr_right));
+do (apply (register-eqd 'sfEq) '(sfEq_congr sfEq_congr_left sfEq_congr_right));
+do (apply (register-eqd 'sfAnd) '(sfAnd_congr sfAnd_congr_left sfAnd_congr_right));
+do (apply (register-eqd 'sfOr) '(sfOr_congr sfOr_congr_left sfOr_congr_right));
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+do (apply (register-eqd 'sfAll) '(sfAll_congr));
+do (apply (register-eqd 'sfEx) '(sfEx_congr));
+
+
+
+
+

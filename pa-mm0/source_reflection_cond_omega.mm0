@@ -1,0 +1,11 @@
+import "source_reflection_cond_step.mm0";
+
+import "source_omega_recursion_closure.mm0";
+
+def sfReflectionCondClosedSet(level P:nat):nat = $ sfEx (sfAnd (sfMem 1 0) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfORBinary (sfReflectionCondStep level P) 1 0) (sfMem 0 2)))))) $;
+
+def sfReflectionCondClosedSetAt(level P a:nat):nat = $ sfSubst 0 a (sfReflectionCondClosedSet level P) $;
+
+theorem sfReflectionCondClosedSet_from_producers(level P:nat): $ (sfReflectionCondGuard level P /\ sfReflectionCondProducers level P) -> sfTheoryProvable zfrAxioms (sfReflectionCondClosedSet level P) $;
+
+theorem sfReflectionCondClosedSetAt_from_producers(level P a:nat): $ (sfReflectionCondGuard level P /\ sfReflectionCondProducers level P) -> sfTheoryProvable zfrAxioms (sfReflectionCondClosedSetAt level P a) $;

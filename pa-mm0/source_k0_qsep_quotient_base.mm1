@@ -1,0 +1,37 @@
+import "source_k0_qsep_quotient_rebase.mm1";
+
+theorem qsepMemberQuote (t x y k: nat):
+ $ sqQuote (sqEnvCons x (sqEnvCons y sqZeroEnvironment)) t k 0 (sfMem 0 1) = sqMember t x y k $ =
+'(eqtr sqQuote_sfMem (sqMembereq eqid (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)) add0));
+
+pub theorem sfK0QSepMember_rebase (t x y k l: nat)
+ (hk: $ 0 < k $) (hl: $ 0 < l $) (htk: $ t < k $) (htl: $ t < l $)
+ (hxk: $ x < k $) (hxl: $ x < l $) (hyk: $ y < k $) (hyl: $ y < l $):
+ $ k218IEquivalent (sqMember t x y k) (sqMember t x y l) $ =
+'(mpbi (k218IEquivalenteq qsepMemberQuote qsepMemberQuote)
+ (ax_mp (! k218QM_quote_rebase $ 0 = 0 $ $ (sqEnvCons x (sqEnvCons y sqZeroEnvironment)) $ $ 2 $ $ t $ $ k $ $ l $ $ (sfMem 0 1) $
+ (a1i (mpbir sfBound_sfMem (ian lt01S ltsucid))) (a1i hk) (a1i hl) (a1i htk) (a1i htl)
+ (k218QM_below_two (a1i hxk) (a1i hyk)) (k218QM_below_two (a1i hxl) (a1i hyl))) eqid));
+
+theorem qsepBaseMatrix (E: set) (n t a c z M K L phi: nat) (hf: $ sfBound (suc n) phi $) (hM: $ 0 < M $) (hL: $ 0 < L $) (hKL: $ L < K $)
+ (htM: $ t < M $) (haM: $ a < M $) (hcM: $ c < M $) (hzM: $ z < M $)
+ (htL: $ t < L $) (haL: $ a < L $) (hcL: $ c < L $) (hzL: $ z < L $)
+ (heK: $ sqEnvBelow E n K $) (heL: $ sqEnvBelow E n L $):
+ $ k218IEquivalent (sqQuote (sqEnvCons z E) t K 0 phi) (sqQuote (sqEnvCons z E) t L 0 phi) $ =
+'(ax_mp (! k218QM_quote_rebase $ 0 = 0 $ $ (sqEnvCons z E) $ $ (suc n) $ $ t $ $ K $ $ L $ $ phi $
+ (a1i hf) (a1i (lttr hL hKL)) (a1i hL) (a1i (lttr htL hKL)) (a1i htL)
+ (a1i (ax_mp (ax_mp sqEnvBelow_cons (lttr hzL hKL)) heK)) (a1i (ax_mp (ax_mp sqEnvBelow_cons hzL) heL))) eqid);
+
+pub theorem sfK0QSepQuotient_bases (E: set) (n t a c z M K L phi: nat) (hf: $ sfBound (suc n) phi $) (hM: $ 0 < M $) (hL: $ 0 < L $) (hKL: $ L < K $)
+ (htM: $ t < M $) (haM: $ a < M $) (hcM: $ c < M $) (hzM: $ z < M $)
+ (htL: $ t < L $) (haL: $ a < L $) (hcL: $ c < L $) (hzL: $ z < L $)
+ (heK: $ sqEnvBelow E n K $) (heL: $ sqEnvBelow E n L $):
+ $ k218IEquivalent (sfK0QSepQuotientBody E t a c z M K phi) (sfK0QSepQuotientBody E t a c z L L phi) $ =
+(named '(ax_mp k218IEquivalent_and (ian k218IEquivalent_refl (ax_mp k218IEquivalent_guarded_all (ax_mp k218IEquivalent_and (ian (ax_mp k218IEquivalent_imp (ian (sfK0QSepMember_rebase hM hL htM htL hzM hzL hcM hcL) (ax_mp k218IEquivalent_and (ian (sfK0QSepMember_rebase hM hL htM htL hzM hzL haM haL) (! qsepBaseMatrix $ E $ $ n $ $ t $ $ a $ $ c $ $ z $ $ M $ $ K $ $ L $ $ phi $ hf hM hL hKL htM haM hcM hzM htL haL hcL hzL heK heL))))) (ax_mp k218IEquivalent_imp (ian (ax_mp k218IEquivalent_and (ian (sfK0QSepMember_rebase hM hL htM htL hzM hzL haM haL) (! qsepBaseMatrix $ E $ $ n $ $ t $ $ a $ $ c $ $ z $ $ M $ $ K $ $ L $ $ phi $ hf hM hL hKL htM haM hcM hzM htL haL hcL hzL heK heL))) (sfK0QSepMember_rebase hM hL htM htL hzM hzL hcM hcL)))))))));
+
+pub theorem sfK0QSepQuotient_exists_bases (E: set) (n t a c z M K L phi: nat) (hf: $ sfBound (suc n) phi $) (hM: $ 0 < M $) (hL: $ 0 < L $) (hKL: $ L < K $)
+ (htM: $ t < M $) (haM: $ a < M $) (hcM: $ c < M $) (hzM: $ z < M $)
+ (htL: $ t < L $) (haL: $ a < L $) (hcL: $ c < L $) (hzL: $ z < L $)
+ (heK: $ sqEnvBelow E n K $) (heL: $ sqEnvBelow E n L $):
+ $ k218IEquivalent (kExists c (sfK0QSepQuotientBody E t a c z M K phi)) (kExists c (sfK0QSepQuotientBody E t a c z L L phi)) $ =
+'(ax_mp k218IEquivalent_exists (! sfK0QSepQuotient_bases $ E $ $ n $ $ t $ $ a $ $ c $ $ z $ $ M $ $ K $ $ L $ $ phi $ hf hM hL hKL htM haM hcM hzM htL haL hcL hzL heK heL));

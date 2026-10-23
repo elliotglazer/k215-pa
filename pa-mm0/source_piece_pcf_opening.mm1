@@ -1,0 +1,144 @@
+import "source_piece_pcf_bounds.mm1";
+import "source_omega_recursion_binary.mm1";
+import "source_renaming_agreement.mm1";
+
+do { (add-eqd-thm 'sfORBinaryMap 'pcpoORBinaryMapCong)
+     (add-eqd-thm 'sfORBinary 'pcpoORBinaryCong) };
+
+-- This comparison deliberately uses bounded agreement. sfORBinaryMap and
+-- sfPieceOpenMap disagree above role1, so global map equality would be false.
+theorem pcpo_map_zero (d X: nat):
+ $ sfORBinaryMap d X @ 0 = sfPieceOpenMap d X @ 0 $ =
+'(eqtr (eqtr sfORBinaryMap_value (ax_mp ifneg (ax_mp necom d1ne0)))
+ (eqcom (eqtr sfPieceOpenMap_value (ax_mp ifpos eqid))));
+
+theorem pcpo_map_one (d X: nat):
+ $ sfORBinaryMap d X @ 1 = sfPieceOpenMap d X @ 1 $ =
+'(eqtr (eqtr sfORBinaryMap_value (ax_mp ifpos eqid))
+ (eqcom (eqtr sfPieceOpenMap_value
+  (eqtr (ax_mp ifneg d1ne0) (ax_mp ifpos eqid)))));
+
+theorem pcpo_map_at_zero (d X i: nat):
+ $ i = 0 -> sfORBinaryMap d X @ i = sfPieceOpenMap d X @ i $ =
+'(eqtrd (appeq2d id) (eqtrd (a1i pcpo_map_zero) (eqcomd (appeq2d id))));
+
+theorem pcpo_map_at_one (d X i: nat):
+ $ i = 1 -> sfORBinaryMap d X @ i = sfPieceOpenMap d X @ i $ =
+'(eqtrd (appeq2d id) (eqtrd (a1i pcpo_map_one) (eqcomd (appeq2d id))));
+
+pub theorem sfPieceOpenMap_binary_agree (d X: nat):
+ $ sfRenameMapAgree (sfORBinaryMap d X) (sfPieceOpenMap d X) 2 $ =
+(named '(ax_gen (syl (eor pcpo_map_at_zero pcpo_map_at_one) (bi1 bool01))));
+
+theorem pcpo_raw_open (H: wff) (body d X: nat) (hb: $ H -> sfBound 2 body $):
+ $ H -> sfORBinary body d X = sfRename (sfPieceOpenMap d X) 0 body $ =
+'(syl (ax_mp sfRename_bounded_agreement sfPieceOpenMap_binary_agree)
+ (mpbid (a1i (sfSchema_bound_index_eq (eqcom add01))) hb));
+
+theorem pcpo_raw_zero (H: wff) (body: nat) (hb: $ H -> sfBound 2 body $):
+ $ H -> sfRename (sfPieceOpenMap 0 1) 0 body = body $ =
+'(eqtrd (a1i (trud (sfRename_congr_graph (a1i sfPieceOpenMap_identity))))
+ (syl sfRename_identity (syl sfBound_wf hb)));
+
+theorem pcpo_count2 (count: nat): $ count + 2 = suc (suc count) $ =
+'(eqtr addS (suceq add12));
+
+theorem pcpo_body_bound (H: wff) (domain level count phi: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hb: $ H -> sfBound (suc count) phi $):
+ $ H -> sfBound 2 (sfPieceDn count (sfPieceD0 domain level phi)) $ =
+'(syl sfPieceDn_bound
+ (mpbird (a1i (sfSchema_bound_index_eq pcpo_count2))
+  (mpd hb (mpd hl (syl sfPieceD0_bound hd)))));
+
+theorem pcpo_piece_cond (H: wff) (domain level count phi d X: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hb: $ H -> sfBound (suc count) phi $):
+ $ H -> sfORBinary (sfPiecePC domain level count phi 0 1) d X =
+   sfPiecePC domain level count phi d X $ =
+'(eqtrd (sfRename_congr_formula (pcpo_raw_zero (pcpo_body_bound hd hl hb)))
+ (pcpo_raw_open (pcpo_body_bound hd hl hb)));
+
+pub theorem sfPiecePC_binary_open (domain level count phi d X: nat):
+ $ sfBound 1 domain -> sfBound 2 level -> sfBound (suc count) phi ->
+   sfORBinary (sfPiecePC domain level count phi 0 1) d X =
+    sfPiecePC domain level count phi d X $ =
+(named '(exp @ exp @ pcpo_piece_cond anll anlr anr));
+
+@_ def sfPieceBinaryOpenLaw (domain level sb sc n d X: nat): wff =
+ $ sfPieceTableValid sb sc n ->
+   sfORBinary (sfPieceBinary domain level sb sc n) d X =
+    sfPieceConjunction domain level sb sc n d X $;
+
+theorem pcpo_true (d X: nat): $ sfORBinary sfCLTrue d X = sfCLTrue $ =
+'(eqtr sfRename_sfImp (trud (sfImpeqd (a1i sfRename_bot) (a1i sfRename_bot))));
+
+theorem pcpo_zero (domain level sb sc d X: nat):
+ $ sfPieceBinaryOpenLaw domain level sb sc 0 d X $ =
+'(a1i (eqtr (trud (sfRename_congr_formula (a1i sfPieceConjunction_zero)))
+ (eqtr pcpo_true (eqcom sfPieceConjunction_zero))));
+
+theorem pcpo_step_cond (H: wff) (domain level sb sc n d X: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hi: $ H -> sfPieceBinaryOpenLaw domain level sb sc n d X $)
+ (hv: $ H -> sfPieceTableValid sb sc (suc n) $):
+ $ H -> sfORBinary (sfPieceBinary domain level sb sc (suc n)) d X =
+   sfPieceConjunction domain level sb sc (suc n) d X $ =
+'(eqtrd (a1i (trud (sfRename_congr_formula (a1i sfPieceConjunction_suc))))
+ (eqtrd (a1i sfRename_sfAnd)
+  (eqtrd (sfAndeqd
+    (mpd (syl sfPieceTableValid_prefix hv) hi)
+    (pcpo_piece_cond hd hl (syl sfPieceTableValid_last hv)))
+   (a1i (eqcom sfPieceConjunction_suc)))));
+
+theorem pcpo_step (domain level sb sc n d X: nat)
+ (hd: $ sfBound 1 domain $) (hl: $ sfBound 2 level $):
+ $ sfPieceBinaryOpenLaw domain level sb sc n d X ->
+   sfPieceBinaryOpenLaw domain level sb sc (suc n) d X $ =
+(named '(exp @ pcpo_step_cond (a1i hd) (a1i hl) anl anr));
+
+def pcpoBoundLaw(domain level sb sc n d X:nat):wff =
+ $ sfBound 1 domain -> sfBound 2 level -> sfPieceBinaryOpenLaw domain level sb sc n d X $;
+
+do { (add-eqd-thm 'pcpoBoundLaw 'pcpoBoundLawCong) };
+
+theorem pcpo_bound_zero(domain level sb sc d X:nat):
+ $ pcpoBoundLaw domain level sb sc 0 d X $ =
+'(a1i (a1i pcpo_zero));
+
+theorem pcpo_bound_step_cond(H:wff)(domain level sb sc n d X:nat)
+ (hi:$ H -> pcpoBoundLaw domain level sb sc n d X $)
+ (hd:$ H -> sfBound 1 domain $)(hl:$ H -> sfBound 2 level $)
+ (hv:$ H -> sfPieceTableValid sb sc (suc n) $):
+ $ H -> sfORBinary (sfPieceBinary domain level sb sc (suc n)) d X =
+  sfPieceConjunction domain level sb sc (suc n) d X $ =
+'(! pcpo_step_cond $ H $ domain level sb sc n d X hd hl (mpd hl (mpd hd hi)) hv);
+
+theorem pcpo_bound_step(domain level sb sc n d X:nat):
+ $ pcpoBoundLaw domain level sb sc n d X -> pcpoBoundLaw domain level sb sc (suc n) d X $ =
+(named '(exp @ exp @ exp @
+ pcpo_bound_step_cond (syl anll anl) (syl anlr anl) anlr anr));
+
+theorem pcpo_bound_all(domain level sb sc n d X:nat):
+ $ pcpoBoundLaw domain level sb sc n d X $ =
+(named '(! ind poInd poStep n
+ $ pcpoBoundLaw domain level sb sc poInd d X $
+ $ pcpoBoundLaw domain level sb sc 0 d X $
+ $ pcpoBoundLaw domain level sb sc n d X $
+ $ pcpoBoundLaw domain level sb sc poStep d X $
+ $ pcpoBoundLaw domain level sb sc (suc poStep) d X $
+ ,eqtac ,eqtac ,eqtac ,eqtac
+ (! pcpo_bound_zero domain level sb sc d X)
+ (! pcpo_bound_step domain level sb sc poStep d X)));
+
+theorem pcpo_all (domain level sb sc n d X: nat)
+ (hd: $ sfBound 1 domain $) (hl: $ sfBound 2 level $):
+ $ sfPieceBinaryOpenLaw domain level sb sc n d X $ =
+'(ax_mp (ax_mp pcpo_bound_all hd) hl);
+
+pub theorem sfPieceBinary_open (domain level sb sc n d X: nat)
+ (hd: $ sfBound 1 domain $) (hl: $ sfBound 2 level $):
+ $ sfPieceTableValid sb sc n ->
+   sfORBinary (sfPieceBinary domain level sb sc n) d X =
+    sfPieceConjunction domain level sb sc n d X $ =
+'(pcpo_all hd hl);

@@ -1,0 +1,40 @@
+import "source_l_replacement_reflected_witness.mm0";
+
+def sfLReplacementCollectedImageBody(start n psi:nat):nat =
+ $ sfAnd (sfCLPoint (suc (suc start)) n 1 0)
+    (sfLReplacementImageCoverage (sfLReplacementShift2Map (sfLReplacementStartMap start)) sfLDomain psi 0) $;
+
+def sfLReplacementCollectedImageContext(G start n psi:nat):nat =
+ $ sfCLWitnessContext G (sfLReplacementCollectedImageBody start n psi) $;
+
+def sfLReplacementCollectedDefinableContext(G start n psi:nat):nat =
+ $ sfLReplacementReflectedImageContext (sfLReplacementCollectedImageContext G start n psi)
+     (suc (suc start)) n psi $;
+
+theorem sfLReplacementAboveLaw_bound(count psi:nat)(hb:$ sfBound count psi $):
+ $ sfBound 0 (sfLReplacementAboveLaw count psi) $;
+
+theorem sfLReplacementInWitnessContext_shift2(G A f:nat)
+ (ha:$ sfWf A $)(hp:$ nsLocal G f $):
+ $ nsLocal (sfCLWitnessContext G A) (sfShift 0 (sfShift 0 f)) $;
+
+theorem sfLReplacementWitness_from_collected(G start n psi:nat)
+ (hb:$ sfBound (suc n) psi $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw (suc n) psi) $)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hc:$ nsLocal G (sfLReplacementCollectedRecipe (sfLReplacementStartMap start) sfLDomain psi start n) $)
+ (hd:$ nsLocal (sfLReplacementCollectedDefinableContext G start n psi)
+  (sfLReplacementImageDefinable (sfLReplacementStartMap (suc (suc (suc (suc start))))) sfLDomain psi 0) $):
+ $ nsLocal G (sfLReplacementImageWitness (sfLReplacementStartMap start) sfLDomain psi) $;
+
+theorem sfLReplacementWitness_from_seeded_collection(G start n psi seed:nat)
+ (hb:$ sfBound (suc n) psi $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw (suc n) psi) $)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hp:$ nsLocal G (sfLReplacementImageCoverage (sfLReplacementStartMap start) sfLDomain psi seed) $)
+ (hc:$ nsLocal G (sfLReplacementSeededRecipe start n seed) $)
+ (hd:$ nsLocal (sfLReplacementCollectedDefinableContext G start n psi)
+  (sfLReplacementImageDefinable (sfLReplacementStartMap (suc (suc (suc (suc start))))) sfLDomain psi 0) $):
+ $ nsLocal G (sfLReplacementImageWitness (sfLReplacementStartMap start) sfLDomain psi) $;

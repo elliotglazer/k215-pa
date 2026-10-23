@@ -1,0 +1,15 @@
+import "source_quotient_predicate.mm0";
+
+def sfK0QRepInsertMarker (.i: nat): set = $ \ i, if (i = 0) 0 (if (i = 1) 1 (suc i)) $;
+
+def sfK0QRepPredicate (c: nat): nat = $ sfQuotient 2 (sfRename sfK0QRepInsertMarker 0 c) $;
+
+theorem sfK0QRepInsert_zero: $ sfK0QRepInsertMarker @ 0 = 0 $;
+
+theorem sfK0QRepInsert_one: $ sfK0QRepInsertMarker @ 1 = 1 $;
+
+theorem sfK0QRepInsert_tail (i: nat): $ sfK0QRepInsertMarker @ suc (suc i) = suc (suc (suc i)) $;
+
+theorem sfK0QRepPredicate_bound (n c: nat): $ sfBound (suc (suc n)) c -> sfBound (suc (suc (suc n))) (sfK0QRepPredicate c) $;
+
+theorem sfK0QRepPredicate_named (E: set) (n x y t k c: nat): $ sfBound (suc (suc n)) c -> sfNamedTemplate (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) k 0 (sfK0QRepPredicate c) = sqQuote (sqEnvCons x (sqEnvCons y E)) t k 0 c $;

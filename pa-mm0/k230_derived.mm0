@@ -1,0 +1,41 @@
+import "k230_propositional.mm0";
+
+-- Finite Hilbert derivations of derived rules in the actual K calculus.
+-- The generated certificate is independently checked against these statements.
+
+theorem kPropI (a: nat):
+  $ kProvable (kImp a a) $;
+
+theorem kPropF (a: nat):
+  $ kProvable (kImp kF a) $;
+
+theorem kPropDNE (a: nat):
+  $ kProvable (kImp (kImp (kImp a kF) kF) a) $;
+
+theorem kPropAndLeft (a b: nat):
+  $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) a) $;
+
+theorem kPropAndRight (a b: nat):
+  $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) b) $;
+
+theorem kPropAndIntro (a b: nat):
+  $ kProvable (kImp a (kImp b (kImp (kImp a (kImp b kF)) kF))) $;
+
+theorem kPropB3 (a b: nat):
+  $ kProvable (kImp a (kImp (kImp a kF) b)) $;
+
+theorem kAnd_left (a b: nat):
+  $ kProvable (kAnd a b) -> kProvable a $;
+
+theorem kAnd_right (a b: nat):
+  $ kProvable (kAnd a b) -> kProvable b $;
+
+theorem kAnd_intro (a b: nat):
+  $ kProvable a -> kProvable b -> kProvable (kAnd a b) $;
+
+theorem kBundle_core (a b c: nat):
+  $ c != a /\ c != b -> kProvable (k230 a b c) $;
+
+theorem kBundle_vacuity (a b c: nat):
+  $ c != a /\ c != b -> kProvable (kVacuity a b c) $;
+

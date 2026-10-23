@@ -1,0 +1,38 @@
+import "k218q_closure_source.mm0";
+import "k218q_seed_padding.mm0";
+
+def k218SourceSeedBase (E: set) (B f: nat): nat =
+ $ k218ClosureSourceBase E B 1 3 (k218QSourceSeedCode E B f) f $;
+def k218SourceMatrixBase (E: set) (B f: nat): nat =
+ $ k218ClosureMatrixBase E B 1 3 (k218QSourceSeedCode E B f) f $;
+def k218SourceRootMatrix (E: set) (B f: nat): nat =
+ $ sfNamedTemplate (sqEnvCons 3 (sqEnvCons 1 E)) (k218SourceMatrixBase E B f) 0 f $;
+def k218SourcePreparedSeed (E: set) (B f: nat): nat =
+ $ kAll 1 (kExists (k218QSourceSeedCode E B f)
+   (kAnd
+     (k218NamedEmittedClosure E (suc (suc (k218SourceSeedBase E B f))) 1
+       (k218QSourceSeedCode E B f) f)
+     (k218QRootRequest 3 (k218QSourceSeedCode E B f) (k218SourceRootMatrix E B f)))) $;
+
+theorem k218QRootRequest_equivalent (b c d e: nat)
+ (he: $ k218IEquivalent d e $):
+ $ k218IEquivalent (k218QRootRequest b c d) (k218QRootRequest b c e) $;
+
+theorem k218QSourceRootMatrix_equivalent {i j: nat} (E: set) (n B f: nat)
+ (hB: $ 3 < B $) (he: $ A. j (j < n -> E @ j < B) $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218IEquivalent (k218QSourceMatrix E B f) (k218SourceRootMatrix E B f) $;
+
+theorem k218QSourceSeed_preparation {i j: nat} (E: set) (n B f: nat)
+ (hB: $ 3 < B $) (he1: $ sqEnvAvoid E n 1 $) (he3: $ sqEnvAvoid E n 3 $)
+ (he: $ A. j (j < n -> E @ j < B) $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218IEquivalent
+     (kAll 1 (k218QRootSeed 1 3 (k218QSourceSeedCode E B f) (k218QSourceMatrix E B f)))
+     (k218SourcePreparedSeed E B f) $;
+
+theorem k218QSourcePreparedSeed_provable {i j: nat} (E: set) (n B f: nat)
+ (hB: $ 3 < B $) (he1: $ sqEnvAvoid E n 1 $) (he3: $ sqEnvAvoid E n 3 $)
+ (he: $ A. j (j < n -> E @ j < B) $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218QProvable (k218SourcePreparedSeed E B f) $;

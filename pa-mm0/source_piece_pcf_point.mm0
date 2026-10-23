@@ -1,0 +1,28 @@
+import "source_piece_pcf_triple_maps.mm0";
+
+import "source_piece_pcf_collection_output.mm0";
+
+import "source_piece_pcf_point_weak.mm0";
+
+def sfPiecePointBody (body:nat):nat =
+ $ sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceTriple body 0 3 1 4)) $;
+
+def sfPiecePointPrelude (body:nat):nat =
+ $ sfShift 0 (sfAll (sfLCBinary (sfEx (sfAnd sfLeastOrdinalPredicate body)) 1 0 2)) $;
+
+theorem sfPiecePointPrelude_code (body:nat) (hf:$ sfWf body $):
+ $ sfPiecePointPrelude body = sfAll (sfPiecePointBody body) $;
+
+def sfPiecePointMap:set =
+ $ sfComposeMap (sfLCBinaryMap 0 1 3) sfPieceQMap $;
+
+theorem sfPiecePointMap_at (i:nat):
+ $ sfPiecePointMap @ i = sfPieceTripleMap 0 3 1 4 @ i $;
+
+theorem sfPiecePoint_code (body:nat) (hf:$ sfWf body $):
+ $ sfOrdinalCollectionPoint (sfRename sfPieceQMap 0 body) =
+   sfAll (sfImp (sfMem 0 1) (sfPiecePointBody body)) $;
+
+theorem sfPiecePoint_rule (T:set) (body:nat) (ht:$ sfTheoryClosed T $) (hf:$ sfWf body $):
+ $ sfTheoryProvable T (sfEx (sfAnd sfLeastOrdinalPredicate body)) ->
+   sfTheoryProvable T (sfOrdinalCollectionPoint (sfRename sfPieceQMap 0 body)) $;

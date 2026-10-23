@@ -1,0 +1,65 @@
+-- Literal four-tag K code to eight-tag source propositional proof transfer.
+-- The decoder is not an implication homomorphism at raw zero.  The
+-- arithmetic proofs below preserve provable equivalence through that case.
+-- These are PA theorems about the concrete finite-list source calculus;
+-- calibration to the Rocq beta-coded proof relation is a separate theorem.
+import "raw_source_image.mm0";
+import "zfc_propositional.mm0";
+
+theorem rawSource_truth_provable: $ zfcProvable (rawDecode 0) $;
+theorem rawSource_mp (a b: nat):
+  $ zfcProvable (rawDecode a) ->
+    zfcProvable (rawDecode (kImp a b)) ->
+    zfcProvable (rawDecode b) $;
+
+def rawKContext (a b: nat): nat = $ b : (a : 0) $;
+def rawKProof (a b: nat): nat =
+$ zfcNDIntro 0 (zfcNDIntro (a : 0) (zfcNDHyp (rawKContext a b) a) b a)
+    a (sfImp b a) $;
+def rawTransContext (a b c: nat): nat =
+$ a : (sfImp b c : (sfImp a b : 0)) $;
+def rawTransBody (a b c: nat): nat =
+$ zfcNDMp (rawTransContext a b c)
+    (zfcNDHyp (rawTransContext a b c) (sfImp b c))
+    (zfcNDMp (rawTransContext a b c)
+      (zfcNDHyp (rawTransContext a b c) (sfImp a b))
+      (zfcNDHyp (rawTransContext a b c) a) b) c $;
+def rawTransProof (a b c: nat): nat =
+$ zfcNDIntro 0
+    (zfcNDIntro (sfImp a b : 0)
+      (zfcNDIntro (sfImp b c : (sfImp a b : 0)) (rawTransBody a b c) a c)
+      (sfImp b c) (sfImp a c))
+    (sfImp a b) (sfImp (sfImp b c) (sfImp a c)) $;
+def rawArrowContext (a b c d: nat): nat =
+$ b : (sfImp a c : (sfImp c d : (sfImp b a : 0))) $;
+def rawArrowBody (a b c d: nat): nat =
+$ zfcNDMp (rawArrowContext a b c d)
+    (zfcNDHyp (rawArrowContext a b c d) (sfImp c d))
+    (zfcNDMp (rawArrowContext a b c d)
+      (zfcNDHyp (rawArrowContext a b c d) (sfImp a c))
+      (zfcNDMp (rawArrowContext a b c d)
+        (zfcNDHyp (rawArrowContext a b c d) (sfImp b a))
+        (zfcNDHyp (rawArrowContext a b c d) b) a) c) d $;
+def rawArrowProof (a b c d: nat): nat =
+$ zfcNDIntro 0
+    (zfcNDIntro (sfImp b a : 0)
+      (zfcNDIntro (sfImp c d : (sfImp b a : 0))
+        (zfcNDIntro (sfImp a c : (sfImp c d : (sfImp b a : 0)))
+          (rawArrowBody a b c d) b d)
+        (sfImp a c) (sfImp b d))
+      (sfImp c d) (sfImp (sfImp a c) (sfImp b d)))
+    (sfImp b a) (sfImp (sfImp c d) (sfImp (sfImp a c) (sfImp b d))) $;
+
+
+def rawPropIff (a b: nat): wff =
+$ zfcProvable (sfImp a b) /\ zfcProvable (sfImp b a) $;
+theorem rawSource_imp_equiv (a b: nat):
+  $ rawPropIff (rawDecode (kImp a b)) (sfImp (rawDecode a) (rawDecode b)) $;
+theorem rawSource_imp_transport (a b c d: nat):
+  $ rawPropIff (rawDecode a) c -> rawPropIff (rawDecode b) d ->
+    rawPropIff (rawDecode (kImp a b)) (sfImp c d) $;
+theorem rawSource_rho8_equiv (a b c u: nat):
+  $ rawPropIff (rawDecode (kRho8 a b c u))
+    (sfRho8 (rawDecode a) (rawDecode b) (rawDecode c) (rawDecode u)) $;
+theorem rawSource_rho8 (a b c u: nat):
+  $ zfcProvable (rawDecode (kRho8 a b c u)) $;

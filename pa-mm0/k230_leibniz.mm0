@@ -1,0 +1,29 @@
+import "k230_substitution.mm0";
+import "k230_transport.mm0";
+
+-- Actual fixed-K proofs of equality substitution, with explicit capture guards.
+theorem kEquality_replace_forward (x y a: nat):
+ $ kProvable (kImp (kEq x y) (kEq a (kReplace x y a))) $;
+theorem kEquality_replace_backward (x y a: nat):
+ $ kProvable (kImp (kEq x y) (kEq (kReplace x y a) a)) $;
+
+def kLeibnizReady (f x y: nat): wff = $ kBinderAbsent f x /\ kBinderAbsent f y $;
+def kLeibnizPair (f x y: nat): wff =
+$ kProvable (kImp (kEq x y) (kImp f (kSubst f x y))) /\
+  kProvable (kImp (kEq x y) (kImp (kSubst f x y) f)) $;
+def kLeibnizClass (x y .f: nat): set = $ {f | kLeibnizReady f x y -> kLeibnizPair f x y} $;
+
+theorem kLeibnizClass_value (x y f: nat):
+ $ f e. kLeibnizClass x y <-> (kLeibnizReady f x y -> kLeibnizPair f x y) $;
+
+theorem kLeibnizClass_closed (x y: nat): $ kRawConstructionClosed (kLeibnizClass x y) $;
+theorem kLeibniz (f x y: nat):
+ $ kBinderAbsent f x /\ kBinderAbsent f y ->
+   kProvable (kImp (kEq x y) (kImp f (kSubst f x y))) /\
+   kProvable (kImp (kEq x y) (kImp (kSubst f x y) f)) $;
+theorem kLeibniz_forward (f x y: nat):
+ $ kBinderAbsent f x /\ kBinderAbsent f y ->
+   kProvable (kImp (kEq x y) (kImp f (kSubst f x y))) $;
+theorem kLeibniz_backward (f x y: nat):
+ $ kBinderAbsent f x /\ kBinderAbsent f y ->
+   kProvable (kImp (kEq x y) (kImp (kSubst f x y) f)) $;

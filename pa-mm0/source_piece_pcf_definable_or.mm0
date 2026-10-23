@@ -1,0 +1,63 @@
+import "source_piece_pcf_definable_dn.mm0";
+
+def pcdfOF0(a b r u v:nat):nat = $ sfOr a b $;
+
+def pcdfOF1(a b r u v:nat):nat = $ sfImp r (pcdfOF0 a b r u v) $;
+
+def pcdfOF2(a b r u v:nat):nat = $ sfImp (pcdfOF0 a b r u v) r $;
+
+def pcdfOF3(a b r u v:nat):nat = $ sfAnd (pcdfOF1 a b r u v) (pcdfOF2 a b r u v) $;
+
+def pcdfOF4(a b r u v:nat):nat = $ sfImp a u $;
+
+def pcdfOF5(a b r u v:nat):nat = $ sfImp u a $;
+
+def pcdfOF6(a b r u v:nat):nat = $ sfAnd (pcdfOF4 a b r u v) (pcdfOF5 a b r u v) $;
+
+def pcdfOF7(a b r u v:nat):nat = $ sfImp b v $;
+
+def pcdfOF8(a b r u v:nat):nat = $ sfImp v b $;
+
+def pcdfOF9(a b r u v:nat):nat = $ sfAnd (pcdfOF7 a b r u v) (pcdfOF8 a b r u v) $;
+
+def pcdfOF10(a b r u v:nat):nat = $ sfOr u v $;
+
+def pcdfOF11(a b r u v:nat):nat = $ sfImp r (pcdfOF10 a b r u v) $;
+
+def pcdfOF12(a b r u v:nat):nat = $ sfImp (pcdfOF10 a b r u v) r $;
+
+def pcdfOF13(a b r u v:nat):nat = $ sfAnd (pcdfOF11 a b r u v) (pcdfOF12 a b r u v) $;
+
+def pcdfOF14(a b r u v:nat):nat = $ sfImp (pcdfOF9 a b r u v) (pcdfOF13 a b r u v) $;
+
+def pcdfOF15(a b r u v:nat):nat = $ sfImp (pcdfOF6 a b r u v) (pcdfOF14 a b r u v) $;
+
+def pcdfOF16(a b r u v:nat):nat = $ sfImp (pcdfOF3 a b r u v) (pcdfOF15 a b r u v) $;
+
+def pcdfOG17(a b r u v:nat):nat = $ (pcdfOF3 a b r u v) : 0 $;
+
+def pcdfOG18(a b r u v:nat):nat = $ (pcdfOF6 a b r u v) : (pcdfOG17 a b r u v) $;
+
+def pcdfOG19(a b r u v:nat):nat = $ (pcdfOF9 a b r u v) : (pcdfOG18 a b r u v) $;
+
+def pcdfOG20(a b r u v:nat):nat = $ r : (pcdfOG19 a b r u v) $;
+
+def pcdfOG21(a b r u v:nat):nat = $ a : (pcdfOG20 a b r u v) $;
+
+def pcdfOG22(a b r u v:nat):nat = $ b : (pcdfOG20 a b r u v) $;
+
+def pcdfOG23(a b r u v:nat):nat = $ (pcdfOF10 a b r u v) : (pcdfOG19 a b r u v) $;
+
+def pcdfOG24(a b r u v:nat):nat = $ u : (pcdfOG23 a b r u v) $;
+
+def pcdfOG25(a b r u v:nat):nat = $ v : (pcdfOG23 a b r u v) $;
+
+theorem sfPieceDefinableOr_pure(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal 0 (sfImp (sfIff r (sfOr a b)) (sfImp (sfIff a u) (sfImp (sfIff b v) (sfIff r (sfOr u v))))) $;
+
+theorem sfPieceDefinableOr_local(G a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(hR:$ nsLocal G (sfIff r (sfOr a b)) $)(hA:$ nsLocal G (sfIff a u) $)(hB:$ nsLocal G (sfIff b v) $): $ nsLocal G (sfIff r (sfOr u v)) $;
+
+theorem sfPieceDefinableOr_all(G:nat)(a b r u v e:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(he:$ sfWf e $)(hR:$ nsLocal G (sfAll (sfAnd (sfImp r (sfOr a b)) (sfImp (sfOr a b) r))) $)(hA:$ nsLocal G (sfAll (sfImp e (sfAnd (sfImp a u) (sfImp u a)))) $)(hB:$ nsLocal G (sfAll (sfImp e (sfAnd (sfImp b v) (sfImp v b)))) $): $ nsLocal G (sfAll (sfImp e (sfAnd (sfImp r (sfOr u v)) (sfImp (sfOr u v) r)))) $;
+
+theorem sfPieceDefinableOr_all_pure(a b r u v e:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(he:$ sfWf e $): $ nsLocal 0 (sfImp (sfAll (sfAnd (sfImp r (sfOr a b)) (sfImp (sfOr a b) r))) (sfImp (sfAll (sfImp e (sfAnd (sfImp a u) (sfImp u a)))) (sfImp (sfAll (sfImp e (sfAnd (sfImp b v) (sfImp v b)))) (sfAll (sfImp e (sfAnd (sfImp r (sfOr u v)) (sfImp (sfOr u v) r))))))) $;
+
+theorem sfPieceDefinableOr_count(G count:nat)(a b r u v e:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(he:$ sfWf e $)(hR:$ nsLocal G (sfPieceDn count (sfAll (sfAnd (sfImp r (sfOr a b)) (sfImp (sfOr a b) r)))) $)(hA:$ nsLocal G (sfPieceDn count (sfAll (sfImp e (sfAnd (sfImp a u) (sfImp u a))))) $)(hB:$ nsLocal G (sfPieceDn count (sfAll (sfImp e (sfAnd (sfImp b v) (sfImp v b))))) $): $ nsLocal G (sfPieceDn count (sfAll (sfImp e (sfAnd (sfImp r (sfOr u v)) (sfImp (sfOr u v) r))))) $;

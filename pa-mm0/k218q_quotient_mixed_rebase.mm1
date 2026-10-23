@@ -1,0 +1,23 @@
+import "k218q_quotient_mixed_logic.mm1";
+
+pub theorem k218QM_below_zero (E: set) (k: nat): $ sqEnvBelow E 0 k $ = (named '(ax_gen (absurd lt02)));
+
+pub theorem k218QM_below_one (G: wff) (E: set) (k x: nat) (hx: $ G -> x < k $): $ G -> sqEnvBelow (sqEnvCons x E) 1 k $ = '(mpd (a1i k218QM_below_zero) (syl sqEnvBelow_cons hx));
+
+pub theorem k218QM_below_two (G: wff) (E: set) (k x y: nat) (hx: $ G -> x < k $) (hy: $ G -> y < k $): $ G -> sqEnvBelow (sqEnvCons x (sqEnvCons y E)) 2 k $ = '(mpd (k218QM_below_one hy) (syl sqEnvBelow_cons hx));
+
+pub theorem k218QM_quote_rebase (G: wff) (E: set) (n t k l c: nat) (hb: $ G -> sfBound n c $) (hk: $ G -> 0 < k $) (hl: $ G -> 0 < l $) (htk: $ G -> t < k $) (htl: $ G -> t < l $) (hek: $ G -> sqEnvBelow E n k $) (hel: $ G -> sqEnvBelow E n l $): $ G -> k218IEquivalent (sqQuote E t k 0 c) (sqQuote E t l 0 c) $ = '(mpd (mpd hel (mpd htl (syl sqQuoteHygiene_from_below hl))) (mpd (mpd hek (mpd htk (syl sqQuoteHygiene_from_below hk))) (syl k218SQ_sqQuote_fresh_base_equivalent hb)));
+
+pub theorem k218QM_equal_quote (t k x y: nat): $ sqQuote (sqEnvCons x (sqEnvCons y sqZeroEnvironment)) t k 0 (sfEq 0 1) = sqEqual t x y k $ = '(eqtr sqQuote_sfEq (sqEqualeq eqid (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)) add02));
+
+theorem k218QM_equal_bound: $ sfBound 2 (sfEq 0 1) $ = '(mpbir sfBound_sfEq (ian (lttr lt01S ltsucid) ltsucid));
+
+pub theorem k218QM_equal_rebase (G: wff) (t k l x y: nat) (hk: $ G -> 0 < k $) (hl: $ G -> 0 < l $) (htk: $ G -> t < k $) (htl: $ G -> t < l $) (hxk: $ G -> x < k $) (hxl: $ G -> x < l $) (hyk: $ G -> y < k $) (hyl: $ G -> y < l $): $ G -> k218IEquivalent (sqEqual t x y k) (sqEqual t x y l) $ = '(mpbid (k218IEquivalenteqd (a1i k218QM_equal_quote) (a1i k218QM_equal_quote)) (k218QM_quote_rebase (a1i k218QM_equal_bound) hk hl htk htl (k218QM_below_two hxk hyk) (k218QM_below_two hxl hyl)));
+
+pub theorem k218QM_empty_named (t k: nat): $ sfNamedTemplate (sqEnvCons t sqZeroEnvironment) k 0 (sfAll (sfImp (sfMem 0 1) sfBot)) = k218QAEmpty t k $ = '(eqtr (ax_mp sfNamedTemplate_all_cons (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_bot)) (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)))) sfNamedTemplate_bot))));
+
+theorem k218QM_empty_bound: $ sfBound 1 (sfAll (sfImp (sfMem 0 1) sfBot)) $ = '(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian (lttr lt01S ltsucid) ltsucid)) sfBound_bot)));
+
+pub theorem k218QM_empty_rebase (G: wff) (t k l: nat) (hk: $ G -> 0 < k $) (hl: $ G -> 0 < l $) (htk: $ G -> t < k $) (htl: $ G -> t < l $): $ G -> k218IEquivalent (k218QAEmpty t k) (k218QAEmpty t l) $ = '(mpbid (k218IEquivalenteqd (a1i k218QM_empty_named) (a1i k218QM_empty_named)) (k218IND_rebase hk hl (k218QM_below_one htk) (k218QM_below_one htl) (a1i k218QM_empty_bound)));
+
+pub theorem k218QM_mixed_rebase (G: wff) (H t k l x y: nat) (hk: $ G -> 0 < k $) (hl: $ G -> 0 < l $) (htk: $ G -> t < k $) (htl: $ G -> t < l $) (hxk: $ G -> x < k $) (hxl: $ G -> x < l $) (hyk: $ G -> y < k $) (hyl: $ G -> y < l $) (hr: $ G -> k218QMixed H t k x y $): $ G -> k218QMixed H t l x y $ = '(mpd hr (eorda (syl orl anr) (syl orr (k218QEquivForward (k218QM_equal_rebase (syl hk anl) (syl hl anl) (syl htk anl) (syl htl anl) (syl hxk anl) (syl hxl anl) (syl hyk anl) (syl hyl anl)) anr))));

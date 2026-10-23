@@ -1,0 +1,34 @@
+import "k215_literal_registers.mm0";
+
+def k215TmPathTapeStep (.z: nat): set = $ \ z, k215TmPush (fst z) (pi22 z) $;
+
+def k215TmPathTape (p r: nat): nat = $ lrec r k215TmPathTapeStep p $;
+
+theorem k215TmPathTape_nil (r: nat): $ k215TmPathTape 0 r = r $;
+
+theorem k215TmPathTape_cons (b p r: nat):
+ $ k215TmPathTape (b : p) r = k215TmPush b (k215TmPathTape p r) $;
+
+theorem k215TmPathTape_append (p q r: nat):
+ $ k215TmPathTape (p ++ q) r = k215TmPathTape p (k215TmPathTape q r) $;
+
+theorem k215TmPathTape_repeat (b n r: nat):
+ $ k215TmPathTape (repeat b n) r = k215TmRepeat b n r $;
+
+theorem k215TmRepeat_add (b m n r: nat):
+ $ k215TmRepeat b (m + n) r = k215TmRepeat b m (k215TmRepeat b n r) $;
+
+def k215TmDispatchState (path gap file: nat): nat =
+ $ k215TMState k215Num83 1 (k215TmPathTape path (k215TmRepeat 0 gap (k215TmPush 1 (k215TmFile file 0)))) $;
+
+theorem k215TmDispatchState_Q (path gap file: nat):
+ $ k215TMQ (k215TmDispatchState path gap file) = k215Num83 $;
+
+theorem k215TmDispatchState_L (path gap file: nat):
+ $ k215TML (k215TmDispatchState path gap file) = 1 $;
+
+theorem k215TmDispatchState_R (path gap file: nat):
+ $ k215TMR (k215TmDispatchState path gap file) = k215TmPathTape path (k215TmRepeat 0 gap (k215TmPush 1 (k215TmFile file 0))) $;
+
+theorem k215TmDispatchState_zeroPadding (path m n file: nat):
+ $ k215TmDispatchState (path ++ repeat 0 m) n file = k215TmDispatchState path (m + n) file $;

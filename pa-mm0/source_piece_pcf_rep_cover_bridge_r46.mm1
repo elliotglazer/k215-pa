@@ -1,0 +1,45 @@
+import "source_piece_pcf_rep_cover_background_r41.mm1";
+import "source_piece_pcf_rep_cover_use_r42.mm1";
+
+pub theorem sfPieceRepEnvironmentCover_background(G n A B C:nat)
+ (hg:$ sfContextWf G $)(hbg:$ sfContextSub sfLBackground G $)
+ (hs:$ nsLocal G (sfPieceRepSuccessor A B) $)
+ (hc:$ nsLocal G (sfPieceRepClosure B C) $):
+ $ nsLocal G (sfPieceRepEnvironmentCover A C n) $ =
+ '(ax_mp (ax_mp (ax_mp sfPieceRepCoverFormula_use
+    (ax_mp (ax_mp (ax_mp nsLocal_weaken hg) hbg)
+      sfPieceRepCover_background_local)) hs) hc);
+
+@_ abstract def sfPieceRepCoverWitnessContext(G A C n:nat):nat =
+ $ sfPieceRepEnvironmentCoverBody A C n : sfContextShift G $;
+
+theorem pcr46_cover_hyp(G A C n:nat):
+ $ nsLocal (sfPieceRepCoverWitnessContext G A C n)
+   (sfPieceRepEnvironmentCoverBody A C n) $ =
+ '(ax_mp (ax_mp nsLocal_hyp
+     (mpbir sfContextWf_cons
+       (ian sfPieceRepEnvironmentCoverBody_wf sfContextShift_wf)))
+   sfContext_member_head);
+
+pub theorem sfPieceRepCoverWitnessContext_wf(G A C n:nat):
+ $ sfContextWf (sfPieceRepCoverWitnessContext G A C n) $ =
+ '(mpbir sfContextWf_cons
+    (ian sfPieceRepEnvironmentCoverBody_wf sfContextShift_wf));
+
+pub theorem sfPieceRepCoverWitnessContext_member(G A C n:nat):
+ $ nsLocal (sfPieceRepCoverWitnessContext G A C n) (sfMem 0 (suc C)) $ =
+ '(ax_mp nsLocal_CE1 pcr46_cover_hyp);
+
+pub theorem sfPieceRepCoverWitnessContext_cover(G A C n:nat):
+ $ nsLocal (sfPieceRepCoverWitnessContext G A C n)
+   (sfPieceRepEnvironmentCoverAt (suc A) 0 n) $ =
+ '(ax_mp nsLocal_CE2 pcr46_cover_hyp);
+
+pub theorem sfPieceRepEnvironmentCover_background_eliminate(G n A B C out:nat)
+ (hg:$ sfContextWf G $)(hbg:$ sfContextSub sfLBackground G $)
+ (hs:$ nsLocal G (sfPieceRepSuccessor A B) $)
+ (hc:$ nsLocal G (sfPieceRepClosure B C) $)(ho:$ sfWf out $)
+ (hp:$ nsLocal (sfPieceRepCoverWitnessContext G A C n) (sfShift 0 out) $):
+ $ nsLocal G out $ =
+ '(ax_mp (ax_mp (sfLocal_exE ho)
+     (sfPieceRepEnvironmentCover_background hg hbg hs hc)) hp);

@@ -1,0 +1,106 @@
+import "source_l_common_level_collect_dom.mm1";
+import "source_l_common_level_two_join.mm1";
+import "source_l_common_level_two_shift.mm1";
+import "zfc_axioms.mm1";
+import "source_relativization_laws.mm1";
+import "source_relative_quantifiers.mm1";
+
+-- Choice in L (informal argument: lanes/L03.md, "Choice in L").
+
+@_ def sfLChoiceMatrix: nat = $ (sfImp (sfAll (sfImp (sfMem 0 1) (sfEx (sfMem 0 1)))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 2) (sfImp (sfImp (sfEq 1 0) (sfBot)) (sfImp (sfEx (sfAnd (sfMem 0 2) (sfMem 0 1))) (sfBot))))))) (sfEx (sfAll (sfImp (sfMem 0 2) (sfEx (sfAnd (sfAnd (sfMem 0 1) (sfMem 0 2)) (sfAll (sfImp (sfMem 0 2) (sfImp (sfMem 0 3) (sfEq 0 1))))))))))) $;
+
+@_ def sfLChoiceD (x: nat): nat = $ sfLUnaryAt sfLDomain x $;
+@_ def sfLChoiceAC (x: nat): nat = $ sfLUnaryAt sfLChoiceMatrix x $;
+
+@_ def sfLChoiceT1: nat = $ sfAll (sfImp (sfCLOrdinalAt 0) (sfEx (sfCLHierarchyAt 1 0))) $;
+@_ def sfLChoiceT2: nat = $ sfAll (sfImp (sfCLOrdinalAt 0) (sfAll (sfImp (sfCLHierarchyAt 1 0)
+  (sfAll (sfImp (sfMem 0 1) sfLChoiceMatrix))))) $;
+@_ def sfLChoiceUnique: nat = $ sfAll (sfAll (sfAll (sfImp (sfCLOrdinalAt 2)
+  (sfImp (sfCLHierarchyAt 2 1) (sfImp (sfCLHierarchyAt 2 0) (sfEq 1 0)))))) $;
+@_ def sfLChoiceUp: nat = $ sfAll (sfAll (sfImp (sfLChoiceD 1) (sfImp (sfLChoiceD 0)
+  (sfImp (sfRelativize sfLDomain (sfCLHierarchyAt 1 0)) (sfCLHierarchyAt 1 0))))) $;
+@_ def sfLChoiceOrdL: nat = $ sfAll (sfImp (sfCLOrdinalAt 0) (sfLChoiceD 0)) $;
+@_ def sfLChoiceOrdDown: nat = $ sfAll (sfImp (sfCLOrdinalAt 0) (sfRelativize sfLDomain (sfCLOrdinalAt 0))) $;
+
+@_ def sfLChoiceContext: nat = $ sfRelativize sfLDomain sfLChoiceT1 : (sfRelativize sfLDomain sfLChoiceT2 :
+  (sfLChoiceUnique : (sfLChoiceUp : (sfLChoiceOrdL : (sfLChoiceOrdDown : (sfReflectionEqualitySubset : 0)))))) $;
+
+pub theorem sfLChoice_eq: $ zfcChoice = sfAll sfLChoiceMatrix $ = 'eqid;
+
+------------------------------------------------------------------------
+-- Bounds.
+
+theorem cha_lt13: $ 1 < 3 $ = '(mpbi ltsuc lt01S);
+theorem cha_lt23: $ 2 < 3 $ = '(mpbi ltsuc d1lt2);
+theorem cha_le13: $ 1 <= 3 $ = '(mpbi lesuc le01);
+
+theorem cha_choice_closed: $ sfBound 0 zfcChoice $ =
+'(ax_mp zfcFixed_closed (orr (orr (orr (orr (orr (orr (orr (orr (orr (orr (orr eqid))))))))))));
+
+pub theorem sfLChoiceMatrix_bound: $ sfBound 1 sfLChoiceMatrix $ =
+'(mpbi sfBound_sfAll cha_choice_closed);
+
+theorem cha_d_bound (x k: nat) (h: $ x < k $): $ sfBound k (sfLChoiceD x) $ =
+'(mpbir (sfBoundeq2 (sfLUnaryAt_to_subst sfLDomain_bound)) (ax_mp (sfCLUnary_bound sfLDomain_bound) h));
+
+theorem cha_t1_bound: $ sfBound 0 sfLChoiceT1 $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound d0lt1)
+  (mpbir sfBound_sfEx (sfCLHierarchyAt_bound d1lt2 d0lt2)))));
+
+theorem cha_t2_bound: $ sfBound 0 sfLChoiceT2 $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound d0lt1)
+  (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (sfCLHierarchyAt_bound d1lt2 d0lt2)
+   (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian
+    (mpbir sfBound_sfMem (ian lt01S cha_lt13))
+    (ax_mp (ax_mp sfBound_mono sfLChoiceMatrix_bound) cha_le13))))))))));
+
+theorem cha_unique_bound: $ sfBound 0 sfLChoiceUnique $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfAll
+  (mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound cha_lt23)
+   (mpbir sfBound_sfImp (ian (sfCLHierarchyAt_bound cha_lt23 cha_lt13)
+    (mpbir sfBound_sfImp (ian (sfCLHierarchyAt_bound cha_lt23 lt01S)
+     (mpbir sfBound_sfEq (ian cha_lt13 lt01S)))))))))));
+
+theorem cha_up_bound: $ sfBound 0 sfLChoiceUp $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll
+  (mpbir sfBound_sfImp (ian (cha_d_bound d1lt2)
+   (mpbir sfBound_sfImp (ian (cha_d_bound d0lt2)
+    (mpbir sfBound_sfImp (ian
+     (ax_mp (ax_mp sfRelativize_bound sfLDomain_bound) (sfCLHierarchyAt_bound d1lt2 d0lt2))
+     (sfCLHierarchyAt_bound d1lt2 d0lt2)))))))));
+
+theorem cha_ordl_bound: $ sfBound 0 sfLChoiceOrdL $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound d0lt1) (cha_d_bound d0lt1))));
+
+theorem cha_orddown_bound: $ sfBound 0 sfLChoiceOrdDown $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound d0lt1)
+  (ax_mp (ax_mp sfRelativize_bound sfLDomain_bound) (sfCLOrdinalAt_bound d0lt1)))));
+
+theorem cha_eqsub_bound: $ sfBound 0 sfReflectionEqualitySubset $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfImp
+  (ian (mpbir sfBound_sfEq (ian d1lt2 d0lt2)) (cl2_subset_bound d1lt2 d0lt2)))));
+
+theorem cha_t1l_bound: $ sfBound 0 (sfRelativize sfLDomain sfLChoiceT1) $ =
+'(ax_mp (ax_mp sfRelativize_closed sfLDomain_bound) cha_t1_bound);
+
+theorem cha_t2l_bound: $ sfBound 0 (sfRelativize sfLDomain sfLChoiceT2) $ =
+'(ax_mp (ax_mp sfRelativize_closed sfLDomain_bound) cha_t2_bound);
+
+pub theorem sfLChoiceContext_wf: $ sfContextWf sfLChoiceContext $ =
+'(mpbir sfContextWf_cons (ian (ax_mp sfBound_wf cha_t1l_bound)
+  (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf cha_t2l_bound)
+   (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf cha_unique_bound)
+    (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf cha_up_bound)
+     (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf cha_ordl_bound)
+      (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf cha_orddown_bound)
+       (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf cha_eqsub_bound) sfContextWf_nil))))))))))))));
+
+pub theorem sfLChoiceContext_shift: $ sfContextShift sfLChoiceContext = sfLChoiceContext $ =
+'(eqtr sfContextShift_cons (conseq (ax_mp sfShift_closed_identity cha_t1l_bound)
+ (eqtr sfContextShift_cons (conseq (ax_mp sfShift_closed_identity cha_t2l_bound)
+ (eqtr sfContextShift_cons (conseq (ax_mp sfShift_closed_identity cha_unique_bound)
+ (eqtr sfContextShift_cons (conseq (ax_mp sfShift_closed_identity cha_up_bound)
+ (eqtr sfContextShift_cons (conseq (ax_mp sfShift_closed_identity cha_ordl_bound)
+ (eqtr sfContextShift_cons (conseq (ax_mp sfShift_closed_identity cha_orddown_bound)
+ (eqtr sfContextShift_cons (conseq (ax_mp sfShift_closed_identity cha_eqsub_bound)
+  sfContextShift_nil))))))))))))));

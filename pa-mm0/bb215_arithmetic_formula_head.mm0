@@ -1,0 +1,39 @@
+import "bb215_arithmetic_formula_tail.mm0";
+
+def bb215ArithmeticFormulaConsGraph (a t l: nat): wff = $ 2 * l = ((a + t) * suc (a + t) + 2 * t) + 2 $;
+
+theorem bb215ArithmeticFormulaConsGraph_double (a t: nat): $ 2 * (a : t) = ((a + t) * suc (a + t) + 2 * t) + 2 $;
+
+theorem bb215ArithmeticFormulaConsGraph_correct (a t l: nat): $ bb215ArithmeticFormulaConsGraph a t l <-> l = a : t $;
+
+def bb215ArithmeticFormulaConsCode: nat = $ paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 2)) (paTermAddition (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable 0) (paTermVariable 1)) (paTermSuccessor (paTermAddition (paTermVariable 0) (paTermVariable 1)))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 1))) (paTermSuccessor (paTermSuccessor (paTermZero)))) $;
+
+def bb215ArithmeticFormulaConsSource: nat = $ paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 2)) (paSourceTermAddition (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable 0) (paSourceTermVariable 1)) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable 0) (paSourceTermVariable 1)))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 1))) (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero)))) $;
+
+theorem bb215ArithmeticFormulaConsCode_bound: $ paFormulaBound 3 bb215ArithmeticFormulaConsCode $;
+
+theorem bb215ArithmeticFormulaConsCode_satisfies (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaConsCode <-> bb215ArithmeticFormulaConsGraph (E @ 0) (E @ 1) (E @ 2) $;
+
+theorem bb215ArithmeticFormulaConsCode_represents (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaConsCode <-> E @ 2 = (E @ 0) : (E @ 1) $;
+
+theorem bb215ArithmeticFormulaConsSource_exact: $ paFormulaSource bb215ArithmeticFormulaConsCode = bb215ArithmeticFormulaConsSource $;
+
+theorem bb215ArithmeticFormulaConsSource_bound: $ sfBound 3 bb215ArithmeticFormulaConsSource $;
+
+def bb215ArithmeticFormulaHeadGraph (l v .a .t: nat): wff = $ (l = 0 /\ v = 0) \/ E. a E. t (bb215ArithmeticFormulaConsGraph a t l /\ v = suc a) $;
+
+theorem bb215ArithmeticFormulaHeadGraph_correct (l v: nat): $ bb215ArithmeticFormulaHeadGraph l v <-> bb215ArithmeticFormulaListHead l = v $;
+
+def bb215ArithmeticFormulaHeadCode: nat = $ paFormulaOr (paFormulaAnd (paFormulaEqual (paTermVariable 0) (paTermZero)) (paFormulaEqual (paTermVariable 1) (paTermZero))) (paFormulaEx (paFormulaEx (paFormulaAnd (paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 2)) (paTermAddition (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable 1) (paTermVariable 0)) (paTermSuccessor (paTermAddition (paTermVariable 1) (paTermVariable 0)))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 0))) (paTermSuccessor (paTermSuccessor (paTermZero))))) (paFormulaEqual (paTermVariable 3) (paTermSuccessor (paTermVariable 1)))))) $;
+
+def bb215ArithmeticFormulaHeadSource: nat = $ sfOr (sfAnd (paSourceFormulaEqual (paSourceTermVariable 0) (paSourceTermZero)) (paSourceFormulaEqual (paSourceTermVariable 1) (paSourceTermZero))) (paSourceFormulaEx (paSourceFormulaEx (sfAnd (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 2)) (paSourceTermAddition (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable 1) (paSourceTermVariable 0)) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable 1) (paSourceTermVariable 0)))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 0))) (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))))) (paSourceFormulaEqual (paSourceTermVariable 3) (paSourceTermSuccessor (paSourceTermVariable 1)))))) $;
+
+theorem bb215ArithmeticFormulaHeadCode_bound: $ paFormulaBound 2 bb215ArithmeticFormulaHeadCode $;
+
+theorem bb215ArithmeticFormulaHeadCode_satisfies (E: set): $ bb215ArithmeticFormulaDepthTwoSat E bb215ArithmeticFormulaHeadCode <-> bb215ArithmeticFormulaHeadGraph (E @ 0) (E @ 1) $;
+
+theorem bb215ArithmeticFormulaHeadCode_represents (E: set): $ bb215ArithmeticFormulaDepthTwoSat E bb215ArithmeticFormulaHeadCode <-> bb215ArithmeticFormulaListHead (E @ 0) = E @ 1 $;
+
+theorem bb215ArithmeticFormulaHeadSource_exact: $ paFormulaSource bb215ArithmeticFormulaHeadCode = bb215ArithmeticFormulaHeadSource $;
+
+theorem bb215ArithmeticFormulaHeadSource_bound: $ sfBound 2 bb215ArithmeticFormulaHeadSource $;

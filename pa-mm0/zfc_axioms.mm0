@@ -1,0 +1,61 @@
+import "zfc_fixed.mm0";
+import "zfc_schema_maps.mm0";
+import "source_renaming.mm0";
+
+-- Concrete eight-tag source ZFC axiom recognition. The final source
+-- closedness checks remain explicit. Calibration to the Rocq beta-table
+-- relations and to the finite source graph is a separate obligation.
+def zfcSeparationCode (phi n: nat): nat =
+$ sfAllPrefix n (sfSeparation (sfRename sfSepMap 0 phi)) $;
+def zfcReplacementCode (phi n: nat): nat =
+$ sfAllPrefix n (sfReplacement
+    (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi)
+    (sfRename sfRepCMap 0 phi)) $;
+def zfcClosedSeparation (z .phi .n: nat): wff =
+$ sfBound 0 z /\ E. phi E. n
+    (sfBound (suc n) phi /\ z = zfcSeparationCode phi n) $;
+def zfcClosedReplacement (z .phi .n: nat): wff =
+$ sfBound 0 z /\ E. phi E. n
+    (sfBound (suc (suc n)) phi /\ z = zfcReplacementCode phi n) $;
+def zfcAxioms (.z: nat): set =
+$ {z | zfcFixed z \/ (zfcClosedSeparation z \/ zfcClosedReplacement z)} $;
+
+theorem zfcSeparationCode_wf (phi n: nat): $ sfWf (zfcSeparationCode phi n) $;
+theorem zfcReplacementCode_wf (phi n: nat): $ sfWf (zfcReplacementCode phi n) $;
+theorem zfcAxioms_value (z: nat):
+  $ z e. zfcAxioms <-> zfcFixed z \/ (zfcClosedSeparation z \/ zfcClosedReplacement z) $;
+theorem zfcClosedSeparation_closed (z: nat): $ zfcClosedSeparation z -> sfBound 0 z $;
+theorem zfcClosedReplacement_closed (z: nat): $ zfcClosedReplacement z -> sfBound 0 z $;
+theorem zfcAxioms_wf (z: nat): $ z e. zfcAxioms -> sfWf z $;
+theorem zfcFixed_member (z: nat): $ zfcFixed z -> z e. zfcAxioms $;
+theorem zfcClosedSeparation_member (z: nat): $ zfcClosedSeparation z -> z e. zfcAxioms $;
+theorem zfcClosedReplacement_member (z: nat): $ zfcClosedReplacement z -> z e. zfcAxioms $;
+theorem zfcSeparationCode_member_checked (phi n: nat):
+  $ sfBound (suc n) phi -> sfBound 0 (zfcSeparationCode phi n) ->
+    zfcSeparationCode phi n e. zfcAxioms $;
+theorem zfcReplacementCode_member_checked (phi n: nat):
+  $ sfBound (suc (suc n)) phi -> sfBound 0 (zfcReplacementCode phi n) ->
+    zfcReplacementCode phi n e. zfcAxioms $;
+theorem zfcSeparationBody_bound (phi n: nat):
+  $ sfBound (suc n) phi ->
+    sfBound (suc (suc (suc n))) (sfRename sfSepMap 0 phi) $;
+theorem zfcReplacementBodyA_bound (phi n: nat):
+  $ sfBound (suc (suc n)) phi ->
+    sfBound (suc (suc (suc n))) (sfRename sfRepAMap 0 phi) $;
+theorem zfcReplacementBodyB_bound (phi n: nat):
+  $ sfBound (suc (suc n)) phi ->
+    sfBound (suc (suc (suc n))) (sfRename sfRepBMap 0 phi) $;
+theorem zfcReplacementBodyC_bound (phi n: nat):
+  $ sfBound (suc (suc n)) phi ->
+    sfBound (suc (suc (suc (suc n)))) (sfRename sfRepCMap 0 phi) $;
+theorem zfcSeparationCode_closed (phi n: nat):
+  $ sfBound (suc n) phi -> sfBound 0 (zfcSeparationCode phi n) $;
+theorem zfcReplacementCode_closed (phi n: nat):
+  $ sfBound (suc (suc n)) phi -> sfBound 0 (zfcReplacementCode phi n) $;
+theorem zfcSeparationCode_member (phi n: nat):
+  $ sfBound (suc n) phi -> zfcSeparationCode phi n e. zfcAxioms $;
+theorem zfcReplacementCode_member (phi n: nat):
+  $ sfBound (suc (suc n)) phi -> zfcReplacementCode phi n e. zfcAxioms $;
+
+theorem zfcFixed_closed (z: nat): $ zfcFixed z -> sfBound 0 z $;
+theorem zfcAxioms_closed (z: nat): $ z e. zfcAxioms -> sfBound 0 z $;

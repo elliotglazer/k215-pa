@@ -1,0 +1,234 @@
+import "k218_equality_base.mm1";
+import "k218_raw_fresh.mm1";
+
+@_ abstract def k218MemBaseRules (.c .l .a .b: nat): set =
+  $ S\ c, {l | c = 0 \/ E. a E. b c = kMem a b} $;
+@_ abstract def k218MemImpRules (.c .l .a .b: nat): set =
+  $ S\ c, {l | E. a E. b (a IN l /\ b IN l /\ c = kImp a b)} $;
+@_ def k218MemSyntaxRules: set = $ k218MemBaseRules u. (k218MemImpRules u. k218GenRules) $;
+@_ abstract def k218MemSyntax (c .p: nat): wff = $ E. p traceDerives k218MemSyntaxRules p c $;
+@_ abstract def k218MemAtomicClosed (P: set) (.a .b: nat): wff = $ A. a A. b kMem a b e. P $;
+@_ def k218MemConstructionClosed (P: set): wff =
+  $ 0 e. P /\ k218MemAtomicClosed P /\ kRawImpClosed P /\ kRawAllClosed P $;
+
+pub theorem k218MemBaseRules_value {a b: nat} (c l: nat):
+  $ (c, l) e. k218MemBaseRules <-> c = 0 \/ E. a E. b c = kMem a b $ =
+(named '(elsabe @ elabed ,eqtac));
+pub theorem k218MemImpRules_value {a b: nat} (c l: nat):
+  $ (c, l) e. k218MemImpRules <-> E. a E. b (a IN l /\ b IN l /\ c = kImp a b) $ =
+(named '(elsabe @ elabed ,eqtac));
+
+theorem k218MC_zero (P: set): $ k218MemConstructionClosed P -> 0 e. P $ =
+'(syl anl (syl anl anl));
+theorem k218MC_mem_at (P: set) (a b: nat):
+  $ k218MemAtomicClosed P -> kMem a b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+theorem k218MC_mem (P: set) (a b: nat):
+  $ k218MemConstructionClosed P -> kMem a b e. P $ =
+'(syl k218MC_mem_at (syl anr (syl anl anl)));
+theorem k218MC_imp (P: set) (a b: nat):
+  $ k218MemConstructionClosed P -> a e. P /\ b e. P -> kImp a b e. P $ =
+'(syl kRI_imp_at (syl anr anl));
+theorem k218MC_all (P: set) (a b: nat):
+  $ k218MemConstructionClosed P -> b e. P -> kAll a b e. P $ =
+'(syl kRI_all_at anr);
+
+theorem k218MC_base_zero (P: set) (c l: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l -> c = 0 -> c e. P $ =
+'(exp @ mpbird (eleq1d anr) (syl k218MC_zero (syl anl anl)));
+theorem k218MC_base_mem (P: set) (c l a b: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l -> c = kMem a b -> c e. P $ =
+'(exp @ mpbird (eleq1d anr) (syl k218MC_mem (syl anl anl)));
+theorem k218MC_base_exists {a b: nat} (P: set) (c l: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l ->
+    (E. a E. b c = kMem a b) -> c e. P $ =
+(named '(eexd @ eexd k218MC_base_mem));
+theorem k218MC_base_rule (P: set) (c l: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l ->
+    (c, l) e. k218MemBaseRules -> c e. P $ =
+(named '(syl5bi k218MemBaseRules_value (eord k218MC_base_zero k218MC_base_exists)));
+
+theorem k218MC_imp_payload (P: set) (c l a b: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l ->
+    (a IN l /\ b IN l /\ c = kImp a b) -> c e. P $ =
+'(exp @ mpbird (eleq1d (syl anr anr)) @
+  mpd (iand
+    (mpd (syl anl (syl anl anr)) (syl traceClassAll_get (syl anr anl)))
+    (mpd (syl anr (syl anl anr)) (syl traceClassAll_get (syl anr anl))))
+    (syl k218MC_imp (syl anl anl)));
+theorem k218MC_imp_exists {a b: nat} (P: set) (c l: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l ->
+    (E. a E. b (a IN l /\ b IN l /\ c = kImp a b)) -> c e. P $ =
+(named '(eexd @ eexd k218MC_imp_payload));
+theorem k218MC_imp_rule (P: set) (c l: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l ->
+    (c, l) e. k218MemImpRules -> c e. P $ =
+(named '(syl5bi k218MemImpRules_value k218MC_imp_exists));
+
+theorem k218MC_all_payload (P: set) (c l a b: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l ->
+    (b IN l /\ c = kAll a b) -> c e. P $ =
+'(exp @ mpbird (eleq1d (syl anr anr)) @
+  mpd (mpd (syl anl anr) (syl traceClassAll_get (syl anr anl)))
+    (syl k218MC_all (syl anl anl)));
+theorem k218MC_all_exists {a b: nat} (P: set) (c l: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l ->
+    (E. a E. b (b IN l /\ c = kAll a b)) -> c e. P $ =
+(named '(eexd @ eexd k218MC_all_payload));
+theorem k218MC_all_rule (P: set) (c l: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l ->
+    (c, l) e. k218GenRules -> c e. P $ =
+(named '(syl5bi k218GenRules_value k218MC_all_exists));
+theorem k218MC_rule (P: set) (c l: nat):
+  $ k218MemConstructionClosed P /\ traceClassAll P l ->
+    (c, l) e. k218MemSyntaxRules -> c e. P $ =
+'(syl5bi elun (eord k218MC_base_rule (syl5bi elun (eord k218MC_imp_rule k218MC_all_rule))));
+pub theorem k218MemConstruction_ruleSound (P: set):
+  $ k218MemConstructionClosed P -> traceRuleSound k218MemSyntaxRules P $ =
+(named '(iald @ iald @ exp k218MC_rule));
+theorem k218MC_trace (P: set) (p c: nat):
+  $ k218MemConstructionClosed P -> traceDerives k218MemSyntaxRules p c -> c e. P $ =
+'(syl traceDerives_class k218MemConstruction_ruleSound);
+pub theorem k218MemSyntax_induction (P: set) (c: nat):
+  $ k218MemConstructionClosed P -> k218MemSyntax c -> c e. P $ =
+(named '(eexd k218MC_trace));
+
+theorem k218MS_base_extend (c l r: nat):
+  $ (c, l) e. k218MemBaseRules -> (c, l ++ r) e. k218MemBaseRules $ =
+(named '(syl (bi2 k218MemBaseRules_value) (bi1 k218MemBaseRules_value)));
+theorem k218MS_imp_extend (c l r: nat):
+  $ (c, l) e. k218MemImpRules -> (c, l ++ r) e. k218MemImpRules $ =
+(named '(syl (bi2 k218MemImpRules_value) @ syl
+  (eximi @ eximi @ iand
+    (iand (syl k218List_append_left (syl anl anl))
+          (syl k218List_append_left (syl anr anl))) anr)
+  (bi1 k218MemImpRules_value)));
+theorem k218MS_rules_extend (c l r: nat):
+  $ (c, l) e. k218MemSyntaxRules -> (c, l ++ r) e. k218MemSyntaxRules $ =
+'(syl (bi2 elun) @ syl
+  (orim k218MS_base_extend
+    (syl (bi2 elun) @ syl (orim k218MS_imp_extend k218GenRules_extend) (bi1 elun)))
+  (bi1 elun));
+theorem k218MS_rules_stable: $ traceAppendStable k218MemSyntaxRules $ =
+(named '(ax_gen @ ax_gen @ ax_gen k218MS_rules_extend));
+theorem k218MS_rule_zero (l: nat): $ (0, l) e. k218MemSyntaxRules $ =
+(named '(elun1 (ax_mp (bi2 k218MemBaseRules_value) (orl eqid))));
+theorem k218MS_mem_exists (a b: nat): $ E. x E. y kMem a b = kMem x y $ =
+(named '(ax_mp (!! iexe x ,eqtac) (ax_mp (!! iexe y ,eqtac) eqid)));
+theorem k218MS_rule_mem (a b l: nat): $ (kMem a b, l) e. k218MemSyntaxRules $ =
+(named '(elun1 (ax_mp (bi2 k218MemBaseRules_value)
+  (orr k218MS_mem_exists))));
+theorem k218MS_intro (p c: nat):
+  $ traceDerives k218MemSyntaxRules p c -> k218MemSyntax c $ =
+(named '(iexe ,eqtac));
+pub theorem k218MemSyntax_zero: $ k218MemSyntax 0 $ =
+'(ax_mp k218MS_intro (traceDerives_head (ian traceValid_nil k218MS_rule_zero)));
+pub theorem k218MemSyntax_mem (a b: nat): $ k218MemSyntax (kMem a b) $ =
+'(ax_mp k218MS_intro (traceDerives_head (ian traceValid_nil k218MS_rule_mem)));
+pub theorem k218MemSyntax_false: $ k218MemSyntax kF $ =
+'(mpbi (k218MemSyntaxeq kMem_zero) k218MemSyntax_mem);
+
+theorem k218MS_imp_rule (a b l: nat):
+  $ a IN l /\ b IN l -> (kImp a b, l) e. k218MemSyntaxRules $ =
+(named '(syl elun2 @ syl elun1 @ syl (bi2 k218MemImpRules_value) @
+  syl (iexe ,eqtac) @ syl (iexe ,eqtac) (iand id (a1i eqid))));
+theorem k218MS_imp_trace (p q a b: nat):
+  $ traceDerives k218MemSyntaxRules p a -> traceDerives k218MemSyntaxRules q b ->
+    traceDerives k218MemSyntaxRules (kImp a b : (p ++ q)) (kImp a b) $ =
+'(exp @ syl traceDerives_head @ iand
+  (mpd (syl anl anr) (syl (traceValid_append k218MS_rules_stable) (syl anl anl)))
+  (syl k218MS_imp_rule @ iand
+    (syl k218List_append_left (syl anr anl))
+    (syl k218List_append_right (syl anr anr))));
+theorem k218MS_imp_witnesses (p q a b: nat):
+  $ traceDerives k218MemSyntaxRules p a -> traceDerives k218MemSyntaxRules q b ->
+    k218MemSyntax (kImp a b) $ =
+'(syl6 k218MS_intro k218MS_imp_trace);
+pub theorem k218MemSyntax_imp (a b: nat):
+  $ k218MemSyntax a -> k218MemSyntax b -> k218MemSyntax (kImp a b) $ =
+(named '(eex @ eexd k218MS_imp_witnesses));
+
+theorem k218MS_all_trace (p a b: nat):
+  $ traceDerives k218MemSyntaxRules p b ->
+    traceDerives k218MemSyntaxRules (kAll a b : p) (kAll a b) $ =
+'(syl traceDerives_head @ iand anl
+  (syl (syl elun2 (syl elun2 k218GenRules_intro)) anr));
+pub theorem k218MemSyntax_all (a b: nat):
+  $ k218MemSyntax b -> k218MemSyntax (kAll a b) $ =
+(named '(eex @ syl k218MS_intro k218MS_all_trace));
+
+pub theorem k218MemSyntax_not (a: nat) (h: $ k218MemSyntax a $):
+  $ k218MemSyntax (kNot a) $ =
+'(ax_mp (ax_mp k218MemSyntax_imp h) k218MemSyntax_false);
+pub theorem k218MemSyntax_and (a b: nat) (ha: $ k218MemSyntax a $) (hb: $ k218MemSyntax b $):
+  $ k218MemSyntax (kAnd a b) $ =
+'(k218MemSyntax_not (ax_mp (ax_mp k218MemSyntax_imp ha) (k218MemSyntax_not hb)));
+pub theorem k218MemSyntax_iff (a b: nat) (ha: $ k218MemSyntax a $) (hb: $ k218MemSyntax b $):
+  $ k218MemSyntax (k218Iff a b) $ =
+'(k218MemSyntax_and (ax_mp (ax_mp k218MemSyntax_imp ha) hb)
+  (ax_mp (ax_mp k218MemSyntax_imp hb) ha));
+pub theorem k218MemSyntax_ev (v x y: nat): $ k218MemSyntax (k218EqEv v x y) $ =
+'(k218MemSyntax_and
+  (ax_mp k218MemSyntax_all (k218MemSyntax_iff k218MemSyntax_mem k218MemSyntax_mem))
+  (ax_mp k218MemSyntax_all (k218MemSyntax_iff k218MemSyntax_mem k218MemSyntax_mem)));
+pub theorem k218MemSyntax_ind (x y: nat): $ k218MemSyntax (k218EqInd x y) $ =
+'k218MemSyntax_ev;
+
+@_ abstract def k218MemVacuousClass (x .c: nat): set =
+  $ {c | kFresh c x -> k218Provable (kImp c (kAll x c))} $;
+pub theorem k218MemVacuousClass_value (c x: nat):
+  $ c e. k218MemVacuousClass x <-> (kFresh c x -> k218Provable (kImp c (kAll x c))) $ =
+(named '(elabe ,eqtac));
+theorem k218MV_zero (x: nat): $ 0 e. k218MemVacuousClass x $ =
+'(mpbir k218MemVacuousClass_value (a1i k218Vacuity_truth));
+theorem k218MV_mem (a b x: nat): $ kMem a b e. k218MemVacuousClass x $ =
+'(mpbir k218MemVacuousClass_value (syl k218Membership_vacuity (bi1 kFresh_kMem)));
+
+theorem k218MV_syl (a b c: nat):
+  $ k218Provable (kImp a b) -> k218Provable (kImp b c) -> k218Provable (kImp a c) $ =
+'(exp @ mpd (syl (mpi k218PropB k218Provable_mp) anl) (syl k218Provable_mp anr));
+theorem k218MV_all (x a b: nat):
+  $ k218Provable (kImp a b) -> k218Provable (kImp (kAll x a) (kAll x b)) $ =
+'(syl (mpi (k218Provable_axiom k218Axioms_rho2) k218Provable_mp) k218Provable_gen);
+theorem k218MV_not (a b: nat):
+  $ k218Provable (kImp a b) -> k218Provable (kImp (kNot b) (kNot a)) $ =
+'(mpi k218PropContra k218Provable_mp);
+theorem k218MV_neg (x p: nat):
+  $ k218Provable (kImp p (kAll x p)) ->
+    k218Provable (kImp (kNot p) (kAll x (kNot p))) $ =
+'(syl (ax_mp k218MV_syl
+  (k218Provable_syl (k218Not_mono (k218Provable_axiom k218Axioms_rho6)) k218PropDNE))
+  (syl k218MV_all k218MV_not));
+theorem k218MV_universal (x y p: nat):
+  $ k218Provable (kImp p (kAll y p)) ->
+    k218Provable (kImp (kAll x p) (kAll y (kAll x p))) $ =
+'(syl (mpi (k218Provable_axiom k218Axioms_rho4) k218MV_syl) k218MV_all);
+theorem k218MV_implication (G: wff) (x p q: nat)
+  (hp: $ G -> k218Provable (kImp p (kAll x p)) $)
+  (hq: $ G -> k218Provable (kImp q (kAll x q)) $):
+  $ G -> k218Provable (kImp (kImp p q) (kAll x (kImp p q))) $ =
+'(sylc k218Provable_mp
+  (sylc k218MV_syl hq (a1i (k218All_mono k218PropK)))
+  (syl (mpi k218PropCasesImplication k218Provable_mp)
+    (sylc k218MV_syl (syl k218MV_neg hp) (a1i (k218All_mono k218PropNegativeImplication)))));
+
+theorem k218MV_imp_class (a b x: nat):
+  $ a e. k218MemVacuousClass x /\ b e. k218MemVacuousClass x -> kImp a b e. k218MemVacuousClass x $ =
+'(syl (bi2 k218MemVacuousClass_value) @ exp @ k218MV_implication
+  (mpd (syl anl (syl (bi1 kFresh_kImp) anr))
+    (syl (bi1 k218MemVacuousClass_value) (syl anl anl)))
+  (mpd (syl anr (syl (bi1 kFresh_kImp) anr))
+    (syl (bi1 k218MemVacuousClass_value) (syl anr anl))));
+theorem k218MV_all_class (a b x: nat):
+  $ b e. k218MemVacuousClass x -> kAll a b e. k218MemVacuousClass x $ =
+'(syl (bi2 k218MemVacuousClass_value) @ exp @ syl k218MV_universal @
+  mpd (syl anr (syl (bi1 kFresh_kAll) anr))
+    (syl (bi1 k218MemVacuousClass_value) anl));
+pub theorem k218MemVacuousClass_closed (x: nat):
+  $ k218MemConstructionClosed (k218MemVacuousClass x) $ =
+(named '(ian (ian (ian k218MV_zero (ax_gen @ ax_gen k218MV_mem))
+  (ax_gen @ ax_gen k218MV_imp_class)) (ax_gen @ ax_gen k218MV_all_class)));
+pub theorem k218Membership_fresh_vacuity (c x: nat):
+  $ k218MemSyntax c -> kFresh c x -> k218Provable (kImp c (kAll x c)) $ =
+'(syl (bi1 k218MemVacuousClass_value)
+  (ax_mp k218MemSyntax_induction k218MemVacuousClass_closed));

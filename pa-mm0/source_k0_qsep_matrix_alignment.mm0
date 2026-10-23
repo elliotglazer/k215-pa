@@ -1,0 +1,37 @@
+import "source_k0_qsep_instances.mm0";
+
+import "extracted_named_rename.mm0";
+
+def sfK0QSepCutEnvironment (E: set) (t a x: nat): set = $ (sqEnvCons x (sqEnvCons a (sqEnvCons t E))) $;
+
+def sfK0QSepTaggedEnvironment (E: set) (r t b u y: nat): set = $ (sqEnvCons y (sqEnvCons u (sqEnvCons b (sqEnvCons t (sqEnvCons r E))))) $;
+
+def sfK0QSepNamedSingleton (y u k: nat): nat = $ kAnd (kMem y u) (kAll k (kImp (kMem k u) (kEq k y))) $;
+
+def sfK0QSepNamedCut (E: set) (t a x k theta: nat): nat = $ kAnd (kMem x a) (kAnd (kMem t x) (sfNamedTemplate (sqEnvCons x E) k 0 theta)) $;
+
+def sfK0QSepNamedTagged (E: set) (r t b u y k theta: nat): nat = $ kDisj (kAnd (kEq u r) (kEq y b)) (kDisj (kAnd (kEq u t) (kEq y t)) (kAnd (sfK0QSepNamedSingleton y u k) (kAnd (kMem y b) (sfNamedTemplate (sqEnvCons y E) k 0 theta)))) $;
+
+theorem sfK0QSepCut_environment_at (E: set) (t a x: nat) (i: nat):
+ $ sfComposeMap (sfK0QSepCutEnvironment E t a x) sfSepMap @ i = (sqEnvCons x E) @ i $;
+
+theorem sfK0QSepCut_environment (E: set) (t a x: nat):
+ $ sfComposeMap (sfK0QSepCutEnvironment E t a x) sfSepMap == (sqEnvCons x E) $;
+
+theorem sfK0QSepCut_renamed_matrix (E: set) (t a x: nat) (k theta: nat) (hf: $ sfWf theta $):
+ $ sfNamedTemplate (sfK0QSepCutEnvironment E t a x) k 0 (sfRename sfSepMap 0 theta) = sfNamedTemplate (sqEnvCons x E) k 0 theta $;
+
+theorem sfK0QSepTagged_environment_at (E: set) (r t b u y: nat) (i: nat):
+ $ sfComposeMap (sfK0QSepTaggedEnvironment E r t b u y) sfK0QSepTaggedMap @ i = (sqEnvCons y E) @ i $;
+
+theorem sfK0QSepTagged_environment (E: set) (r t b u y: nat):
+ $ sfComposeMap (sfK0QSepTaggedEnvironment E r t b u y) sfK0QSepTaggedMap == (sqEnvCons y E) $;
+
+theorem sfK0QSepTagged_renamed_matrix (E: set) (r t b u y: nat) (k theta: nat) (hf: $ sfWf theta $):
+ $ sfNamedTemplate (sfK0QSepTaggedEnvironment E r t b u y) k 0 (sfRename sfK0QSepTaggedMap 0 theta) = sfNamedTemplate (sqEnvCons y E) k 0 theta $;
+
+theorem sfK0QSepCut_named (E: set) (t a x k theta: nat) (hf: $ sfWf theta $):
+ $ sfNamedTemplate (sfK0QSepCutEnvironment E t a x) k 0 (sfK0QSepDomainCut theta) = sfK0QSepNamedCut E t a x k theta $;
+
+theorem sfK0QSepTagged_named (E: set) (r t b u y k theta: nat) (hf: $ sfWf theta $):
+ $ sfNamedTemplate (sfK0QSepTaggedEnvironment E r t b u y) k 0 (sfK0QSepTagged theta) = sfK0QSepNamedTagged E r t b u y k theta $;

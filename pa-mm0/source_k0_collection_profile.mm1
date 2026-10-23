@@ -1,0 +1,53 @@
+import "source_k0_qrep_request.mm1";
+
+import "source_named_renaming.mm1";
+
+import "source_k0_qsep_matrix_alignment.mm1";
+
+@_ def sfK0CollectionRel (E: set) (R y x psi: nat): nat = $ sfNamedTemplate (sqEnvCons y (sqEnvCons x E)) R 0 psi $;
+
+@_ def sfK0CollectionProfile (E: set) (t a c u w y x R psi: nat): nat = $ (kAnd (kMem t c) (kAnd (kAll u (kImp (kAnd (kMem t u) (kMem u a)) (kImp (kExists w (kAnd (kMem t w) (sfK0CollectionRel E R w u psi))) (kExists y (kAnd (kMem t y) (kAnd (kMem y c) (sfK0CollectionRel E R y u psi))))))) (kAll y (kImp (kAnd (kMem t y) (kMem y c)) (kExists x (kAnd (kAnd (kMem t x) (kMem x a)) (sfK0CollectionRel E R y x psi))))))) $;
+
+@_ def sfK0CollectionTagged (E: set) (b t r a u y x R psi: nat): nat = $ (kDisj (kAnd (kEq u r) (kEq y b)) (kDisj (kAnd (kEq u t) (kEq y t)) (kExists x (kAnd (sfK0QSepNamedSingleton x u R) (kAnd (kAnd (kMem t x) (kMem x a)) (kAnd (kMem t y) (sfK0CollectionRel E R y x psi))))))) $;
+
+@_ abstract def sfK0CollectionEnvironment (E: set) (b t r a u y x: nat): set = $ (sqEnvCons x (sqEnvCons y (sqEnvCons u (sqEnvCons b (sqEnvCons t (sqEnvCons r (sqEnvCons a E))))))) $;
+
+theorem sfcEnv_zero (E: set) (b t r a u y x: nat):
+ $ (sfComposeMap (sfK0CollectionEnvironment E b t r a u y x) sfK0QRepCollectionMap) @ 0 = (sqEnvCons y (sqEnvCons x E)) @ 0 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 sfK0QRepCollectionMap_zero) (eqtr sqEnvCons_suc (eqtr sqEnvCons_zero (eqcom sqEnvCons_zero)))));
+
+theorem sfcEnv_one (E: set) (b t r a u y x: nat):
+ $ (sfComposeMap (sfK0CollectionEnvironment E b t r a u y x) sfK0QRepCollectionMap) @ 1 = (sqEnvCons y (sqEnvCons x E)) @ 1 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 sfK0QRepCollectionMap_one) (eqtr sqEnvCons_zero (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem sfcPlus5 (i: nat):
+ $ i + 5 = (suc (suc (suc (suc (suc i))))) $ =
+'(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))))))));
+
+theorem sfcMap_tail (i: nat):
+ $ sfK0QRepCollectionMap @ suc (suc i) = (suc (suc (suc (suc (suc (suc (suc i))))))) $ =
+'(eqtr sfK0QRepCollectionMap_value (eqtr (ifneg peano1) (eqtr (ifneg (mpbir (noteqi peano2) peano1)) sfcPlus5)));
+
+theorem sfcEnv_tail (E: set) (b t r a u y x: nat) (i: nat):
+ $ (sfComposeMap (sfK0CollectionEnvironment E b t r a u y x) sfK0QRepCollectionMap) @ suc (suc i) = (sqEnvCons y (sqEnvCons x E)) @ suc (suc i) $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 sfcMap_tail) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc)))))))))));
+
+theorem sfcEnv_suc (E: set) (b t r a u y x: nat) (i: nat):
+ $ (sfComposeMap (sfK0CollectionEnvironment E b t r a u y x) sfK0QRepCollectionMap) @ suc i = (sqEnvCons y (sqEnvCons x E)) @ suc i $ =
+(named @ induct '(ind) 'i 'sfcEnv_one '(a1i sfcEnv_tail));
+
+pub theorem sfK0Collection_environment_at (E: set) (b t r a u y x: nat) (i: nat):
+ $ (sfComposeMap (sfK0CollectionEnvironment E b t r a u y x) sfK0QRepCollectionMap) @ i = (sqEnvCons y (sqEnvCons x E)) @ i $ =
+(named @ induct '(ind) 'i 'sfcEnv_zero '(a1i sfcEnv_suc));
+
+pub theorem sfK0Collection_environment (E: set) (b t r a u y x: nat):
+ $ (sfComposeMap (sfK0CollectionEnvironment E b t r a u y x) sfK0QRepCollectionMap) == (sqEnvCons y (sqEnvCons x E)) $ =
+(named '(lameq @ ax_gen @ eqtr (eqcom sfComposeMap_value) @ eqtr sfK0Collection_environment_at sqEnvCons_value));
+
+pub theorem sfK0Collection_renamed_matrix (E: set) (b t r a u y x: nat) (R psi: nat):
+ $ sfWf psi -> sfNamedTemplate (sfK0CollectionEnvironment E b t r a u y x) R 0 (sfRename sfK0QRepCollectionMap 0 psi) = (sfK0CollectionRel E R y x psi) $ =
+'(eqtrd (syl sfNamedTemplate_source_renaming id) (a1i (sfNamedTemplateeq1 sfK0Collection_environment)));
+
+pub theorem sfK0Collection_tagged_named (E: set) (b t r a u y k psi: nat):
+ $ sfWf psi -> sfNamedTemplate (sqEnvCons y (sqEnvCons u (sqEnvCons b (sqEnvCons t (sqEnvCons r (sqEnvCons a E)))))) k 0 (sfK0QRepCollectionMatrix psi) = (sfK0CollectionTagged E b t r a u y k (suc k) psi) $ =
+(named '(eqtrd (a1i sfNamedTemplate_sfOr) (kDisjeqd (eqtrd (a1i sfNamedTemplate_sfAnd) (kAndeqd (a1i (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))))))) (a1i (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))))))) (eqtrd (a1i sfNamedTemplate_sfOr) (kDisjeqd (eqtrd (a1i sfNamedTemplate_sfAnd) (kAndeqd (a1i (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))))) (a1i (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))))))) (eqtrd (a1i (ax_mp sfNamedTemplate_ex_cons (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_eq)))) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem)) (ax_mp (ax_mp sfWf_and sfWf_mem) sfRename_wf))))) (kExistseq2d (eqtrd (a1i sfNamedTemplate_sfAnd) (kAndeqd (eqtrd (a1i sfNamedTemplate_sfAnd) (kAndeqd (a1i (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))))) (eqtrd (a1i (ax_mp sfNamedTemplate_all_cons (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_eq))) (kAlleq2d (eqtrd (a1i sfNamedTemplate_sfImp) (kImpeqd (a1i (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))))) (a1i (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero))))))))))) (eqtrd (a1i sfNamedTemplate_sfAnd) (kAndeqd (eqtrd (a1i sfNamedTemplate_sfAnd) (kAndeqd (a1i (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))) (eqtr sfNamedIndex_zero sqEnvCons_zero)))) (a1i (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))))))))))) (eqtrd (a1i sfNamedTemplate_sfAnd) (kAndeqd (a1i (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero))))) sfK0Collection_renamed_matrix)))))))))))));

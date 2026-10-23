@@ -1,0 +1,27 @@
+import "source_reflection_transfer_tv_containment.mm1";
+
+import "source_reflection_transfer_limit_profile.mm1";
+
+import "source_l_universal_hierarchy_interface.mm1";
+
+theorem sftvcan_map_zero(a y:nat): $ sfCLPairMap a y @ 0 = sfORBinaryMap a y @ 0 $ = (named '(eqtr (eqtr sfCLPairMap_value (ifpos eqid)) (eqcom (eqtr sfORBinaryMap_value (ifneg (ltnei d0lt1))))));
+
+theorem sftvcan_map_one(a y:nat): $ sfCLPairMap a y @ 1 = sfORBinaryMap a y @ 1 $ = (named '(eqtr (eqtr sfCLPairMap_value (ifneg peano1)) (eqcom (eqtr sfORBinaryMap_value (ifpos eqid)))));
+
+theorem sftvcan_map_zero_if(a y i:nat): $ i = 0 -> sfCLPairMap a y @ i = sfORBinaryMap a y @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i sftvcan_map_zero) (eqcomd (appeq2d id)))));
+
+theorem sftvcan_map_one_if(a y i:nat): $ i = 1 -> sfCLPairMap a y @ i = sfORBinaryMap a y @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i sftvcan_map_one) (eqcomd (appeq2d id)))));
+
+theorem sftvcan_map_agree(a y:nat): $ sfRenameMapAgree (sfCLPairMap a y) (sfORBinaryMap a y) 2 $ = (named '(ax_gen (syl (eor sftvcan_map_zero_if sftvcan_map_one_if) (bi1 bool01))));
+
+pub theorem sfTVCLHierarchy_relation(a y:nat): $ sfCLHierarchyAt a y = sfORBinary sfLUniversalHierarchyRelation a y $ = (named '(ax_mp (ax_mp sfRename_bounded_agreement sftvcan_map_agree) (mpbir (sfSchema_bound_index_eq add01) sfCLHierarchy_bound)));
+
+theorem sftvcan_ordinal_map_zero(i:nat): $ i = 0 -> sfCLPairMap 0 0 @ i = sfIdentityMap @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i (eqtr (eqtr sfCLPairMap_value (ifpos eqid)) (eqcom sfIdentityMap_value))) (eqcomd (appeq2d id)))));
+
+theorem sftvcan_ordinal_map: $ sfRenameMapAgree (sfCLPairMap 0 0) sfIdentityMap 1 $ = (named '(ax_gen (syl sftvcan_ordinal_map_zero (bi1 lt12))));
+
+pub theorem sfTVCLOrdinal_zero: $ sfCLOrdinalAt 0 = sfCLOrdinal $ = (named '(eqtr (ax_mp (ax_mp sfRename_bounded_agreement sftvcan_ordinal_map) (mpbir (sfSchema_bound_index_eq add01) sfCLOrdinal_bound)) (ax_mp sfRename_identity sfCLOrdinal_wf)));
+
+pub theorem sfTVProfile_ordinal(G level P:nat)(hp:$ nsLocal G (sfReflectionLimitProfile level P) $): $ nsLocal G (sfCLOrdinalAt 0) $ = (named '(mpbir (nsLocal_formula_eq sfTVCLOrdinal_zero) (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 hp)))))));
+
+pub theorem sfTVProfile_containment(G P:nat)(hp:$ nsLocal G (sfReflectionLimitProfile sfLUniversalHierarchyRelation P) $)(hL:$ nsLocal G (sfORBinary sfLUniversalHierarchyRelation 0 3) $): $ nsLocal G (sfAll (sfImp (sfMem 0 4) sfLDomain)) $ = (named '(sfTVLContainment_local (sfTVProfile_ordinal hp) (mpbir (nsLocal_formula_eq sfTVCLHierarchy_relation) hL)));

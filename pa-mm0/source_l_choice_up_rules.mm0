@@ -1,0 +1,37 @@
+import "source_l_choice_core.mm0";
+import "source_k_upper_ex_logic.mm0";
+
+def sfLTransC: nat = $ sfAll (sfImp sfLDomain (sfAll (sfImp (sfMem 0 1) sfLDomain))) $;
+
+theorem cu_trans_use (G x y: nat) (hT: $ nsLocal G sfLTransC $)
+ (hx: $ nsLocal G (sfLChoiceD x) $) (hm: $ nsLocal G (sfMem y x) $): $ nsLocal G (sfLChoiceD y) $;
+
+theorem cu_ball_U (G k psi: nat) (hg: $ sfContextWf G $) (ht: $ nsLocal G sfLTransC $)
+ (hk: $ nsLocal G (sfLChoiceD k) $)
+ (hc: $ nsLocal (sfMem 0 (suc k) :
+   sfContextShift (sfAll (sfImp sfLDomain (sfImp (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G))
+   (sfImp (sfRelativize sfLDomain psi) psi) $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfAll (sfImp (sfMem 0 (suc k)) psi))) (sfAll (sfImp (sfMem 0 (suc k)) psi))) $;
+
+theorem cu_ball_D (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $)
+ (hc: $ nsLocal (sfMem 0 (suc k) : (sfLDomain : sfContextShift (sfAll (sfImp (sfMem 0 (suc k)) psi) : G)))
+   (sfImp psi (sfRelativize sfLDomain psi)) $):
+ $ nsLocal G (sfImp (sfAll (sfImp (sfMem 0 (suc k)) psi)) (sfRelativize sfLDomain (sfAll (sfImp (sfMem 0 (suc k)) psi)))) $;
+
+theorem cu_bex_U (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $)
+ (hc: $ nsLocal (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi)) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G))
+   (sfImp (sfRelativize sfLDomain psi) psi) $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfEx (sfAnd (sfMem 0 (suc k)) psi))) (sfEx (sfAnd (sfMem 0 (suc k)) psi))) $;
+
+theorem cu_bex_D (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $) (ht: $ nsLocal G sfLTransC $)
+ (hk: $ nsLocal G (sfLChoiceD k) $)
+ (hc: $ nsLocal (sfAnd (sfMem 0 (suc k)) psi : sfContextShift (sfEx (sfAnd (sfMem 0 (suc k)) psi) : G))
+   (sfImp psi (sfRelativize sfLDomain psi)) $):
+ $ nsLocal G (sfImp (sfEx (sfAnd (sfMem 0 (suc k)) psi)) (sfRelativize sfLDomain (sfEx (sfAnd (sfMem 0 (suc k)) psi)))) $;
+
+theorem cu_ex_U (G psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $)
+ (hc: $ nsLocal (sfAnd sfLDomain (sfRelativize sfLDomain psi) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfRelativize sfLDomain psi)) : G))
+   (sfImp (sfRelativize sfLDomain psi) psi) $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfEx psi)) (sfEx psi)) $;

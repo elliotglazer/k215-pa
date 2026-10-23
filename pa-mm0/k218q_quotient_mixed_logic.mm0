@@ -1,0 +1,35 @@
+import "k218q_quotient_mixed_atoms.mm0";
+
+def k218QHEquiv (H a b: nat): wff = $ k218IHypProvable H (kImp a b) /\ k218IHypProvable H (kImp b a) $;
+
+theorem k218QHEquiv_refl (H a: nat): $ k218QHEquiv H a a $;
+
+theorem k218QHEquiv_sym (H a b: nat): $ k218QHEquiv H a b -> k218QHEquiv H b a $;
+
+theorem k218QHEquiv_trans (H a b c: nat): $ k218QHEquiv H a b /\ k218QHEquiv H b c -> k218QHEquiv H a c $;
+
+theorem k218QMHyp_imp (G: wff) (H a ap b bp: nat) (ha: $ G -> k218IHypProvable H (kImp ap a) $) (hb: $ G -> k218IHypProvable H (kImp b bp) $): $ G -> k218IHypProvable H (kImp (kImp a b) (kImp ap bp)) $;
+
+theorem k218QMHyp_not (G: wff) (H a b: nat) (ha: $ G -> k218IHypProvable H (kImp a b) $): $ G -> k218IHypProvable H (kImp (kNot b) (kNot a)) $;
+
+theorem k218QHEquiv_imp (H a ap b bp: nat): $ k218QHEquiv H a ap /\ k218QHEquiv H b bp -> k218QHEquiv H (kImp a b) (kImp ap bp) $;
+
+theorem k218QHEquiv_not (H a b: nat): $ k218QHEquiv H a b -> k218QHEquiv H (kNot a) (kNot b) $;
+
+theorem k218QHEquiv_and (H a ap b bp: nat): $ k218QHEquiv H a ap /\ k218QHEquiv H b bp -> k218QHEquiv H (kAnd a b) (kAnd ap bp) $;
+
+theorem k218QHEquiv_or (H a ap b bp: nat): $ k218QHEquiv H a ap /\ k218QHEquiv H b bp -> k218QHEquiv H (kDisj a b) (kDisj ap bp) $;
+
+def k218QMGenContext (H z: nat): nat = $ if (k218IContextVacuous H z) H 0 $;
+
+theorem k218QMGenContext_vacuous (H z: nat): $ k218IContextVacuous (k218QMGenContext H z) z $;
+
+theorem k218QMHyp_gen_d (G: wff) (H z a: nat) (hv: $ G -> k218IContextVacuous H z $) (ha: $ G -> k218IHypProvable H a $): $ G -> k218IHypProvable H (kAll z a) $;
+
+theorem k218QMHyp_gen (H z a: nat): $ k218IContextVacuous H z -> k218IHypProvable H a -> k218IHypProvable H (kAll z a) $;
+
+theorem k218QMHyp_all (G: wff) (H z a b: nat) (hv: $ G -> k218IContextVacuous H z $) (ha: $ G -> k218IHypProvable H (kImp a b) $): $ G -> k218IHypProvable H (kImp (kAll z a) (kAll z b)) $;
+
+theorem k218QHEquiv_all (H z a b: nat): $ k218IContextVacuous H z -> k218QHEquiv H a b -> k218QHEquiv H (kAll z a) (kAll z b) $;
+
+theorem k218QHEquiv_exists (H z a b: nat): $ k218IContextVacuous H z -> k218QHEquiv H a b -> k218QHEquiv H (kExists z a) (kExists z b) $;

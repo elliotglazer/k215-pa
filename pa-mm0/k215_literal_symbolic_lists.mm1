@@ -1,0 +1,155 @@
+import "k215_literal_symbolic_blocks.mm1";
+
+@_ abstract def k215SymRevStep (.z: nat): set = $ \ z, pi22 z |> fst z $;
+@_ abstract def k215SymRev (vs: nat): nat = $ lrec 0 k215SymRevStep vs $;
+theorem k215SymRevStep_apply (v vs r: nat): $ k215SymRevStep @ (v, vs, r) = r |> v $ =
+ (named '(!! applame j @ snoceqd (syl6eq pi22pr @ pi22eqd id) (syl6eq fstpr @ fsteqd id)));
+pub theorem k215SymRev_nil: $ k215SymRev 0 = 0 $ = 'lrec0;
+pub theorem k215SymRev_cons (v vs: nat): $ k215SymRev (v : vs) = k215SymRev vs |> v $ =
+ '(eqtr lrecS k215SymRevStep_apply);
+
+@_ abstract def k215SymFoldCStep (.z: nat): set = $ \ z, k215SymC (fst z) (pi22 z) $;
+@_ abstract def k215SymFoldC (vs r: nat): nat = $ lrec r k215SymFoldCStep vs $;
+do (apply (register-eqd 'k215SymFoldC) '(k215SymFoldCeqd));
+theorem k215SymFoldCStep_apply (v vs r: nat): $ k215SymFoldCStep @ (v, vs, r) = k215SymC v r $ =
+ (named '(!! applame j @ k215SymCeqd (syl6eq fstpr @ fsteqd id) (syl6eq pi22pr @ pi22eqd id)));
+pub theorem k215SymFoldC_nil (r: nat): $ k215SymFoldC 0 r = r $ = 'lrec0;
+pub theorem k215SymFoldC_cons (v vs r: nat): $ k215SymFoldC (v : vs) r = k215SymC v (k215SymFoldC vs r) $ =
+ '(eqtr lrecS k215SymFoldCStep_apply);
+pub theorem k215SymFoldC_append (vs ws r: nat): $ k215SymFoldC (vs ++ ws) r = k215SymFoldC vs (k215SymFoldC ws r) $ =
+ (named @ induct '(listind) 'vs
+  '(eqtr (k215SymFoldCeq1 append0) (eqcom k215SymFoldC_nil))
+  '(eqtrd (a1i (k215SymFoldCeq1 appendS))
+    (eqtrd (a1i k215SymFoldC_cons)
+      (eqtrd (k215SymCeq2d id) (a1i (eqcom k215SymFoldC_cons))))));
+pub theorem k215SymFoldC_snoc (vs v r: nat): $ k215SymFoldC (vs |> v) r = k215SymFoldC vs (k215SymC v r) $ =
+ '(eqtr k215SymFoldC_append (k215SymFoldCeq2 (eqtr k215SymFoldC_cons (k215SymCeq2 k215SymFoldC_nil))));
+
+@_ abstract def k215SymFoldRBStep (.z: nat): set = $ \ z, k215SymRB (fst z) (pi22 z) $;
+@_ abstract def k215SymFoldRB (vs r: nat): nat = $ lrec r k215SymFoldRBStep vs $;
+do (apply (register-eqd 'k215SymFoldRB) '(k215SymFoldRBeqd));
+theorem k215SymFoldRBStep_apply (v vs r: nat): $ k215SymFoldRBStep @ (v, vs, r) = k215SymRB v r $ =
+ (named '(!! applame j @ k215SymRBeqd (syl6eq fstpr @ fsteqd id) (syl6eq pi22pr @ pi22eqd id)));
+pub theorem k215SymFoldRB_nil (r: nat): $ k215SymFoldRB 0 r = r $ = 'lrec0;
+pub theorem k215SymFoldRB_cons (v vs r: nat): $ k215SymFoldRB (v : vs) r = k215SymRB v (k215SymFoldRB vs r) $ =
+ '(eqtr lrecS k215SymFoldRBStep_apply);
+pub theorem k215SymFoldRB_append (vs ws r: nat): $ k215SymFoldRB (vs ++ ws) r = k215SymFoldRB vs (k215SymFoldRB ws r) $ =
+ (named @ induct '(listind) 'vs
+  '(eqtr (k215SymFoldRBeq1 append0) (eqcom k215SymFoldRB_nil))
+  '(eqtrd (a1i (k215SymFoldRBeq1 appendS))
+    (eqtrd (a1i k215SymFoldRB_cons)
+      (eqtrd (k215SymRBeq2d id) (a1i (eqcom k215SymFoldRB_cons))))));
+pub theorem k215SymFoldRB_snoc (vs v r: nat): $ k215SymFoldRB (vs |> v) r = k215SymFoldRB vs (k215SymRB v r) $ =
+ '(eqtr k215SymFoldRB_append (k215SymFoldRBeq2 (eqtr k215SymFoldRB_cons (k215SymRBeq2 k215SymFoldRB_nil))));
+
+@_ abstract def k215SymFoldRCStep (.z: nat): set = $ \ z, k215SymRC (fst z) (pi22 z) $;
+@_ abstract def k215SymFoldRC (vs r: nat): nat = $ lrec r k215SymFoldRCStep vs $;
+do (apply (register-eqd 'k215SymFoldRC) '(k215SymFoldRCeqd));
+theorem k215SymFoldRCStep_apply (v vs r: nat): $ k215SymFoldRCStep @ (v, vs, r) = k215SymRC v r $ =
+ (named '(!! applame j @ k215SymRCeqd (syl6eq fstpr @ fsteqd id) (syl6eq pi22pr @ pi22eqd id)));
+pub theorem k215SymFoldRC_nil (r: nat): $ k215SymFoldRC 0 r = r $ = 'lrec0;
+pub theorem k215SymFoldRC_cons (v vs r: nat): $ k215SymFoldRC (v : vs) r = k215SymRC v (k215SymFoldRC vs r) $ =
+ '(eqtr lrecS k215SymFoldRCStep_apply);
+pub theorem k215SymFoldRC_append (vs ws r: nat): $ k215SymFoldRC (vs ++ ws) r = k215SymFoldRC vs (k215SymFoldRC ws r) $ =
+ (named @ induct '(listind) 'vs
+  '(eqtr (k215SymFoldRCeq1 append0) (eqcom k215SymFoldRC_nil))
+  '(eqtrd (a1i (k215SymFoldRCeq1 appendS))
+    (eqtrd (a1i k215SymFoldRC_cons)
+      (eqtrd (k215SymRCeq2d id) (a1i (eqcom k215SymFoldRC_cons))))));
+pub theorem k215SymFoldRC_snoc (vs v r: nat): $ k215SymFoldRC (vs |> v) r = k215SymFoldRC vs (k215SymRC v r) $ =
+ '(eqtr k215SymFoldRC_append (k215SymFoldRCeq2 (eqtr k215SymFoldRC_cons (k215SymRCeq2 k215SymFoldRC_nil))));
+
+@_ def k215SymReverseB (vs r: nat): nat = $ k215SymFoldRB (k215SymRev vs) r $;
+do (apply (register-eqd 'k215SymReverseB) '(k215SymReverseBeqd));
+pub theorem k215SymReverseB_nil (r: nat): $ k215SymReverseB 0 r = r $ =
+ '(eqtr (k215SymFoldRBeq1 k215SymRev_nil) k215SymFoldRB_nil);
+pub theorem k215SymReverseB_cons (v vs r: nat): $ k215SymReverseB (v : vs) r = k215SymReverseB vs (k215SymRB v r) $ =
+ '(eqtr (k215SymFoldRBeq1 k215SymRev_cons) k215SymFoldRB_snoc);
+
+@_ def k215SymReverseC (vs r: nat): nat = $ k215SymFoldRC (k215SymRev vs) r $;
+do (apply (register-eqd 'k215SymReverseC) '(k215SymReverseCeqd));
+pub theorem k215SymReverseC_nil (r: nat): $ k215SymReverseC 0 r = r $ =
+ '(eqtr (k215SymFoldRCeq1 k215SymRev_nil) k215SymFoldRC_nil);
+pub theorem k215SymReverseC_cons (v vs r: nat): $ k215SymReverseC (v : vs) r = k215SymReverseC vs (k215SymRC v r) $ =
+ '(eqtr (k215SymFoldRCeq1 k215SymRev_cons) k215SymFoldRC_snoc);
+
+pub theorem k215SymC_shift_block (v r: nat):
+ $ k215SymC v (k215TmPush 1 r) = k215TmPush 1 (k215TmRegister v r) $ =
+ '(k215TmPusheq2 (k215TmPusheq2 k215TmRepeat_push));
+pub theorem k215SymC_shift (vs r: nat):
+ $ k215SymFoldC vs (k215TmPush 1 r) = k215TmPush 1 (k215TmFile vs r) $ =
+ (named @ induct '(listind) 'vs
+  '(eqtr k215SymFoldC_nil (eqcom (k215TmPusheq2 k215TmFile_nil)))
+  '(eqtrd (a1i k215SymFoldC_cons)
+    (eqtrd (k215SymCeq2d id)
+      (a1i (eqtr k215SymC_shift_block (eqcom (k215TmPusheq2 k215TmFile_cons)))))));
+pub theorem k215SymRC_shift_block (v r: nat):
+ $ k215TmPush 1 (k215SymRC v r) = k215SymRB v (k215TmPush 1 r) $ =
+ '(eqcom k215TmRepeat_succ);
+pub theorem k215SymFoldRC_shift (vs r: nat):
+ $ k215TmPush 1 (k215SymFoldRC vs r) = k215SymFoldRB vs (k215TmPush 1 r) $ =
+ (named @ induct '(listind) 'vs
+  '(eqtr (k215TmPusheq2 k215SymFoldRC_nil) (eqcom k215SymFoldRB_nil))
+  '(eqtrd (a1i (k215TmPusheq2 k215SymFoldRC_cons))
+    (eqtrd (a1i k215SymRC_shift_block)
+      (eqtrd (k215SymRBeq2d id) (a1i (eqcom k215SymFoldRB_cons))))));
+pub theorem k215SymReverseC_shift (vs r: nat):
+ $ k215TmPush 1 (k215SymReverseC vs r) = k215SymReverseB vs (k215TmPush 1 r) $ =
+ 'k215SymFoldRC_shift;
+
+@_ abstract def k215SymList0Claim (vs: nat) (.l .r: nat): wff = $ A. l A. r k215TMReach (k215TMState k215Num64 l (k215TmFile vs r)) (k215TMState k215Num64 (k215SymReverseB vs l) r) $;
+theorem k215SymList0Claim_at (vs l r: nat): $ k215SymList0Claim vs -> k215TMReach (k215TMState k215Num64 l (k215TmFile vs r)) (k215TMState k215Num64 (k215SymReverseB vs l) r) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215SymList0Base_at (l r: nat): $ k215TMReach (k215TMState k215Num64 l (k215TmFile 0 r)) (k215TMState k215Num64 (k215SymReverseB 0 l) r) $ =
+ '(k215TmControl_reach_eq (k215TMStateeq eqid (eqcom k215SymReverseB_nil) k215TmFile_nil));
+theorem k215SymList0Step_at (v vs l r: nat): $ k215SymList0Claim vs -> k215TMReach (k215TMState k215Num64 l (k215TmFile (v : vs) r)) (k215TMState k215Num64 (k215SymReverseB (v : vs) l) r) $ =
+ '(mpbird (a1i (k215TMReacheq (k215TMStateeq3 k215TmFile_cons) (k215TMStateeq2 k215SymReverseB_cons))) (syl (ax_mp k215TMReach_trans k215SymBlock0) k215SymList0Claim_at));
+theorem k215SymList0All (vs: nat): $ k215SymList0Claim vs $ =
+ (named @ induct '(listind) 'vs
+  '(ax_gen (ax_gen k215SymList0Base_at))
+  '(iald @ iald k215SymList0Step_at));
+pub theorem k215SymList0 (vs l r: nat): $ k215TMReach (k215TMState k215Num64 l (k215TmFile vs r)) (k215TMState k215Num64 (k215SymReverseB vs l) r) $ =
+ '(ax_mp k215SymList0Claim_at k215SymList0All);
+
+@_ abstract def k215SymList1Claim (vs: nat) (.l .r: nat): wff = $ A. l A. r k215TMReach (k215TMState 0 l (k215TmFile vs r)) (k215TMState 0 (k215SymReverseC vs l) r) $;
+theorem k215SymList1Claim_at (vs l r: nat): $ k215SymList1Claim vs -> k215TMReach (k215TMState 0 l (k215TmFile vs r)) (k215TMState 0 (k215SymReverseC vs l) r) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215SymList1Base_at (l r: nat): $ k215TMReach (k215TMState 0 l (k215TmFile 0 r)) (k215TMState 0 (k215SymReverseC 0 l) r) $ =
+ '(k215TmControl_reach_eq (k215TMStateeq eqid (eqcom k215SymReverseC_nil) k215TmFile_nil));
+theorem k215SymList1Step_at (v vs l r: nat): $ k215SymList1Claim vs -> k215TMReach (k215TMState 0 l (k215TmFile (v : vs) r)) (k215TMState 0 (k215SymReverseC (v : vs) l) r) $ =
+ '(mpbird (a1i (k215TMReacheq (k215TMStateeq3 k215TmFile_cons) (k215TMStateeq2 k215SymReverseC_cons))) (syl (ax_mp k215TMReach_trans k215SymBlock1) k215SymList1Claim_at));
+theorem k215SymList1All (vs: nat): $ k215SymList1Claim vs $ =
+ (named @ induct '(listind) 'vs
+  '(ax_gen (ax_gen k215SymList1Base_at))
+  '(iald @ iald k215SymList1Step_at));
+pub theorem k215SymList1 (vs l r: nat): $ k215TMReach (k215TMState 0 l (k215TmFile vs r)) (k215TMState 0 (k215SymReverseC vs l) r) $ =
+ '(ax_mp k215SymList1Claim_at k215SymList1All);
+
+@_ abstract def k215SymList2Claim (vs: nat) (.l .r: nat): wff = $ A. l A. r k215TMReach (k215TmLeftState k215Num40 (k215SymReverseB vs l) r) (k215TmLeftState k215Num40 l (k215TmFile vs r)) $;
+theorem k215SymList2Claim_at (vs l r: nat): $ k215SymList2Claim vs -> k215TMReach (k215TmLeftState k215Num40 (k215SymReverseB vs l) r) (k215TmLeftState k215Num40 l (k215TmFile vs r)) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215SymList2Base_at (l r: nat): $ k215TMReach (k215TmLeftState k215Num40 (k215SymReverseB 0 l) r) (k215TmLeftState k215Num40 l (k215TmFile 0 r)) $ =
+ '(k215TmControl_reach_eq (k215TmLeftStateeq eqid k215SymReverseB_nil (eqcom k215TmFile_nil)));
+theorem k215SymList2Step_at (v vs l r: nat): $ k215SymList2Claim vs -> k215TMReach (k215TmLeftState k215Num40 (k215SymReverseB (v : vs) l) r) (k215TmLeftState k215Num40 l (k215TmFile (v : vs) r)) $ =
+ '(mpbird (a1i (k215TMReacheq (k215TmLeftStateeq2 k215SymReverseB_cons) (k215TmLeftStateeq3 k215TmFile_cons))) (syl (mpi k215SymBlock2 k215TMReach_trans) k215SymList2Claim_at));
+theorem k215SymList2All (vs: nat): $ k215SymList2Claim vs $ =
+ (named @ induct '(listind) 'vs
+  '(ax_gen (ax_gen k215SymList2Base_at))
+  '(iald @ iald k215SymList2Step_at));
+pub theorem k215SymList2 (vs l r: nat): $ k215TMReach (k215TmLeftState k215Num40 (k215SymReverseB vs l) r) (k215TmLeftState k215Num40 l (k215TmFile vs r)) $ =
+ '(ax_mp k215SymList2Claim_at k215SymList2All);
+
+@_ abstract def k215SymList3Claim (vs: nat) (.l .r: nat): wff = $ A. l A. r k215TMReach (k215TmLeftState k215Num96 (k215SymReverseC vs l) r) (k215TmLeftState k215Num96 l (k215TmFile vs r)) $;
+theorem k215SymList3Claim_at (vs l r: nat): $ k215SymList3Claim vs -> k215TMReach (k215TmLeftState k215Num96 (k215SymReverseC vs l) r) (k215TmLeftState k215Num96 l (k215TmFile vs r)) $ =
+ (named '(!! ealie i @ !! ealde j @ bi1d ,eqtac));
+theorem k215SymList3Base_at (l r: nat): $ k215TMReach (k215TmLeftState k215Num96 (k215SymReverseC 0 l) r) (k215TmLeftState k215Num96 l (k215TmFile 0 r)) $ =
+ '(k215TmControl_reach_eq (k215TmLeftStateeq eqid k215SymReverseC_nil (eqcom k215TmFile_nil)));
+theorem k215SymList3Step_at (v vs l r: nat): $ k215SymList3Claim vs -> k215TMReach (k215TmLeftState k215Num96 (k215SymReverseC (v : vs) l) r) (k215TmLeftState k215Num96 l (k215TmFile (v : vs) r)) $ =
+ '(mpbird (a1i (k215TMReacheq (k215TmLeftStateeq2 k215SymReverseC_cons) (k215TmLeftStateeq3 k215TmFile_cons))) (syl (mpi k215SymBlock3 k215TMReach_trans) k215SymList3Claim_at));
+theorem k215SymList3All (vs: nat): $ k215SymList3Claim vs $ =
+ (named @ induct '(listind) 'vs
+  '(ax_gen (ax_gen k215SymList3Base_at))
+  '(iald @ iald k215SymList3Step_at));
+pub theorem k215SymList3 (vs l r: nat): $ k215TMReach (k215TmLeftState k215Num96 (k215SymReverseC vs l) r) (k215TmLeftState k215Num96 l (k215TmFile vs r)) $ =
+ '(ax_mp k215SymList3Claim_at k215SymList3All);
+

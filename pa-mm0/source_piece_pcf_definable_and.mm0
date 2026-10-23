@@ -1,0 +1,77 @@
+import "source_piece_pcf_definable_bot.mm0";
+
+def pcdfAF0(a b n r u v:nat):nat = $ sfBot $;
+
+def pcdfAF1(a b n r u v:nat):nat = $ sfImp b (pcdfAF0 a b n r u v) $;
+
+def pcdfAF2(a b n r u v:nat):nat = $ sfAnd a (pcdfAF1 a b n r u v) $;
+
+def pcdfAF3(a b n r u v:nat):nat = $ sfImp n (pcdfAF2 a b n r u v) $;
+
+def pcdfAF4(a b n r u v:nat):nat = $ sfImp (pcdfAF2 a b n r u v) n $;
+
+def pcdfAF5(a b n r u v:nat):nat = $ sfAnd (pcdfAF3 a b n r u v) (pcdfAF4 a b n r u v) $;
+
+def pcdfAF6(a b n r u v:nat):nat = $ sfImp n (pcdfAF0 a b n r u v) $;
+
+def pcdfAF7(a b n r u v:nat):nat = $ sfAnd a (pcdfAF6 a b n r u v) $;
+
+def pcdfAF8(a b n r u v:nat):nat = $ sfImp r (pcdfAF7 a b n r u v) $;
+
+def pcdfAF9(a b n r u v:nat):nat = $ sfImp (pcdfAF7 a b n r u v) r $;
+
+def pcdfAF10(a b n r u v:nat):nat = $ sfAnd (pcdfAF8 a b n r u v) (pcdfAF9 a b n r u v) $;
+
+def pcdfAF11(a b n r u v:nat):nat = $ sfImp a u $;
+
+def pcdfAF12(a b n r u v:nat):nat = $ sfImp u a $;
+
+def pcdfAF13(a b n r u v:nat):nat = $ sfAnd (pcdfAF11 a b n r u v) (pcdfAF12 a b n r u v) $;
+
+def pcdfAF14(a b n r u v:nat):nat = $ sfImp b v $;
+
+def pcdfAF15(a b n r u v:nat):nat = $ sfImp v b $;
+
+def pcdfAF16(a b n r u v:nat):nat = $ sfAnd (pcdfAF14 a b n r u v) (pcdfAF15 a b n r u v) $;
+
+def pcdfAF17(a b n r u v:nat):nat = $ sfAnd u v $;
+
+def pcdfAF18(a b n r u v:nat):nat = $ sfImp r (pcdfAF17 a b n r u v) $;
+
+def pcdfAF19(a b n r u v:nat):nat = $ sfImp (pcdfAF17 a b n r u v) r $;
+
+def pcdfAF20(a b n r u v:nat):nat = $ sfAnd (pcdfAF18 a b n r u v) (pcdfAF19 a b n r u v) $;
+
+def pcdfAF21(a b n r u v:nat):nat = $ sfImp (pcdfAF16 a b n r u v) (pcdfAF20 a b n r u v) $;
+
+def pcdfAF22(a b n r u v:nat):nat = $ sfImp (pcdfAF13 a b n r u v) (pcdfAF21 a b n r u v) $;
+
+def pcdfAF23(a b n r u v:nat):nat = $ sfImp (pcdfAF10 a b n r u v) (pcdfAF22 a b n r u v) $;
+
+def pcdfAF24(a b n r u v:nat):nat = $ sfImp (pcdfAF5 a b n r u v) (pcdfAF23 a b n r u v) $;
+
+def pcdfAG25(a b n r u v:nat):nat = $ (pcdfAF5 a b n r u v) : 0 $;
+
+def pcdfAG26(a b n r u v:nat):nat = $ (pcdfAF10 a b n r u v) : (pcdfAG25 a b n r u v) $;
+
+def pcdfAG27(a b n r u v:nat):nat = $ (pcdfAF13 a b n r u v) : (pcdfAG26 a b n r u v) $;
+
+def pcdfAG28(a b n r u v:nat):nat = $ (pcdfAF16 a b n r u v) : (pcdfAG27 a b n r u v) $;
+
+def pcdfAG29(a b n r u v:nat):nat = $ r : (pcdfAG28 a b n r u v) $;
+
+def pcdfAF30(a b n r u v:nat):nat = $ sfImp (pcdfAF1 a b n r u v) b $;
+
+def pcdfAF31(a b n r u v:nat):nat = $ sfImp (pcdfAF30 a b n r u v) b $;
+
+def pcdfAG32(a b n r u v:nat):nat = $ (pcdfAF1 a b n r u v) : (pcdfAG29 a b n r u v) $;
+
+def pcdfAG33(a b n r u v:nat):nat = $ (pcdfAF17 a b n r u v) : (pcdfAG28 a b n r u v) $;
+
+def pcdfAG34(a b n r u v:nat):nat = $ n : (pcdfAG33 a b n r u v) $;
+
+theorem sfPieceDefinableAnd_pure(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal 0 (sfImp (sfIff n (sfAnd a (sfImp b sfBot))) (sfImp (sfIff r (sfAnd a (sfImp n sfBot))) (sfImp (sfIff a u) (sfImp (sfIff b v) (sfIff r (sfAnd u v)))))) $;
+
+theorem sfPieceDefinableAnd_local(G a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(hN:$ nsLocal G (sfIff n (sfAnd a (sfImp b sfBot))) $)(hR:$ nsLocal G (sfIff r (sfAnd a (sfImp n sfBot))) $)(hA:$ nsLocal G (sfIff a u) $)(hB:$ nsLocal G (sfIff b v) $): $ nsLocal G (sfIff r (sfAnd u v)) $;
+
+theorem sfPieceDefinableAnd_represents(T:set)(G A R1 R2 N R phi psi e:nat)(hN:$ nsLocal G (sfIff (sfMem e N) (sfAnd (sfMem e R1) (sfImp (sfMem e R2) sfBot))) $)(hR:$ nsLocal G (sfIff (sfMem e R) (sfAnd (sfMem e R1) (sfImp (sfMem e N) sfBot))) $)(hA:$ sfPieceRepresentationAt T G A R1 phi e $)(hB:$ sfPieceRepresentationAt T G A R2 psi e $): $ sfPieceRepresentationAt T G A R (sfAnd phi psi) e $;

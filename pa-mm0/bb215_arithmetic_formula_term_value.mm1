@@ -1,0 +1,43 @@
+import "pa_source_interpretation_terms.mm1";
+
+@_ abstract def bb215ArithmeticFormulaTermValueBody (E: set) (c h: nat): nat = $ if (c = 0) 0
+ (if (sfTag c = 1) (E @ (sfLeft c))
+ (if (sfTag c = 2) (suc (h @ (sfLeft c)))
+ (if (sfTag c = 3) (h @ (sfLeft c) + h @ (sfRight c))
+ (if (sfTag c = 4) (h @ (sfLeft c) * h @ (sfRight c)) 0)))) $;
+
+@_ abstract def bb215ArithmeticFormulaTermValueStep (E: set) (.h: nat): set = $ \ h, bb215ArithmeticFormulaTermValueBody E (sfHistoryLength h) h $;
+
+@_ abstract def bb215ArithmeticFormulaTermValue (E: set) (c: nat): nat = $ srec (bb215ArithmeticFormulaTermValueStep E) c $;
+
+@_ abstract def bb215ArithmeticFormulaTermValueHistory (E: set) (c .i: nat): nat = $ \. i e. upto c, srec (bb215ArithmeticFormulaTermValueStep E) i $;
+
+pub theorem bb215ArithmeticFormulaTermValueStep_apply (E: set) (h: nat): $ bb215ArithmeticFormulaTermValueStep E @ h = bb215ArithmeticFormulaTermValueBody E (sfHistoryLength h) h $ = (named '(!! applame j ,eqtac));
+
+pub theorem bb215ArithmeticFormulaTermValueHistory_size (E: set) (c: nat): $ sfHistoryLength (bb215ArithmeticFormulaTermValueHistory E c) = c $ = (named '(sreclem eqid));
+
+pub theorem bb215ArithmeticFormulaTermValueHistory_lookup (E: set) (c a: nat): $ a < c -> bb215ArithmeticFormulaTermValueHistory E c @ a = bb215ArithmeticFormulaTermValue E a $ = (named '(syl (apprlame sreceq2) (bi2 elupto)));
+
+pub theorem bb215ArithmeticFormulaTermValue_unfold (E: set) (c: nat): $ bb215ArithmeticFormulaTermValue E c = bb215ArithmeticFormulaTermValueBody E c (bb215ArithmeticFormulaTermValueHistory E c) $ = (named '(eqtr srecval (eqtr bb215ArithmeticFormulaTermValueStep_apply (bb215ArithmeticFormulaTermValueBodyeq2 bb215ArithmeticFormulaTermValueHistory_size))));
+
+theorem bb215ArithmeticFormulaTermValueHistory_child (E: set) (c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $): $ bb215ArithmeticFormulaTermValueHistory E c @ (sfLeft c) = bb215ArithmeticFormulaTermValue E a $ = (named '(eqtr (appeq2 hl) (bb215ArithmeticFormulaTermValueHistory_lookup ha)));
+
+theorem bb215ArithmeticFormulaTermValueHistory_right (E: set) (c a: nat) (hl: $ sfRight c = a $) (ha: $ a < c $): $ bb215ArithmeticFormulaTermValueHistory E c @ (sfRight c) = bb215ArithmeticFormulaTermValue E a $ = (named '(eqtr (appeq2 hl) (bb215ArithmeticFormulaTermValueHistory_lookup ha)));
+
+theorem bb215ArithmeticFormulaTermValueBody_sfMem (E: set) (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ bb215ArithmeticFormulaTermValueBody E c h = E @ (sfLeft c) $ = (named '(eqtr (ifneg h0) (ifpos ht)));
+
+theorem bb215ArithmeticFormulaTermValueBody_sfEq (E: set) (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $): $ bb215ArithmeticFormulaTermValueBody E c h = suc (h @ (sfLeft c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))));
+
+theorem bb215ArithmeticFormulaTermValueBody_sfAnd (E: set) (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ bb215ArithmeticFormulaTermValueBody E c h = h @ (sfLeft c) + h @ (sfRight c) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht)))));
+
+theorem bb215ArithmeticFormulaTermValueBody_sfOr (E: set) (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ bb215ArithmeticFormulaTermValueBody E c h = h @ (sfLeft c) * h @ (sfRight c) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))))));
+
+pub theorem bb215ArithmeticFormulaTermValue_zero (E: set): $ bb215ArithmeticFormulaTermValue E paTermZero = 0 $ = (named '(eqtr bb215ArithmeticFormulaTermValue_unfold (ifpos eqid)));
+
+pub theorem bb215ArithmeticFormulaTermValue_variable (E: set) (i: nat): $ bb215ArithmeticFormulaTermValue E (paTermVariable i) = E @ i $ = (named '(eqtr bb215ArithmeticFormulaTermValue_unfold (eqtr (bb215ArithmeticFormulaTermValueBody_sfMem sfMem_ne_sfBot sfMem_tag) (appeq2 sfMem_left))));
+
+pub theorem bb215ArithmeticFormulaTermValue_successor (E: set) (a: nat): $ bb215ArithmeticFormulaTermValue E (paTermSuccessor a) = suc (bb215ArithmeticFormulaTermValue E a) $ = (named '(eqtr bb215ArithmeticFormulaTermValue_unfold (eqtr (bb215ArithmeticFormulaTermValueBody_sfEq sfEq_ne_sfBot sfEq_tag) (suceq (bb215ArithmeticFormulaTermValueHistory_child sfEq_left sfEq_left_lt)))));
+
+pub theorem bb215ArithmeticFormulaTermValue_addition (E: set) (a b: nat): $ bb215ArithmeticFormulaTermValue E (paTermAddition a b) = bb215ArithmeticFormulaTermValue E a + bb215ArithmeticFormulaTermValue E b $ = (named '(eqtr bb215ArithmeticFormulaTermValue_unfold (eqtr (bb215ArithmeticFormulaTermValueBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (addeq (bb215ArithmeticFormulaTermValueHistory_child sfAnd_left sfAnd_left_lt) (bb215ArithmeticFormulaTermValueHistory_right sfAnd_right sfAnd_right_lt)))));
+
+pub theorem bb215ArithmeticFormulaTermValue_multiplication (E: set) (a b: nat): $ bb215ArithmeticFormulaTermValue E (paTermMultiplication a b) = bb215ArithmeticFormulaTermValue E a * bb215ArithmeticFormulaTermValue E b $ = (named '(eqtr bb215ArithmeticFormulaTermValue_unfold (eqtr (bb215ArithmeticFormulaTermValueBody_sfOr sfOr_ne_sfBot sfOr_tag) (muleq (bb215ArithmeticFormulaTermValueHistory_child sfOr_left sfOr_left_lt) (bb215ArithmeticFormulaTermValueHistory_right sfOr_right sfOr_right_lt)))));

@@ -1,0 +1,77 @@
+-- Contextual SeedG logic; every generalization/vacuity premise remains explicit.
+import "k218_deduction.mm1";
+import "k218_quantifier_macros.mm1";
+
+def k218ContextVacuous (G x .a: nat): wff =
+$ A. a (a IN G -> k218Provable (kImp a (kAll x a))) $;
+def k218ContextUniversalClass (G x .a: nat): set =
+$ {a | k218HypProvable G (kAll x a)} $;
+
+pub theorem k218ContextVacuous_member (G x a: nat):
+  $ k218ContextVacuous G x -> a IN G -> k218Provable (kImp a (kAll x a)) $ =
+(named '(!! eale b ,eqtac));
+pub theorem k218ContextVacuous_nil (x: nat): $ k218ContextVacuous 0 x $ =
+(named '(ax_gen @ absurd lmem0));
+pub theorem k218ContextVacuous_cons (G x a: nat):
+  $ k218ContextVacuous (a : G) x <-> k218Provable (kImp a (kAll x a)) /\ k218ContextVacuous G x $ =
+(named '(ibii
+  (iand (mpi lmemconsid k218ContextVacuous_member)
+    (iald @ syl5 (syl (bi2 lmemS) orr) k218ContextVacuous_member))
+  (iald @ syl5bi lmemS @ eord
+    (exp @ mpbird (k218Provableeqd (k218Imp_congr anr (k218All_congr_right anr))) anll)
+    (syl k218ContextVacuous_member anr))));
+pub theorem k218ContextUniversalClass_value (G x a: nat):
+  $ a e. k218ContextUniversalClass G x <-> k218HypProvable G (kAll x a) $ =
+(named '(elabe ,eqtac));
+
+theorem k218CQ_assumption (G x a: nat) (hv: $ k218ContextVacuous G x $):
+  $ a IN G -> a e. k218ContextUniversalClass G x $ =
+'(syl (bi2 k218ContextUniversalClass_value) @
+  sylc k218HypProvable_mp k218HypProvable_assumption
+    (syl k218HypProvable_seed (ax_mp k218ContextVacuous_member hv)));
+theorem k218CQ_seed (G x a: nat):
+  $ a e. k218Theorems -> a e. k218ContextUniversalClass G x $ =
+'(syl (bi2 k218ContextUniversalClass_value) @ syl k218HypProvable_seed @
+  syl k218Provable_gen (bi1 k218Theorems_value));
+theorem k218CQ_trace_get (G x l a: nat):
+  $ traceClassAll (k218ContextUniversalClass G x) l -> a IN l ->
+    k218HypProvable G (kAll x a) $ =
+'(syl6 (bi1 k218ContextUniversalClass_value) traceClassAll_get);
+theorem k218CQ_distribute (G x a b: nat):
+  $ k218HypProvable G (kAll x a) -> k218HypProvable G (kAll x (kImp a b)) ->
+    k218HypProvable G (kAll x b) $ =
+'(exp @ mpd (syl (mpi (ax_mp k218HypProvable_seed (ax_mp k218Provable_axiom k218Axioms_rho2)) k218HypProvable_mp) anr)
+  (syl k218HypProvable_mp anl));
+theorem k218CQ_mp_payload (G x l a b: nat):
+  $ traceClassAll (k218ContextUniversalClass G x) l ->
+    (b IN l /\ kImp b a IN l) -> a e. k218ContextUniversalClass G x $ =
+'(exp @ syl (bi2 k218ContextUniversalClass_value) @
+  sylc k218CQ_distribute
+    (mpd (syl anl anr) (syl k218CQ_trace_get anl))
+    (mpd (syl anr anr) (syl k218CQ_trace_get anl)));
+theorem k218CQ_mp_exists {b: nat} (G x l a: nat):
+  $ traceClassAll (k218ContextUniversalClass G x) l ->
+    E. b (b IN l /\ kImp b a IN l) -> a e. k218ContextUniversalClass G x $ =
+(named '(eexd k218CQ_mp_payload));
+theorem k218CQ_rule (G x l a: nat) (hv: $ k218ContextVacuous G x $):
+  $ traceClassAll (k218ContextUniversalClass G x) l ->
+    (a, l) e. k218HypRules G -> a e. k218ContextUniversalClass G x $ =
+(named '(syl5bi k218HypRules_value @ eord
+  (a1i (k218CQ_assumption hv)) (eord (a1i k218CQ_seed) k218CQ_mp_exists)));
+pub theorem k218HypRules_generalization_sound (G x: nat) (hv: $ k218ContextVacuous G x $):
+  $ traceRuleSound (k218HypRules G) (k218ContextUniversalClass G x) $ =
+(named '(ax_gen @ ax_gen (k218CQ_rule hv)));
+pub theorem k218HypDerives_gen (G x p a: nat) (hv: $ k218ContextVacuous G x $):
+  $ k218HypDerives G p a -> k218HypProvable G (kAll x a) $ =
+'(syl (bi1 k218ContextUniversalClass_value) (ax_mp traceDerives_class (k218HypRules_generalization_sound hv)));
+pub theorem k218HypProvable_gen (G x a: nat) (hv: $ k218ContextVacuous G x $):
+  $ k218HypProvable G a -> k218HypProvable G (kAll x a) $ =
+(named '(eex (k218HypDerives_gen hv)));
+pub theorem k218HypProvable_exists_elim (G x p q: nat)
+  (hv: $ k218ContextVacuous G x $)
+  (hq: $ k218Provable (kImp q (kAll x q)) $):
+  $ k218HypProvable G (kExists x p) -> k218HypProvable G (kImp p q) -> k218HypProvable G q $ =
+'(exp @ mpd
+  (syl (mpi (ax_mp k218HypProvable_seed (k218Exists_elimination hq)) k218HypProvable_mp)
+    (syl (k218HypProvable_gen hv) anr))
+  (syl k218HypProvable_mp anl));

@@ -1,0 +1,36 @@
+import "k218_seed_normalize.mm0";
+import "k218_contextual_quantifiers.mm0";
+import "k218_contexts.mm0";
+
+-- Numeric images of L224E's membership-indiscernibility equality.
+def k218Iff (p q: nat): nat = $ kAnd (kImp p q) (kImp q p) $;
+def k218EqIn (v x y: nat): nat = $ kAll v (k218Iff (kMem v x) (kMem v y)) $;
+def k218EqOut (v x y: nat): nat = $ kAll v (k218Iff (kMem x v) (kMem y v)) $;
+def k218EqEv (v x y: nat): nat = $ kAnd (k218EqIn v x y) (k218EqOut v x y) $;
+def k218EqAux (x y: nat): nat = $ suc (x + y) $;
+def k218EqInd (x y: nat): nat = $ k218EqEv (k218EqAux x y) x y $;
+
+theorem k218Imp_apply_right (a b c: nat)
+  (hb: $ k218Provable b $) (h: $ k218Provable (kImp a (kImp b c)) $):
+  $ k218Provable (kImp a c) $;
+
+theorem k218Equality_symmetric (a b: nat):
+  $ k218Provable (kImp (kEq a b) (kEq b a)) $;
+theorem k218Equality_transitive (a b c: nat):
+  $ k218Provable (kImp (kEq a b) (kImp (kEq b c) (kEq a c))) $;
+
+theorem k218Equality_iff_in (r x y: nat):
+  $ k218Provable (kImp (kEq x y) (k218Iff (kMem r x) (kMem r y))) $;
+theorem k218Equality_iff_out (r x y: nat):
+  $ k218Provable (kImp (kEq x y) (k218Iff (kMem x r) (kMem y r))) $;
+
+theorem k218Equality_all_ev (r x y: nat):
+  $ k218Provable (kImp (kAll r (kEq x y)) (k218EqEv r x y)) $;
+theorem k218Equality_helper_ev (x y: nat):
+  $ k218Provable (kImp (kEq x y) (k218EqEv (kMem x y) x y)) $;
+
+theorem k218EqAux_gt_left (x y: nat): $ x < k218EqAux x y $;
+theorem k218EqAux_gt_right (x y: nat): $ y < k218EqAux x y $;
+
+-- Alpha conversion of the auxiliary and full interpreted proof transfer
+-- are still separate obligations. No generic equality-vacuity axiom is used.

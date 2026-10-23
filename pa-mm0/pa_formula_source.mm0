@@ -1,0 +1,33 @@
+import "pa_formula_syntax.mm0";
+
+import "pa_source_interpretation_term_source.mm0";
+
+def paFormulaSourceBody (c h: nat): nat = $ if (c = 0) 0 (if (sfTag c = 1) (paSourceFormulaEqual (paTermSource (sfLeft c)) (paTermSource (sfRight c))) (if (sfTag c = 3) (sfAnd (h @ (sfLeft c)) (h @ (sfRight c))) (if (sfTag c = 4) (sfOr (h @ (sfLeft c)) (h @ (sfRight c))) (if (sfTag c = 5) (sfImp (h @ (sfLeft c)) (h @ (sfRight c))) (if (sfTag c = 6 /\ sfRight c = 0) (paSourceFormulaAll (h @ (sfLeft c))) (if (sfTag c = 7 /\ sfRight c = 0) (paSourceFormulaEx (h @ (sfLeft c))) 0)))))) $;
+
+def paFormulaSourceStep (.h: nat): set = $ \ h, paFormulaSourceBody (sfHistoryLength h) h $;
+
+def paFormulaSource (c: nat): nat = $ srec paFormulaSourceStep c $;
+
+def paFormulaSourceHistory (c .i: nat): nat = $ \. i e. upto c, srec paFormulaSourceStep i $;
+
+theorem paFormulaSourceStep_apply (h: nat): $ paFormulaSourceStep @ h = paFormulaSourceBody (sfHistoryLength h) h $;
+
+theorem paFormulaSourceHistory_size (c: nat): $ sfHistoryLength (paFormulaSourceHistory c) = c $;
+
+theorem paFormulaSourceHistory_lookup (c b: nat): $ b < c -> paFormulaSourceHistory c @ b = paFormulaSource b $;
+
+theorem paFormulaSource_unfold (c: nat): $ paFormulaSource c = paFormulaSourceBody c (paFormulaSourceHistory c) $;
+
+theorem paFormulaSource_false: $ paFormulaSource paFormulaFalse = 0 $;
+
+theorem paFormulaSource_equal (b c: nat): $ paFormulaSource (paFormulaEqual b c) = paSourceFormulaEqual (paTermSource b) (paTermSource c) $;
+
+theorem paFormulaSource_and (b c: nat): $ paFormulaSource (paFormulaAnd b c) = sfAnd (paFormulaSource b) (paFormulaSource c) $;
+
+theorem paFormulaSource_or (b c: nat): $ paFormulaSource (paFormulaOr b c) = sfOr (paFormulaSource b) (paFormulaSource c) $;
+
+theorem paFormulaSource_imp (b c: nat): $ paFormulaSource (paFormulaImp b c) = sfImp (paFormulaSource b) (paFormulaSource c) $;
+
+theorem paFormulaSource_all (b: nat): $ paFormulaSource (paFormulaAll b) = paSourceFormulaAll (paFormulaSource b) $;
+
+theorem paFormulaSource_ex (b: nat): $ paFormulaSource (paFormulaEx b) = paSourceFormulaEx (paFormulaSource b) $;

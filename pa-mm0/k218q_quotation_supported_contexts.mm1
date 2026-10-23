@@ -1,0 +1,55 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_supported_contexts.mm1";
+import "k218q_bootstrap.mm1";
+import "k218q_quotation_supported_invariant.mm1";
+import "source_syntax_laws.mm1";
+
+theorem k218SQ_sqSC_trans_at (H J K a: nat):
+ $ k218IContextSupports H J -> k218IContextSupports J K -> a IN K -> a e. k218IContextProofClass H $ =
+'(exp @ exp @ syl (bi2 k218IContextProofClass_value) @
+  mpd (mpd anr (syl k218IContextSupports_member anlr)) (syl k218IHypProvable_refine_d anll));
+
+pub theorem k218SQ_sqContextSupports_trans (H J K: nat):
+ $ k218IContextSupports H J -> k218IContextSupports J K -> k218IContextSupports H K $ =
+(named '(exp @ !! iald a @ imp k218SQ_sqSC_trans_at));
+
+pub theorem k218SQ_sqContextSupports_weaken (H a: nat): $ k218IContextSupports (a : H) H $ =
+(named '(k218IContextSupports_inclusion (ax_gen sfContext_member_tail)));
+
+pub theorem k218SQ_sqDomainSupport_weaken (H S t a: nat):
+ $ k218SQ_sqDomainSupport H S t -> k218SQ_sqDomainSupport (a : H) S t $ =
+'(ax_mp k218SQ_sqDomainSupport_refine k218SQ_sqContextSupports_weaken);
+
+pub theorem k218SQ_sqSourceSupport_weaken (H S t k G a: nat):
+ $ k218SQ_sqSourceSupport H S t k G -> k218SQ_sqSourceSupport (a : H) S t k G $ =
+'(ax_mp k218SQ_sqContextSupports_trans k218SQ_sqContextSupports_weaken);
+
+pub theorem k218SQ_sqSourceSupport_cons (H S t k G a: nat):
+ $ k218SQ_sqSourceSupport H S t k G ->
+   k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) ->
+   k218SQ_sqSourceSupport H S t k (a : G) $ =
+'(syl6 (bi2 (k218IContextSupportseq2 sqContext_cons)) k218IContextSupports_cons);
+
+pub theorem k218SQ_sqSourceSupport_under (H S t k G a: nat):
+ $ k218SQ_sqSourceSupport H S t k G ->
+   k218SQ_sqSourceSupport (sqQuote (sqNumericEnvironment S) t k 0 a : H) S t k (a : G) $ =
+'(mpi (ax_mp k218IHypProvable_assumption sfContext_member_head)
+  (syl k218SQ_sqSourceSupport_cons k218SQ_sqSourceSupport_weaken));
+
+pub theorem k218SQ_sqSupportedAt_formula_bound (n G a: nat):
+ $ k218SQ_sqSupportedAt n (sfSequent G a) -> sfBound n a $ =
+'(sylc sfBound_mono
+  (syl sfWf_code_bound (syl anr (syl (bi1 sfRowWf_sequent) k218SQ_sqSupportedAt_wf)))
+  (letrd (a1i sqSC_formula_le) k218SQ_sqSupportedAt_bound));
+
+pub theorem k218SQ_sqSupportedAt_context_member_bound (n G a b: nat):
+ $ k218SQ_sqSupportedAt n (sfSequent G a) -> b IN G -> sfBound n b $ =
+'(exp @ sylc sfBound_mono
+  (syl sfWf_code_bound (mpd anr (syl sfContextWf_member
+    (syl anl (syl (bi1 sfRowWf_sequent) (syl k218SQ_sqSupportedAt_wf anl))))))
+  (letrd (letrd (syl ltle (syl lmemlt anr)) (a1i sqSC_context_le))
+    (syl k218SQ_sqSupportedAt_bound anl)));
+
+pub theorem k218SQ_sqSupportedAt_context_bound {b: nat} (n G a: nat):
+ $ k218SQ_sqSupportedAt n (sfSequent G a) -> A. b (b IN G -> sfBound n b) $ =
+(named '(iald k218SQ_sqSupportedAt_context_member_bound));

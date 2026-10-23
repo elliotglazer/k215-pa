@@ -1,0 +1,64 @@
+import "source_piece_pcf_syntax.mm1";
+
+@_ def sfPieceTableMember (sb sc n entry .i: nat): wff =
+ $ E. i (i < n /\ sfPieceBeta sb sc i = entry) $;
+
+@_ def sfPieceTableMemberGuard (sb sc n .entry: nat): wff =
+ $ A. entry (sfPieceTableMember sb sc n entry ->
+   sfBound (suc (fst entry)) (snd entry)) $;
+
+theorem pcpg_beta_eq (H: wff) (sb sc i j: nat) (h: $ H -> i = j $):
+ $ H -> sfPieceBeta sb sc i = sfPieceBeta sb sc j $ =
+'(modeq2d (suceqd (muleq1d (suceqd h))));
+
+pub theorem sfPieceTableMember_intro (sb sc n entry i: nat):
+ $ i < n -> sfPieceBeta sb sc i = entry -> sfPieceTableMember sb sc n entry $ =
+(named '(!! iexdde j @ exp @ iand
+ (mpbird (lteq1d anlr) anll) (eqtrd (pcpg_beta_eq anlr) anr)));
+
+theorem pcpg_beta_member (sb sc n i: nat):
+ $ i < n -> sfPieceTableMember sb sc n (sfPieceBeta sb sc i) $ =
+'(mpd (a1i eqid) sfPieceTableMember_intro);
+
+theorem pcpg_entry_bound (sb sc n entry i: nat):
+ $ sfPieceTableValid sb sc n -> (i < n /\ sfPieceBeta sb sc i = entry) ->
+   sfBound (suc (fst entry)) (snd entry) $ =
+(named '(exp @ mpbid
+ (syl srecpeq2 (preqd (suceqd (fsteqd anrr)) (sndeqd anrr)))
+ (mpd anrl (syl sfPieceTableValid_at anl))));
+
+pub theorem sfPieceTableValid_member (sb sc n entry: nat):
+ $ sfPieceTableValid sb sc n -> sfPieceTableMember sb sc n entry ->
+   sfBound (suc (fst entry)) (snd entry) $ =
+(named '(eexd pcpg_entry_bound));
+
+theorem pcpg_member_guard (sb sc n: nat):
+ $ sfPieceTableValid sb sc n -> sfPieceTableMemberGuard sb sc n $ =
+(named '(!! iald entry @ sfPieceTableValid_member));
+
+theorem pcpg_guard_at (sb sc n entry: nat):
+ $ sfPieceTableMemberGuard sb sc n -> sfPieceTableMember sb sc n entry ->
+   sfBound (suc (fst entry)) (snd entry) $ =
+(named '(!! eale e ,eqtac));
+
+theorem pcpg_guard_valid_at (sb sc n i: nat):
+ $ sfPieceTableMemberGuard sb sc n -> i < n ->
+   sfBound (suc (sfPieceCount sb sc i)) (sfPieceMatrix sb sc i) $ =
+(named '(exp @ mpd (syl pcpg_beta_member anr) (syl pcpg_guard_at anl)));
+
+theorem pcpg_guard_valid (sb sc n: nat):
+ $ sfPieceTableMemberGuard sb sc n -> sfPieceTableValid sb sc n $ =
+(named '(!! iald i @ pcpg_guard_valid_at));
+
+pub theorem sfPieceTableValid_member_guard (sb sc n: nat):
+ $ sfPieceTableValid sb sc n <-> sfPieceTableMemberGuard sb sc n $ =
+'(ibii pcpg_member_guard pcpg_guard_valid);
+
+pub theorem sfPieceTableValid_member_pair (sb sc n entry count phi: nat):
+ $ sfPieceTableValid sb sc n -> sfPieceTableMember sb sc n entry ->
+   entry = (count, phi) -> sfBound (suc count) phi $ =
+(named '(exp @ exp @ mpbid
+ (syl srecpeq2 (preqd
+  (suceqd (eqtrd (fsteqd anr) (a1i fstpr)))
+  (eqtrd (sndeqd anr) (a1i sndpr))))
+ (mpd anlr (syl sfPieceTableValid_member anll))));

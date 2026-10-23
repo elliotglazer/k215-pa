@@ -1,0 +1,44 @@
+
+import "source_piece_pcf_above.mm1";
+import "source_piece_pcf_row_transport.mm1";
+import "source_piece_pcf_function_join.mm1";
+
+-- The only hierarchy premises below are the exact source existence and subset laws.
+-- Ordinal existence and LLAbove are discharged by genuine earlier source proofs.
+pub theorem sfPieceFunctionCanonicalRows_exist(E:set)(n:nat)
+ (he:$ sfTheoryProvable zfrAxioms sfPieceLevelEx $)
+ (hs:$ sfTheoryProvable zfrAxioms sfPieceLevelSub $):
+ $ sfPieceFunctionTableValid E n -> sfPieceFunctionRowWitnesses sfLDomain sfPieceCanonicalLevel E n $ =
+(named '(!! iald i @ syl6
+ (syl (sfPieceRowWitness_guarded
+  (ax_mp (sfPieceDn_mono_rule zfrAxioms_closed (sfPieceD0Canonical_wf sfRename_wf))
+   (sfPieceD0CanonicalMono_from_fixed_source sfRename_wf he hs))
+  (sfPieceDnD0_from_exists_subset sfRename_wf he hs)) sfBound_wf)
+ sfPieceFunctionTableValid_at));
+
+pub theorem sfPieceFunctionCanonicalTable_witnesses(E:set)(n:nat)
+ (he:$ sfTheoryProvable zfrAxioms sfPieceLevelEx $)
+ (hs:$ sfTheoryProvable zfrAxioms sfPieceLevelSub $):
+ $ sfPieceFunctionTableValid E n -> sfPieceFunctionTableWitnesses sfLDomain sfPieceCanonicalLevel E n $ =
+'(syl (sfPieceFunctionTable_join_induction sfPieceCanonicalOrdinalExists_zfr)
+ (sfPieceFunctionCanonicalRows_exist he hs));
+
+pub theorem sfPieceFunctionPCf_exists_from_levels(E:set)(n:nat)
+ (he:$ sfTheoryProvable zfrAxioms sfPieceLevelEx $)
+ (hs:$ sfTheoryProvable zfrAxioms sfPieceLevelSub $):
+ $ sfPieceFunctionTableValid E n ->
+   sfTheoryProvable zfrAxioms (sfEx (sfAnd sfLeastOrdinalPredicate
+    (sfPieceFunctionBinary sfLDomain sfPieceCanonicalLevel E n))) $ =
+'(syl anr (sfPieceFunctionCanonicalTable_witnesses he hs));
+
+pub theorem sfPieceFunctionPCf_mono_from_levels(E:set)(n:nat)
+ (he:$ sfTheoryProvable zfrAxioms sfPieceLevelEx $)
+ (hs:$ sfTheoryProvable zfrAxioms sfPieceLevelSub $):
+ $ sfPieceFunctionTableValid E n ->
+   sfTheoryProvable zfrAxioms (sfPieceMonoCode
+    (sfPieceFunctionBinary sfLDomain sfPieceCanonicalLevel E n)) $ =
+'(syl anl (sfPieceFunctionCanonicalTable_witnesses he hs));
+
+pub theorem sfPieceFunctionPCf_binary_bound(E:set)(n:nat):
+ $ sfPieceFunctionTableValid E n -> sfBound 2 (sfPieceFunctionBinary sfLDomain sfPieceCanonicalLevel E n) $ =
+'(ax_mp (ax_mp sfPieceFunctionBinary_bound sfLDomain_bound) sfPieceCanonicalLevel_bound);

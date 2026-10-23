@@ -1,0 +1,25 @@
+import "source_k0_qrep_request.mm0";
+
+import "source_named_renaming.mm0";
+
+import "source_k0_qsep_matrix_alignment.mm0";
+
+def sfK0CollectionRel (E: set) (R y x psi: nat): nat = $ sfNamedTemplate (sqEnvCons y (sqEnvCons x E)) R 0 psi $;
+
+def sfK0CollectionProfile (E: set) (t a c u w y x R psi: nat): nat = $ (kAnd (kMem t c) (kAnd (kAll u (kImp (kAnd (kMem t u) (kMem u a)) (kImp (kExists w (kAnd (kMem t w) (sfK0CollectionRel E R w u psi))) (kExists y (kAnd (kMem t y) (kAnd (kMem y c) (sfK0CollectionRel E R y u psi))))))) (kAll y (kImp (kAnd (kMem t y) (kMem y c)) (kExists x (kAnd (kAnd (kMem t x) (kMem x a)) (sfK0CollectionRel E R y x psi))))))) $;
+
+def sfK0CollectionTagged (E: set) (b t r a u y x R psi: nat): nat = $ (kDisj (kAnd (kEq u r) (kEq y b)) (kDisj (kAnd (kEq u t) (kEq y t)) (kExists x (kAnd (sfK0QSepNamedSingleton x u R) (kAnd (kAnd (kMem t x) (kMem x a)) (kAnd (kMem t y) (sfK0CollectionRel E R y x psi))))))) $;
+
+def sfK0CollectionEnvironment (E: set) (b t r a u y x: nat): set = $ (sqEnvCons x (sqEnvCons y (sqEnvCons u (sqEnvCons b (sqEnvCons t (sqEnvCons r (sqEnvCons a E))))))) $;
+
+theorem sfK0Collection_environment_at (E: set) (b t r a u y x: nat) (i: nat):
+ $ (sfComposeMap (sfK0CollectionEnvironment E b t r a u y x) sfK0QRepCollectionMap) @ i = (sqEnvCons y (sqEnvCons x E)) @ i $;
+
+theorem sfK0Collection_environment (E: set) (b t r a u y x: nat):
+ $ (sfComposeMap (sfK0CollectionEnvironment E b t r a u y x) sfK0QRepCollectionMap) == (sqEnvCons y (sqEnvCons x E)) $;
+
+theorem sfK0Collection_renamed_matrix (E: set) (b t r a u y x: nat) (R psi: nat):
+ $ sfWf psi -> sfNamedTemplate (sfK0CollectionEnvironment E b t r a u y x) R 0 (sfRename sfK0QRepCollectionMap 0 psi) = (sfK0CollectionRel E R y x psi) $;
+
+theorem sfK0Collection_tagged_named (E: set) (b t r a u y k psi: nat):
+ $ sfWf psi -> sfNamedTemplate (sqEnvCons y (sqEnvCons u (sqEnvCons b (sqEnvCons t (sqEnvCons r (sqEnvCons a E)))))) k 0 (sfK0QRepCollectionMatrix psi) = (sfK0CollectionTagged E b t r a u y k (suc k) psi) $;

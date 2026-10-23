@@ -1,0 +1,43 @@
+import "source_relativization_laws.mm0";
+import "zfc_irreflexive.mm0";
+
+-- Local proof means a finite proof in the concrete full ND calculus.
+-- These rules include explicit domain guards; no interpretation is assumed.
+theorem sfLocal_allI (G a: nat) (hg: $ sfContextWf G $):
+  $ nsLocal (sfContextShift G) a -> nsLocal G (sfAll a) $;
+
+theorem sfLocal_exE (G a b: nat) (hb: $ sfWf b $):
+  $ nsLocal G (sfEx a) -> nsLocal (a : sfContextShift G) (sfShift 0 b) -> nsLocal G b $;
+
+theorem sfLocal_and (G a b: nat):
+  $ nsLocal G a -> nsLocal G b -> nsLocal G (sfAnd a b) $;
+
+theorem sfRelative_AllE (D G a t: nat)
+  (hd: $ sfBound 1 D $) (ha: $ sfWf a $)
+  (hp: $ nsLocal G (sfRelativize D (sfAll a)) $)
+  (ht: $ nsLocal G (sfSubst 0 t D) $):
+  $ nsLocal G (sfRelativize D (sfSubst 0 t a)) $;
+
+theorem sfRelative_AllI (D G a: nat)
+  (hg: $ sfContextWf G $)
+  (hp: $ nsLocal (D : sfContextShift G) (sfRelativize D a) $):
+  $ nsLocal G (sfRelativize D (sfAll a)) $;
+
+theorem sfRelative_ExI (D G a t: nat)
+  (hd: $ sfBound 1 D $) (ha: $ sfWf a $)
+  (hp: $ nsLocal G (sfRelativize D (sfSubst 0 t a)) $)
+  (ht: $ nsLocal G (sfSubst 0 t D) $):
+  $ nsLocal G (sfRelativize D (sfEx a)) $;
+
+theorem sfLocal_pair_assumptions (G a b c: nat)
+  (hg: $ sfContextWf G $) (ha: $ sfWf a $) (hb: $ sfWf b $)
+  (hp: $ nsLocal (b : (a : G)) c $):
+  $ nsLocal (sfAnd a b : G) c $;
+
+theorem sfRelative_ExE (D G a c: nat)
+  (hd: $ sfBound 1 D $) (hc: $ sfWf c $)
+  (hp: $ nsLocal G (sfRelativize D (sfEx a)) $)
+  (hq: $ nsLocal (sfRelativize D a : (D : sfContextShift G))
+       (sfRelativize D (sfShift 0 c)) $):
+  $ nsLocal G (sfRelativize D c) $;
+

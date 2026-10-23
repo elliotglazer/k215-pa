@@ -1,0 +1,84 @@
+import "source_piece_pcf_rep_rules_r8.mm1";
+import "source_wf_separation_logic.mm1";
+
+@_ def sfPieceNumeralSome(k:nat):nat = $ sfEx (sfPieceNumeral k 0) $;
+
+@_ def sfPieceRepEmptyExists:nat = $ sfEx (sfPieceRepEmpty 0) $;
+
+@_ def sfPieceRepSuccessorTotal:nat = $ (sfAll (sfEx (sfPieceRepSuccessor 1 0))) $;
+
+theorem pcrs_total_wf:
+ $ sfWf sfPieceRepSuccessorTotal $ =
+ '(ax_mp sfWf_all (ax_mp sfWf_ex sfPieceRepSuccessor_wf));
+
+theorem pcrs_total_shift:
+ $ sfShift 0 sfPieceRepSuccessorTotal = sfPieceRepSuccessorTotal $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor pcrs_total_wf)) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfEx (nsEx_eq (eqtr sfPieceRepSuccessor_rename (sfPieceRepSuccessor_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (ax_mp sfRenameIndex_bound lt01S))))))));
+
+theorem pcrs_total_open(x:nat):
+ $ sfSubst 0 x (sfEx (sfPieceRepSuccessor 1 0)) = (sfEx (sfPieceRepSuccessor (suc x) 0)) $ =
+ '(eqtr sfSubst_sfEx (nsEx_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S)))));
+
+theorem pcrs_total_use(G x:nat):
+ $ (nsLocal G sfPieceRepSuccessorTotal) -> (nsLocal G (sfEx (sfPieceRepSuccessor (suc x) 0))) $ =
+ '(syl (bi1 (nsLocal_formula_eq pcrs_total_open)) nsLocal_AllE);
+
+pub theorem sfPieceNumeralSome_wf(k:nat):
+ $ sfWf (sfPieceNumeralSome k) $ =
+ '(ax_mp sfWf_ex sfPieceNumeral_wf);
+
+pub theorem sfPieceNumeralSome_shift(k:nat):
+ $ sfShift 0 (sfPieceNumeralSome k) = sfPieceNumeralSome k $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceNumeralSome_wf)) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfPieceNumeral_rename_depth (pcri_num_eq (ax_mp sfRenameIndex_bound lt01S))))));
+
+pub theorem sfPieceNumeralSome_intro(G k x:nat):
+ $ (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeralSome k)) $ =
+ '(syl (ax_mp nsLocal_ExI sfPieceNumeral_wf) (bi2 (nsLocal_formula_eq (eqtr sfPieceNumeral_subst (pcri_num_eq sfSubstIndex_zero)))));
+
+theorem pcrs_zero:
+ $ sfPieceNumeralSome 0 = sfPieceRepEmptyExists $ =
+ '(nsEx_eq sfPieceNumeral_zero);
+
+@_ def pcrsFirst(G k:nat):nat = $ sfPieceNumeral k 0 : sfContextShift G $;
+
+@_ def pcrsSecond(G k:nat):nat = $ sfPieceRepSuccessor 1 0 : sfContextShift (pcrsFirst G k) $;
+
+theorem pcrs_first_wf(G k:nat):
+ $ sfContextWf (pcrsFirst G k) $ =
+ '(mpbir sfContextWf_cons (ian sfPieceNumeral_wf sfContextShift_wf));
+
+theorem pcrs_first_hyp(G k:nat):
+ $ (nsLocal (pcrsFirst G k) (sfPieceNumeral k 0)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp pcrs_first_wf) sfContext_member_head);
+
+theorem pcrs_second_wf(G k:nat):
+ $ sfContextWf (pcrsSecond G k) $ =
+ '(mpbir sfContextWf_cons (ian sfPieceRepSuccessor_wf sfContextShift_wf));
+
+theorem pcrs_second_hyp(G k:nat):
+ $ (nsLocal (pcrsSecond G k) (sfPieceRepSuccessor 1 0)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp pcrs_second_wf) sfContext_member_head);
+
+theorem pcrs_second_num(G k:nat):
+ $ (nsLocal (pcrsSecond G k) (sfPieceNumeral k 1)) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken pcrs_second_wf) sfContextSub_cons) (mpbi (nsLocal_formula_eq pcri_num_shift) (ax_mp sfSepLocal_shift pcrs_first_hyp)));
+
+theorem pcrs_second_result(G k:nat):
+ $ (nsLocal (pcrsSecond G k) (sfShift 0 (sfPieceNumeralSome (suc k)))) $ =
+ '(mpbir (nsLocal_formula_eq sfPieceNumeralSome_shift) (ax_mp sfPieceNumeralSome_intro (ax_mp (ax_mp sfPieceNumeral_suc_rule pcrs_second_num) pcrs_second_hyp)));
+
+theorem pcrs_first_total(G k:nat):
+ $ (nsLocal G sfPieceRepSuccessorTotal) -> (nsLocal (pcrsFirst G k) sfPieceRepSuccessorTotal) $ =
+ '(syl (ax_mp (ax_mp nsLocal_weaken pcrs_first_wf) sfContextSub_cons) (syl (bi1 (nsLocal_formula_eq pcrs_total_shift)) sfSepLocal_shift));
+
+theorem pcrs_first_result(G k:nat):
+ $ (nsLocal G sfPieceRepSuccessorTotal) -> (nsLocal (pcrsFirst G k) (sfShift 0 (sfPieceNumeralSome (suc k)))) $ =
+ '(syl (bi2 (nsLocal_formula_eq sfPieceNumeralSome_shift)) (syl (ax_mp (com12 (sfLocal_exE sfPieceNumeralSome_wf)) pcrs_second_result) (syl pcrs_total_use pcrs_first_total)));
+
+pub theorem sfPieceNumeralSome_step(G k:nat)(hs:$ (nsLocal G sfPieceRepSuccessorTotal) $):
+ $ (nsLocal G (sfPieceNumeralSome k)) -> (nsLocal G (sfPieceNumeralSome (suc k))) $ =
+ '(ax_mp (com12 (sfLocal_exE sfPieceNumeralSome_wf)) (ax_mp pcrs_first_result hs));
+
+pub theorem sfPieceNumeralSome_from_laws(G k:nat)(h0:$ (nsLocal G sfPieceRepEmptyExists) $)(hs:$ (nsLocal G sfPieceRepSuccessorTotal) $):
+ $ (nsLocal G (sfPieceNumeralSome k)) $ =
+ (named @ induct '(ind) 'k '(mpbir (nsLocal_formula_eq pcrs_zero) h0) '(sfPieceNumeralSome_step hs));

@@ -1,0 +1,200 @@
+import "source_piece_pcf_rep_case_common.mm1";
+
+import "source_piece_pcf_definable_difference_use.mm1";
+
+-- And case: eliminate l (for a) and r (for b), produce d = l - r, eliminate d, produce
+-- w = l - d, eliminate w, and conclude Named n (a /\ b) w A by renaming one closed
+-- derivation of sfPieceDefinableConjunction_recipe.
+
+theorem pcra_ctx_wf (n a b: nat):
+  $ sfContextWf (sfPieceDefinableConjunctionDifference 2 4 0 :
+      (sfPieceDefinableConjunctionDifference 2 3 4 :
+        (sfPieceDefinableNamed n b 3 1 : (sfPieceDefinableNamed n a 2 1 : 0)))) $ =
+'(mpbir sfContextWf_cons (ian sfPieceDefinableConjunctionDifference_wf
+  (mpbir sfContextWf_cons (ian sfPieceDefinableConjunctionDifference_wf
+    (mpbir sfContextWf_cons (ian sfORBinary_wf
+      (mpbir sfContextWf_cons (ian sfORBinary_wf sfContextWf_nil))))))));
+
+theorem pcra_pure (n a b: nat) (hba: $ sfBound n a $) (hbb: $ sfBound n b $):
+  $ nsLocal 0 (sfImp (sfPieceDefinableNamed n a 2 1)
+      (sfImp (sfPieceDefinableNamed n b 3 1)
+        (sfImp (sfPieceDefinableConjunctionDifference 2 3 4)
+          (sfImp (sfPieceDefinableConjunctionDifference 2 4 0)
+            (sfPieceDefinableNamed n (sfAnd a b) 0 1))))) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II
+  (sfRQ_rewrite (eqcom (sfPieceRepCase_named01 (mpbir sfBound_sfAnd (ian hba hbb))))
+    (sfPieceDefinableConjunction_recipe hba hbb
+      (ax_mp (ax_mp nsLocal_hyp pcra_ctx_wf)
+        (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orl eqid)))))))))
+      (ax_mp (ax_mp nsLocal_hyp pcra_ctx_wf)
+        (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orl eqid)))))))
+      (ax_mp (ax_mp nsLocal_hyp pcra_ctx_wf)
+        (mpbir lmemS (orr (mpbir lmemS (orl eqid)))))
+      (ax_mp (ax_mp nsLocal_hyp pcra_ctx_wf)
+        (mpbir lmemS (orl eqid)))))))));
+
+-- The renaming 0 -> w, 1 -> A, 2 -> l, 3 -> r, 4 -> d.
+theorem pcra_m0 (w A l r d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons d sfIdentityMap)))) @ 0 = w $ =
+'sqEnvCons_zero;
+theorem pcra_m1 (w A l r d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons d sfIdentityMap)))) @ 1 = A $ =
+'(eqtr sqEnvCons_suc sqEnvCons_zero);
+theorem pcra_m2 (w A l r d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons d sfIdentityMap)))) @ 2 = l $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero));
+theorem pcra_m3 (w A l r d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons d sfIdentityMap)))) @ 3 = r $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)));
+theorem pcra_m4 (w A l r d: nat):
+  $ sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons d sfIdentityMap)))) @ 4 = d $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))));
+
+theorem pcra_rename_eq (n a b w A l r d: nat) (hba: $ sfBound n a $) (hbb: $ sfBound n b $):
+  $ sfRename (sqEnvCons w (sqEnvCons A (sqEnvCons l (sqEnvCons r (sqEnvCons d sfIdentityMap))))) 0
+      (sfImp (sfPieceDefinableNamed n a 2 1)
+        (sfImp (sfPieceDefinableNamed n b 3 1)
+          (sfImp (sfPieceDefinableConjunctionDifference 2 3 4)
+            (sfImp (sfPieceDefinableConjunctionDifference 2 4 0)
+              (sfPieceDefinableNamed n (sfAnd a b) 0 1))))) =
+    sfImp (sfPieceDefinableNamed n a l A)
+      (sfImp (sfPieceDefinableNamed n b r A)
+        (sfImp (sfPieceDefinableConjunctionDifference l r d)
+          (sfImp (sfPieceDefinableConjunctionDifference l d w)
+            (sfPieceDefinableNamed n (sfAnd a b) w A)))) $ =
+'(eqtr sfRename_sfImp (sfImpeq
+  (eqtr (sfPieceDefinableNamed_rename hba)
+    (sfPieceDefinableNamed_congr hba (eqtr sfRenameIndex_zero pcra_m2) (eqtr sfRenameIndex_zero pcra_m1)))
+  (eqtr sfRename_sfImp (sfImpeq
+    (eqtr (sfPieceDefinableNamed_rename hbb)
+      (sfPieceDefinableNamed_congr hbb (eqtr sfRenameIndex_zero pcra_m3) (eqtr sfRenameIndex_zero pcra_m1)))
+    (eqtr sfRename_sfImp (sfImpeq
+      (eqtr sfPieceDefinableConjunctionDifference_rename
+        (sfPieceDefinableConjunctionDifference_congr pcra_m2 pcra_m3 pcra_m4))
+      (eqtr sfRename_sfImp (sfImpeq
+        (eqtr sfPieceDefinableConjunctionDifference_rename
+          (sfPieceDefinableConjunctionDifference_congr pcra_m2 pcra_m4 pcra_m0))
+        (eqtr (sfPieceDefinableNamed_rename (mpbir sfBound_sfAnd (ian hba hbb)))
+          (sfPieceDefinableNamed_congr (mpbir sfBound_sfAnd (ian hba hbb))
+            (eqtr sfRenameIndex_zero pcra_m0) (eqtr sfRenameIndex_zero pcra_m1)))))))))));
+
+pub theorem sfPieceRepCaseAnd_rule (G n a b w A l r d: nat)
+  (hg: $ sfContextWf G $) (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hL: $ nsLocal G (sfPieceDefinableNamed n a l A) $)
+  (hR: $ nsLocal G (sfPieceDefinableNamed n b r A) $)
+  (hD: $ nsLocal G (sfPieceDefinableConjunctionDifference l r d) $)
+  (hN: $ nsLocal G (sfPieceDefinableConjunctionDifference l d w) $):
+  $ nsLocal G (sfPieceDefinableNamed n (sfAnd a b) w A) $ =
+'(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp (ax_mp nsLocal_weaken hg) all0)
+    (sfRQ_rewrite (pcra_rename_eq hba hbb)
+      (mpbi (nsLocal_context_eq sfContextRename_nil)
+        (ax_mp sfSepLocal_rename (pcra_pure hba hbb)))))) hL)) hR)) hD)) hN);
+
+-- Innermost level: w = 0, d = 1, r = 2, l = 3.
+theorem pcra_l4 (G3 A3 C3 n a b: nat) (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hl: $ nsLocal G3 (sfPieceDefinableNamed n a 2 A3) $)
+  (hr: $ nsLocal G3 (sfPieceDefinableNamed n b 1 A3) $)
+  (hd: $ nsLocal G3 (sfPieceDefinableConjunctionDifference 2 1 0) $):
+  $ nsLocal (sfPieceDefinableDifferenceWitnessBody 2 0 C3 : sfContextShift G3)
+      (sfShift 0 (sfPieceDefinableWitness A3 C3 n (sfAnd a b))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfAnd (ian hba hbb))))
+  (sfPieceDefinableWitness_intro (mpbir sfBound_sfAnd (ian hba hbb))
+    (ax_mp nsLocal_CE1 (sfPieceRepCase_head sfPieceDefinableDifferenceWitnessBody_wf))
+    (sfPieceRepCaseAnd_rule (sfPieceRepCase_ctx sfPieceDefinableDifferenceWitnessBody_wf) hba hbb
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hba)
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hl))
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hbb)
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hr))
+      (sfRQ_rewrite sfPieceDefinableConjunctionDifference_shift
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hd))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head sfPieceDefinableDifferenceWitnessBody_wf)))));
+
+-- Third level: d = 0, r = 1, l = 2; produce w = l - d.
+theorem pcra_l3 (G2 A2 B2 C2 n a b: nat)
+  (hg2: $ sfContextWf G2 $) (hbg2: $ sfContextSub sfLBackground G2 $)
+  (hc2: $ nsLocal G2 (sfPieceRepClosure B2 C2) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hlm: $ nsLocal G2 (sfMem 1 C2) $)
+  (hl: $ nsLocal G2 (sfPieceDefinableNamed n a 1 A2) $)
+  (hr: $ nsLocal G2 (sfPieceDefinableNamed n b 0 A2) $):
+  $ nsLocal (sfPieceDefinableDifferenceWitnessBody 1 0 C2 : sfContextShift G2)
+      (sfShift 0 (sfPieceDefinableWitness A2 C2 n (sfAnd a b))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfAnd (ian hba hbb))))
+  (ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+    (sfPieceDefinableDifference_produce
+      (sfPieceRepCase_bg_under hg2 hbg2)
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hc2))
+      (sfRQ_rewrite sfPieceRepCase_mshift
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hlm))
+      (ax_mp nsLocal_CE1 (sfPieceRepCase_head sfPieceDefinableDifferenceWitnessBody_wf))))
+    (pcra_l4 hba hbb
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hba)
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hl))
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hbb)
+        (sfPieceDefinableExistential_under sfPieceDefinableDifferenceWitnessBody_wf hr))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head sfPieceDefinableDifferenceWitnessBody_wf)))));
+
+-- Second level: r = 0, l = 1; produce d = l - r.
+theorem pcra_l2 (G1 A1 B1 C1 n a b: nat)
+  (hg1: $ sfContextWf G1 $) (hbg1: $ sfContextSub sfLBackground G1 $)
+  (hc1: $ nsLocal G1 (sfPieceRepClosure B1 C1) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hlm: $ nsLocal G1 (sfMem 0 C1) $)
+  (hl: $ nsLocal G1 (sfPieceDefinableNamed n a 0 A1) $):
+  $ nsLocal (sfAnd (sfMem 0 (suc C1)) (sfPieceDefinableNamed n b 0 (suc A1)) : sfContextShift G1)
+      (sfShift 0 (sfPieceDefinableWitness A1 C1 n (sfAnd a b))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfAnd (ian hba hbb))))
+  (ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+    (sfPieceDefinableDifference_produce
+      (sfPieceRepCase_bg_under hg1 hbg1)
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hc1))
+      (sfRQ_rewrite sfPieceRepCase_mshift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hlm))
+      (ax_mp nsLocal_CE1 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf)))))
+    (pcra_l3
+      (sfPieceRepCase_ctx (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))
+      (sfPieceRepCase_bg_under hg1 hbg1)
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hc1))
+      hba hbb
+      (sfRQ_rewrite sfPieceRepCase_mshift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hlm))
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hba)
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hl))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))))));
+
+-- Outer level: l = 0.
+theorem pcra_l1 (G A B C n a b: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hwb: $ nsLocal G (sfPieceDefinableWitness A C n b) $):
+  $ nsLocal (sfAnd (sfMem 0 (suc C)) (sfPieceDefinableNamed n a 0 (suc A)) : sfContextShift G)
+      (sfShift 0 (sfPieceDefinableWitness A C n (sfAnd a b))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfAnd (ian hba hbb))))
+  (ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+    (sfRQ_rewrite (sfPieceDefinableNamed_witness_eq hbb)
+      (sfRQ_rewrite (sfPieceRepCase_wshift hbb)
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hwb))))
+    (pcra_l2
+      (sfPieceRepCase_ctx (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))
+      (sfPieceRepCase_bg_under hg hbg)
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hc))
+      hba hbb
+      (ax_mp nsLocal_CE1 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf)))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))))));
+
+pub theorem sfPieceRepCaseAnd (G A B C n a b: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hwa: $ nsLocal G (sfPieceDefinableWitness A C n a) $)
+  (hwb: $ nsLocal G (sfPieceDefinableWitness A C n b) $):
+  $ nsLocal G (sfPieceDefinableWitness A C n (sfAnd a b)) $ =
+'(ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+  (sfRQ_rewrite (sfPieceDefinableNamed_witness_eq hba) hwa))
+  (pcra_l1 hg hbg hc hba hbb hwb));

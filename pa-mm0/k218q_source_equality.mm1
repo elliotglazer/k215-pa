@@ -1,0 +1,51 @@
+import "k218q_named_support.mm1";
+import "k218q_equality.mm1";
+import "zfc_fixed.mm1";
+
+theorem k218QEqElem_body (a b c d: nat):
+ $ k218QProvable (kImp (kEq a c) (kImp (kEq b d)
+     (kImp (kMem a b) (kMem c d)))) $ =
+'(k218QProvable_mp
+  (k218IProvable_syl k218IEquality_member_right
+    (k218QProvable_mp
+      (k218IProvable_syl k218IEquality_member_left k218IPropB)
+      k218IPropC))
+  k218IPropC);
+
+pub theorem k218QSourceRefl_syntax (E: set) (k: nat):
+ $ sfNamedTemplate E k 0 zfcRefl = (kAll (k + 0) (kEq (k + 0) (k + 0))) $ =
+'(eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfEq (kEqeq sfNamedIndex_new sfNamedIndex_new))));
+
+pub theorem k218QSourceRefl (E: set) (k: nat):
+ $ k218QProvable (sfNamedTemplate E k 0 zfcRefl) $ =
+'(mpbir (k218QProvableeq k218QSourceRefl_syntax) (ax_mp k218QProvable_gen k218IEquality_reflexive));
+
+pub theorem k218QSourceSym_syntax (E: set) (k: nat):
+ $ sfNamedTemplate E k 0 zfcSym = (kAll (k + 0) (kAll (k + 1) (kImp (kEq (k + 0) (k + 1)) (kEq (k + 1) (k + 0))))) $ =
+'(eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_lift sfNamedIndex_new) sfNamedIndex_new)) (eqtr sfNamedTemplate_sfEq (kEqeq sfNamedIndex_new (eqtr sfNamedIndex_lift sfNamedIndex_new)))))))));
+
+pub theorem k218QSourceSym (E: set) (k: nat):
+ $ k218QProvable (sfNamedTemplate E k 0 zfcSym) $ =
+'(mpbir (k218QProvableeq k218QSourceSym_syntax) (ax_mp k218QProvable_gen (ax_mp k218QProvable_gen k218IEquality_symmetric)));
+
+pub theorem k218QSourceTrans_syntax (E: set) (k: nat):
+ $ sfNamedTemplate E k 0 zfcTrans = (kAll (k + 0) (kAll (k + 1) (kAll (k + 2) (kImp (kEq (k + 0) (k + 1)) (kImp (kEq (k + 1) (k + 2)) (kEq (k + 0) (k + 2))))))) $ =
+'(eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_lift (eqtr sfNamedIndex_lift sfNamedIndex_new)) (eqtr sfNamedIndex_lift sfNamedIndex_new))) (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_lift sfNamedIndex_new) sfNamedIndex_new)) (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_lift (eqtr sfNamedIndex_lift sfNamedIndex_new)) sfNamedIndex_new))))))))))));
+
+pub theorem k218QSourceTrans (E: set) (k: nat):
+ $ k218QProvable (sfNamedTemplate E k 0 zfcTrans) $ =
+'(mpbir (k218QProvableeq k218QSourceTrans_syntax) (ax_mp k218QProvable_gen (ax_mp k218QProvable_gen (ax_mp k218QProvable_gen k218IEquality_transitive))));
+
+pub theorem k218QSourceEqElem_syntax (E: set) (k: nat):
+ $ sfNamedTemplate E k 0 zfcEqElem = (kAll (k + 0) (kAll (k + 1) (kAll (k + 2) (kAll (k + 3) (kImp (kEq (k + 0) (k + 2)) (kImp (kEq (k + 1) (k + 3)) (kImp (kMem (k + 0) (k + 1)) (kMem (k + 2) (k + 3))))))))) $ =
+'(eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfAll (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_lift (eqtr sfNamedIndex_lift (eqtr sfNamedIndex_lift sfNamedIndex_new))) (eqtr sfNamedIndex_lift sfNamedIndex_new))) (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_lift (eqtr sfNamedIndex_lift sfNamedIndex_new)) sfNamedIndex_new)) (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_lift (eqtr sfNamedIndex_lift (eqtr sfNamedIndex_lift sfNamedIndex_new))) (eqtr sfNamedIndex_lift (eqtr sfNamedIndex_lift sfNamedIndex_new)))) (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_lift sfNamedIndex_new) sfNamedIndex_new))))))))))))))));
+
+pub theorem k218QSourceEqElem (E: set) (k: nat):
+ $ k218QProvable (sfNamedTemplate E k 0 zfcEqElem) $ =
+'(mpbir (k218QProvableeq k218QSourceEqElem_syntax) (ax_mp k218QProvable_gen (ax_mp k218QProvable_gen (ax_mp k218QProvable_gen (ax_mp k218QProvable_gen k218QEqElem_body)))));
+
+@_ def k218QEqualityContext: nat = $ zfcRefl : (zfcSym : (zfcTrans : (zfcEqElem : 0))) $;
+
+pub theorem k218QEqualityContext_support (H S k: nat):
+ $ k218INamedSupport H S k k218QEqualityContext $ =
+'(ax_mp (ax_mp k218INamedSupport_cons (ax_mp (ax_mp k218INamedSupport_cons (ax_mp (ax_mp k218INamedSupport_cons (ax_mp (ax_mp k218INamedSupport_cons k218INamedSupport_nil) (ax_mp k218IHypProvable_seed k218QSourceEqElem))) (ax_mp k218IHypProvable_seed k218QSourceTrans))) (ax_mp k218IHypProvable_seed k218QSourceSym))) (ax_mp k218IHypProvable_seed k218QSourceRefl));

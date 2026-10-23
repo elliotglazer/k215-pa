@@ -1,0 +1,51 @@
+import "source_reflection_transfer_tuple.mm1";
+
+import "source_wf_separation_logic.mm1";
+
+def sfReflectionCofinalPoint(T:set)(start n level K k y:nat):nat = $ sfAnd (sfMem k K) (sfAnd (sfORBinary level k y) (sfReflectionTuple T start y n)) $;
+
+def sfReflectionCofinalCommon(T:set)(start n level K:nat):nat = $ sfEx (sfEx (sfReflectionCofinalPoint T (suc (suc start)) n level (suc (suc K)) 1 0)) $;
+
+def sfReflectionCofinalMergePoint(level K X Y k z:nat):nat = $ sfAnd (sfMem k K) (sfAnd (sfORBinary level k z) (sfAnd (sfCLSubset X z) (sfCLSubset Y z))) $;
+
+def sfReflectionCofinalMergeAt(level K X Y:nat):nat = $ sfEx (sfEx (sfReflectionCofinalMergePoint level (suc (suc K)) (suc (suc X)) (suc (suc Y)) 1 0)) $;
+
+def sfReflectionCofinalContext(G point:nat):nat = $ point : sfContextShift (sfEx point : sfContextShift G) $;
+
+theorem rfc_level_wf(level k y:nat)(hl:$ sfBound 2 level $): $ sfWf (sfORBinary level k y) $ = (named 'sfORBinary_wf);
+
+pub theorem sfReflectionCofinalPoint_wf(T:set)(start n level K k y:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalPoint T start n level K k y) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp (ax_mp sfWf_and (rfc_level_wf hl)) sfReflectionTuple_wf)));
+
+pub theorem sfReflectionCofinalCommon_wf(T:set)(start n level K:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalCommon T start n level K) $ = (named '(ax_mp sfWf_ex (ax_mp sfWf_ex (sfReflectionCofinalPoint_wf hl))));
+
+theorem rfc_point_congr(T:set)(start n level K KP k kp y yp:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $)(hk:$ k = kp $)(hy:$ y = yp $): $ sfReflectionCofinalPoint T start n level K k y = sfReflectionCofinalPoint T start n level KP kp yp $ = (named '(nsAnd_eq (nsMem_eq hk hK) (nsAnd_eq (sfORBinary_congr (ax_mp sfBound_wf hl) hk hy) (sfReflectionTupleeq3 hy))));
+
+theorem rfc_point_shift(T:set)(start n level K k y cut:nat)(hl:$ sfBound 2 level $)(hc:$ cut <= start $): $ sfShift cut (sfReflectionCofinalPoint T start n level K k y) = sfReflectionCofinalPoint T (suc start) n level (sfShiftIndex cut K) (sfShiftIndex cut k) (sfShiftIndex cut y) $ = (named '(eqtr sfShift_sfAnd (nsAnd_eq sfShift_sfMem (eqtr sfShift_sfAnd (nsAnd_eq (sfORBinary_shift (ax_mp sfBound_wf hl)) (sfReflectionTuple_shift hc))))));
+
+theorem rfc_shift_bound2(K:nat): $ sfShiftIndex 2 (suc (suc K)) = suc (suc (suc K)) $ = (named '(ax_mp sfShiftIndex_free (mpbi lenlt (mpbi lesuc (mpbi lesuc le01)))));
+
+pub theorem sfReflectionCofinalCommon_shift(T:set)(start n level K:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionCofinalCommon T start n level K) = sfReflectionCofinalCommon T (suc start) n level (suc K) $ = (named '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfEx (nsEx_eq (eqtr (rfc_point_shift hl (mpbi lesuc (mpbi lesuc le01))) (rfc_point_congr hl rfc_shift_bound2 (ax_mp sfShiftIndex_bound d1lt2) (ax_mp sfShiftIndex_bound d0lt2))))))));
+
+theorem rfc_index_subst_above(cut K t:nat)(hc:$ cut <= K $): $ sfSubstIndex cut t (suc K) = K $ = (named '(eqtr (ax_mp sfSubstIndex_above (mpbi leltsuc hc)) rftt_suc_sub1));
+
+theorem rfc_point_subst(T:set)(start n level K k y cut t:nat)(hl:$ sfBound 2 level $)(hs:$ cut <= start $)(hK:$ cut <= K $): $ sfSubst cut t (sfReflectionCofinalPoint T (suc start) n level (suc K) k y) = sfReflectionCofinalPoint T start n level K (sfSubstIndex cut t k) (sfSubstIndex cut t y) $ = (named '(eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq eqid (rfc_index_subst_above hK))) (eqtr sfSubst_sfAnd (nsAnd_eq (sfORBinary_subst (ax_mp sfBound_wf hl)) (sfReflectionTuple_subst hs))))));
+
+theorem rfc_subst_hit1(k:nat): $ sfSubstIndex 1 k 1 = suc k $ = (named '(eqtr sfSubstIndex_hit add12));
+
+theorem rfc_point_open1(T:set)(start n level K k:nat)(hl:$ sfBound 2 level $): $ sfSubst 1 k (sfReflectionCofinalPoint T (suc (suc start)) n level (suc (suc K)) 1 0) = sfReflectionCofinalPoint T (suc start) n level (suc K) (suc k) 0 $ = (named '(eqtr (rfc_point_subst hl le11S le11S) (rfc_point_congr hl eqid rfc_subst_hit1 (ax_mp sfSubstIndex_bound d0lt1))));
+
+pub theorem sfReflectionCofinalPoint_open(T:set)(start n level K k y:nat)(hl:$ sfBound 2 level $): $ sfSubst 0 y (sfSubst 1 k (sfReflectionCofinalPoint T (suc (suc start)) n level (suc (suc K)) 1 0)) = sfReflectionCofinalPoint T start n level K k y $ = (named '(eqtr (trud (sfSubst_congr eqidd eqidd (a1i (rfc_point_open1 hl)))) (eqtr (rfc_point_subst hl le01 le01) (rfc_point_congr hl eqid sfSubstIndex_successor sfSubstIndex_zero))));
+
+pub theorem sfReflectionCofinalCommon_intro(T:set)(G start n level K k y:nat)(hl:$ sfBound 2 level $)(hp:$ nsLocal G (sfReflectionCofinalPoint T start n level K k y) $): $ nsLocal G (sfReflectionCofinalCommon T start n level K) $ = (named '(ax_mp (ax_mp nsLocal_ExI (ax_mp sfWf_ex (sfReflectionCofinalPoint_wf hl))) (mpbir (nsLocal_formula_eq sfSubst_sfEx) (ax_mp (ax_mp nsLocal_ExI sfSubst_wf) (mpbir (nsLocal_formula_eq (sfReflectionCofinalPoint_open hl)) hp)))));
+
+theorem rfc_subset_wf(X Z:nat): $ sfWf (sfCLSubset X Z) $ = (named '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)));
+
+theorem rfc_mergepoint_wf(level K X Y k z:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalMergePoint level K X Y k z) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp (ax_mp sfWf_and (rfc_level_wf hl)) (ax_mp (ax_mp sfWf_and rfc_subset_wf) rfc_subset_wf))));
+
+theorem rfc_inner_wf(G point:nat)(hp:$ sfWf point $): $ sfContextWf (sfEx point : sfContextShift G) $ = (named '(mpbir sfContextWf_cons (ian (ax_mp sfWf_ex hp) sfContextShift_wf)));
+
+theorem rfc_context_wf(G point:nat)(hp:$ sfWf point $): $ sfContextWf (sfReflectionCofinalContext G point) $ = (named '(mpbir sfContextWf_cons (ian hp sfContextShift_wf)));
+
+pub theorem sfReflectionCofinal_lift2(G point a:nat)(hp:$ sfWf point $)(ha:$ nsLocal G a $): $ nsLocal (sfReflectionCofinalContext G point) (sfShift 0 (sfShift 0 a)) $ = (named '(ax_mp (ax_mp (ax_mp nsLocal_weaken (rfc_context_wf hp)) sfContextSub_cons) (ax_mp sfSepLocal_shift (ax_mp (ax_mp (ax_mp nsLocal_weaken (rfc_inner_wf hp)) sfContextSub_cons) (ax_mp sfSepLocal_shift ha)))));
+
+pub theorem sfReflectionCofinal_double_eliminate(G point out:nat)(hp:$ sfWf point $)(ho:$ sfWf out $)(he:$ nsLocal G (sfEx (sfEx point)) $): $ nsLocal (sfReflectionCofinalContext G point) (sfShift 0 (sfShift 0 out)) -> nsLocal G out $ = (named '(syl (ax_mp (sfLocal_exE ho) he) (ax_mp (sfLocal_exE sfShift_wf) (ax_mp (ax_mp nsLocal_hyp (rfc_inner_wf hp)) sfContext_member_head))));

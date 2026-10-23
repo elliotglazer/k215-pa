@@ -1,0 +1,27 @@
+import "source_piece_pcf_bounds.mm0";
+
+import "source_omega_recursion_binary.mm0";
+
+import "source_renaming_agreement.mm0";
+
+theorem sfPieceOpenMap_binary_agree (d X: nat):
+ $ sfRenameMapAgree (sfORBinaryMap d X) (sfPieceOpenMap d X) 2 $;
+
+theorem sfPiecePC_binary_open (domain level count phi d X: nat):
+ $ sfBound 1 domain -> sfBound 2 level -> sfBound (suc count) phi ->
+   sfORBinary (sfPiecePC domain level count phi 0 1) d X =
+    sfPiecePC domain level count phi d X $;
+
+def sfPieceBinaryOpenLaw (domain level sb sc n d X: nat): wff =
+ $ sfPieceTableValid sb sc n ->
+   sfORBinary (sfPieceBinary domain level sb sc n) d X =
+    sfPieceConjunction domain level sb sc n d X $;
+
+def pcpoBoundLaw(domain level sb sc n d X:nat):wff =
+ $ sfBound 1 domain -> sfBound 2 level -> sfPieceBinaryOpenLaw domain level sb sc n d X $;
+
+theorem sfPieceBinary_open (domain level sb sc n d X: nat)
+ (hd: $ sfBound 1 domain $) (hl: $ sfBound 2 level $):
+ $ sfPieceTableValid sb sc n ->
+   sfORBinary (sfPieceBinary domain level sb sc n) d X =
+    sfPieceConjunction domain level sb sc n d X $;

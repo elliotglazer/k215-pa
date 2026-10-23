@@ -1,0 +1,50 @@
+import "source_reflection_transfer_tv_rowball_producers.mm1";
+
+-- Private deduction of selected PA premises. The generated proofs use only
+-- modus ponens, a1i and the existing freshness-checked generalization rule.
+do {
+ (def tvDedCache (atom-map!))
+ (def tvDedLift @ letrec ([(go t mask)
+  (def key (atom-app 'tvDed_ t "_" (apply string-append (map (fn (m) (if m "1" "0")) mask))))
+  @ if (def? (lookup tvDedCache key)) key @ begin
+  (def decl (get-decl t))
+  @ match decl @ ('theorem _ bis hs ret _ pf)
+  (insert! tvDedCache key key)
+  (def G 'tvDG)
+  (def hmap (apply atom-map! (map (fn (h m) (list (hd h) m)) hs mask)))
+  (def newhs (map (fn (h m) (if m (list (hd h) '(im ,G ,(nth 1 h))) h)) hs mask))
+  (def out (pf))
+  (def (liftConst p ty) '(a1i ,G ,ty ,p))
+  (def trans @ letrec ([(rec p)
+   @ match p
+   [(? atom? h) (list h (lookup hmap h))]
+   [(':conv ty cv pr)
+    @ match (rec pr) @ (pr2 dep)
+    @ if dep (list '(:conv (im ,G ,ty) (im ,G ,cv) ,pr2) #t) (list p #f)]
+   [(f . args)
+    @ match (get-decl f) @ (_ _ bs phs pret ...)
+    (def nargs (len bs))
+    (def tas (map (fn (i) (nth i args)) (range 0 nargs)))
+    (def pas (map (fn (i) (nth i args)) (range nargs (len args))))
+    (def prs (map rec pas))
+    (def deps (map (fn (x) (nth 1 x)) prs))
+    @ if (not (apply or deps)) (list p #f) @ begin
+    (def aps (map hd prs))
+    @ if {f == 'ax_mp} (begin
+      (def a (nth 0 tas)) (def b (nth 1 tas))
+      (list '(mpd ,G ,a ,b
+        ,(if (nth 1 deps) (nth 1 aps) (liftConst (nth 1 aps) a))
+        ,(if (nth 0 deps) (nth 0 aps) (liftConst (nth 0 aps) '(im ,a ,b)))) #t))
+    @ if {f == 'ax_gen}
+      (list '(iald ,(nth 0 tas) ,G ,(nth 1 tas) ,(hd aps)) #t)
+      (list (cons (go f deps) (cons G (append tas aps))) #t)]] ) rec)
+  (def result (trans (nth 1 out)))
+  (def resultProof (if (nth 1 result) (hd result) (liftConst (hd result) ret)))
+  (add-thm! key (cons '(,G wff ()) bis) newhs '(im ,G ,ret) ()
+    (fn () (list (hd out) resultProof)))
+  key] ) go)
+};
+
+do (tvDedLift 'sfTVFunctionRowBall_from_producers_local '(#f #f #f #t));
+pub theorem sfTVFunctionRowBall_guarded(D level:nat)(E:set)(n i:nat)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 level $)(hv:$ sfPieceFunctionTableValid E n $): $ i < n -> nsLocal (sfReflectionPHProducerContext level) (sfTVRowBallLaw D level (sfPieceFunctionBinary D (sfReflectionPCLevel level) E n) (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i)) $ =
+ (named '(tvDed_sfTVFunctionRowBall_from_producers_local_0001 hd hl hv id));

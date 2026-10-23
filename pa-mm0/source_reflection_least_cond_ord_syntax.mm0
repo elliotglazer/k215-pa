@@ -1,0 +1,31 @@
+import "source_reflection_least_cond_parameters_bounds.mm0";
+
+import "source_reflection_least_cond_ord_maps.mm0";
+
+def sfOrdinalCollectionSubset(x y:nat):nat = $ sfAll (sfImp (sfMem 0 (suc x)) (sfMem 0 (suc y))) $;
+
+def sfOrdinalCollectionOrdinal(x:nat):nat = $ sfSubst 0 x sfLeastOrdinalPredicate $;
+
+def sfOrdinalCollectionPoint(phi:nat):nat = $ sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd sfLeastOrdinalPredicate (sfLCBinary phi 0 1 3)))) $;
+
+def sfOrdinalCollectionMono(phi:nat):nat = $ sfAll (sfAll (sfAll (sfImp (sfOrdinalCollectionOrdinal 1) (sfImp (sfLeastOrdinalPredicate) (sfImp (sfOrdinalCollectionSubset 1 0) (sfImp (sfLCBinary phi 1 2 4) (sfLCBinary phi 0 2 4))))))) $;
+
+def sfOrdinalCollectionOutput(phi:nat):nat = $ sfEx (sfAnd sfLeastOrdinalPredicate (sfAll (sfImp (sfMem 0 2) (sfLCBinary phi 1 0 3)))) $;
+
+def sfOrdinalCollectionLaw(phi:nat):nat = $ sfImp (sfOrdinalCollectionPoint phi) (sfImp (sfOrdinalCollectionMono phi) (sfOrdinalCollectionOutput phi)) $;
+
+def sfOrdinalCollectionSelector(phi:nat):nat = $ sfAnd (sfAnd (sfOrdinalCollectionOrdinal 1) (sfLCBinary phi 1 0 3)) (sfAll (sfImp (sfMem 0 2) (sfImp (sfLCBinary phi 0 1 4) sfBot))) $;
+
+theorem sfOrdinalCollectionSubset_wf(x y:nat): $ sfWf (sfOrdinalCollectionSubset x y) $;
+
+theorem sfOrdinalCollectionOrdinal_wf(x:nat): $ sfWf (sfOrdinalCollectionOrdinal x) $;
+
+theorem sfOrdinalCollectionPoint_wf(phi:nat): $ sfWf (sfOrdinalCollectionPoint phi) $;
+
+theorem sfOrdinalCollectionMono_wf(phi:nat): $ sfWf (sfOrdinalCollectionMono phi) $;
+
+theorem sfOrdinalCollectionOutput_wf(phi:nat): $ sfWf (sfOrdinalCollectionOutput phi) $;
+
+theorem sfOrdinalCollectionSelector_wf(phi:nat): $ sfWf (sfOrdinalCollectionSelector phi) $;
+
+theorem sfOrdinalCollectionLaw_wf(phi:nat): $ sfWf (sfOrdinalCollectionLaw phi) $;

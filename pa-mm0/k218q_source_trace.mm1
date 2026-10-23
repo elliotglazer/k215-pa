@@ -1,0 +1,63 @@
+import "k218q_source_trace_quantifiers.mm1";
+
+theorem k218QST_history (l p: nat):
+ $ traceClassAll k218QRowClass l -> p IN l -> k218QRowGood p $ =
+'(syl6 (bi1 k218QRowClass_value) traceClassAll_get);
+
+theorem k218QST_prop_unary (r p l: nat):
+ $ traceClassAll k218QRowClass l -> p IN l /\ sfNDPropUnary r p -> k218QRowGood r $ =
+'(exp @ mpd (mpd anrl (syl k218QST_history anl)) (syl k218QRow_prop_unary anrr));
+
+theorem k218QST_prop_binary (r p q l: nat):
+ $ traceClassAll k218QRowClass l ->
+   p IN l /\ (q IN l /\ sfNDPropBinary r p q) -> k218QRowGood r $ =
+'(exp @ mpd (mpd (syl anl anrr) (syl k218QST_history anl)) @
+ mpd (mpd anrl (syl k218QST_history anl)) @ syl k218QRow_prop_binary (syl anr anrr));
+
+theorem k218QST_prop_rule (r l: nat):
+ $ traceClassAll k218QRowClass l -> (r, l) e. sfNDPropRules -> k218QRowGood r $ =
+(named '(syl5bi sfNDPropRules_value @ eord (a1i k218QRow_prop_base)
+ (eord (eexd k218QST_prop_unary) (eexd (eexd k218QST_prop_binary)))));
+
+theorem k218QST_quant_unary (r p l: nat):
+ $ traceClassAll k218QRowClass l -> p IN l /\ sfNDQuantUnary r p -> k218QRowGood r $ =
+'(exp @ mpd (mpd anrl (syl k218QST_history anl)) (syl k218QRow_quant_unary anrr));
+
+theorem k218QST_quant_binary (r p q l: nat):
+ $ traceClassAll k218QRowClass l ->
+   p IN l /\ (q IN l /\ sfNDQuantBinary r p q) -> k218QRowGood r $ =
+'(exp @ mpd (mpd (syl anl anrr) (syl k218QST_history anl)) @
+ mpd (mpd anrl (syl k218QST_history anl)) @ syl k218QRow_quant_binary (syl anr anrr));
+
+theorem k218QST_quant_rule (r l: nat):
+ $ traceClassAll k218QRowClass l -> (r, l) e. sfNDQuantRules -> k218QRowGood r $ =
+(named '(syl5bi sfNDQuantRules_value @
+ eord (eexd k218QST_quant_unary) (eexd (eexd k218QST_quant_binary))));
+
+theorem k218QST_full_rule (r l: nat):
+ $ traceClassAll k218QRowClass l -> (r, l) e. sfNDFullRules -> k218QRowGood r $ =
+'(syl5bi elun (eord k218QST_prop_rule k218QST_quant_rule));
+
+pub theorem k218QRow_rules_sound: $ traceRuleSound sfNDFullRules k218QRowClass $ =
+(named '(ax_gen @ ax_gen @ syl6 (bi2 k218QRowClass_value) k218QST_full_rule));
+
+pub theorem k218QRow_trace (p: nat):
+ $ traceValid sfNDFullRules p -> traceClassAll k218QRowClass p $ =
+'(ax_mp traceValid_classAll k218QRow_rules_sound);
+
+pub theorem k218QRow_derives (p r: nat):
+ $ sfNDFullDerives p r -> k218QRowGood r $ =
+'(syl (bi1 k218QRowClass_value) (ax_mp traceDerives_class k218QRow_rules_sound));
+
+pub theorem k218QRow_sequent (p G a: nat):
+ $ sfNDFullDerives p (sfSequent G a) -> k218QRowGood (sfSequent G a) $ =
+'k218QRow_derives;
+
+pub theorem k218QRow_sequent_cutoff {n: nat} (p G a: nat):
+ $ sfNDFullDerives p (sfSequent G a) -> E. n k218QRowAt n (sfSequent G a) $ =
+'k218QRow_derives;
+
+
+pub theorem k218QSourceND_named {n: nat} (p G a: nat):
+ $ sfNDFullDerives p (sfSequent G a) -> E. n k218INamedAt n G a $ =
+(named '(syl (eex (syl (iexe ,eqtac) k218QRowAt_sequent)) k218QRow_sequent_cutoff));

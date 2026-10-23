@@ -1,0 +1,23 @@
+import "source_piece_pcf_syntax.mm0";
+
+def sfPieceRowProofs (domain level sb sc n d X G: nat): wff =
+ $ sfCLRowProofs (sfPieceRows domain level sb sc d X) G n $;
+
+theorem sfPieceConjunction_intro (domain level sb sc n d X G: nat)
+ (hg: $ sfContextWf G $):
+ $ sfPieceRowProofs domain level sb sc n d X G ->
+   nsLocal G (sfPieceConjunction domain level sb sc n d X) $;
+
+def sfPieceFoldProjectionLaw (F: set) (n .G: nat): wff =
+ $ A. G (nsLocal G (sfCLFold F n) -> sfCLRowProofs F G n) $;
+
+theorem sfPieceFold_project (F: set) (G n: nat):
+ $ nsLocal G (sfCLFold F n) -> sfCLRowProofs F G n $;
+
+theorem sfPieceConjunction_project (domain level sb sc n d X G: nat):
+ $ nsLocal G (sfPieceConjunction domain level sb sc n d X) ->
+   sfPieceRowProofs domain level sb sc n d X G $;
+
+theorem sfPieceConjunction_member (domain level sb sc n d X G i: nat):
+ $ nsLocal G (sfPieceConjunction domain level sb sc n d X) -> i < n ->
+   nsLocal G (sfPiecePC domain level (sfPieceCount sb sc i) (sfPieceMatrix sb sc i) d X) $;

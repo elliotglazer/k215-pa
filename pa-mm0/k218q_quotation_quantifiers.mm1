@@ -1,0 +1,85 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_quantifiers.mm1";
+import "k218q_bootstrap.mm1";
+import "k218q_quotation_propositional.mm1";
+import "quotation_substitution.mm1";
+import "quotation_binders_absent.mm1";
+import "k218q_specialization.mm1";
+
+theorem k218SQ_sqQ_prov_transport (G: wff) (a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> k218QProvable b $):
+ $ G -> k218QProvable a $ = '(mpbird (k218QProvableeqd he) hp);
+
+theorem k218SQ_sqQ_all_core (E: set) (n t k y a: nat) (hy: $ y < k $):
+ $ sfBound (suc n) a ->
+   k218QProvable (kImp (kAll k (sqScopeAll E t k a)) (kSubst (sqScopeAll E t k a) k y)) $ =
+'(mpd (syl (sqScopeAll_absent (lttri hy ltsucid)) sfBound_wf)
+ (mpd (syl (sqScopeAll_absent ltsucid) sfBound_wf)
+  (a1i (ax_mp k218INamed_specialization (ltneri hy)))));
+
+theorem k218SQ_sqQ_ex_core (E: set) (n t k y a: nat) (hy: $ y < k $):
+ $ sfBound (suc n) a ->
+   k218QProvable (kImp (kSubst (sqScopeEx E t k a) k y) (kExists k (sqScopeEx E t k a))) $ =
+'(mpd (syl (sqScopeEx_absent (lttri hy ltsucid)) sfBound_wf)
+ (mpd (syl (sqScopeEx_absent ltsucid) sfBound_wf)
+  (a1i (ax_mp k218INamed_exists_intro (ltneri hy)))));
+
+pub theorem k218SQ_sqQuote_all_specialization (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) a ->
+   k218QProvable (kImp (sqQuote E t k 0 (sfAll a))
+     (kImp (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a))) $ =
+'(k218SQ_sqQ_prov_transport
+ (kImp_congr (syl sqQuote_all_cons sfBound_wf) (eqcomd (sqScopeAll_substitution hz ht he)))
+ (k218SQ_sqQ_all_core hy));
+
+pub theorem k218SQ_sqQuote_exists_introduction (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) a ->
+   k218QProvable (kImp (kAnd (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a))
+     (sqQuote E t k 0 (sfEx a))) $ =
+'(k218SQ_sqQ_prov_transport
+ (kImp_congr (eqcomd (sqScopeEx_substitution hz ht he)) (syl sqQuote_ex_cons sfBound_wf))
+ (k218SQ_sqQ_ex_core hy));
+
+pub theorem k218SQ_sqLocal_allE_avoid (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $)
+ (he: $ sqEnvAvoid E n k $) (ha: $ sfBound (suc n) a $):
+ $ k218SQ_sqLocal H E t k 0 (sfAll a) -> k218IHypProvable H (kMem t y) ->
+   k218SQ_sqLocal H (sqEnvCons y E) t (suc k) 0 a $ =
+'(syl (com12 k218IHypProvable_mp)
+ (mpi (k218IHypProvable_seed (k218SQ_sqQuote_all_specialization hz ht hy he ha)) k218IHypProvable_mp));
+
+theorem k218SQ_sqQ_andI (H a b: nat):
+ $ k218IHypProvable H a -> k218IHypProvable H b -> k218IHypProvable H (kAnd a b) $ =
+'(syl (com12 k218IHypProvable_mp)
+ (mpi (ax_mp k218IHypProvable_seed k218IPropAndIntro) k218IHypProvable_mp));
+
+pub theorem k218SQ_sqLocal_exI_avoid (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $)
+ (he: $ sqEnvAvoid E n k $) (ha: $ sfBound (suc n) a $):
+ $ k218SQ_sqLocal H (sqEnvCons y E) t (suc k) 0 a -> k218IHypProvable H (kMem t y) ->
+   k218SQ_sqLocal H E t k 0 (sfEx a) $ =
+'(syl6 (mpi (k218IHypProvable_seed (k218SQ_sqQuote_exists_introduction hz ht hy he ha)) k218IHypProvable_mp)
+ (com12 k218SQ_sqQ_andI));
+
+pub theorem k218SQ_sqLocal_allE (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ t < k $) (hy: $ y < k $)
+ (he: $ sqEnvBelow E n k $) (ha: $ sfBound (suc n) a $):
+ $ k218SQ_sqLocal H E t k 0 (sfAll a) -> k218IHypProvable H (kMem t y) ->
+   k218SQ_sqLocal H (sqEnvCons y E) t (suc k) 0 a $ =
+'(k218SQ_sqLocal_allE_avoid hz (ltneri ht) hy (ax_mp sqEnvBelow_avoid he) ha);
+
+pub theorem k218SQ_sqLocal_exI (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ t < k $) (hy: $ y < k $)
+ (he: $ sqEnvBelow E n k $) (ha: $ sfBound (suc n) a $):
+ $ k218SQ_sqLocal H (sqEnvCons y E) t (suc k) 0 a -> k218IHypProvable H (kMem t y) ->
+   k218SQ_sqLocal H E t k 0 (sfEx a) $ =
+'(k218SQ_sqLocal_exI_avoid hz (ltneri ht) hy (ax_mp sqEnvBelow_avoid he) ha);
+
+pub theorem k218SQ_sqLocal_allI (H: nat) (E: set) (t k a: nat)
+ (ha: $ sfWf a $) (hf: $ kContextFresh H k $):
+ $ k218SQ_sqLocal ((kMem t k) : H) (sqEnvCons k E) t (suc k) 0 a ->
+   k218SQ_sqLocal H E t k 0 (sfAll a) $ =
+'(syl (bi2 (k218IHypProvableeq2 (sqQuote_all_cons ha)))
+ (syl (k218IHypProvable_gen_fresh hf) k218IHypProvable_deduction));

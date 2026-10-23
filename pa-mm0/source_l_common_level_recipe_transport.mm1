@@ -1,0 +1,56 @@
+import "source_l_common_level_reflection_transport.mm1";
+
+
+theorem clrt_true_shift (k: nat): $ sfShift k sfCLTrue = sfCLTrue $ =
+'(eqtr sfShift_sfImp (nsImp_eq sfShift_bot sfShift_bot));
+
+theorem clrt_member_index (k start n: nat) (hk: $ k <= start $):
+ $ sfShiftIndex k (n + start) = n + suc start $ =
+'(eqtr (ax_mp sfShiftIndex_free
+ (mpbi lenlt (ax_mp (ax_mp letr hk) leaddid2))) (eqcom addS2));
+
+pub theorem sfCLMembership_shift_cutoff (k start y n: nat)
+ (hk: $ k <= start $) (hy: $ y < k $):
+ $ sfShift k (sfCLMembership start y n) = sfCLMembership (suc start) y n $ =
+(named @ induct '(ind) 'n
+ '(eqtr (sfShifteq2 sfCLMembership_zero) (eqtr clrt_true_shift (eqcom sfCLMembership_zero)))
+ '(eqtrd (a1i (sfShifteq2 sfCLMembership_suc))
+  (eqtrd (a1i sfShift_sfAnd)
+   (eqtrd (sfAndeqd id (a1i (eqtr sfShift_sfMem
+    (nsMem_eq (clrt_member_index hk) (ax_mp sfShiftIndex_bound hy)))))
+    (a1i (eqcom sfCLMembership_suc))))));
+
+pub theorem sfCLPoint_shift_cutoff (k start params beta y: nat)
+ (hk: $ k <= start $) (hy: $ y < k $):
+ $ sfShift k (sfCLPoint start params beta y) =
+   sfCLPoint (suc start) params (sfShiftIndex k beta) y $ =
+'(eqtr sfShift_sfAnd (nsAnd_eq
+ (eqtr sfShift_sfAnd (nsAnd_eq sfCLOrdinalAt_shift_cutoff
+  (eqtr sfCLHierarchyAt_shift_cutoff (sfCLHierarchyAteq eqid (ax_mp sfShiftIndex_bound hy)))))
+ (sfCLMembership_shift_cutoff hk hy)));
+
+pub theorem sfCLPoint_shift_cutoff_fixed (k start params beta y: nat)
+ (hk: $ k <= start $) (hb: $ beta < k $) (hy: $ y < k $):
+ $ sfShift k (sfCLPoint start params beta y) = sfCLPoint (suc start) params beta y $ =
+'(eqtr (sfCLPoint_shift_cutoff hk hy)
+ (sfCLPointeq eqid eqid (ax_mp sfShiftIndex_bound hb) eqid));
+
+pub theorem sfCLRecipe_shift (start params: nat):
+ $ sfShift 0 (sfCLRecipe start params) = sfCLRecipe (suc start) params $ =
+'(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfEx (nsEx_eq
+ (sfCLPoint_shift_cutoff_fixed (mpbi lesuc (mpbi lesuc le01)) (mpbi ltsuc lt01S) lt01S)))));
+
+pub theorem sfCLReflectedPoint_shift_cutoff_fixed (k start params count phi beta y: nat)
+ (hp: $ sfBound count phi $) (hk: $ k <= start $) (hb: $ beta < k $) (hy: $ y < k $):
+ $ sfShift k (sfCLReflectedPoint start params count phi beta y) =
+   sfCLReflectedPoint (suc start) params count phi beta y $ =
+'(eqtr sfShift_sfAnd (nsAnd_eq (sfCLPoint_shift_cutoff_fixed hk hb hy)
+ (ax_mp sfShift_bound_identity (sfCLReflection_bound sfLDomain_bound hp hb))));
+
+pub theorem sfCLReflectedRecipe_shift (start params count phi: nat)
+ (hp: $ sfBound count phi $):
+ $ sfShift 0 (sfCLReflectedRecipe start params count phi) =
+   sfCLReflectedRecipe (suc start) params count phi $ =
+'(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfEx (nsEx_eq
+ (sfCLReflectedPoint_shift_cutoff_fixed hp
+  (mpbi lesuc (mpbi lesuc le01)) (mpbi ltsuc lt01S) lt01S)))));

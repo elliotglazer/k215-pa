@@ -1,0 +1,37 @@
+import "source_k0_qrep_instances.mm1";
+
+import "source_k0_qrep_predicate.mm1";
+
+theorem qrepReqRename0 (G: wff) (R: set) (n m c: nat) (hi: $ G -> A. i (i < n -> R @ i < m) $) (hb: $ G -> sfBound n c $):
+ $ G -> sfBound m (sfRename R 0 c) $ =
+(named '(mpbid (a1i (srecpeq2 (preq1 add01))) (mpd (mpbird (a1i (srecpeq2 (preq1 add01))) hb) (syl sfRename_bound hi))));
+
+theorem qrepReqSwapRange (n: nat):
+ $ A. i (i < (suc (suc n)) -> sfK0QRepSwapMap @ i < (suc (suc n))) $ =
+(named '(ax_gen {sfK0QRepSwapMap_bound : $ i < (suc (suc n)) -> sfK0QRepSwapMap @ i < (suc (suc n)) $}));
+
+theorem qrepReqCollectionRange (n: nat):
+ $ A. i (i < (suc (suc n)) -> sfK0QRepCollectionMap @ i < (suc (suc (suc (suc (suc (suc (suc n)))))))) $ =
+(named '(ax_gen {sfK0QRepCollectionMap_bound : $ i < (suc (suc n)) -> sfK0QRepCollectionMap @ i < (suc (suc (suc (suc (suc (suc (suc n))))))) $}));
+
+pub theorem sfK0QRepSwap_bound_internal (n phi: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc n)) (sfK0QRepSwap phi) $ =
+(named '(qrepReqRename0 (a1i {qrepReqSwapRange : $ A. j (j < (suc (suc n)) -> sfK0QRepSwapMap @ j < (suc (suc n))) $}) id));
+
+pub theorem sfK0QRepCollectionMatrix_bound_internal (n psi: nat):
+ $ sfBound (suc (suc n)) psi -> sfBound (suc (suc (suc (suc (suc (suc n)))))) (sfK0QRepCollectionMatrix psi) $ =
+(named '(mpbird (a1i sfBound_sfOr) (iand (mpbird (a1i sfBound_sfAnd) (iand (a1i (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (a1i (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbird (a1i sfBound_sfOr) (iand (mpbird (a1i sfBound_sfAnd) (iand (a1i (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (a1i (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (syl (bi2 sfBound_sfEx) (mpbird (a1i sfBound_sfAnd) (iand (mpbird (a1i sfBound_sfAnd) (iand (a1i (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))))) (syl (bi2 sfBound_sfAll) (mpbird (a1i sfBound_sfImp) (iand (a1i (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (a1i (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc lt01S))))))))) (mpbird (a1i sfBound_sfAnd) (iand (mpbird (a1i sfBound_sfAnd) (iand (a1i (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) lt01S))) (a1i (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))) (mpbird (a1i sfBound_sfAnd) (iand (a1i (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbi ltsuc lt01S)))) (qrepReqRename0 (a1i {qrepReqCollectionRange : $ A. j (j < (suc (suc n)) -> sfK0QRepCollectionMap @ j < (suc (suc (suc (suc (suc (suc (suc n)))))))) $}) id)))))))))))));
+
+pub theorem sfK0QRepCollection_open_Q_internal (E: set) (n k psi: nat):
+ $ sfBound (suc (suc n)) psi -> 0 < k -> sqEnvBelow E (suc (suc (suc (suc n)))) k -> k218QProvable (sfNamedTemplate E k 0 (sfK218Kp0 (sfK0QRepCollectionMatrix psi))) $ =
+'(syl k218QSourceKp0_unrestricted sfK0QRepCollectionMatrix_bound_internal);
+
+@_ def sfK0QRepSelectedPredicate (phi: nat): nat = $ sfK0QRepPredicate (sfK0QRepSwap phi) $;
+
+pub theorem sfK0QRepSelected_bound (n phi: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc (suc n))) (sfK0QRepSelectedPredicate phi) $ =
+'(syl sfK0QRepPredicate_bound sfK0QRepSwap_bound_internal);
+
+pub theorem sfK0QRepSelected_open_Q (E: set) (n k phi: nat):
+ $ sfBound (suc (suc n)) phi -> 0 < k -> sqEnvBelow E (suc (suc (suc (suc (suc n))))) k -> k218QProvable (sfNamedTemplate E k 0 (sfK218Kp0 (sfK0QRepCollectionMatrix (sfK0QRepSelectedPredicate phi)))) $ =
+'(syl sfK0QRepCollection_open_Q_internal sfK0QRepSelected_bound);

@@ -1,0 +1,39 @@
+import "k215_bundle_images_bexpl.mm0";
+import "k215_bundle_images_bzfc.mm0";
+import "source_l_separation_image_producer_context.mm0";
+import "source_l_separation_image_reflected_collection.mm0";
+import "source_l_separation_image_transitive_api.mm0";
+import "source_l_replacement_prefix_elimination.mm0";
+
+-- (lane L01, bound^L step 4) The bound principle in L for the matrix q with N parameters, from the
+-- stage facts of the Separation chain, the levels-in-L premise k215BLvl, the power axiom in L and
+-- two distinct sets in L.  Chain: open the N parameters and x (input context), open two distinct
+-- e0, e1 in L, collect e1, e0, x and the parameters into one level, reflect the selector formula
+-- there (sfLReplacementAboveLaw), and apply the core k215BCoreF (closed by its free variables) at
+-- the reflected point.
+
+def k215BSA1: nat = $ sfAnd sfLDomain (sfEx (sfAnd sfLDomain (sfImp (sfEq 1 0) sfBot))) $;
+def k215BSA2: nat = $ sfAnd sfLDomain (sfImp (sfEq 1 0) sfBot) $;
+def k215BSBc (q N: nat): nat = $ sfAllPrefix (5 + N) (k215BCoreF q) $;
+def k215BSG0 (q N: nat): nat =
+ $ k215BSBc q N : (k215BPowL : (sfRelativize sfLDomain k215BE2 : (k215BLvl :
+   (sfLReplacementLevelExtension : (sfLReplacementAboveLaw (9 + N) (k215BRefl q) :
+   (sfLReplacementLevelExistsLaw : (sfReflectionHierarchySubsetNormal sfCLHierarchy :
+   (sfLSeparationStageTransNormal : (sfCLRecipe 0 0 : 0))))))))) $;
+def k215BSIC (q N: nat): nat = $ sfLSeparationImageInputContext (k215BSG0 q N) N $;
+def k215BSIC1 (q N: nat): nat = $ k215BSA1 : sfContextShift (k215BSIC q N) $;
+def k215BSIC2 (q N: nat): nat = $ k215BSA2 : sfContextShift (k215BSIC1 q N) $;
+def k215BSPt (q N: nat): nat = $ sfCLReflectedPoint 2 (suc (suc (suc N))) (9 + N) (k215BRefl q) 1 0 $;
+def k215BSGR (q N: nat): nat = $ sfCLWitnessContext (k215BSIC2 q N) (k215BSPt q N) $;
+
+theorem k215SC_schema (q N: nat) (hq: $ sfWf q $) (hb: $ sfBound (2 + N) q $)
+  (hE: $ sfTheoryProvable zfcAxioms sfLReplacementLevelExtension $)
+  (hA: $ sfTheoryProvable zfcAxioms (sfLReplacementAboveLaw (9 + N) (k215BRefl q)) $)
+  (hL: $ sfTheoryProvable zfcAxioms sfLReplacementLevelExistsLaw $)
+  (hS: $ sfTheoryProvable zfcAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+  (hT: $ sfTheoryProvable zfcAxioms sfLSeparationStageTransNormal $)
+  (hZ: $ sfTheoryProvable zfcAxioms (sfCLRecipe 0 0) $)
+  (hlv: $ sfTheoryProvable zfcAxioms k215BLvl $)
+  (hpw: $ sfTheoryProvable zfcAxioms k215BPowL $)
+  (he2: $ sfTheoryProvable zfcAxioms (sfRelativize sfLDomain k215BE2) $):
+  $ sfTheoryProvable zfcAxioms (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF q))) $;

@@ -1,0 +1,239 @@
+import "source_shift.mm1";
+
+-- Single-variable instantiation and its d-fold capture-avoiding lifts.
+-- NumericalSubstitutionMaps.v: substitution_singleton_total maps 0 to t
+-- and suc i to i. Its substitution_lift fixes 0 and maps suc i to suc v.
+-- The arithmetic specialization after d lifts is i<d -> i, i=d -> t+d,
+-- and d<i -> i-1. SubstitutionRules.v recurses under each quantifier using
+-- the lifted map. No finite-map or source trace equivalence is claimed here.
+
+@_ def sfSubstIndex (d t i: nat): nat = $ if (i < d) i (if (i = d) (t + d) (i - 1)) $;
+@_ def sfSubstBody (d t c h: nat): nat =
+$ if (c = 0) 0
+  (if (sfTag c = 1) (sfMem (sfSubstIndex d t (sfLeft c)) (sfSubstIndex d t (sfRight c)))
+  (if (sfTag c = 2) (sfEq (sfSubstIndex d t (sfLeft c)) (sfSubstIndex d t (sfRight c)))
+  (if (sfTag c = 3) (sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (sfAll (h @ (suc d, sfLeft c)))
+  (if (sfTag c = 7 /\ sfRight c = 0) (sfEx (h @ (suc d, sfLeft c))) 0))))))) $;
+@_ abstract def sfSubstStep (t .h: nat): set =
+$ \ h, sfSubstBody (fst (sfHistoryLength h)) t (snd (sfHistoryLength h)) h $;
+@_ abstract def sfSubst (d t c: nat): nat = $ srec (sfSubstStep t) (d, c) $;
+@_ abstract def sfSubstHistory (d t c .i: nat): nat =
+$ \. i e. upto (d, c), srec (sfSubstStep t) i $;
+
+pub theorem sfSubstStep_apply (t h: nat):
+  $ sfSubstStep t @ h = sfSubstBody (fst (sfHistoryLength h)) t (snd (sfHistoryLength h)) h $ =
+(named '(!! applame j ,eqtac));
+pub theorem sfSubstHistory_size (d t c: nat): $ sfHistoryLength (sfSubstHistory d t c) = (d, c) $ =
+(named '(sreclem eqid));
+pub theorem sfSubstHistory_lookup (d t c e a: nat):
+  $ (e, a) < (d, c) -> sfSubstHistory d t c @ (e, a) = sfSubst e t a $ =
+(named '(syl (apprlame sreceq2) (bi2 elupto)));
+pub theorem sfSubst_unfold (d t c: nat):
+  $ sfSubst d t c = sfSubstBody d t c (sfSubstHistory d t c) $ =
+(named '(eqtr srecval @ eqtr sfSubstStep_apply @
+  sfSubstBodyeq (eqtr (fsteq sfSubstHistory_size) fstpr) eqid
+    (eqtr (sndeq sfSubstHistory_size) sndpr) eqid));
+
+theorem sfSubstBody_sfMem (d t c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $):
+  $ sfSubstBody d t c h = sfMem (sfSubstIndex d t (sfLeft c)) (sfSubstIndex d t (sfRight c)) $ =
+'(eqtr (ifneg h0) (ifpos ht));
+
+theorem sfSubstBody_sfEq (d t c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $):
+  $ sfSubstBody d t c h = sfEq (sfSubstIndex d t (sfLeft c)) (sfSubstIndex d t (sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifpos ht)));
+
+theorem sfSubstBody_sfAnd (d t c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $):
+  $ sfSubstBody d t c h = sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (ifpos ht))));
+
+theorem sfSubstBody_sfOr (d t c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $):
+  $ sfSubstBody d t c h = sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (ifpos ht)))));
+
+theorem sfSubstBody_sfImp (d t c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $):
+  $ sfSubstBody d t c h = sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (ifpos ht))))));
+
+theorem sfSubstBody_sfAll (d t c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $):
+  $ sfSubstBody d t c h = sfAll (h @ (suc d, sfLeft c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (ifpos (ian ht hz))))))));
+
+theorem sfSubstBody_sfEx (d t c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $):
+  $ sfSubstBody d t c h = sfEx (h @ (suc d, sfLeft c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr (ifneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ifpos (ian ht hz)))))))));
+
+theorem sfSubstHistory_child (d t c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $):
+  $ sfSubstHistory d t c @ (d, sfLeft c) = sfSubst d t a $ =
+'(eqtr (appeq2 (preq2 hl)) (sfSubstHistory_lookup (sfKey_lt ha)));
+theorem sfSubstHistory_right (d t c a: nat) (hr: $ sfRight c = a $) (ha: $ a < c $):
+  $ sfSubstHistory d t c @ (d, sfRight c) = sfSubst d t a $ =
+'(eqtr (appeq2 (preq2 hr)) (sfSubstHistory_lookup (sfKey_lt ha)));
+theorem sfSubstHistory_underBinder (d t c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $):
+  $ sfSubstHistory d t c @ (suc d, sfLeft c) = sfSubst (suc d) t a $ =
+'(eqtr (appeq2 (preq2 hl)) (sfSubstHistory_lookup (sfKey_underBinder_lt ha)));
+
+pub theorem sfSubst_bot (d t: nat):
+  $ sfSubst d t sfBot = sfBot $ =
+'(eqtr sfSubst_unfold (ifpos eqid));
+
+pub theorem sfSubst_sfMem (d t a b: nat):
+  $ sfSubst d t (sfMem a b) = sfMem (sfSubstIndex d t a) (sfSubstIndex d t b) $ =
+'(eqtr sfSubst_unfold @ eqtr (sfSubstBody_sfMem sfMem_ne_sfBot sfMem_tag) (eqtr (sfMem_eq_left (sfSubstIndexeq3 sfMem_left)) (sfMem_eq_right (sfSubstIndexeq3 sfMem_right))));
+
+pub theorem sfSubst_sfEq (d t a b: nat):
+  $ sfSubst d t (sfEq a b) = sfEq (sfSubstIndex d t a) (sfSubstIndex d t b) $ =
+'(eqtr sfSubst_unfold @ eqtr (sfSubstBody_sfEq sfEq_ne_sfBot sfEq_tag) (eqtr (sfEq_eq_left (sfSubstIndexeq3 sfEq_left)) (sfEq_eq_right (sfSubstIndexeq3 sfEq_right))));
+
+pub theorem sfSubst_sfAnd (d t a b: nat):
+  $ sfSubst d t (sfAnd a b) = sfAnd (sfSubst d t a) (sfSubst d t b) $ =
+'(eqtr sfSubst_unfold @ eqtr (sfSubstBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (eqtr (sfAnd_eq_left (sfSubstHistory_child sfAnd_left sfAnd_left_lt)) (sfAnd_eq_right (sfSubstHistory_right sfAnd_right sfAnd_right_lt))));
+
+pub theorem sfSubst_sfOr (d t a b: nat):
+  $ sfSubst d t (sfOr a b) = sfOr (sfSubst d t a) (sfSubst d t b) $ =
+'(eqtr sfSubst_unfold @ eqtr (sfSubstBody_sfOr sfOr_ne_sfBot sfOr_tag) (eqtr (sfOr_eq_left (sfSubstHistory_child sfOr_left sfOr_left_lt)) (sfOr_eq_right (sfSubstHistory_right sfOr_right sfOr_right_lt))));
+
+pub theorem sfSubst_sfImp (d t a b: nat):
+  $ sfSubst d t (sfImp a b) = sfImp (sfSubst d t a) (sfSubst d t b) $ =
+'(eqtr sfSubst_unfold @ eqtr (sfSubstBody_sfImp sfImp_ne_sfBot sfImp_tag) (eqtr (sfImp_eq_left (sfSubstHistory_child sfImp_left sfImp_left_lt)) (sfImp_eq_right (sfSubstHistory_right sfImp_right sfImp_right_lt))));
+
+pub theorem sfSubst_sfAll (d t a: nat):
+  $ sfSubst d t (sfAll a) = sfAll (sfSubst (suc d) t a) $ =
+'(eqtr sfSubst_unfold @ eqtr (sfSubstBody_sfAll sfAll_ne_sfBot sfAll_tag sfAll_right) (sfAll_eq (sfSubstHistory_underBinder sfAll_left sfAll_body_lt)));
+
+pub theorem sfSubst_sfEx (d t a: nat):
+  $ sfSubst d t (sfEx a) = sfEx (sfSubst (suc d) t a) $ =
+'(eqtr sfSubst_unfold @ eqtr (sfSubstBody_sfEx sfEx_ne_sfBot sfEx_tag sfEx_right) (sfEx_eq (sfSubstHistory_underBinder sfEx_left sfEx_body_lt)));
+
+theorem sfSubstBody_bad0 (G: wff) (d t c h: nat) (ht: $ G -> sfTag c = 0 $):
+  $ G -> sfSubstBody d t c h = 0 $ =
+'(syl6eq ifid (ifeq3d (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S))))) (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))))))))))));
+
+theorem sfSubstBody_bad6 (G: wff) (d t c h: nat) (ht: $ G -> sfTag c = 6 $) (hr: $ G -> sfRight c != 0 $):
+  $ G -> sfSubstBody d t c h = 0 $ =
+'(syl6eq ifid (ifeq3d (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc lt01S))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (eqtrd (syl ifneg (syl (con3 anr) hr)) (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))))));
+
+theorem sfSubstBody_bad7 (G: wff) (d t c h: nat) (ht: $ G -> sfTag c = 7 $) (hr: $ G -> sfRight c != 0 $):
+  $ G -> sfSubstBody d t c h = 0 $ =
+'(syl6eq ifid (ifeq3d (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc lt01S))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (eqtrd (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))) (syl ifneg (syl (con3 anr) hr))))))))));
+
+
+
+pub theorem sfSubst_tag0 (d t c: nat):
+  $ sfTag c = 0 -> sfSubst d t c = 0 $ =
+'(eqtrd (a1i sfSubst_unfold) (sfSubstBody_bad0 id));
+
+pub theorem sfSubst_bad_all (d t c: nat):
+  $ sfTag c = 6 -> sfRight c != 0 -> sfSubst d t c = 0 $ =
+'(exp @ eqtrd (a1i sfSubst_unfold) (sfSubstBody_bad6 anl anr));
+
+pub theorem sfSubst_bad_ex (d t c: nat):
+  $ sfTag c = 7 -> sfRight c != 0 -> sfSubst d t c = 0 $ =
+'(exp @ eqtrd (a1i sfSubst_unfold) (sfSubstBody_bad7 anl anr));
+
+
+pub theorem sfSubstIndex_bound (d t i: nat): $ i < d -> sfSubstIndex d t i = i $ = 'ifpos;
+pub theorem sfSubstIndex_hit (d t: nat): $ sfSubstIndex d t d = t + d $ =
+'(eqtr (ifneg ltirr) (ifpos eqid));
+pub theorem sfSubstIndex_above (d t i: nat): $ d < i -> sfSubstIndex d t i = i - 1 $ =
+'(eqtrd (syl ifneg ltnlt) (syl ifneg ltner));
+pub theorem sfSubstIndex_zero (t: nat): $ sfSubstIndex 0 t 0 = t $ =
+'(eqtr sfSubstIndex_hit add0);
+pub theorem sfSubstIndex_successor (t i: nat): $ sfSubstIndex 0 t (suc i) = i $ =
+'(eqtr (sfSubstIndex_above lt01S) sucsub1);
+
+theorem sfSubstIndex_lift_lt (d t i: nat):
+  $ i < d -> sfSubstIndex (suc d) t (suc i) = suc (sfSubstIndex d t i) $ =
+'(eqtr4d (syl sfSubstIndex_bound (bi1 ltsuc)) (suceqd sfSubstIndex_bound));
+theorem sfSubstIndex_lift_hit (d t: nat):
+  $ sfSubstIndex (suc d) t (suc d) = suc (sfSubstIndex d t d) $ =
+'(eqtr4 (eqtr sfSubstIndex_hit addS) (suceq sfSubstIndex_hit));
+theorem sfSubstIndex_lift_eq (d t i: nat):
+  $ i = d -> sfSubstIndex (suc d) t (suc i) = suc (sfSubstIndex d t i) $ =
+'(eqtrd (sfSubstIndexeq3d (suceqd id))
+  (eqtrd (a1i sfSubstIndex_lift_hit) (eqcomd (suceqd (sfSubstIndexeq3d id)))));
+theorem sfSubstIndex_lift_gt (d t i: nat):
+  $ d < i -> sfSubstIndex (suc d) t (suc i) = suc (sfSubstIndex d t i) $ =
+'(eqtr4d (eqtrd (syl sfSubstIndex_above (bi1 ltsuc)) (a1i sucsub1))
+  (eqtrd (suceqd sfSubstIndex_above) (syl sub1can (syl (bi1 lt01) (lelttr le01)))));
+pub theorem sfSubstIndex_lift (d t i: nat):
+  $ sfSubstIndex (suc d) t (suc i) = suc (sfSubstIndex d t i) $ =
+'(cases sfSubstIndex_lift_eq
+  (syl (eori sfSubstIndex_lift_lt sfSubstIndex_lift_gt) (bi1 neltlt)));
+
+-- The normalization of malformed nodes makes a stronger totality fact true:
+-- substitution returns wellformed syntax for every numerical input code.
+theorem sfSubst_induction_at (c a: nat):
+  $ A. j (j < c -> A. m A. r sfWf (sfSubst m r j)) ->
+      a < c -> A. m A. r sfWf (sfSubst m r a) $ =
+(named '(!! eale j ,eqtac));
+theorem sfSubst_induction_depth (d a: nat):
+  $ A. m A. r sfWf (sfSubst m r a) -> A. r sfWf (sfSubst d r a) $ =
+(named '(!! eale m ,eqtac));
+theorem sfSubst_induction_replacement (d t a: nat):
+  $ A. r sfWf (sfSubst d r a) -> sfWf (sfSubst d t a) $ =
+(named '(!! eale r ,eqtac));
+theorem sfSubst_induction_specialize (d t a: nat):
+  $ A. m A. r sfWf (sfSubst m r a) -> sfWf (sfSubst d t a) $ =
+'(syl sfSubst_induction_replacement sfSubst_induction_depth);
+theorem sfSubst_induction_use {j m r: nat} (G: wff j m r) (d t c a: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r sfWf (sfSubst m r j)) $)
+  (ha: $ G -> a < c $):
+  $ G -> sfWf (sfSubst d t a) $ =
+'(syl sfSubst_induction_specialize @ mpd ha (syl sfSubst_induction_at hi));
+theorem sfSubst_history_wf {j m r: nat} (G: wff j m r) (d t c e a: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r sfWf (sfSubst m r j)) $)
+  (ha: $ G -> a < c $) (hk: $ G -> (e, a) < (d, c) $):
+  $ G -> sfWf (sfSubstHistory d t c @ (e, a)) $ =
+'(mpbird (srecpeq2d (syl sfSubstHistory_lookup hk)) (sfSubst_induction_use hi ha));
+theorem sfSubst_if_wf (G p: wff) (a b: nat)
+  (hp: $ G /\ p -> sfWf a $) (hb: $ G -> sfWf b $):
+  $ G -> sfWf (if p a b) $ =
+'(ifbothd srecpeq2 srecpeq2 hp (syl hb anl));
+theorem sfSubst_tagZero (c: nat): $ c = 0 -> sfTag c = 0 $ =
+'(eqtrd (modeq1d id) (a1i mod01));
+theorem sfSubst_code_positive (G: wff) (c tag: nat)
+  (ht: $ G -> sfTag c = tag $) (hn: $ tag != 0 $):
+  $ G -> 0 < c $ =
+'(syl (bi2 lt01) @ syl (con3 sfSubst_tagZero) (mpbiri hn (noteqd (eqeq1d ht))));
+
+theorem sfSubstBody_wf {j m r: nat} (G: wff j m r) (d t c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r sfWf (sfSubst m r j)) $):
+  $ G -> sfWf (sfSubstBody d t c (sfSubstHistory d t c)) $ =
+'(sfSubst_if_wf (a1i sfWf_bot) (sfSubst_if_wf (a1i sfWf_mem) (sfSubst_if_wf (a1i sfWf_eq) (sfSubst_if_wf (sylc sfWf_and (sfSubst_history_wf (syl hi anl) (syl sfLeft_lt (sfSubst_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfSubst_code_positive anr (ltneri lt01S))))) (sfSubst_history_wf (syl hi anl) (syl sfRight_lt (sfSubst_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfSubst_code_positive anr (ltneri lt01S)))))) (sfSubst_if_wf (sylc sfWf_or (sfSubst_history_wf (syl hi anl) (syl sfLeft_lt (sfSubst_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfSubst_code_positive anr (ltneri lt01S))))) (sfSubst_history_wf (syl hi anl) (syl sfRight_lt (sfSubst_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfSubst_code_positive anr (ltneri lt01S)))))) (sfSubst_if_wf (sylc sfWf_imp (sfSubst_history_wf (syl hi anl) (syl sfLeft_lt (sfSubst_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfSubst_code_positive anr (ltneri lt01S))))) (sfSubst_history_wf (syl hi anl) (syl sfRight_lt (sfSubst_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfSubst_code_positive anr (ltneri lt01S)))))) (sfSubst_if_wf (syl sfWf_all (sfSubst_history_wf (syl hi anl) (syl sfLeft_lt (sfSubst_code_positive (syl anl anr) (ltneri lt01S))) (syl sfKey_underBinder_lt (syl sfLeft_lt (sfSubst_code_positive (syl anl anr) (ltneri lt01S)))))) (sfSubst_if_wf (syl sfWf_ex (sfSubst_history_wf (syl hi anl) (syl sfLeft_lt (sfSubst_code_positive (syl anl anr) (ltneri lt01S))) (syl sfKey_underBinder_lt (syl sfLeft_lt (sfSubst_code_positive (syl anl anr) (ltneri lt01S)))))) (a1i sfWf_bot)))))))));
+
+theorem sfSubst_replacement_rename (d c: nat):
+  $ A. s sfWf (sfSubst d s c) <-> A. r sfWf (sfSubst d r c) $ =
+(named '(cbval ,eqtac));
+theorem sfSubst_depth_rename (c: nat):
+  $ A. q A. r sfWf (sfSubst q r c) <-> A. m A. r sfWf (sfSubst m r c) $ =
+(named '(cbval ,eqtac));
+theorem sfSubst_bound_rename (c: nat):
+  $ A. q A. s sfWf (sfSubst q s c) <-> A. m A. r sfWf (sfSubst m r c) $ =
+'(bitr (aleqi sfSubst_replacement_rename) sfSubst_depth_rename);
+
+theorem sfSubst_wf_step {j m r: nat} (G: wff j m r) (c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r sfWf (sfSubst m r j)) $):
+  $ G -> A. m A. r sfWf (sfSubst m r c) $ =
+'(sylib sfSubst_bound_rename @ !! iald q @ !! iald s @
+  mpbird (a1i (srecpeq2 sfSubst_unfold)) (sfSubstBody_wf hi));
+
+theorem sfSubst_wf_all (c: nat):
+  $ A. m A. r sfWf (sfSubst m r c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (A. m A. r sfWf (sfSubst m r j) <-> A. m A. r sfWf (sfSubst m r c)) $}
+  ,eqtac (sfSubst_wf_step anr)));
+
+pub theorem sfSubst_wf (d t c: nat): $ sfWf (sfSubst d t c) $ =
+(named '(ax_mp sfSubst_induction_specialize
+  {sfSubst_wf_all : $ A. m A. r sfWf (sfSubst m r c) $}));
+
+pub theorem sfSubst_preserves_wf (d t c: nat): $ sfWf c -> sfWf (sfSubst d t c) $ =
+'(a1i sfSubst_wf);
+
+pub theorem sfSubst_congr (H: wff) (d e t u a b: nat)
+  (hd: $ H -> d = e $) (ht: $ H -> t = u $) (ha: $ H -> a = b $):
+  $ H -> sfSubst d t a = sfSubst e u b $ = '(sfSubsteqd hd ht ha);
+do (apply (register-eqd 'sfSubst) '(sfSubst_congr));

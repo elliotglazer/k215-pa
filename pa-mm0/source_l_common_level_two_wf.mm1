@@ -1,0 +1,71 @@
+import "source_l_common_level_two_defs.mm1";
+
+-- Well-formedness.
+
+theorem cl2_subset_wf (a b: nat): $ sfWf (sfCLSubset a b) $ =
+'(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem));
+
+theorem cl2_lev_wf (d y: nat): $ sfWf (sfCL2Lev d y) $ =
+'(ax_mp (ax_mp sfWf_and sfCLOrdinalAt_wf) sfCLHierarchyAt_wf);
+
+theorem cl2_pt_wf (d y k: nat): $ sfWf (sfCL2Pt d y k) $ =
+'(ax_mp (ax_mp sfWf_and cl2_lev_wf) sfWf_mem);
+
+theorem cl2_both_wf (d y k m: nat): $ sfWf (sfCL2Both d y k m) $ =
+'(ax_mp (ax_mp sfWf_and cl2_lev_wf) (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem));
+
+theorem cl2_ex_wf (k: nat): $ sfWf (sfCL2Ex k) $ =
+'(ax_mp sfWf_ex (ax_mp sfWf_ex cl2_pt_wf));
+
+theorem cl2_bothex_wf (k m: nat): $ sfWf (sfCL2BothEx k m) $ =
+'(ax_mp sfWf_ex (ax_mp sfWf_ex cl2_both_wf));
+
+pub theorem sfCL2Law_wf: $ sfWf sfCL2Law $ =
+'(ax_mp sfWf_all (ax_mp sfWf_all
+  (ax_mp (ax_mp sfWf_imp cl2_ex_wf) (ax_mp (ax_mp sfWf_imp cl2_ex_wf) cl2_bothex_wf))));
+
+theorem cl2_cmpbody_wf (x y: nat): $ sfWf (sfCL2CmpBody x y) $ =
+'(ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf) (ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf)
+  (ax_mp (ax_mp sfWf_or cl2_subset_wf) cl2_subset_wf)));
+
+theorem cl2_cmp_wf: $ sfWf sfCL2Cmp $ =
+'(ax_mp sfWf_all (ax_mp sfWf_all cl2_cmpbody_wf));
+
+theorem cl2_subbody_wf (b a Y Z: nat): $ sfWf (sfCL2SubBody b a Y Z) $ =
+'(ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf) (ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf)
+  (ax_mp (ax_mp sfWf_imp cl2_subset_wf) (ax_mp (ax_mp sfWf_imp sfCLHierarchyAt_wf)
+   (ax_mp (ax_mp sfWf_imp sfCLHierarchyAt_wf) cl2_subset_wf)))));
+
+theorem cl2_sub_wf: $ sfWf sfCL2Sub $ =
+'(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all cl2_subbody_wf))));
+-- Closedness of the two lemma sentences.
+
+theorem cl2_lt04: $ 0 < 4 $ = 'lt01S;
+theorem cl2_lt14: $ 1 < 4 $ = '(mpbi ltsuc lt01S);
+theorem cl2_lt24: $ 2 < 4 $ = '(mpbi ltsuc (mpbi ltsuc lt01S));
+theorem cl2_lt34: $ 3 < 4 $ = '(mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)));
+
+theorem cl2_subset_bound (a b n: nat) (ha: $ a < n $) (hb: $ b < n $):
+ $ sfBound n (sfCLSubset a b) $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfImp
+  (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc ha)))
+       (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc hb))))));
+
+theorem cl2_cmpbody_bound: $ sfBound 2 (sfCL2CmpBody 1 0) $ =
+'(mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound d1lt2)
+  (mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound d0lt2)
+   (mpbir sfBound_sfOr (ian (cl2_subset_bound d1lt2 d0lt2) (cl2_subset_bound d0lt2 d1lt2)))))));
+
+pub theorem sfCL2Cmp_bound: $ sfBound 0 sfCL2Cmp $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll cl2_cmpbody_bound));
+
+theorem cl2_subbody_bound: $ sfBound 4 (sfCL2SubBody 3 2 1 0) $ =
+'(mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound cl2_lt34)
+  (mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound cl2_lt24)
+   (mpbir sfBound_sfImp (ian (cl2_subset_bound cl2_lt24 cl2_lt34)
+    (mpbir sfBound_sfImp (ian (sfCLHierarchyAt_bound cl2_lt34 cl2_lt14)
+     (mpbir sfBound_sfImp (ian (sfCLHierarchyAt_bound cl2_lt24 cl2_lt04)
+      (cl2_subset_bound cl2_lt04 cl2_lt14)))))))))));
+
+pub theorem sfCL2Sub_bound: $ sfBound 0 sfCL2Sub $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfAll cl2_subbody_bound))));

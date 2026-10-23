@@ -1,0 +1,25 @@
+import "quotation_substitution.mm0";
+
+import "quotation_binders_absent.mm0";
+
+import "k218q_specialization.mm0";
+
+def sfK0QSepQuotientRawProfile (E: set) (t a c x R phi: nat): nat = $ (kImp (kMem t x) (kImp (kImp (kImp (kMem x c) (kImp (kImp (kMem x a) (kImp (sqQuote (sqEnvCons x E) t R 0 phi) kF)) kF)) (kImp (kImp (kImp (kImp (kMem x a) (kImp (sqQuote (sqEnvCons x E) t R 0 phi) kF)) kF) (kMem x c)) kF)) kF)) $;
+
+theorem sfK0QSepQuote_head_substitution (E: set) (n t a c x w R phi: nat) (hf: $ sfBound (suc n) phi $) (hx0: $ x != 0 $)
+ (hxR: $ x < R $) (hwR: $ w < R $)
+ (htx: $ t != x $) (hax: $ a != x $) (hcx: $ c != x $)
+ (hex: $ sqEnvAvoid E n x $):
+ $ kSubst (sqQuote (sqEnvCons x E) t R 0 phi) x w = sqQuote (sqEnvCons w E) t R 0 phi $;
+
+theorem sfK0QSepQuotient_profile_substitution (E: set) (n t a c x w R phi: nat) (hf: $ sfBound (suc n) phi $) (hx0: $ x != 0 $)
+ (hxR: $ x < R $) (hwR: $ w < R $)
+ (htx: $ t != x $) (hax: $ a != x $) (hcx: $ c != x $)
+ (hex: $ sqEnvAvoid E n x $):
+ $ kSubst (sfK0QSepQuotientRawProfile E t a c x R phi) x w = sfK0QSepQuotientRawProfile E t a c w R phi $;
+
+theorem sfK0QSepQuotient_profile_specialization (E: set) (n t a c x w R phi: nat) (hf: $ sfBound (suc n) phi $) (hx0: $ x != 0 $)
+ (hxR: $ x < R $) (hwR: $ w < R $)
+ (htx: $ t != x $) (hax: $ a != x $) (hcx: $ c != x $)
+ (hex: $ sqEnvAvoid E n x $) (hxw: $ x != w $):
+ $ k218QProvable (kImp (kAll x (sfK0QSepQuotientRawProfile E t a c x R phi)) (sfK0QSepQuotientRawProfile E t a c w R phi)) $;

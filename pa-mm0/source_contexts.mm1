@@ -1,0 +1,142 @@
+import "source_syntax_elim.mm1";
+import "trace_soundness.mm1";
+
+
+pub theorem sfContextsWf_congr (H: wff) (a b: nat) (h: $ H -> a = b $):
+  $ H -> (sfWf a <-> sfWf b) $ = '(srecpeq2d h);
+do (apply (register-eqd 'sfWf) '(sfContextsWf_congr));
+
+-- Finite Peano cons-lists; these are not the source beta-coded contexts.
+@_ def sfFormulaClass (.a: nat): set = $ {a | sfWf a} $;
+@_ def sfContextWf (G: nat): wff = $ all sfFormulaClass G $;
+@_ def sfContextSub (G D: nat): wff = $ lmems G C_ lmems D $;
+@_ def sfSequent (G a: nat): nat = $ (0, G, a) $;
+@_ def sfBranches (G a b c: nat): nat = $ (1, G, a, b, c) $;
+@_ def sfRowWf (r: nat): wff =
+$ ifp (fst r = 0)
+  (sfContextWf (fst (snd r)) /\ sfWf (snd (snd r)))
+  (fst r = 1 /\ (sfContextWf (fst (snd r)) /\
+    (sfWf (fst (snd (snd r))) /\
+    (sfWf (fst (snd (snd (snd r)))) /\ sfWf (snd (snd (snd (snd r)))))))) $;
+
+pub theorem sfFormulaClass_value (a: nat): $ a e. sfFormulaClass <-> sfWf a $ =
+(named '(elabe srecpeq2));
+pub theorem sfContextWf_nil: $ sfContextWf 0 $ = 'all0;
+pub theorem sfContextWf_cons (a G: nat): $ sfContextWf (a : G) <-> sfWf a /\ sfContextWf G $ =
+'(bitr allS (aneq1i sfFormulaClass_value));
+pub theorem sfContextWf_append (G D: nat): $ sfContextWf (G ++ D) <-> sfContextWf G /\ sfContextWf D $ = 'allappend;
+pub theorem sfContextWf_member (G a: nat): $ sfContextWf G -> a IN G -> sfWf a $ =
+'(syl6 (bi1 sfFormulaClass_value) elall);
+pub theorem sfContext_member_head (a G: nat): $ a IN (a : G) $ = 'lmemconsid;
+pub theorem sfContext_member_tail (a b G: nat): $ a IN G -> a IN (b : G) $ =
+'(syl (bi2 lmemS) orr);
+pub theorem sfContextSub_member (G D a: nat): $ sfContextSub G D -> a IN G -> a IN D $ = 'ssel;
+pub theorem sfContextSub_refl (G: nat): $ sfContextSub G G $ = 'ssid;
+pub theorem sfContextSub_trans (G D E: nat): $ sfContextSub G D -> sfContextSub D E -> sfContextSub G E $ = 'sstr;
+pub theorem sfContextSub_cons (a G: nat): $ sfContextSub G (a : G) $ =
+(named '(ax_gen sfContext_member_tail));
+pub theorem sfContextSub_wf (G D: nat): $ sfContextSub G D -> sfContextWf D -> sfContextWf G $ =
+'sstr;
+pub theorem sfSequent_injective (G D a b: nat): $ sfSequent G a = sfSequent D b <-> G = D /\ a = b $ =
+'(bitr prth (bitr (bian1 eqid) prth));
+pub theorem sfBranches_injective (G D a b c u v w: nat):
+  $ sfBranches G a b c = sfBranches D u v w <-> G = D /\ (a = u /\ (b = v /\ c = w)) $ =
+'(bitr prth @ bitr (bian1 eqid) @ bitr prth @ aneq2i @ bitr prth (aneq2i prth));
+pub theorem sfSequent_ne_branches (G D a b c u: nat): $ sfSequent G a != sfBranches D b c u $ =
+'(mt (syl anl (bi1 prth)) (ltnei lt01S));
+pub theorem sfSequent_tag (G a: nat): $ fst (sfSequent G a) = 0 $ = 'fstpr;
+pub theorem sfBranches_tag (G a b c: nat): $ fst (sfBranches G a b c) = 1 $ = 'fstpr;
+pub theorem sfSequent_context (G a: nat): $ fst (snd (sfSequent G a)) = G $ =
+'(eqtr (fsteq sndpr) fstpr);
+pub theorem sfSequent_formula (G a: nat): $ snd (snd (sfSequent G a)) = a $ =
+'(eqtr (sndeq sndpr) sndpr);
+pub theorem sfBranches_context (G a b c: nat): $ fst (snd (sfBranches G a b c)) = G $ =
+'(eqtr (fsteq sndpr) fstpr);
+pub theorem sfBranches_left (G a b c: nat): $ fst (snd (snd (sfBranches G a b c))) = a $ =
+'(eqtr (fsteq (eqtr (sndeq sndpr) sndpr)) fstpr);
+pub theorem sfBranches_right (G a b c: nat): $ fst (snd (snd (snd (sfBranches G a b c)))) = b $ =
+'(eqtr (fsteq (eqtr (sndeq (eqtr (sndeq sndpr) sndpr)) sndpr)) fstpr);
+pub theorem sfBranches_formula (G a b c: nat): $ snd (snd (snd (snd (sfBranches G a b c)))) = c $ =
+'(eqtr (sndeq (eqtr (sndeq (eqtr (sndeq sndpr) sndpr)) sndpr)) sndpr);
+
+pub theorem sfRowWf_sequent (G a: nat):
+  $ sfRowWf (sfSequent G a) <-> sfContextWf G /\ sfWf a $ =
+'(bitr (ifpeq (eqeq1 sfSequent_tag)
+  (aneq (sfContextWfeq sfSequent_context) (srecpeq2 sfSequent_formula)) biid)
+  (ifppos eqid));
+pub theorem sfRowWf_branches (G a b c: nat):
+  $ sfRowWf (sfBranches G a b c) <-> sfContextWf G /\ (sfWf a /\ (sfWf b /\ sfWf c)) $ =
+'(bitr (ifpeq (eqeq1 sfBranches_tag) biid
+  (aneq (eqeq1 sfBranches_tag) (aneq (sfContextWfeq sfBranches_context)
+    (aneq (srecpeq2 sfBranches_left)
+      (aneq (srecpeq2 sfBranches_right) (srecpeq2 sfBranches_formula))))))
+  (bitr (ifpneg (ltneri lt01S)) (bian1 eqid)));
+pub theorem sfRowWf_sequent_intro (G a: nat):
+  $ sfContextWf G -> sfWf a -> sfRowWf (sfSequent G a) $ =
+'(syl6 (bi2 sfRowWf_sequent) ian);
+pub theorem sfRowWf_branches_intro (G a b c: nat):
+  $ sfContextWf G -> sfWf a -> sfWf b -> sfWf c -> sfRowWf (sfBranches G a b c) $ =
+'(exp @ exp @ exp @ syl (bi2 sfRowWf_branches) @
+  iand an3l (iand anllr (iand anlr anr)));
+
+pub theorem sfSequent_congr (H: wff) (a b u v: nat) (h0: $ H -> a = u $) (h1: $ H -> b = v $):
+  $ H -> sfSequent a b = sfSequent u v $ =
+'(sfSequenteqd h0 h1);
+
+pub theorem sfSequent_congr_context (H: wff) (a b u: nat) (h: $ H -> a = u $):
+  $ H -> sfSequent a b = sfSequent u b $ =
+'(sfSequent_congr h eqidd);
+
+pub theorem sfSequent_congr_formula (H: wff) (a b v: nat) (h: $ H -> b = v $):
+  $ H -> sfSequent a b = sfSequent a v $ =
+'(sfSequent_congr eqidd h);
+
+do (apply (register-eqd 'sfSequent) '(sfSequent_congr sfSequent_congr_context sfSequent_congr_formula));
+
+pub theorem sfBranches_congr (H: wff) (a b c d u v w x: nat) (h0: $ H -> a = u $) (h1: $ H -> b = v $) (h2: $ H -> c = w $) (h3: $ H -> d = x $):
+  $ H -> sfBranches a b c d = sfBranches u v w x $ =
+'(sfBrancheseqd h0 h1 h2 h3);
+
+pub theorem sfBranches_congr_context (H: wff) (a b c d u: nat) (h: $ H -> a = u $):
+  $ H -> sfBranches a b c d = sfBranches u b c d $ =
+'(sfBranches_congr h eqidd eqidd eqidd);
+
+pub theorem sfBranches_congr_left (H: wff) (a b c d v: nat) (h: $ H -> b = v $):
+  $ H -> sfBranches a b c d = sfBranches a v c d $ =
+'(sfBranches_congr eqidd h eqidd eqidd);
+
+pub theorem sfBranches_congr_right (H: wff) (a b c d w: nat) (h: $ H -> c = w $):
+  $ H -> sfBranches a b c d = sfBranches a b w d $ =
+'(sfBranches_congr eqidd eqidd h eqidd);
+
+pub theorem sfBranches_congr_formula (H: wff) (a b c d x: nat) (h: $ H -> d = x $):
+  $ H -> sfBranches a b c d = sfBranches a b c x $ =
+'(sfBranches_congr eqidd eqidd eqidd h);
+
+do (apply (register-eqd 'sfBranches) '(sfBranches_congr sfBranches_congr_context sfBranches_congr_left sfBranches_congr_right sfBranches_congr_formula));
+
+pub theorem sfContextWf_congr (H: wff) (a u: nat) (h0: $ H -> a = u $):
+  $ H -> (sfContextWf a <-> sfContextWf u) $ =
+'(sfContextWfeqd h0);
+
+do (apply (register-eqd 'sfContextWf) '(sfContextWf_congr ));
+
+pub theorem sfRowWf_congr (H: wff) (a u: nat) (h0: $ H -> a = u $):
+  $ H -> (sfRowWf a <-> sfRowWf u) $ =
+'(sfRowWfeqd h0);
+
+do (apply (register-eqd 'sfRowWf) '(sfRowWf_congr ));
+
+pub theorem sfContextSub_congr (H: wff) (a b u v: nat) (h0: $ H -> a = u $) (h1: $ H -> b = v $):
+  $ H -> (sfContextSub a b <-> sfContextSub u v) $ =
+'(sfContextSubeqd h0 h1);
+
+pub theorem sfContextSub_congr_source (H: wff) (a b u: nat) (h: $ H -> a = u $):
+  $ H -> (sfContextSub a b <-> sfContextSub u b) $ =
+'(sfContextSub_congr h eqidd);
+
+pub theorem sfContextSub_congr_target (H: wff) (a b v: nat) (h: $ H -> b = v $):
+  $ H -> (sfContextSub a b <-> sfContextSub a v) $ =
+'(sfContextSub_congr eqidd h);
+
+do (apply (register-eqd 'sfContextSub) '(sfContextSub_congr sfContextSub_congr_source sfContextSub_congr_target));

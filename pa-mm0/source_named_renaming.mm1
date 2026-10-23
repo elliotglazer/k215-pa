@@ -1,0 +1,170 @@
+import "quotient_quotation.mm1";
+import "source_renaming_laws.mm1";
+
+theorem snrIndex_below (E R: set) (k d i: nat):
+ $ i < d -> sfNamedIndex E k d (sfRenameIndex R d i) = sfNamedIndex (sfComposeMap E R) k d i $ =
+'(eqtrd (sfNamedIndexeq4d sfRenameIndex_bound) @
+ eqtrd sfNamedIndex_bound (eqcomd sfNamedIndex_bound));
+
+theorem snrIndex_free (E R: set) (k d i: nat):
+ $ ~i < d -> sfNamedIndex E k d (sfRenameIndex R d i) = sfNamedIndex (sfComposeMap E R) k d i $ =
+'(eqtrd (sfNamedIndexeq4d sfRenameIndex_free) @
+ eqtrd (a1i (sfNamedIndex_free (mpbi lenlt leaddid1))) @
+ eqtrd (a1i (appeq2 pncan2)) @
+ eqtrd (a1i (eqcom sfComposeMap_value)) (eqcomd sfNamedIndex_free));
+
+pub theorem sfNamedIndex_source_renaming (E R: set) (k d i: nat):
+ $ sfNamedIndex E k d (sfRenameIndex R d i) = sfNamedIndex (sfComposeMap E R) k d i $ =
+'(cases snrIndex_below snrIndex_free);
+
+@_ abstract def snrSourceRenameClass (E R: set) (k .c .d: nat): set =
+$ {c | A. d (sfNamedTemplate E k d (sfRename R d c) = sfNamedTemplate (sfComposeMap E R) k d (c))} $;
+
+pub theorem snrSourceRename_value {d: nat} (E R: set) (k: nat) (c: nat):
+ $ c e. snrSourceRenameClass E R k <-> A. d (sfNamedTemplate E k d (sfRename R d c) = sfNamedTemplate (sfComposeMap E R) k d (c)) $ =
+(named '(elabe ,eqtac));
+
+theorem snrSourceRename_depth (E R: set) (k: nat) (d c: nat):
+ $ A. j (sfNamedTemplate E k j (sfRename R j c) = sfNamedTemplate (sfComposeMap E R) k j (c)) -> sfNamedTemplate E k d (sfRename R d c) = sfNamedTemplate (sfComposeMap E R) k d (c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem snrSourceRename_at (E R: set) (k: nat) (d c: nat):
+ $ c e. snrSourceRenameClass E R k -> sfNamedTemplate E k d (sfRename R d c) = sfNamedTemplate (sfComposeMap E R) k d (c) $ =
+(named '(syl snrSourceRename_depth {(bi1 snrSourceRename_value) :
+ $ c e. snrSourceRenameClass E R k -> A. j (sfNamedTemplate E k j (sfRename R j c) = sfNamedTemplate (sfComposeMap E R) k j (c)) $}));
+
+theorem snrSourceRename_bot (E R: set) (k: nat): $ sfBot e. snrSourceRenameClass E R k $ =
+(named '(mpbir snrSourceRename_value @ ax_gen @ eqtr (sfNamedTemplateeq4 sfRename_bot) @
+ eqtr sfNamedTemplate_bot (eqcom sfNamedTemplate_bot)));
+
+theorem snrSourceRename_mem (E R: set) (k: nat) (a b: nat):
+ $ sfMem a b e. snrSourceRenameClass E R k $ =
+(named '(mpbir snrSourceRename_value @ ax_gen @ eqtr (sfNamedTemplateeq4 sfRename_sfMem) @
+ eqtr sfNamedTemplate_sfMem (eqtr (kMemeq sfNamedIndex_source_renaming sfNamedIndex_source_renaming) (eqcom sfNamedTemplate_sfMem))));
+
+theorem snrSourceRename_eq (E R: set) (k: nat) (a b: nat):
+ $ sfEq a b e. snrSourceRenameClass E R k $ =
+(named '(mpbir snrSourceRename_value @ ax_gen @ eqtr (sfNamedTemplateeq4 sfRename_sfEq) @
+ eqtr sfNamedTemplate_sfEq (eqtr (kEqeq sfNamedIndex_source_renaming sfNamedIndex_source_renaming) (eqcom sfNamedTemplate_sfEq))));
+
+theorem snrSourceRename_atomic (E R: set) (k: nat): $ sfAtomicClosed (snrSourceRenameClass E R k) $ =
+(named '(ax_gen @ ax_gen @ ian snrSourceRename_mem snrSourceRename_eq));
+
+theorem snrSourceRename_and (E R: set) (k: nat) (a b: nat):
+ $ a e. snrSourceRenameClass E R k /\ b e. snrSourceRenameClass E R k -> sfAnd a b e. snrSourceRenameClass E R k $ =
+(named '(mpbird (a1i snrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfRename_sfAnd)) @ eqtrd (a1i sfNamedTemplate_sfAnd) @
+ eqtrd (kAndeqd (syl snrSourceRename_at anl) (syl snrSourceRename_at anr)) (a1i (eqcom sfNamedTemplate_sfAnd))));
+
+theorem snrSourceRename_or (E R: set) (k: nat) (a b: nat):
+ $ a e. snrSourceRenameClass E R k /\ b e. snrSourceRenameClass E R k -> sfOr a b e. snrSourceRenameClass E R k $ =
+(named '(mpbird (a1i snrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfRename_sfOr)) @ eqtrd (a1i sfNamedTemplate_sfOr) @
+ eqtrd (kDisjeqd (syl snrSourceRename_at anl) (syl snrSourceRename_at anr)) (a1i (eqcom sfNamedTemplate_sfOr))));
+
+theorem snrSourceRename_imp (E R: set) (k: nat) (a b: nat):
+ $ a e. snrSourceRenameClass E R k /\ b e. snrSourceRenameClass E R k -> sfImp a b e. snrSourceRenameClass E R k $ =
+(named '(mpbird (a1i snrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfRename_sfImp)) @ eqtrd (a1i sfNamedTemplate_sfImp) @
+ eqtrd (kImpeqd (syl snrSourceRename_at anl) (syl snrSourceRename_at anr)) (a1i (eqcom sfNamedTemplate_sfImp))));
+
+theorem snrSourceRename_binary (E R: set) (k: nat): $ sfBinaryClosed (snrSourceRenameClass E R k) $ =
+(named '(ax_gen @ ax_gen @ iand (iand snrSourceRename_and snrSourceRename_or) snrSourceRename_imp));
+
+theorem snrSourceRename_all (E R: set) (k: nat) (a: nat):
+ $ a e. snrSourceRenameClass E R k -> sfAll a e. snrSourceRenameClass E R k $ =
+(named '(mpbird (a1i snrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfRename_sfAll)) @ eqtrd (a1i sfNamedTemplate_sfAll) @
+ eqtrd (kAlleqd eqidd snrSourceRename_at) (a1i (eqcom sfNamedTemplate_sfAll))));
+
+theorem snrSourceRename_ex (E R: set) (k: nat) (a: nat):
+ $ a e. snrSourceRenameClass E R k -> sfEx a e. snrSourceRenameClass E R k $ =
+(named '(mpbird (a1i snrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfRename_sfEx)) @ eqtrd (a1i sfNamedTemplate_sfEx) @
+ eqtrd (kExistseqd eqidd snrSourceRename_at) (a1i (eqcom sfNamedTemplate_sfEx))));
+
+theorem snrSourceRename_quantifier (E R: set) (k: nat): $ sfQuantifierClosed (snrSourceRenameClass E R k) $ =
+(named '(ax_gen @ iand snrSourceRename_all snrSourceRename_ex));
+
+theorem snrSourceRename_closed (E R: set) (k: nat): $ sfConstructionClosed (snrSourceRenameClass E R k) $ =
+'(ian (ian (ian snrSourceRename_bot snrSourceRename_atomic) snrSourceRename_binary) snrSourceRename_quantifier);
+
+pub theorem sfNamedTemplate_source_renaming (E R: set) (k d c: nat):
+ $ sfWf c -> sfNamedTemplate E k d (sfRename R d c) = sfNamedTemplate (sfComposeMap E R) k d (c) $ =
+'(syl snrSourceRename_at (ax_mp sfWf_induction snrSourceRename_closed));
+
+@_ abstract def sqrSourceRenameClass (E R: set) (t k .c .d: nat): set =
+$ {c | A. d (sqQuote E t k d (sfRename R d c) = sqQuote (sfComposeMap E R) t k d (c))} $;
+
+pub theorem sqrSourceRename_value {d: nat} (E R: set) (t k: nat) (c: nat):
+ $ c e. sqrSourceRenameClass E R t k <-> A. d (sqQuote E t k d (sfRename R d c) = sqQuote (sfComposeMap E R) t k d (c)) $ =
+(named '(elabe ,eqtac));
+
+theorem sqrSourceRename_depth (E R: set) (t k: nat) (d c: nat):
+ $ A. j (sqQuote E t k j (sfRename R j c) = sqQuote (sfComposeMap E R) t k j (c)) -> sqQuote E t k d (sfRename R d c) = sqQuote (sfComposeMap E R) t k d (c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem sqrSourceRename_at (E R: set) (t k: nat) (d c: nat):
+ $ c e. sqrSourceRenameClass E R t k -> sqQuote E t k d (sfRename R d c) = sqQuote (sfComposeMap E R) t k d (c) $ =
+(named '(syl sqrSourceRename_depth {(bi1 sqrSourceRename_value) :
+ $ c e. sqrSourceRenameClass E R t k -> A. j (sqQuote E t k j (sfRename R j c) = sqQuote (sfComposeMap E R) t k j (c)) $}));
+
+theorem sqrSourceRename_bot (E R: set) (t k: nat): $ sfBot e. sqrSourceRenameClass E R t k $ =
+(named '(mpbir sqrSourceRename_value @ ax_gen @ eqtr (sqQuoteeq5 sfRename_bot) @
+ eqtr sqQuote_bot (eqcom sqQuote_bot)));
+
+theorem sqrSourceRename_mem (E R: set) (t k: nat) (a b: nat):
+ $ sfMem a b e. sqrSourceRenameClass E R t k $ =
+(named '(mpbir sqrSourceRename_value @ ax_gen @ eqtr (sqQuoteeq5 sfRename_sfMem) @
+ eqtr sqQuote_sfMem (eqtr (sqMembereq eqid sfNamedIndex_source_renaming sfNamedIndex_source_renaming eqid) (eqcom sqQuote_sfMem))));
+
+theorem sqrSourceRename_eq (E R: set) (t k: nat) (a b: nat):
+ $ sfEq a b e. sqrSourceRenameClass E R t k $ =
+(named '(mpbir sqrSourceRename_value @ ax_gen @ eqtr (sqQuoteeq5 sfRename_sfEq) @
+ eqtr sqQuote_sfEq (eqtr (sqEqualeq eqid sfNamedIndex_source_renaming sfNamedIndex_source_renaming eqid) (eqcom sqQuote_sfEq))));
+
+theorem sqrSourceRename_atomic (E R: set) (t k: nat): $ sfAtomicClosed (sqrSourceRenameClass E R t k) $ =
+(named '(ax_gen @ ax_gen @ ian sqrSourceRename_mem sqrSourceRename_eq));
+
+theorem sqrSourceRename_and (E R: set) (t k: nat) (a b: nat):
+ $ a e. sqrSourceRenameClass E R t k /\ b e. sqrSourceRenameClass E R t k -> sfAnd a b e. sqrSourceRenameClass E R t k $ =
+(named '(mpbird (a1i sqrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfRename_sfAnd)) @ eqtrd (a1i sqQuote_sfAnd) @
+ eqtrd (kAndeqd (syl sqrSourceRename_at anl) (syl sqrSourceRename_at anr)) (a1i (eqcom sqQuote_sfAnd))));
+
+theorem sqrSourceRename_or (E R: set) (t k: nat) (a b: nat):
+ $ a e. sqrSourceRenameClass E R t k /\ b e. sqrSourceRenameClass E R t k -> sfOr a b e. sqrSourceRenameClass E R t k $ =
+(named '(mpbird (a1i sqrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfRename_sfOr)) @ eqtrd (a1i sqQuote_sfOr) @
+ eqtrd (kDisjeqd (syl sqrSourceRename_at anl) (syl sqrSourceRename_at anr)) (a1i (eqcom sqQuote_sfOr))));
+
+theorem sqrSourceRename_imp (E R: set) (t k: nat) (a b: nat):
+ $ a e. sqrSourceRenameClass E R t k /\ b e. sqrSourceRenameClass E R t k -> sfImp a b e. sqrSourceRenameClass E R t k $ =
+(named '(mpbird (a1i sqrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfRename_sfImp)) @ eqtrd (a1i sqQuote_sfImp) @
+ eqtrd (kImpeqd (syl sqrSourceRename_at anl) (syl sqrSourceRename_at anr)) (a1i (eqcom sqQuote_sfImp))));
+
+theorem sqrSourceRename_binary (E R: set) (t k: nat): $ sfBinaryClosed (sqrSourceRenameClass E R t k) $ =
+(named '(ax_gen @ ax_gen @ iand (iand sqrSourceRename_and sqrSourceRename_or) sqrSourceRename_imp));
+
+theorem sqrSourceRename_all (E R: set) (t k: nat) (a: nat):
+ $ a e. sqrSourceRenameClass E R t k -> sfAll a e. sqrSourceRenameClass E R t k $ =
+(named '(mpbird (a1i sqrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfRename_sfAll)) @ eqtrd (a1i sqQuote_sfAll) @
+ eqtrd (kAlleqd eqidd (kImpeqd eqidd sqrSourceRename_at)) (a1i (eqcom sqQuote_sfAll))));
+
+theorem sqrSourceRename_ex (E R: set) (t k: nat) (a: nat):
+ $ a e. sqrSourceRenameClass E R t k -> sfEx a e. sqrSourceRenameClass E R t k $ =
+(named '(mpbird (a1i sqrSourceRename_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfRename_sfEx)) @ eqtrd (a1i sqQuote_sfEx) @
+ eqtrd (kExistseqd eqidd (kAndeqd eqidd sqrSourceRename_at)) (a1i (eqcom sqQuote_sfEx))));
+
+theorem sqrSourceRename_quantifier (E R: set) (t k: nat): $ sfQuantifierClosed (sqrSourceRenameClass E R t k) $ =
+(named '(ax_gen @ iand sqrSourceRename_all sqrSourceRename_ex));
+
+theorem sqrSourceRename_closed (E R: set) (t k: nat): $ sfConstructionClosed (sqrSourceRenameClass E R t k) $ =
+'(ian (ian (ian sqrSourceRename_bot sqrSourceRename_atomic) sqrSourceRename_binary) sqrSourceRename_quantifier);
+
+pub theorem sqQuote_source_renaming (E R: set) (t k d c: nat):
+ $ sfWf c -> sqQuote E t k d (sfRename R d c) = sqQuote (sfComposeMap E R) t k d (c) $ =
+'(syl sqrSourceRename_at (ax_mp sfWf_induction sqrSourceRename_closed));

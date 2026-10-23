@@ -1,0 +1,155 @@
+import "k215_bundle_images_glue_all.mm1";
+import "k215_bundle_images_relfree.mm1";
+import "raw_source_prop_transfer.mm1";
+import "raw_source_quantifiers.mm1";
+
+-- (lane L01, glue step 4) Closure prefixes and core^L from the bound principle in L.
+
+-- Prefix additivity.
+theorem k215CL_one (X: nat): $ sfAllPrefix 1 X = sfAll X $ = '(eqtr sfAllPrefix_suc (nsAll_eq sfAllPrefix_zero));
+theorem k215CL_add_step (m n c: nat):
+  $ sfAllPrefix (m + n) c = sfAllPrefix m (sfAllPrefix n c) ->
+    sfAllPrefix (suc m + n) c = sfAllPrefix (suc m) (sfAllPrefix n c) $ =
+'(eqtrd (a1i (eqtr (trud (sfAllPrefix_congr (a1i addS1) eqidd)) (eqtr sfAllPrefix_suc (eqcom k215CL_one))))
+   (eqtrd (sfAllPrefix_congr eqidd id) (a1i (eqtr k215CL_one (eqcom sfAllPrefix_suc)))));
+theorem k215CL_add (m n c: nat): $ sfAllPrefix (m + n) c = sfAllPrefix m (sfAllPrefix n c) $ =
+(named @ induct '(ind) 'm
+  '(eqtr (trud (sfAllPrefix_congr (a1i add01) eqidd)) (eqcom sfAllPrefix_zero))
+  'k215CL_add_step);
+
+-- Instantiating the closure prefix of a closed formula.
+theorem k215CL_open (a: nat): $ zfcProvable (sfAll a) -> zfcProvable a $ =
+'(syl (bi1 sfTheoryProvable_zfc) (syl (sfTheoryProvable_all_open sfTheoryClosed_zfc) (bi2 sfTheoryProvable_zfc)));
+
+theorem k215CL_inst_step (m f: nat) (hw: $ sfWf f $):
+  $ (sfBound 0 f -> zfcProvable (sfImp (sfAllPrefix m f) f)) ->
+    (sfBound 0 f -> zfcProvable (sfImp (sfAllPrefix (suc m) f) f)) $ =
+'(exp @ rawTrans_apply (a1i (mpbir sfWf_allPrefix hw)) (a1i (mpbir sfWf_allPrefix hw)) (a1i hw)
+   (mpbid (rawProvable_congr (sfImpeqd (a1i (eqcom sfAllPrefix_suc))
+      (eqtrd (sfSubst_congr eqidd eqidd (eqcomd (syl sfShift_closed_identity
+          (syl (bi2 sfBound_allPrefix_closed) (syl (mpi le01 sfBound_mono) anr)))))
+        (a1i (ax_mp sfSubst_shift_cancel (mpbir sfWf_allPrefix hw))))))
+     (a1i (! rqAllE_provable _ $ 0 $ (mpbir sfWf_allPrefix hw))))
+   (mpd anr anl));
+
+theorem k215CL_inst (m f: nat) (hw: $ sfWf f $):
+  $ sfBound 0 f -> zfcProvable (sfImp (sfAllPrefix m f) f) $ =
+(named @ induct '(ind) 'm
+  '(a1i (mpbir (trud (rawProvable_congr (a1i (nsImp_eq sfAllPrefix_zero eqid)))) (zfcProvable_identity hw)))
+  '(k215CL_inst_step hw));
+
+-- Distributing a closure prefix over an implication.
+theorem k215CL_dist_step (n a b: nat) (ha: $ sfWf a $) (hb: $ sfWf b $):
+  $ (zfcProvable (sfAllPrefix n (sfImp a b)) -> zfcProvable (sfImp (sfAllPrefix n a) (sfAllPrefix n b))) ->
+    (zfcProvable (sfAllPrefix (suc n) (sfImp a b)) ->
+     zfcProvable (sfImp (sfAllPrefix (suc n) a) (sfAllPrefix (suc n) b))) $ =
+'(exp (syl
+   (syl (bi2 (trud (rawProvable_congr (a1i (nsImp_eq sfAllPrefix_suc sfAllPrefix_suc)))))
+     (syl (zfcProvable_mp (zfcProvable_all_distribution (mpbir sfWf_allPrefix ha) (mpbir sfWf_allPrefix hb)))
+       zfcProvable_gen))
+   (mpd (syl (syl k215CL_open (bi1 (trud (rawProvable_congr (a1i sfAllPrefix_suc))))) anr) anl)));
+
+theorem k215CL_dist (n a b: nat) (ha: $ sfWf a $) (hb: $ sfWf b $):
+  $ zfcProvable (sfAllPrefix n (sfImp a b)) -> zfcProvable (sfImp (sfAllPrefix n a) (sfAllPrefix n b)) $ =
+(named @ induct '(ind) 'n
+  '(sylbi (trud (rawProvable_congr (a1i sfAllPrefix_zero)))
+     (bi2 (trud (rawProvable_congr (a1i (nsImp_eq sfAllPrefix_zero sfAllPrefix_zero))))))
+  '(k215CL_dist_step ha hb));
+
+-- The side conditions k != a, k != b, q <= k as an antecedent (weak deduction: k' = k under
+-- the conditions, and k' satisfies them always).
+@_ def k215CGk (a b k q: nat): nat = $ if ((k != a /\ k != b) /\ q <= k) k (suc (a + b + q)) $;
+
+theorem k215CGk_a (a b k q: nat): $ k215CGk a b k q != a $ =
+'(cases (mtbird (eqeq1d ifpos) anll)
+   (mtbird (eqeq1d ifneg) (a1i (ltner (mpbi leltsuc (letr leaddid1 leaddid1))))));
+theorem k215CGk_b (a b k q: nat): $ k215CGk a b k q != b $ =
+'(cases (mtbird (eqeq1d ifpos) anlr)
+   (mtbird (eqeq1d ifneg) (a1i (ltner (mpbi leltsuc (letr leaddid2 leaddid1))))));
+theorem k215CGk_q (a b k q: nat): $ q <= k215CGk a b k q $ =
+'(cases (mpbird (leeq2d ifpos) anr) (mpbird (leeq2d ifneg) (a1i (letr leaddid2 lesucid))));
+
+theorem k215CG_keq (a b k1 k2 q: nat):
+  $ k1 = k2 -> sfImp (k215BoundF (k215GPhi a b q)) (k215DecBundleGz a b k1 0 (rawDecode q)) =
+               sfImp (k215BoundF (k215GPhi a b q)) (k215DecBundleGz a b k2 0 (rawDecode q)) $ =
+'{,eqtac : $ k1 = k2 -> sfImp (k215BoundF (k215GPhi a b q)) (k215DecBundleGz a b k1 0 (rawDecode q)) =
+               sfImp (k215BoundF (k215GPhi a b q)) (k215DecBundleGz a b k2 0 (rawDecode q)) $};
+
+pub theorem k215Glue_d (a b k q: nat):
+  $ ((k != a /\ k != b) /\ q <= k) ->
+    zfcProvable (sfImp (k215BoundF (k215GPhi a b q)) (k215DecBundleGz a b k 0 (rawDecode q))) $ =
+'(mpbid (rawProvable_congr (syl k215CG_keq ifpos)) (a1i (k215Glue k215CGk_a k215CGk_b k215CGk_q)));
+
+-- bound^L: ZFC proves, relativized to L, every closed instance of the bound principle.
+@_ def k215BoundL (.phi .N: nat): wff =
+$ A. phi A. N (sfBound (2 + N) phi ->
+    zfcProvable (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF phi)))) $;
+
+theorem k215BoundL_inst {phi N: nat} (p M: nat):
+  $ A. phi A. N (sfBound (2 + N) phi ->
+      zfcProvable (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF phi)))) ->
+    sfBound (2 + M) p -> zfcProvable (sfRelativize sfLDomain (sfAllPrefix M (k215BoundF p))) $ =
+(named '(syl
+  {(!! eale N ,eqtac) : $ A. N (sfBound (2 + N) p ->
+      zfcProvable (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF p)))) ->
+    sfBound (2 + M) p -> zfcProvable (sfRelativize sfLDomain (sfAllPrefix M (k215BoundF p))) $}
+  {(!! eale phi ,eqtac) : $ A. phi A. N (sfBound (2 + N) phi ->
+      zfcProvable (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF phi)))) ->
+    A. N (sfBound (2 + N) p ->
+      zfcProvable (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF p)))) $}));
+
+-- The bound variables of k215BoundL are dummies; they are matched by unfolding the def.
+theorem k215BoundL_at (p M: nat) (hb: $ k215BoundL $) (hm: $ sfBound (2 + M) p $):
+  $ zfcProvable (sfRelativize sfLDomain (sfAllPrefix M (k215BoundF p))) $ =
+(named '(ax_mp (ax_mp k215BoundL_inst hb) hm));
+
+theorem k215CG_intro (f g: nat):
+  $ (sfBound 0 g /\ zfcProvable (sfRelativize sfLDomain g)) /\ (sfBound 0 f /\ zfcProvable (sfImp g f)) ->
+    f e. k215BoundGlueClass $ =
+(named '(syl (bi2 k215BoundGlueClass_value) (iexe ,eqtac)));
+
+theorem k215CG_at (f a b k q n: nat) (hb: $ k215BoundL $):
+  $ ((k != a /\ k != b) /\ q <= k) /\
+    (sfBound n (rawDecode (k215BundleG a b k q)) /\ f = sfAllPrefix n (rawDecode (k215BundleG a b k q))) ->
+    f e. k215BoundGlueClass $ =
+'(syl k215CG_intro (iand
+  (a1i (iani
+    (mpbir sfBound_allPrefix_closed (sfBound_mono (k215BoundF_bound k215GPhi_bound) leaddid1))
+    (k215BoundL_at hb (sfBound_mono k215GPhi_bound (mpbi leadd2 leaddid1)))))
+  (iand
+    (mpbird (sfLaw_bound_congr eqidd (syl anr anr)) (syl (bi2 sfBound_allPrefix_closed) (syl anl anr)))
+    (mpbid (rawProvable_congr (sfImpeqd eqidd (eqcomd (syl anr anr))))
+      (rawTrans_apply
+        (a1i (mpbir sfWf_allPrefix (k215BoundF_wf k215GPhi_wf)))
+        (a1i (mpbir sfWf_allPrefix (mpbir sfWf_allPrefix rawDecode_wf)))
+        (a1i (mpbir sfWf_allPrefix rawDecode_wf))
+        (mpbid (rawProvable_congr (sfImpeqd eqidd (a1i k215CL_add)))
+          (syl (k215CL_dist (k215BoundF_wf k215GPhi_wf) rawDecode_wf)
+            (syl (syl (bi1 sfTheoryProvable_zfc) (syl (sfTheoryProvable_prefix_intro sfTheoryClosed_zfc)
+                    (bi2 sfTheoryProvable_zfc)))
+              (mpbid (rawProvable_congr (sfImpeqd eqidd
+                  (a1i (eqcom (eqtr k215BundleG_decode k215DecBundleG_z)))))
+                (syl k215Glue_d anl)))))
+        (syl (k215CL_inst (mpbir sfWf_allPrefix rawDecode_wf))
+          (syl (bi2 sfBound_allPrefix_closed) (syl anl anr))))))));
+
+theorem k215CG_closed (f: nat) (hb: $ k215BoundL $): $ k215CoreClosed f -> f e. k215BoundGlueClass $ =
+(named '(eex @ eex @ eex @ eex @ eex (k215CG_at hb)));
+
+pub theorem k215Core_glue_class (hb: $ k215BoundL $): $ k215CoreAxioms C_ k215BoundGlueClass $ =
+(named '(ax_gen @ syl (k215CG_closed hb) (bi1 k215CoreAxioms_value)));
+
+-- core^L (and the K215/ZFC refutation transfer) from G1, L nonempty and bound^L.
+pub theorem k215CoreImagesL_from_boundL
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+  (hb:$ k215BoundL $):
+  $ k215CoreImagesL $ =
+'(k215CoreImagesL_from_bound_glue hz hn (k215Core_glue_class hb));
+
+pub theorem k215_refutation_from_boundL
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+  (hb:$ k215BoundL $):
+  $ k215Inconsistent -> zfcInconsistent $ =
+'(k215_refutation_from_core hz hn (k215CoreImagesL_from_boundL hz hn hb));

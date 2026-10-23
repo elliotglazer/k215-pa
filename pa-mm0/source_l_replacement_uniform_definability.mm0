@@ -1,0 +1,27 @@
+import "source_l_replacement_next_def.mm0";
+
+-- The Definability Lemma (Rocq Z_cl `definable`), uniform in psi: for parameters p, a set A
+-- and D with Def0 A D, if the parameters are in A then some X in D is {z in A | psi^A(z, p)}.
+-- Free variables of the body: D = 0, A = 1, parameters 2 .. m+1; closed as forall p, A, D.
+def sfLDefinabilityBody(m psi:nat):nat =
+ $ sfImp (sfLSeparationDef0 1 0) (sfImp (sfCLMembership 2 1 m)
+   (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0)))) $;
+
+def sfLDefinabilityLaw(m psi:nat):nat =
+ $ sfAllPrefix (suc m) (sfAll (sfLDefinabilityBody m psi)) $;
+
+theorem sfLRepProfile_rename(R T:set)(k phi Y X:nat)(hf:$ sfWf phi $):
+ $ sfRename R k (sfPieceDefinableProfile T phi Y X) =
+   sfPieceDefinableProfile (sfComposeMap (sfRenameDepthMap R k) T) phi
+     (sfRenameIndex R k Y) (sfRenameIndex R k X) $;
+
+-- The level form used by the Replacement and Separation laws is a consequence.
+theorem sfLLevelDefinableLaw_from_definability(m psi:nat)(hf:$ sfWf psi $)
+ (hU:$ sfTheoryProvable zfrAxioms (sfLDefinabilityLaw m psi) $):
+ $ sfTheoryProvable zfrAxioms (sfLLevelDefinableLaw m psi) $;
+
+theorem sfLReplacementDefinableLaw_from_definability(m psi:nat)(hf:$ sfWf psi $)
+ (hU:$ sfTheoryProvable zfrAxioms (sfLDefinabilityLaw m psi) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLNextLevelLaw $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m psi) $;

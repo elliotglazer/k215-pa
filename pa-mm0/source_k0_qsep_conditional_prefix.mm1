@@ -1,0 +1,70 @@
+import "source_k0_qsep_prefix.mm1";
+import "k218q_quantifier_macros.mm1";
+import "k218q_equivalence.mm1";
+import "k230_bootstrap.mm1";
+
+@_ abstract def sfK0QSepPrefixVacuity (k h .d: nat): wff =
+ $ A. d k218QProvable (kImp h (kAll (k + d) h)) $;
+
+theorem qsepCPVacuity_at (k h d: nat): $ sfK0QSepPrefixVacuity k h -> k218QProvable (kImp h (kAll (k + d) h)) $ =
+(named '(!! ealie r @ bi1d ,eqtac));
+
+@_ local def qsepCPrefix (E: set) (t k h n phi .d: nat): wff =
+ $ A. d (k218QProvable (kImp h (sqQuote E t k (d + n) phi)) ->
+ k218QProvable (kImp h (sqQuote E t k d (sfAllPrefix n phi)))) $;
+
+theorem qsepCPUse (E: set) (t k h n phi d: nat):
+ $ qsepCPrefix E t k h n phi -> k218QProvable (kImp h (sqQuote E t k (d + n) phi)) ->
+ k218QProvable (kImp h (sqQuote E t k d (sfAllPrefix n phi))) $ =
+(named '(!! ealie r @ bi1d ,eqtac));
+
+theorem qsepCPZero (E: set) (t k h phi: nat): $ qsepCPrefix E t k h 0 phi $ =
+(named '(ax_gen (syl
+ (bi2 (k218QProvableeq (kImpeq2 (qsepPrefix_formula_eq sfAllPrefix_zero))))
+ (bi1 (k218QProvableeq (kImpeq2 (qsepPrefix_depth_eq add0)))))));
+
+theorem qsepCPGuard (h p q: nat): $ k218QProvable (kImp h p) -> k218QProvable (kImp h (kImp q p)) $ =
+'(k218IEqProv_syl id (a1i k218IPropK));
+
+theorem qsepCPGen (h z p: nat) (hv: $ k218QProvable (kImp h (kAll z h)) $):
+ $ k218QProvable (kImp h p) -> k218QProvable (kImp h (kAll z p)) $ =
+'(k218IEqProv_syl (a1i hv) (k218IEqProv_all id));
+
+theorem qsepCPStep_at (E: set) (t k h n phi d: nat) (hv: $ sfK0QSepPrefixVacuity k h $):
+ $ qsepCPrefix E t k h n phi -> k218QProvable (kImp h (sqQuote E t k (d + suc n) phi)) ->
+ k218QProvable (kImp h (sqQuote E t k d (sfAllPrefix (suc n) phi))) $ =
+(begin
+ (have 'aligned '(mpbird (a1i (k218QProvableeq (kImpeq2 (qsepPrefix_depth_eq addSass)))) anr))
+ (have 'body '(mpd aligned (syl qsepCPUse anl)))
+ (have 'guarded '(syl qsepCPGuard body))
+ (have 'generalized '(syl (qsepCPGen (ax_mp qsepCPVacuity_at hv)) guarded))
+ (refine '(exp (mpbird (a1i (k218QProvableeq (kImpeq2 qsepPrefix_suc_syntax))) generalized)))
+);
+
+theorem qsepCPStep (E: set) (t k h n phi: nat) (hv: $ sfK0QSepPrefixVacuity k h $):
+ $ qsepCPrefix E t k h n phi -> qsepCPrefix E t k h (suc n) phi $ =
+(named '(!! iald d @ qsepCPStep_at hv));
+
+theorem qsepCPAll (E: set) (t k h n phi: nat) (hv: $ sfK0QSepPrefixVacuity k h $):
+ $ qsepCPrefix E t k h n phi $ =
+(named @ induct '(ind) 'n 'qsepCPZero '(qsepCPStep hv));
+
+pub theorem sfK0QSep_quote_conditional_prefix (E: set) (t k h d n phi: nat)
+ (hv: $ sfK0QSepPrefixVacuity k h $):
+ $ k218QProvable (kImp h (sqQuote E t k (d + n) phi)) ->
+ k218QProvable (kImp h (sqQuote E t k d (sfAllPrefix n phi))) $ =
+'(ax_mp qsepCPUse (qsepCPAll hv));
+
+theorem qsepCPMarker_fresh (k d: nat) (hk: $ 2 < k $): $ kFresh kEmptyMarker (k + d) $ =
+'(ax_mp (ax_mp kFresh_all_intro (ltner (ltletr hk leaddid1)))
+ (mpbir kFresh_kImp (ian (mpbir kFresh_kMem (ian (ltner (ltletr hk leaddid1)) (ltner (ltletr (lttr ltsucid hk) leaddid1))))
+ (mpbir kFresh_kF (ltner (ltletr (lttr lt01S hk) leaddid1))))));
+
+pub theorem sfK0QSepEmptyMarker_prefix_vacuity (k: nat) (hk: $ 2 < k $):
+ $ sfK0QSepPrefixVacuity k kEmptyMarker $ =
+(named '(ax_gen (ax_mp k218QFresh_vacuity (qsepCPMarker_fresh hk))));
+
+pub theorem sfK0QSep_quote_marker_prefix (E: set) (t k d n phi: nat) (hk: $ 2 < k $):
+ $ k218QProvable (kImp kEmptyMarker (sqQuote E t k (d + n) phi)) ->
+ k218QProvable (kImp kEmptyMarker (sqQuote E t k d (sfAllPrefix n phi))) $ =
+'(sfK0QSep_quote_conditional_prefix (sfK0QSepEmptyMarker_prefix_vacuity hk));

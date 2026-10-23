@@ -1,0 +1,17 @@
+import "k215_calculus_source_decode_loops.mm0";
+import "k215_literal_runtime_reach.mm0";
+import "k218_literal_runtime_pairing.mm0";
+
+def k215UnpairState (pc a b n c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) (k215PR1 c) (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) a b n) $;
+
+theorem k215UnpairAdvance (a b n c: nat): $ k215PReach (k215UnpairState 9 a b (suc n) c) (k215UnpairState 9 (fst (suc (a, b))) (snd (suc (a, b))) n c) $;
+
+def k215UnpairRun (n a b c: nat): wff =
+ $ k215PReach (k215UnpairState 9 a b n c) (k215UnpairState k215Num17 (fst ((a, b) + n)) (snd ((a, b) + n)) 0 c) $;
+
+def k215UnpairClaim (n c: nat) (.a .b: nat): wff =
+ $ A. a A. b k215UnpairRun n a b c $;
+
+theorem k215UnpairMacro9 (n a b c: nat): $ k215PReach (k215UnpairState 9 a b n c) (k215UnpairState k215Num17 (fst ((a, b) + n)) (snd ((a, b) + n)) 0 c) $;
+
+theorem k215UnpairMacro9_clean (n c: nat): $ k215PReach (k215UnpairState 9 0 0 n c) (k215UnpairState k215Num17 (fst n) (snd n) 0 c) $;

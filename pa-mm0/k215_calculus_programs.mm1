@@ -1,0 +1,114 @@
+import "k215_calculus_iterator_algebra.mm1";
+
+
+@_ def k215InstructionMake (ac x y r: nat): nat =
+ $ if (ac = 0) (k215CmdNIP r)
+   (if (ac = 1) (k215CmdDROP r)
+     (if (ac = 2) (k215CmdMP x r) (k215CmdAX (ac - 3) x y r))) $;
+@_ def k215InstructionPrefix (c r: nat): nat =
+ $ k215InstructionMake (fst c) (fst (snd c)) (fst (snd (snd c))) r $;
+theorem k215ProgramMake_nip (x y r: nat):
+ $ k215InstructionMake 0 x y r = k215CmdNIP r $ = '(ifpos eqid);
+theorem k215ProgramMake_drop (x y r: nat):
+ $ k215InstructionMake 1 x y r = k215CmdDROP r $ =
+ '(eqtr (ifneg d1ne0) (ifpos eqid));
+theorem k215ProgramMake_mp (x y r: nat):
+ $ k215InstructionMake 2 x y r = k215CmdMP x r $ =
+ '(eqtr (ifneg d2ne0) (eqtr (ifneg (ltneri (mpbi ltsuc lt01S))) (ifpos eqid)));
+theorem k215ProgramMake_ax (c x y r: nat):
+ $ k215InstructionMake (suc (suc (suc c))) x y r = k215CmdAX c x y r $ =
+ '(eqtr (ifneg peano1) (eqtr (ifneg k215EC_suc3_ne1)
+   (eqtr (ifneg k215EC_suc3_ne2) (k215CmdAXeq1 k215EC_suc3_sub3))));
+pub theorem k215InstructionPrefix_NIP (r: nat):
+ $ k215InstructionPrefix (k215CmdNIP 0) r = k215CmdNIP r $ =
+ '(eqtr (k215InstructionMakeeq1 fstpr) k215ProgramMake_nip);
+pub theorem k215InstructionPrefix_DROP (r: nat):
+ $ k215InstructionPrefix (k215CmdDROP 0) r = k215CmdDROP r $ =
+ '(eqtr (k215InstructionMakeeq1 fstpr) k215ProgramMake_drop);
+pub theorem k215InstructionPrefix_MP (x r: nat):
+ $ k215InstructionPrefix (k215CmdMP x 0) r = k215CmdMP x r $ =
+ '(eqtr (k215InstructionMakeeq fstpr (eqtr (fsteq sndpr) fstpr) eqid eqid) k215ProgramMake_mp);
+pub theorem k215InstructionPrefix_AX (c y x r: nat):
+ $ k215InstructionPrefix (k215CmdAX c y x 0) r = k215CmdAX c y x r $ =
+ '(eqtr (k215InstructionMakeeq fstpr (eqtr (fsteq sndpr) fstpr)
+   (eqtr (fsteq (eqtr (sndeq sndpr) sndpr)) fstpr) eqid) k215ProgramMake_ax);
+@_ abstract def k215ProgramStep (.z: nat): set =
+ $ \ z, suc (k215InstructionPrefix (fst z) (pi22 z)) $;
+@_ abstract def k215ProgramPrefix (L r: nat): nat = $ lrec r k215ProgramStep L $;
+
+theorem k215ProgramStep_apply (c L r: nat):
+ $ k215ProgramStep @ (c, L, r) = suc (k215InstructionPrefix c r) $ =
+ (named '(!! applame j @ suceqd @ k215InstructionPrefixeqd
+   (syl6eq fstpr @ fsteqd id) (syl6eq pi22pr @ pi22eqd id)));
+pub theorem k215ProgramPrefix_nil (r: nat): $ k215ProgramPrefix 0 r = r $ = 'lrec0;
+pub theorem k215ProgramPrefix_cons (c L r: nat):
+ $ k215ProgramPrefix (c : L) r = suc (k215InstructionPrefix c (k215ProgramPrefix L r)) $ =
+ '(eqtr lrecS k215ProgramStep_apply);
+pub theorem k215ProgramPrefix_append (L M r: nat):
+ $ k215ProgramPrefix (L ++ M) r = k215ProgramPrefix L (k215ProgramPrefix M r) $ =
+ (named @ induct '(listind) 'L
+  '(eqtr (k215ProgramPrefixeq1 append0) (eqcom k215ProgramPrefix_nil))
+  '(eqtrd (a1i (k215ProgramPrefixeq1 appendS))
+    (eqtrd (a1i k215ProgramPrefix_cons)
+      (eqtrd (suceqd (k215InstructionPrefixeq2d id)) (a1i (eqcom k215ProgramPrefix_cons))))));
+pub theorem k215ProgramPrefix_cons_positive (c L r: nat):
+ $ k215ProgramPrefix (c : L) r != 0 $ =
+ '(mpbir (noteq (eqeq1 k215ProgramPrefix_cons)) peano1);
+
+@_ def k215Rebase (q pl np: nat): nat =
+ $ k218EnumState pl np (k218EnumTW q) (k218EnumWS q) (k218EnumD q) (k218EnumH q) $;
+pub theorem k215Rebase_state (pl np t w d h r n: nat):
+ $ k215Rebase (k218EnumState pl np t w d h) r n = k218EnumState r n t w d h $ =
+ '(k218EnumStateeq eqid eqid k218EnumState_TW k218EnumState_WS k218EnumState_D k218EnumState_H);
+pub theorem k215Rebase_rebase (q r n s m: nat):
+ $ k215Rebase (k215Rebase q r n) s m = k215Rebase q s m $ = 'k215Rebase_state;
+
+-- Finite runs may halt before the last command; zero remains absorbing.
+@_ def k215RunsTo (n s t: nat): wff =
+ $ k215EnumIter n s = 0 \/ k215EnumIter n s = suc t $;
+pub theorem k215RunsTo_refl (s: nat): $ k215RunsTo 0 s s $ =
+ '(ax_mp orr k215EnumIter_zero);
+theorem k215RunsTo_splice (n m s t u: nat):
+ $ k215EnumIter n s = suc t -> (k215RunsTo (n + m) s u <-> k215RunsTo m t u) $ =
+ '(oreqd (eqeq1d k215EnumIter_splice) (eqeq1d k215EnumIter_splice));
+pub theorem k215RunsTo_comp (n m s t u: nat):
+ $ k215RunsTo n s t -> k215RunsTo m t u -> k215RunsTo (n + m) s u $ =
+ '(eori (a1d (syl orl k215EnumIter_halted)) (bi2d k215RunsTo_splice));
+
+@_ abstract def k215ProgramRuns (L q q1: nat) (.r .np: nat): wff =
+ $ A. r A. np
+   k215RunsTo (len L) (k215Rebase q (k215ProgramPrefix L r) np) (k215Rebase q1 r np) $;
+@_ abstract def k215Realizes (L a: nat) (.t .w: nat): wff =
+ $ A. t A. w k215ProgramRuns L (k218EnumState 0 0 t w 0 0) (k218EnumState 0 0 a w 0 0) $;
+@_ abstract def k215Realizable (a: nat) (.L: nat): wff = $ E. L k215Realizes L a $;
+
+pub theorem k215ProgramRuns_at (L q q1 r np: nat):
+ $ k215ProgramRuns L q q1 ->
+   k215RunsTo (len L) (k215Rebase q (k215ProgramPrefix L r) np) (k215Rebase q1 r np) $ =
+ (named '(!! ealie j @ !! ealde k @ bi1d ,eqtac));
+pub theorem k215Realizes_at (L a t w: nat):
+ $ k215Realizes L a -> k215ProgramRuns L (k218EnumState 0 0 t w 0 0) (k218EnumState 0 0 a w 0 0) $ =
+ (named '(!! ealie j @ !! ealde k @ bi1d ,eqtac));
+pub theorem k215Realizable_intro (L a: nat): $ k215Realizes L a -> k215Realizable a $ =
+ (named '(iexe ,eqtac));
+
+theorem k215ProgramRuns_nil_at (q r np: nat):
+ $ k215RunsTo (len 0) (k215Rebase q (k215ProgramPrefix 0 r) np) (k215Rebase q r np) $ =
+ '(mpbir (k215RunsToeq len0 (k215Rebaseeq2 k215ProgramPrefix_nil) eqid) k215RunsTo_refl);
+pub theorem k215ProgramRuns_nil (q: nat): $ k215ProgramRuns 0 q q $ =
+ (named '(ax_gen @ ax_gen k215ProgramRuns_nil_at));
+theorem k215ProgramRuns_append_at (L M q q1 q2 r np: nat):
+ $ k215ProgramRuns L q q1 /\ k215ProgramRuns M q1 q2 ->
+   k215RunsTo (len (L ++ M)) (k215Rebase q (k215ProgramPrefix (L ++ M) r) np) (k215Rebase q2 r np) $ =
+ '(syl (bi2 (k215RunsToeq appendlen (k215Rebaseeq2 k215ProgramPrefix_append) eqid))
+   (mpd (syl k215ProgramRuns_at anr) (syl k215RunsTo_comp (syl k215ProgramRuns_at anl))));
+pub theorem k215ProgramRuns_append (L M q q1 q2: nat):
+ $ k215ProgramRuns L q q1 -> k215ProgramRuns M q1 q2 -> k215ProgramRuns (L ++ M) q q2 $ =
+ (named '(exp @ iald @ iald k215ProgramRuns_append_at));
+
+pub theorem k215Realizes_run (L a t w r np: nat):
+ $ k215Realizes L a ->
+   k215RunsTo (len L) (k218EnumState (k215ProgramPrefix L r) np t w 0 0)
+     (k218EnumState r np a w 0 0) $ =
+ '(syl (bi1 (k215RunsToeq eqid k215Rebase_state k215Rebase_state))
+   (syl k215ProgramRuns_at k215Realizes_at));

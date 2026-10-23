@@ -1,0 +1,130 @@
+import "source_l_replacement_definable_bound.mm1";
+import "source_l_common_level_instance_renaming.mm1";
+
+@_ def sfLReplacementDefinableEnv(T:set)(beta Y:nat):set =
+ $ sqEnvCons Y (sqEnvCons beta T) $;
+
+theorem lrdu_env_zero(T:set)(a Y:nat):
+ $ sfLReplacementDefinableEnv T a Y @ 0 = Y $ = 'sqEnvCons_zero;
+theorem lrdu_env_one(T:set)(a Y:nat):
+ $ sfLReplacementDefinableEnv T a Y @ 1 = a $ =
+ '(eqtr sqEnvCons_suc sqEnvCons_zero);
+theorem lrdu_addtwo(i:nat): $ i + 2 = suc (suc i) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq add02))));
+theorem lrdu_env_tail(T:set)(a Y i:nat):
+ $ sfLReplacementDefinableEnv T a Y @ (i + 2) = T @ i $ =
+ '(eqtr (appeq2 lrdu_addtwo) (eqtr sqEnvCons_suc sqEnvCons_suc));
+
+theorem lrdu_compose_at(T:set)(a Y i:nat):
+ $ sfComposeMap (sfRenameDepthMap (sfLReplacementDefinableEnv T a Y) 1)
+   (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) @ i =
+   sfComposeMap sfSuccessorMap T @ i $ =
+ '(eqtr sfComposeMap_value
+  (eqtr (appeq2 (eqtr sfComposeMap_value sfSuccessorMap_value))
+   (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift
+    (eqtr (suceq sfRenameIndex_zero)
+     (eqtr (suceq (eqtr (appeq2 sfLReplacementStartMap_at) lrdu_env_tail))
+      (eqcom (eqtr sfComposeMap_value sfSuccessorMap_value))))))));
+
+theorem lrdu_matrix(T:set)(a Y psi:nat)(hf:$ sfWf psi $):
+ $ sfRename (sfLReplacementDefinableEnv T a Y) 2
+   (sfRename (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) 1 psi) =
+   sfRename (sfComposeMap sfSuccessorMap T) 1 psi $ =
+ (named '(eqtr (sfRenameeq2 (eqcom add11))
+  (eqtr (ax_mp sfRename_depth sfRename_wf)
+   (eqtr (ax_mp sfRename_compose hf)
+    (ax_mp (sfRename_extensional (!! ax_gen i @ ! lrdu_compose_at T a Y i)) hf)))));
+
+theorem lrdu_index_two(T:set)(a Y:nat):
+ $ sfRenameIndex (sfLReplacementDefinableEnv T a Y) 2 2 = suc (suc Y) $ =
+ '(eqtr sfRenameIndex_lift (eqtr (suceq sfRenameIndex_lift)
+  (eqtr (suceq (suceq sfRenameIndex_zero)) (suceq (suceq lrdu_env_zero)))));
+
+theorem lrdu_iff_rename(F:set)(k x y:nat):
+ $ sfRename F k (sfIff x y) = sfIff (sfRename F k x) (sfRename F k y) $ =
+ '(eqtr sfRename_sfAnd (nsAnd_eq sfRename_sfImp sfRename_sfImp));
+
+theorem lrdu_image(T:set)(a Y psi:nat)(hf:$ sfWf psi $):
+ $ sfRename (sfLReplacementDefinableEnv T a Y) 0
+   (sfLReplacementImageDefinable (sfLReplacementStartMap 2) sfLDomain psi 0) =
+   sfLReplacementImageDefinable T sfLDomain psi Y $ =
+ '(eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq
+  (ax_mp sfRename_bound_identity sfLDomain_bound)
+  (eqtr sfRename_sfAll (nsAll_eq (eqtr lrdu_iff_rename (sfIffeq
+   (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S)
+    (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S))))
+   (eqtr sfRename_sfAnd (nsAnd_eq
+    (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) lrdu_index_two))
+    (eqtr (ax_mp sfCLSetRel_rename sfRename_wf)
+     (sfCLSetReleq lrdu_index_two (lrdu_matrix hf)))))))))))));
+
+theorem lrdu_members_zero(T:set)(a Y:nat):
+ $ sfRename (sfLReplacementDefinableEnv T a Y) 0 (sfCLMembership 2 0 0) =
+   sfCLFold (sfCLBallMemberRows T Y) 0 $ =
+ '(eqtr (sfRenameeq3 sfCLMembership_zero)
+  (eqtr sfRename_sfImp (eqtr (nsImp_eq sfRename_bot sfRename_bot) (eqcom sfCLFold_zero))));
+
+theorem lrdu_member_atom(T:set)(a Y i:nat):
+ $ sfRename (sfLReplacementDefinableEnv T a Y) 0 (sfMem (i + 2) 0) =
+   sfCLBallMemberRows T Y @ i $ =
+ '(eqtr sfRename_sfMem (eqtr (nsMem_eq
+  (eqtr sfRenameIndex_zero lrdu_env_tail)
+  (eqtr sfRenameIndex_zero lrdu_env_zero)) (eqcom sfCLBallMemberRows_value)));
+
+theorem lrdu_members_step(T:set)(a Y m:nat):
+ $ sfRename (sfLReplacementDefinableEnv T a Y) 0 (sfCLMembership 2 0 m) =
+   sfCLFold (sfCLBallMemberRows T Y) m ->
+   sfRename (sfLReplacementDefinableEnv T a Y) 0 (sfCLMembership 2 0 (suc m)) =
+   sfCLFold (sfCLBallMemberRows T Y) (suc m) $ =
+ '(eqtrd (a1i (sfRenameeq3 sfCLMembership_suc))
+  (eqtrd (a1i sfRename_sfAnd)
+   (eqtrd (sfAndeqd id (a1i lrdu_member_atom)) (a1i (eqcom sfCLFold_suc)))));
+
+theorem lrdu_members(T:set)(a Y m:nat):
+ $ sfRename (sfLReplacementDefinableEnv T a Y) 0 (sfCLMembership 2 0 m) =
+   sfCLFold (sfCLBallMemberRows T Y) m $ =
+ (named @ induct '(ind) 'm 'lrdu_members_zero 'lrdu_members_step);
+
+theorem lrdu_antecedent(T:set)(a Y m:nat):
+ $ sfRename (sfLReplacementDefinableEnv T a Y) 0 (sfLReplacementDefinableAntecedent m) =
+   sfAnd (sfCLOrdinalAt a) (sfAnd (sfCLHierarchyAt a Y) (sfCLFold (sfCLBallMemberRows T Y) m)) $ =
+ '(eqtr sfRename_sfAnd (nsAnd_eq
+  (eqtr sfCLOrdinalAt_rename (sfCLOrdinalAteq (eqtr sfRenameIndex_zero lrdu_env_one)))
+  (eqtr sfRename_sfAnd (nsAnd_eq
+   (eqtr sfCLHierarchyAt_rename (sfCLHierarchyAteq
+    (eqtr sfRenameIndex_zero lrdu_env_one) (eqtr sfRenameIndex_zero lrdu_env_zero))) lrdu_members))));
+
+theorem lrdu_body(T:set)(a Y m psi:nat)(hf:$ sfWf psi $):
+ $ sfRename (sfLReplacementDefinableEnv T a Y) 0 (sfLReplacementDefinableBody m psi) =
+   sfImp (sfAnd (sfCLOrdinalAt a) (sfAnd (sfCLHierarchyAt a Y) (sfCLFold (sfCLBallMemberRows T Y) m)))
+     (sfLReplacementImageDefinable T sfLDomain psi Y) $ =
+ '(eqtr sfRename_sfImp (nsImp_eq lrdu_antecedent (lrdu_image hf)));
+
+theorem lrdu_finite_agree(F:set)(n:nat):
+ $ sfRenameMapAgree (sfCLBallEnv F n) F n $ =
+ (named '(ax_gen (eqtrd (a1i sfCLBallEnv_value) ifpos)));
+
+theorem lrdu_finite_eq(F:set)(n body:nat)(hb:$ sfBound n body $):
+ $ sfRename (sfCLBallEnv F n) 0 body = sfRename F 0 body $ =
+ '(ax_mp (ax_mp sfRename_bounded_agreement lrdu_finite_agree)
+  (mpbir (sfBoundeq1 add01) hb));
+
+theorem lrdu_local(T:set)(G m psi a Y:nat)
+ (hb:$ sfBound (suc m) psi $)
+ (hp:$ nsLocal G (sfLReplacementDefinableLaw m psi) $):
+ $ nsLocal G (sfImp
+   (sfAnd (sfCLOrdinalAt a) (sfAnd (sfCLHierarchyAt a Y) (sfCLFold (sfCLBallMemberRows T Y) m)))
+   (sfLReplacementImageDefinable T sfLDomain psi Y)) $ =
+ '(sfRQ_rewrite (eqtr (lrdu_finite_eq (sfLReplacementDefinableBody_bound hb))
+    (lrdu_body (ax_mp sfBound_wf hb))) (sfLReplacementDefinableLaw_eliminate hp));
+
+pub theorem sfLReplacementDefinableLaw_use(T:set)(G m psi beta Y:nat)
+ (hb:$ sfBound (suc m) psi $)
+ (hp:$ nsLocal G (sfLReplacementDefinableLaw m psi) $)
+ (ho:$ nsLocal G (sfCLOrdinalAt beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hm:$ sfCLRowProofs (sfCLBallMemberRows T Y) G m $):
+ $ nsLocal G (sfLReplacementImageDefinable T sfLDomain psi Y) $ =
+ '(ax_mp (ax_mp nsLocal_mp (lrdu_local hb hp))
+  (ax_mp (ax_mp sfLocal_and ho)
+   (ax_mp (ax_mp sfLocal_and hl) (ax_mp (sfCLFold_proof (ax_mp nsLocal_context_wf hp)) hm))));

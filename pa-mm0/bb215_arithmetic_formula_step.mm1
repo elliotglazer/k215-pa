@@ -1,0 +1,45 @@
+import "bb215_arithmetic_formula_move.mm1";
+
+import "bb215_arithmetic_formula_nth_scalar.mm1";
+
+import "bb215_table_arithmetic_valid_graph.mm1";
+
+import "bb215_table_arithmetic_guards.mm1";
+
+@_ abstract def bb215ArithmeticFormulaStepLookup (T q b a .i .v: nat): wff = $ E. i E. v (bb215ArithmeticFormulaPairGraph q b i /\ bb215ArithmeticFormulaNthScalarGraph i T v /\ bb215ArithmeticFormulaPredecessorGraph v a) $;
+
+pub theorem bb215ArithmeticFormulaStepLookup_correct (T q b a: nat) {i v: nat}: $ bb215ArithmeticFormulaStepLookup T q b a <-> bb215Action T q b = a $ = (named '(bitr (!! exeqi i @ !! exeqi v @ aneq1i (aneq2i (bitr bb215ArithmeticFormulaNthScalarGraph_correct (bicom bb215ArithmeticFormulaListNthGraph_correct)))) bb215TableArithmeticLookupGraph_correct));
+
+@_ abstract def bb215ArithmeticFormulaStepActionMove (a l r u .w .d .q: nat): wff = $ E. w E. d E. q (bb215ArithmeticFormulaStateGraph w d q a /\ bb215ArithmeticFormulaMoveGraph w d q l r u) $;
+
+theorem bb215ArithmeticFormulaStepActionMove_q (a l r u w d: nat) {q: nat}: $ (E. q (bb215ArithmeticFormulaStateGraph w d q a /\ bb215ArithmeticFormulaMoveGraph w d q l r u)) <-> w = k215TMWrite a /\ (d = k215TMDir a /\ bb215ArithmeticFormulaMoveGraph w d (k215TMTarget a) l r u) $ = (named '(bitr (!! exeqi q (bitr (aneq1i (bitr bb215ArithmeticFormulaStateGraph_components (aneq eqcomb (aneq eqcomb eqcomb)))) (bitr anass (aneq2i anass)))) (bitr exan1 (aneq2i (bitr exan1 (aneq2i (!! exeqe q (bb215ArithmeticFormulaMoveGrapheq3d id))))))));
+
+theorem bb215ArithmeticFormulaStepActionMove_d (a l r u w: nat) {d q: nat}: $ (E. d E. q (bb215ArithmeticFormulaStateGraph w d q a /\ bb215ArithmeticFormulaMoveGraph w d q l r u)) <-> w = k215TMWrite a /\ bb215ArithmeticFormulaMoveGraph w (k215TMDir a) (k215TMTarget a) l r u $ = (named '(bitr (!! exeqi d bb215ArithmeticFormulaStepActionMove_q) (bitr exan1 (aneq2i (!! exeqe d (bb215ArithmeticFormulaMoveGrapheq2d id))))));
+
+pub theorem bb215ArithmeticFormulaStepActionMove_correct (a l r u: nat) {w d q: nat}: $ bb215ArithmeticFormulaStepActionMove a l r u <-> k215TMMove a l r = u $ = (named '(bitr (!! exeqi w bb215ArithmeticFormulaStepActionMove_d) (bitr (!! exeqe w (bb215ArithmeticFormulaMoveGrapheq1d id)) (bitr bb215ArithmeticFormulaMoveGraph_correct (eqeq1 bb215ArithmeticFormulaMoveValue_actual)))));
+
+@_ abstract def bb215ArithmeticFormulaStepReadAction (T q b l r u .a: nat): wff = $ E. a (bb215ArithmeticFormulaStepLookup T q b a /\ bb215ArithmeticFormulaStepActionMove a l r u) $;
+
+pub theorem bb215ArithmeticFormulaStepReadAction_correct (T q b l r u: nat) {a: nat}: $ bb215ArithmeticFormulaStepReadAction T q b l r u <-> k215TMMove (bb215Action T q b) l r = u $ = (named '(bitr (!! exeqi a (aneq1i (bitr bb215ArithmeticFormulaStepLookup_correct eqcomb))) (bitr (!! exeqe a (bb215ArithmeticFormulaStepActionMoveeq1d id)) bb215ArithmeticFormulaStepActionMove_correct)));
+
+@_ abstract def bb215ArithmeticFormulaStepRead (T q l r u .rq .b: nat): wff = $ E. rq E. b (bb215ArithmeticFormulaHalvingGraph r rq b /\ bb215ArithmeticFormulaStepReadAction T q b l r u) $;
+
+theorem bb215ArithmeticFormulaStepRead_b (T q l r u rq: nat) {b: nat}: $ (E. b (bb215ArithmeticFormulaHalvingGraph r rq b /\ bb215ArithmeticFormulaStepReadAction T q b l r u)) <-> rq = r // 2 /\ bb215ArithmeticFormulaStepReadAction T q (r % 2) l r u $ = (named '(bitr (!! exeqi b (bitr (aneq1i (bitr bb215ArithmeticFormulaHalvingGraph_correct (aneq eqcomb eqcomb))) anass)) (bitr exan1 (aneq2i (!! exeqe b (bb215ArithmeticFormulaStepReadActioneq3d id))))));
+
+pub theorem bb215ArithmeticFormulaStepRead_correct (T q l r u: nat) {rq b: nat}: $ bb215ArithmeticFormulaStepRead T q l r u <-> k215TMMove (bb215Action T q (r % 2)) l r = u $ = (named '(bitr (!! exeqi rq bb215ArithmeticFormulaStepRead_b) (bitr (!! exeqe rq biidd) bb215ArithmeticFormulaStepReadAction_correct)));
+
+@_ abstract def bb215ArithmeticFormulaStepScalar (T q l r u: nat): wff = $ bb215ArithmeticFormulaConditional (bb215TableArithmeticWorkingGraph q) (bb215ArithmeticFormulaStepRead T q l r u) (bb215ArithmeticFormulaStateGraph q l r u) $;
+
+@_ abstract def bb215ArithmeticFormulaStepScalarValue (T q l r: nat): nat = $ if (q < k215Num215) (k215TMMove (bb215Action T q (r % 2)) l r) (k215TMState q l r) $;
+
+pub theorem bb215ArithmeticFormulaStepScalar_correct (T q l r u: nat): $ bb215ArithmeticFormulaStepScalar T q l r u <-> bb215ArithmeticFormulaStepScalarValue T q l r = u $ = (named '(bitr (aneq (imeqi bb215TableArithmeticWorkingGraph_correct bb215ArithmeticFormulaStepRead_correct) (oreqi bb215TableArithmeticWorkingGraph_correct (bitr bb215ArithmeticFormulaStateGraph_correct eqcomb))) bb215ArithmeticFormulaConditional_numeric));
+
+pub theorem bb215ArithmeticFormulaStepScalarValue_actual (T s: nat): $ bb215ArithmeticFormulaStepScalarValue T (k215TMQ s) (k215TML s) (k215TMR s) = bb215Step T s $ = (named '(ifeq3 k215TMState_rebuild));
+
+@_ abstract def bb215ArithmeticFormulaStepGraph (T s u .q .l .r: nat): wff = $ E. q E. l E. r (bb215ArithmeticFormulaStateGraph q l r s /\ bb215ArithmeticFormulaStepScalar T q l r u) $;
+
+theorem bb215ArithmeticFormulaStepGraph_r (T s u q l: nat) {r: nat}: $ (E. r (bb215ArithmeticFormulaStateGraph q l r s /\ bb215ArithmeticFormulaStepScalar T q l r u)) <-> q = k215TMQ s /\ (l = k215TML s /\ bb215ArithmeticFormulaStepScalar T q l (k215TMR s) u) $ = (named '(bitr (!! exeqi r (bitr (aneq1i (bitr bb215ArithmeticFormulaStateGraph_components (aneq eqcomb (aneq eqcomb eqcomb)))) (bitr anass (aneq2i anass)))) (bitr exan1 (aneq2i (bitr exan1 (aneq2i (!! exeqe r (bb215ArithmeticFormulaStepScalareq4d id))))))));
+
+theorem bb215ArithmeticFormulaStepGraph_l (T s u q: nat) {l r: nat}: $ (E. l E. r (bb215ArithmeticFormulaStateGraph q l r s /\ bb215ArithmeticFormulaStepScalar T q l r u)) <-> q = k215TMQ s /\ bb215ArithmeticFormulaStepScalar T q (k215TML s) (k215TMR s) u $ = (named '(bitr (!! exeqi l bb215ArithmeticFormulaStepGraph_r) (bitr exan1 (aneq2i (!! exeqe l (bb215ArithmeticFormulaStepScalareq3d id))))));
+
+pub theorem bb215ArithmeticFormulaStepGraph_correct (T s u: nat) {q l r: nat}: $ bb215ArithmeticFormulaStepGraph T s u <-> bb215Step T s = u $ = (named '(bitr (!! exeqi q bb215ArithmeticFormulaStepGraph_l) (bitr (!! exeqe q (bb215ArithmeticFormulaStepScalareq2d id)) (bitr bb215ArithmeticFormulaStepScalar_correct (eqeq1 bb215ArithmeticFormulaStepScalarValue_actual)))));

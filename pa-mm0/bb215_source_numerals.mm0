@@ -1,0 +1,29 @@
+import "source_syntax_laws.mm0";
+
+def bb215SFZero: nat = $ sfAll (sfImp (sfMem 0 1) sfBot) $;
+
+def bb215SFSuccGraph: nat = $ sfAll (sfAnd (sfImp (sfMem 0 2) (sfOr (sfMem 0 1) (sfEq 0 1))) (sfImp (sfOr (sfMem 0 1) (sfEq 0 1)) (sfMem 0 2))) $;
+
+def bb215SFNumeralStep (c: nat): nat = $ sfEx (sfAnd c bb215SFSuccGraph) $;
+
+def bb215SFNumeral (n .c: nat): nat = $ rec bb215SFZero (\ c, bb215SFNumeralStep c) n $;
+
+def bb215SFNumeralInstance (n a: nat): nat = $ sfEx (sfAnd (bb215SFNumeral n) a) $;
+
+theorem bb215SFNumeral_zero: $ bb215SFNumeral 0 = bb215SFZero $;
+
+theorem bb215SFNumeral_succ (n: nat): $ bb215SFNumeral (suc n) = bb215SFNumeralStep (bb215SFNumeral n) $;
+
+theorem bb215SFZero_bound: $ sfBound 1 bb215SFZero $;
+
+theorem bb215SFSuccGraph_bound: $ sfBound 2 bb215SFSuccGraph $;
+
+theorem bb215SFNumeralStep_bound (c: nat): $ sfBound 1 c -> sfBound 1 (bb215SFNumeralStep c) $;
+
+theorem bb215SFNumeral_bound (n: nat): $ sfBound 1 (bb215SFNumeral n) $;
+
+theorem bb215SFNumeral_wf (n: nat): $ sfWf (bb215SFNumeral n) $;
+
+theorem bb215SFNumeralInstance_closed (n a: nat): $ sfBound 1 a -> sfBound 0 (bb215SFNumeralInstance n a) $;
+
+theorem bb215SFNumeralInstance_wf (n a: nat): $ sfBound 1 a -> sfWf (bb215SFNumeralInstance n a) $;

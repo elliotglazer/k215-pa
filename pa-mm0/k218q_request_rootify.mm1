@@ -1,0 +1,62 @@
+import "k218q_matrix_request.mm1";
+import "k218q_seed_request.mm1";
+
+@_ def k218PointRequest (E: set) (B p c x y f: nat): nat =
+ $ kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f)
+   (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f)
+     (kMem y c)))) $;
+
+theorem k218RR_consequent (a b c: nat) (h: $ k218QProvable (kImp b c) $):
+ $ k218QProvable (kImp (kImp a b) (kImp a c)) $ =
+'(k218QProvable_mp h (k218QProvable_mp k218IPropB k218IPropC));
+
+theorem k218RR_and_commute (p q: nat):
+ $ k218QProvable (kImp (kAnd p q) (kAnd q p)) $ =
+'(k218QProvable_mp k218IPropAndLeft
+  (k218QProvable_mp (k218IProvable_syl k218IPropAndRight k218IPropAndIntro) k218IPropS));
+
+theorem k218RR_witness_substitution (E: set) (n B p c x y f: nat)
+ (hx: $ x < B $) (hx0: $ x != 0 $)
+ (hxp: $ x != p $) (hxc: $ x != c $)
+ (hex: $ sqEnvAvoid E n x $) (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (kAnd (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kMem x c)) x y =
+   kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c) $ =
+'(eqtr (qsSubst_kAnd hx0) (kAndeq
+  (k218RoleOutput_substitution hx hx0 hxp hex hf)
+  (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (ax_mp necom hxc))))));
+
+theorem k218RR_witness_back (E: set) (n B p c x y f: nat)
+ (hx: $ x < B $) (hy: $ y < B $) (hx0: $ x != 0 $) (hy0: $ y != 0 $)
+ (hxy: $ x != y $) (hxp: $ x != p $) (hxc: $ x != c $)
+ (hyp: $ y != p $) (hyc: $ y != c $)
+ (hex: $ sqEnvAvoid E n x $) (hey: $ sqEnvAvoid E n y $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218QProvable (kImp
+     (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f) (kMem y c)))
+     (kExists x (kAnd (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f) (kMem x c)))) $ =
+'(mpbi (k218QProvableeq (kImpeq1 (kExistseq2
+    (k218RR_witness_substitution hx hx0 hxp hxc hex hf))))
+  (ax_mp (ax_mp (ax_mp k218IAlpha_exists_backward hxy)
+    (ax_mp (ax_mp kBinderAbsent_and_intro
+      (ax_mp (sfNamedTemplate_binder_absent hx) (ax_mp sfBound_wf hf))) kBinderAbsent_kMem))
+    (ax_mp (ax_mp (ax_mp kFresh_and_intro hy0)
+      (ax_mp (ax_mp (sfNamedTemplate_fresh hy hy0)
+        (mpbir (sfBoundeq1 add01) hf))
+        (ax_mp (ax_mp k218RoleAvoid_cons (ax_mp necom hxy))
+          (ax_mp (ax_mp k218RoleAvoid_cons hyp) hey))))
+      (ax_mp (ax_mp kFresh_mem_intro (ax_mp necom hxy)) hyc))));
+
+pub theorem k218QRequest_rootify (E: set) (n B p c x y f: nat)
+ (hx: $ x < B $) (hy: $ y < B $) (hx0: $ x != 0 $) (hy0: $ y != 0 $)
+ (hxy: $ x != y $) (hxp: $ x != p $) (hxc: $ x != c $)
+ (hyp: $ y != p $) (hyc: $ y != c $)
+ (hex: $ sqEnvAvoid E n x $) (hey: $ sqEnvAvoid E n y $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218QProvable (kImp (k218PointRequest E B p c x y f)
+     (k218MatrixRequest E B x p c f)) $ =
+'(k218IProvable_syl
+  (k218IAll_mono (k218RR_consequent
+    (k218RR_witness_back hx hy hx0 hy0 hxy hxp hxc hyp hyc hex hey hf)))
+  (k218IProvable_syl
+    (k218QRequest_root hx0 (ax_mp (sfNamedTemplate_binder_absent hx) (ax_mp sfBound_wf hf)))
+    (k218RR_consequent (k218IExists_mono k218RR_and_commute))));

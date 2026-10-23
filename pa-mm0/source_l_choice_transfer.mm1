@@ -1,0 +1,42 @@
+import "source_l_choice_core.mm1";
+import "source_relative_theory.mm1";
+
+-- T1 and Unique are the universal hierarchy laws (AWS receipts) in the common-level vocabulary;
+-- T1^L and T2^L come from T1, T2 by the generic relativization transfer.
+
+theorem cht_ordinal_zero: $ sfCLOrdinalAt 0 = sfLeastOrdinalPredicate $ =
+'(eqtr (eqtr (ax_mp (ax_mp sfRename_bounded_agreement chc_map_agree)
+   (mpbir (sfSchema_bound_index_eq add01) sfCLOrdinal_bound))
+  (ax_mp sfRename_identity sfCLOrdinal_wf)) cl2c_code);
+
+pub theorem sfLChoiceT1_eq: $ sfLChoiceT1 = sfLUniversalHierarchyExists $ =
+'(eqtr (nsAll_eq (nsImp_eq cht_ordinal_zero (nsEx_eq sfCL2_hierarchy_relation)))
+  sfLUniversalHierarchyExists_consumer_eq);
+
+pub theorem sfLChoiceUnique_eq: $ sfLChoiceUnique = sfLUniversalHierarchyUnique $ =
+'(eqtr (nsAll_eq (nsAll_eq (nsAll_eq (nsImp_eq cl2s_ordinal
+   (nsImp_eq sfCL2_hierarchy_relation (nsImp_eq sfCL2_hierarchy_relation eqid))))))
+  sfLUniversalHierarchyUnique_consumer_eq);
+
+pub theorem sfLChoice_relative_transfer (a: nat)
+ (hi: $ sfRelativeAxiomImages zfrAxioms zfrAxioms sfLDomain $)
+ (hN: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hb: $ sfBound 0 a $) (h: $ sfTheoryProvable zfrAxioms a $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain a) $ =
+'(ax_mp (ax_mp (sfRelativeTheory_transfer zfrAxioms_closed sfLDomain_bound hi hN) hb) h);
+
+pub theorem sfLChoice_from_hierarchy
+ (hi: $ sfRelativeAxiomImages zfrAxioms zfrAxioms sfLDomain $)
+ (hN: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (h2: $ sfTheoryProvable zfrAxioms sfLChoiceT2 $)
+ (hUp: $ sfTheoryProvable zfrAxioms sfLChoiceUp $)
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $)
+ (hOD: $ sfTheoryProvable zfrAxioms sfLChoiceOrdDown $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $ =
+'(sfLChoice_from_parts
+  (sfLChoice_relative_transfer hi hN cha_t1_bound (mpbir (sfTheoryProvableeq2 sfLChoiceT1_eq) hE))
+  (sfLChoice_relative_transfer hi hN cha_t2_bound h2)
+  (mpbir (sfTheoryProvableeq2 sfLChoiceUnique_eq) hU)
+  hUp hOL hOD);

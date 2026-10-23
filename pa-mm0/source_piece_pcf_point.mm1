@@ -1,0 +1,121 @@
+import "source_piece_pcf_triple_maps.mm1";
+import "source_piece_pcf_collection_output.mm1";
+import "source_piece_pcf_point_weak.mm1";
+
+-- These definitional equality lemmas are authoring support, not new axioms.
+do { (add-eqd-thm 'sfLCBinaryMap 'pcptLCBinaryMapCong)
+     (add-eqd-thm 'sfPieceTripleMap 'pcptTripleMapCong)
+     (add-eqd-thm 'sfLCBinary 'pcptLCBinaryCong)
+     (add-eqd-thm 'sfPieceTriple 'pcptTripleCong) };
+
+@_ def sfPiecePointBody (body:nat):nat =
+ $ sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceTriple body 0 3 1 4)) $;
+@_ def sfPiecePointPrelude (body:nat):nat =
+ $ sfShift 0 (sfAll (sfLCBinary (sfEx (sfAnd sfLeastOrdinalPredicate body)) 1 0 2)) $;
+
+theorem pcpt_depth_zero: $ sfRenameDepthMap (sfLCBinaryMap 1 0 2) 1 @ 0 = 0 $ =
+'(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound d0lt1));
+theorem pcpt_depth_suc(i:nat):
+ $ sfRenameDepthMap (sfLCBinaryMap 1 0 2) 1 @ suc i = suc (sfLCBinaryMap 1 0 2 @ i) $ =
+'(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)));
+theorem pcpt_map_zero:
+ $ sfRenameDepthMap (sfLCBinaryMap 1 0 2) 1 @ 0 = sfPieceTripleMap 0 2 1 3 @ 0 $ =
+'(eqtr pcpt_depth_zero (eqcom sfPCT_zero));
+theorem pcpt_map_one:
+ $ sfRenameDepthMap (sfLCBinaryMap 1 0 2) 1 @ 1 = sfPieceTripleMap 0 2 1 3 @ 1 $ =
+'(eqtr pcpt_depth_suc (eqtr (suceq sfLCB_zero) (eqcom sfPCT_one)));
+theorem pcpt_map_two:
+ $ sfRenameDepthMap (sfLCBinaryMap 1 0 2) 1 @ 2 = sfPieceTripleMap 0 2 1 3 @ 2 $ =
+'(eqtr pcpt_depth_suc (eqtr (suceq sfLCB_one) (eqcom sfPCT_two)));
+theorem pcpt_map_tail(i:nat):
+ $ sfRenameDepthMap (sfLCBinaryMap 1 0 2) 1 @ suc (suc (suc i)) =
+   sfPieceTripleMap 0 2 1 3 @ suc (suc (suc i)) $ =
+'(eqtr pcpt_depth_suc (eqtr (suceq sfLCB_tail)
+ (eqtr (eqcom addS2) (eqcom sfPCT_tail))));
+theorem pcpt_map_ss(i:nat):
+ $ sfRenameDepthMap (sfLCBinaryMap 1 0 2) 1 @ suc (suc i) = sfPieceTripleMap 0 2 1 3 @ suc (suc i) $ =
+(named @ induct '(ind) 'i 'pcpt_map_two '(a1i pcpt_map_tail));
+theorem pcpt_map_s(i:nat):
+ $ sfRenameDepthMap (sfLCBinaryMap 1 0 2) 1 @ suc i = sfPieceTripleMap 0 2 1 3 @ suc i $ =
+(named @ induct '(ind) 'i 'pcpt_map_one '(a1i pcpt_map_ss));
+theorem pcpt_map_each(i:nat):
+ $ sfRenameDepthMap (sfLCBinaryMap 1 0 2) 1 @ i = sfPieceTripleMap 0 2 1 3 @ i $ =
+(named @ induct '(ind) 'i 'pcpt_map_zero '(a1i pcpt_map_s));
+theorem pcpt_rename_one(body:nat) (hf:$ sfWf body $):
+ $ sfRename (sfLCBinaryMap 1 0 2) 1 body = sfPieceTriple body 0 2 1 3 $ =
+'(eqtr (ax_mp sfRename_as_map hf)
+ (ax_mp (sfRename_extensional (!! ax_gen i @ ! pcpt_map_each i)) hf));
+
+theorem pcpt_ex_open(body:nat) (hf:$ sfWf body $):
+ $ sfLCBinary (sfEx (sfAnd sfLeastOrdinalPredicate body)) 1 0 2 =
+   sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceTriple body 0 2 1 3)) $ =
+'(eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd
+ (nsAnd_eq (ax_mp sfRename_bound_identity sfLeastOrdinalPredicate_bound) (pcpt_rename_one hf)))));
+theorem pcpt_shift_zero: $ sfShiftIndex 2 0 = 0 $ =
+'(ax_mp sfShiftIndex_bound d0lt2);
+theorem pcpt_shift_one: $ sfShiftIndex 2 1 = 1 $ =
+'(ax_mp sfShiftIndex_bound d1lt2);
+theorem pcpt_shift_two: $ sfShiftIndex 2 2 = 3 $ =
+'(ax_mp sfShiftIndex_free ltirr);
+theorem pcpt_two_le_three: $ 2 <= 3 $ =
+'(ax_mp ltle (mpbi ltsuc (mpbi ltsuc d0lt1)));
+theorem pcpt_shift_body(body:nat) (hf:$ sfWf body $):
+ $ sfShift 2 (sfPieceTriple body 0 2 1 3) = sfPieceTriple body 0 3 1 4 $ =
+'(eqtr (sfPieceTriple_shift hf pcpt_two_le_three)
+ (sfPieceTriple_congr hf pcpt_shift_zero pcpt_shift_two pcpt_shift_one eqid));
+theorem pcpt_shift_ordinal: $ sfShift 2 sfLeastOrdinalPredicate = sfLeastOrdinalPredicate $ =
+'(ax_mp sfShift_bound_identity
+ (ax_mp (ax_mp sfBound_mono_le (ax_mp ltle d1lt2)) sfLeastOrdinalPredicate_bound));
+pub theorem sfPiecePointPrelude_code (body:nat) (hf:$ sfWf body $):
+ $ sfPiecePointPrelude body = sfAll (sfPiecePointBody body) $ =
+'(eqtr (trud (sfRL_Shift_formula (a1i (nsAll_eq (pcpt_ex_open hf)))))
+ (eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfEx
+ (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq pcpt_shift_ordinal (pcpt_shift_body hf))))))));
+
+@_ def sfPiecePointMap:set =
+ $ sfComposeMap (sfLCBinaryMap 0 1 3) sfPieceQMap $;
+theorem pcpt_q_map_zero: $ sfPiecePointMap @ 0 = sfPieceTripleMap 0 3 1 4 @ 0 $ =
+'(eqtr sfComposeMap_value
+ (eqtr (appeq2 pcdo_q_zero) (eqtr sfLCB_zero (eqcom sfPCT_zero))));
+theorem pcpt_q_map_one: $ sfPiecePointMap @ 1 = sfPieceTripleMap 0 3 1 4 @ 1 $ =
+'(eqtr sfComposeMap_value
+ (eqtr (appeq2 pcdo_q_one) (eqtr sfLCB_tail (eqtr add01 (eqcom sfPCT_one)))));
+theorem pcpt_q_map_two: $ sfPiecePointMap @ 2 = sfPieceTripleMap 0 3 1 4 @ 2 $ =
+'(eqtr sfComposeMap_value
+ (eqtr (appeq2 pcdo_q_two) (eqtr sfLCB_one (eqcom sfPCT_two))));
+theorem pcpt_q_map_tail(i:nat):
+ $ sfPiecePointMap @ suc (suc (suc i)) = sfPieceTripleMap 0 3 1 4 @ suc (suc (suc i)) $ =
+'(eqtr sfComposeMap_value
+ (eqtr (appeq2 pcdo_q_tail) (eqtr sfLCB_tail (eqtr addSass (eqcom sfPCT_tail)))));
+theorem pcpt_q_map_ss(i:nat):
+ $ sfPiecePointMap @ suc (suc i) = sfPieceTripleMap 0 3 1 4 @ suc (suc i) $ =
+(named @ induct '(ind) 'i 'pcpt_q_map_two '(a1i pcpt_q_map_tail));
+theorem pcpt_q_map_s(i:nat):
+ $ sfPiecePointMap @ suc i = sfPieceTripleMap 0 3 1 4 @ suc i $ =
+(named @ induct '(ind) 'i 'pcpt_q_map_one '(a1i pcpt_q_map_ss));
+pub theorem sfPiecePointMap_at (i:nat):
+ $ sfPiecePointMap @ i = sfPieceTripleMap 0 3 1 4 @ i $ =
+(named @ induct '(ind) 'i 'pcpt_q_map_zero '(a1i pcpt_q_map_s));
+theorem pcpt_q_body(body:nat) (hf:$ sfWf body $):
+ $ sfLCBinary (sfRename sfPieceQMap 0 body) 0 1 3 = sfPieceTriple body 0 3 1 4 $ =
+'(eqtr (ax_mp sfRename_compose hf)
+ (ax_mp (sfRename_extensional (!! ax_gen i @ ! sfPiecePointMap_at i)) hf));
+pub theorem sfPiecePoint_code (body:nat) (hf:$ sfWf body $):
+ $ sfOrdinalCollectionPoint (sfRename sfPieceQMap 0 body) =
+   sfAll (sfImp (sfMem 0 1) (sfPiecePointBody body)) $ =
+'(nsAll_eq (nsImp_eq eqid (nsEx_eq (nsAnd_eq eqid (pcpt_q_body hf)))));
+
+-- Each use below transforms an actual finite source proof. No semantic
+-- existence or formula-class callback is used.
+theorem pcpt_prelude_rule(T:set) (body:nat) (ht:$ sfTheoryClosed T $):
+ $ sfTheoryProvable T (sfEx (sfAnd sfLeastOrdinalPredicate body)) ->
+   sfTheoryProvable T (sfPiecePointPrelude body) $ =
+'(syl (ax_mp sfTheoryProvable_shift ht)
+ (syl (ax_mp sfTheoryProvable_gen ht) (ax_mp sfTheoryProvable_rename ht)));
+pub theorem sfPiecePoint_rule (T:set) (body:nat) (ht:$ sfTheoryClosed T $) (hf:$ sfWf body $):
+ $ sfTheoryProvable T (sfEx (sfAnd sfLeastOrdinalPredicate body)) ->
+   sfTheoryProvable T (sfOrdinalCollectionPoint (sfRename sfPieceQMap 0 body)) $ =
+'(syl (bi2 (trud (sfTheoryProvable_congr (a1i (sfPiecePoint_code hf)))))
+ (syl (sfPieceAllGuard_rule (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf sfLeastOrdinalPredicate_bound)) sfPieceTriple_wf)))
+ (syl (bi1 (trud (sfTheoryProvable_congr (a1i (sfPiecePointPrelude_code hf)))))
+ (pcpt_prelude_rule ht))));

@@ -1,0 +1,226 @@
+import "raw_source_image.mm1";
+import "zfc_propositional.mm1";
+
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+do (apply (register-eqd 'rawDecode) '(rawDecode_congr));
+theorem rawProvable_congr (H: wff) (a b: nat) (h: $ H -> a = b $):
+  $ H -> (zfcProvable a <-> zfcProvable b) $ = (named '(exeqd @ exeqd @ aneq2d @ aneq2d @ lmemeqd
+  (sfSequent_congr (a1i eqid) h) (a1i eqid)));
+do (apply (register-eqd 'zfcProvable) '(rawProvable_congr));
+
+pub theorem rawSource_truth_provable: $ zfcProvable (rawDecode 0) $ =
+'(mpbir (trud (rawProvable_congr (a1i rawDecode_zero))) zfcProvable_truth);
+
+theorem rawSource_mp_zero (a b: nat):
+  $ kImp a b = 0 -> zfcProvable (rawDecode b) $ =
+'(mpbiri rawSource_truth_provable @
+  rawProvable_congr (rawDecode_congr (syl anr (bi1 raw_kImp_zero_iff))));
+theorem rawSource_mp_nonzero (a b: nat):
+  $ kImp a b != 0 -> zfcProvable (rawDecode a) ->
+    zfcProvable (rawDecode (kImp a b)) -> zfcProvable (rawDecode b) $ =
+'(exp @ exp @ sylc zfcProvable_mp
+  (mpbid (rawProvable_congr (syl rawDecode_kImp anll)) anr) anlr);
+pub theorem rawSource_mp (a b: nat):
+  $ zfcProvable (rawDecode a) -> zfcProvable (rawDecode (kImp a b)) ->
+    zfcProvable (rawDecode b) $ =
+'(cases (a1d (a1d rawSource_mp_zero)) rawSource_mp_nonzero);
+
+
+-- Finite source-calculus proof templates used to transport the decoder's
+-- zero collision propositionally. No global syntax homomorphism is assumed.
+theorem rawCtx_cons (H: wff) (a G: nat)
+  (ha: $ H -> sfWf a $) (hG: $ H -> sfContextWf G $):
+  $ H -> sfContextWf (a : G) $ = '(syl (bi2 sfContextWf_cons) (iand ha hG));
+
+def rawKContext (a b: nat): nat = $ b : (a : 0) $;
+def rawKProof (a b: nat): nat =
+$ zfcNDIntro 0 (zfcNDIntro (a : 0) (zfcNDHyp (rawKContext a b) a) b a)
+    a (sfImp b a) $;
+theorem rawK_context (a b: nat):
+  $ sfWf a -> sfWf b -> sfContextWf (rawKContext a b) $ =
+'(exp @ rawCtx_cons anr (rawCtx_cons anl (a1i sfContextWf_nil)));
+theorem rawK_derives (a b: nat):
+  $ sfWf a -> sfWf b ->
+    sfNDFullDerives (rawKProof a b) (sfSequent 0 (sfImp a (sfImp b a))) $ =
+'(exp @ syl zfcNDIntro_derives @ syl zfcNDIntro_derives @
+  mpi (ax_mp sfContext_member_tail sfContext_member_head) @
+  syl zfcNDHyp_derives (imp rawK_context));
+theorem rawK_provable (a b: nat):
+  $ sfWf a -> sfWf b -> zfcProvable (sfImp a (sfImp b a)) $ =
+'(exp @ syl zfcProvable_intro @ iand (a1i zfcContext_nil) (imp rawK_derives));
+theorem rawProvable_weaken (a b: nat):
+  $ sfWf a -> zfcProvable b -> zfcProvable (sfImp a b) $ =
+'(exp @ sylc zfcProvable_mp
+  (sylc rawK_provable (syl zfcProvable_wf anr) anl) anr);
+
+def rawTransContext (a b c: nat): nat =
+$ a : (sfImp b c : (sfImp a b : 0)) $;
+def rawTransBody (a b c: nat): nat =
+$ zfcNDMp (rawTransContext a b c)
+    (zfcNDHyp (rawTransContext a b c) (sfImp b c))
+    (zfcNDMp (rawTransContext a b c)
+      (zfcNDHyp (rawTransContext a b c) (sfImp a b))
+      (zfcNDHyp (rawTransContext a b c) a) b) c $;
+def rawTransProof (a b c: nat): nat =
+$ zfcNDIntro 0
+    (zfcNDIntro (sfImp a b : 0)
+      (zfcNDIntro (sfImp b c : (sfImp a b : 0)) (rawTransBody a b c) a c)
+      (sfImp b c) (sfImp a c))
+    (sfImp a b) (sfImp (sfImp b c) (sfImp a c)) $;
+theorem rawTrans_context (a b c: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfContextWf (rawTransContext a b c) $ =
+'(exp @ exp @ rawCtx_cons anll
+  (rawCtx_cons (sylc sfWf_imp anlr anr)
+    (rawCtx_cons (sylc sfWf_imp anll anlr) (a1i sfContextWf_nil))));
+theorem rawTrans_body (a b c: nat):
+  $ sfContextWf (rawTransContext a b c) ->
+    sfNDFullDerives (rawTransBody a b c) (sfSequent (rawTransContext a b c) c) $ =
+'(sylc zfcNDMp_derives
+  (mpi (ax_mp sfContext_member_tail sfContext_member_head) zfcNDHyp_derives)
+  (sylc zfcNDMp_derives
+    (mpi (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)) zfcNDHyp_derives)
+    (mpi sfContext_member_head zfcNDHyp_derives)));
+theorem rawTrans_provable (a b c: nat):
+  $ sfWf a -> sfWf b -> sfWf c ->
+    zfcProvable (sfImp (sfImp a b) (sfImp (sfImp b c) (sfImp a c))) $ =
+'(exp @ exp @ syl zfcProvable_intro @ iand (a1i zfcContext_nil) @
+  syl zfcNDIntro_derives @ syl zfcNDIntro_derives @ syl zfcNDIntro_derives @
+  syl rawTrans_body (imp @ imp rawTrans_context));
+
+def rawArrowContext (a b c d: nat): nat =
+$ b : (sfImp a c : (sfImp c d : (sfImp b a : 0))) $;
+def rawArrowBody (a b c d: nat): nat =
+$ zfcNDMp (rawArrowContext a b c d)
+    (zfcNDHyp (rawArrowContext a b c d) (sfImp c d))
+    (zfcNDMp (rawArrowContext a b c d)
+      (zfcNDHyp (rawArrowContext a b c d) (sfImp a c))
+      (zfcNDMp (rawArrowContext a b c d)
+        (zfcNDHyp (rawArrowContext a b c d) (sfImp b a))
+        (zfcNDHyp (rawArrowContext a b c d) b) a) c) d $;
+def rawArrowProof (a b c d: nat): nat =
+$ zfcNDIntro 0
+    (zfcNDIntro (sfImp b a : 0)
+      (zfcNDIntro (sfImp c d : (sfImp b a : 0))
+        (zfcNDIntro (sfImp a c : (sfImp c d : (sfImp b a : 0)))
+          (rawArrowBody a b c d) b d)
+        (sfImp a c) (sfImp b d))
+      (sfImp c d) (sfImp (sfImp a c) (sfImp b d)))
+    (sfImp b a) (sfImp (sfImp c d) (sfImp (sfImp a c) (sfImp b d))) $;
+theorem rawArrow_context (a b c d: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfWf d -> sfContextWf (rawArrowContext a b c d) $ =
+'(exp @ exp @ exp @ rawCtx_cons (syl anr anll)
+  (rawCtx_cons (sylc sfWf_imp (syl anl anll) anlr)
+    (rawCtx_cons (sylc sfWf_imp anlr anr)
+      (rawCtx_cons (sylc sfWf_imp (syl anr anll) (syl anl anll)) (a1i sfContextWf_nil)))));
+theorem rawArrow_body (a b c d: nat):
+  $ sfContextWf (rawArrowContext a b c d) ->
+    sfNDFullDerives (rawArrowBody a b c d) (sfSequent (rawArrowContext a b c d) d) $ =
+'(sylc zfcNDMp_derives
+  (mpi (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)) zfcNDHyp_derives)
+  (sylc zfcNDMp_derives
+    (mpi (ax_mp sfContext_member_tail sfContext_member_head) zfcNDHyp_derives)
+    (sylc zfcNDMp_derives
+      (mpi (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))) zfcNDHyp_derives)
+      (mpi sfContext_member_head zfcNDHyp_derives))));
+theorem rawArrow_provable (a b c d: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfWf d ->
+    zfcProvable (sfImp (sfImp b a)
+      (sfImp (sfImp c d) (sfImp (sfImp a c) (sfImp b d)))) $ =
+'(exp @ exp @ exp @ syl zfcProvable_intro @ iand (a1i zfcContext_nil) @
+  syl zfcNDIntro_derives @ syl zfcNDIntro_derives @ syl zfcNDIntro_derives @
+  syl zfcNDIntro_derives @ syl rawArrow_body (imp @ imp @ imp rawArrow_context));
+
+
+@_ def rawPropIff (a b: nat): wff =
+$ zfcProvable (sfImp a b) /\ zfcProvable (sfImp b a) $;
+theorem rawPropIff_congr (H: wff) (a b c d: nat)
+  (ha: $ H -> a = c $) (hb: $ H -> b = d $):
+  $ H -> (rawPropIff a b <-> rawPropIff c d) $ =
+'(aneqd (rawProvable_congr (sfImp_congr ha hb))
+  (rawProvable_congr (sfImp_congr hb ha)));
+do (apply (register-eqd 'rawPropIff) '(rawPropIff_congr));
+
+theorem rawPropIff_refl (a: nat): $ sfWf a -> rawPropIff a a $ =
+'(iand zfcProvable_identity zfcProvable_identity);
+theorem rawPropIff_left_wf (a b: nat): $ rawPropIff a b -> sfWf a $ =
+'(syl anl (syl (bi1 sfWf_imp_iff) (syl zfcProvable_wf anl)));
+theorem rawPropIff_right_wf (a b: nat): $ rawPropIff a b -> sfWf b $ =
+'(syl anr (syl (bi1 sfWf_imp_iff) (syl zfcProvable_wf anl)));
+theorem rawPropIff_from_provable (a b: nat):
+  $ zfcProvable a -> zfcProvable b -> rawPropIff a b $ =
+'(exp @ iand
+  (sylc rawProvable_weaken (syl zfcProvable_wf anl) anr)
+  (sylc rawProvable_weaken (syl zfcProvable_wf anr) anl));
+
+theorem rawTrans_apply (H: wff) (a b c: nat)
+  (ha: $ H -> sfWf a $) (hb: $ H -> sfWf b $) (hc: $ H -> sfWf c $)
+  (hab: $ H -> zfcProvable (sfImp a b) $)
+  (hbc: $ H -> zfcProvable (sfImp b c) $):
+  $ H -> zfcProvable (sfImp a c) $ =
+'(sylc zfcProvable_mp
+  (sylc zfcProvable_mp (mpd hc (mpd hb (syl rawTrans_provable ha))) hab) hbc);
+theorem rawArrow_apply (H: wff) (a b c d: nat)
+  (ha: $ H -> sfWf a $) (hb: $ H -> sfWf b $)
+  (hc: $ H -> sfWf c $) (hd: $ H -> sfWf d $)
+  (hba: $ H -> zfcProvable (sfImp b a) $)
+  (hcd: $ H -> zfcProvable (sfImp c d) $):
+  $ H -> zfcProvable (sfImp (sfImp a c) (sfImp b d)) $ =
+'(sylc zfcProvable_mp
+  (sylc zfcProvable_mp
+    (mpd hd (mpd hc (mpd hb (syl rawArrow_provable ha)))) hba) hcd);
+
+theorem rawPropIff_trans (a b c: nat):
+  $ rawPropIff a b -> rawPropIff b c -> rawPropIff a c $ =
+'(exp @ iand
+  (rawTrans_apply (syl rawPropIff_left_wf anl)
+    (syl rawPropIff_right_wf anl) (syl rawPropIff_right_wf anr) anll anrl)
+  (rawTrans_apply (syl rawPropIff_right_wf anr)
+    (syl rawPropIff_right_wf anl) (syl rawPropIff_left_wf anl) anrr anlr));
+theorem rawPropIff_imp (a b c d: nat):
+  $ rawPropIff a b -> rawPropIff c d -> rawPropIff (sfImp a c) (sfImp b d) $ =
+'(exp @ iand
+  (rawArrow_apply (syl rawPropIff_left_wf anl) (syl rawPropIff_right_wf anl)
+    (syl rawPropIff_left_wf anr) (syl rawPropIff_right_wf anr) anlr anrl)
+  (rawArrow_apply (syl rawPropIff_right_wf anl) (syl rawPropIff_left_wf anl)
+    (syl rawPropIff_right_wf anr) (syl rawPropIff_left_wf anr) anll anrr));
+
+theorem rawSource_imp_zero_provable (a b: nat):
+  $ kImp a b = 0 -> zfcProvable (rawDecode (kImp a b)) $ =
+'(mpbiri rawSource_truth_provable (rawProvable_congr (rawDecode_congr id)));
+theorem rawSource_imp_equiv_zero (a b: nat):
+  $ kImp a b = 0 -> rawPropIff (rawDecode (kImp a b)) (sfImp (rawDecode a) (rawDecode b)) $ =
+'(sylc rawPropIff_from_provable rawSource_imp_zero_provable
+  (sylc rawProvable_weaken (a1i rawDecode_wf) rawSource_mp_zero));
+theorem rawSource_imp_equiv_nonzero (a b: nat):
+  $ kImp a b != 0 -> rawPropIff (rawDecode (kImp a b)) (sfImp (rawDecode a) (rawDecode b)) $ =
+'(mpbiri (ax_mp rawPropIff_refl (sfWf_imp rawDecode_wf rawDecode_wf))
+  (rawPropIff_congr rawDecode_kImp (a1i eqid)));
+pub theorem rawSource_imp_equiv (a b: nat):
+  $ rawPropIff (rawDecode (kImp a b)) (sfImp (rawDecode a) (rawDecode b)) $ =
+'(cases rawSource_imp_equiv_zero rawSource_imp_equiv_nonzero);
+pub theorem rawSource_imp_transport (a b c d: nat):
+  $ rawPropIff (rawDecode a) c -> rawPropIff (rawDecode b) d ->
+    rawPropIff (rawDecode (kImp a b)) (sfImp c d) $ =
+'(exp @ sylc rawPropIff_trans (a1i rawSource_imp_equiv)
+  (sylc rawPropIff_imp anl anr));
+theorem rawSource_imp_transport_at (a b c d: nat)
+  (ha: $ rawPropIff (rawDecode a) c $) (hb: $ rawPropIff (rawDecode b) d $):
+  $ rawPropIff (rawDecode (kImp a b)) (sfImp c d) $ =
+'(ax_mp (ax_mp rawSource_imp_transport ha) hb);
+theorem rawSource_leaf (a: nat): $ rawPropIff (rawDecode a) (rawDecode a) $ =
+'(ax_mp rawPropIff_refl rawDecode_wf);
+pub theorem rawSource_rho8_equiv (a b c u: nat):
+  $ rawPropIff (rawDecode (kRho8 a b c u))
+    (sfRho8 (rawDecode a) (rawDecode b) (rawDecode c) (rawDecode u)) $ =
+'(rawSource_imp_transport_at
+  (rawSource_imp_transport_at
+    (rawSource_imp_transport_at rawSource_leaf rawSource_leaf) rawSource_leaf)
+  (rawSource_imp_transport_at
+    (rawSource_imp_transport_at rawSource_leaf rawSource_leaf)
+    (rawSource_imp_transport_at rawSource_leaf rawSource_leaf)));
+theorem rawSource_rho8_standard (a b c u: nat):
+  $ zfcProvable (sfRho8 (rawDecode a) (rawDecode b) (rawDecode c) (rawDecode u)) $ =
+'(ax_mp (ax_mp (ax_mp (ax_mp zfcProvable_rho8 rawDecode_wf) rawDecode_wf) rawDecode_wf) rawDecode_wf);
+pub theorem rawSource_rho8 (a b c u: nat):
+  $ zfcProvable (rawDecode (kRho8 a b c u)) $ =
+'(ax_mp (ax_mp zfcProvable_mp (ax_mp anr rawSource_rho8_equiv)) rawSource_rho8_standard);

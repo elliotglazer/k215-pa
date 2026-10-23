@@ -1,0 +1,23 @@
+import "source_reflection_transfer_tv_ball.mm1";
+
+@_ def sfTVRowInputs(D G y N C:nat)(.k .c:nat):wff = $ A. k A. c ((k <= N /\ c <= C /\ sfBound (suc k) c) -> (nsLocal G (sfTVRowBall D k (sfRelativize D c) y) /\ nsLocal G (sfTVRowBall D k (sfImp (sfRelativize D c) sfBot) y))) $;
+
+pub theorem sfTVRowInputs_at(D G y N C k c:nat): $ sfTVRowInputs D G y N C -> (k <= N /\ c <= C /\ sfBound (suc k) c) -> (nsLocal G (sfTVRowBall D k (sfRelativize D c) y) /\ nsLocal G (sfTVRowBall D k (sfImp (sfRelativize D c) sfBot) y)) $ = (named '(!! ealie j @ !! ealde z @ bi1d ,eqtac));
+
+theorem sftvri_shift_positive(D G y N C k c:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVRowInputs D G y N C $): $ (k <= N /\ c <= C /\ sfBound (suc k) c) -> nsLocal (sfContextShift G) (sfTVRowBall D k (sfRelativize D c) (suc y)) $ = (named '(mpbid (nsLocaleq2d (syl (sfTVRowBall_shift_if hd) (mpd anr (a1i (ax_mp sfRelativize_bound hd))))) (syl sfSepLocal_shift (syl anl (ax_mp sfTVRowInputs_at hr)))));
+
+theorem sftvri_shift_negative(D G y N C k c:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVRowInputs D G y N C $): $ (k <= N /\ c <= C /\ sfBound (suc k) c) -> nsLocal (sfContextShift G) (sfTVRowBall D k (sfImp (sfRelativize D c) sfBot) (suc y)) $ = (named '(mpbid (nsLocaleq2d (syl (sfTVRowBall_shift_if hd) (mpbird (a1i sfBound_sfImp) (iand (mpd anr (a1i (ax_mp sfRelativize_bound hd))) (a1i sfBound_bot))))) (syl sfSepLocal_shift (syl anr (ax_mp sfTVRowInputs_at hr)))));
+
+pub theorem sfTVRowInputs_shift(D G y N C:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVRowInputs D G y N C $): $ sfTVRowInputs D (sfContextShift G) (suc y) N C $ = (named '(ax_gen @ ax_gen @ iand (sftvri_shift_positive hd hr) (sftvri_shift_negative hd hr)));
+
+theorem sftvri_weaken_at(D G J y N C k c:nat)(hj:$ sfContextWf J $)(hs:$ sfContextSub G J $)(hr:$ sfTVRowInputs D G y N C $): $ (k <= N /\ c <= C /\ sfBound (suc k) c) -> (nsLocal J (sfTVRowBall D k (sfRelativize D c) y) /\ nsLocal J (sfTVRowBall D k (sfImp (sfRelativize D c) sfBot) y)) $ = (named '(iand (syl (ax_mp (ax_mp nsLocal_weaken hj) hs) (syl anl (ax_mp sfTVRowInputs_at hr))) (syl (ax_mp (ax_mp nsLocal_weaken hj) hs) (syl anr (ax_mp sfTVRowInputs_at hr)))));
+
+pub theorem sfTVRowInputs_weaken(D G J y N C:nat)(hj:$ sfContextWf J $)(hs:$ sfContextSub G J $)(hr:$ sfTVRowInputs D G y N C $): $ sfTVRowInputs D J y N C $ = (named '(ax_gen @ ax_gen @ sftvri_weaken_at hj hs hr));
+
+theorem sftvri_shift_if_at(H:wff)(D G y N C k c:nat)(hd:$ sfBound 1 D $)(hr:$ H -> sfTVRowInputs D G y N C $): $ (H /\ (k <= N /\ c <= C /\ sfBound (suc k) c)) -> (nsLocal (sfContextShift G) (sfTVRowBall D k (sfRelativize D c) (suc y)) /\ nsLocal (sfContextShift G) (sfTVRowBall D k (sfImp (sfRelativize D c) sfBot) (suc y))) $ = (named '(iand (mpbid (nsLocaleq2d (syl (sfTVRowBall_shift_if hd) (mpd (syl anr anr) (a1i (ax_mp sfRelativize_bound hd))))) (syl sfSepLocal_shift (syl anl (mpd anr (syl sfTVRowInputs_at (syl hr anl)))))) (mpbid (nsLocaleq2d (syl (sfTVRowBall_shift_if hd) (mpbird (a1i sfBound_sfImp) (iand (mpd (syl anr anr) (a1i (ax_mp sfRelativize_bound hd))) (a1i sfBound_bot))))) (syl sfSepLocal_shift (syl anr (mpd anr (syl sfTVRowInputs_at (syl hr anl))))))));
+
+pub theorem sfTVRowInputs_shift_if(H:wff)(D G y N C:nat)(hd:$ sfBound 1 D $)(hr:$ H -> sfTVRowInputs D G y N C $): $ H -> sfTVRowInputs D (sfContextShift G) (suc y) N C $ = (named '(!! iald k @ !! iald c @ exp @ sftvri_shift_if_at hd hr));
+
+theorem sftvri_weaken_if_at(H:wff)(D G J y N C k c:nat)(hj:$ H -> sfContextWf J $)(hs:$ H -> sfContextSub G J $)(hr:$ H -> sfTVRowInputs D G y N C $): $ (H /\ (k <= N /\ c <= C /\ sfBound (suc k) c)) -> (nsLocal J (sfTVRowBall D k (sfRelativize D c) y) /\ nsLocal J (sfTVRowBall D k (sfImp (sfRelativize D c) sfBot) y)) $ = (named '(iand (mpd (syl anl (mpd anr (syl sfTVRowInputs_at (syl hr anl)))) (mpd (syl hs anl) (syl nsLocal_weaken (syl hj anl)))) (mpd (syl anr (mpd anr (syl sfTVRowInputs_at (syl hr anl)))) (mpd (syl hs anl) (syl nsLocal_weaken (syl hj anl))))));
+
+pub theorem sfTVRowInputs_weaken_if(H:wff)(D G J y N C:nat)(hj:$ H -> sfContextWf J $)(hs:$ H -> sfContextSub G J $)(hr:$ H -> sfTVRowInputs D G y N C $): $ H -> sfTVRowInputs D J y N C $ = (named '(!! iald k @ !! iald c @ exp @ sftvri_weaken_if_at hj hs hr));

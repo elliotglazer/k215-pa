@@ -1,0 +1,205 @@
+import "source_shift.mm1";
+
+@_ def sfBoundAllowed (n c h: nat): wff =
+$ ifp (c = 0) (0 = 0)
+  (ifp (sfTag c = 1) (sfLeft c < n /\ sfRight c < n)
+  (ifp (sfTag c = 2) (sfLeft c < n /\ sfRight c < n)
+  (ifp (sfTag c = 3) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+  (ifp (sfTag c = 4) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+  (ifp (sfTag c = 5) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+  (ifp (sfTag c = 6 /\ sfRight c = 0) ((suc n, sfLeft c) e. h)
+  (ifp (sfTag c = 7 /\ sfRight c = 0) ((suc n, sfLeft c) e. h)
+    (0 != 0)))))))) $;
+@_ abstract def sfBoundStep (.k .h: nat): set =
+$ S\ k, {h | sfBoundAllowed (fst k) (snd k) h} $;
+@_ abstract def sfBound (n c: nat): wff = $ srecp sfBoundStep (n, c) $;
+@_ abstract def sfBoundPrevious (n c .i: nat): nat =
+$ sep (upto (n, c)) {i | srecp sfBoundStep i} $;
+
+pub theorem sfBoundStep_value (k h: nat):
+  $ (k, h) e. sfBoundStep <-> sfBoundAllowed (fst k) (snd k) h $ =
+(named '(elsabe @ elabed ,eqtac));
+pub theorem sfBoundPrevious_value (n c m a: nat):
+  $ (m, a) e. sfBoundPrevious n c <-> (m, a) < (n, c) /\ sfBound m a $ =
+(named '(bitr elsep @ bitr (aneq1i elupto) (aneq2i (elabe ,eqtac))));
+pub theorem sfBound_unfold (n c: nat):
+  $ sfBound n c <-> sfBoundAllowed n c (sfBoundPrevious n c) $ =
+(named '(bitr srecpval @ bitr sfBoundStep_value (sfBoundAllowedeq fstpr sndpr eqid)));
+
+theorem sfBoundAllowed_sfMem (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $):
+  $ sfBoundAllowed n c h <-> sfLeft c < n /\ sfRight c < n $ =
+'(bitr (ifpneg h0) (ifppos ht));
+
+theorem sfBoundAllowed_sfEq (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $):
+  $ sfBoundAllowed n c h <-> sfLeft c < n /\ sfRight c < n $ =
+'(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifppos ht)));
+
+theorem sfBoundAllowed_sfAnd (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $):
+  $ sfBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ =
+'(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (ifppos ht))));
+
+theorem sfBoundAllowed_sfOr (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $):
+  $ sfBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ =
+'(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (ifppos ht)))));
+
+theorem sfBoundAllowed_sfImp (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $):
+  $ sfBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ =
+'(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (ifppos ht))))));
+
+theorem sfBoundAllowed_sfAll (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $):
+  $ sfBoundAllowed n c h <-> (suc n, sfLeft c) e. h $ =
+'(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (ifppos (ian ht hz))))))));
+
+theorem sfBoundAllowed_sfEx (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $):
+  $ sfBoundAllowed n c h <-> (suc n, sfLeft c) e. h $ =
+'(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (bitr (ifpneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ifppos (ian ht hz)))))))));
+
+theorem sfBoundPrevious_child (n c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $):
+  $ (n, sfLeft c) e. sfBoundPrevious n c <-> sfBound n a $ =
+'(bitr (eleq1 (preq2 hl)) @ bitr sfBoundPrevious_value (bian1 (sfKey_lt ha)));
+theorem sfBoundPrevious_right (n c a: nat) (hr: $ sfRight c = a $) (ha: $ a < c $):
+  $ (n, sfRight c) e. sfBoundPrevious n c <-> sfBound n a $ =
+'(bitr (eleq1 (preq2 hr)) @ bitr sfBoundPrevious_value (bian1 (sfKey_lt ha)));
+theorem sfBoundPrevious_underBinder (n c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $):
+  $ (suc n, sfLeft c) e. sfBoundPrevious n c <-> sfBound (suc n) a $ =
+'(bitr (eleq1 (preq2 hl)) @ bitr sfBoundPrevious_value (bian1 (sfKey_underBinder_lt ha)));
+
+pub theorem sfBound_bot (n: nat): $ sfBound n sfBot $ =
+'(mpbir sfBound_unfold @ mpbir (ifppos eqid) eqid);
+
+pub theorem sfBound_sfMem (n a b: nat):
+  $ sfBound n (sfMem a b) <-> a < n /\ b < n $ =
+'(bitr sfBound_unfold @ bitr (sfBoundAllowed_sfMem sfMem_ne_sfBot sfMem_tag) @ aneq (lteq1 sfMem_left) (lteq1 sfMem_right));
+
+pub theorem sfBound_sfEq (n a b: nat):
+  $ sfBound n (sfEq a b) <-> a < n /\ b < n $ =
+'(bitr sfBound_unfold @ bitr (sfBoundAllowed_sfEq sfEq_ne_sfBot sfEq_tag) @ aneq (lteq1 sfEq_left) (lteq1 sfEq_right));
+
+pub theorem sfBound_sfAnd (n a b: nat):
+  $ sfBound n (sfAnd a b) <-> sfBound n a /\ sfBound n b $ =
+'(bitr sfBound_unfold @ bitr (sfBoundAllowed_sfAnd sfAnd_ne_sfBot sfAnd_tag) @ aneq (sfBoundPrevious_child sfAnd_left sfAnd_left_lt) (sfBoundPrevious_right sfAnd_right sfAnd_right_lt));
+
+pub theorem sfBound_sfOr (n a b: nat):
+  $ sfBound n (sfOr a b) <-> sfBound n a /\ sfBound n b $ =
+'(bitr sfBound_unfold @ bitr (sfBoundAllowed_sfOr sfOr_ne_sfBot sfOr_tag) @ aneq (sfBoundPrevious_child sfOr_left sfOr_left_lt) (sfBoundPrevious_right sfOr_right sfOr_right_lt));
+
+pub theorem sfBound_sfImp (n a b: nat):
+  $ sfBound n (sfImp a b) <-> sfBound n a /\ sfBound n b $ =
+'(bitr sfBound_unfold @ bitr (sfBoundAllowed_sfImp sfImp_ne_sfBot sfImp_tag) @ aneq (sfBoundPrevious_child sfImp_left sfImp_left_lt) (sfBoundPrevious_right sfImp_right sfImp_right_lt));
+
+pub theorem sfBound_sfAll (n a: nat):
+  $ sfBound n (sfAll a) <-> sfBound (suc n) a $ =
+'(bitr sfBound_unfold @ bitr (sfBoundAllowed_sfAll sfAll_ne_sfBot sfAll_tag sfAll_right) (sfBoundPrevious_underBinder sfAll_left sfAll_body_lt));
+
+pub theorem sfBound_sfEx (n a: nat):
+  $ sfBound n (sfEx a) <-> sfBound (suc n) a $ =
+'(bitr sfBound_unfold @ bitr (sfBoundAllowed_sfEx sfEx_ne_sfBot sfEx_tag sfEx_right) (sfBoundPrevious_underBinder sfEx_left sfEx_body_lt));
+
+theorem sfBound_tagZero (c: nat): $ c = 0 -> sfTag c = 0 $ =
+'(eqtrd (modeq1d id) (a1i mod01));
+theorem sfBound_nonzero (G: wff) (c t: nat)
+  (ht: $ G -> sfTag c = t $) (hn: $ t != 0 $):
+  $ G -> c != 0 $ =
+'(syl (con3 sfBound_tagZero) (mpbiri hn (noteqd (eqeq1d ht))));
+
+theorem sfBoundAllowed_bad0 (G: wff) (n c h: nat) (h0: $ G -> c != 0 $) (ht: $ G -> sfTag c = 0 $):
+  $ G -> (sfBoundAllowed n c h <-> 0 != 0) $ =
+'(bitrd (syl ifpneg h0) (bitrd (syl ifpneg (mpbiri (ltnei lt01S) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltnei lt01S) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltnei lt01S) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltnei lt01S) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltnei lt01S) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (syl (con3 anl) (mpbiri (ltnei lt01S) (noteqd (eqeq1d ht))))) (syl ifpneg (syl (con3 anl) (mpbiri (ltnei lt01S) (noteqd (eqeq1d ht))))))))))));
+
+theorem sfBoundAllowed_bad6 (G: wff) (n c h: nat) (h0: $ G -> c != 0 $) (ht: $ G -> sfTag c = 6 $) (hr: $ G -> sfRight c != 0 $):
+  $ G -> (sfBoundAllowed n c h <-> 0 != 0) $ =
+'(bitrd (syl ifpneg h0) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc lt01S)) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (syl (con3 anr) hr)) (syl ifpneg (syl (con3 anl) (mpbiri (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (noteqd (eqeq1d ht))))))))))));
+
+theorem sfBoundAllowed_bad7 (G: wff) (n c h: nat) (h0: $ G -> c != 0 $) (ht: $ G -> sfTag c = 7 $) (hr: $ G -> sfRight c != 0 $):
+  $ G -> (sfBoundAllowed n c h <-> 0 != 0) $ =
+'(bitrd (syl ifpneg h0) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc lt01S)) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (mpbiri (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (noteqd (eqeq1d ht)))) (bitrd (syl ifpneg (syl (con3 anl) (mpbiri (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (noteqd (eqeq1d ht))))) (syl ifpneg (syl (con3 anr) hr)))))))));
+
+pub theorem sfBound_bad_zero (n c: nat):
+  $ c != 0 -> sfTag c = 0 -> ~ sfBound n c $ =
+'(exp @ mpbiri (notnot1 eqid) @ noteqd @ bitrd (a1i sfBound_unfold)
+  (sfBoundAllowed_bad0 anl anr));
+pub theorem sfBound_bad_all (n c: nat):
+  $ sfTag c = 6 -> sfRight c != 0 -> ~ sfBound n c $ =
+'(exp @ mpbiri (notnot1 eqid) @ noteqd @ bitrd (a1i sfBound_unfold)
+  (sfBoundAllowed_bad6 (sfBound_nonzero anl (ltneri lt01S)) anl anr));
+pub theorem sfBound_bad_ex (n c: nat):
+  $ sfTag c = 7 -> sfRight c != 0 -> ~ sfBound n c $ =
+'(exp @ mpbiri (notnot1 eqid) @ noteqd @ bitrd (a1i sfBound_unfold)
+  (sfBoundAllowed_bad7 (sfBound_nonzero anl (ltneri lt01S)) anl anr));
+
+theorem sfBound_rebuild (c: nat):
+  $ sfNode (sfTag c) (sfLeft c) (sfRight c) = c $ =
+'(eqtr (addeq1 (muleq2 fstsnd)) divmod);
+theorem sfBound_left_descent (c: nat):
+  $ 0 < sfTag c -> sfLeft c < c $ =
+'(syl (bi1 (lteq2 sfBound_rebuild)) sfNode_left_lt);
+theorem sfBound_right_descent (c: nat):
+  $ 0 < sfTag c -> sfRight c < c $ =
+'(syl (bi1 (lteq2 sfBound_rebuild)) sfNode_right_lt);
+theorem sfBound_ifp_sound (G p a b q: wff)
+  (hp: $ G -> p -> a -> q $) (hb: $ G -> b -> q $):
+  $ G -> ifp p a b -> q $ =
+'(eord (impd hp) (syl5 anr hb));
+
+theorem sfBound_induction_at (c a: nat):
+  $ A. j (j < c -> A. m (sfBound m j -> sfWf j)) ->
+      a < c -> A. m (sfBound m a -> sfWf a) $ =
+(named '(!! eale j ,eqtac));
+theorem sfBound_induction_bound (n a: nat):
+  $ A. m (sfBound m a -> sfWf a) -> sfBound n a -> sfWf a $ =
+(named '(!! eale m ,eqtac));
+theorem sfBound_induction_use {j m: nat} (G: wff j m) (n c a: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfBound m j -> sfWf j)) $)
+  (ha: $ G -> a < c $):
+  $ G -> sfBound n a -> sfWf a $ =
+'(syl sfBound_induction_bound @ mpd ha (syl sfBound_induction_at hi));
+
+theorem sfBound_history_use {j m: nat} (G: wff j m) (n c a q: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfBound m j -> sfWf j)) $)
+  (ha: $ G -> a < c $):
+  $ G -> (q, a) e. sfBoundPrevious n c -> sfWf a $ =
+'(syl5 (syl anr (bi1 sfBoundPrevious_value)) (sfBound_induction_use hi ha));
+
+theorem sfBound_wf_binary (G: wff) (c: nat)
+  (ht: $ G -> (sfTag c = 3 \/ sfTag c = 4 \/ sfTag c = 5) $)
+  (hp: $ G -> 0 < sfTag c $)
+  (hl: $ G -> sfWf (sfLeft c) $) (hr: $ G -> sfWf (sfRight c) $):
+  $ G -> sfWf c $ =
+'(syl (bi2 sfWf_unfold) @ syl sfAllowed_binary @ iand
+  (iand ht (sylc sfPrevious_intro (syl sfBound_left_descent hp) hl))
+  (sylc sfPrevious_intro (syl sfBound_right_descent hp) hr));
+
+theorem sfBound_wf_quantifier (G: wff) (c: nat)
+  (ht: $ G -> (sfTag c = 6 \/ sfTag c = 7) $)
+  (hz: $ G -> sfRight c = 0 $) (hp: $ G -> 0 < sfTag c $)
+  (hl: $ G -> sfWf (sfLeft c) $):
+  $ G -> sfWf c $ =
+'(syl (bi2 sfWf_unfold) @ syl sfAllowed_quantifier @ iand (iand ht hz)
+  (sylc sfPrevious_intro (syl sfBound_left_descent hp) hl));
+
+theorem sfBound_wf_zero (c: nat): $ c = 0 -> sfWf c $ =
+'(mpbiri sfWf_bot (srecpeq2d id));
+
+theorem sfBoundAllowed_wf {j m: nat} (G: wff j m) (n c: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfBound m j -> sfWf j)) $):
+  $ G -> sfBoundAllowed n c (sfBoundPrevious n c) -> sfWf c $ =
+'(sfBound_ifp_sound (a1i (a1d sfBound_wf_zero)) (sfBound_ifp_sound (a1i @ a1d @ syl (bi2 sfWf_unfold) @ syl sfAllowed_atom orl) (sfBound_ifp_sound (a1i @ a1d @ syl (bi2 sfWf_unfold) @ syl sfAllowed_atom orr) (sfBound_ifp_sound (exp @ exp @ sfBound_wf_binary (syl orl (syl orl anlr)) (mpbiri lt01S (lteq2d anlr)) (mpd anrl (sfBound_history_use (syl hi anll) (syl sfBound_left_descent (mpbiri lt01S (lteq2d anlr))))) (mpd anrr (sfBound_history_use (syl hi anll) (syl sfBound_right_descent (mpbiri lt01S (lteq2d anlr)))))) (sfBound_ifp_sound (exp @ exp @ sfBound_wf_binary (syl orl (syl orr anlr)) (mpbiri lt01S (lteq2d anlr)) (mpd anrl (sfBound_history_use (syl hi anll) (syl sfBound_left_descent (mpbiri lt01S (lteq2d anlr))))) (mpd anrr (sfBound_history_use (syl hi anll) (syl sfBound_right_descent (mpbiri lt01S (lteq2d anlr)))))) (sfBound_ifp_sound (exp @ exp @ sfBound_wf_binary (syl orr anlr) (mpbiri lt01S (lteq2d anlr)) (mpd anrl (sfBound_history_use (syl hi anll) (syl sfBound_left_descent (mpbiri lt01S (lteq2d anlr))))) (mpd anrr (sfBound_history_use (syl hi anll) (syl sfBound_right_descent (mpbiri lt01S (lteq2d anlr)))))) (sfBound_ifp_sound (exp @ exp @ sfBound_wf_quantifier (syl orl (syl anl anlr)) (syl anr anlr) (mpbiri lt01S (lteq2d (syl anl anlr))) (mpd anr (sfBound_history_use (syl hi anll) (syl sfBound_left_descent (mpbiri lt01S (lteq2d (syl anl anlr))))))) (sfBound_ifp_sound (exp @ exp @ sfBound_wf_quantifier (syl orr (syl anl anlr)) (syl anr anlr) (mpbiri lt01S (lteq2d (syl anl anlr))) (mpd anr (sfBound_history_use (syl hi anll) (syl sfBound_left_descent (mpbiri lt01S (lteq2d (syl anl anlr))))))) (a1i (absurdr eqid))))))))));
+
+theorem sfBound_bound_rename (c: nat):
+  $ A. q (sfBound q c -> sfWf c) <-> A. m (sfBound m c -> sfWf c) $ =
+(named '(cbval ,eqtac));
+
+theorem sfBound_wf_step {j m: nat} (G: wff j m) (c: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfBound m j -> sfWf j)) $):
+  $ G -> A. m (sfBound m c -> sfWf c) $ =
+'(sylib sfBound_bound_rename @ !! iald q @ syl5bi sfBound_unfold (sfBoundAllowed_wf hi));
+
+theorem sfBound_wf_all (c: nat):
+  $ A. m (sfBound m c -> sfWf c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (A. m (sfBound m j -> sfWf j) <-> A. m (sfBound m c -> sfWf c)) $}
+  ,eqtac (sfBound_wf_step anr)));
+
+pub theorem sfBound_wf (n c: nat): $ sfBound n c -> sfWf c $ =
+(named '(ax_mp sfBound_induction_bound
+  {sfBound_wf_all : $ A. m (sfBound m c -> sfWf c) $}));

@@ -1,0 +1,40 @@
+import "k218q_quotient_mixed_arbitrary.mm1";
+
+theorem qrepInv_zero (E: set) (H n t k x xp y yp: nat):
+ $ k218QMixed H t k x xp -> k218QMixed H t k y yp -> k218QMixed H t k ((sqEnvCons x (sqEnvCons y E)) @ 0) ((sqEnvCons xp (sqEnvCons yp E)) @ 0) $ =
+'(a1d (bi2 (k218QMixedeq eqid eqid eqid sqEnvCons_zero sqEnvCons_zero)));
+
+theorem qrepInv_one (E: set) (H n t k x xp y yp: nat):
+ $ k218QMixed H t k x xp -> k218QMixed H t k y yp -> k218QMixed H t k ((sqEnvCons x (sqEnvCons y E)) @ 1) ((sqEnvCons xp (sqEnvCons yp E)) @ 1) $ =
+'(a1i (bi2 (k218QMixedeq eqid eqid eqid (eqtr sqEnvCons_suc sqEnvCons_zero) (eqtr sqEnvCons_suc sqEnvCons_zero))));
+
+theorem qrepInv_tail (E: set) (H n t k x xp y yp: nat) (i: nat):
+ $ k218QMixed H t k x xp -> k218QMixed H t k y yp -> k218QMixed H t k ((sqEnvCons x (sqEnvCons y E)) @ (suc (suc i))) ((sqEnvCons xp (sqEnvCons yp E)) @ (suc (suc i))) $ =
+'(a1i (a1i (mpbir (k218QMixedeq eqid eqid eqid (eqtr sqEnvCons_suc sqEnvCons_suc) (eqtr sqEnvCons_suc sqEnvCons_suc)) k218QMixed_same)));
+
+theorem qrepInv_suc (E: set) (H n t k x xp y yp: nat) (i: nat):
+ $ k218QMixed H t k x xp -> k218QMixed H t k y yp -> k218QMixed H t k ((sqEnvCons x (sqEnvCons y E)) @ (suc i)) ((sqEnvCons xp (sqEnvCons yp E)) @ (suc i)) $ =
+(named @ induct '(ind) 'i 'qrepInv_one '(a1i qrepInv_tail));
+
+theorem qrepInv_point (E: set) (H n t k x xp y yp: nat) (i: nat):
+ $ k218QMixed H t k x xp -> k218QMixed H t k y yp -> k218QMixed H t k ((sqEnvCons x (sqEnvCons y E)) @ i) ((sqEnvCons xp (sqEnvCons yp E)) @ i) $ =
+(named @ induct '(ind) 'i 'qrepInv_zero '(a1i qrepInv_suc));
+
+pub theorem sfK0QRepMixed_binary (E: set) (H n t k x xp y yp: nat):
+ $ k218QMixed H t k x xp -> k218QMixed H t k y yp -> k218QMixedEnvironments (sqEnvCons x (sqEnvCons y E)) (sqEnvCons xp (sqEnvCons yp E)) H (suc (suc n)) t k $ =
+(named '(exp @ !! iald i @ a1d (imp qrepInv_point)));
+
+pub theorem sfK0QRep_invariance_d (G: wff) (E: set) (H n t k x xp y yp phi: nat)
+ (hb: $ G -> sfBound (suc (suc n)) phi $) (hk: $ G -> 0 < k $)
+ (ht: $ G -> t < k $) (hx: $ G -> x < k $) (hxp: $ G -> xp < k $)
+ (hy: $ G -> y < k $) (hyp: $ G -> yp < k $)
+ (he: $ G -> sqEnvBelow E n k $)
+ (hem: $ G -> k218IHypProvable H (k218QAEmpty t k) $)
+ (hmx: $ G -> k218QMixed H t k x xp $)
+ (hmy: $ G -> k218QMixed H t k y yp $):
+ $ G -> k218QHEquiv H (sqQuote (sqEnvCons x (sqEnvCons y E)) t k 0 phi) (sqQuote (sqEnvCons xp (sqEnvCons yp E)) t k 0 phi) $ =
+'(mpd (mpd hmy (syl sfK0QRepMixed_binary hmx)) (mpd hem (mpd (mpd (mpd he (syl sqEnvBelow_cons hyp)) (syl sqEnvBelow_cons hxp)) (mpd (mpd (mpd he (syl sqEnvBelow_cons hy)) (syl sqEnvBelow_cons hx)) (mpd ht (mpd hk (syl k218QM_formula_invariance_arbitrary hb)))))));
+
+pub theorem sfK0QRep_invariance (E: set) (H n t k x xp y yp phi: nat):
+ $ sfBound (suc (suc n)) phi -> 0 < k -> t < k -> x < k -> xp < k -> y < k -> yp < k -> sqEnvBelow E n k -> k218IHypProvable H (k218QAEmpty t k) -> k218QMixed H t k x xp -> k218QMixed H t k y yp -> k218QHEquiv H (sqQuote (sqEnvCons x (sqEnvCons y E)) t k 0 phi) (sqQuote (sqEnvCons xp (sqEnvCons yp E)) t k 0 phi) $ =
+(named '(exp @ exp @ exp @ exp @ exp @ exp @ exp @ exp @ exp @ exp @ sfK0QRep_invariance_d (syl (syl (syl (syl (syl (syl (syl (syl (syl (syl id anl) anl) anl) anl) anl) anl) anl) anl) anl) anl) (syl (syl (syl (syl (syl (syl (syl (syl (syl anr anl) anl) anl) anl) anl) anl) anl) anl) anl) (syl (syl (syl (syl (syl (syl (syl (syl anr anl) anl) anl) anl) anl) anl) anl) anl) (syl (syl (syl (syl (syl (syl (syl anr anl) anl) anl) anl) anl) anl) anl) (syl (syl (syl (syl (syl (syl anr anl) anl) anl) anl) anl) anl) (syl (syl (syl (syl (syl anr anl) anl) anl) anl) anl) (syl (syl (syl (syl anr anl) anl) anl) anl) (syl (syl (syl anr anl) anl) anl) (syl (syl anr anl) anl) (syl anr anl) anr));

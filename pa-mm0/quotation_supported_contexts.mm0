@@ -1,0 +1,31 @@
+import "quotation_supported_invariant.mm0";
+import "source_syntax_laws.mm0";
+
+theorem sqContextSupports_trans (H J K: nat):
+ $ kContextSupports H J -> kContextSupports J K -> kContextSupports H K $;
+
+theorem sqContextSupports_weaken (H a: nat): $ kContextSupports (a : H) H $;
+
+theorem sqDomainSupport_weaken (H S t a: nat):
+ $ sqDomainSupport H S t -> sqDomainSupport (a : H) S t $;
+
+theorem sqSourceSupport_weaken (H S t k G a: nat):
+ $ sqSourceSupport H S t k G -> sqSourceSupport (a : H) S t k G $;
+
+theorem sqSourceSupport_cons (H S t k G a: nat):
+ $ sqSourceSupport H S t k G ->
+   kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) ->
+   sqSourceSupport H S t k (a : G) $;
+
+theorem sqSourceSupport_under (H S t k G a: nat):
+ $ sqSourceSupport H S t k G ->
+   sqSourceSupport (sqQuote (sqNumericEnvironment S) t k 0 a : H) S t k (a : G) $;
+
+theorem sqSupportedAt_formula_bound (n G a: nat):
+ $ sqSupportedAt n (sfSequent G a) -> sfBound n a $;
+
+theorem sqSupportedAt_context_member_bound (n G a b: nat):
+ $ sqSupportedAt n (sfSequent G a) -> b IN G -> sfBound n b $;
+
+theorem sqSupportedAt_context_bound {b: nat} (n G a: nat):
+ $ sqSupportedAt n (sfSequent G a) -> A. b (b IN G -> sfBound n b) $;

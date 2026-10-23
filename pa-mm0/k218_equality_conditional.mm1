@@ -1,0 +1,48 @@
+import "k218_equality_laws.mm1";
+
+theorem k218CV_and (G: wff) (z p q: nat)
+  (hp: $ G -> k218Provable (kImp p (kAll z p)) $)
+  (hq: $ G -> k218Provable (kImp q (kAll z q)) $):
+  $ G -> k218Provable (kImp (kAnd p q) (kAll z (kAnd p q))) $ =
+'(syl k218MV_neg (k218MV_implication hp (syl k218MV_neg hq)));
+theorem k218CV_iff (G: wff) (z p q: nat)
+  (hp: $ G -> k218Provable (kImp p (kAll z p)) $)
+  (hq: $ G -> k218Provable (kImp q (kAll z q)) $):
+  $ G -> k218Provable (kImp (k218Iff p q) (kAll z (k218Iff p q))) $ =
+'(k218CV_and (k218MV_implication hp hq) (k218MV_implication hq hp));
+
+theorem k218CV_in (G: wff) (z v x y: nat)
+  (hzv: $ G -> z != v $) (hzx: $ G -> z != x $) (hzy: $ G -> z != y $):
+  $ G -> k218Provable (kImp (k218Iff (kMem v x) (kMem v y))
+    (kAll z (k218Iff (kMem v x) (kMem v y)))) $ =
+'(k218CV_iff
+  (syl k218Membership_vacuity (iand hzv hzx))
+  (syl k218Membership_vacuity (iand hzv hzy)));
+theorem k218CV_out (G: wff) (z v x y: nat)
+  (hzv: $ G -> z != v $) (hzx: $ G -> z != x $) (hzy: $ G -> z != y $):
+  $ G -> k218Provable (kImp (k218Iff (kMem x v) (kMem y v))
+    (kAll z (k218Iff (kMem x v) (kMem y v)))) $ =
+'(k218CV_iff
+  (syl k218Membership_vacuity (iand hzx hzv))
+  (syl k218Membership_vacuity (iand hzy hzv)));
+theorem k218CV_ev (G: wff) (z v x y: nat)
+  (hzv: $ G -> z != v $) (hzx: $ G -> z != x $) (hzy: $ G -> z != y $):
+  $ G -> k218Provable (kImp (k218EqEv v x y) (kAll z (k218EqEv v x y))) $ =
+'(k218CV_and
+  (syl k218MV_universal (k218CV_in hzv hzx hzy))
+  (syl k218MV_universal (k218CV_out hzv hzx hzy)));
+
+theorem k218CV_ind (G: wff) (z x y: nat)
+  (hzx: $ G -> z != x $) (hzy: $ G -> z != y $):
+  $ G -> k218Provable (kImp (k218EqInd x y) (kAll z (k218EqInd x y))) $ =
+'(sylc k218MV_syl
+  (a1i (k218EqInd_to_ev (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y)))
+  (sylc k218MV_syl
+    (k218CV_ev (a1i (ltnei k218SharedAux_above_z)) hzx hzy)
+    (a1i (k218All_mono (k218EqEv_to_ind
+      (ltneri k218SharedAux_above_x) (ltneri k218SharedAux_above_y))))));
+
+pub theorem k218EqInd_vacuity_if (z x y: nat):
+  $ z != x /\ z != y ->
+    k218Provable (kImp (k218EqInd x y) (kAll z (k218EqInd x y))) $ =
+'(k218CV_ind anl anr);

@@ -1,0 +1,38 @@
+import "source_l_level_member_names.mm0";
+import "source_l_common_level_witness_rules.mm0";
+import "source_reflection_transfer_maps.mm0";
+import "source_wf_separation_logic.mm0";
+import "source_theory_local.mm0";
+import "source_core_theory.mm0";
+
+-- Common level for two L-points, stated in the common-level vocabulary.
+-- Lev d y: d is an ordinal and y = L_d.  Pt d y k: Lev d y and k e. y.
+def sfCL2Lev (d y: nat): nat = $ sfAnd (sfCLOrdinalAt d) (sfCLHierarchyAt d y) $;
+
+def sfCL2Pt (d y k: nat): nat = $ sfAnd (sfCL2Lev d y) (sfMem k y) $;
+
+def sfCL2Both (d y k m: nat): nat = $ sfAnd (sfCL2Lev d y) (sfAnd (sfMem k y) (sfMem m y)) $;
+
+def sfCL2Ex (k: nat): nat = $ sfEx (sfEx (sfCL2Pt 1 0 k)) $;
+
+def sfCL2BothEx (k m: nat): nat = $ sfEx (sfEx (sfCL2Both 1 0 k m)) $;
+
+-- forall a b. (a lies in some level) -> (b lies in some level) -> some level contains a and b.
+def sfCL2Law: nat = $ sfAll (sfAll (sfImp (sfCL2Ex 3) (sfImp (sfCL2Ex 2) (sfCL2BothEx 3 2)))) $;
+
+-- Ordinal comparability: Ord x -> Ord y -> x C_ y \/ y C_ x.
+def sfCL2CmpBody (x y: nat): nat =
+ $ sfImp (sfCLOrdinalAt x) (sfImp (sfCLOrdinalAt y) (sfOr (sfCLSubset x y) (sfCLSubset y x))) $;
+
+def sfCL2Cmp: nat = $ sfAll (sfAll (sfCL2CmpBody 1 0)) $;
+
+-- Level inclusion: Ord b -> Ord a -> a C_ b -> Y = L_b -> Z = L_a -> Z C_ Y.
+def sfCL2SubBody (b a Y Z: nat): nat =
+ $ sfImp (sfCLOrdinalAt b) (sfImp (sfCLOrdinalAt a) (sfImp (sfCLSubset a b)
+   (sfImp (sfCLHierarchyAt b Y) (sfImp (sfCLHierarchyAt a Z) (sfCLSubset Z Y))))) $;
+
+def sfCL2Sub: nat = $ sfAll (sfAll (sfAll (sfAll (sfCL2SubBody 3 2 1 0)))) $;
+
+def sfCL2Context: nat = $ sfCL2Cmp : (sfCL2Sub : 0) $;
+
+theorem sfCL2Context_eq: $ sfCL2Context = sfCL2Cmp : (sfCL2Sub : 0) $;

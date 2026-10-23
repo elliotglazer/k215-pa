@@ -1,0 +1,45 @@
+import "source_k0_qrep_profile.mm1";
+
+import "k218_role_substitution.mm1";
+
+import "quotation_binders_absent.mm1";
+
+import "k218q_specialization.mm1";
+
+pub theorem sfK0QRepRelation_input_substitution (E: set) (n t R x y z phi: nat) (hf: $ sfBound (suc (suc n)) phi $) (hvR: $ x < R $) (hv0: $ x != 0 $) (hvt: $ x != t $) (hvo: $ x != y $) (he: $ sqEnvAvoid E n x $):
+ $ kSubst (sfK0QRepRelation E t R x y phi) x z = sfK0QRepRelation E t R z y phi $ =
+'(eqtr (ax_mp (sqQuote_substitution hvR hv0) (ax_mp sfBound_wf hf)) (eqtr (sqQuoteeq2 (ax_mp kReplace_miss (necom hvt))) (ax_mp (sqQuote_environment (ax_mp kReplaceEnvironment_cons_agree (ax_mp (ax_mp k218RoleAvoid_cons hvo) he))) (mpbir (sfBoundeq1 add01) hf))));
+
+pub theorem sfK0QRepRelation_output_substitution (E: set) (n t R x y z phi: nat) (hf: $ sfBound (suc (suc n)) phi $) (hvR: $ y < R $) (hv0: $ y != 0 $) (hvt: $ y != t $) (hvo: $ y != x $) (he: $ sqEnvAvoid E n y $):
+ $ kSubst (sfK0QRepRelation E t R x y phi) y z = sfK0QRepRelation E t R x z phi $ =
+'(eqtr (ax_mp (sqQuote_substitution hvR hv0) (ax_mp sfBound_wf hf)) (eqtr (sqQuoteeq2 (ax_mp kReplace_miss (necom hvt))) (ax_mp (sqQuote_environment (k218RoleReplace_fixed_cons hvo (ax_mp kReplaceEnvironment_cons_agree he))) (mpbir (sfBoundeq1 add01) hf))));
+
+@_ def sfK0QRepSupportBody (E: set) (t a c y x R phi: nat): nat = $ kImp (kAnd (kMem t y) (kMem y c)) (kExists x (kAnd (kAnd (kMem t x) (kMem x a)) (sfK0QRepRelation E t R x y phi))) $;
+
+theorem qrepSupport_substitution (E: set) (n t a c y x z R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hyR: $ y < R $) (hzR: $ z < R $) (hy0: $ y != 0 $)
+ (hyt: $ y != t $) (hya: $ y != a $) (hyc: $ y != c $)
+ (hyx: $ y != x $) (hzx: $ z != x $) (he: $ sqEnvAvoid E n y $):
+ $ kSubst (sfK0QRepSupportBody E t a c y x R phi) y z = sfK0QRepSupportBody E t a c z x R phi $ =
+'(eqtr kSubst_kImp (kImpeq (eqtr (qsSubst_kAnd hy0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (necom hyt)) kReplace_hit)) (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (necom hyc)))))) (eqtr (ax_mp (qsSubst_kExists hy0) (necom hyx)) (kExistseq2 (eqtr (qsSubst_kAnd hy0) (kAndeq (eqtr (qsSubst_kAnd hy0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (necom hyt)) (ax_mp kReplace_miss (necom hyx)))) (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (necom hyx)) (ax_mp kReplace_miss (necom hya)))))) (sfK0QRepRelation_output_substitution hf hyR hy0 hyt hyx he)))))));
+
+theorem qrepSupport_absent_y (E: set) (n t a c y x z R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hyR: $ y < R $) (hzR: $ z < R $) (hy0: $ y != 0 $)
+ (hyt: $ y != t $) (hya: $ y != a $) (hyc: $ y != c $)
+ (hyx: $ y != x $) (hzx: $ z != x $) (he: $ sqEnvAvoid E n y $):
+ $ kBinderAbsent (sfK0QRepSupportBody E t a c y x R phi) y $ =
+'(mpbir kBinderAbsent_kImp (ian (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_exists_intro hyx) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) kBinderAbsent_kMem)) (ax_mp (sqQuote_binder_absent hyR) (ax_mp sfBound_wf hf))))));
+
+theorem qrepSupport_absent_z (E: set) (n t a c y x z R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hyR: $ y < R $) (hzR: $ z < R $) (hy0: $ y != 0 $)
+ (hyt: $ y != t $) (hya: $ y != a $) (hyc: $ y != c $)
+ (hyx: $ y != x $) (hzx: $ z != x $) (he: $ sqEnvAvoid E n y $):
+ $ kBinderAbsent (sfK0QRepSupportBody E t a c y x R phi) z $ =
+'(mpbir kBinderAbsent_kImp (ian (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_exists_intro hzx) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) kBinderAbsent_kMem)) (ax_mp (sqQuote_binder_absent hzR) (ax_mp sfBound_wf hf))))));
+
+pub theorem sfK0QRepSupport_specialization (E: set) (n t a c y x z R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hyR: $ y < R $) (hzR: $ z < R $) (hy0: $ y != 0 $)
+ (hyt: $ y != t $) (hya: $ y != a $) (hyc: $ y != c $)
+ (hyx: $ y != x $) (hzx: $ z != x $) (he: $ sqEnvAvoid E n y $) (hyz: $ y != z $):
+ $ k218QProvable (kImp (kAll y (sfK0QRepSupportBody E t a c y x R phi)) (sfK0QRepSupportBody E t a c z x R phi)) $ =
+'(mpbi (k218QProvableeq (kImpeq2 (! qrepSupport_substitution $ E $ $ n $ $ t $ $ a $ $ c $ $ y $ $ x $ $ z $ $ R $ $ phi $ hf hyR hzR hy0 hyt hya hyc hyx hzx he))) (ax_mp (ax_mp (ax_mp k218INamed_specialization hyz) (! qrepSupport_absent_y $ E $ $ n $ $ t $ $ a $ $ c $ $ y $ $ x $ $ z $ $ R $ $ phi $ hf hyR hzR hy0 hyt hya hyc hyx hzx he)) (! qrepSupport_absent_z $ E $ $ n $ $ t $ $ a $ $ c $ $ y $ $ x $ $ z $ $ R $ $ phi $ hf hyR hzR hy0 hyt hya hyc hyx hzx he)));

@@ -1,0 +1,151 @@
+import "source_reflection_transfer_tv_domain_literal.mm1";
+
+import "source_l_level_member_names.mm1";
+
+import "source_wf_separation_logic.mm1";
+
+@_ def sftvlcF0: nat = $ sfMem 0 1 $;
+
+@_ def sftvlcF1: nat = $ sfAnd (sfCLOrdinalAt 1) (sfCLHierarchyAt 1 0) $;
+
+@_ def sftvlcF2: nat = $ sfMem 2 0 $;
+
+@_ def sftvlcF3: nat = $ sfAnd sftvlcF1 sftvlcF2 $;
+
+@_ def sftvlcF4: nat = $ sfEx sftvlcF3 $;
+
+@_ def sftvlcF5: nat = $ sfEx sftvlcF4 $;
+
+@_ def sftvlcF6: nat = $ sfImp sftvlcF0 sftvlcF5 $;
+
+@_ def sftvlcF7: nat = $ sfAll sftvlcF6 $;
+
+@_ def sftvlcF8: nat = $ sfImp (sfCLHierarchyAt 1 0) sftvlcF7 $;
+
+@_ def sftvlcF9: nat = $ sfImp (sfCLOrdinalAt 1) sftvlcF8 $;
+
+@_ def sftvlcG10: nat = $ (sfCLOrdinalAt 1) : 0 $;
+
+@_ def sftvlcG11: nat = $ (sfCLHierarchyAt 1 0) : sftvlcG10 $;
+
+@_ def sftvlcG12: nat = $ (sfCLOrdinalAt 2) : 0 $;
+
+@_ def sftvlcG13: nat = $ (sfCLHierarchyAt 2 1) : sftvlcG12 $;
+
+@_ def sftvlcG14: nat = $ sftvlcF0 : sftvlcG13 $;
+
+@_ def sftvlcF15: nat = $ sfAnd (sfCLOrdinalAt 3) (sfCLHierarchyAt 3 0) $;
+
+@_ def sftvlcF16: nat = $ sfMem 1 0 $;
+
+@_ def sftvlcF17: nat = $ sfAnd sftvlcF15 sftvlcF16 $;
+
+@_ def sftvlcF18: nat = $ sfEx sftvlcF17 $;
+
+@_ def sftvlcF19: nat = $ sfAnd (sfCLOrdinalAt 2) (sfCLHierarchyAt 2 1) $;
+
+@_ def sftvlcF20: nat = $ sfAnd sftvlcF19 sftvlcF0 $;
+
+theorem sftvlcInst0: $ sfSubst 1 2 (sfCLOrdinalAt 1) = (sfCLOrdinalAt 3) $ = '(eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero))));
+
+theorem sftvlcInst1: $ sfSubst 1 2 (sfCLHierarchyAt 1 0) = (sfCLHierarchyAt 3 0) $ = '(eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S)));
+
+theorem sftvlcInst2: $ sfSubst 1 2 sftvlcF1 = sftvlcF15 $ = '(eqtr sfSubst_sfAnd (nsAnd_eq sftvlcInst0 sftvlcInst1));
+
+theorem sftvlcInst3: $ sfSubst 1 2 sftvlcF2 = sftvlcF16 $ = '(eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (ax_mp sfSubstIndex_bound lt01S)));
+
+theorem sftvlcInst4: $ sfSubst 1 2 sftvlcF3 = sftvlcF17 $ = '(eqtr sfSubst_sfAnd (nsAnd_eq sftvlcInst2 sftvlcInst3));
+
+theorem sftvlcInst5: $ sfSubst 0 2 sftvlcF4 = sftvlcF18 $ = '(eqtr sfSubst_sfEx (nsEx_eq sftvlcInst4));
+
+theorem sftvlcInst6: $ sfSubst 0 1 (sfCLOrdinalAt 3) = (sfCLOrdinalAt 2) $ = '(eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq sfSubstIndex_successor));
+
+theorem sftvlcInst7: $ sfSubst 0 1 (sfCLHierarchyAt 3 0) = (sfCLHierarchyAt 2 1) $ = '(eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq sfSubstIndex_successor sfSubstIndex_zero));
+
+theorem sftvlcInst8: $ sfSubst 0 1 sftvlcF15 = sftvlcF19 $ = '(eqtr sfSubst_sfAnd (nsAnd_eq sftvlcInst6 sftvlcInst7));
+
+theorem sftvlcInst9: $ sfSubst 0 1 sftvlcF16 = sftvlcF0 $ = '(eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_successor sfSubstIndex_zero));
+
+theorem sftvlcInst10: $ sfSubst 0 1 sftvlcF17 = sftvlcF20 $ = '(eqtr sfSubst_sfAnd (nsAnd_eq sftvlcInst8 sftvlcInst9));
+
+theorem sftvlcWf11: $ sfWf sftvlcF0 $ = 'sfWf_mem;
+
+theorem sftvlcGWf12: $ sfContextWf 0 $ = 'sfContextWf_nil;
+
+theorem sftvlcGWf13: $ sfContextWf sftvlcG12 $ = '(mpbir sfContextWf_cons (ian sfCLOrdinalAt_wf sftvlcGWf12));
+
+theorem sftvlcGWf14: $ sfContextWf sftvlcG13 $ = '(mpbir sfContextWf_cons (ian sfCLHierarchyAt_wf sftvlcGWf13));
+
+theorem sftvlcGWf15: $ sfContextWf sftvlcG14 $ = '(mpbir sfContextWf_cons (ian sftvlcWf11 sftvlcGWf14));
+
+theorem sftvlcMem16: $ (sfCLOrdinalAt 2) IN sftvlcG14 $ = '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem sftvlcP17: $ nsLocal sftvlcG14 (sfCLOrdinalAt 2) $ = '(ax_mp (ax_mp nsLocal_hyp sftvlcGWf15) sftvlcMem16);
+
+theorem sftvlcMem18: $ (sfCLHierarchyAt 2 1) IN sftvlcG14 $ = '(ax_mp sfContext_member_tail sfContext_member_head);
+
+theorem sftvlcP19: $ nsLocal sftvlcG14 (sfCLHierarchyAt 2 1) $ = '(ax_mp (ax_mp nsLocal_hyp sftvlcGWf15) sftvlcMem18);
+
+theorem sftvlcP20: $ nsLocal sftvlcG14 sftvlcF19 $ = '(ax_mp (ax_mp sfLocal_and sftvlcP17) sftvlcP19);
+
+theorem sftvlcMem21: $ sftvlcF0 IN sftvlcG14 $ = 'sfContext_member_head;
+
+theorem sftvlcP22: $ nsLocal sftvlcG14 sftvlcF0 $ = '(ax_mp (ax_mp nsLocal_hyp sftvlcGWf15) sftvlcMem21);
+
+theorem sftvlcP23: $ nsLocal sftvlcG14 sftvlcF20 $ = '(ax_mp (ax_mp sfLocal_and sftvlcP20) sftvlcP22);
+
+theorem sftvlcWf24: $ sfWf sftvlcF15 $ = '(ax_mp (ax_mp sfWf_and sfCLOrdinalAt_wf) sfCLHierarchyAt_wf);
+
+theorem sftvlcWf25: $ sfWf sftvlcF16 $ = 'sfWf_mem;
+
+theorem sftvlcWf26: $ sfWf sftvlcF17 $ = '(ax_mp (ax_mp sfWf_and sftvlcWf24) sftvlcWf25);
+
+theorem sftvlcP27: $ nsLocal sftvlcG14 sftvlcF18 $ = '(ax_mp (ax_mp nsLocal_ExI sftvlcWf26) (mpbir (nsLocal_formula_eq sftvlcInst10) sftvlcP23));
+
+theorem sftvlcWf28: $ sfWf sftvlcF1 $ = '(ax_mp (ax_mp sfWf_and sfCLOrdinalAt_wf) sfCLHierarchyAt_wf);
+
+theorem sftvlcWf29: $ sfWf sftvlcF2 $ = 'sfWf_mem;
+
+theorem sftvlcWf30: $ sfWf sftvlcF3 $ = '(ax_mp (ax_mp sfWf_and sftvlcWf28) sftvlcWf29);
+
+theorem sftvlcWf31: $ sfWf sftvlcF4 $ = '(ax_mp sfWf_ex sftvlcWf30);
+
+theorem sftvlcP32: $ nsLocal sftvlcG14 sftvlcF5 $ = '(ax_mp (ax_mp nsLocal_ExI sftvlcWf31) (mpbir (nsLocal_formula_eq sftvlcInst5) sftvlcP27));
+
+theorem sftvlcP33: $ nsLocal sftvlcG13 sftvlcF6 $ = '(ax_mp nsLocal_II sftvlcP32);
+
+theorem sftvlcShift34: $ sfShift 0 (sfCLHierarchyAt 1 0) = (sfCLHierarchyAt 2 1) $ = '(eqtr sfCLHierarchyAt_shift_cutoff (sfCLHierarchyAteq (ax_mp sfShiftIndex_free (mpbi lenlt (ltlei lt01S))) (ax_mp sfShiftIndex_free (mpbi lenlt leid))));
+
+theorem sftvlcShift35: $ sfShift 0 (sfCLOrdinalAt 1) = (sfCLOrdinalAt 2) $ = '(eqtr sfCLOrdinalAt_shift_cutoff (sfCLOrdinalAteq (ax_mp sfShiftIndex_free (mpbi lenlt (ltlei lt01S)))));
+
+theorem sftvlcGShift36: $ sfContextShift 0 = 0 $ = 'sfContextShift_nil;
+
+theorem sftvlcGShift37: $ sfContextShift sftvlcG10 = sftvlcG12 $ = '(eqtr sfContextShift_cons (conseq sftvlcShift35 sftvlcGShift36));
+
+theorem sftvlcGShift38: $ sfContextShift sftvlcG11 = sftvlcG13 $ = '(eqtr sfContextShift_cons (conseq sftvlcShift34 sftvlcGShift37));
+
+theorem sftvlcGWf39: $ sfContextWf sftvlcG10 $ = '(mpbir sfContextWf_cons (ian sfCLOrdinalAt_wf sftvlcGWf12));
+
+theorem sftvlcGWf40: $ sfContextWf sftvlcG11 $ = '(mpbir sfContextWf_cons (ian sfCLHierarchyAt_wf sftvlcGWf39));
+
+theorem sftvlcP41: $ nsLocal sftvlcG11 sftvlcF7 $ = '(ax_mp (sfLocal_allI sftvlcGWf40) (mpbir (nsLocal_context_eq sftvlcGShift38) sftvlcP33));
+
+theorem sftvlcP42: $ nsLocal sftvlcG10 sftvlcF8 $ = '(ax_mp nsLocal_II sftvlcP41);
+
+theorem sftvlcP43: $ nsLocal 0 sftvlcF9 $ = '(ax_mp nsLocal_II sftvlcP42);
+
+pub theorem sfTVLContainment_pure: $ nsLocal 0 (sfImp (sfCLOrdinalAt 1) (sfImp (sfCLHierarchyAt 1 0) (sfAll (sfImp (sfMem 0 (suc 0)) sfLDomain)))) $ = (named '(sfRQ_rewrite (nsImp_eq eqid (nsImp_eq eqid (nsAll_eq (nsImp_eq eqid (eqcom sfTVLDomain_literal))))) sftvlcP43));
+
+pub theorem sftvl_pair_zero(y a:nat): $ sfRenameIndex (sfCLPairMap y a) 0 0 = y $ = (named '(eqtr sfRenameIndex_zero (eqtr sfCLPairMap_value (ifpos eqid))));
+
+pub theorem sftvl_pair_one(y a:nat): $ sfRenameIndex (sfCLPairMap y a) 0 1 = a $ = (named '(eqtr sfRenameIndex_zero (eqtr sfCLPairMap_value (ifneg peano1))));
+
+pub theorem sftvl_pair_bound(y a:nat): $ sfRenameIndex (sfCLPairMap y a) 1 0 = 0 $ = (named '(ax_mp sfRenameIndex_bound d0lt1));
+
+pub theorem sftvl_pair_lift(y a:nat): $ sfRenameIndex (sfCLPairMap y a) 1 1 = suc y $ = (named '(eqtr sfRenameIndex_lift (suceq sftvl_pair_zero)));
+
+pub theorem sfTVLContainment_rename(a y:nat): $ sfRename (sfCLPairMap y a) 0 (sfImp (sfCLOrdinalAt 1) (sfImp (sfCLHierarchyAt 1 0) (sfAll (sfImp (sfMem 0 (suc 0)) sfLDomain)))) = (sfImp (sfCLOrdinalAt a) (sfImp (sfCLHierarchyAt a y) (sfAll (sfImp (sfMem 0 (suc y)) sfLDomain)))) $ = (named '(eqtr sfRename_sfImp (nsImp_eq (eqtr sfCLOrdinalAt_rename (sfCLOrdinalAteq sftvl_pair_one)) (eqtr sfRename_sfImp (nsImp_eq (eqtr sfCLHierarchyAt_rename (sfCLHierarchyAteq sftvl_pair_one sftvl_pair_zero)) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq sftvl_pair_bound sftvl_pair_lift)) (ax_mp sfRename_bound_identity sfLDomain_bound))))))))));
+
+pub theorem sfTVLContainment_at_pure(a y:nat): $ nsLocal 0 (sfImp (sfCLOrdinalAt a) (sfImp (sfCLHierarchyAt a y) (sfAll (sfImp (sfMem 0 (suc y)) sfLDomain)))) $ = (named '(mpbi (nsLocal_formula_eq sfTVLContainment_rename) (mpbi (nsLocal_context_eq sfContextRename_nil) (ax_mp sfSepLocal_rename sfTVLContainment_pure))));
+
+pub theorem sfTVLContainment_local(G a y:nat)(ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a y) $): $ nsLocal G (sfAll (sfImp (sfMem 0 (suc y)) sfLDomain)) $ = (named '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_weaken (ax_mp nsLocal_context_wf ho)) all0 sfTVLContainment_at_pure)) ho)) hl));

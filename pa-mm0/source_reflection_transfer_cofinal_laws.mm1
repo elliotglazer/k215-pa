@@ -1,0 +1,59 @@
+import "source_reflection_transfer_cofinal_step.mm1";
+
+theorem rfcl_subset_rename(R:set)(X Y:nat): $ sfRename R 0 (sfCLSubset X Y) = sfCLSubset (R @ X) (R @ Y) $ = (named '(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound d0lt1) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound d0lt1) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)))))))));
+
+theorem rfcl_mergepoint_rename(R:set)(level K X Y k z:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionCofinalMergePoint level K X Y k z) = sfReflectionCofinalMergePoint level (R @ K) (R @ X) (R @ Y) (R @ k) (R @ z) $ = (named '(eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (eqtr sfRename_sfAnd (nsAnd_eq (sfORBinary_rename (ax_mp sfBound_wf hl)) (eqtr sfRename_sfAnd (nsAnd_eq rfcl_subset_rename rfcl_subset_rename)))))));
+
+theorem rfcl_mergepoint_congr(level K KP X XP Y YP k kp z zp:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $)(hX:$ X = XP $)(hY:$ Y = YP $)(hk:$ k = kp $)(hz:$ z = zp $): $ sfReflectionCofinalMergePoint level K X Y k z = sfReflectionCofinalMergePoint level KP XP YP kp zp $ = (named '(nsAnd_eq (nsMem_eq hk hK) (nsAnd_eq (sfORBinary_congr (ax_mp sfBound_wf hl) hk hz) (nsAnd_eq (sfCLSubseteq hX hz) (sfCLSubseteq hY hz)))));
+
+theorem rfcl_depth2_0(R:set): $ sfRenameDepthMap R 2 @ 0 = 0 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S)));
+
+theorem rfcl_depth2_1(R:set): $ sfRenameDepthMap R 2 @ 1 = 1 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S))));
+
+theorem rfcl_depth2_tail(R:set)(i:nat): $ sfRenameDepthMap R 2 @ suc (suc i) = suc (suc (R @ i)) $ = (named '(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (eqtr (suceq sfRenameIndex_lift) (suceq (suceq sfRenameIndex_zero))))));
+
+pub theorem sfReflectionCofinalMergeAt_rename(R:set)(level K X Y:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionCofinalMergeAt level K X Y) = sfReflectionCofinalMergeAt level (R @ K) (R @ X) (R @ Y) $ = (named '(eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfEx (nsEx_eq (eqtr (ax_mp sfRename_as_map (rfc_mergepoint_wf hl)) (eqtr (rfcl_mergepoint_rename hl) (rfcl_mergepoint_congr hl rfcl_depth2_tail rfcl_depth2_tail rfcl_depth2_tail rfcl_depth2_1 rfcl_depth2_0))))))));
+
+def sfReflectionCofinalMergeBody(level K k X l Y:nat):nat = $ sfImp (sfMem k K) (sfImp (sfORBinary level k X) (sfImp (sfMem l K) (sfImp (sfORBinary level l Y) (sfReflectionCofinalMergeAt level K X Y)))) $;
+
+def sfReflectionCofinalMergeLaw(level K:nat):nat = $ sfAll (sfAll (sfAll (sfAll (sfReflectionCofinalMergeBody level (suc (suc (suc (suc K)))) 3 2 1 0)))) $;
+
+theorem rfcl_mergeat_wf(level K X Y:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalMergeAt level K X Y) $ = (named '(ax_mp sfWf_ex (ax_mp sfWf_ex (rfc_mergepoint_wf hl))));
+
+theorem rfcl_mergebody_wf(level K k X l Y:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalMergeBody level K k X l Y) $ = (named '(ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp (rfc_level_wf hl)) (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp (rfc_level_wf hl)) (rfcl_mergeat_wf hl))))));
+
+theorem rfcl_mergebody_rename(R:set)(level K k X l Y:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionCofinalMergeBody level K k X l Y) = sfReflectionCofinalMergeBody level (R @ K) (R @ k) (R @ X) (R @ l) (R @ Y) $ = (named '(eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (eqtr sfRename_sfImp (nsImp_eq (sfORBinary_rename (ax_mp sfBound_wf hl)) (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (eqtr sfRename_sfImp (nsImp_eq (sfORBinary_rename (ax_mp sfBound_wf hl)) (sfReflectionCofinalMergeAt_rename hl))))))))));
+
+theorem rfcl_mergebody_congr(level K KP k kp X XP l lp Y YP:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $)(hk:$ k = kp $)(hX:$ X = XP $)(hlp:$ l = lp $)(hY:$ Y = YP $): $ sfReflectionCofinalMergeBody level K k X l Y = sfReflectionCofinalMergeBody level KP kp XP lp YP $ = (named '(nsImp_eq (nsMem_eq hk hK) (nsImp_eq (sfORBinary_congr (ax_mp sfBound_wf hl) hk hX) (nsImp_eq (nsMem_eq hlp hK) (nsImp_eq (sfORBinary_congr (ax_mp sfBound_wf hl) hlp hY) (nsEx_eq (nsEx_eq (rfcl_mergepoint_congr hl (suceq (suceq hK)) (suceq (suceq hX)) (suceq (suceq hY)) eqid eqid))))))));
+
+theorem rfcl_depth4_0(R:set): $ sfRenameDepthMap R 4 @ 0 = 0 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S)));
+
+theorem rfcl_depth4_1(R:set): $ sfRenameDepthMap R 4 @ 1 = 1 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S))));
+
+theorem rfcl_depth4_2(R:set): $ sfRenameDepthMap R 4 @ 2 = 2 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+theorem rfcl_depth4_3(R:set): $ sfRenameDepthMap R 4 @ 3 = 3 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))));
+
+theorem rfcl_depth4_tail(R:set)(i:nat): $ sfRenameDepthMap R 4 @ suc (suc (suc (suc i))) = suc (suc (suc (suc (R @ i)))) $ = (named '(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))))))))));
+
+pub theorem sfReflectionCofinalMergeLaw_rename(R:set)(level K:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionCofinalMergeLaw level K) = sfReflectionCofinalMergeLaw level (R @ K) $ = (named '(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr (ax_mp sfRename_as_map (rfcl_mergebody_wf hl)) (eqtr (rfcl_mergebody_rename hl) (rfcl_mergebody_congr hl rfcl_depth4_tail rfcl_depth4_3 rfcl_depth4_2 rfcl_depth4_1 rfcl_depth4_0))))))))))));
+
+theorem rfcl_mergelaw_congr(level K KP:nat)(hl:$ sfBound 2 level $)(hK:$ K = KP $): $ sfReflectionCofinalMergeLaw level K = sfReflectionCofinalMergeLaw level KP $ = (named '(nsAll_eq (nsAll_eq (nsAll_eq (nsAll_eq (rfcl_mergebody_congr hl (suceq (suceq (suceq (suceq hK)))) eqid eqid eqid eqid))))));
+
+pub theorem sfReflectionCofinalMergeLaw_shift(level K:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionCofinalMergeLaw level K) = sfReflectionCofinalMergeLaw level (suc K) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (rfcl_mergebody_wf hl))))))) (eqtr (sfReflectionCofinalMergeLaw_rename hl) (rfcl_mergelaw_congr hl sfSuccessorMap_value))));
+
+theorem rfcl_all_cons(E:set)(G t a:nat)(ha:$ sfWf a $): $ nsLocal G (sfRename E 0 (sfAll a)) -> nsLocal G (sfRename (sqEnvCons t E) 0 a) $ = (named '(syl (bi1 (nsLocal_formula_eq (sfReflectionTransfer_open ha))) (syl nsLocal_AllE (bi1 (nsLocal_formula_eq sfRename_sfAll)))));
+
+def sfReflectionCofinalFour(k X l Y:nat):set = $ sqEnvCons Y (sqEnvCons l (sqEnvCons X (sqEnvCons k sfIdentityMap))) $;
+
+theorem rfcl_four_0(k X l Y:nat): $ sfReflectionCofinalFour k X l Y @ 0 = Y $ = (named 'sqEnvCons_zero);
+
+theorem rfcl_four_1(k X l Y:nat): $ sfReflectionCofinalFour k X l Y @ 1 = l $ = (named '(eqtr sqEnvCons_suc sqEnvCons_zero));
+
+theorem rfcl_four_2(k X l Y:nat): $ sfReflectionCofinalFour k X l Y @ 2 = X $ = (named '(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)));
+
+theorem rfcl_four_3(k X l Y:nat): $ sfReflectionCofinalFour k X l Y @ 3 = k $ = (named '(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))));
+
+theorem rfcl_four_tail(k X l Y i:nat): $ sfReflectionCofinalFour k X l Y @ suc (suc (suc (suc i))) = i $ = (named '(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sfIdentityMap_value)))));
+
+pub theorem sfReflectionCofinalMergeLaw_use(G level K k X l Y:nat)(hl:$ sfBound 2 level $)(hM:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $)(hk:$ nsLocal G (sfMem k K) $)(hX:$ nsLocal G (sfORBinary level k X) $)(hlK:$ nsLocal G (sfMem l K) $)(hY:$ nsLocal G (sfORBinary level l Y) $): $ nsLocal G (sfReflectionCofinalMergeAt level K X Y) $ = (named '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr (rfcl_mergebody_rename hl) (rfcl_mergebody_congr hl rfcl_four_tail rfcl_four_3 rfcl_four_2 rfcl_four_1 rfcl_four_0))) (ax_mp (rfcl_all_cons (rfcl_mergebody_wf hl)) (ax_mp (rfcl_all_cons (ax_mp sfWf_all (rfcl_mergebody_wf hl))) (ax_mp (rfcl_all_cons (ax_mp sfWf_all (ax_mp sfWf_all (rfcl_mergebody_wf hl)))) (ax_mp (rfcl_all_cons (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (rfcl_mergebody_wf hl))))) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (rfcl_mergebody_wf hl))))))) hM))))))) hk)) hX)) hlK)) hY));

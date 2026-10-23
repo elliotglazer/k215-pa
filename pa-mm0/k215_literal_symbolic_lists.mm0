@@ -1,0 +1,88 @@
+import "k215_literal_symbolic_blocks.mm0";
+
+def k215SymRevStep (.z: nat): set = $ \ z, pi22 z |> fst z $;
+
+def k215SymRev (vs: nat): nat = $ lrec 0 k215SymRevStep vs $;
+
+theorem k215SymRev_nil: $ k215SymRev 0 = 0 $;
+
+theorem k215SymRev_cons (v vs: nat): $ k215SymRev (v : vs) = k215SymRev vs |> v $;
+
+def k215SymFoldCStep (.z: nat): set = $ \ z, k215SymC (fst z) (pi22 z) $;
+
+def k215SymFoldC (vs r: nat): nat = $ lrec r k215SymFoldCStep vs $;
+
+theorem k215SymFoldC_nil (r: nat): $ k215SymFoldC 0 r = r $;
+
+theorem k215SymFoldC_cons (v vs r: nat): $ k215SymFoldC (v : vs) r = k215SymC v (k215SymFoldC vs r) $;
+
+theorem k215SymFoldC_append (vs ws r: nat): $ k215SymFoldC (vs ++ ws) r = k215SymFoldC vs (k215SymFoldC ws r) $;
+
+theorem k215SymFoldC_snoc (vs v r: nat): $ k215SymFoldC (vs |> v) r = k215SymFoldC vs (k215SymC v r) $;
+
+def k215SymFoldRBStep (.z: nat): set = $ \ z, k215SymRB (fst z) (pi22 z) $;
+
+def k215SymFoldRB (vs r: nat): nat = $ lrec r k215SymFoldRBStep vs $;
+
+theorem k215SymFoldRB_nil (r: nat): $ k215SymFoldRB 0 r = r $;
+
+theorem k215SymFoldRB_cons (v vs r: nat): $ k215SymFoldRB (v : vs) r = k215SymRB v (k215SymFoldRB vs r) $;
+
+theorem k215SymFoldRB_append (vs ws r: nat): $ k215SymFoldRB (vs ++ ws) r = k215SymFoldRB vs (k215SymFoldRB ws r) $;
+
+theorem k215SymFoldRB_snoc (vs v r: nat): $ k215SymFoldRB (vs |> v) r = k215SymFoldRB vs (k215SymRB v r) $;
+
+def k215SymFoldRCStep (.z: nat): set = $ \ z, k215SymRC (fst z) (pi22 z) $;
+
+def k215SymFoldRC (vs r: nat): nat = $ lrec r k215SymFoldRCStep vs $;
+
+theorem k215SymFoldRC_nil (r: nat): $ k215SymFoldRC 0 r = r $;
+
+theorem k215SymFoldRC_cons (v vs r: nat): $ k215SymFoldRC (v : vs) r = k215SymRC v (k215SymFoldRC vs r) $;
+
+theorem k215SymFoldRC_append (vs ws r: nat): $ k215SymFoldRC (vs ++ ws) r = k215SymFoldRC vs (k215SymFoldRC ws r) $;
+
+theorem k215SymFoldRC_snoc (vs v r: nat): $ k215SymFoldRC (vs |> v) r = k215SymFoldRC vs (k215SymRC v r) $;
+
+def k215SymReverseB (vs r: nat): nat = $ k215SymFoldRB (k215SymRev vs) r $;
+
+theorem k215SymReverseB_nil (r: nat): $ k215SymReverseB 0 r = r $;
+
+theorem k215SymReverseB_cons (v vs r: nat): $ k215SymReverseB (v : vs) r = k215SymReverseB vs (k215SymRB v r) $;
+
+def k215SymReverseC (vs r: nat): nat = $ k215SymFoldRC (k215SymRev vs) r $;
+
+theorem k215SymReverseC_nil (r: nat): $ k215SymReverseC 0 r = r $;
+
+theorem k215SymReverseC_cons (v vs r: nat): $ k215SymReverseC (v : vs) r = k215SymReverseC vs (k215SymRC v r) $;
+
+theorem k215SymC_shift_block (v r: nat):
+ $ k215SymC v (k215TmPush 1 r) = k215TmPush 1 (k215TmRegister v r) $;
+
+theorem k215SymC_shift (vs r: nat):
+ $ k215SymFoldC vs (k215TmPush 1 r) = k215TmPush 1 (k215TmFile vs r) $;
+
+theorem k215SymRC_shift_block (v r: nat):
+ $ k215TmPush 1 (k215SymRC v r) = k215SymRB v (k215TmPush 1 r) $;
+
+theorem k215SymFoldRC_shift (vs r: nat):
+ $ k215TmPush 1 (k215SymFoldRC vs r) = k215SymFoldRB vs (k215TmPush 1 r) $;
+
+theorem k215SymReverseC_shift (vs r: nat):
+ $ k215TmPush 1 (k215SymReverseC vs r) = k215SymReverseB vs (k215TmPush 1 r) $;
+
+def k215SymList0Claim (vs: nat) (.l .r: nat): wff = $ A. l A. r k215TMReach (k215TMState k215Num64 l (k215TmFile vs r)) (k215TMState k215Num64 (k215SymReverseB vs l) r) $;
+
+theorem k215SymList0 (vs l r: nat): $ k215TMReach (k215TMState k215Num64 l (k215TmFile vs r)) (k215TMState k215Num64 (k215SymReverseB vs l) r) $;
+
+def k215SymList1Claim (vs: nat) (.l .r: nat): wff = $ A. l A. r k215TMReach (k215TMState 0 l (k215TmFile vs r)) (k215TMState 0 (k215SymReverseC vs l) r) $;
+
+theorem k215SymList1 (vs l r: nat): $ k215TMReach (k215TMState 0 l (k215TmFile vs r)) (k215TMState 0 (k215SymReverseC vs l) r) $;
+
+def k215SymList2Claim (vs: nat) (.l .r: nat): wff = $ A. l A. r k215TMReach (k215TmLeftState k215Num40 (k215SymReverseB vs l) r) (k215TmLeftState k215Num40 l (k215TmFile vs r)) $;
+
+theorem k215SymList2 (vs l r: nat): $ k215TMReach (k215TmLeftState k215Num40 (k215SymReverseB vs l) r) (k215TmLeftState k215Num40 l (k215TmFile vs r)) $;
+
+def k215SymList3Claim (vs: nat) (.l .r: nat): wff = $ A. l A. r k215TMReach (k215TmLeftState k215Num96 (k215SymReverseC vs l) r) (k215TmLeftState k215Num96 l (k215TmFile vs r)) $;
+
+theorem k215SymList3 (vs l r: nat): $ k215TMReach (k215TmLeftState k215Num96 (k215SymReverseC vs l) r) (k215TmLeftState k215Num96 l (k215TmFile vs r)) $;

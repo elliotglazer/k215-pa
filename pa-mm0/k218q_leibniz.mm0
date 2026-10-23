@@ -1,0 +1,31 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k230_substitution.mm0";
+import "k218q_transport.mm0";
+
+-- Actual fixed-K proofs of equality substitution, with explicit capture guards.
+theorem k218IEquality_replace_forward (x y a: nat):
+ $ k218QProvable (kImp (kEq x y) (kEq a (kReplace x y a))) $;
+theorem k218IEquality_replace_backward (x y a: nat):
+ $ k218QProvable (kImp (kEq x y) (kEq (kReplace x y a) a)) $;
+
+def k218ILeibnizReady (f x y: nat): wff = $ kBinderAbsent f x /\ kBinderAbsent f y $;
+def k218ILeibnizPair (f x y: nat): wff =
+$ k218QProvable (kImp (kEq x y) (kImp f (kSubst f x y))) /\
+  k218QProvable (kImp (kEq x y) (kImp (kSubst f x y) f)) $;
+def k218ILeibnizClass (x y .f: nat): set = $ {f | k218ILeibnizReady f x y -> k218ILeibnizPair f x y} $;
+
+theorem k218ILeibnizClass_value (x y f: nat):
+ $ f e. k218ILeibnizClass x y <-> (k218ILeibnizReady f x y -> k218ILeibnizPair f x y) $;
+
+theorem k218ILeibnizClass_closed (x y: nat): $ kRawConstructionClosed (k218ILeibnizClass x y) $;
+theorem k218ILeibniz (f x y: nat):
+ $ kBinderAbsent f x /\ kBinderAbsent f y ->
+   k218QProvable (kImp (kEq x y) (kImp f (kSubst f x y))) /\
+   k218QProvable (kImp (kEq x y) (kImp (kSubst f x y) f)) $;
+theorem k218ILeibniz_forward (f x y: nat):
+ $ kBinderAbsent f x /\ kBinderAbsent f y ->
+   k218QProvable (kImp (kEq x y) (kImp f (kSubst f x y))) $;
+theorem k218ILeibniz_backward (f x y: nat):
+ $ kBinderAbsent f x /\ kBinderAbsent f y ->
+   k218QProvable (kImp (kEq x y) (kImp (kSubst f x y) f)) $;

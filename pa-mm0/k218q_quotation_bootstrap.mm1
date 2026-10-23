@@ -1,0 +1,67 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_bootstrap.mm1";
+import "k218q_bootstrap.mm1";
+import "k218q_quotation_supported_environment.mm1";
+import "k230_bootstrap_discharge.mm1";
+
+theorem k218SQ_sqBS_repeat_domain_step (H t a n: nat):
+ $ (k218IHypProvable H (kMem t a) -> k218SQ_sqDomainSupport H (repeat a n) t) ->
+   k218IHypProvable H (kMem t a) -> k218SQ_sqDomainSupport H (repeat a (suc n)) t $ =
+'(exp @ mpbird (a1i (k218SQ_sqDomainSupporteq2 repeatS)) @
+  mpd (mpd anr anl) (syl k218SQ_sqDomainSupport_cons anr));
+
+pub theorem k218SQ_sqBootstrap_repeat_domain (H t a n: nat):
+ $ k218IHypProvable H (kMem t a) -> k218SQ_sqDomainSupport H (repeat a n) t $ =
+(named @ induct '(ind) 'n
+ '(a1i (mpbir (k218SQ_sqDomainSupporteq2 repeat0) k218SQ_sqDomainSupport_nil))
+ 'k218SQ_sqBS_repeat_domain_step);
+
+theorem k218SQ_sqBS_default_member: $ k218IHypProvable kQuotientContext (kMem 1 3) $ =
+'(ax_mp k218IHypProvable_assumption sfContext_member_head);
+
+pub theorem k218SQ_sqBootstrap_default_domain (n: nat):
+ $ k218SQ_sqDomainSupport kQuotientContext (repeat 3 n) 1 $ =
+'(ax_mp k218SQ_sqBootstrap_repeat_domain k218SQ_sqBS_default_member);
+
+pub theorem k218SQ_sqBootstrap_default_source (n: nat):
+ $ k218SQ_sqSourceSupport kQuotientContext (repeat 3 n) 1 4 0 $ = 'k218SQ_sqSourceSupport_nil;
+
+@_ abstract def k218SQ_sqBootstrapConsequence (n a .S .k: nat): wff =
+ $ A. S A. k (sqEnvironmentSafe S n 1 k ->
+   k218SQ_sqDomainSupport kQuotientContext S 1 ->
+   k218IHypProvable kQuotientContext (sqQuote (sqNumericEnvironment S) 1 k 0 a)) $;
+
+pub theorem k218SQ_sqBootstrapConsequence_at (n a S k: nat):
+ $ k218SQ_sqBootstrapConsequence n a -> sqEnvironmentSafe S n 1 k ->
+   k218SQ_sqDomainSupport kQuotientContext S 1 ->
+   k218IHypProvable kQuotientContext (sqQuote (sqNumericEnvironment S) 1 k 0 a) $ =
+(named '(!! ealie R @ !! ealde l @ bi1d ,eqtac));
+
+pub theorem k218SQ_sqBootstrapConsequence_default (n a: nat):
+ $ k218SQ_sqBootstrapConsequence n a ->
+   k218IHypProvable kQuotientContext (sqQuote (sqNumericEnvironment (repeat 3 n)) 1 4 0 a) $ =
+'(mpi k218SQ_sqBootstrap_default_domain (mpi sqBootstrap_default_safe k218SQ_sqBootstrapConsequence_at));
+
+pub theorem k218SQ_sqBootstrapConsequence_closed (n a: nat):
+ $ sfBound 0 a -> k218SQ_sqBootstrapConsequence n a ->
+   k218IHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $ =
+'(exp @ mpbid
+  (k218IHypProvableeq2d (syl sqQuote_environment_closed anl))
+  (syl k218SQ_sqBootstrapConsequence_default anr));
+
+pub theorem k218SQ_sqBootstrapConsequence_exists_closed {n: nat} (a: nat):
+ $ sfBound 0 a -> (E. n k218SQ_sqBootstrapConsequence n a) ->
+   k218IHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $ =
+(named '(eexd k218SQ_sqBootstrapConsequence_closed));
+
+pub theorem k218SQ_sqBootstrapConsequence_false (n: nat):
+ $ k218SQ_sqBootstrapConsequence n sfBot -> k218IHypProvable kQuotientContext kF $ =
+'(syl (bi1 (k218IHypProvableeq2 sqQuote_bot)) k218SQ_sqBootstrapConsequence_default);
+
+theorem k218SQ_sqBS_exists_false {n: nat}:
+ $ (E. n k218SQ_sqBootstrapConsequence n sfBot) -> k218IHypProvable kQuotientContext kF $ =
+(named '(eex k218SQ_sqBootstrapConsequence_false));
+
+pub theorem k218SQ_sqBootstrapConsequence_refutation {n: nat}:
+ $ (E. n k218SQ_sqBootstrapConsequence n sfBot) -> k218QProvable kF $ =
+'(syl k218QBootstrap_refutation k218SQ_sqBS_exists_false);

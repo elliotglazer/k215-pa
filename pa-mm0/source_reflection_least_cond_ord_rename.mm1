@@ -1,0 +1,15 @@
+import "source_reflection_least_cond_ord_maps.mm1";
+
+theorem sfLCBR_at{j:nat}(R:set)(d z zz i:nat): $ (A. j (sfRenameDepthMap R d @ (j + z) = j + zz)) -> sfRenameDepthMap R d @ (i + z) = i + zz $ = (named '(!! eale j ,eqtac));
+
+theorem sfLCBR_zero{j:nat}(R:set)(d x y z zz:nat)(ht:$ A. j (sfRenameDepthMap R d @ (j + z) = j + zz) $): $ sfComposeMap (sfRenameDepthMap R d) (sfLCBinaryMap x y z) @ (0) = sfLCBinaryMap (sfRenameDepthMap R d @ x) (sfRenameDepthMap R d @ y) zz @ (0) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLCB_zero) (eqcom sfLCB_zero))));
+
+theorem sfLCBR_one{j:nat}(R:set)(d x y z zz:nat)(ht:$ A. j (sfRenameDepthMap R d @ (j + z) = j + zz) $): $ sfComposeMap (sfRenameDepthMap R d) (sfLCBinaryMap x y z) @ (1) = sfLCBinaryMap (sfRenameDepthMap R d @ x) (sfRenameDepthMap R d @ y) zz @ (1) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLCB_one) (eqcom sfLCB_one))));
+
+theorem sfLCBR_tail{j:nat}(R:set)(d x y z zz:nat)(i:nat)(ht:$ A. j (sfRenameDepthMap R d @ (j + z) = j + zz) $): $ sfComposeMap (sfRenameDepthMap R d) (sfLCBinaryMap x y z) @ (suc (suc i)) = sfLCBinaryMap (sfRenameDepthMap R d @ x) (sfRenameDepthMap R d @ y) zz @ (suc (suc i)) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLCB_tail) (eqtr (ax_mp sfLCBR_at ht) (eqcom sfLCB_tail)))));
+
+theorem sfLCBR_suc{j:nat}(R:set)(d x y z zz:nat)(i:nat)(ht:$ A. j (sfRenameDepthMap R d @ (j + z) = j + zz) $): $ sfComposeMap (sfRenameDepthMap R d) (sfLCBinaryMap x y z) @ (suc i) = sfLCBinaryMap (sfRenameDepthMap R d @ x) (sfRenameDepthMap R d @ y) zz @ (suc i) $ = (named @ induct '(ind) 'i '(sfLCBR_one ht) '(a1i (sfLCBR_tail ht)));
+
+theorem sfLCBR_each{j:nat}(R:set)(d x y z zz:nat)(i:nat)(ht:$ A. j (sfRenameDepthMap R d @ (j + z) = j + zz) $): $ sfComposeMap (sfRenameDepthMap R d) (sfLCBinaryMap x y z) @ (i) = sfLCBinaryMap (sfRenameDepthMap R d @ x) (sfRenameDepthMap R d @ y) zz @ (i) $ = (named @ induct '(ind) 'i '(sfLCBR_zero ht) '(a1i (sfLCBR_suc ht)));
+
+pub theorem sfLCBinary_rename_tail{j:nat}(R:set)(d phi x y z zz:nat)(hf:$ sfWf phi $)(ht:$ A. j (sfRenameDepthMap R d @ (j + z) = j + zz) $): $ sfRename R d (sfLCBinary phi x y z) = sfLCBinary phi (sfRenameDepthMap R d @ x) (sfRenameDepthMap R d @ y) zz $ = (named '(eqtr (ax_mp sfRename_mixed_compose hf) (ax_mp (sfRename_extensional (ax_gen (sfLCBR_each ht))) hf)));

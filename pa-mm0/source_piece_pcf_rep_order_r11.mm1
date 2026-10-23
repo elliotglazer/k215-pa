@@ -1,0 +1,169 @@
+import "source_piece_pcf_rep_unique_r10.mm1";
+
+@_ def sfPieceRepSuccessorLiftLaw:nat = $ (sfAll (sfAll (sfAll (sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfOr (sfMem 0 2) (sfEq 0 2)) (sfMem 0 1)))))) $;
+
+theorem pcrl_lift_wf:
+ $ sfWf sfPieceRepSuccessorLiftLaw $ =
+ '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or sfWf_mem) sfWf_eq)) sfWf_mem)))));
+
+theorem pcrl_lift_shift:
+ $ sfShift 0 sfPieceRepSuccessorLiftLaw = sfPieceRepSuccessorLiftLaw $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor pcrl_lift_wf)) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_rename (sfPieceRepSuccessor_eq (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfOr (nsOr_eq (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr sfRename_sfEq (nsEq_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)))))))))))))));
+
+theorem pcrl_lift_open0(a:nat):
+ $ sfSubst 0 a (sfAll (sfAll (sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfOr (sfMem 0 2) (sfEq 0 2)) (sfMem 0 1))))) = (sfAll (sfAll (sfImp (sfPieceRepSuccessor (suc (suc a)) 1) (sfImp (sfOr (sfMem 0 (suc (suc a))) (sfEq 0 (suc (suc a)))) (sfMem 0 1))))) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S))))))))))));
+
+theorem pcrl_lift_inst0(G a:nat):
+ $ (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G (sfAll (sfAll (sfImp (sfPieceRepSuccessor (suc (suc a)) 1) (sfImp (sfOr (sfMem 0 (suc (suc a))) (sfEq 0 (suc (suc a)))) (sfMem 0 1)))))) $ =
+ '(syl (bi1 (nsLocal_formula_eq pcrl_lift_open0)) nsLocal_AllE);
+
+theorem pcrl_lift_open1(a s:nat):
+ $ sfSubst 0 s (sfAll (sfImp (sfPieceRepSuccessor (suc (suc a)) 1) (sfImp (sfOr (sfMem 0 (suc (suc a))) (sfEq 0 (suc (suc a)))) (sfMem 0 1)))) = (sfAll (sfImp (sfPieceRepSuccessor (suc a) (suc s)) (sfImp (sfOr (sfMem 0 (suc a)) (sfEq 0 (suc a))) (sfMem 0 (suc s))))) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero))))))))));
+
+theorem pcrl_lift_inst1(G a s:nat):
+ $ (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G (sfAll (sfImp (sfPieceRepSuccessor (suc a) (suc s)) (sfImp (sfOr (sfMem 0 (suc a)) (sfEq 0 (suc a))) (sfMem 0 (suc s)))))) $ =
+ '(syl (syl (bi1 (nsLocal_formula_eq pcrl_lift_open1)) nsLocal_AllE) pcrl_lift_inst0);
+
+theorem pcrl_lift_open2(a s z:nat):
+ $ sfSubst 0 z (sfImp (sfPieceRepSuccessor (suc a) (suc s)) (sfImp (sfOr (sfMem 0 (suc a)) (sfEq 0 (suc a))) (sfMem 0 (suc s)))) = (sfImp (sfPieceRepSuccessor a s) (sfImp (sfOr (sfMem z a) (sfEq z a)) (sfMem z s))) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceRepSuccessor_subst (sfPieceRepSuccessor_eq sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)))) (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))))));
+
+theorem pcrl_lift_inst2(G a s z:nat):
+ $ (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G (sfImp (sfPieceRepSuccessor a s) (sfImp (sfOr (sfMem z a) (sfEq z a)) (sfMem z s)))) $ =
+ '(syl (syl (bi1 (nsLocal_formula_eq pcrl_lift_open2)) nsLocal_AllE) pcrl_lift_inst1);
+
+theorem pcrl_lift_use(G a s z:nat):
+ $ (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G (sfPieceRepSuccessor a s)) -> (nsLocal G (sfOr (sfMem z a) (sfEq z a))) -> (nsLocal G (sfMem z s)) $ =
+ '(syl (syl6 nsLocal_mp nsLocal_mp) pcrl_lift_inst2);
+
+theorem pcrl_unique_rule(G k x y:nat):
+ $ (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral k y)) -> (nsLocal G (sfEq x y)) $ =
+ '(ax_mp pcru_good_at sfPieceNumeral_unique_induction);
+
+pub theorem sfPieceNumeral_count_eq(k l x:nat):
+ $ k = l -> sfPieceNumeral k x = sfPieceNumeral l x $ =
+ '(sfSubst_congr (a1i eqid) (a1i eqid) receq3);
+
+theorem pcrl_count_local(G k l x:nat):
+ $ k = l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l x)) $ =
+ '(bi1d (nsLocaleq2d sfPieceNumeral_count_eq));
+
+theorem pcrl_num_shift(k x:nat):
+ $ sfShift 0 (sfPieceNumeral k x) = sfPieceNumeral k (suc x) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceNumeral_wf)) (eqtr sfPieceNumeral_rename (pcru_num_eq sfSuccessorMap_value)));
+
+theorem pcrl_mem_shift(x y:nat):
+ $ sfShift 0 (sfMem x y) = sfMem (suc x) (suc y) $ =
+ '(eqtr sfShift_sfMem (nsMem_eq sfShiftIndex_zero sfShiftIndex_zero));
+
+theorem pcrl_lt_suc_cases(k l:nat):
+ $ k < suc l -> k < l \/ k = l $ =
+ '(syl (bi1 leloe) (bi2 leltsuc));
+
+@_ def sfPieceNumeralLtGood(l .G .k .x .y:nat):wff = $ A. G A. k A. x A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+@_ def pcrlGoodAt1(l G .k .x .y:nat):wff = $ A. k A. x A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+theorem pcrl_good_part1(l G:nat):
+ $ sfPieceNumeralLtGood l -> pcrlGoodAt1 l G $ =
+ (named '(!! eale j0 ,eqtac));
+
+@_ def pcrlGoodAt2(l G k .x .y:nat):wff = $ A. x A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+theorem pcrl_good_part2(l G k:nat):
+ $ pcrlGoodAt1 l G -> pcrlGoodAt2 l G k $ =
+ (named '(!! eale j0 ,eqtac));
+
+@_ def pcrlGoodAt3(l G k x .y:nat):wff = $ A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+theorem pcrl_good_part3(l G k x:nat):
+ $ pcrlGoodAt2 l G k -> pcrlGoodAt3 l G k x $ =
+ (named '(!! eale j0 ,eqtac));
+
+@_ def pcrlGoodAt4(l G k x y:nat):wff = $ ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y))) $;
+
+theorem pcrl_good_part4(l G k x y:nat):
+ $ pcrlGoodAt3 l G k x -> pcrlGoodAt4 l G k x y $ =
+ (named '(!! eale j0 ,eqtac));
+
+theorem pcrl_good_at(G k l x y:nat):
+ $ sfPieceNumeralLtGood l -> (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral l y)) -> (nsLocal G (sfMem x y)) $ =
+ '(syl pcrl_good_part4 (syl pcrl_good_part3 (syl pcrl_good_part2 pcrl_good_part1)));
+
+theorem pcrl_zero_at(G k x y:nat):
+ $ (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < 0 -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral 0 y)) -> (nsLocal G (sfMem x y)) $ =
+ '(exp (exp (exp (exp (exp (mpd (anwl (anwl anr)) (a1i (ax_mp absurd lt02))))))));
+
+theorem pcrl_zero:
+ $ sfPieceNumeralLtGood 0 $ =
+ (named '(ax_gen (ax_gen (ax_gen (ax_gen pcrl_zero_at)))));
+
+@_ def pcrlBody(l y:nat):nat = $ sfAnd (sfPieceNumeral l 0) (sfPieceRepSuccessor 0 (suc y)) $;
+
+@_ def pcrlContext(G l y:nat):nat = $ pcrlBody l y : sfContextShift G $;
+
+theorem pcrl_context_wf(G l y:nat):
+ $ sfContextWf (pcrlContext G l y) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfPieceNumeral_wf) sfPieceRepSuccessor_wf) sfContextShift_wf));
+
+theorem pcrl_hyp(G l y:nat):
+ $ (nsLocal (pcrlContext G l y) (pcrlBody l y)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp pcrl_context_wf) sfContext_member_head);
+
+theorem pcrl_previous(G l y:nat):
+ $ (nsLocal (pcrlContext G l y) (sfPieceNumeral l 0)) $ =
+ '(ax_mp nsLocal_CE1 pcrl_hyp);
+
+theorem pcrl_successor(G l y:nat):
+ $ (nsLocal (pcrlContext G l y) (sfPieceRepSuccessor 0 (suc y))) $ =
+ '(ax_mp nsLocal_CE2 pcrl_hyp);
+
+theorem pcrl_old_num(G k l x y:nat):
+ $ (nsLocal G (sfPieceNumeral k x)) -> (nsLocal (pcrlContext G l y) (sfPieceNumeral k (suc x))) $ =
+ '(syl (ax_mp (ax_mp nsLocal_weaken pcrl_context_wf) sfContextSub_cons) (syl (bi1 (nsLocal_formula_eq pcrl_num_shift)) sfSepLocal_shift));
+
+theorem pcrl_lift_closed(G l y a:nat)(hz:$ sfShift 0 a = a $):
+ $ (nsLocal G a) -> (nsLocal (pcrlContext G l y) a) $ =
+ '(syl (ax_mp (ax_mp nsLocal_weaken pcrl_context_wf) sfContextSub_cons) (syl (bi1 (nsLocal_formula_eq hz)) sfSepLocal_shift));
+
+theorem pcrl_base_to_context(G l y:nat):
+ $ (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal (pcrlContext G l y) sfPieceRepEmptyUniqueLaw) $ =
+ '(pcrl_lift_closed pcru_empty_shift);
+
+theorem pcrl_unique_to_context(G l y:nat):
+ $ (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal (pcrlContext G l y) sfPieceRepSuccessorUniqueLaw) $ =
+ '(pcrl_lift_closed pcru_successor_shift);
+
+theorem pcrl_lift_to_context(G l y:nat):
+ $ (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal (pcrlContext G l y) sfPieceRepSuccessorLiftLaw) $ =
+ '(pcrl_lift_closed pcrl_lift_shift);
+
+theorem pcrl_inner_lt(G k l x y:nat):
+ $ sfPieceNumeralLtGood l -> (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G (sfPieceNumeral k x)) -> k < l -> (nsLocal (pcrlContext G l y) (sfShift 0 (sfMem x y))) $ =
+ '(exp (exp (exp (exp (exp (mpd (mpd (mpd (mpd (a1i pcrl_previous) (mpd (mpd (anwl anr) (a1i pcrl_old_num)) (mpd anr (mpd (mpd (anwl (anwl anr)) (a1i pcrl_lift_to_context)) (mpd (mpd (anwl (anwl (anwl anr))) (a1i pcrl_unique_to_context)) (mpd (mpd (anwl (anwl (anwl (anwl anr)))) (a1i pcrl_base_to_context)) (mpd (anwl (anwl (anwl (anwl (anwl id))))) (a1i pcrl_good_at)))))))) (a1i (ax_mp nsLocal_DI1 sfWf_eq))) (mpd (a1i pcrl_successor) (mpd (mpd (anwl (anwl anr)) (a1i pcrl_lift_to_context)) (a1i pcrl_lift_use)))) (a1i (bi2 (nsLocal_formula_eq pcrl_mem_shift)))))))));
+
+theorem pcrl_inner_eq(G k l x y:nat):
+ $ sfPieceNumeralLtGood l -> (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G (sfPieceNumeral k x)) -> k = l -> (nsLocal (pcrlContext G l y) (sfShift 0 (sfMem x y))) $ =
+ '(exp (exp (exp (exp (exp (mpd (mpd (mpd (mpd (a1i pcrl_previous) (mpd (mpd (mpd (anwl anr) (a1i pcrl_old_num)) (mpd anr (a1i pcrl_count_local))) (mpd (mpd (anwl (anwl (anwl anr))) (a1i pcrl_unique_to_context)) (mpd (mpd (anwl (anwl (anwl (anwl anr)))) (a1i pcrl_base_to_context)) (a1i pcrl_unique_rule))))) (a1i (sfLocal_orR sfWf_mem))) (mpd (a1i pcrl_successor) (mpd (mpd (anwl (anwl anr)) (a1i pcrl_lift_to_context)) (a1i pcrl_lift_use)))) (a1i (bi2 (nsLocal_formula_eq pcrl_mem_shift)))))))));
+
+theorem pcrl_inner(G k l x y:nat):
+ $ sfPieceNumeralLtGood l -> (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> (nsLocal G (sfPieceNumeral k x)) -> k < suc l -> (nsLocal (pcrlContext G l y) (sfShift 0 (sfMem x y))) $ =
+ '(exp (exp (exp (exp (exp (mpd (mpd anr (a1i pcrl_lt_suc_cases)) (eord (mpd (anwl anr) (mpd (anwl (anwl anr)) (mpd (anwl (anwl (anwl anr))) (mpd (anwl (anwl (anwl (anwl anr)))) (mpd (anwl (anwl (anwl (anwl (anwl id))))) (a1i pcrl_inner_lt)))))) (mpd (anwl anr) (mpd (anwl (anwl anr)) (mpd (anwl (anwl (anwl anr))) (mpd (anwl (anwl (anwl (anwl anr)))) (mpd (anwl (anwl (anwl (anwl (anwl id))))) (a1i pcrl_inner_eq)))))))))))));
+
+theorem pcrl_step_at(G k l x y:nat):
+ $ sfPieceNumeralLtGood l -> (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G sfPieceRepSuccessorLiftLaw) -> k < suc l -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral (suc l) y)) -> (nsLocal G (sfMem x y)) $ =
+ '(exp (exp (exp (exp (exp (exp (mpd (mpd (anwl (anwl anr)) (mpd (anwl anr) (mpd (anwl (anwl (anwl anr))) (mpd (anwl (anwl (anwl (anwl anr)))) (mpd (anwl (anwl (anwl (anwl (anwl anr))))) (mpd (anwl (anwl (anwl (anwl (anwl (anwl id)))))) (a1i pcrl_inner))))))) (mpd (mpd anr (a1i (bi1 (nsLocal_formula_eq sfPieceNumeral_suc_normal)))) (a1i (sfLocal_exE sfWf_mem))))))))));
+
+theorem pcrl_step(l:nat):
+ $ sfPieceNumeralLtGood l -> sfPieceNumeralLtGood (suc l) $ =
+ (named '(iald (iald (iald (iald pcrl_step_at)))));
+
+pub theorem sfPieceNumeral_lt_induction(l:nat):
+ $ sfPieceNumeralLtGood l $ =
+ (named @ induct '(ind) 'l 'pcrl_zero 'pcrl_step);
+
+pub theorem sfPieceNumeral_lt_from_laws(G k l x y:nat)(he:$ nsLocal G sfPieceRepEmptyUniqueLaw $)(hu:$ nsLocal G sfPieceRepSuccessorUniqueLaw $)(hs:$ nsLocal G sfPieceRepSuccessorLiftLaw $)(hl:$ k < l $)(hx:$ nsLocal G (sfPieceNumeral k x) $)(hy:$ nsLocal G (sfPieceNumeral l y) $):
+ $ (nsLocal G (sfMem x y)) $ =
+ '(ax_mp (ax_mp (ax_mp (ax_mp (ax_mp (ax_mp (ax_mp pcrl_good_at sfPieceNumeral_lt_induction) he) hu) hs) hl) hx) hy);

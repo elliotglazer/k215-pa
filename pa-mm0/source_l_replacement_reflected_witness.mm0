@@ -1,0 +1,21 @@
+import "source_l_replacement_witness_transport.mm0";
+
+import "source_l_replacement_common_reflected.mm0";
+
+def sfLReplacementReflectedImageBody(start n psi:nat):nat =
+ $ sfAnd (sfCLReflectedPoint (suc (suc start)) n (suc n) psi 1 0)
+    (sfLReplacementImageCoverage (sfLReplacementShift2Map (sfLReplacementStartMap start)) sfLDomain psi 0) $;
+
+def sfLReplacementReflectedImageContext(G start n psi:nat):nat =
+ $ sfCLWitnessContext G (sfLReplacementReflectedImageBody start n psi) $;
+
+theorem sfLReplacementCoverage_map{j:nat}(T U:set)(D psi Y:nat)
+ (hf:$ sfWf psi $)(h:$ A. j T @ j = U @ j $):
+ $ sfLReplacementImageCoverage T D psi Y = sfLReplacementImageCoverage U D psi Y $;
+
+theorem sfLReplacementWitness_from_reflected_recipe(G start n psi:nat)
+ (hb:$ sfBound (suc n) psi $)
+ (hp:$ nsLocal G (sfLReplacementReflectedRecipe (sfLReplacementStartMap start) start n (suc n) psi) $)
+ (hd:$ nsLocal (sfLReplacementReflectedImageContext G start n psi)
+   (sfLReplacementImageDefinable (sfLReplacementStartMap (suc (suc start))) sfLDomain psi 0) $):
+ $ nsLocal G (sfLReplacementImageWitness (sfLReplacementStartMap start) sfLDomain psi) $;

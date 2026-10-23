@@ -1,0 +1,105 @@
+import "zfc_axioms.mm1";
+import "source_nd_quantifiers.mm1";
+
+theorem zfcSequent_congr (H: wff) (a u b v: nat)
+  (h0: $ H -> a = u $) (h1: $ H -> b = v $):
+  $ H -> sfSequent a b = sfSequent u v $ = '(sfSequent_congr h0 h1);
+do (apply (register-eqd 'sfSequent) '(zfcSequent_congr sfSequent_congr_context sfSequent_congr_formula));
+theorem zfcFullDerives_congr (H: wff) (p q a b: nat)
+  (hp: $ H -> p = q $) (ha: $ H -> a = b $):
+  $ H -> (sfNDFullDerives p a <-> sfNDFullDerives q b) $ =
+'(aneqd (trueeqd (lreceq3d hp)) (lmemeqd ha hp));
+do (apply (register-eqd 'sfNDFullDerives) '(zfcFullDerives_congr));
+
+@_ def zfcContext (G: nat): wff = $ all zfcAxioms G $;
+@_ def zfcProvable (f .G .p: nat): wff =
+$ E. G E. p (zfcContext G /\ sfNDFullDerives p (sfSequent G f)) $;
+@_ def zfcInconsistent: wff = $ zfcProvable sfBot $;
+
+pub theorem zfcContext_nil: $ zfcContext 0 $ = 'all0;
+pub theorem zfcContext_cons (a G: nat):
+  $ zfcContext (a : G) <-> a e. zfcAxioms /\ zfcContext G $ = 'allS;
+pub theorem zfcContext_append (G D: nat):
+  $ zfcContext (G ++ D) <-> zfcContext G /\ zfcContext D $ = 'allappend;
+pub theorem zfcContext_member_closed (G a: nat):
+  $ zfcContext G -> a IN G -> sfBound 0 a $ =
+'(syl6 zfcAxioms_closed elall);
+theorem zfcAxioms_subset_formulas: $ zfcAxioms C_ sfFormulaClass $ =
+(named '(ax_gen @ syl (bi2 sfFormulaClass_value) zfcAxioms_wf));
+pub theorem zfcContext_wf (G: nat): $ zfcContext G -> sfContextWf G $ =
+'(mpi zfcAxioms_subset_formulas sstr);
+pub theorem zfcProof_formula_wf (G p a: nat):
+  $ sfNDFullDerives p (sfSequent G a) -> sfWf a $ =
+'(syl anr (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf));
+pub theorem zfcProvable_intro (G p f: nat):
+  $ zfcContext G /\ sfNDFullDerives p (sfSequent G f) -> zfcProvable f $ =
+(named '(syl (iexe ,eqtac) (iexe ,eqtac)));
+pub theorem zfcProvable_wf (f: nat): $ zfcProvable f -> sfWf f $ =
+(named '(eex @ eex @ syl zfcProof_formula_wf anr));
+
+theorem zfcAxiom_single_context (a: nat):
+  $ a e. zfcAxioms -> zfcContext (a : 0) $ =
+'(syl (bi2 zfcContext_cons) (iand id (a1i zfcContext_nil)));
+theorem zfcAxiom_single_guard (a: nat):
+  $ a e. zfcAxioms -> sfRowWf (sfSequent (a : 0) a) $ =
+'(sylc sfRowWf_sequent_intro (syl zfcContext_wf zfcAxiom_single_context) zfcAxioms_wf);
+theorem zfcAxiom_single_proof (a: nat):
+  $ a e. zfcAxioms ->
+    sfNDFullDerives ((sfSequent (a : 0) a) : 0) (sfSequent (a : 0) a) $ =
+'(syl sfNDFullDerives_prop_base @
+  mpi sfContext_member_head (syl sfNDPropBase_Ctx zfcAxiom_single_guard));
+pub theorem zfcAxiom_provable (a: nat): $ a e. zfcAxioms -> zfcProvable a $ =
+'(syl zfcProvable_intro (iand zfcAxiom_single_context zfcAxiom_single_proof));
+
+pub theorem zfcContextSub_append_left (G D: nat): $ sfContextSub G (G ++ D) $ =
+(named '(ax_gen @ syl (bi2 lmemappend) orl));
+pub theorem zfcContextSub_append_right (G D: nat): $ sfContextSub D (G ++ D) $ =
+(named '(ax_gen @ syl (bi2 lmemappend) orr));
+pub theorem zfcProof_weaken (G D p a: nat):
+  $ sfContextWf D -> sfContextSub G D -> sfNDFullDerives p (sfSequent G a) ->
+    sfNDFullDerives (sfSequent D a : p) (sfSequent D a) $ =
+'(exp @ exp @ mpd anr @
+  syl sfNDFullDerives_prop_unary @
+  mpd anlr @ syl sfNDPropUnary_Wk @
+  sylc sfRowWf_sequent_intro anll (syl zfcProof_formula_wf anr));
+
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+@_ def zfcMPProof (G D p q a b: nat): nat =
+$ sfSequent (G ++ D) b :
+    ((sfSequent (G ++ D) (sfImp a b) : p) ++
+     (sfSequent (G ++ D) a : q)) $;
+
+theorem zfcProof_weaken_left (G D p a: nat):
+  $ sfContextWf (G ++ D) -> sfNDFullDerives p (sfSequent G a) ->
+    sfNDFullDerives (sfSequent (G ++ D) a : p) (sfSequent (G ++ D) a) $ =
+'(mpi zfcContextSub_append_left zfcProof_weaken);
+theorem zfcProof_weaken_right (G D p a: nat):
+  $ sfContextWf (G ++ D) -> sfNDFullDerives p (sfSequent D a) ->
+    sfNDFullDerives (sfSequent (G ++ D) a : p) (sfSequent (G ++ D) a) $ =
+'(mpi zfcContextSub_append_right zfcProof_weaken);
+
+pub theorem zfcProof_mp (G D p q a b: nat):
+  $ sfContextWf (G ++ D) -> sfNDFullDerives p (sfSequent G (sfImp a b)) ->
+    sfNDFullDerives q (sfSequent D a) ->
+    sfNDFullDerives (zfcMPProof G D p q a b) (sfSequent (G ++ D) b) $ =
+'(exp @ exp @
+  mpd (sylc zfcProof_weaken_right anll anr) @
+  mpd (sylc zfcProof_weaken_left anll anlr) @
+  syl sfNDFullDerives_prop_binary @ syl sfNDPropBinary_IE @
+  sylc sfRowWf_sequent_intro anll
+    (syl anr (syl (bi1 sfWf_imp_iff) (syl zfcProof_formula_wf anlr))));
+
+theorem zfcProof_mp_from_contexts (G D p q a b: nat):
+  $ (zfcContext G /\ sfNDFullDerives p (sfSequent G (sfImp a b))) ->
+    (zfcContext D /\ sfNDFullDerives q (sfSequent D a)) -> zfcProvable b $ =
+'(exp @ syl zfcProvable_intro @ iand
+  (syl (bi2 zfcContext_append) (iand anll anrl))
+  (mpd anrr @ mpd anlr @ syl zfcProof_mp @ syl zfcContext_wf @
+    syl (bi2 zfcContext_append) (iand anll anrl)));
+theorem zfcProof_mp_right (G p a b: nat):
+  $ (zfcContext G /\ sfNDFullDerives p (sfSequent G (sfImp a b))) ->
+    zfcProvable a -> zfcProvable b $ =
+(named '(eexd @ eexd zfcProof_mp_from_contexts));
+pub theorem zfcProvable_mp (a b: nat):
+  $ zfcProvable (sfImp a b) -> zfcProvable a -> zfcProvable b $ =
+(named '(eex @ eex zfcProof_mp_right));

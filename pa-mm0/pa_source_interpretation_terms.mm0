@@ -1,0 +1,42 @@
+import "source_bounds.mm0";
+
+def paTermZero: nat = $ 0 $;
+
+def paTermVariable (i: nat): nat = $ sfMem i 0 $;
+
+def paTermSuccessor (a: nat): nat = $ sfEq a 0 $;
+
+def paTermAddition (a b: nat): nat = $ sfAnd a b $;
+
+def paTermMultiplication (a b: nat): nat = $ sfOr a b $;
+
+def paTermBoundAllowed (n c h: nat): wff = $ ifp (c = 0) (0 = 0)
+ (ifp (sfTag c = 1) (sfRight c = 0 /\ sfLeft c < n)
+ (ifp (sfTag c = 2) (sfRight c = 0 /\ (n,  sfLeft c) e. h)
+ (ifp (sfTag c = 3) ((n,  sfLeft c) e. h /\ (n,  sfRight c) e. h)
+ (ifp (sfTag c = 4) ((n,  sfLeft c) e. h /\ (n,  sfRight c) e. h)
+ (0 != 0))))) $;
+
+def paTermBoundStep (.k .h: nat): set = $ S\ k,  {h | paTermBoundAllowed (fst k) (snd k) h} $;
+
+def paTermBound (n c: nat): wff = $ srecp paTermBoundStep (n,  c) $;
+
+def paTermBoundPrevious (n c .i: nat): nat = $ sep (upto (n,  c)) {i | srecp paTermBoundStep i} $;
+
+def paTerm (c .n: nat): wff = $ E. n paTermBound n c $;
+
+theorem paTermBoundStep_value (k h: nat): $ (k, h) e. paTermBoundStep <-> paTermBoundAllowed (fst k) (snd k) h $;
+
+theorem paTermBoundPrevious_value (n c m a: nat): $ (m, a) e. paTermBoundPrevious n c <-> (m, a) < (n, c) /\ paTermBound m a $;
+
+theorem paTermBound_unfold (n c: nat): $ paTermBound n c <-> paTermBoundAllowed n c (paTermBoundPrevious n c) $;
+
+theorem paTermBound_zero (n: nat): $ paTermBound n paTermZero $;
+
+theorem paTermBound_variable (n i: nat): $ paTermBound n (paTermVariable i) <-> i < n $;
+
+theorem paTermBound_successor (n a: nat): $ paTermBound n (paTermSuccessor a) <-> paTermBound n a $;
+
+theorem paTermBound_addition (n a b: nat): $ paTermBound n (paTermAddition a b) <-> paTermBound n a /\ paTermBound n b $;
+
+theorem paTermBound_multiplication (n a b: nat): $ paTermBound n (paTermMultiplication a b) <-> paTermBound n a /\ paTermBound n b $;

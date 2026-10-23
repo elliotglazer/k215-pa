@@ -1,0 +1,27 @@
+-- Contextual SeedG logic; every generalization/vacuity premise remains explicit.
+import "k218_deduction.mm0";
+import "k218_quantifier_macros.mm0";
+
+-- Every assumption has its own explicit global vacuity proof.
+def k218ContextVacuous (G x .a: nat): wff =
+$ A. a (a IN G -> k218Provable (kImp a (kAll x a))) $;
+def k218ContextUniversalClass (G x .a: nat): set =
+$ {a | k218HypProvable G (kAll x a)} $;
+
+theorem k218ContextVacuous_member (G x a: nat):
+  $ k218ContextVacuous G x -> a IN G -> k218Provable (kImp a (kAll x a)) $;
+theorem k218ContextVacuous_nil (x: nat): $ k218ContextVacuous 0 x $;
+theorem k218ContextVacuous_cons (G x a: nat):
+  $ k218ContextVacuous (a : G) x <-> k218Provable (kImp a (kAll x a)) /\ k218ContextVacuous G x $;
+theorem k218ContextUniversalClass_value (G x a: nat):
+  $ a e. k218ContextUniversalClass G x <-> k218HypProvable G (kAll x a) $;
+theorem k218HypRules_generalization_sound (G x: nat) (hv: $ k218ContextVacuous G x $):
+  $ traceRuleSound (k218HypRules G) (k218ContextUniversalClass G x) $;
+theorem k218HypDerives_gen (G x p a: nat) (hv: $ k218ContextVacuous G x $):
+  $ k218HypDerives G p a -> k218HypProvable G (kAll x a) $;
+theorem k218HypProvable_gen (G x a: nat) (hv: $ k218ContextVacuous G x $):
+  $ k218HypProvable G a -> k218HypProvable G (kAll x a) $;
+theorem k218HypProvable_exists_elim (G x p q: nat)
+  (hv: $ k218ContextVacuous G x $)
+  (hq: $ k218Provable (kImp q (kAll x q)) $):
+  $ k218HypProvable G (kExists x p) -> k218HypProvable G (kImp p q) -> k218HypProvable G q $;

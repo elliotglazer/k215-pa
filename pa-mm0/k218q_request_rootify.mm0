@@ -1,0 +1,16 @@
+import "k218q_matrix_request.mm0";
+import "k218q_seed_request.mm0";
+
+def k218PointRequest (E: set) (B p c x y f: nat): nat =
+ $ kAll x (kImp (sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) B 0 f)
+   (kExists y (kAnd (sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) B 0 f)
+     (kMem y c)))) $;
+
+theorem k218QRequest_rootify (E: set) (n B p c x y f: nat)
+ (hx: $ x < B $) (hy: $ y < B $) (hx0: $ x != 0 $) (hy0: $ y != 0 $)
+ (hxy: $ x != y $) (hxp: $ x != p $) (hxc: $ x != c $)
+ (hyp: $ y != p $) (hyc: $ y != c $)
+ (hex: $ sqEnvAvoid E n x $) (hey: $ sqEnvAvoid E n y $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218QProvable (kImp (k218PointRequest E B p c x y f)
+     (k218MatrixRequest E B x p c f)) $;

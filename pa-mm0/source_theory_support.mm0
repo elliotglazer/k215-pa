@@ -1,0 +1,15 @@
+import "source_theory_renaming.mm0";
+import "source_hypothesis_replacement.mm0";
+
+def sfTheoryProofClass (T: set) (.a: nat): set = $ {a | sfTheoryProvable T a} $;
+def sfTheorySupport (T: set) (L H: nat): wff =
+$ sfTheoryContext T H /\ sfLocalCoverage H L $;
+
+theorem sfTheoryProofClass_value (T: set) (a: nat):
+  $ a e. sfTheoryProofClass T <-> sfTheoryProvable T a $;
+theorem sfLocalCoverage_mono (G H L: nat):
+  $ sfContextWf H -> sfContextSub G H -> sfLocalCoverage G L -> sfLocalCoverage H L $;
+theorem sfTheoryProvable_support {H: nat} (T: set) (a: nat):
+  $ sfTheoryProvable T a -> E. H (sfTheoryContext T H /\ nsLocal H a) $;
+theorem sfTheory_finite_support {H: nat} (T: set) (L: nat) (ht: $ sfTheoryClosed T $):
+  $ all (sfTheoryProofClass T) L -> E. H sfTheorySupport T L H $;

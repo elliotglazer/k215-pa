@@ -1,0 +1,75 @@
+import "source_piece_pcf_definable_introduction_step.mm1";
+
+@_ abstract def sfPieceDefinableParametersUndo: set = $ sfComposeMap sfPieceRotate sfPieceRotate $;
+
+theorem sfPieceDefinableParametersUndo_0: $ sfPieceDefinableParametersUndo @ 0 = 2 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_zero) sfPieceRotate_one)));
+
+theorem sfPieceDefinableParametersUndo_1: $ sfPieceDefinableParametersUndo @ 1 = 0 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_one) sfPieceRotate_two)));
+
+theorem sfPieceDefinableParametersUndo_2: $ sfPieceDefinableParametersUndo @ 2 = 1 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_two) sfPieceRotate_zero)));
+
+theorem sfPieceDefinableParametersUndo_tail(i:nat): $ sfPieceDefinableParametersUndo @ suc (suc (suc i)) = suc (suc (suc i)) $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_tail) sfPieceRotate_tail)));
+
+theorem sfPieceDefinableParametersUndoForward_0: $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ 0 = 0 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceDefinableParametersUndo_0) sfPieceRotate_two)));
+
+theorem sfPieceDefinableParametersUndoForward_1: $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ 1 = 1 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceDefinableParametersUndo_1) sfPieceRotate_zero)));
+
+theorem sfPieceDefinableParametersUndoForward_2: $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ 2 = 2 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceDefinableParametersUndo_2) sfPieceRotate_one)));
+
+theorem sfPieceDefinableParametersUndoForward_tail(i:nat): $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ suc (suc (suc i)) = suc (suc (suc i)) $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceDefinableParametersUndo_tail) sfPieceRotate_tail)));
+
+pub theorem sfPieceDefinableParametersUndoForward_from2(i:nat): $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ suc (suc (i)) = suc (suc (i)) $ = (named @ induct '(ind) 'i 'sfPieceDefinableParametersUndoForward_2 '(a1i sfPieceDefinableParametersUndoForward_tail)) ;
+
+pub theorem sfPieceDefinableParametersUndoForward_from1(i:nat): $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ suc (i) = suc (i) $ = (named @ induct '(ind) 'i 'sfPieceDefinableParametersUndoForward_1 '(a1i sfPieceDefinableParametersUndoForward_from2)) ;
+
+pub theorem sfPieceDefinableParametersUndoForward_at(i:nat): $ sfComposeMap sfPieceRotate sfPieceDefinableParametersUndo @ i = i $ = (named @ induct '(ind) 'i 'sfPieceDefinableParametersUndoForward_0 '(a1i sfPieceDefinableParametersUndoForward_from1)) ;
+
+pub theorem sfPieceDefinableParameters_formula_cancel(a:nat)(ha:$ sfWf a $): $ sfRename sfPieceRotate 0 (sfRename sfPieceDefinableParametersUndo 0 a) = a $ = (named '(eqtr (ax_mp sfRename_compose ha) (eqtr (ax_mp (sfRename_extensional (ax_gen (eqtr sfPieceDefinableParametersUndoForward_at (eqcom sfIdentityMap_value)))) ha) (ax_mp sfRename_identity ha))));
+
+theorem sfPieceDefinableParameters_formula_cancel_if(a:nat): $ sfWf a -> sfRename sfPieceRotate 0 (sfRename sfPieceDefinableParametersUndo 0 a) = a $ = (named '(eqtrd sfRename_compose (eqtrd (sfRename_extensional (ax_gen (eqtr sfPieceDefinableParametersUndoForward_at (eqcom sfIdentityMap_value)))) sfRename_identity)));
+
+theorem sfPieceDefinableParameters_context_cancel_step(a G:nat): $ (sfContextWf G -> sfContextRename sfPieceRotate 0 (sfContextRename sfPieceDefinableParametersUndo 0 G) = G) -> sfContextWf (a : G) -> sfContextRename sfPieceRotate 0 (sfContextRename sfPieceDefinableParametersUndo 0 (a : G)) = a : G $ = (named '(exp (eqtrd (a1i (trud (sfContextRename_congr (a1i sfContextRename_cons)))) (eqtrd (a1i sfContextRename_cons) (conseqd (syl sfPieceDefinableParameters_formula_cancel_if (syl (syl anl (bi1 sfContextWf_cons)) anr)) (mpd (syl (syl anr (bi1 sfContextWf_cons)) anr) anl))))));
+
+pub theorem sfPieceDefinableParameters_context_cancel(G:nat): $ (sfContextWf G -> sfContextRename sfPieceRotate 0 (sfContextRename sfPieceDefinableParametersUndo 0 G) = G) $ = (named @ induct '(listind) 'G '(a1i (eqtr (trud (sfContextRename_congr (a1i sfContextRename_nil))) sfContextRename_nil)) 'sfPieceDefinableParameters_context_cancel_step);
+
+@_ abstract def sfPieceDefinableParametersStep(.G:nat): set = $ \ G, sfContextRename sfPieceDefinableParametersUndo 0 ((sfMem 0 2) : sfContextShift G) $;
+
+@_ abstract def sfPieceDefinableParametersContext(n G:nat): nat = $ rec G sfPieceDefinableParametersStep n $;
+
+pub theorem sfPieceDefinableParametersStep_at(G:nat): $ sfPieceDefinableParametersStep @ G = sfContextRename sfPieceDefinableParametersUndo 0 ((sfMem 0 2) : sfContextShift G) $ = (named '(applame ,eqtac));
+
+pub theorem sfPieceDefinableParametersStep_wf(G:nat): $ sfContextWf (sfPieceDefinableParametersStep @ G) $ = (named '(mpbir (trud (sfContextWf_congr (a1i sfPieceDefinableParametersStep_at))) sfContextRename_wf));
+
+pub theorem sfPieceDefinableParametersStep_cancel(G:nat): $ sfContextRename sfPieceRotate 0 (sfPieceDefinableParametersStep @ G) = (sfMem 0 2) : sfContextShift G $ = (named '(eqtr (trud (sfContextRename_congr (a1i sfPieceDefinableParametersStep_at))) (ax_mp sfPieceDefinableParameters_context_cancel (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf)))));
+
+pub theorem sfPieceDefinableParametersContext_zero(G:nat): $ sfPieceDefinableParametersContext 0 G = G $ = (named 'rec0);
+
+pub theorem sfPieceDefinableParametersContext_suc(n G:nat): $ sfPieceDefinableParametersContext (suc n) G = sfPieceDefinableParametersStep @ (sfPieceDefinableParametersContext n G) $ = (named 'recS);
+
+theorem sfPieceDefinableParametersContext_commute_zero(G:nat): $ sfPieceDefinableParametersContext 0 (sfPieceDefinableParametersStep @ G) = sfPieceDefinableParametersStep @ (sfPieceDefinableParametersContext 0 G) $ = (named '(eqtr sfPieceDefinableParametersContext_zero (eqcom (appeq2 sfPieceDefinableParametersContext_zero))));
+
+theorem sfPieceDefinableParametersContext_commute_step(n G:nat): $ sfPieceDefinableParametersContext n (sfPieceDefinableParametersStep @ G) = sfPieceDefinableParametersStep @ (sfPieceDefinableParametersContext n G) -> sfPieceDefinableParametersContext (suc n) (sfPieceDefinableParametersStep @ G) = sfPieceDefinableParametersStep @ (sfPieceDefinableParametersContext (suc n) G) $ = (named '(eqtrd (a1i sfPieceDefinableParametersContext_suc) (eqtrd (appeq2d id) (a1i (eqcom (appeq2 sfPieceDefinableParametersContext_suc))))));
+
+pub theorem sfPieceDefinableParametersContext_commute(n G:nat): $ sfPieceDefinableParametersContext n (sfPieceDefinableParametersStep @ G) = sfPieceDefinableParametersStep @ (sfPieceDefinableParametersContext n G) $ = (named @ induct '(ind) 'n 'sfPieceDefinableParametersContext_commute_zero 'sfPieceDefinableParametersContext_commute_step);
+
+theorem sfPieceDefinableParametersContext_unroll(n G:nat): $ sfPieceDefinableParametersContext (suc n) G = sfPieceDefinableParametersContext n (sfPieceDefinableParametersStep @ G) $ = (named '(eqtr sfPieceDefinableParametersContext_suc (eqcom sfPieceDefinableParametersContext_commute)));
+
+theorem sfPieceDefinableParameters_close_step_cond(H:wff)(G n a:nat)(hg:$ H -> sfContextWf G $)(hp:$ H -> nsLocal (sfPieceDefinableParametersStep @ G) (sfPieceDn n a) $): $ H -> nsLocal G (sfPieceDn (suc n) a) $ = (named '(syl (bi2 (nsLocal_formula_eq sfPieceDn_suc)) (sylc sfSepLocal_allI hg (syl nsLocal_II (syl (bi1 (nsLocal_context_eq sfPieceDefinableParametersStep_cancel)) (syl sfSepLocal_rename hp))))));
+
+@_ abstract def sfPieceDefinableParametersCloseLaw(n .G .a:nat): wff = $ A. G A. a (sfContextWf G -> nsLocal (sfPieceDefinableParametersContext n G) a -> nsLocal G (sfPieceDn n a)) $;
+
+theorem sfPieceDefinableParametersCloseLaw_at(n G a:nat): $ sfPieceDefinableParametersCloseLaw n -> sfContextWf G -> nsLocal (sfPieceDefinableParametersContext n G) a -> nsLocal G (sfPieceDn n a) $ = (named '(!! ealie g @ !! ealde a0 @ bi1d ,eqtac));
+
+theorem sfPieceDefinableParametersCloseLaw_zero_each(G a:nat): $ sfContextWf G -> nsLocal (sfPieceDefinableParametersContext 0 G) a -> nsLocal G (sfPieceDn 0 a) $ = (named '(a1i (syl (bi2 (nsLocal_formula_eq sfPieceDn_zero)) (bi1 (nsLocal_context_eq sfPieceDefinableParametersContext_zero)))));
+
+theorem sfPieceDefinableParametersCloseLaw_zero: $ sfPieceDefinableParametersCloseLaw 0 $ = (named '(ax_gen (ax_gen sfPieceDefinableParametersCloseLaw_zero_each)));
+
+theorem sfPieceDefinableParametersCloseLaw_step_cond(H:wff)(n G a:nat)(hi:$ H -> sfPieceDefinableParametersCloseLaw n $)(hg:$ H -> sfContextWf G $)(hp:$ H -> nsLocal (sfPieceDefinableParametersContext (suc n) G) a $): $ H -> nsLocal G (sfPieceDn (suc n) a) $ = (named '(sfPieceDefinableParameters_close_step_cond hg (mpd (syl (bi1 (nsLocal_context_eq sfPieceDefinableParametersContext_unroll)) hp) (mpd (a1i sfPieceDefinableParametersStep_wf) (syl sfPieceDefinableParametersCloseLaw_at hi)))));
+
+theorem sfPieceDefinableParametersCloseLaw_step_each(n G a:nat): $ sfPieceDefinableParametersCloseLaw n -> sfContextWf G -> nsLocal (sfPieceDefinableParametersContext (suc n) G) a -> nsLocal G (sfPieceDn (suc n) a) $ = (named '(exp @ exp @ sfPieceDefinableParametersCloseLaw_step_cond anll anlr anr));
+
+theorem sfPieceDefinableParametersCloseLaw_step(n:nat): $ sfPieceDefinableParametersCloseLaw n -> sfPieceDefinableParametersCloseLaw (suc n) $ = (named '(!! iald G @ !! iald a @ sfPieceDefinableParametersCloseLaw_step_each));
+
+pub theorem sfPieceDefinableParametersCloseLaw_all(n:nat): $ sfPieceDefinableParametersCloseLaw n $ = (named @ induct '(ind) 'n 'sfPieceDefinableParametersCloseLaw_zero 'sfPieceDefinableParametersCloseLaw_step);
+
+pub theorem sfPieceDefinableParameters_introduce(n G a:nat)(hg:$ sfContextWf G $)(hp:$ nsLocal (sfPieceDefinableParametersContext n G) a $): $ nsLocal G (sfPieceDn n a) $ = (named '(ax_mp (ax_mp (ax_mp sfPieceDefinableParametersCloseLaw_at sfPieceDefinableParametersCloseLaw_all) hg) hp));

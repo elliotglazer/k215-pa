@@ -1,0 +1,16 @@
+import "quotation_bootstrap.mm1";
+import "k230_equivalence.mm1";
+
+theorem sqLegacyMarker_self:
+  $ kHypProvable kQuotientContext kEmptyMarker $ =
+'(ax_mp kHypProvable_assumption
+    (ax_mp sfContext_member_tail sfContext_member_head));
+
+pub theorem sqLegacyMarker_open (a: nat):
+  $ kProvable (kImp kEmptyMarker a) -> kHypProvable kQuotientContext a $ =
+'(syl (ax_mp kHypProvable_mp sqLegacyMarker_self) kHypProvable_seed);
+
+pub theorem sqLegacyMarker_translate (a b: nat) (he: $ kEquivalent a b $):
+  $ kProvable (kImp kEmptyMarker a) -> kHypProvable kQuotientContext b $ =
+'(syl (mpi (ax_mp kHypProvable_seed (ax_mp anl he)) kHypProvable_mp)
+  sqLegacyMarker_open);

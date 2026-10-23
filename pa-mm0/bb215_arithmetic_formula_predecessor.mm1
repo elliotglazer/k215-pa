@@ -1,0 +1,21 @@
+import "bb215_arithmetic_formula_qf_sat.mm1";
+
+import "pa_formula_source_bound.mm1";
+
+@_ abstract def bb215ArithmeticFormulaPredecessorGraph (a p: nat): wff = $ (a = 0 /\ p = 0) \/ a = suc p $;
+
+@_ abstract def bb215ArithmeticFormulaPredecessorCode: nat = $ paFormulaOr (paFormulaAnd (paFormulaEqual (paTermVariable 0) (paTermZero)) (paFormulaEqual (paTermVariable 1) (paTermZero))) (paFormulaEqual (paTermVariable 0) (paTermSuccessor (paTermVariable 1))) $;
+
+@_ abstract def bb215ArithmeticFormulaPredecessorSource: nat = $ sfOr (sfAnd (paSourceFormulaEqual (paSourceTermVariable 0) (paSourceTermZero)) (paSourceFormulaEqual (paSourceTermVariable 1) (paSourceTermZero))) (paSourceFormulaEqual (paSourceTermVariable 0) (paSourceTermSuccessor (paSourceTermVariable 1))) $;
+
+pub theorem bb215ArithmeticFormulaPredecessorGraph_correct (a p: nat): $ bb215ArithmeticFormulaPredecessorGraph a p <-> a - 1 = p $ = (named '(ibii (eori (eqtr4d (eqtrd (subeq1d anl) (a1i sub01)) anr) (eqtrd (subeq1d id) (a1i sucsub1))) (casesda (orld (iand anr (eqtr3d anl (eqtrd (subeq1d anr) (a1i sub01))))) (orrd (eqtr3d (syl sub1can anr) (suceqd anl))))));
+
+pub theorem bb215ArithmeticFormulaPredecessorCode_bound: $ paFormulaBound 2 bb215ArithmeticFormulaPredecessorCode $ = (named '(mpbir paFormulaBound_or (ian (mpbir paFormulaBound_and (ian (mpbir paFormulaBound_equal (ian (mpbir paTermBound_variable lt01S) paTermBound_zero)) (mpbir paFormulaBound_equal (ian (mpbir paTermBound_variable ltsucid) paTermBound_zero)))) (mpbir paFormulaBound_equal (ian (mpbir paTermBound_variable lt01S) (mpbir paTermBound_successor (mpbir paTermBound_variable ltsucid)))))));
+
+pub theorem bb215ArithmeticFormulaPredecessorCode_satisfies (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaPredecessorCode <-> bb215ArithmeticFormulaPredecessorGraph (E @ 0) (E @ 1) $ = (named '(bitr bb215ArithmeticFormulaQFSat_or (oreq (bitr bb215ArithmeticFormulaQFSat_and (aneq (bitr bb215ArithmeticFormulaQFSat_equal (eqeq bb215ArithmeticFormulaTermValue_variable bb215ArithmeticFormulaTermValue_zero)) (bitr bb215ArithmeticFormulaQFSat_equal (eqeq bb215ArithmeticFormulaTermValue_variable bb215ArithmeticFormulaTermValue_zero)))) (bitr bb215ArithmeticFormulaQFSat_equal (eqeq bb215ArithmeticFormulaTermValue_variable (eqtr bb215ArithmeticFormulaTermValue_successor (suceq bb215ArithmeticFormulaTermValue_variable)))))));
+
+pub theorem bb215ArithmeticFormulaPredecessorCode_represents (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaPredecessorCode <-> (E @ 0) - 1 = E @ 1 $ = (named '(bitr bb215ArithmeticFormulaPredecessorCode_satisfies bb215ArithmeticFormulaPredecessorGraph_correct));
+
+pub theorem bb215ArithmeticFormulaPredecessorSource_exact: $ paFormulaSource bb215ArithmeticFormulaPredecessorCode = bb215ArithmeticFormulaPredecessorSource $ = (named '(eqtr paFormulaSource_or (sfOreq (eqtr paFormulaSource_and (sfAndeq (eqtr paFormulaSource_equal (paSourceFormulaEqualeq paTermSource_variable paTermSource_zero)) (eqtr paFormulaSource_equal (paSourceFormulaEqualeq paTermSource_variable paTermSource_zero)))) (eqtr paFormulaSource_equal (paSourceFormulaEqualeq paTermSource_variable (eqtr paTermSource_successor (paSourceTermSuccessoreq paTermSource_variable)))))));
+
+pub theorem bb215ArithmeticFormulaPredecessorSource_bound: $ sfBound 2 bb215ArithmeticFormulaPredecessorSource $ = (named '(mpbi (sfBoundeq2 bb215ArithmeticFormulaPredecessorSource_exact) (paFormulaSource_bound bb215ArithmeticFormulaPredecessorCode_bound)));

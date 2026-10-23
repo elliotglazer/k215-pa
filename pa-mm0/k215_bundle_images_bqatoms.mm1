@@ -1,0 +1,109 @@
+import "k215_bundle_images_boundf.mm1";
+import "source_l_level_member_names.mm1";
+import "source_l_common_level_setrel_renaming.mm1";
+import "source_relativization_laws.mm1";
+import "source_l_common_level_setrel_bounds.mm1";
+
+-- (lane L01, bound^L) The matrix atom relativized to L and to a set Y, as opaque emitter atoms.
+@_ def k215QL (phi a b p: nat): nat = $ sfRelativize sfLDomain (k215QP phi a b p) $;
+@_ def k215QY (phi a b p y: nat): nat = $ sfCLSetRel y (k215QP phi a b p) $;
+
+pub theorem k215QL_wf (phi a b p: nat): $ sfWf (k215QL phi a b p) $ =
+'(ax_mp sfRelativize_wf sfLDomain_wf);
+pub theorem k215QY_wf (phi a b p y: nat): $ sfWf (k215QY phi a b p y) $ = 'sfCLSetRel_wf;
+
+pub theorem k215QL_shift (d phi a b p: nat) (hp: $ d <= p $) (hf: $ sfWf phi $):
+  $ sfShift d (k215QL phi a b p) =
+    k215QL phi (sfShiftIndex d a) (sfShiftIndex d b) (sfShiftIndex d p) $ =
+'(eqtr (ax_mp (ax_mp sfRelativize_shift sfLDomain_bound) k215QP_wf)
+   (trud (sfRelativizeeq2d (a1i (k215QP_shift hp hf)))));
+
+pub theorem k215QL_subst (d t phi a b p: nat) (hp: $ d < p $) (hf: $ sfWf phi $):
+  $ sfSubst d t (k215QL phi a b p) =
+    k215QL phi (sfSubstIndex d t a) (sfSubstIndex d t b) (sfSubstIndex d t p) $ =
+'(eqtr (ax_mp (ax_mp sfRelativize_subst sfLDomain_bound) k215QP_wf)
+   (trud (sfRelativizeeq2d (a1i (k215QP_subst hp hf)))));
+
+pub theorem k215QY_shift (d phi a b p y: nat) (hp: $ d <= p $) (hf: $ sfWf phi $):
+  $ sfShift d (k215QY phi a b p y) =
+    k215QY phi (sfShiftIndex d a) (sfShiftIndex d b) (sfShiftIndex d p) (sfShiftIndex d y) $ =
+'(eqtr (sfCLSetRel_shift k215QP_wf)
+   (trud (sfCLSetRel_formula_congr eqidd (a1i (k215QP_shift hp hf)))));
+
+pub theorem k215QY_subst (d t phi a b p y: nat) (hp: $ d < p $) (hf: $ sfWf phi $):
+  $ sfSubst d t (k215QY phi a b p y) =
+    k215QY phi (sfSubstIndex d t a) (sfSubstIndex d t b) (sfSubstIndex d t p) (sfSubstIndex d t y) $ =
+'(eqtr (ax_mp sfSubst_as_map k215QY_wf)
+   (eqtr (ax_mp sfCLSetRel_rename k215QP_wf)
+     (trud (sfCLSetRel_formula_congr
+       (a1i (eqtr sfRenameIndex_zero sfSubstDepthMap_value))
+       (a1i (eqtr (eqcom (ax_mp sfSubst_as_map k215QP_wf)) (k215QP_subst hp hf)))))));
+
+-- The L-guard atom: sfLDomain for index 0, sfSubst 0 i sfLDomain for i >= 1.
+theorem k215LD_b01: $ sfBound (0 + 1) sfLDomain $ =
+'(mpbir (trud (sfLaw_bound_congr (a1i add01) eqidd)) sfLDomain_bound);
+
+pub theorem k215LD_shift_hi (d: nat) (h: $ 1 <= d $): $ sfShift d sfLDomain = sfLDomain $ =
+'(ax_mp sfShift_bound_identity (ax_mp (ax_mp sfBound_mono sfLDomain_bound) h));
+
+theorem k215LD_ag1 (i: nat): $ i < 1 -> sfSuccessorMap @ i = sfSubstDepthMap 0 1 @ i $ =
+'(syl (eqtr4d (eqtrd (appeq2d id) (a1i sfSuccessorMap_value))
+        (eqtrd (appeq2d id) (a1i (eqtr sfSubstDepthMap_value sfSubstIndex_zero)))) (bi1 lt12));
+
+pub theorem k215LD_shift0: $ sfShift 0 sfLDomain = sfSubst 0 1 sfLDomain $ =
+(named '(eqtr (eqcom (ax_mp sfRename_successor sfLDomain_wf))
+   (eqtr (ax_mp (ax_mp sfRename_agreement (ax_gen k215LD_ag1)) k215LD_b01)
+     (eqcom (ax_mp sfSubst_as_map sfLDomain_wf)))));
+
+pub theorem k215LD_shiftS (d i: nat):
+  $ sfShift d (sfSubst 0 i sfLDomain) = sfSubst 0 (sfShiftIndex d i) sfLDomain $ =
+'(eqtr (sfShifteq2 (eqcom (sfLUnaryAt_to_subst sfLDomain_bound)))
+   (eqtr (eqcom (ax_mp sfRename_successor sfRename_wf))
+    (eqtr (sfCLInstance_rename sfLDomain_bound)
+     (eqtr (sfLUnaryAteq eqid sfRenameIndex_successor) (sfLUnaryAt_to_subst sfLDomain_bound)))));
+
+pub theorem k215LD_subst_hi (d t: nat) (h: $ 1 <= d $): $ sfSubst d t sfLDomain = sfLDomain $ =
+'(ax_mp sfSubst_bound_identity (ax_mp (ax_mp sfBound_mono sfLDomain_bound) h));
+
+theorem k215LD_ag0 (i: nat): $ i < 1 -> sfSubstDepthMap 0 0 @ i = sfIdentityMap @ i $ =
+'(syl (eqtr4d (eqtrd (appeq2d id) (a1i (eqtr sfSubstDepthMap_value sfSubstIndex_zero)))
+        (eqtrd (appeq2d id) (a1i sfIdentityMap_value))) (bi1 lt12));
+
+pub theorem k215LD_subst00: $ sfSubst 0 0 sfLDomain = sfLDomain $ =
+(named '(eqtr (ax_mp sfSubst_as_map sfLDomain_wf)
+   (eqtr (ax_mp (ax_mp sfRename_agreement (ax_gen k215LD_ag0)) k215LD_b01)
+     (ax_mp sfRename_identity sfLDomain_wf))));
+
+-- Translating the parameter block of the matrix atom by c at depth d (start index d).
+pub theorem k215AM_at (c d t: nat): $ sfRenameIndex (k215AddMap c) d (d + t) = (d + c) + t $ =
+'(eqtr (ax_mp sfRenameIndex_free (mpbi lenlt leaddid1))
+   (eqtr (addeq2 (eqtr k215AddMap_value (addeq1 pncan2))) (eqtr (addeq2 addcom) (eqcom addass))));
+
+pub theorem k215QP_am (c d phi a b: nat)
+  (ha: $ sfRenameIndex (k215AddMap c) d a = a $) (hb: $ sfRenameIndex (k215AddMap c) d b = b $)
+  (hf: $ sfWf phi $):
+  $ sfRename (k215AddMap c) d (k215QP phi a b d) = k215QP phi a b (d + c) $ =
+(named '(k215QP_rename (ax_gen k215AM_at) ha hb hf));
+
+-- Bounds of the atoms.
+pub theorem k215QL_bound (phi a b p m: nat) (hf: $ sfBound (2 + m) phi $) (ha: $ a < p $) (hb: $ b < p $):
+  $ sfBound (p + m) (k215QL phi a b p) $ =
+'(ax_mp (ax_mp sfRelativize_bound sfLDomain_bound) (k215QP_bound hf ha hb));
+
+pub theorem k215QY_bound (phi a b p m y: nat) (hf: $ sfBound (2 + m) phi $) (ha: $ a < p $) (hb: $ b < p $)
+  (hy: $ y < p + m $): $ sfBound (p + m) (k215QY phi a b p y) $ =
+'(ax_mp (ax_mp sfCLSetRel_bound (k215QP_bound hf ha hb)) hy);
+
+pub theorem k215LD_bound0 (n: nat) (h: $ 0 < n $): $ sfBound n sfLDomain $ =
+'(ax_mp (ax_mp sfBound_mono sfLDomain_bound) h);
+
+theorem k215PM_value (d y i: nat): $ sfCLPairMap d y @ i = if (i = 0) d y $ =
+(named '(applame ,eqtac));
+
+pub theorem k215LD_boundS (i n: nat) (h: $ i < n $): $ sfBound n (sfSubst 0 i sfLDomain) $ =
+(named '(mpbi (trud (sfLaw_bound_congr eqidd (a1i (sfLUnaryAt_to_subst sfLDomain_bound))))
+   (mpbi (trud (sfLaw_bound_congr (a1i add01) eqidd))
+     (ax_mp (ax_mp sfRename_bound (ax_gen (a1i (mpbir (lteq1 (eqtr k215PM_value ifid)) h)))) k215LD_b01))));
+
+pub theorem k215QL_value (phi a b p: nat): $ k215QL phi a b p = sfRelativize sfLDomain (k215QP phi a b p) $ =
+'eqid;

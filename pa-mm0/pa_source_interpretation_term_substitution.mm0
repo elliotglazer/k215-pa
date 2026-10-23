@@ -1,0 +1,39 @@
+import "pa_source_interpretation_term_lift_bound.mm0";
+
+def paTermSubstVariable (d a i: nat): nat = $ if (i < d) (paTermVariable i) (if (i = d) (paTermLift d a) (paTermVariable (i - 1))) $;
+
+def paTermSubstBody (d a c h: nat): nat = $ if (c = 0) paTermZero
+ (if (sfTag c = 1) (paTermSubstVariable d a (sfLeft c))
+ (if (sfTag c = 2) (paTermSuccessor (h @ (sfLeft c)))
+ (if (sfTag c = 3) (paTermAddition (h @ (sfLeft c)) (h @ (sfRight c)))
+ (if (sfTag c = 4) (paTermMultiplication (h @ (sfLeft c)) (h @ (sfRight c))) paTermZero)))) $;
+
+def paTermSubstStep (d a: nat) (.h: nat): set = $ \ h, paTermSubstBody d a (sfHistoryLength h) h $;
+
+def paTermSubst (d a c: nat): nat = $ srec (paTermSubstStep d a) c $;
+
+def paTermSubstHistory (d a c .i: nat): nat = $ \. i e. upto c, srec (paTermSubstStep d a) i $;
+
+theorem paTermSubstStep_apply (d a h: nat): $ paTermSubstStep d a @ h = paTermSubstBody d a (sfHistoryLength h) h $;
+
+theorem paTermSubstHistory_size (d a c: nat): $ sfHistoryLength (paTermSubstHistory d a c) = c $;
+
+theorem paTermSubstHistory_lookup (d a c b: nat): $ b < c -> paTermSubstHistory d a c @ b = paTermSubst d a b $;
+
+theorem paTermSubst_unfold (d a c: nat): $ paTermSubst d a c = paTermSubstBody d a c (paTermSubstHistory d a c) $;
+
+theorem paTermSubst_zero (d a: nat): $ paTermSubst d a paTermZero = paTermZero $;
+
+theorem paTermSubst_variable (d a i: nat): $ paTermSubst d a (paTermVariable i) = paTermSubstVariable d a i $;
+
+theorem paTermSubst_successor (d a b: nat): $ paTermSubst d a (paTermSuccessor b) = paTermSuccessor (paTermSubst d a b) $;
+
+theorem paTermSubst_addition (d a b c: nat): $ paTermSubst d a (paTermAddition b c) = paTermAddition (paTermSubst d a b) (paTermSubst d a c) $;
+
+theorem paTermSubst_multiplication (d a b c: nat): $ paTermSubst d a (paTermMultiplication b c) = paTermMultiplication (paTermSubst d a b) (paTermSubst d a c) $;
+
+theorem paTermSubstVariable_below (d a i: nat) (h: $ i < d $): $ paTermSubstVariable d a i = paTermVariable i $;
+
+theorem paTermSubstVariable_hit (d a: nat): $ paTermSubstVariable d a d = paTermLift d a $;
+
+theorem paTermSubstVariable_above (d a i: nat) (h: $ d < i $): $ paTermSubstVariable d a i = paTermVariable (i - 1) $;

@@ -1,0 +1,20 @@
+import "source_structural_induction.mm0";
+
+def sfRenameDepthMap (R: set) (k .i: nat): set = $ \ i, sfRenameIndex R k i $;
+
+theorem sfRenameDepthMap_value (R: set) (k i: nat):
+ $ sfRenameDepthMap R k @ i = sfRenameIndex R k i $;
+
+theorem sfRenameIndex_depth (R: set) (k d i: nat):
+ $ sfRenameIndex R (d + k) i = sfRenameIndex (sfRenameDepthMap R k) d i $;
+
+def sfRenameDepthClass (R: set) (k .c .d: nat): set = $ {c | A. d sfRename R (d + k) c = sfRename (sfRenameDepthMap R k) d c} $;
+
+theorem sfRename_depth (R: set) (k d c: nat):
+ $ sfWf c -> sfRename R (d + k) c = sfRename (sfRenameDepthMap R k) d c $;
+
+theorem sfRename_as_map (R: set) (k c: nat):
+ $ sfWf c -> sfRename R k c = sfRename (sfRenameDepthMap R k) 0 c $;
+
+theorem sfRename_mixed_compose (R S: set) (k c: nat):
+ $ sfWf c -> sfRename R k (sfRename S 0 c) = sfRename (sfComposeMap (sfRenameDepthMap R k) S) 0 c $;

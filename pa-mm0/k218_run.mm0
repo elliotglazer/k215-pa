@@ -1,0 +1,21 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+import "k218_enum.mm0";
+
+-- Absorbing option iteration of the exact numerical enumerator.
+def k218EnumAdvance (r: nat): nat = $ if (r = 0) 0 (k218EnumStep (r - 1)) $;
+def k218EnumIter (n s .r: nat): nat = $ rec (suc s) (\ r, k218EnumAdvance r) n $;
+def k218EnumHalts (.n: nat): wff = $ E. n k218EnumIter n k218EnumInitial = 0 $;
+
+theorem k218EnumAdvance_zero: $ k218EnumAdvance 0 = 0 $;
+theorem k218EnumAdvance_some (s: nat): $ k218EnumAdvance (suc s) = k218EnumStep s $;
+theorem k218EnumIter_zero (s: nat): $ k218EnumIter 0 s = suc s $;
+theorem k218EnumIter_succ (n s: nat):
+  $ k218EnumIter (suc n) s = k218EnumAdvance (k218EnumIter n s) $;
+theorem k218EnumAdvance_good (r: nat):
+  $ k218EnumOptionGood r -> k218EnumOptionGood (k218EnumAdvance r) $;
+theorem k218EnumIter_good (n s: nat):
+  $ k218EnumStateGood s -> k218EnumOptionGood (k218EnumIter n s) $;
+theorem k218EnumIter_initial_good (n: nat):
+  $ k218EnumOptionGood (k218EnumIter n k218EnumInitial) $;
+theorem k218EnumHalts_sound: $ k218EnumHalts -> k218Inconsistent $;
+theorem k218Enum_nonhalting: $ ~k218Inconsistent -> ~k218EnumHalts $;

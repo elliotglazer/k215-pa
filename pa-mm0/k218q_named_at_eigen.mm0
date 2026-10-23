@@ -1,0 +1,33 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm0";
+import "k218q_rebase.mm0";
+import "k218q_named_at.mm0";
+
+def k218INE_name (H S k c: nat): nat =
+ $ kFreshAllocate H (sfNamedTemplate (sqNumericEnvironment S) k 0 c) 0 k $;
+theorem k218INE_above (H S k c: nat): $ k < k218INE_name H S k c $;
+theorem k218INE_context (H S k c: nat): $ kContextFresh H (k218INE_name H S k c) $;
+theorem k218INE_formula (H S k c: nat):
+ $ kFresh (sfNamedTemplate (sqNumericEnvironment S) k 0 c) (k218INE_name H S k c) $;
+theorem k218INE_positive (H S k c: nat): $ 0 < k218INE_name H S k c $;
+theorem k218INE_safe (H S n k c: nat):
+ $ sqEnvironmentSafe S n 0 k -> sqEnvironmentSafe S n 0 (k218INE_name H S k c) $;
+theorem k218INE_safe_body (H S n k c: nat):
+ $ sqEnvironmentSafe S n 0 k ->
+   sqEnvironmentSafe (k218INE_name H S k c : S) (suc n) 0 (suc (k218INE_name H S k c)) $;
+theorem k218INE_source_bound_mono (p n G: nat):
+ $ p <= n -> sqSourceBound p G -> sqSourceBound n G $;
+theorem k218INamedAt_AllI (p G a: nat)
+ (hw: $ sfContextWf G $) (hb: $ sqSourceBound p G $)
+ (ha: $ sfBound p (sfAll a) $)
+ (hp: $ k218INamedAt (suc p) (sfContextShift G) a $):
+ $ k218INamedAt p G (sfAll a) $;
+def k218INE_minor (H S k c a: nat): nat =
+ $ sfNamedTemplate (sqEnvCons (k218INE_name H S k c) (sqNumericEnvironment S))
+    (suc (k218INE_name H S k c)) 0 a : H $;
+theorem k218INamedAt_ExE (p G a c: nat)
+ (hw: $ sfContextWf G $) (hb: $ sqSourceBound p G $)
+ (ha: $ sfBound p (sfEx a) $) (hc: $ sfBound p c $)
+ (hp: $ k218INamedAt p G (sfEx a) $)
+ (hq: $ k218INamedAt (suc p) (a : sfContextShift G) (sfShift 0 c) $):
+ $ k218INamedAt p G c $;

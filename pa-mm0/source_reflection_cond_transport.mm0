@@ -1,0 +1,19 @@
+import "source_reflection_least_cond_parameters_bounds.mm0";
+
+import "source_formula_equality_transport.mm0";
+
+import "source_theory_local.mm0";
+
+def sfReflectionCondPieceTransport(P:nat):nat = $ sfAll (sfAll (sfAll (sfImp (sfEq 1 0) (sfImp (sfORBinary P 2 1) (sfORBinary P 2 0))))) $;
+
+theorem sfReflectionCondEqualityContext_zfr: $ sfTheoryContext zfrAxioms sfFormulaEqualityContext $;
+
+theorem sfReflectionCondPieceTransport_at_local(P d x y:nat)(hp:$ sfWf P $): $ nsLocal sfFormulaEqualityContext (sfImp (sfEq x y) (sfImp (sfORBinary P d x) (sfORBinary P d y))) $;
+
+theorem sfReflectionCondPieceTransport_at_zfr(P d x y:nat)(hp:$ sfWf P $): $ sfTheoryProvable zfrAxioms (sfImp (sfEq x y) (sfImp (sfORBinary P d x) (sfORBinary P d y))) $;
+
+theorem sfReflectionCondPieceTransport_local(P:nat)(hp:$ sfWf P $): $ nsLocal sfFormulaEqualityContext (sfReflectionCondPieceTransport P) $;
+
+theorem sfReflectionCondPieceTransport_zfr_meta(P:nat)(hp:$ sfWf P $): $ sfTheoryProvable zfrAxioms (sfReflectionCondPieceTransport P) $;
+
+theorem sfReflectionCondPieceTransport_zfr(P:nat): $ sfBound 2 P -> sfTheoryProvable zfrAxioms (sfReflectionCondPieceTransport P) $;

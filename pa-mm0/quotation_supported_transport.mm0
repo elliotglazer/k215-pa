@@ -1,0 +1,37 @@
+import "quotation_supported_invariant.mm0";
+import "source_context_shift.mm0";
+import "source_syntax_laws.mm0";
+
+def sqSourceBound (n G .a: nat): wff =
+ $ A. a (a IN G -> sfBound n a) $;
+
+theorem sqSourceBound_at (n G a: nat):
+ $ sqSourceBound n G -> a IN G -> sfBound n a $;
+
+theorem sqSourceSupport_from_members {a: nat} (H S t k G: nat):
+ $ (A. a (a IN G -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a))) ->
+ sqSourceSupport H S t k G $;
+
+theorem sqSourceSupport_to_members {a: nat} (H S t k G: nat):
+ $ sqSourceSupport H S t k G ->
+ A. a (a IN G -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a)) $;
+
+theorem sqSourceSupport_rebase (H S n t k l G: nat):
+ $ sqSourceBound n G -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe S n t l ->
+ sqSourceSupport H S t k G -> sqSourceSupport H S t l G $;
+
+theorem sqNumeric_quote_cons (S z t k a: nat):
+ $ sfWf a -> sqQuote (sqNumericEnvironment (z : S)) t k 0 a =
+ sqQuote (sqEnvCons z (sqNumericEnvironment S)) t k 0 a $;
+
+theorem sqNumeric_quote_shift (S z t k a: nat):
+ $ sfWf a -> sqQuote (sqNumericEnvironment (z : S)) t k 0 (sfShift 0 a) =
+ sqQuote (sqNumericEnvironment S) t k 0 a $;
+
+theorem sqShift_member_iff {b: nat} (G a: nat):
+ $ a IN sfContextShift G <-> E. b (b IN G /\ a = sfShift 0 b) $;
+
+theorem sqSourceSupport_shift (H S z t k G: nat):
+ $ sfContextWf G -> sqSourceSupport H S t k G ->
+ sqSourceSupport H (z : S) t k (sfContextShift G) $;
+

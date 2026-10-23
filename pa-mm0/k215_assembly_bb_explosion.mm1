@@ -1,0 +1,17 @@
+import "bb215_arithmetic_sentence_syntax.mm1";
+import "raw_source_falsity.mm1";
+
+-- zfcProvable_explosion (a): sfWf a -> zfcInconsistent -> zfcProvable a,
+-- instantiated at the frozen closed sentence, which is well formed.
+pub theorem k215AssemblyBB_explosion (b: nat):
+ $ zfcInconsistent -> zfcProvable (bb215ArithmeticSentenceSource b) $ =
+ '(ax_mp zfcProvable_explosion bb215ArithmeticSentenceSource_wf);
+
+pub theorem k215AssemblyBB_all_provable {b: nat}:
+ $ zfcInconsistent -> A. b zfcProvable (bb215ArithmeticSentenceSource b) $ =
+ '(!! iald b k215AssemblyBB_explosion);
+
+-- Specialize the universal statement at b, then contrapose the explosion.
+pub theorem k215AssemblyBB_none_implies_consistent {b: nat}:
+ $ (A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) -> ~zfcInconsistent $ =
+ '(syl (ax_mp con3 k215AssemblyBB_explosion) eal);

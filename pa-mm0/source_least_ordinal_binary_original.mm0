@@ -1,0 +1,25 @@
+import "source_least_ordinal_binary.mm0";
+
+import "source_renaming_agreement.mm0";
+
+def sfLeastOrdinalPredicate:nat = $ (sfAnd (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 2))))) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 2)))))))) $;
+
+def sfLeastOrdinalLaw(phi:nat):nat = $ sfImp (sfEx (sfAnd sfLeastOrdinalPredicate phi)) (sfEx (sfAnd (sfAnd sfLeastOrdinalPredicate phi) (sfAll (sfImp (sfMem 0 1) (sfImp (sfShift 1 phi) sfBot))))) $;
+
+theorem sfLeastOrdinalBinary_identity (phi:nat)(hb:$ sfBound 2 phi $): $ sfORBinary phi 0 1 = phi $;
+
+theorem sfLeastOrdinalBinary_shift_identity (phi:nat)(hb:$ sfBound 2 phi $): $ sfORBinary phi 0 2 = sfShift 1 phi $;
+
+theorem sfLeastOrdinalBinary_literal (phi:nat): $ sfLeastOrdinalBinaryLaw phi = (sfImp (sfEx (sfAnd sfLeastOrdinalPredicate (sfORBinary phi 0 1))) (sfEx (sfAnd (sfAnd sfLeastOrdinalPredicate (sfORBinary phi 0 1)) (sfAll (sfImp (sfMem 0 1) (sfImp (sfORBinary phi 0 2) sfBot)))))) $;
+
+theorem sfLeastOrdinalLaw_original (phi:nat)(hb:$ sfBound 2 phi $): $ sfLeastOrdinalBinaryLaw phi = sfLeastOrdinalLaw phi $;
+
+theorem sfLeastOrdinal_zfr_meta (phi:nat)(hb:$ sfBound 2 phi $): $ sfTheoryProvable zfrAxioms (sfLeastOrdinalLaw phi) $;
+
+theorem sfLeastOrdinal_zfr (phi:nat): $ sfBound 2 phi -> sfTheoryProvable zfrAxioms (sfLeastOrdinalLaw phi) $;
+
+def sfLeastOrdinalAt(phi p:nat):nat = $ sfSubst 0 p (sfLeastOrdinalLaw phi) $;
+
+theorem sfLeastOrdinalAt_zfr (phi p:nat): $ sfBound 2 phi -> sfTheoryProvable zfrAxioms (sfLeastOrdinalAt phi p) $;
+
+theorem sfLeastOrdinalLaw_bound (phi:nat)(hb:$ sfBound 2 phi $): $ sfBound 1 (sfLeastOrdinalLaw phi) $;

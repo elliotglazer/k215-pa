@@ -1,0 +1,20 @@
+import "source_wf_core_images.mm0";
+import "source_relative_theory.mm0";
+
+-- The concrete theories and both full schemas are fixed. No interpretation
+-- image, model, completeness, or relative consistency premise is assumed.
+theorem sfWFZFR_images:
+  $ sfRelativeAxiomImages zfrAxioms zfcCoreAxioms sfWFDomain $;
+
+theorem sfWFZFR_transfer (a: nat):
+  $ sfBound 0 a -> sfTheoryProvable zfrAxioms a ->
+    sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $;
+
+theorem sfWFZFR_refutation:
+  $ sfTheoryProvable zfrAxioms sfBot -> sfTheoryProvable zfcCoreAxioms sfBot $;
+
+theorem sfWFCore_refutation:
+  $ sfTheoryProvable zfcCoreAxioms sfBot -> sfTheoryProvable zfrAxioms sfBot $;
+
+theorem sfWFZFR_core_equiconsistent:
+  $ sfTheoryProvable zfrAxioms sfBot <-> sfTheoryProvable zfcCoreAxioms sfBot $;

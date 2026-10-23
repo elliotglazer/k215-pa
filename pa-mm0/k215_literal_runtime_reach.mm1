@@ -1,0 +1,31 @@
+import "k215_literal_runtime_registers.mm1";
+
+pub theorem k215PIter_zero (s: nat): $ k215PIter 0 s = s $ = (named 'rec0);
+pub theorem k215PIter_succ (n s: nat): $ k215PIter (suc n) s = k215PStep (k215PIter n s) $ =
+ '(eqtr recS @ ! applame $ k215PIter n s $ _ z _ k215PStepeq);
+pub theorem k215PIter_add (m n s: nat): $ k215PIter (m + n) s = k215PIter n (k215PIter m s) $ =
+ (named @ induct '(ind) 'n
+  '(eqtr (k215PItereq1 add0) (eqcom k215PIter_zero))
+  '(eqtrd (a1i (k215PItereq1 addS))
+    (eqtrd (a1i k215PIter_succ)
+      (eqtrd (k215PStepeqd id) (a1i (eqcom k215PIter_succ))))));
+
+
+@_ abstract def k215PReach (s t: nat) (.n: nat): wff =
+ $ E. n k215PIter n s = t $;
+do (apply (register-eqd 'k215PReach) '(k215PReacheqd));
+pub theorem k215PReach_intro (n s t: nat):
+ $ k215PIter n s = t -> k215PReach s t $ = (named '(iexe ,eqtac));
+pub theorem k215PReach_refl (s: nat): $ k215PReach s s $ =
+ '(k215PReach_intro k215PIter_zero);
+pub theorem k215PIter_splice (m n s t: nat):
+ $ k215PIter m s = t -> k215PIter (m + n) s = k215PIter n t $ =
+ '(eqtrd (a1i k215PIter_add) (k215PItereq2d id));
+theorem k215PReach_trans_at (m n s t u: nat):
+ $ k215PIter m s = t -> k215PIter n t = u -> k215PReach s u $ =
+ '(exp @ syl k215PReach_intro (eqtrd (syl k215PIter_splice anl) anr));
+pub theorem k215PReach_trans (s t u: nat):
+ $ k215PReach s t -> k215PReach t u -> k215PReach s u $ =
+ (named '(eex @ eexd k215PReach_trans_at));
+pub theorem k215PReach_step (s t: nat): $ k215PStep s = t -> k215PReach s t $ =
+ '(syl k215PReach_intro (eqtrd (a1i (eqtr k215PIter_succ (k215PStepeq k215PIter_zero))) id));

@@ -1,0 +1,288 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+import "k218_run.mm1";
+
+do (apply (register-eqd 'k218EnumPL) '(k218EnumPLeqd));
+do (apply (register-eqd 'k218EnumNP) '(k218EnumNPeqd));
+do (apply (register-eqd 'k218EnumTW) '(k218EnumTWeqd));
+do (apply (register-eqd 'k218EnumWS) '(k218EnumWSeqd));
+do (apply (register-eqd 'k218EnumD) '(k218EnumDeqd));
+do (apply (register-eqd 'k218EnumH) '(k218EnumHeqd));
+do (apply (register-eqd 'k218EnumState) '(k218EnumStateeqd));
+do (apply (register-eqd 'k218EnumCommand) '(k218EnumCommandeqd));
+do (apply (register-eqd 'k218EnumStep) '(k218EnumStepeqd));
+do (apply (register-eqd 'kImp) '(k218Imp_congr));
+do (apply (register-eqd 'k218Gate) '(k218Gateeqd));
+do (apply (register-eqd 'k218AxStack) '(k218AxStackeqd));
+
+-- Command fields use raw Cantor pairs. Only continuation cells are
+-- successor-wrapped; the first candidate number is read directly.
+@_ def k218CmdMP (x r: nat): nat = $ (0, x, r) $;
+@_ def k218CmdDROP (r: nat): nat = $ (1, 0, r) $;
+@_ def k218CmdNIP (r: nat): nat = $ (2, 0, r) $;
+@_ def k218CmdAX (c x y u r: nat): nat = $ (suc (suc (suc c)), x, y, u, r) $;
+
+@_ def k218CommandReady (s prefix next: nat): wff =
+$ (k218EnumPL s = suc prefix /\ next = k218EnumNP s) \/
+  (k218EnumPL s = 0 /\ (k218EnumNP s = prefix /\ next = suc (k218EnumNP s))) $;
+@_ def k218DoMP (s r next x: nat): nat =
+$ if (kImp (k218EnumTW s) (k218EnumD s + x) = k218EnumH s)
+    (suc (k218EnumState r next (k218EnumD s + x) (0, k218EnumWS s) (k218EnumD s + x) 0))
+    (suc (k218EnumState r next 0 (k218EnumWS s) (k218EnumD s + x) 0)) $;
+@_ def k218DoDROP (s r next: nat): nat =
+$ suc (k218EnumState r next (k218EnumH s) (k218EnumTW s, k218EnumWS s) (k218EnumD s) (k218EnumH s)) $;
+@_ def k218DoNIP (s r next: nat): nat =
+$ if (k218EnumH s = 1) 0
+    (suc (k218EnumState r next (k218EnumTW s) (snd (k218EnumWS s)) (k218EnumD s) (fst (k218EnumWS s)))) $;
+@_ def k218DoAX (s r next c x y u: nat): nat =
+$ suc (k218EnumState r next (k218Gate (k218EnumD s + x) (k218EnumH s + y) c)
+    (k218AxStack (k218EnumD s + x) (k218EnumH s) (k218EnumH s + y) c u (k218EnumTW s) (k218EnumWS s)) 0 0) $;
+
+theorem k218CommandReady_list_continue (s prefix next: nat):
+ $ k218EnumPL s = suc prefix /\ next = k218EnumNP s -> k218EnumList s = prefix $ =
+'(eqtrd (syl ifneg (syl sucne0 anl))
+  (eqtrd (subeq1d anl) (a1i sucsub1)));
+theorem k218CommandReady_next_continue (s prefix next: nat):
+ $ k218EnumPL s = suc prefix /\ next = k218EnumNP s -> k218EnumNext s = next $ =
+'(eqtrd (syl ifneg (syl sucne0 anl)) (eqcomd anr));
+theorem k218CommandReady_list_first (s prefix next: nat):
+ $ k218EnumPL s = 0 /\ (k218EnumNP s = prefix /\ next = suc (k218EnumNP s)) ->
+   k218EnumList s = prefix $ =
+'(eqtrd (syl ifpos anl) anrl);
+theorem k218CommandReady_next_first (s prefix next: nat):
+ $ k218EnumPL s = 0 /\ (k218EnumNP s = prefix /\ next = suc (k218EnumNP s)) ->
+   k218EnumNext s = next $ =
+'(eqtrd (syl ifpos anl) (eqcomd anrr));
+pub theorem k218CommandReady_list (s prefix next: nat):
+ $ k218CommandReady s prefix next -> k218EnumList s = prefix $ =
+'(eori k218CommandReady_list_continue k218CommandReady_list_first);
+pub theorem k218CommandReady_next (s prefix next: nat):
+ $ k218CommandReady s prefix next -> k218EnumNext s = next $ =
+'(eori k218CommandReady_next_continue k218CommandReady_next_first);
+pub theorem k218CommandReady_continue (s prefix: nat):
+ $ k218EnumPL s = suc prefix -> k218CommandReady s prefix (k218EnumNP s) $ =
+'(syl orl (iand id (a1i eqid)));
+pub theorem k218CommandReady_first (s prefix: nat):
+ $ k218EnumPL s = 0 -> k218EnumNP s = prefix ->
+   k218CommandReady s prefix (suc (k218EnumNP s)) $ =
+'(exp @ syl orr @ iand anl (iand anr (a1i eqid)));
+
+pub theorem k218EnumStep_ready (s prefix next: nat):
+ $ k218CommandReady s prefix next ->
+   k218EnumStep s = k218EnumCommand s (fst prefix) (snd (snd prefix)) next
+     (k218EnumD s + fst (snd prefix)) $ =
+'(k218EnumCommandeqd eqidd (fsteqd k218CommandReady_list)
+  (sndeqd (sndeqd k218CommandReady_list)) k218CommandReady_next
+  (addeq2d (fsteqd (sndeqd k218CommandReady_list))));
+
+theorem k218CmdMP_decode (s x r next: nat):
+ $ k218EnumCommand s (fst (k218CmdMP x r)) (snd (snd (k218CmdMP x r))) next
+     (k218EnumD s + fst (snd (k218CmdMP x r))) = k218DoMP s r next x $ =
+'(eqtr (k218EnumCommandeq eqid fstpr (eqtr (sndeq sndpr) sndpr)
+  eqid (addeq2 (eqtr (fsteq sndpr) fstpr))) (ifpos eqid));
+theorem k218CmdDROP_decode (s r next: nat):
+ $ k218EnumCommand s (fst (k218CmdDROP r)) (snd (snd (k218CmdDROP r))) next
+     (k218EnumD s + fst (snd (k218CmdDROP r))) = k218DoDROP s r next $ =
+'(eqtr (k218EnumCommandeq eqid fstpr (eqtr (sndeq sndpr) sndpr)
+  eqid (eqtr (addeq2 (eqtr (fsteq sndpr) fstpr)) add0)) k218EnumCommand_drop);
+theorem k218CmdNIP_decode (s r next: nat):
+ $ k218EnumCommand s (fst (k218CmdNIP r)) (snd (snd (k218CmdNIP r))) next
+     (k218EnumD s + fst (snd (k218CmdNIP r))) = k218DoNIP s r next $ =
+'(eqtr (k218EnumCommandeq eqid fstpr (eqtr (sndeq sndpr) sndpr)
+  eqid (eqtr (addeq2 (eqtr (fsteq sndpr) fstpr)) add0))
+  (eqtr (ifneg d2ne0) (eqtr (ifneg (ltneri (mpbi ltsuc lt01S))) (ifpos eqid))));
+theorem k218CmdAX_state (s c x y u r next: nat):
+ $ suc (k218EnumAXState s c (y, u, r) next (k218EnumD s + x)) =
+     k218DoAX s r next c x y u $ =
+'(suceq (k218EnumStateeq (eqtr (sndeq sndpr) sndpr) eqid
+  (k218Gateeq eqid (addeq2 fstpr) eqid)
+  (k218AxStackeq eqid eqid (addeq2 fstpr) eqid (eqtr (fsteq sndpr) fstpr) eqid eqid)
+  eqid eqid));
+theorem k218CmdAX_decode (s c x y u r next: nat):
+ $ k218EnumCommand s (fst (k218CmdAX c x y u r)) (snd (snd (k218CmdAX c x y u r))) next
+     (k218EnumD s + fst (snd (k218CmdAX c x y u r))) = k218DoAX s r next c x y u $ =
+'(eqtr (k218EnumCommandeq eqid fstpr (eqtr (sndeq sndpr) sndpr)
+  eqid (addeq2 (eqtr (fsteq sndpr) fstpr))) (eqtr k218EnumCommand_ax k218CmdAX_state));
+
+pub theorem k218ReadMP (s x r next: nat):
+ $ k218CommandReady s (k218CmdMP x r) next -> k218EnumStep s = k218DoMP s r next x $ =
+'(eqtrd k218EnumStep_ready (a1i k218CmdMP_decode));
+pub theorem k218ReadDROP (s r next: nat):
+ $ k218CommandReady s (k218CmdDROP r) next -> k218EnumStep s = k218DoDROP s r next $ =
+'(eqtrd k218EnumStep_ready (a1i k218CmdDROP_decode));
+pub theorem k218ReadNIP (s r next: nat):
+ $ k218CommandReady s (k218CmdNIP r) next -> k218EnumStep s = k218DoNIP s r next $ =
+'(eqtrd k218EnumStep_ready (a1i k218CmdNIP_decode));
+pub theorem k218ReadAX (s c x y u r next: nat):
+ $ k218CommandReady s (k218CmdAX c x y u r) next -> k218EnumStep s = k218DoAX s r next c x y u $ =
+'(eqtrd k218EnumStep_ready (a1i k218CmdAX_decode));
+
+pub theorem k218ReadMP_first (s x r: nat):
+ $ k218EnumPL s = 0 -> k218EnumNP s = k218CmdMP x r -> k218EnumStep s = k218DoMP s r (suc (k218EnumNP s)) x $ =
+'(syl6 k218ReadMP k218CommandReady_first);
+
+pub theorem k218ReadMP_continue (s x r: nat):
+ $ k218EnumPL s = suc (k218CmdMP x r) -> k218EnumStep s = k218DoMP s r (k218EnumNP s) x $ =
+'(syl k218ReadMP k218CommandReady_continue);
+
+pub theorem k218ReadDROP_first (s r: nat):
+ $ k218EnumPL s = 0 -> k218EnumNP s = k218CmdDROP r -> k218EnumStep s = k218DoDROP s r (suc (k218EnumNP s)) $ =
+'(syl6 k218ReadDROP k218CommandReady_first);
+
+pub theorem k218ReadDROP_continue (s r: nat):
+ $ k218EnumPL s = suc (k218CmdDROP r) -> k218EnumStep s = k218DoDROP s r (k218EnumNP s) $ =
+'(syl k218ReadDROP k218CommandReady_continue);
+
+pub theorem k218ReadNIP_first (s r: nat):
+ $ k218EnumPL s = 0 -> k218EnumNP s = k218CmdNIP r -> k218EnumStep s = k218DoNIP s r (suc (k218EnumNP s)) $ =
+'(syl6 k218ReadNIP k218CommandReady_first);
+
+pub theorem k218ReadNIP_continue (s r: nat):
+ $ k218EnumPL s = suc (k218CmdNIP r) -> k218EnumStep s = k218DoNIP s r (k218EnumNP s) $ =
+'(syl k218ReadNIP k218CommandReady_continue);
+
+pub theorem k218ReadAX_first (s c x y u r: nat):
+ $ k218EnumPL s = 0 -> k218EnumNP s = k218CmdAX c x y u r -> k218EnumStep s = k218DoAX s r (suc (k218EnumNP s)) c x y u $ =
+'(syl6 k218ReadAX k218CommandReady_first);
+
+pub theorem k218ReadAX_continue (s c x y u r: nat):
+ $ k218EnumPL s = suc (k218CmdAX c x y u r) -> k218EnumStep s = k218DoAX s r (k218EnumNP s) c x y u $ =
+'(syl k218ReadAX k218CommandReady_continue);
+
+theorem k218DoMP_state (pl np t w d h r next x: nat):
+ $ k218DoMP (k218EnumState pl np t w d h) r next x =
+   if (kImp t (d + x) = h)
+    (suc (k218EnumState r next (d + x) (0, w) (d + x) 0))
+    (suc (k218EnumState r next 0 w (d + x) 0)) $ =
+'(ifeq (eqeq (kImpeq k218EnumState_TW (addeq1 k218EnumState_D)) k218EnumState_H)
+  (suceq (k218EnumStateeq eqid eqid (addeq1 k218EnumState_D) (preq2 k218EnumState_WS) (addeq1 k218EnumState_D) eqid))
+  (suceq (k218EnumStateeq eqid eqid eqid k218EnumState_WS (addeq1 k218EnumState_D) eqid)));
+theorem k218DoDROP_state (pl np t w d h r next: nat):
+ $ k218DoDROP (k218EnumState pl np t w d h) r next =
+   suc (k218EnumState r next h (t, w) d h) $ =
+'(suceq (k218EnumStateeq eqid eqid k218EnumState_H (preq k218EnumState_TW k218EnumState_WS)
+  k218EnumState_D k218EnumState_H));
+theorem k218DoNIP_state (pl np t w d h r next: nat):
+ $ k218DoNIP (k218EnumState pl np t w d h) r next =
+   if (h = 1) 0 (suc (k218EnumState r next t (snd w) d (fst w))) $ =
+'(ifeq (eqeq1 k218EnumState_H) eqid
+  (suceq (k218EnumStateeq eqid eqid k218EnumState_TW (sndeq k218EnumState_WS)
+    k218EnumState_D (fsteq k218EnumState_WS))));
+theorem k218DoAX_state (pl np t w d h r next c x y u: nat):
+ $ k218DoAX (k218EnumState pl np t w d h) r next c x y u =
+   suc (k218EnumState r next (k218Gate (d + x) (h + y) c)
+    (k218AxStack (d + x) h (h + y) c u t w) 0 0) $ =
+'(suceq (k218EnumStateeq eqid eqid
+  (k218Gateeq (addeq1 k218EnumState_D) (addeq1 k218EnumState_H) eqid)
+  (k218AxStackeq (addeq1 k218EnumState_D) k218EnumState_H (addeq1 k218EnumState_H)
+    eqid eqid k218EnumState_TW k218EnumState_WS) eqid eqid));
+
+pub theorem k218StepMP_continue (x r np t w d h: nat):
+ $ k218EnumStep (k218EnumState (suc (k218CmdMP x r)) np t w d h) =
+   if (kImp t (d + x) = h) (suc (k218EnumState r np (d + x) (0, w) (d + x) 0)) (suc (k218EnumState r np 0 w (d + x) 0)) $ =
+'(eqtr (k218ReadMP_continue k218EnumState_PL)
+  (eqtr (k218DoMPeq3 k218EnumState_NP) k218DoMP_state));
+
+pub theorem k218StepDROP_continue (r np t w d h: nat):
+ $ k218EnumStep (k218EnumState (suc (k218CmdDROP r)) np t w d h) =
+   suc (k218EnumState r np h (t, w) d h) $ =
+'(eqtr (k218ReadDROP_continue k218EnumState_PL)
+  (eqtr (k218DoDROPeq3 k218EnumState_NP) k218DoDROP_state));
+
+pub theorem k218StepNIP_continue (r np t w d h: nat):
+ $ k218EnumStep (k218EnumState (suc (k218CmdNIP r)) np t w d h) =
+   if (h = 1) 0 (suc (k218EnumState r np t (snd w) d (fst w))) $ =
+'(eqtr (k218ReadNIP_continue k218EnumState_PL)
+  (eqtr (k218DoNIPeq3 k218EnumState_NP) k218DoNIP_state));
+
+pub theorem k218StepAX_continue (c x y u r np t w d h: nat):
+ $ k218EnumStep (k218EnumState (suc (k218CmdAX c x y u r)) np t w d h) =
+   suc (k218EnumState r np (k218Gate (d + x) (h + y) c) (k218AxStack (d + x) h (h + y) c u t w) 0 0) $ =
+'(eqtr (k218ReadAX_continue k218EnumState_PL)
+  (eqtr (k218DoAXeq3 k218EnumState_NP) k218DoAX_state));
+
+@_ abstract def k218NipPrefixStep (.z: nat): set = $ \ z, suc (k218CmdNIP z) $;
+@_ abstract def k218NipPrefix (n r: nat): nat = $ rec r k218NipPrefixStep n $;
+@_ def k218DiscardPrefix (r: nat): nat =
+ $ k218CmdMP 1 (suc (k218CmdAX 1 0 0 0 (k218NipPrefix 10 r))) $;
+
+theorem k218NipPrefixStep_apply (r: nat):
+ $ k218NipPrefixStep @ r = suc (k218CmdNIP r) $ =
+(named '(applame ,eqtac));
+pub theorem k218NipPrefix_zero (r: nat): $ k218NipPrefix 0 r = r $ = 'rec0;
+pub theorem k218NipPrefix_succ (n r: nat):
+ $ k218NipPrefix (suc n) r = suc (k218CmdNIP (k218NipPrefix n r)) $ =
+'(eqtr recS k218NipPrefixStep_apply);
+
+theorem k218Command_Imp_one_nezero (t: nat): $ kImp t 1 != 0 $ =
+'(mpbir mulne0 (ian peano1 (mpbi lt01 (ltletr lt01S leprid2))));
+theorem k218Command_Imp_eq_one_bad (a b: nat): $ kImp a b = 1 -> 0 = 1 $ =
+'(eqtrd (a1i (eqcom kImp_tag))
+  (eqtrd (modeq1d id) (a1i (modltid (mpbi ltsuc lt01S)))));
+theorem k218Command_Imp_neone (a b: nat): $ kImp a b != 1 $ =
+'(mt k218Command_Imp_eq_one_bad (necom d1ne0));
+theorem k218Command_All_eq_one_bad (a b: nat): $ kAll a b = 1 -> 2 = 1 $ =
+'(eqtrd (a1i (eqcom kAll_tag))
+  (eqtrd (modeq1d id) (a1i (modltid (mpbi ltsuc lt01S)))));
+theorem k218Command_All_neone (a b: nat): $ kAll a b != 1 $ =
+'(mt k218Command_All_eq_one_bad (ltneri (mpbi ltsuc lt01S)));
+
+theorem k218StepMP_clear (r np t w: nat):
+ $ k218EnumStep (k218EnumState (suc (k218CmdMP 1 r)) np t w 0 0) =
+   suc (k218EnumState r np 0 w 1 0) $ =
+'(eqtr k218StepMP_continue
+  (eqtr (ifneg (mpbir (noteq (eqeq1 (kImpeq2 add01))) k218Command_Imp_one_nezero))
+    (suceq (k218EnumStateeq eqid eqid eqid eqid add01 eqid))));
+theorem k218StepAX_clear (r np w: nat):
+ $ k218EnumStep (k218EnumState (suc (k218CmdAX 1 0 0 0 r)) np 0 w 1 0) =
+   suc (k218EnumState r np 0 (k218AxStack 1 0 0 1 0 0 w) 0 0) $ =
+'(eqtr k218StepAX_continue
+  (suceq (k218EnumStateeq eqid eqid
+    (eqtr (k218Gateeq add0 add0 eqid) (k218Gate_disabled (ax_mp orl eqid)))
+    (k218AxStackeq add0 eqid add0 eqid eqid eqid eqid) eqid eqid)));
+theorem k218StepNIP_pair (r np t x w d h: nat) (hn: $ h != 1 $):
+ $ k218EnumStep (k218EnumState (suc (k218CmdNIP r)) np t (x, w) d h) =
+   suc (k218EnumState r np t w d x) $ =
+'(eqtr k218StepNIP_continue (eqtr (ifneg hn)
+  (suceq (k218EnumStateeq eqid eqid eqid sndpr eqid fstpr))));
+theorem k218StepNips_pair (n r np t x w d h: nat) (hn: $ h != 1 $):
+ $ k218EnumStep (k218EnumState (k218NipPrefix (suc n) r) np t (x, w) d h) =
+   suc (k218EnumState (k218NipPrefix n r) np t w d x) $ =
+'(eqtr (k218EnumStepeq (k218EnumStateeq k218NipPrefix_succ eqid eqid eqid eqid eqid))
+  (k218StepNIP_pair hn));
+
+do (apply (register-eqd 'k218EnumAdvance) '(k218EnumAdvanceeqd));
+do (apply (register-eqd 'k218EnumIter) '(k218EnumItereqd));
+
+theorem k218Iter_after_step (n s t: nat) (h: $ k218EnumStep s = suc t $):
+ $ k218EnumIter (suc n) s = k218EnumIter n t $ =
+(named @ induct '(ind) 'n
+ '(eqtr k218EnumIter_succ
+   (eqtr (k218EnumAdvanceeq k218EnumIter_zero)
+     (eqtr k218EnumAdvance_some (eqtr h (eqcom k218EnumIter_zero)))))
+ '(eqtrd (a1i k218EnumIter_succ)
+   (eqtrd (k218EnumAdvanceeqd id) (a1i (eqcom k218EnumIter_succ)))));
+
+theorem k218Nips_ten (r np w: nat):
+ $ k218EnumIter 10 (k218EnumState (k218NipPrefix 10 r) np 0 (k218AxStack 1 0 0 1 0 0 w) 0 0) =
+    suc (k218EnumState r np 0 w 0 0) $ =
+'(eqtr (k218Iter_after_step (k218StepNips_pair (necom d1ne0))) (eqtr (k218Iter_after_step (k218StepNips_pair k218Command_Imp_neone)) (eqtr (k218Iter_after_step (k218StepNips_pair k218Command_Imp_neone)) (eqtr (k218Iter_after_step (k218StepNips_pair k218Command_Imp_neone)) (eqtr (k218Iter_after_step (k218StepNips_pair k218Command_Imp_neone)) (eqtr (k218Iter_after_step (k218StepNips_pair k218Command_Imp_neone)) (eqtr (k218Iter_after_step (k218StepNips_pair k218Command_Imp_neone)) (eqtr (k218Iter_after_step (k218StepNips_pair k218Command_Imp_neone)) (eqtr (k218Iter_after_step (k218StepNips_pair k218Command_Imp_neone)) (eqtr (k218Iter_after_step (k218StepNips_pair k218Command_All_neone)) (eqtr k218EnumIter_zero (suceq (k218EnumStateeq k218NipPrefix_zero eqid eqid eqid eqid eqid)))))))))))));
+
+theorem k218StepMP_clear_first (r t w: nat):
+ $ k218EnumStep (k218EnumState 0 (k218CmdMP 1 r) t w 0 0) =
+   suc (k218EnumState r (suc (k218CmdMP 1 r)) 0 w 1 0) $ =
+'(eqtr (k218ReadMP_first k218EnumState_PL k218EnumState_NP)
+  (eqtr (k218DoMPeq3 (suceq k218EnumState_NP))
+    (eqtr k218DoMP_state
+      (eqtr (ifneg (mpbir (noteq (eqeq1 (kImpeq2 add01))) k218Command_Imp_one_nezero))
+        (suceq (k218EnumStateeq eqid eqid eqid eqid add01 eqid))))));
+
+pub theorem k218Discard_run (r np t w: nat):
+ $ k218EnumIter (suc (suc 10)) (k218EnumState (suc (k218DiscardPrefix r)) np t w 0 0) =
+   suc (k218EnumState r np 0 w 0 0) $ =
+'(eqtr (k218Iter_after_step k218StepMP_clear)
+  (eqtr (k218Iter_after_step k218StepAX_clear) k218Nips_ten));
+pub theorem k218Discard_run_first (r t w: nat):
+ $ k218EnumIter (suc (suc 10)) (k218EnumState 0 (k218DiscardPrefix r) t w 0 0) =
+   suc (k218EnumState r (suc (k218DiscardPrefix r)) 0 w 0 0) $ =
+'(eqtr (k218Iter_after_step k218StepMP_clear_first)
+  (eqtr (k218Iter_after_step k218StepAX_clear) k218Nips_ten));

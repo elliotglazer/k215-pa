@@ -1,0 +1,58 @@
+import "source_relative_prefix.mm1";
+import "source_wf_subset.mm1";
+
+theorem sfSepContext_zero:
+ $ sfContextWf 0 -> sfContextRename sfSuccessorMap 0 0 = sfContextShift 0 $ =
+'(a1i (eqtr sfContextRename_nil (eqcom sfContextShift_nil)));
+
+theorem sfSepContext_step (a G: nat):
+ $ (sfContextWf G -> sfContextRename sfSuccessorMap 0 G = sfContextShift G) ->
+   sfContextWf (a : G) ->
+   sfContextRename sfSuccessorMap 0 (a : G) = sfContextShift (a : G) $ =
+'(exp @ eqtrd (a1i sfContextRename_cons) @
+  eqtrd (conseqd
+    (syl sfRename_successor (syl anl (syl (bi1 sfContextWf_cons) anr)))
+    (mpd (syl anr (syl (bi1 sfContextWf_cons) anr)) anl))
+  (a1i (eqcom sfContextShift_cons)));
+
+pub theorem sfSepContext_successor (G: nat):
+ $ sfContextWf G -> sfContextRename sfSuccessorMap 0 G = sfContextShift G $ =
+(named @ induct '(listind) 'G 'sfSepContext_zero 'sfSepContext_step);
+
+theorem sfSepRenamed_at (R: set) (d G a p: nat):
+ $ sfNDFullDerives p (sfRenameRow R d (sfSequent G a)) ->
+   nsLocal (sfContextRename R d G) (sfRename R d a) $ =
+'(syl nsLocal_intro (bi1 (trud (sfNR_Full_congr (a1i eqid) (a1i sfRenameRow_sequent)))));
+
+theorem sfSepRenamed_exists (R: set) (d G a: nat):
+ $ sfNDRenameExists R d (sfSequent G a) ->
+   nsLocal (sfContextRename R d G) (sfRename R d a) $ =
+(named '(eex sfSepRenamed_at));
+
+pub theorem sfSepLocal_rename (R: set) (d G a: nat):
+ $ nsLocal G a -> nsLocal (sfContextRename R d G) (sfRename R d a) $ =
+(named '(eex @ syl sfSepRenamed_exists sfNDFullDerives_rename));
+
+pub theorem sfSepLocal_shift (G a: nat):
+ $ nsLocal G a -> nsLocal (sfContextShift G) (sfShift 0 a) $ =
+'(mpbid (nsLocaleqd
+    (syl sfSepContext_successor nsLocal_context_wf)
+    (syl sfRename_successor nsLocal_wf)) sfSepLocal_rename);
+
+theorem sfSepLocal_open_eq (G a: nat):
+ $ nsLocal G (sfAll a) ->
+   (nsLocal (sfContextShift G) (sfSubst 0 0 (sfShift 1 a)) <->
+      nsLocal (sfContextShift G) a) $ =
+'(nsLocaleq2d (syl sfSubst_shift_up_identity
+    (syl (bi1 sfWf_all_iff) nsLocal_wf)));
+
+pub theorem sfSepLocal_open (G a: nat):
+ $ nsLocal G (sfAll a) -> nsLocal (sfContextShift G) a $ =
+'(mpbid sfSepLocal_open_eq @ syl nsLocal_AllE @
+  mpbid (a1i (nsLocal_formula_eq sfShift_sfAll)) sfSepLocal_shift);
+
+pub theorem sfSepLocal_allI (G a: nat):
+ $ sfContextWf G -> nsLocal (sfContextShift G) a -> nsLocal G (sfAll a) $ =
+(named '(eexd @ exp @ syl nsLocal_intro @ mpd anr @
+  syl sfNDFullDerives_AllI @ sylc sfRowWf_sequent_intro anl
+    (syl sfWf_all (syl zfcProof_formula_wf anr))));

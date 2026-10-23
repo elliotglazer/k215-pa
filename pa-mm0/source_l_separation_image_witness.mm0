@@ -1,0 +1,46 @@
+import "source_l_separation_image_reflection.mm0";
+
+def sfLSeparationImageWitnessPoint(T:set)(D phi x:nat):nat =
+ $ sfAnd D (sfPieceSeparationLocalBody (sfLSeparationImageShiftEnv T) D phi 0 (suc x)) $;
+
+def sfLSeparationImageWitness(T:set)(D phi x:nat):nat =
+ $ sfEx (sfLSeparationImageWitnessPoint T D phi x) $;
+
+def sfLSeparationImageCandidateBody(T:set)(D phi Y x:nat):nat =
+ $ sfAnd D (sfPieceDefinableProfile
+    (sfComposeMap sfSuccessorMap (sqEnvCons x T))
+    (sfPieceSeparationPredicate phi) (suc Y) 0) $;
+
+def sfLSeparationImageCandidate(T:set)(D phi Y x:nat):nat =
+ $ sfEx (sfLSeparationImageCandidateBody T D phi Y x) $;
+
+def sfLSeparationImageCandidateContext(T:set)(G D phi Y x:nat):nat =
+ $ (sfLSeparationImageCandidateBody T D phi Y x) : sfContextShift G $;
+
+theorem sfLSeparationImageLocalBody_wf(T:set)(D phi X x:nat)(hd:$ sfBound 1 D $):
+ $ sfWf (sfPieceSeparationLocalBody T D phi X x) $;
+
+theorem sfLSeparationImageWitness_wf(T:set)(D phi x:nat)(hd:$ sfBound 1 D $):
+ $ sfWf (sfLSeparationImageWitness T D phi x) $;
+
+theorem sfLSeparationImageCandidateProfile_exact(T:set)(phi Y x:nat):
+ $ sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sqEnvCons x T))
+    (sfPieceSeparationPredicate phi) (suc Y) 0 =
+   sfPieceDefinableProfile (sqEnvCons (suc x) (sfLSeparationImageShiftEnv T))
+    (sfPieceSeparationPredicate phi) (suc Y) 0 $;
+
+theorem sfLSeparationImageSubset_shift(x Y:nat):
+ $ sfShift 0 (sfCLSubset x Y) = sfCLSubset (suc x) (suc Y) $;
+
+theorem sfLSeparationImage_eigen_witness(G a:nat)(ha:$ sfWf a $)
+ (hp:$ nsLocal G a $):
+ $ nsLocal G (sfShift 0 (sfEx a)) $;
+
+theorem sfLSeparationImage_witness_from_candidate(T:set)(G D n phi beta Y x:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (he:$ nsLocal G (sfLSeparationImageCandidate T D phi Y x) $)
+ (hs:$ nsLocal G (sfCLSubset x Y) $)
+ (hf:$ nsLocal G (sfCLReflection D (suc n) phi beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal G (sfLSeparationImageWitness T D phi x) $;

@@ -1,0 +1,260 @@
+import "k230_freshness.mm1";
+import "k230_vacuity.mm1";
+
+-- Total named substitution. A binder for x stops substitution below it.
+-- Capture freedom is supplied by later binder-absence hypotheses.
+@_ def kReplace (x y a: nat): nat = $ if (a = x) y a $;
+@_ def kSubstBody (x y c h: nat): nat =
+$ if (c = 0) 0
+ (if (rawTag c = 1) (kMem (kReplace x y (rawLeft c)) (kReplace x y (rawRight c)))
+  (if (rawTag c = 3) (kEq (kReplace x y (rawLeft c)) (kReplace x y (rawRight c)))
+   (if (rawTag c = 2)
+     (if (rawLeft c = x) c (kAll (rawLeft c) (h @ rawRight c)))
+     (kImp (h @ rawLeft c) (h @ rawRight c))))) $;
+@_ abstract def kSubstStep (x y .h: nat): set =
+ $ \ h, kSubstBody x y (sfHistoryLength h) h $;
+@_ abstract def kSubst (c x y: nat): nat = $ srec (kSubstStep x y) c $;
+@_ abstract def kSubstHistory (c x y .a: nat): nat =
+ $ \. a e. upto c, srec (kSubstStep x y) a $;
+
+pub theorem kReplace_hit (x y: nat): $ kReplace x y x = y $ = '(ifpos eqid);
+pub theorem kReplace_miss (x y a: nat): $ a != x -> kReplace x y a = a $ = 'ifneg;
+pub theorem kReplace_identity (x a: nat): $ kReplace x x a = a $ =
+'(cases (eqtrd ifpos (eqcomd id)) ifneg);
+pub theorem kReplace_congr (H: wff) (x u y v a b: nat)
+ (hx: $ H -> x = u $) (hy: $ H -> y = v $) (ha: $ H -> a = b $):
+ $ H -> kReplace x y a = kReplace u v b $ = '(kReplaceeqd hx hy ha);
+pub theorem kSubstStep_value (x y h: nat):
+ $ kSubstStep x y @ h = kSubstBody x y (sfHistoryLength h) h $ =
+(named '(!! applame j ,eqtac));
+pub theorem kSubstHistory_size (c x y: nat):
+ $ sfHistoryLength (kSubstHistory c x y) = c $ =
+(named '(sreclem eqid));
+pub theorem kSubstHistory_lookup (c x y a: nat):
+ $ a < c -> kSubstHistory c x y @ a = kSubst a x y $ =
+(named '(syl (apprlame sreceq2) (bi2 elupto)));
+pub theorem kSubst_unfold (c x y: nat):
+ $ kSubst c x y = kSubstBody x y c (kSubstHistory c x y) $ =
+(named '(eqtr srecval @ eqtr kSubstStep_value @
+ kSubstBodyeq eqid eqid kSubstHistory_size eqid));
+pub theorem kSubst_congr (H: wff) (a b x u y v: nat)
+ (ha: $ H -> a = b $) (hx: $ H -> x = u $) (hy: $ H -> y = v $):
+ $ H -> kSubst a x y = kSubst b u v $ = '(kSubsteqd ha hx hy);
+pub theorem kSubst_zero (x y: nat): $ kSubst 0 x y = 0 $ =
+'(eqtr kSubst_unfold (ifpos eqid));
+
+theorem kSubstBody_mem (x y c h: nat) (hc: $ c != 0 $) (ht: $ rawTag c = 1 $):
+ $ kSubstBody x y c h = kMem (kReplace x y (rawLeft c)) (kReplace x y (rawRight c)) $ =
+'(eqtr (ifneg hc) (ifpos ht));
+theorem kSubstBody_eq (x y c h: nat) (hc: $ c != 0 $) (ht: $ rawTag c = 3 $):
+ $ kSubstBody x y c h = kEq (kReplace x y (rawLeft c)) (kReplace x y (rawRight c)) $ =
+'(eqtr (ifneg hc) @ eqtr
+ (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifpos ht));
+theorem kSubstBody_all (x y c h: nat) (hc: $ c != 0 $) (ht: $ rawTag c = 2 $):
+ $ kSubstBody x y c h = if (rawLeft c = x) c (kAll (rawLeft c) (h @ rawRight c)) $ =
+'(eqtr (ifneg hc) @ eqtr
+ (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) @ eqtr
+ (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei ltsucid))) (ifpos ht));
+theorem kSubstBody_imp (x y c h: nat) (ht: $ rawTag c = 0 $):
+ $ c != 0 -> kSubstBody x y c h = kImp (h @ rawLeft c) (h @ rawRight c) $ =
+'(eqtrd ifneg (a1i (eqtr
+ (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S))) @ eqtr
+ (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S)))
+ (ifneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S))))));
+pub theorem kSubst_kMem (a b x y: nat):
+ $ kSubst (kMem a b) x y = kMem (kReplace x y a) (kReplace x y b) $ =
+'(eqtr kSubst_unfold @
+ eqtr (kSubstBody_mem (mpbi lt01 raw_kMem_positive) kMem_tag)
+ (kMemeq (kReplaceeq3 raw_kMem_left) (kReplaceeq3 raw_kMem_right)));
+pub theorem kSubst_kEq (a b x y: nat):
+ $ kSubst (kEq a b) x y = kEq (kReplace x y a) (kReplace x y b) $ =
+'(eqtr kSubst_unfold @
+ eqtr (kSubstBody_eq (mpbi lt01 raw_kEq_positive) kEq_tag)
+ (kEqeq (kReplaceeq3 raw_kEq_left) (kReplaceeq3 raw_kEq_right)));
+pub theorem kSubst_kAll (a b x y: nat):
+ $ kSubst (kAll a b) x y = if (a = x) (kAll a b) (kAll a (kSubst b x y)) $ =
+'(eqtr kSubst_unfold @
+ eqtr (kSubstBody_all (mpbi lt01 raw_kAll_positive) kAll_tag) @
+ ifeq (eqeq1 raw_kAll_left) eqid
+ (kAlleq raw_kAll_left (eqtr (appeq2 raw_kAll_right) (kSubstHistory_lookup raw_kAll_body_lt))));
+theorem kSubst_kImp_nonzero (a b x y: nat):
+ $ kImp a b != 0 -> kSubst (kImp a b) x y = kImp (kSubst a x y) (kSubst b x y) $ =
+'(eqtrd (a1i kSubst_unfold) @ eqtrd (kSubstBody_imp kImp_tag) @
+ kImpeqd (eqtrd (a1i (appeq2 raw_kImp_left)) (syl kSubstHistory_lookup raw_kImp_left_lt))
+ (eqtrd (a1i (appeq2 raw_kImp_right)) (syl kSubstHistory_lookup raw_kImp_right_lt)));
+
+
+theorem kSubst_eq_zero (H: wff) (a x y: nat) (h: $ H -> a = 0 $):
+ $ H -> kSubst a x y = 0 $ =
+'(eqtrd (kSubst_congr h eqidd eqidd) (a1i kSubst_zero));
+theorem kSubst_kImp_zero_case (a b x y: nat):
+ $ kImp a b = 0 -> kSubst (kImp a b) x y = kImp (kSubst a x y) (kSubst b x y) $ =
+'(eqtrd (kSubst_eq_zero id) @ eqcomd @
+ eqtrd (kImpeqd
+  (kSubst_eq_zero (syl anl (bi1 raw_kImp_zero_iff)))
+  (kSubst_eq_zero (syl anr (bi1 raw_kImp_zero_iff)))) (a1i raw_kImp_zero));
+pub theorem kSubst_kImp (a b x y: nat):
+ $ kSubst (kImp a b) x y = kImp (kSubst a x y) (kSubst b x y) $ =
+'(cases kSubst_kImp_zero_case kSubst_kImp_nonzero);
+
+-- Binder absence counts only binders. Atomic arguments are deliberately ignored.
+@_ def kBinderAllowed (x c h: nat): wff =
+$ ifp (c = 0) (0 = 0)
+ (ifp (rawTag c = 1 \/ rawTag c = 3) (0 = 0)
+  (ifp (rawTag c = 2) (x != rawLeft c /\ rawRight c e. h)
+    (rawLeft c e. h /\ rawRight c e. h))) $;
+@_ abstract def kBinderStep (x .c .h: nat): set = $ S\ c, {h | kBinderAllowed x c h} $;
+@_ abstract def kBinderAbsent (c x: nat): wff = $ srecp (kBinderStep x) c $;
+@_ abstract def kBinderPrevious (x c .a: nat): nat = $ sep (upto c) {a | kBinderAbsent a x} $;
+pub theorem kBinderStep_value (x c h: nat):
+ $ (c, h) e. kBinderStep x <-> kBinderAllowed x c h $ =
+(named '(elsabe @ elabed ,eqtac));
+pub theorem kBinderPrevious_value (x c a: nat):
+ $ a e. kBinderPrevious x c <-> a < c /\ kBinderAbsent a x $ =
+(named '(bitr elsep @ bitr (aneq1i elupto) (aneq2i (elabe ,eqtac))));
+pub theorem kBinderAbsent_unfold (c x: nat):
+ $ kBinderAbsent c x <-> kBinderAllowed x c (kBinderPrevious x c) $ =
+(named '(bitr srecpval kBinderStep_value));
+pub theorem kBinderAbsent_congr (H: wff) (a b x y: nat)
+ (ha: $ H -> a = b $) (hx: $ H -> x = y $):
+ $ H -> (kBinderAbsent a x <-> kBinderAbsent b y) $ = '(kBinderAbsenteqd ha hx);
+pub theorem kBinderAbsent_zero (x: nat): $ kBinderAbsent 0 x $ =
+'(mpbir kBinderAbsent_unfold (mpbir (ifppos eqid) eqid));
+theorem kBinderAllowed_atom (x c h: nat)
+ (hc: $ c != 0 $) (ht: $ rawTag c = 1 \/ rawTag c = 3 $):
+ $ kBinderAllowed x c h $ =
+'(mpbir (ifpneg hc) (mpbir (ifppos ht) eqid));
+theorem kBinderAllowed_all (x c h: nat)
+ (hc: $ c != 0 $) (ht: $ rawTag c = 2 $):
+ $ kBinderAllowed x c h <-> x != rawLeft c /\ rawRight c e. h $ =
+'(bitr (ifpneg hc) @ bitr
+ (ifpneg (mpbir notor (ian
+  (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))
+  (mpbir (noteq (eqeq1 ht)) (ltnei ltsucid)))))
+ (ifppos ht));
+theorem kBinderAllowed_imp (x c h: nat) (ht: $ rawTag c = 0 $):
+ $ c != 0 -> (kBinderAllowed x c h <-> rawLeft c e. h /\ rawRight c e. h) $ =
+'(bitrd ifpneg (a1i (bitr
+ (ifpneg (mpbir notor (ian
+  (mpbir (noteq (eqeq1 ht)) (ltnei lt01S))
+  (mpbir (noteq (eqeq1 ht)) (ltnei lt01S)))))
+ (ifpneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S))))));
+pub theorem kBinderAbsent_kMem (a b x: nat): $ kBinderAbsent (kMem a b) x $ =
+'(mpbir kBinderAbsent_unfold (kBinderAllowed_atom (mpbi lt01 raw_kMem_positive) (orl kMem_tag)));
+pub theorem kBinderAbsent_kEq (a b x: nat): $ kBinderAbsent (kEq a b) x $ =
+'(mpbir kBinderAbsent_unfold (kBinderAllowed_atom (mpbi lt01 raw_kEq_positive) (orr kEq_tag)));
+pub theorem kBinderAbsent_kAll (a b x: nat):
+ $ kBinderAbsent (kAll a b) x <-> x != a /\ kBinderAbsent b x $ =
+'(bitr kBinderAbsent_unfold @
+ bitr (kBinderAllowed_all (mpbi lt01 raw_kAll_positive) kAll_tag) @
+ aneq (noteq (eqeq2 raw_kAll_left))
+ (bitr (eleq1 raw_kAll_right) (bitr kBinderPrevious_value (bian1 raw_kAll_body_lt))));
+theorem kBinderAbsent_imp_nonzero (a b x: nat):
+ $ kImp a b != 0 -> (kBinderAbsent (kImp a b) x <-> kBinderAbsent a x /\ kBinderAbsent b x) $ =
+'(bitrd (a1i kBinderAbsent_unfold) @ bitrd
+ (kBinderAllowed_imp kImp_tag) @
+ aneqd
+ (bitrd (a1i (eleq1 raw_kImp_left)) (bitrd (a1i kBinderPrevious_value) (syl bian1 raw_kImp_left_lt)))
+ (bitrd (a1i (eleq1 raw_kImp_right)) (bitrd (a1i kBinderPrevious_value) (syl bian1 raw_kImp_right_lt))));
+theorem kBinderAbsent_imp_zero (a b x: nat):
+ $ kImp a b = 0 -> (kBinderAbsent (kImp a b) x <-> kBinderAbsent a x /\ kBinderAbsent b x) $ =
+'(bithd (mpbiri kBinderAbsent_zero (kBinderAbsent_congr id eqidd))
+ (iand
+  (mpbiri kBinderAbsent_zero (kBinderAbsent_congr (syl anl (bi1 raw_kImp_zero_iff)) eqidd))
+  (mpbiri kBinderAbsent_zero (kBinderAbsent_congr (syl anr (bi1 raw_kImp_zero_iff)) eqidd))));
+pub theorem kBinderAbsent_kImp (a b x: nat):
+ $ kBinderAbsent (kImp a b) x <-> kBinderAbsent a x /\ kBinderAbsent b x $ =
+'(cases kBinderAbsent_imp_zero kBinderAbsent_imp_nonzero);
+
+
+@_ abstract def kSubstIdentityClass (x .c: nat): set = $ {c | kSubst c x x = c} $;
+pub theorem kSubstIdentity_value (x c: nat):
+ $ c e. kSubstIdentityClass x <-> kSubst c x x = c $ =
+(named '(elabe ,eqtac));
+theorem kSubstIdentity_zero (x: nat): $ 0 e. kSubstIdentityClass x $ =
+'(mpbir kSubstIdentity_value kSubst_zero);
+theorem kSubstIdentity_mem (x a b: nat): $ kMem a b e. kSubstIdentityClass x $ =
+'(mpbir kSubstIdentity_value @ eqtr kSubst_kMem @ kMemeq kReplace_identity kReplace_identity);
+theorem kSubstIdentity_eq (x a b: nat): $ kEq a b e. kSubstIdentityClass x $ =
+'(mpbir kSubstIdentity_value @ eqtr kSubst_kEq @ kEqeq kReplace_identity kReplace_identity);
+theorem kSubstIdentity_imp (x a b: nat):
+ $ a e. kSubstIdentityClass x /\ b e. kSubstIdentityClass x -> kImp a b e. kSubstIdentityClass x $ =
+'(syl (bi2 kSubstIdentity_value) @ eqtrd (a1i kSubst_kImp)
+ (kImpeqd (syl (bi1 kSubstIdentity_value) anl) (syl (bi1 kSubstIdentity_value) anr)));
+theorem kSubstIdentity_all (x a b: nat):
+ $ b e. kSubstIdentityClass x -> kAll a b e. kSubstIdentityClass x $ =
+'(syl (bi2 kSubstIdentity_value) @ eqtrd (a1i kSubst_kAll) @
+ eqtrd (ifeqd biidd eqidd (kAlleq2d (bi1 kSubstIdentity_value))) (a1i ifid));
+theorem kSubstIdentity_closed (x: nat): $ kRawConstructionClosed (kSubstIdentityClass x) $ =
+(named '(ian (ian (ian kSubstIdentity_zero (ax_gen @ ax_gen @ ian kSubstIdentity_mem kSubstIdentity_eq))
+ (ax_gen @ ax_gen kSubstIdentity_imp)) (ax_gen @ ax_gen kSubstIdentity_all)));
+pub theorem kSubst_identity (c x: nat): $ kSubst c x x = c $ =
+'(mpbi kSubstIdentity_value (ax_mp kRaw_induction kSubstIdentity_closed));
+
+@_ abstract def kSubstFreshClass (x y .c: nat): set =
+ $ {c | kFresh c x -> kSubst c x y = c} $;
+pub theorem kSubstFresh_value (x y c: nat):
+ $ c e. kSubstFreshClass x y <-> (kFresh c x -> kSubst c x y = c) $ =
+(named '(elabe ,eqtac));
+theorem kSubstFresh_zero (x y: nat): $ 0 e. kSubstFreshClass x y $ =
+'(mpbir kSubstFresh_value (a1i kSubst_zero));
+theorem kSubstFresh_mem (x y a b: nat): $ kMem a b e. kSubstFreshClass x y $ =
+'(mpbir kSubstFresh_value @ eqtrd (a1i kSubst_kMem) @
+ kMemeqd (syl kReplace_miss (syl necom (syl anl (bi1 kFresh_kMem))))
+ (syl kReplace_miss (syl necom (syl anr (bi1 kFresh_kMem)))));
+theorem kSubstFresh_eq (x y a b: nat): $ kEq a b e. kSubstFreshClass x y $ =
+'(mpbir kSubstFresh_value @ eqtrd (a1i kSubst_kEq) @
+ kEqeqd (syl kReplace_miss (syl necom (syl anl (bi1 kFresh_kEq))))
+ (syl kReplace_miss (syl necom (syl anr (bi1 kFresh_kEq)))));
+theorem kSubstFresh_imp (x y a b: nat):
+ $ a e. kSubstFreshClass x y /\ b e. kSubstFreshClass x y -> kImp a b e. kSubstFreshClass x y $ =
+'(syl (bi2 kSubstFresh_value) @ exp @ eqtrd (a1i kSubst_kImp) @
+ kImpeqd
+ (mpd (syl anl (syl (bi1 kFresh_kImp) anr)) (syl (bi1 kSubstFresh_value) anll))
+ (mpd (syl anr (syl (bi1 kFresh_kImp) anr)) (syl (bi1 kSubstFresh_value) anlr)));
+theorem kSubstFresh_all (x y a b: nat):
+ $ b e. kSubstFreshClass x y -> kAll a b e. kSubstFreshClass x y $ =
+'(syl (bi2 kSubstFresh_value) @ exp @ eqtrd (a1i kSubst_kAll) @
+ eqtrd (syl ifneg (syl necom (syl anl (syl (bi1 kFresh_kAll) anr)))) @
+ kAlleq2d (mpd (syl anr (syl (bi1 kFresh_kAll) anr)) (syl (bi1 kSubstFresh_value) anl)));
+theorem kSubstFresh_closed (x y: nat): $ kRawConstructionClosed (kSubstFreshClass x y) $ =
+(named '(ian (ian (ian kSubstFresh_zero (ax_gen @ ax_gen @ ian kSubstFresh_mem kSubstFresh_eq))
+ (ax_gen @ ax_gen kSubstFresh_imp)) (ax_gen @ ax_gen kSubstFresh_all)));
+pub theorem kSubst_fresh_identity (c x y: nat):
+ $ kFresh c x -> kSubst c x y = c $ =
+'(mpbi kSubstFresh_value (ax_mp kRaw_induction kSubstFresh_closed));
+
+
+pub theorem kSubst_kAll_stop (a b x y: nat):
+ $ a = x -> kSubst (kAll a b) x y = kAll a b $ =
+'(eqtrd (a1i kSubst_kAll) ifpos);
+pub theorem kSubst_kAll_open (a b x y: nat):
+ $ a != x -> kSubst (kAll a b) x y = kAll a (kSubst b x y) $ =
+'(eqtrd (a1i kSubst_kAll) ifneg);
+@_ abstract def kFreshBinderClass (x .c: nat): set =
+ $ {c | kFresh c x -> kBinderAbsent c x} $;
+pub theorem kFreshBinder_value (x c: nat):
+ $ c e. kFreshBinderClass x <-> (kFresh c x -> kBinderAbsent c x) $ =
+(named '(elabe ,eqtac));
+theorem kFreshBinder_zero (x: nat): $ 0 e. kFreshBinderClass x $ =
+'(mpbir kFreshBinder_value (a1i kBinderAbsent_zero));
+theorem kFreshBinder_mem (x a b: nat): $ kMem a b e. kFreshBinderClass x $ =
+'(mpbir kFreshBinder_value (a1i kBinderAbsent_kMem));
+theorem kFreshBinder_eq (x a b: nat): $ kEq a b e. kFreshBinderClass x $ =
+'(mpbir kFreshBinder_value (a1i kBinderAbsent_kEq));
+theorem kFreshBinder_imp (x a b: nat):
+ $ a e. kFreshBinderClass x /\ b e. kFreshBinderClass x -> kImp a b e. kFreshBinderClass x $ =
+'(syl (bi2 kFreshBinder_value) @ exp @ syl (bi2 kBinderAbsent_kImp) @ iand
+ (mpd (syl anl (syl (bi1 kFresh_kImp) anr)) (syl (bi1 kFreshBinder_value) anll))
+ (mpd (syl anr (syl (bi1 kFresh_kImp) anr)) (syl (bi1 kFreshBinder_value) anlr)));
+theorem kFreshBinder_all (x a b: nat):
+ $ b e. kFreshBinderClass x -> kAll a b e. kFreshBinderClass x $ =
+'(syl (bi2 kFreshBinder_value) @ exp @ syl (bi2 kBinderAbsent_kAll) @ iand
+ (syl anl (syl (bi1 kFresh_kAll) anr))
+ (mpd (syl anr (syl (bi1 kFresh_kAll) anr)) (syl (bi1 kFreshBinder_value) anl)));
+theorem kFreshBinder_closed (x: nat): $ kRawConstructionClosed (kFreshBinderClass x) $ =
+(named '(ian (ian (ian kFreshBinder_zero (ax_gen @ ax_gen @ ian kFreshBinder_mem kFreshBinder_eq))
+ (ax_gen @ ax_gen kFreshBinder_imp)) (ax_gen @ ax_gen kFreshBinder_all)));
+pub theorem kFresh_binder_absent (c x: nat):
+ $ kFresh c x -> kBinderAbsent c x $ =
+'(mpbi kFreshBinder_value (ax_mp kRaw_induction kFreshBinder_closed));

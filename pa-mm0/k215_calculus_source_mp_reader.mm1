@@ -1,0 +1,53 @@
+import "k215_calculus_source_mp_unpair4591.mm1";
+import "k215_calculus_source_commands.mm1";
+
+
+theorem k215MPDispatch23 (u t w d h v: nat):
+ $ k215PReach (k215PState k215Num23 (k215PVector u t w 2 d h 0 0 v))
+   (k215PState k215Num24 (k215PVector u t w 1 d h 0 0 v)) $ =
+ '(k215PReach_step (eqtr (eqtr (eqtr (k215PAtCD k215PLookupMP_23)
+   (ifeq (eqeq1 k215PGet3_vector) eqid eqid)) (ifneg peano1))
+   (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet3_vector))
+     (eqtr k215PSet3_vector (k215PVectoreq4 (eqtr subSS sub02)))))));
+theorem k215MPDispatch24 (u t w d h v: nat):
+ $ k215PReach (k215PState k215Num24 (k215PVector u t w 1 d h 0 0 v))
+   (k215PState k215Num25 (k215PVector u t w 0 d h 0 0 v)) $ =
+ '(k215PReach_step (eqtr (eqtr (eqtr (k215PAtCD k215PLookupMP_24)
+   (ifeq (eqeq1 k215PGet3_vector) eqid eqid)) (ifneg peano1))
+   (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet3_vector))
+     (eqtr k215PSet3_vector (k215PVectoreq4 (eqtr subSS sub02)))))));
+theorem k215MPDispatch25 (u t w d h v: nat):
+ $ k215PReach (k215PState k215Num25 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState k215PNum4591 (k215PVector u t w 0 d h 0 0 v)) $ =
+ '(k215PReach_step (eqtr (eqtr (k215PAtCD k215PLookupMP_25)
+   (ifeq (eqeq1 k215PGet3_vector) eqid eqid)) (ifpos eqid)));
+theorem k215MPUnpairIn (u t w d h v: nat):
+ $ k215UnpairAt4591State k215PNum4591 0 0 v (k215PVector u t w 0 d h 0 0 v) =
+   k215PState k215PNum4591 (k215PVector u t w 0 d h 0 0 v) $ =
+ '(k215PStateeq2 (k215PVectoreq k215PR0_vector k215PR1_vector k215PR2_vector
+   k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid eqid));
+theorem k215MPUnpairOut (u t w d h v: nat):
+ $ k215UnpairAt4591State k215PNum4599 (fst v) (snd v) 0 (k215PVector u t w 0 d h 0 0 v) =
+   k215PState k215PNum4599 (k215PVector u t w 0 d h (fst v) (snd v) 0) $ =
+ '(k215PStateeq2 (k215PVectoreq k215PR0_vector k215PR1_vector k215PR2_vector
+   k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid eqid));
+theorem k215MPLocalUnpair (u t w d h v: nat):
+ $ k215PReach (k215PState k215PNum4591 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState k215PNum4599 (k215PVector u t w 0 d h (fst v) (snd v) 0)) $ =
+ '(mpbi (k215PReacheq k215MPUnpairIn k215MPUnpairOut) k215UnpairMacro4591_clean);
+theorem k215MPLocalTail (u t w d h v: nat):
+ $ k215PReach (k215PState k215PNum4599 (k215PVector u t w 0 d h (fst v) (snd v) 0))
+   (k215PState k215PNum4602 (k215PVector u t w 0 d h (fst v) 0 (snd v))) $ =
+ '(k215PReach_intro (eqtr k215Loop4599Vector (k215PStateeq2 (k215PVectoreq9 add0))));
+theorem k215MPLocalDelta (u t w d h v: nat):
+ $ k215PReach (k215PState k215PNum4602 (k215PVector u t w 0 d h (fst v) 0 (snd v)))
+   (k215PState k215PNum4605 (k215PVector u t w 0 (d + fst v) h 0 0 (snd v))) $ =
+ '(k215PReach_intro (eqtr k215Loop4602Vector (k215PStateeq2 (k215PVectoreq5 addcom))));
+pub theorem k215MPLocalReader (u t w d h v: nat):
+ $ k215PReach (k215PState k215Num23 (k215PVector u t w 2 d h 0 0 v))
+   (k215PState k215PNum4605 (k215PVector u t w 0 (d + fst v) h 0 0 (snd v))) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215MPDispatch23)
+   (ax_mp (ax_mp k215PReach_trans k215MPDispatch24)
+     (ax_mp (ax_mp k215PReach_trans k215MPDispatch25)
+       (ax_mp (ax_mp k215PReach_trans k215MPLocalUnpair)
+         (ax_mp (ax_mp k215PReach_trans k215MPLocalTail) k215MPLocalDelta)))));

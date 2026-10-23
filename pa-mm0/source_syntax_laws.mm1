@@ -1,0 +1,477 @@
+import "source_contexts.mm1";
+import "source_substitution.mm1";
+import "source_bounds.mm1";
+
+do (apply (register-eqd 'sfWf) '(sfContextsWf_congr));
+do (apply (register-eqd 'sfSubst) '(sfSubst_congr));
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+do (apply (register-eqd 'sfAnd) '(sfAnd_congr sfAnd_congr_left sfAnd_congr_right));
+do (apply (register-eqd 'sfOr) '(sfOr_congr sfOr_congr_left sfOr_congr_right));
+do (apply (register-eqd 'sfAll) '(sfAll_congr));
+do (apply (register-eqd 'sfEx) '(sfEx_congr));
+
+theorem sfLawShift_congr (G: wff) (d a b: nat) (h: $ G -> a = b $):
+  $ G -> sfShift d a = sfShift d b $ = '(sreceq2d (preq2d h));
+theorem sfLawShift_full_congr (G: wff) (d e a b: nat)
+  (hd: $ G -> d = e $) (ha: $ G -> a = b $):
+  $ G -> sfShift d a = sfShift e b $ = '(sreceq2d (preqd hd ha));
+theorem sfLawShift_depth_congr (G: wff) (d e a: nat) (h: $ G -> d = e $):
+  $ G -> sfShift d a = sfShift e a $ = '(sfLawShift_full_congr h eqidd);
+do (apply (register-eqd 'sfShift) '(sfLawShift_full_congr sfLawShift_depth_congr sfLawShift_congr));
+theorem sfLawSubstIndex_congr (G: wff) (d t a b: nat) (h: $ G -> a = b $):
+  $ G -> sfSubstIndex d t a = sfSubstIndex d t b $ =
+'(ifeqd (lteq1d h) h (ifeqd (eqeq1d h) eqidd (subeq1d h)));
+theorem sfLaw_index_cancel_below (d t i: nat):
+  $ i < d -> sfSubstIndex d t (sfShiftIndex d i) = i $ =
+'(eqtrd (sfLawSubstIndex_congr sfShiftIndex_bound) sfSubstIndex_bound);
+theorem sfLaw_index_cancel_above (d t i: nat):
+  $ ~ i < d -> sfSubstIndex d t (sfShiftIndex d i) = i $ =
+'(eqtrd (sfLawSubstIndex_congr sfShiftIndex_free)
+  (eqtrd (syl sfSubstIndex_above (syl (bi1 leltsuc) (mpbird (a1i lenlt) id)))
+    (a1i sucsub1)));
+pub theorem sfSubst_shift_index_cancel (d t i: nat):
+  $ sfSubstIndex d t (sfShiftIndex d i) = i $ =
+'(cases sfLaw_index_cancel_below sfLaw_index_cancel_above);
+
+theorem sfLawSubst_eq (d t a b: nat) (h: $ a = b $):
+  $ sfSubst d t a = sfSubst d t b $ = '(sreceq2 (preq2 h));
+theorem sfLaw_cancel_bot (d t: nat): $ sfSubst d t (sfShift d sfBot) = sfBot $ =
+'(eqtr (sfLawSubst_eq sfShift_bot) sfSubst_bot);
+
+theorem sfLaw_cancel_mem (d t a b: nat):
+  $ sfSubst d t (sfShift d (sfMem a b)) = sfMem a b $ =
+'(eqtr (sfLawSubst_eq sfShift_sfMem) @ eqtr sfSubst_sfMem @
+  eqtr (sfMem_eq_left sfSubst_shift_index_cancel) (sfMem_eq_right sfSubst_shift_index_cancel));
+
+theorem sfLaw_cancel_eq (d t a b: nat):
+  $ sfSubst d t (sfShift d (sfEq a b)) = sfEq a b $ =
+'(eqtr (sfLawSubst_eq sfShift_sfEq) @ eqtr sfSubst_sfEq @
+  eqtr (sfEq_eq_left sfSubst_shift_index_cancel) (sfEq_eq_right sfSubst_shift_index_cancel));
+
+theorem sfLaw_cancel_and (G: wff) (d t a b: nat)
+  (ha: $ G -> sfSubst d t (sfShift d a) = a $)
+  (hb: $ G -> sfSubst d t (sfShift d b) = b $):
+  $ G -> sfSubst d t (sfShift d (sfAnd a b)) = sfAnd a b $ =
+'(eqtrd (a1i (sfLawSubst_eq sfShift_sfAnd)) @
+  eqtrd (a1i sfSubst_sfAnd) (sfAnd_congr ha hb));
+
+theorem sfLaw_cancel_or (G: wff) (d t a b: nat)
+  (ha: $ G -> sfSubst d t (sfShift d a) = a $)
+  (hb: $ G -> sfSubst d t (sfShift d b) = b $):
+  $ G -> sfSubst d t (sfShift d (sfOr a b)) = sfOr a b $ =
+'(eqtrd (a1i (sfLawSubst_eq sfShift_sfOr)) @
+  eqtrd (a1i sfSubst_sfOr) (sfOr_congr ha hb));
+
+theorem sfLaw_cancel_imp (G: wff) (d t a b: nat)
+  (ha: $ G -> sfSubst d t (sfShift d a) = a $)
+  (hb: $ G -> sfSubst d t (sfShift d b) = b $):
+  $ G -> sfSubst d t (sfShift d (sfImp a b)) = sfImp a b $ =
+'(eqtrd (a1i (sfLawSubst_eq sfShift_sfImp)) @
+  eqtrd (a1i sfSubst_sfImp) (sfImp_congr ha hb));
+
+theorem sfLaw_cancel_all (G: wff) (d t a: nat)
+  (ha: $ G -> sfSubst (suc d) t (sfShift (suc d) a) = a $):
+  $ G -> sfSubst d t (sfShift d (sfAll a)) = sfAll a $ =
+'(eqtrd (a1i (sfLawSubst_eq sfShift_sfAll)) @
+  eqtrd (a1i sfSubst_sfAll) (sfAll_congr ha));
+
+theorem sfLaw_cancel_ex (G: wff) (d t a: nat)
+  (ha: $ G -> sfSubst (suc d) t (sfShift (suc d) a) = a $):
+  $ G -> sfSubst d t (sfShift d (sfEx a)) = sfEx a $ =
+'(eqtrd (a1i (sfLawSubst_eq sfShift_sfEx)) @
+  eqtrd (a1i sfSubst_sfEx) (sfEx_congr ha));
+
+theorem sfLaw_cancel_transport (G: wff) (d t a b: nat)
+  (h: $ G -> a = b $) (hc: $ G -> sfSubst d t (sfShift d b) = b $):
+  $ G -> sfSubst d t (sfShift d a) = a $ =
+'(eqtrd (sfSubst_congr eqidd eqidd (sfLawShift_congr h)) (eqtrd hc (eqcomd h)));
+theorem sfLaw_rebuild (G: wff) (c k: nat) (ht: $ G -> sfTag c = k $):
+  $ G -> c = sfNode k (sfLeft c) (sfRight c) $ =
+'(eqcomd (eqtrd (addeq2d (eqcomd ht)) (a1i sf_reconstruct)));
+theorem sfLaw_rebuild_quantifier (G: wff) (c k: nat)
+  (ht: $ G -> sfTag c = k $) (hr: $ G -> sfRight c = 0 $):
+  $ G -> c = sfNode k (sfLeft c) 0 $ =
+'(eqtrd (sfLaw_rebuild ht) (addeq1d (muleq2d (preq2d hr))));
+
+theorem sfLaw_cancel_ind_at (c a: nat):
+  $ A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfShift m j) = j)) ->
+      a < c -> A. m A. r (sfWf a -> sfSubst m r (sfShift m a) = a) $ =
+(named '(!! eale j ,eqtac));
+theorem sfLaw_cancel_ind_depth (d a: nat):
+  $ A. m A. r (sfWf a -> sfSubst m r (sfShift m a) = a) ->
+      A. r (sfWf a -> sfSubst d r (sfShift d a) = a) $ =
+(named '(!! eale m ,eqtac));
+theorem sfLaw_cancel_ind_replacement (d t a: nat):
+  $ A. r (sfWf a -> sfSubst d r (sfShift d a) = a) ->
+      sfWf a -> sfSubst d t (sfShift d a) = a $ =
+(named '(!! eale r ,eqtac));
+theorem sfLaw_cancel_ind_use {j m r: nat} (G: wff j m r) (d t c a: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfShift m j) = j)) $)
+  (ha: $ G -> a e. sfPrevious c $):
+  $ G -> sfSubst d t (sfShift d a) = a $ =
+'(mpd (syl anr (syl (bi1 sfPrevious_value) ha)) @
+  syl sfLaw_cancel_ind_replacement @ syl sfLaw_cancel_ind_depth @
+  mpd (syl anl (syl (bi1 sfPrevious_value) ha)) (syl sfLaw_cancel_ind_at hi));
+
+theorem sfLaw_cancel_tag1 (G: wff) (d t c: nat) (ht: $ G -> sfTag c = 1 $):
+  $ G -> sfSubst d t (sfShift d c) = c $ =
+'(sfLaw_cancel_transport (sfLaw_rebuild ht) (a1i sfLaw_cancel_mem));
+
+theorem sfLaw_cancel_tag2 (G: wff) (d t c: nat) (ht: $ G -> sfTag c = 2 $):
+  $ G -> sfSubst d t (sfShift d c) = c $ =
+'(sfLaw_cancel_transport (sfLaw_rebuild ht) (a1i sfLaw_cancel_eq));
+
+theorem sfLaw_cancel_tag3 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 3 $)
+  (hl: $ G -> sfSubst d t (sfShift d (sfLeft c)) = sfLeft c $)
+  (hr: $ G -> sfSubst d t (sfShift d (sfRight c)) = sfRight c $):
+  $ G -> sfSubst d t (sfShift d c) = c $ =
+'(sfLaw_cancel_transport (sfLaw_rebuild ht) (sfLaw_cancel_and hl hr));
+
+theorem sfLaw_cancel_tag4 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 4 $)
+  (hl: $ G -> sfSubst d t (sfShift d (sfLeft c)) = sfLeft c $)
+  (hr: $ G -> sfSubst d t (sfShift d (sfRight c)) = sfRight c $):
+  $ G -> sfSubst d t (sfShift d c) = c $ =
+'(sfLaw_cancel_transport (sfLaw_rebuild ht) (sfLaw_cancel_or hl hr));
+
+theorem sfLaw_cancel_tag5 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 5 $)
+  (hl: $ G -> sfSubst d t (sfShift d (sfLeft c)) = sfLeft c $)
+  (hr: $ G -> sfSubst d t (sfShift d (sfRight c)) = sfRight c $):
+  $ G -> sfSubst d t (sfShift d c) = c $ =
+'(sfLaw_cancel_transport (sfLaw_rebuild ht) (sfLaw_cancel_imp hl hr));
+
+theorem sfLaw_cancel_tag6 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 6 $) (hz: $ G -> sfRight c = 0 $)
+  (hl: $ G -> sfSubst (suc d) t (sfShift (suc d) (sfLeft c)) = sfLeft c $):
+  $ G -> sfSubst d t (sfShift d c) = c $ =
+'(sfLaw_cancel_transport (sfLaw_rebuild_quantifier ht hz) (sfLaw_cancel_all hl));
+
+theorem sfLaw_cancel_tag7 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 7 $) (hz: $ G -> sfRight c = 0 $)
+  (hl: $ G -> sfSubst (suc d) t (sfShift (suc d) (sfLeft c)) = sfLeft c $):
+  $ G -> sfSubst d t (sfShift d c) = c $ =
+'(sfLaw_cancel_transport (sfLaw_rebuild_quantifier ht hz) (sfLaw_cancel_ex hl));
+
+theorem sfLaw_cancel_binary {j m r: nat} (G: wff j m r) (d t c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfShift m j) = j)) $)
+  (ht: $ G -> (sfTag c = 3 \/ sfTag c = 4 \/ sfTag c = 5) $)
+  (hl: $ G -> sfLeft c e. sfPrevious c $)
+  (hr: $ G -> sfRight c e. sfPrevious c $):
+  $ G -> sfSubst d t (sfShift d c) = c $ =
+'(mpd ht (eord (eord (exp @ sfLaw_cancel_tag3 anr (sfLaw_cancel_ind_use (syl hi anl) (syl hl anl)) (sfLaw_cancel_ind_use (syl hi anl) (syl hr anl))) (exp @ sfLaw_cancel_tag4 anr (sfLaw_cancel_ind_use (syl hi anl) (syl hl anl)) (sfLaw_cancel_ind_use (syl hi anl) (syl hr anl)))) (exp @ sfLaw_cancel_tag5 anr (sfLaw_cancel_ind_use (syl hi anl) (syl hl anl)) (sfLaw_cancel_ind_use (syl hi anl) (syl hr anl)))));
+
+theorem sfLaw_cancel_quantifier {j m r: nat} (G: wff j m r) (d t c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfShift m j) = j)) $)
+  (ht: $ G -> (sfTag c = 6 \/ sfTag c = 7) $)
+  (hz: $ G -> sfRight c = 0 $) (hl: $ G -> sfLeft c e. sfPrevious c $):
+  $ G -> sfSubst d t (sfShift d c) = c $ =
+'(mpd ht (eord (exp @ sfLaw_cancel_tag6 anr (syl hz anl) (sfLaw_cancel_ind_use (syl hi anl) (syl hl anl))) (exp @ sfLaw_cancel_tag7 anr (syl hz anl) (sfLaw_cancel_ind_use (syl hi anl) (syl hl anl)))));
+
+theorem sfLaw_cancel_allowed {j m r: nat} (G: wff j m r) (d t c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfShift m j) = j)) $):
+  $ G -> sfAllowed c (sfPrevious c) -> sfSubst d t (sfShift d c) = c $ =
+'(eord (exp @ sfLaw_cancel_transport anr (a1i sfLaw_cancel_bot))
+  (eord (eord (exp @ sfLaw_cancel_tag1 anr) (exp @ sfLaw_cancel_tag2 anr))
+    (eord
+      (exp @ sfLaw_cancel_binary (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr))
+      (exp @ sfLaw_cancel_quantifier (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr)))));
+
+theorem sfLaw_cancel_replace_rename (d c: nat):
+  $ A. s (sfWf c -> sfSubst d s (sfShift d c) = c) <->
+    A. r (sfWf c -> sfSubst d r (sfShift d c) = c) $ =
+(named '(cbval ,eqtac));
+theorem sfLaw_cancel_depth_rename (c: nat):
+  $ A. q A. r (sfWf c -> sfSubst q r (sfShift q c) = c) <->
+    A. m A. r (sfWf c -> sfSubst m r (sfShift m c) = c) $ =
+(named '(cbval ,eqtac));
+theorem sfLaw_cancel_alpha (c: nat):
+  $ A. q A. s (sfWf c -> sfSubst q s (sfShift q c) = c) <->
+    A. m A. r (sfWf c -> sfSubst m r (sfShift m c) = c) $ =
+'(bitr (aleqi sfLaw_cancel_replace_rename) sfLaw_cancel_depth_rename);
+theorem sfLaw_cancel_wf_step {j m r: nat} (G: wff j m r) (c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfShift m j) = j)) $):
+  $ G -> A. m A. r (sfWf c -> sfSubst m r (sfShift m c) = c) $ =
+'(sylib sfLaw_cancel_alpha @ !! iald q @ !! iald s @
+  syl5bi sfWf_unfold (sfLaw_cancel_allowed hi));
+theorem sfLaw_cancel_uniform (c: nat):
+  $ A. m A. r (sfWf c -> sfSubst m r (sfShift m c) = c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (A. m A. r (sfWf j -> sfSubst m r (sfShift m j) = j) <-> A. m A. r (sfWf c -> sfSubst m r (sfShift m c) = c)) $}
+  ,eqtac (sfLaw_cancel_wf_step anr)));
+pub theorem sfSubst_shift_cancel (d t c: nat):
+  $ sfWf c -> sfSubst d t (sfShift d c) = c $ =
+(named '(ax_mp (syl sfLaw_cancel_ind_replacement sfLaw_cancel_ind_depth)
+  {sfLaw_cancel_uniform : $ A. m A. r (sfWf c -> sfSubst m r (sfShift m c) = c) $}));
+
+theorem sfLaw_bound_congr (G: wff) (n m a b: nat)
+  (hn: $ G -> n = m $) (ha: $ G -> a = b $):
+  $ G -> (sfBound n a <-> sfBound m b) $ = '(srecpeq2d (preqd hn ha));
+do (apply (register-eqd 'sfBound) '(sfLaw_bound_congr));
+theorem sfLaw_ifp_mono (G p I J O K: wff)
+  (hI: $ G -> I -> O $) (hJ: $ G -> J -> K $):
+  $ G -> ifp p I J -> ifp p O K $ =
+'(orimd (anim2d hI) (anim2d hJ));
+theorem sfLaw_binder_child_lt (n a c: nat):
+  $ (suc n, a) < (n, c) -> a < c $ =
+'(syl (bi2 ltpr2) (lttr (ax_mp (bi1 ltpr1) ltsucid)));
+theorem sfLaw_mono_at (c a: nat):
+  $ A. j (j < c -> A. u A. v (u <= v -> sfBound u j -> sfBound v j)) ->
+      a < c -> A. u A. v (u <= v -> sfBound u a -> sfBound v a) $ =
+(named '(!! eale j ,eqtac));
+theorem sfLaw_mono_lower (n a: nat):
+  $ A. u A. v (u <= v -> sfBound u a -> sfBound v a) ->
+      A. v (n <= v -> sfBound n a -> sfBound v a) $ =
+(named '(!! eale u ,eqtac));
+theorem sfLaw_mono_upper (n m a: nat):
+  $ A. v (n <= v -> sfBound n a -> sfBound v a) ->
+      n <= m -> sfBound n a -> sfBound m a $ =
+(named '(!! eale v ,eqtac));
+theorem sfLaw_mono_use {j u v: nat} (G: wff j u v) (n m c a: nat)
+  (hi: $ G -> A. j (j < c -> A. u A. v (u <= v -> sfBound u j -> sfBound v j)) $)
+  (ha: $ G -> a < c $) (hn: $ G -> n <= m $):
+  $ G -> sfBound n a -> sfBound m a $ =
+'(mpd hn @ syl sfLaw_mono_upper @ syl sfLaw_mono_lower @
+  mpd ha (syl sfLaw_mono_at hi));
+theorem sfLaw_mono_history {j u v: nat} (G: wff j u v) (n m c a: nat)
+  (hi: $ G -> A. j (j < c -> A. u A. v (u <= v -> sfBound u j -> sfBound v j)) $)
+  (hn: $ G -> n <= m $):
+  $ G -> (n, a) e. sfBoundPrevious n c -> (m, a) e. sfBoundPrevious m c $ =
+'(exp @ syl (bi2 sfBoundPrevious_value) @ iand
+  (syl (bi1 ltpr2) (syl (bi2 ltpr2) (syl anl (syl (bi1 sfBoundPrevious_value) anr))))
+  (mpd (syl anr (syl (bi1 sfBoundPrevious_value) anr))
+    (sfLaw_mono_use (syl hi anl)
+      (syl (bi2 ltpr2) (syl anl (syl (bi1 sfBoundPrevious_value) anr))) (syl hn anl))));
+theorem sfLaw_mono_history_binder {j u v: nat} (G: wff j u v) (n m c a: nat)
+  (hi: $ G -> A. j (j < c -> A. u A. v (u <= v -> sfBound u j -> sfBound v j)) $)
+  (hn: $ G -> n <= m $):
+  $ G -> (suc n, a) e. sfBoundPrevious n c -> (suc m, a) e. sfBoundPrevious m c $ =
+'(exp @ syl (bi2 sfBoundPrevious_value) @ iand
+  (syl sfKey_underBinder_lt (syl sfLaw_binder_child_lt (syl anl (syl (bi1 sfBoundPrevious_value) anr))))
+  (mpd (syl anr (syl (bi1 sfBoundPrevious_value) anr))
+    (sfLaw_mono_use (syl hi anl)
+      (syl sfLaw_binder_child_lt (syl anl (syl (bi1 sfBoundPrevious_value) anr)))
+      (syl (bi1 lesuc) (syl hn anl)))));
+
+theorem sfLaw_mono_allowed {j u v: nat} (G: wff j u v) (n m c: nat)
+  (hi: $ G -> A. j (j < c -> A. u A. v (u <= v -> sfBound u j -> sfBound v j)) $)
+  (hn: $ G -> n <= m $):
+  $ G -> sfBoundAllowed n c (sfBoundPrevious n c) ->
+      sfBoundAllowed m c (sfBoundPrevious m c) $ =
+'(sfLaw_ifp_mono (a1i id) (sfLaw_ifp_mono (exp @ iand (ltletrd (syl anl anr) (syl hn anl)) (ltletrd (syl anr anr) (syl hn anl))) (sfLaw_ifp_mono (exp @ iand (ltletrd (syl anl anr) (syl hn anl)) (ltletrd (syl anr anr) (syl hn anl))) (sfLaw_ifp_mono (animd (sfLaw_mono_history hi hn) (sfLaw_mono_history hi hn)) (sfLaw_ifp_mono (animd (sfLaw_mono_history hi hn) (sfLaw_mono_history hi hn)) (sfLaw_ifp_mono (animd (sfLaw_mono_history hi hn) (sfLaw_mono_history hi hn)) (sfLaw_ifp_mono (sfLaw_mono_history_binder hi hn) (sfLaw_ifp_mono (sfLaw_mono_history_binder hi hn) (a1i id)))))))));
+theorem sfLaw_mono_actual {j u v: nat} (G: wff j u v) (n m c: nat)
+  (hi: $ G -> A. j (j < c -> A. u A. v (u <= v -> sfBound u j -> sfBound v j)) $)
+  (hn: $ G -> n <= m $):
+  $ G -> sfBound n c -> sfBound m c $ =
+'(syl5bi sfBound_unfold @ syl6 (bi2 sfBound_unfold) (sfLaw_mono_allowed hi hn));
+theorem sfLaw_mono_upper_rename (n c: nat):
+  $ A. l (n <= l -> sfBound n c -> sfBound l c) <->
+    A. v (n <= v -> sfBound n c -> sfBound v c) $ =
+(named '(cbval ,eqtac));
+theorem sfLaw_mono_lower_rename (c: nat):
+  $ A. k A. v (k <= v -> sfBound k c -> sfBound v c) <->
+    A. u A. v (u <= v -> sfBound u c -> sfBound v c) $ =
+(named '(cbval ,eqtac));
+theorem sfLaw_mono_alpha (c: nat):
+  $ A. k A. l (k <= l -> sfBound k c -> sfBound l c) <->
+    A. u A. v (u <= v -> sfBound u c -> sfBound v c) $ =
+'(bitr (aleqi sfLaw_mono_upper_rename) sfLaw_mono_lower_rename);
+theorem sfLaw_mono_step {j u v: nat} (G: wff j u v) (c: nat)
+  (hi: $ G -> A. j (j < c -> A. u A. v (u <= v -> sfBound u j -> sfBound v j)) $):
+  $ G -> A. u A. v (u <= v -> sfBound u c -> sfBound v c) $ =
+'(sylib sfLaw_mono_alpha @ !! iald k @ !! iald l @ exp @
+  sfLaw_mono_actual (syl hi anl) anr);
+theorem sfLaw_mono_uniform (c: nat):
+  $ A. u A. v (u <= v -> sfBound u c -> sfBound v c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (A. u A. v (u <= v -> sfBound u j -> sfBound v j) <-> A. u A. v (u <= v -> sfBound u c -> sfBound v c)) $}
+  ,eqtac (sfLaw_mono_step anr)));
+pub theorem sfBound_mono_le (n m c: nat): $ n <= m -> sfBound n c -> sfBound m c $ =
+(named '(ax_mp (syl sfLaw_mono_upper sfLaw_mono_lower)
+  {sfLaw_mono_uniform : $ A. u A. v (u <= v -> sfBound u c -> sfBound v c) $}));
+pub theorem sfBound_mono (n m c: nat): $ sfBound n c -> n <= m -> sfBound m c $ =
+'(com12 sfBound_mono_le);
+
+theorem sfLaw_shift_transport (G: wff) (d a b: nat)
+  (h: $ G -> a = b $) (hb: $ G -> sfShift d b = b $):
+  $ G -> sfShift d a = a $ =
+'(eqtrd (sfLawShift_congr h) (eqtrd hb (eqcomd h)));
+
+theorem sfLaw_shift_mem (G: wff) (d a b: nat)
+  (ha: $ G -> a < d $) (hb: $ G -> b < d $):
+  $ G -> sfShift d (sfMem a b) = sfMem a b $ =
+'(eqtrd (a1i sfShift_sfMem) (sfMem_congr (syl sfShiftIndex_bound ha) (syl sfShiftIndex_bound hb)));
+
+theorem sfLaw_shift_eq (G: wff) (d a b: nat)
+  (ha: $ G -> a < d $) (hb: $ G -> b < d $):
+  $ G -> sfShift d (sfEq a b) = sfEq a b $ =
+'(eqtrd (a1i sfShift_sfEq) (sfEq_congr (syl sfShiftIndex_bound ha) (syl sfShiftIndex_bound hb)));
+
+theorem sfLaw_shift_and (G: wff) (d a b: nat)
+  (ha: $ G -> sfShift d a = a $) (hb: $ G -> sfShift d b = b $):
+  $ G -> sfShift d (sfAnd a b) = sfAnd a b $ =
+'(eqtrd (a1i sfShift_sfAnd) (sfAnd_congr ha hb));
+
+theorem sfLaw_shift_or (G: wff) (d a b: nat)
+  (ha: $ G -> sfShift d a = a $) (hb: $ G -> sfShift d b = b $):
+  $ G -> sfShift d (sfOr a b) = sfOr a b $ =
+'(eqtrd (a1i sfShift_sfOr) (sfOr_congr ha hb));
+
+theorem sfLaw_shift_imp (G: wff) (d a b: nat)
+  (ha: $ G -> sfShift d a = a $) (hb: $ G -> sfShift d b = b $):
+  $ G -> sfShift d (sfImp a b) = sfImp a b $ =
+'(eqtrd (a1i sfShift_sfImp) (sfImp_congr ha hb));
+
+theorem sfLaw_shift_all (G: wff) (d a: nat) (ha: $ G -> sfShift (suc d) a = a $):
+  $ G -> sfShift d (sfAll a) = sfAll a $ =
+'(eqtrd (a1i sfShift_sfAll) (sfAll_congr ha));
+
+theorem sfLaw_shift_ex (G: wff) (d a: nat) (ha: $ G -> sfShift (suc d) a = a $):
+  $ G -> sfShift d (sfEx a) = sfEx a $ =
+'(eqtrd (a1i sfShift_sfEx) (sfEx_congr ha));
+
+theorem sfLaw_shift_at (c a: nat):
+  $ A. j (j < c -> A. n (sfBound n j -> sfShift n j = j)) ->
+      a < c -> A. n (sfBound n a -> sfShift n a = a) $ =
+(named '(!! eale j ,eqtac));
+theorem sfLaw_shift_specialize (d a: nat):
+  $ A. n (sfBound n a -> sfShift n a = a) -> sfBound d a -> sfShift d a = a $ =
+(named '(!! eale n ,eqtac));
+theorem sfLaw_shift_history {j n: nat} (G: wff j n) (d c a: nat)
+  (hi: $ G -> A. j (j < c -> A. n (sfBound n j -> sfShift n j = j)) $):
+  $ G -> (d, a) e. sfBoundPrevious d c -> sfShift d a = a $ =
+'(exp @ mpd (syl anr (syl (bi1 sfBoundPrevious_value) anr)) @
+  syl sfLaw_shift_specialize @
+  mpd (syl (bi2 ltpr2) (syl anl (syl (bi1 sfBoundPrevious_value) anr)))
+    (syl sfLaw_shift_at (syl hi anl)));
+theorem sfLaw_shift_history_binder {j n: nat} (G: wff j n) (d c a: nat)
+  (hi: $ G -> A. j (j < c -> A. n (sfBound n j -> sfShift n j = j)) $):
+  $ G -> (suc d, a) e. sfBoundPrevious d c -> sfShift (suc d) a = a $ =
+'(exp @ mpd (syl anr (syl (bi1 sfBoundPrevious_value) anr)) @
+  syl sfLaw_shift_specialize @
+  mpd (syl sfLaw_binder_child_lt (syl anl (syl (bi1 sfBoundPrevious_value) anr)))
+    (syl sfLaw_shift_at (syl hi anl)));
+theorem sfLaw_ifp_sound (G p a b q: wff)
+  (hp: $ G -> p -> a -> q $) (hb: $ G -> b -> q $):
+  $ G -> ifp p a b -> q $ = '(eord (impd hp) (syl5 anr hb));
+
+theorem sfLaw_shift_allowed {j n: nat} (G: wff j n) (d c: nat)
+  (hi: $ G -> A. j (j < c -> A. n (sfBound n j -> sfShift n j = j)) $):
+  $ G -> sfBoundAllowed d c (sfBoundPrevious d c) -> sfShift d c = c $ =
+'(sfLaw_ifp_sound (exp @ exp @ sfLaw_shift_transport anlr (a1i sfShift_bot)) (sfLaw_ifp_sound (exp @ exp @ sfLaw_shift_transport (sfLaw_rebuild anlr) (sfLaw_shift_mem (syl anl anr) (syl anr anr))) (sfLaw_ifp_sound (exp @ exp @ sfLaw_shift_transport (sfLaw_rebuild anlr) (sfLaw_shift_eq (syl anl anr) (syl anr anr))) (sfLaw_ifp_sound (exp @ exp @ sfLaw_shift_transport (sfLaw_rebuild anlr) (sfLaw_shift_and (mpd (syl anl anr) (sfLaw_shift_history (syl hi anll))) (mpd (syl anr anr) (sfLaw_shift_history (syl hi anll))))) (sfLaw_ifp_sound (exp @ exp @ sfLaw_shift_transport (sfLaw_rebuild anlr) (sfLaw_shift_or (mpd (syl anl anr) (sfLaw_shift_history (syl hi anll))) (mpd (syl anr anr) (sfLaw_shift_history (syl hi anll))))) (sfLaw_ifp_sound (exp @ exp @ sfLaw_shift_transport (sfLaw_rebuild anlr) (sfLaw_shift_imp (mpd (syl anl anr) (sfLaw_shift_history (syl hi anll))) (mpd (syl anr anr) (sfLaw_shift_history (syl hi anll))))) (sfLaw_ifp_sound (exp @ exp @ sfLaw_shift_transport (sfLaw_rebuild_quantifier (syl anl anlr) (syl anr anlr)) (sfLaw_shift_all (mpd anr (sfLaw_shift_history_binder (syl hi anll))))) (sfLaw_ifp_sound (exp @ exp @ sfLaw_shift_transport (sfLaw_rebuild_quantifier (syl anl anlr) (syl anr anlr)) (sfLaw_shift_ex (mpd anr (sfLaw_shift_history_binder (syl hi anll))))) (a1i (absurdr eqid))))))))));
+theorem sfLaw_shift_alpha (c: nat):
+  $ A. k (sfBound k c -> sfShift k c = c) <-> A. n (sfBound n c -> sfShift n c = c) $ =
+(named '(cbval ,eqtac));
+theorem sfLaw_shift_step {j n: nat} (G: wff j n) (c: nat)
+  (hi: $ G -> A. j (j < c -> A. n (sfBound n j -> sfShift n j = j)) $):
+  $ G -> A. n (sfBound n c -> sfShift n c = c) $ =
+'(sylib sfLaw_shift_alpha @ !! iald k @ syl5bi sfBound_unfold (sfLaw_shift_allowed hi));
+theorem sfLaw_shift_uniform (c: nat): $ A. n (sfBound n c -> sfShift n c = c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (A. n (sfBound n j -> sfShift n j = j) <-> A. n (sfBound n c -> sfShift n c = c)) $}
+  ,eqtac (sfLaw_shift_step anr)));
+pub theorem sfShift_bound_identity (d c: nat): $ sfBound d c -> sfShift d c = c $ =
+(named '(ax_mp sfLaw_shift_specialize {sfLaw_shift_uniform : $ A. n (sfBound n c -> sfShift n c = c) $}));
+pub theorem sfShift_closed_identity (c: nat): $ sfBound 0 c -> sfShift 0 c = c $ = 'sfShift_bound_identity;
+
+theorem sfLaw_upper_at (c a: nat):
+  $ A. j (j < c -> (sfWf j -> sfBound j j)) -> a < c -> (sfWf a -> sfBound a a) $ =
+(named '(!! eale j ,eqtac));
+theorem sfLaw_upper_use {j: nat} (G: wff j) (c a: nat)
+  (hi: $ G -> A. j (j < c -> (sfWf j -> sfBound j j)) $)
+  (ha: $ G -> a e. sfPrevious c $):
+  $ G -> sfBound a a $ =
+'(mpd (syl anr (syl (bi1 sfPrevious_value) ha)) @
+  mpd (syl anl (syl (bi1 sfPrevious_value) ha)) (syl sfLaw_upper_at hi));
+theorem sfLaw_upper_child {j: nat} (G: wff j) (c a: nat)
+  (hi: $ G -> A. j (j < c -> (sfWf j -> sfBound j j)) $)
+  (ha: $ G -> a e. sfPrevious c $):
+  $ G -> sfBound c a $ =
+'(sylc sfBound_mono_le (syl ltle (syl anl (syl (bi1 sfPrevious_value) ha)))
+  (sfLaw_upper_use hi ha));
+theorem sfLaw_upper_binder_child {j: nat} (G: wff j) (c a: nat)
+  (hi: $ G -> A. j (j < c -> (sfWf j -> sfBound j j)) $)
+  (ha: $ G -> a e. sfPrevious c $):
+  $ G -> sfBound (suc c) a $ =
+'(sylc sfBound_mono_le
+  (letrd (syl ltle (syl anl (syl (bi1 sfPrevious_value) ha))) (a1i lesucid))
+  (sfLaw_upper_use hi ha));
+theorem sfLaw_upper_transport (G: wff) (c b: nat)
+  (h: $ G -> c = b $) (hb: $ G -> sfBound c b $):
+  $ G -> sfBound c c $ =
+'(mpbird (sfLaw_bound_congr eqidd h) hb);
+
+theorem sfLaw_upper_tag1 (G: wff) (c: nat) (ht: $ G -> sfTag c = 1 $):
+  $ G -> sfBound c c $ =
+'(sfLaw_upper_transport (sfLaw_rebuild ht) @ syl (bi2 sfBound_sfMem) @ iand
+  (mpbiri (sfNode_left_lt lt01S) (lteq2d (sfLaw_rebuild ht)))
+  (mpbiri (sfNode_right_lt lt01S) (lteq2d (sfLaw_rebuild ht))));
+
+theorem sfLaw_upper_tag2 (G: wff) (c: nat) (ht: $ G -> sfTag c = 2 $):
+  $ G -> sfBound c c $ =
+'(sfLaw_upper_transport (sfLaw_rebuild ht) @ syl (bi2 sfBound_sfEq) @ iand
+  (mpbiri (sfNode_left_lt lt01S) (lteq2d (sfLaw_rebuild ht)))
+  (mpbiri (sfNode_right_lt lt01S) (lteq2d (sfLaw_rebuild ht))));
+
+theorem sfLaw_upper_tag3 (G: wff) (c: nat) (ht: $ G -> sfTag c = 3 $)
+  (hl: $ G -> sfBound c (sfLeft c) $) (hr: $ G -> sfBound c (sfRight c) $):
+  $ G -> sfBound c c $ =
+'(sfLaw_upper_transport (sfLaw_rebuild ht) (syl (bi2 sfBound_sfAnd) (iand hl hr)));
+
+theorem sfLaw_upper_tag4 (G: wff) (c: nat) (ht: $ G -> sfTag c = 4 $)
+  (hl: $ G -> sfBound c (sfLeft c) $) (hr: $ G -> sfBound c (sfRight c) $):
+  $ G -> sfBound c c $ =
+'(sfLaw_upper_transport (sfLaw_rebuild ht) (syl (bi2 sfBound_sfOr) (iand hl hr)));
+
+theorem sfLaw_upper_tag5 (G: wff) (c: nat) (ht: $ G -> sfTag c = 5 $)
+  (hl: $ G -> sfBound c (sfLeft c) $) (hr: $ G -> sfBound c (sfRight c) $):
+  $ G -> sfBound c c $ =
+'(sfLaw_upper_transport (sfLaw_rebuild ht) (syl (bi2 sfBound_sfImp) (iand hl hr)));
+
+theorem sfLaw_upper_tag6 (G: wff) (c: nat)
+  (ht: $ G -> sfTag c = 6 $) (hz: $ G -> sfRight c = 0 $)
+  (hl: $ G -> sfBound (suc c) (sfLeft c) $):
+  $ G -> sfBound c c $ =
+'(sfLaw_upper_transport (sfLaw_rebuild_quantifier ht hz) (syl (bi2 sfBound_sfAll) hl));
+
+theorem sfLaw_upper_tag7 (G: wff) (c: nat)
+  (ht: $ G -> sfTag c = 7 $) (hz: $ G -> sfRight c = 0 $)
+  (hl: $ G -> sfBound (suc c) (sfLeft c) $):
+  $ G -> sfBound c c $ =
+'(sfLaw_upper_transport (sfLaw_rebuild_quantifier ht hz) (syl (bi2 sfBound_sfEx) hl));
+
+theorem sfLaw_upper_binary {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> (sfWf j -> sfBound j j)) $)
+  (ht: $ G -> (sfTag c = 3 \/ sfTag c = 4 \/ sfTag c = 5) $)
+  (hl: $ G -> sfLeft c e. sfPrevious c $) (hr: $ G -> sfRight c e. sfPrevious c $):
+  $ G -> sfBound c c $ =
+'(mpd ht (eord (eord (exp @ sfLaw_upper_tag3 anr (sfLaw_upper_child (syl hi anl) (syl hl anl)) (sfLaw_upper_child (syl hi anl) (syl hr anl))) (exp @ sfLaw_upper_tag4 anr (sfLaw_upper_child (syl hi anl) (syl hl anl)) (sfLaw_upper_child (syl hi anl) (syl hr anl)))) (exp @ sfLaw_upper_tag5 anr (sfLaw_upper_child (syl hi anl) (syl hl anl)) (sfLaw_upper_child (syl hi anl) (syl hr anl)))));
+theorem sfLaw_upper_quantifier {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> (sfWf j -> sfBound j j)) $)
+  (ht: $ G -> (sfTag c = 6 \/ sfTag c = 7) $)
+  (hz: $ G -> sfRight c = 0 $) (hl: $ G -> sfLeft c e. sfPrevious c $):
+  $ G -> sfBound c c $ =
+'(mpd ht (eord (exp @ sfLaw_upper_tag6 anr (syl hz anl) (sfLaw_upper_binder_child (syl hi anl) (syl hl anl))) (exp @ sfLaw_upper_tag7 anr (syl hz anl) (sfLaw_upper_binder_child (syl hi anl) (syl hl anl)))));
+theorem sfLaw_upper_allowed {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> (sfWf j -> sfBound j j)) $):
+  $ G -> sfAllowed c (sfPrevious c) -> sfBound c c $ =
+'(eord (exp @ mpbiri sfBound_bot (sfLaw_bound_congr anr anr))
+  (eord (eord (exp @ sfLaw_upper_tag1 anr) (exp @ sfLaw_upper_tag2 anr))
+    (eord
+      (exp @ sfLaw_upper_binary (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr))
+      (exp @ sfLaw_upper_quantifier (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr)))));
+theorem sfLaw_upper_step {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> (sfWf j -> sfBound j j)) $):
+  $ G -> sfWf c -> sfBound c c $ =
+'(syl5bi sfWf_unfold (sfLaw_upper_allowed hi));
+pub theorem sfWf_code_bound (c: nat): $ sfWf c -> sfBound c c $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> ((sfWf j -> sfBound j j) <-> (sfWf c -> sfBound c c)) $}
+  ,eqtac (sfLaw_upper_step anr)));
+pub theorem sfWf_upper_bound (c: nat): $ sfWf c -> sfBound (suc c) c $ =
+'(syl (sfBound_mono_le lesucid) sfWf_code_bound);

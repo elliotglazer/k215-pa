@@ -1,0 +1,48 @@
+import "source_l_separation_image_profile.mm0";
+
+import "source_l_common_level_reflection_use.mm0";
+
+import "source_l_common_level_setrel_renaming.mm0";
+
+import "source_renaming_agreement.mm0";
+
+import "source_l_common_level_reflection_transport.mm0";
+
+def sfLSeparationImageShiftEnv(T:set)(.i:nat):set = $ \ i, suc (T @ i) $;
+
+theorem sfLSeparationImageShiftEnv_at(T:set)(i:nat):
+ $ sfLSeparationImageShiftEnv T @ i = suc (T @ i) $;
+
+theorem sfLSeparationImage_rows_cons(T:set)(G Y z n:nat)
+ (hz:$ nsLocal G (sfMem z Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ sfCLRowProofs (sfCLBallMemberRows (sqEnvCons z T) Y) G (suc n) $;
+
+theorem sfLSeparationImage_rows_shift(T:set)(G Y n:nat)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageShiftEnv T) (suc Y))
+    (sfContextShift G) n $;
+
+theorem sfLSeparationImage_rows_weaken(T:set)(G H Y n:nat)
+ (hg:$ sfContextWf H $)(hs:$ sfContextSub G H $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ sfCLRowProofs (sfCLBallMemberRows T Y) H n $;
+
+theorem sfLSeparationImage_binder_env(T:set)(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons 0 (sfLSeparationImageShiftEnv T)) 0 phi = sfRename T 1 phi $;
+
+theorem sfLSeparationImage_comparison_from_reflection(T:set)(G D n phi beta Y:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (hp:$ nsLocal G (sfCLReflection D (suc n) phi beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal G (sfLSeparationImageComparison T D phi Y) $;
+
+theorem sfLSeparationImage_profile_from_reflection(T:set)(G D n phi beta Y X x:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile (sqEnvCons x T) (sfPieceSeparationPredicate phi) Y X) $)
+ (hs:$ nsLocal G (sfCLSubset x Y) $)
+ (hf:$ nsLocal G (sfCLReflection D (suc n) phi beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal G (sfPieceSeparationLocalBody T D phi X x) $;

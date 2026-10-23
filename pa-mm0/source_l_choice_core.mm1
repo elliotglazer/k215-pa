@@ -1,0 +1,194 @@
+import "source_l_choice_inst.mm1";
+
+-- Choice in L: for A in L, ACmat(A) holds relativized to L (lanes/L03.md, "Choice in L").
+
+------------------------------------------------------------------------
+-- Unary instances at 0 and their shifts.
+
+theorem chc_map0 (i: nat): $ i = 0 -> sfCLPairMap 0 0 @ i = sfIdentityMap @ i $ =
+(named '(eqtrd (appeq2d id) (eqtrd (a1i (eqtr (eqtr sfCLPairMap_value (ifpos eqid)) (eqcom sfIdentityMap_value)))
+  (eqcomd (appeq2d id)))));
+
+theorem chc_map_agree: $ sfRenameMapAgree (sfCLPairMap 0 0) sfIdentityMap 1 $ =
+(named '(ax_gen (syl chc_map0 (bi1 lt12))));
+
+theorem chc_d_zero: $ sfLChoiceD 0 = sfLDomain $ =
+'(eqtr (ax_mp (ax_mp sfRename_bounded_agreement chc_map_agree) (mpbir (sfSchema_bound_index_eq add01) sfLDomain_bound))
+  (ax_mp sfRename_identity sfLDomain_wf));
+
+theorem chc_ac_zero: $ sfLChoiceAC 0 = sfLChoiceMatrix $ =
+'(eqtr (ax_mp (ax_mp sfRename_bounded_agreement chc_map_agree) (mpbir (sfSchema_bound_index_eq add01) sfLChoiceMatrix_bound))
+  (ax_mp sfRename_identity (ax_mp sfBound_wf sfLChoiceMatrix_bound)));
+
+theorem chc_d_shift (x: nat): $ sfShift 0 (sfLChoiceD x) = sfLChoiceD (suc x) $ =
+'(sfCLInstance_shift sfLDomain_bound);
+
+theorem chc_ac_inner_shift (x: nat):
+ $ sfRelativize sfLDomain (sfShift 0 (sfLChoiceAC x)) = sfRelativize sfLDomain (sfLChoiceAC (suc x)) $ =
+'(sfRelativizeeq2 (sfCLInstance_shift sfLChoiceMatrix_bound));
+
+theorem chc_ac_shift (x: nat):
+ $ sfShift 0 (sfRelativize sfLDomain (sfLChoiceAC x)) = sfRelativize sfLDomain (sfLChoiceAC (suc x)) $ =
+'(eqtr (ax_mp (ax_mp sfRelativize_shift sfLDomain_bound) sfRename_wf) chc_ac_inner_shift);
+
+theorem chc_ac_shift2 (x: nat):
+ $ sfShift 0 (sfShift 0 (sfRelativize sfLDomain (sfLChoiceAC x))) =
+   sfRelativize sfLDomain (sfLChoiceAC (suc (suc x))) $ =
+'(eqtr (sfShifteq eqid chc_ac_shift) chc_ac_shift);
+
+theorem chc_ordrel_shift (d: nat):
+ $ sfShift 0 (sfRelativize sfLDomain (sfCLOrdinalAt d)) = sfRelativize sfLDomain (sfCLOrdinalAt (suc d)) $ =
+'(eqtr (ax_mp (ax_mp sfRelativize_shift sfLDomain_bound) sfCLOrdinalAt_wf) (sfRelativizeeq2 sfCLOrdinalAt_shift));
+
+theorem chc_mem_shift (a y: nat): $ sfShift 0 (sfMem a y) = sfMem (suc a) (suc y) $ =
+'(eqtr sfShift_sfMem (nsMem_eq sfShiftIndex_zero sfShiftIndex_zero));
+
+theorem chc_dom_shift2: $ sfShift 0 (sfShift 0 sfLDomain) = sfLChoiceD 2 $ =
+'(eqtr (sfShifteq eqid (eqtr (sfShifteq eqid (eqcom chc_d_zero)) chc_d_shift)) chc_d_shift);
+
+------------------------------------------------------------------------
+-- The context after opening the witness Y' of T1^L.
+
+theorem chc_g2_wf (G d: nat) (hg: $ sfContextWf G $):
+ $ sfContextWf (sfRelativize sfLDomain (sfCLHierarchyAt (suc d) 0) : (sfLDomain : sfContextShift G)) $ =
+'(mpbir sfContextWf_cons (ian chi_relwf
+  (mpbir sfContextWf_cons (ian sfLDomain_wf (ax_mp sfContextShift_preserves_wf hg)))));
+
+theorem chc_tr (G d phi: nat) (hg: $ sfContextWf G $) (h: $ nsLocal G phi $):
+ $ nsLocal (sfRelativize sfLDomain (sfCLHierarchyAt (suc d) 0) : (sfLDomain : sfContextShift G))
+    (sfShift 0 phi) $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (chc_g2_wf hg))
+  (ax_mp (ax_mp sfContextSub_trans sfContextSub_cons) sfContextSub_cons))
+  (ax_mp sfSepLocal_shift h));
+
+theorem chc_trc (G d phi: nat) (hg: $ sfContextWf G $) (hb: $ sfBound 0 phi $) (h: $ nsLocal G phi $):
+ $ nsLocal (sfRelativize sfLDomain (sfCLHierarchyAt (suc d) 0) : (sfLDomain : sfContextShift G)) phi $ =
+'(mpbi (nsLocal_formula_eq (ax_mp sfShift_closed_identity hb)) (chc_tr hg h));
+
+theorem chc_g2_level (G d: nat) (hg: $ sfContextWf G $):
+ $ nsLocal (sfRelativize sfLDomain (sfCLHierarchyAt (suc d) 0) : (sfLDomain : sfContextShift G))
+    (sfRelativize sfLDomain (sfCLHierarchyAt (suc d) 0)) $ =
+'(ax_mp (ax_mp nsLocal_hyp (chc_g2_wf hg)) sfContext_member_head);
+
+theorem chc_g2_dom (G d: nat) (hg: $ sfContextWf G $):
+ $ nsLocal (sfRelativize sfLDomain (sfCLHierarchyAt (suc d) 0) : (sfLDomain : sfContextShift G))
+    (sfLChoiceD 0) $ =
+'(mpbir (nsLocal_formula_eq chc_d_zero)
+  (ax_mp (ax_mp nsLocal_hyp (chc_g2_wf hg)) (ax_mp sfContext_member_tail sfContext_member_head)));
+
+-- In the witness context: Y' = L_d (upward absoluteness), Y' = Y (uniqueness), so a e. Y';
+-- then T2^L gives ACmat(a)^L.
+theorem chc_inner (G d y a: nat) (hg: $ sfContextWf G $)
+ (hT2: $ nsLocal G (sfRelativize sfLDomain sfLChoiceT2) $)
+ (hU: $ nsLocal G sfLChoiceUnique $) (hUp: $ nsLocal G sfLChoiceUp $)
+ (hE: $ nsLocal G sfReflectionEqualitySubset $)
+ (hp: $ nsLocal G (sfCL2Pt d y a) $) (hDa: $ nsLocal G (sfLChoiceD a) $)
+ (hDd: $ nsLocal G (sfLChoiceD d) $) (hOLd: $ nsLocal G (sfRelativize sfLDomain (sfCLOrdinalAt d)) $):
+ $ nsLocal (sfRelativize sfLDomain (sfCLHierarchyAt (suc d) 0) : (sfLDomain : sfContextShift G))
+    (sfRelativize sfLDomain (sfLChoiceAC (suc a))) $ =
+'(sfLChoice_t2_use (chc_trc hg cha_t2l_bound hT2)
+  (mpbi (nsLocal_formula_eq chc_d_shift) (chc_tr hg hDd))
+  (mpbi (nsLocal_formula_eq chc_ordrel_shift) (chc_tr hg hOLd))
+  (chc_g2_dom hg)
+  (chc_g2_level hg)
+  (mpbi (nsLocal_formula_eq chc_d_shift) (chc_tr hg hDa))
+  (ax_mp (sfCLSubset_use (sfReflectionEqualitySubset_use (chc_trc hg cha_eqsub_bound hE)
+     (sfLChoice_unique_use (chc_trc hg cha_unique_bound hU)
+      (mpbi (nsLocal_formula_eq sfCLOrdinalAt_shift) (chc_tr hg (cl2_pt_ord hp)))
+      (mpbi (nsLocal_formula_eq sfCLHierarchyAt_shift) (chc_tr hg (cl2_pt_hier hp)))
+      (sfLChoice_up_use (chc_trc hg cha_up_bound hUp)
+       (mpbi (nsLocal_formula_eq chc_d_shift) (chc_tr hg hDd))
+       (chc_g2_dom hg)
+       (chc_g2_level hg)))))
+   (mpbi (nsLocal_formula_eq chc_mem_shift) (chc_tr hg (cl2_pt_mem hp)))));
+
+pub theorem sfLChoice_point (G d y a: nat) (hg: $ sfContextWf G $)
+ (hT1: $ nsLocal G (sfRelativize sfLDomain sfLChoiceT1) $)
+ (hT2: $ nsLocal G (sfRelativize sfLDomain sfLChoiceT2) $)
+ (hU: $ nsLocal G sfLChoiceUnique $) (hUp: $ nsLocal G sfLChoiceUp $)
+ (hOL: $ nsLocal G sfLChoiceOrdL $) (hOD: $ nsLocal G sfLChoiceOrdDown $)
+ (hE: $ nsLocal G sfReflectionEqualitySubset $)
+ (hp: $ nsLocal G (sfCL2Pt d y a) $) (hDa: $ nsLocal G (sfLChoiceD a) $):
+ $ nsLocal G (sfRelativize sfLDomain (sfLChoiceAC a)) $ =
+'(sfRelative_ExE sfLDomain_bound sfRename_wf
+  (sfLChoice_t1_use hT1 (sfLChoice_ordl_use hOL (cl2_pt_ord hp)) (sfLChoice_orddown_use hOD (cl2_pt_ord hp)))
+  (mpbi (nsLocal_formula_eq (eqcom chc_ac_inner_shift))
+   (chc_inner hg hT2 hU hUp hE hp hDa
+    (sfLChoice_ordl_use hOL (cl2_pt_ord hp)) (sfLChoice_orddown_use hOD (cl2_pt_ord hp)))));
+
+------------------------------------------------------------------------
+-- The relativized axiom.
+
+theorem chc_top_wf: $ sfContextWf (sfLDomain : sfLChoiceContext) $ =
+'(mpbir sfContextWf_cons (ian sfLDomain_wf sfLChoiceContext_wf));
+
+theorem chc_top_hyp (phi: nat) (hm: $ phi IN (sfLDomain : sfLChoiceContext) $):
+ $ nsLocal (sfLDomain : sfLChoiceContext) phi $ =
+'(ax_mp (ax_mp nsLocal_hyp chc_top_wf) hm);
+
+theorem chc_w_wf: $ sfContextWf (sfCLWitnessContext (sfLDomain : sfLChoiceContext) (sfCL2Pt 1 0 2)) $ =
+'(cl2_witness_wf chc_top_wf cl2_pt_wf);
+
+theorem chc_top: $ nsLocal (sfLDomain : sfLChoiceContext) (sfRelativize sfLDomain sfLChoiceMatrix) $ =
+'(mpbi (nsLocal_formula_eq (sfRelativizeeq2 chc_ac_zero))
+  (ax_mp (sfCLDoubleEx_eliminate chc_top_wf cl2_pt_wf chi_relwf
+    (mpbi (nsLocal_formula_eq sfCL2_domain_eq) (chc_top_hyp sfContext_member_head)))
+   (mpbi (nsLocal_formula_eq (eqcom chc_ac_shift2))
+    (sfLChoice_point chc_w_wf
+     (cl2_transport_closed chc_top_wf cl2_pt_wf cha_t1l_bound
+       (chc_top_hyp (ax_mp sfContext_member_tail sfContext_member_head)))
+     (cl2_transport_closed chc_top_wf cl2_pt_wf cha_t2l_bound
+       (chc_top_hyp (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))
+     (cl2_transport_closed chc_top_wf cl2_pt_wf cha_unique_bound
+       (chc_top_hyp (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+        (ax_mp sfContext_member_tail sfContext_member_head)))))
+     (cl2_transport_closed chc_top_wf cl2_pt_wf cha_up_bound
+       (chc_top_hyp (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+        (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))))
+     (cl2_transport_closed chc_top_wf cl2_pt_wf cha_ordl_bound
+       (chc_top_hyp (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+        (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+         (ax_mp sfContext_member_tail sfContext_member_head)))))))
+     (cl2_transport_closed chc_top_wf cl2_pt_wf cha_orddown_bound
+       (chc_top_hyp (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+        (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+         (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))))))
+     (cl2_transport_closed chc_top_wf cl2_pt_wf cha_eqsub_bound
+       (chc_top_hyp (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+        (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+         (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+          (ax_mp sfContext_member_tail sfContext_member_head)))))))))
+     (cl2_witness_head chc_top_wf cl2_pt_wf)
+     (mpbi (nsLocal_formula_eq chc_dom_shift2)
+      (cl2_transport chc_top_wf cl2_pt_wf (chc_top_hyp sfContext_member_head)))))));
+
+pub theorem sfLChoice_local: $ nsLocal sfLChoiceContext (sfRelativize sfLDomain zfcChoice) $ =
+'(mpbir (nsLocal_formula_eq (sfRelativizeeq2 sfLChoice_eq))
+  (sfRelative_AllI sfLChoiceContext_wf
+   (mpbir (nsLocal_context_eq (conseq eqid sfLChoiceContext_shift)) chc_top)));
+
+theorem chc_imp_zfr:
+ $ sfTheoryProvable zfrAxioms (sfImp sfReflectionEqualitySubset (sfImp sfLChoiceOrdDown
+    (sfImp sfLChoiceOrdL (sfImp sfLChoiceUp (sfImp sfLChoiceUnique
+     (sfImp (sfRelativize sfLDomain sfLChoiceT2) (sfImp (sfRelativize sfLDomain sfLChoiceT1)
+      (sfRelativize sfLDomain zfcChoice)))))))) $ =
+'(ax_mp (sfTheory_local sfTheoryContext_nil)
+  (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II
+   (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II sfLChoice_local))))))));
+
+pub theorem sfLChoice_from_parts
+ (h1: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain sfLChoiceT1) $)
+ (h2: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain sfLChoiceT2) $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLChoiceUnique $)
+ (hUp: $ sfTheoryProvable zfrAxioms sfLChoiceUp $)
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $)
+ (hOD: $ sfTheoryProvable zfrAxioms sfLChoiceOrdDown $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $ =
+'(ax_mp (ax_mp sfTheoryProvable_mp
+  (ax_mp (ax_mp sfTheoryProvable_mp
+   (ax_mp (ax_mp sfTheoryProvable_mp
+    (ax_mp (ax_mp sfTheoryProvable_mp
+     (ax_mp (ax_mp sfTheoryProvable_mp
+      (ax_mp (ax_mp sfTheoryProvable_mp
+       (ax_mp (ax_mp sfTheoryProvable_mp chc_imp_zfr) sfReflectionEqualitySubset_zfr))
+      hOD)) hOL)) hUp)) hU)) h2)) h1);

@@ -1,0 +1,70 @@
+import "source_theory_local.mm1";
+import "source_theory_prefix.mm1";
+import "source_relativization_laws.mm1";
+
+@_ abstract def sfGuardPrefix (D n a .b: nat): nat =
+  $ rec a (\ b, sfAll (sfImp D b)) n $;
+
+pub theorem sfGuardPrefix_zero (D a: nat): $ sfGuardPrefix D 0 a = a $ = (named 'rec0);
+theorem sfRP_step_eq (D a b: nat):
+  $ a = b -> sfAll (sfImp D a) = sfAll (sfImp D b) $ =
+'(sfAll_congr (sfImp_congr_right id));
+pub theorem sfGuardPrefix_suc (D n a: nat):
+  $ sfGuardPrefix D (suc n) a = sfAll (sfImp D (sfGuardPrefix D n a)) $ =
+'(eqtr recS @ ! applame $ sfGuardPrefix D n a $ _ b _ sfRP_step_eq);
+
+theorem sfRP_congr (D a b: nat) (h: $ a = b $):
+  $ sfRelativize D a = sfRelativize D b $ =
+'(trud (sfRelativizeeq2d (a1i h)));
+
+theorem sfRP_zero (D a: nat):
+  $ sfRelativize D (sfAllPrefix 0 a) = sfGuardPrefix D 0 (sfRelativize D a) $ =
+'(eqtr (sfRP_congr sfAllPrefix_zero) (eqcom sfGuardPrefix_zero));
+
+theorem sfRP_step (D n a: nat):
+  $ sfRelativize D (sfAllPrefix n a) = sfGuardPrefix D n (sfRelativize D a) ->
+    sfRelativize D (sfAllPrefix (suc n) a) = sfGuardPrefix D (suc n) (sfRelativize D a) $ =
+'(eqtrd (a1i (sfRP_congr sfAllPrefix_suc)) @
+  eqtrd (a1i sfRelativize_sfAll) @
+  eqtrd (sfAll_congr (sfImp_congr (a1i eqid) id)) (a1i (eqcom sfGuardPrefix_suc)));
+
+pub theorem sfRelativize_prefix (D n a: nat):
+  $ sfRelativize D (sfAllPrefix n a) = sfGuardPrefix D n (sfRelativize D a) $ =
+(named @ induct '(ind) 'n 'sfRP_zero 'sfRP_step);
+
+theorem sfRP_K_general (a b: nat):
+  $ sfWf a -> sfWf b -> nsLocal 0 (sfImp b (sfImp a b)) $ =
+'(exp @ syl nsLocal_II @ syl nsLocal_II @
+  mpi (ax_mp sfContext_member_tail sfContext_member_head) @ syl nsLocal_hyp @
+  syl (bi2 sfContextWf_cons) (iand anl
+    (syl (bi2 sfContextWf_cons) (iand anr (a1i sfContextWf_nil)))));
+
+theorem sfRP_weaken_at (T: set) (a b: nat) (ha: $ sfWf a $):
+  $ sfWf b -> sfTheoryProvable T (sfImp b (sfImp a b)) $ =
+'(syl sfTheory_pure (ax_mp sfRP_K_general ha));
+
+pub theorem sfTheory_imp_weaken (T: set) (a b: nat) (ha: $ sfWf a $):
+  $ sfTheoryProvable T b -> sfTheoryProvable T (sfImp a b) $ =
+'(mpd id (syl sfTheoryProvable_mp (syl (sfRP_weaken_at ha) sfTheoryProvable_wf)));
+
+theorem sfRP_guard_step (T: set) (D n a: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfWf D $):
+  $ (sfTheoryProvable T a -> sfTheoryProvable T (sfGuardPrefix D n a)) ->
+    sfTheoryProvable T a -> sfTheoryProvable T (sfGuardPrefix D (suc n) a) $ =
+'(syl6 (bi2 (trud (sfTheoryProvable_congr (a1i sfGuardPrefix_suc)))) @
+  syl6 (ax_mp sfTheoryProvable_gen ht) @
+  syl6 (sfTheory_imp_weaken hd) id);
+
+pub theorem sfTheory_guarded_prefix (T: set) (D n a: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfWf D $):
+  $ sfTheoryProvable T a -> sfTheoryProvable T (sfGuardPrefix D n a) $ =
+(named @ induct '(ind) 'n
+  '(bi2 (trud (sfTheoryProvable_congr (a1i sfGuardPrefix_zero))))
+  '(sfRP_guard_step ht hd));
+
+pub theorem sfTheory_relative_prefix (T: set) (D n a: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfWf D $):
+  $ sfTheoryProvable T (sfRelativize D a) ->
+    sfTheoryProvable T (sfRelativize D (sfAllPrefix n a)) $ =
+'(syl (bi2 (trud (sfTheoryProvable_congr (a1i sfRelativize_prefix))))
+  (sfTheory_guarded_prefix ht hd));

@@ -1,0 +1,58 @@
+import "source_l_domain.mm1";
+import "source_relative_contexts.mm1";
+import "source_core_theory.mm1";
+import "source_theory_prefix.mm1";
+
+@_ def sfLReplacementMatrix (phi: nat): nat = $ sfAnd (sfAnd sfLDomain (sfDomainAt sfLDomain 1)) (sfRelativize sfLDomain phi) $;
+
+@_ def sfLReplacementPsi (phi: nat): nat = $ sfEx (sfAnd (sfMem 0 2) (sfShift 2 phi)) $;
+
+
+theorem lrepTwo_add (n: nat): $ 2 + n = suc (suc n) $ =
+ '(eqtr addS1 (suceq (eqtr addS1 (suceq add01))));
+
+theorem lrepSuccessor_bound (i n: nat):
+ $ i < n -> sfSuccessorMap @ i < suc n $ =
+ '(mpbird (a1i (lteq1 sfSuccessorMap_value)) (bi1 ltsuc));
+
+theorem lrepSuccessor_range {i: nat} (n: nat):
+ $ A. i (i < n -> sfSuccessorMap @ i < suc n) $ =
+ (named '(ax_gen lrepSuccessor_bound));
+
+theorem lrepMembership_bound: $ sfBound 3 (sfMem 0 2) $ =
+ '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+pub theorem sfLReplacementMatrix_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc n)) (sfLReplacementMatrix phi) $ =
+ '(syl (bi2 sfBound_sfAnd) (iand
+ (a1i (mpbir sfBound_sfAnd (ian
+  (ax_mp (ax_mp sfBound_mono sfLDomain_bound) (mpbi lesuc le01))
+  (ax_mp (ax_mp sfBound_mono (ax_mp sfDomainAt_bound_self sfLDomain_bound)) (mpbi lesuc (mpbi lesuc le01))))))
+ (ax_mp sfRelativize_bound sfLDomain_bound)));
+
+pub theorem sfLReplacementShiftTwo_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc (suc n))) (sfShift 2 phi) $ =
+ (named '(mpbid (sfBoundeq2d (syl sfRename_successor sfBound_wf))
+ (syl (bi1 (sfBoundeq1 lrepTwo_add))
+  (syl (ax_mp sfRename_bound lrepSuccessor_range) (bi2 (sfBoundeq1 lrepTwo_add))))));
+
+pub theorem sfLReplacementPsi_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc n)) (sfLReplacementPsi phi) $ =
+ '(syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd)
+ (iand (a1i (ax_mp (ax_mp sfBound_mono lrepMembership_bound) (mpbi lesuc (mpbi lesuc (mpbi lesuc le01)))))
+  sfLReplacementShiftTwo_bound)));
+
+pub theorem sfLReplacementMatrix_axiom (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> zfcReplacementCode (sfLReplacementMatrix phi) n e. zfrAxioms $ =
+ '(syl zfrReplacementCode_member sfLReplacementMatrix_bound);
+
+pub theorem sfLReplacementMatrix_schema (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (zfcReplacementCode (sfLReplacementMatrix phi) n) $ =
+ '(syl (ax_mp sfTheoryAxiom_provable_closed zfrAxioms_closed) sfLReplacementMatrix_axiom);
+
+pub theorem sfLReplacementMatrix_raw (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms
+  (sfReplacement (sfRename sfRepAMap 0 (sfLReplacementMatrix phi))
+   (sfRename sfRepBMap 0 (sfLReplacementMatrix phi))
+   (sfRename sfRepCMap 0 (sfLReplacementMatrix phi))) $ =
+ '(syl (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) sfLReplacementMatrix_schema);
+

@@ -1,0 +1,88 @@
+import "source_piece_pcf_rep_transport.mm0";
+
+def sfPieceRepRest(T:set)(.i:nat):set = $ \ i, T @ suc i $;
+
+def sfPieceRepLiftRest(T:set)(.i:nat):set = $ \ i, suc (T @ suc i) $;
+
+def sfPieceRepSkip(.i:nat):set = $ \ i, if (i = 0) 0 (suc (suc i)) $;
+
+def sfPieceEnvStep(.previous:nat):set =
+ $ \ previous, sfEx (sfAnd (sfRename sfPieceRepSkip 0 previous) (sfPieceRepExtension 0 2 1)) $;
+
+def sfPieceEnvCore(n:nat):nat =
+ $ rec (sfPieceRepEmpty 0) sfPieceEnvStep n $;
+
+def sfPieceEnv(T:set)(n e:nat):nat =
+ $ sfRename (sqEnvCons e T) 0 (sfPieceEnvCore n) $;
+
+theorem sfPieceRepRest_at(T:set)(i:nat):
+ $ sfPieceRepRest T @ i = T @ suc i $;
+
+theorem sfPieceRepLiftRest_at(T:set)(i:nat):
+ $ sfPieceRepLiftRest T @ i = suc (T @ suc i) $;
+
+theorem sfPieceRepSkip_zero:
+ $ sfPieceRepSkip @ 0 = 0 $;
+
+theorem sfPieceRepSkip_suc(i:nat):
+ $ sfPieceRepSkip @ suc i = suc (suc (suc i)) $;
+
+theorem sfPieceEnvCore_zero:
+ $ sfPieceEnvCore 0 = sfPieceRepEmpty 0 $;
+
+theorem sfPieceEnvStep_at(p:nat):
+ $ sfPieceEnvStep @ p =
+   sfEx (sfAnd (sfRename sfPieceRepSkip 0 p) (sfPieceRepExtension 0 2 1)) $;
+
+theorem sfPieceEnvCore_suc(n:nat):
+ $ sfPieceEnvCore (suc n) =
+   sfEx (sfAnd (sfRename sfPieceRepSkip 0 (sfPieceEnvCore n)) (sfPieceRepExtension 0 2 1)) $;
+
+theorem sfPieceEnvCore_wf(n:nat): $ sfWf (sfPieceEnvCore n) $;
+
+theorem sfPieceEnv_wf(T:set)(n e:nat): $ sfWf (sfPieceEnv T n e) $;
+
+theorem sfPieceEnv_zero(T:set)(e:nat):
+ $ sfPieceEnv T 0 e = sfPieceRepEmpty e $;
+
+theorem sfPieceEnv_suc(T:set)(n e:nat):
+ $ sfPieceEnv T (suc n) e =
+   sfEx (sfAnd (sfPieceEnv (sfPieceRepLiftRest T) n 0)
+     (sfPieceRepExtension 0 (suc (T @ 0)) (suc e))) $;
+
+theorem sfPieceEnv_eq{j:nat}(T U:set)(n e f:nat)(he:$ e = f $)(h:$ A. j T @ j = U @ j $):
+ $ sfPieceEnv T n e = sfPieceEnv U n f $;
+
+theorem sfPieceEnv_rename(R T:set)(n e:nat):
+ $ sfRename R 0 (sfPieceEnv T n e) =
+   sfPieceEnv (sfComposeMap R T) n (R @ e) $;
+
+theorem sfPieceEnv_subst(T:set)(d t n e:nat):
+ $ sfSubst d t (sfPieceEnv T n e) =
+   sfPieceEnv (sfComposeMap (sfSubstDepthMap d t) T) n (sfSubstIndex d t e) $;
+
+theorem sfPieceEnv_suc_instance(T:set)(n e v:nat):
+ $ sfSubst 0 v (sfAnd (sfPieceEnv (sfPieceRepLiftRest T) n 0)
+      (sfPieceRepExtension 0 (suc (T @ 0)) (suc e))) =
+   sfAnd (sfPieceEnv (sfPieceRepRest T) n v) (sfPieceRepExtension v (T @ 0) e) $;
+
+theorem sfPieceEnv_suc_intro(T:set)(G n e v:nat)
+ (ht:$ nsLocal G (sfPieceEnv (sfPieceRepRest T) n v) $)
+ (he:$ nsLocal G (sfPieceRepExtension v (T @ 0) e) $):
+ $ nsLocal G (sfPieceEnv T (suc n) e) $;
+
+theorem sfPieceEnvCore_bound(n:nat): $ sfBound (suc n) (sfPieceEnvCore n) $;
+
+theorem sfPieceRepRest_cons_at(T:set)(v i:nat):
+ $ sfPieceRepRest (sqEnvCons v T) @ i = T @ i $;
+
+theorem sfPieceEnv_cons_intro(T:set)(G n v prev e:nat)
+ (ht:$ nsLocal G (sfPieceEnv T n prev) $)
+ (he:$ nsLocal G (sfPieceRepExtension prev v e) $):
+ $ nsLocal G (sfPieceEnv (sqEnvCons v T) (suc n) e) $;
+
+theorem sfPieceEnv_suc_eliminate(T:set)(G n e out:nat)
+ (ho:$ sfWf out $)(hn:$ nsLocal G (sfPieceEnv T (suc n) e) $)
+ (hc:$ nsLocal (sfAnd (sfPieceEnv (sfPieceRepLiftRest T) n 0)
+   (sfPieceRepExtension 0 (suc (T @ 0)) (suc e)) : sfContextShift G) (sfShift 0 out) $):
+ $ nsLocal G out $;

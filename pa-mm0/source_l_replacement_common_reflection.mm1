@@ -1,0 +1,60 @@
+import "source_l_replacement_common_coverage.mm1";
+import "source_reflection_transfer_merge_core.mm1";
+
+
+theorem lrcReflect_map_zero(a y:nat): $ sfCLPairMap a y @ 0 = sfORBinaryMap a y @ 0 $ = (named '(eqtr (eqtr sfCLPairMap_value (ifpos eqid)) (eqcom (eqtr sfORBinaryMap_value (ifneg (ltnei d0lt1))))));
+
+theorem lrcReflect_map_one(a y:nat): $ sfCLPairMap a y @ 1 = sfORBinaryMap a y @ 1 $ = (named '(eqtr (eqtr sfCLPairMap_value (ifneg peano1)) (eqcom (eqtr sfORBinaryMap_value (ifpos eqid)))));
+
+theorem lrcReflect_map_zero_if(a y i:nat): $ i = 0 -> sfCLPairMap a y @ i = sfORBinaryMap a y @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i lrcReflect_map_zero) (eqcomd (appeq2d id)))));
+
+theorem lrcReflect_map_one_if(a y i:nat): $ i = 1 -> sfCLPairMap a y @ i = sfORBinaryMap a y @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i lrcReflect_map_one) (eqcomd (appeq2d id)))));
+
+theorem lrcReflect_map_agree(a y:nat): $ sfRenameMapAgree (sfCLPairMap a y) (sfORBinaryMap a y) 2 $ = (named '(ax_gen (syl (eor lrcReflect_map_zero_if lrcReflect_map_one_if) (bi1 bool01))));
+
+pub theorem sfLReplacementHierarchy_binary(a y:nat): $ sfCLHierarchyAt a y = sfORBinary sfCLHierarchy a y $ = (named '(ax_mp (ax_mp sfRename_bounded_agreement lrcReflect_map_agree) (mpbir (sfSchema_bound_index_eq add01) sfCLHierarchy_bound)));
+
+
+pub theorem sfLReplacementOrdinal_reflection(d:nat):
+ $ sfCLOrdinalAt d = sfReflectionOrdinalAt d $ = 'sfCLOrdinalAt_subst;
+
+pub theorem sfLReplacementHierarchy_above_subset(G a b X Y:nat)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (ha:$ nsLocal G (sfCLOrdinalAt a) $)(hb:$ nsLocal G (sfCLOrdinalAt b) $)
+ (hab:$ nsLocal G (sfMem a b) $)
+ (hX:$ nsLocal G (sfCLHierarchyAt a X) $)(hY:$ nsLocal G (sfCLHierarchyAt b Y) $):
+ $ nsLocal G (sfCLSubset X Y) $ =
+ '(sfReflectionHierarchySubset_use sfCLHierarchy_bound hS
+  (sfRQ_rewrite sfLReplacementOrdinal_reflection hb)
+  (sfRQ_rewrite sfLReplacementOrdinal_reflection ha)
+  (sfReflectionOrdinal_member_subset (sfRQ_rewrite sfLReplacementOrdinal_reflection hb) hab)
+  (sfRQ_rewrite sfLReplacementHierarchy_binary hY)
+  (sfRQ_rewrite sfLReplacementHierarchy_binary hX));
+
+pub theorem sfLReplacementReflectedPoint_from_above(G start params count psi a b X Y:nat)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hp:$ nsLocal G (sfCLPoint start params a X) $)
+ (hb:$ nsLocal G (sfCLOrdinalAt b) $)(hab:$ nsLocal G (sfMem a b) $)
+ (hY:$ nsLocal G (sfCLHierarchyAt b Y) $)
+ (hr:$ nsLocal G (sfCLReflection sfLDomain count psi b) $):
+ $ nsLocal G (sfCLReflectedPoint start params count psi b Y) $ =
+ '(ax_mp (sfCLReflectedPoint_from_inclusion hp
+   (sfLReplacementHierarchy_above_subset hS
+    (ax_mp nsLocal_CE1 (ax_mp sfCLPoint_pair hp)) hb hab
+    (ax_mp nsLocal_CE2 (ax_mp sfCLPoint_pair hp)) hY) hb hY) hr);
+
+pub theorem sfLReplacementReflectedCoverage_from_above(T:set)(G D start params count psi a b X Y:nat)
+ (hd:$ sfBound 1 D $)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hp:$ nsLocal G (sfCLPoint start params a X) $)
+ (hb:$ nsLocal G (sfCLOrdinalAt b) $)(hab:$ nsLocal G (sfMem a b) $)
+ (hY:$ nsLocal G (sfCLHierarchyAt b Y) $)
+ (hr:$ nsLocal G (sfCLReflection sfLDomain count psi b) $)
+ (hc:$ nsLocal G (sfLReplacementImageCoverage T D psi X) $):
+ $ nsLocal G (sfAnd (sfCLReflectedPoint start params count psi b Y)
+     (sfLReplacementImageCoverage T D psi Y)) $ =
+ '(ax_mp (ax_mp sfLocal_and (sfLReplacementReflectedPoint_from_above hS hp hb hab hY hr))
+  (sfLReplacementImageCoverage_mono hd hc
+   (sfLReplacementHierarchy_above_subset hS
+    (ax_mp nsLocal_CE1 (ax_mp sfCLPoint_pair hp)) hb hab
+    (ax_mp nsLocal_CE2 (ax_mp sfCLPoint_pair hp)) hY)));

@@ -1,0 +1,114 @@
+import "source_piece_pcf_collection_syntax.mm1";
+import "source_piece_pcf_dn_environment.mm1";
+import "source_reflection_least_cond_ord_syntax.mm1";
+import "source_theory_renaming.mm1";
+
+@_ def sfPieceCollectedDrop: set = $ sqEnvCons 0 sfIdentityMap $;
+@_ def sfPieceCollectedMap: set =
+ $ sfComposeMap (sfRenameDepthMap sfPieceCollectedDrop 2)
+   (sfComposeMap (sfLCBinaryMap 1 0 3) sfPieceQMap) $;
+
+theorem pcdo_drop_zero: $ sfPieceCollectedDrop @ 0 = 0 $ = 'sqEnvCons_zero;
+theorem pcdo_drop_suc(i:nat): $ sfPieceCollectedDrop @ suc i = i $ =
+'(eqtr sqEnvCons_suc sfIdentityMap_value);
+theorem pcdo_depth_zero: $ sfRenameDepthMap sfPieceCollectedDrop 2 @ 0 = 0 $ =
+'(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound d0lt2));
+theorem pcdo_depth_one: $ sfRenameDepthMap sfPieceCollectedDrop 2 @ 1 = 1 $ =
+'(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound d1lt2));
+theorem pcdo_depth_tail(i:nat):
+ $ sfRenameDepthMap sfPieceCollectedDrop 2 @ suc (suc i) =
+   suc (suc (sfPieceCollectedDrop @ i)) $ =
+'(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift
+ (suceq (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)))));
+theorem pcdo_sss_ne1(i:nat): $ suc (suc (suc i)) != 1 $ =
+'(mt (bi1 peano2) peano1);
+theorem pcdo_sss_ne2(i:nat): $ suc (suc (suc i)) != 2 $ =
+'(mt (syl (bi1 peano2) (bi1 peano2)) peano1);
+theorem pcdo_q_zero: $ sfPieceQMap @ 0 = 0 $ =
+'(eqtr sfPieceQMap_value (eqtr (ax_mp ifneg (ax_mp necom d1ne0)) (ax_mp ifneg (ax_mp necom d2ne0))));
+theorem pcdo_q_one: $ sfPieceQMap @ 1 = 2 $ =
+'(eqtr sfPieceQMap_value (ax_mp ifpos eqid));
+theorem pcdo_q_two: $ sfPieceQMap @ 2 = 1 $ =
+'(eqtr sfPieceQMap_value (eqtr (ax_mp ifneg (ax_mp necom (ltnei d1lt2))) (ax_mp ifpos eqid)));
+theorem pcdo_q_tail(i:nat):
+ $ sfPieceQMap @ suc (suc (suc i)) = suc (suc (suc i)) $ =
+'(eqtr sfPieceQMap_value (eqtr (ax_mp ifneg pcdo_sss_ne1)
+ (ax_mp ifneg pcdo_sss_ne2)));
+theorem pcdo_add3(i:nat): $ suc i + 3 = suc (suc (suc (suc i))) $ =
+'(eqtr addS (suceq (eqtr addS (suceq add12))));
+theorem pcdo_map_value(i:nat):
+ $ sfPieceCollectedMap @ i = sfRenameDepthMap sfPieceCollectedDrop 2 @
+  (sfLCBinaryMap 1 0 3 @ (sfPieceQMap @ i)) $ =
+'(eqtr sfComposeMap_value (appeq2 sfComposeMap_value));
+theorem pcdo_map_zero: $ sfPieceCollectedMap @ 0 = sfPieceRotate @ 0 $ =
+'(eqtr pcdo_map_value (eqtr (appeq2 (eqtr (appeq2 pcdo_q_zero) sfLCB_zero))
+ (eqtr pcdo_depth_one (eqcom sfPieceRotate_zero))));
+theorem pcdo_map_one: $ sfPieceCollectedMap @ 1 = sfPieceRotate @ 1 $ =
+'(eqtr pcdo_map_value (eqtr (appeq2 (eqtr (appeq2 pcdo_q_one) (eqtr sfLCB_tail add01)))
+ (eqtr pcdo_depth_tail (eqtr (suceq (suceq pcdo_drop_suc))
+  (eqcom sfPieceRotate_one)))));
+theorem pcdo_map_two: $ sfPieceCollectedMap @ 2 = sfPieceRotate @ 2 $ =
+'(eqtr pcdo_map_value (eqtr (appeq2 (eqtr (appeq2 pcdo_q_two) sfLCB_one))
+ (eqtr pcdo_depth_zero (eqcom sfPieceRotate_two))));
+theorem pcdo_map_tail(i:nat):
+ $ sfPieceCollectedMap @ suc (suc (suc i)) = sfPieceRotate @ suc (suc (suc i)) $ =
+'(eqtr pcdo_map_value (eqtr (appeq2 (eqtr (appeq2 pcdo_q_tail)
+ (eqtr sfLCB_tail pcdo_add3)))
+ (eqtr pcdo_depth_tail (eqtr (suceq (suceq pcdo_drop_suc))
+ (eqcom sfPieceRotate_tail)))));
+theorem pcdo_from_two(i:nat):
+ $ sfPieceCollectedMap @ suc (suc i) = sfPieceRotate @ suc (suc i) $ =
+(named @ induct '(ind) 'i 'pcdo_map_two '(a1i pcdo_map_tail));
+theorem pcdo_from_one(i:nat):
+ $ sfPieceCollectedMap @ suc i = sfPieceRotate @ suc i $ =
+(named @ induct '(ind) 'i 'pcdo_map_one '(a1i pcdo_from_two));
+pub theorem sfPieceCollectedMap_at(i:nat):
+ $ sfPieceCollectedMap @ i = sfPieceRotate @ i $ =
+(named @ induct '(ind) 'i 'pcdo_map_zero '(a1i pcdo_from_one));
+
+theorem pcdo_body(body:nat)(hf:$ sfWf body $):
+ $ sfRename sfPieceCollectedDrop 2 (sfLCBinary (sfRename sfPieceQMap 0 body) 1 0 3) =
+   sfRename sfPieceRotate 0 body $ =
+(named '(eqtr (trud (sfRename_congr_formula (a1i (ax_mp sfRename_compose hf))))
+ (eqtr (ax_mp sfRename_mixed_compose hf)
+ (ax_mp (sfRename_extensional (ax_gen sfPieceCollectedMap_at)) hf))));
+
+theorem pcdo_index_two: $ sfRenameIndex sfPieceCollectedDrop 2 2 = 2 $ =
+'(eqtr (eqcom sfRenameDepthMap_value)
+ (eqtr pcdo_depth_tail (suceq (suceq pcdo_drop_zero))));
+theorem pcdo_guard:
+ $ sfRename sfPieceCollectedDrop 2 (sfMem 0 2) = sfMem 0 2 $ =
+'(eqtr sfRename_sfMem (trud (sfMemeqd
+ (a1i (ax_mp sfRenameIndex_bound d0lt2)) (a1i pcdo_index_two))));
+
+pub theorem sfPieceCollection_output_code(body:nat)(hf:$ sfWf body $):
+ $ sfRename sfPieceCollectedDrop 0 (sfOrdinalCollectionOutput (sfRename sfPieceQMap 0 body)) =
+   sfEx (sfAnd sfLeastOrdinalPredicate
+    (sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 body)))) $ =
+'(eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd
+ (nsAnd_eq (ax_mp sfRename_bound_identity sfLeastOrdinalPredicate_bound)
+  (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp
+   (nsImp_eq pcdo_guard (pcdo_body hf)))))))));
+
+theorem pcdo_dn_suc_wf(count body:nat):
+ $ sfWf (sfPieceDn (suc count) body) $ =
+'(mpbir (sfSchema_wf_eq sfPieceDn_suc)
+ (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfRename_wf)));
+pub theorem sfPieceDn_wf(count body:nat)(hf:$ sfWf body $):
+ $ sfWf (sfPieceDn count body) $ =
+(named @ induct '(ind) 'count
+ '(mpbir (sfSchema_wf_eq sfPieceDn_zero) hf) '(a1i pcdo_dn_suc_wf));
+
+pub theorem sfPieceDn_collected_output(count body:nat)(hf:$ sfWf body $):
+ $ sfRename sfPieceCollectedDrop 0
+    (sfOrdinalCollectionOutput (sfRename sfPieceQMap 0 (sfPieceDn count body))) =
+   sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceDn (suc count) body)) $ =
+'(eqtr (sfPieceCollection_output_code (sfPieceDn_wf hf))
+ (nsEx_eq (nsAnd_eq eqid (eqcom sfPieceDn_suc))));
+
+pub theorem sfPieceDn_collection_output(T:set)(count body:nat)
+ (ht:$ sfTheoryClosed T $)(hf:$ sfWf body $):
+ $ sfTheoryProvable T (sfOrdinalCollectionOutput (sfRename sfPieceQMap 0 (sfPieceDn count body))) ->
+   sfTheoryProvable T (sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceDn (suc count) body))) $ =
+'(syl (bi1 (trud (sfTheoryProvable_congr (a1i (sfPieceDn_collected_output hf)))))
+ (ax_mp sfTheoryProvable_rename ht));

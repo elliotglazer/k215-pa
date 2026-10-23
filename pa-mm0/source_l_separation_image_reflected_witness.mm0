@@ -1,0 +1,32 @@
+import "source_l_separation_image_transitive_api.mm0";
+import "source_l_separation_image_transitive_kernel.mm0";
+import "source_l_separation_image_reflected_collection.mm0";
+import "source_l_separation_image_witness.mm0";
+import "source_renaming_extensional.mm0";
+
+theorem sfLSeparationImage_witness_from_reflected(G start n phi beta Y:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (ht:$ nsLocal G sfLSeparationStageTransNormal $)
+ (hp:$ nsLocal G (sfCLReflectedPoint start (suc n) (suc n) phi beta Y) $)
+ (he:$ nsLocal G (sfLSeparationImageCandidate (sfLSeparationImageParameterMap start) sfLDomain phi Y start) $):
+ $ nsLocal G (sfLSeparationImageWitness (sfLSeparationImageParameterMap start) sfLDomain phi start) $;
+
+theorem sfLSeparationImageStartWitness_shift(start D phi:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf phi $):
+ $ sfShift 0 (sfLSeparationImageWitness (sfLSeparationImageParameterMap start) D phi start) =
+   sfLSeparationImageWitness (sfLSeparationImageParameterMap (suc start)) D phi (suc start) $;
+
+theorem sfLSeparationImageStartWitness_zero(D phi:nat)(hf:$ sfWf phi $):
+ $ sfLSeparationImageWitness (sfLSeparationImageParameterMap 0) D phi 0 =
+   sfLSeparationImageWitness sfSuccessorMap D phi 0 $;
+
+def sfLSeparationReflectedContext(G n phi:nat):nat =
+ $ sfCLWitnessContext G (sfCLReflectedPoint 2 (suc n) (suc n) phi 1 0) $;
+
+theorem sfLSeparationImage_witness_from_recipe(G n phi:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (ht:$ nsLocal G sfLSeparationStageTransNormal $)
+ (hc:$ nsLocal G (sfCLReflectedRecipe 0 (suc n) (suc n) phi) $)
+ (he:$ nsLocal (sfLSeparationReflectedContext G n phi)
+    (sfLSeparationImageCandidate (sfLSeparationImageParameterMap 2) sfLDomain phi 0 2) $):
+ $ nsLocal G (sfLSeparationImageWitness sfSuccessorMap sfLDomain phi 0) $;

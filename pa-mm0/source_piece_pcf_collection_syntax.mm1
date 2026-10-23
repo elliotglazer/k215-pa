@@ -1,0 +1,58 @@
+import "source_piece_pcf_bounds.mm1";
+
+@_ def sfPieceQMap (.i: nat): set =
+ $ \ i, if (i = 1) 2 (if (i = 2) 1 i) $;
+
+@_ def sfPieceQ (domain level count phi: nat): nat =
+ $ sfRename sfPieceQMap 0 (sfPieceDn count (sfPieceD0 domain level phi)) $;
+
+pub theorem sfPieceQMap_value (i: nat):
+ $ sfPieceQMap @ i = if (i = 1) 2 (if (i = 2) 1 i) $ =
+(named '(applame ,eqtac));
+
+pub theorem sfPieceQ_wf (domain level count phi: nat):
+ $ sfWf (sfPieceQ domain level count phi) $ = 'sfRename_wf;
+
+theorem pcqc_if_lt (H p: wff) (a b m: nat)
+ (ha: $ H -> a < m $) (hb: $ H -> b < m $):
+ $ H -> if p a b < m $ =
+'(ifbothd lteq1 lteq1 (syl ha anl) (syl hb anl));
+
+theorem pcqc_map_bound (n i: nat):
+ $ i < suc (suc (suc n)) -> sfPieceQMap @ i < suc (suc (suc n)) $ =
+'(mpbird (lteq1d (a1i sfPieceQMap_value))
+ (pcqc_if_lt (a1i (mpbi ltsuc (mpbi ltsuc lt01S)))
+  (pcqc_if_lt (a1i (mpbi ltsuc lt01S)) id)));
+
+theorem pcqc_rename_bound (n body: nat):
+ $ sfBound (suc (suc (suc n))) body ->
+   sfBound (suc (suc (suc n))) (sfRename sfPieceQMap 0 body) $ =
+(named '(syl (bi1 (sfSchema_bound_index_eq add01))
+ (syl (ax_mp sfRename_bound (ax_gen pcqc_map_bound))
+  (bi2 (sfSchema_bound_index_eq add01)))));
+
+theorem pcqc_input_index (count n: nat):
+ $ count + suc (suc (suc n)) = suc (suc (suc count + n)) $ =
+'(eqtr addS (eqtr (suceq addS) (suceq (suceq (eqcom addSass)))));
+
+theorem pcqc_body_bound (H: wff) (domain level count n phi: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hb: $ H -> sfBound (suc (suc count) + n) phi $):
+ $ H -> sfBound (suc (suc (suc n)))
+   (sfPieceDn count (sfPieceD0 domain level phi)) $ =
+'(syl sfPieceDn_bound
+ (mpbird (a1i (sfSchema_bound_index_eq pcqc_input_index))
+  (mpd (mpbid (a1i (sfSchema_bound_index_eq addS1)) hb)
+   (mpd hl (syl sfPieceD0_bound hd)))));
+
+theorem pcqc_bound_cond (H: wff) (domain level count n phi: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hb: $ H -> sfBound (suc (suc count) + n) phi $):
+ $ H -> sfBound (suc (suc (suc n))) (sfPieceQ domain level count phi) $ =
+'(syl pcqc_rename_bound (pcqc_body_bound hd hl hb));
+
+pub theorem sfPieceQ_bound (domain level count n phi: nat):
+ $ sfBound 1 domain -> sfBound 2 level ->
+   sfBound (suc (suc count) + n) phi ->
+   sfBound (suc (suc (suc n))) (sfPieceQ domain level count phi) $ =
+(named '(exp @ exp @ pcqc_bound_cond anll anlr anr));

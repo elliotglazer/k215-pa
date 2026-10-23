@@ -1,0 +1,31 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_rebase.mm0";
+import "k218q_bootstrap.mm0";
+import "quotation_rebase_hygiene.mm0";
+import "k218q_equivalence.mm0";
+import "k218q_alpha.mm0";
+import "quotation_substitution.mm0";
+import "quotation_substitution_conditional.mm0";
+
+def k218SQ_ntBaseClass (E: set) (.c .S .n .k .l: nat): set =
+ $ {c | A. S A. n A. k A. l (sfBound n c ->
+ sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ k218IEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c))} $;
+
+theorem k218SQ_sfNamedTemplate_mem_rebase (E: set) (k l a b: nat):
+ $ k218IEquivalent (sfNamedTemplate E k 0 (sfMem a b)) (sfNamedTemplate E l 0 (sfMem a b)) $;
+
+theorem k218SQ_sfNamedTemplate_eq_rebase (E: set) (k l a b: nat):
+ $ k218IEquivalent (sfNamedTemplate E k 0 (sfEq a b)) (sfNamedTemplate E l 0 (sfEq a b)) $;
+
+theorem k218SQ_sfNamedTemplate_rebase_stack (E: set) (S n k l c: nat):
+ $ sfBound n c -> sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ k218IEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c) $;
+
+theorem k218SQ_sfNamedTemplate_fresh_base_equivalent (E: set) (n k l c: nat):
+ $ sfBound n c -> sqRebaseHygiene E n k c 0 -> sqRebaseHygiene E n l c 0 ->
+ k218IEquivalent (sfNamedTemplate E k 0 c) (sfNamedTemplate E l 0 c) $;

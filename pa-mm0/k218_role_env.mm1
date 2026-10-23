@@ -1,0 +1,170 @@
+import "k218_source_core.mm1";
+import "extracted_named_rename.mm1";
+
+
+theorem k218RoleTail_elim (A B: set) (i: nat):
+ $ A. j (A @ suc (suc j) = B @ suc (suc j)) ->
+   A @ suc (suc i) = B @ suc (suc i) $ =
+(named '(!! eale j ,eqtac));
+
+theorem k218RoleTail_at (A B: set) (i: nat)
+ (ht: $ A. j (A @ suc (suc j) = B @ suc (suc j)) $):
+ $ A @ suc (suc i) = B @ suc (suc i) $ =
+'(ax_mp k218RoleTail_elim ht);
+
+theorem k218RoleSucc_at (A B: set) (i: nat)
+ (h1: $ A @ 1 = B @ 1 $)
+ (ht: $ A. j (A @ suc (suc j) = B @ suc (suc j)) $):
+ $ A @ suc i = B @ suc i $ =
+(named @ induct '(ind) 'i 'h1 '(a1i (k218RoleTail_at ht)));
+
+theorem k218RoleCases_at (A B: set) (i: nat)
+ (h0: $ A @ 0 = B @ 0 $) (h1: $ A @ 1 = B @ 1 $)
+ (ht: $ A. j (A @ suc (suc j) = B @ suc (suc j)) $):
+ $ A @ i = B @ i $ =
+(named @ induct '(ind) 'i 'h0 '(a1i (k218RoleSucc_at h1 ht)));
+
+theorem k218RoleRequest_zero: $ sfK218RequestMap @ 0 = 0 $ =
+'(eqtr sfK218RequestMap_value (ifpos eqid));
+
+theorem k218RoleRequest_one: $ sfK218RequestMap @ 1 = 2 $ =
+'(eqtr sfK218RequestMap_value (ifneg peano1));
+
+theorem k218RoleRequest_tail (i: nat): $ sfK218RequestMap @ (suc (suc i)) = (suc (suc (suc i))) $ =
+'(eqtr sfK218RequestMap_value (ifneg peano1));
+
+theorem k218RoleRequest_at_zero (E: set) (x c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons c (sqEnvCons a E))) sfK218RequestMap @ 0 = (sqEnvCons x (sqEnvCons a E)) @ 0 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleRequest_zero) (eqtr sqEnvCons_zero (eqcom sqEnvCons_zero))));
+
+theorem k218RoleRequest_at_one (E: set) (x c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons c (sqEnvCons a E))) sfK218RequestMap @ 1 = (sqEnvCons x (sqEnvCons a E)) @ 1 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleRequest_one) (eqtr (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)) (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem k218RoleRequest_at_tail (E: set) (x c a i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons c (sqEnvCons a E))) sfK218RequestMap @ (suc (suc i)) = (sqEnvCons x (sqEnvCons a E)) @ (suc (suc i)) $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleRequest_tail) (eqtr (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_suc)) (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc)))));
+
+pub theorem k218RoleRequest_at (E: set) (x c a i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons c (sqEnvCons a E))) sfK218RequestMap @ i = (sqEnvCons x (sqEnvCons a E)) @ i $ =
+(named '(k218RoleCases_at k218RoleRequest_at_zero k218RoleRequest_at_one
+  (ax_gen {k218RoleRequest_at_tail : $ sfComposeMap (sqEnvCons x (sqEnvCons c (sqEnvCons a E))) sfK218RequestMap @ suc (suc j) = (sqEnvCons x (sqEnvCons a E)) @ suc (suc j) $})));
+
+pub theorem k218RoleRequest_environment (E: set) (x c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons c (sqEnvCons a E))) sfK218RequestMap == (sqEnvCons x (sqEnvCons a E)) $ =
+(named '(lameq @ ax_gen @ eqtr (eqcom sfComposeMap_value) @ eqtr k218RoleRequest_at sqEnvCons_value));
+
+pub theorem k218RoleRequest_matrix (E: set) (x c a k f: nat) (hf: $ sfWf f $):
+ $ sfNamedTemplate (sqEnvCons x (sqEnvCons c (sqEnvCons a E))) k 0 (sfRename sfK218RequestMap 0 f) = sfNamedTemplate (sqEnvCons x (sqEnvCons a E)) k 0 f $ =
+'(eqtr (ax_mp exNamedTemplate_rename hf) (sfNamedTemplateeq1 k218RoleRequest_environment));
+
+theorem k218RoleSupport_zero: $ sfK218SupportMap @ 0 = 1 $ =
+'(eqtr sfK218SupportMap_value (ifpos eqid));
+
+theorem k218RoleSupport_one: $ sfK218SupportMap @ 1 = 0 $ =
+'(eqtr sfK218SupportMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+
+theorem k218RoleSupport_tail (i: nat): $ sfK218SupportMap @ (suc (suc i)) = (suc (suc (suc (suc i)))) $ =
+'(eqtr sfK218SupportMap_value (eqtr (ifneg peano1) (eqtr (ifneg (ltneri (mpbi ltsuc lt01S))) (eqtr addS (suceq (eqtr addS (suceq add0)))))));
+
+theorem k218RoleSupport_at_zero (E: set) (v u c a: nat): $ sfComposeMap (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))) sfK218SupportMap @ 0 = (sqEnvCons u (sqEnvCons v E)) @ 0 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleSupport_zero) (eqtr (eqtr sqEnvCons_suc sqEnvCons_zero) (eqcom sqEnvCons_zero))));
+
+theorem k218RoleSupport_at_one (E: set) (v u c a: nat): $ sfComposeMap (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))) sfK218SupportMap @ 1 = (sqEnvCons u (sqEnvCons v E)) @ 1 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleSupport_one) (eqtr sqEnvCons_zero (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem k218RoleSupport_at_tail (E: set) (v u c a i: nat): $ sfComposeMap (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))) sfK218SupportMap @ (suc (suc i)) = (sqEnvCons u (sqEnvCons v E)) @ (suc (suc i)) $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleSupport_tail) (eqtr (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_suc))) (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc)))));
+
+pub theorem k218RoleSupport_at (E: set) (v u c a i: nat): $ sfComposeMap (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))) sfK218SupportMap @ i = (sqEnvCons u (sqEnvCons v E)) @ i $ =
+(named '(k218RoleCases_at k218RoleSupport_at_zero k218RoleSupport_at_one
+  (ax_gen {k218RoleSupport_at_tail : $ sfComposeMap (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))) sfK218SupportMap @ suc (suc j) = (sqEnvCons u (sqEnvCons v E)) @ suc (suc j) $})));
+
+pub theorem k218RoleSupport_environment (E: set) (v u c a: nat): $ sfComposeMap (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))) sfK218SupportMap == (sqEnvCons u (sqEnvCons v E)) $ =
+(named '(lameq @ ax_gen @ eqtr (eqcom sfComposeMap_value) @ eqtr k218RoleSupport_at sqEnvCons_value));
+
+pub theorem k218RoleSupport_matrix (E: set) (v u c a k f: nat) (hf: $ sfWf f $):
+ $ sfNamedTemplate (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))) k 0 (sfRename sfK218SupportMap 0 f) = sfNamedTemplate (sqEnvCons u (sqEnvCons v E)) k 0 f $ =
+'(eqtr (ax_mp exNamedTemplate_rename hf) (sfNamedTemplateeq1 k218RoleSupport_environment));
+
+theorem k218RoleClosureInput_zero: $ sfK218ClosureInputMap @ 0 = 0 $ =
+'(eqtr sfK218ClosureInputMap_value (ifpos d0lt2));
+
+theorem k218RoleClosureInput_one: $ sfK218ClosureInputMap @ 1 = 1 $ =
+'(eqtr sfK218ClosureInputMap_value (ifpos d1lt2));
+
+theorem k218RoleClosureInput_tail (i: nat): $ sfK218ClosureInputMap @ (suc (suc i)) = (suc (suc (suc (suc (suc (suc i)))))) $ =
+'(eqtr sfK218ClosureInputMap_value (eqtr (ifneg (mpbi lenlt (mpbi lesuc (mpbi lesuc le01)))) (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))))))));
+
+theorem k218RoleClosureInput_at_zero (E: set) (x p v u c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))))) sfK218ClosureInputMap @ 0 = (sqEnvCons x (sqEnvCons p E)) @ 0 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleClosureInput_zero) (eqtr sqEnvCons_zero (eqcom sqEnvCons_zero))));
+
+theorem k218RoleClosureInput_at_one (E: set) (x p v u c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))))) sfK218ClosureInputMap @ 1 = (sqEnvCons x (sqEnvCons p E)) @ 1 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleClosureInput_one) (eqtr (eqtr sqEnvCons_suc sqEnvCons_zero) (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem k218RoleClosureInput_at_tail (E: set) (x p v u c a i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))))) sfK218ClosureInputMap @ (suc (suc i)) = (sqEnvCons x (sqEnvCons p E)) @ (suc (suc i)) $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleClosureInput_tail) (eqtr (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_suc))))) (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc)))));
+
+pub theorem k218RoleClosureInput_at (E: set) (x p v u c a i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))))) sfK218ClosureInputMap @ i = (sqEnvCons x (sqEnvCons p E)) @ i $ =
+(named '(k218RoleCases_at k218RoleClosureInput_at_zero k218RoleClosureInput_at_one
+  (ax_gen {k218RoleClosureInput_at_tail : $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))))) sfK218ClosureInputMap @ suc (suc j) = (sqEnvCons x (sqEnvCons p E)) @ suc (suc j) $})));
+
+pub theorem k218RoleClosureInput_environment (E: set) (x p v u c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))))) sfK218ClosureInputMap == (sqEnvCons x (sqEnvCons p E)) $ =
+(named '(lameq @ ax_gen @ eqtr (eqcom sfComposeMap_value) @ eqtr k218RoleClosureInput_at sqEnvCons_value));
+
+pub theorem k218RoleClosureInput_matrix (E: set) (x p v u c a k f: nat) (hf: $ sfWf f $):
+ $ sfNamedTemplate (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E)))))) k 0 (sfRename sfK218ClosureInputMap 0 f) = sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) k 0 f $ =
+'(eqtr (ax_mp exNamedTemplate_rename hf) (sfNamedTemplateeq1 k218RoleClosureInput_environment));
+
+theorem k218RoleClosureOutput_zero: $ sfK218ClosureOutputMap @ 0 = 0 $ =
+'(eqtr sfK218ClosureOutputMap_value (ifpos eqid));
+
+theorem k218RoleClosureOutput_one: $ sfK218ClosureOutputMap @ 1 = 2 $ =
+'(eqtr sfK218ClosureOutputMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+
+theorem k218RoleClosureOutput_tail (i: nat): $ sfK218ClosureOutputMap @ (suc (suc i)) = (suc (suc (suc (suc (suc (suc (suc i))))))) $ =
+'(eqtr sfK218ClosureOutputMap_value (eqtr (ifneg peano1) (eqtr (ifneg (ltneri (mpbi ltsuc lt01S))) (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0)))))))))))));
+
+theorem k218RoleClosureOutput_at_zero (E: set) (y x p v u c a: nat): $ sfComposeMap (sqEnvCons y (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E))))))) sfK218ClosureOutputMap @ 0 = (sqEnvCons y (sqEnvCons p E)) @ 0 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleClosureOutput_zero) (eqtr sqEnvCons_zero (eqcom sqEnvCons_zero))));
+
+theorem k218RoleClosureOutput_at_one (E: set) (y x p v u c a: nat): $ sfComposeMap (sqEnvCons y (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E))))))) sfK218ClosureOutputMap @ 1 = (sqEnvCons y (sqEnvCons p E)) @ 1 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleClosureOutput_one) (eqtr (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)) (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem k218RoleClosureOutput_at_tail (E: set) (y x p v u c a i: nat): $ sfComposeMap (sqEnvCons y (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E))))))) sfK218ClosureOutputMap @ (suc (suc i)) = (sqEnvCons y (sqEnvCons p E)) @ (suc (suc i)) $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleClosureOutput_tail) (eqtr (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_suc)))))) (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc)))));
+
+pub theorem k218RoleClosureOutput_at (E: set) (y x p v u c a i: nat): $ sfComposeMap (sqEnvCons y (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E))))))) sfK218ClosureOutputMap @ i = (sqEnvCons y (sqEnvCons p E)) @ i $ =
+(named '(k218RoleCases_at k218RoleClosureOutput_at_zero k218RoleClosureOutput_at_one
+  (ax_gen {k218RoleClosureOutput_at_tail : $ sfComposeMap (sqEnvCons y (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E))))))) sfK218ClosureOutputMap @ suc (suc j) = (sqEnvCons y (sqEnvCons p E)) @ suc (suc j) $})));
+
+pub theorem k218RoleClosureOutput_environment (E: set) (y x p v u c a: nat): $ sfComposeMap (sqEnvCons y (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E))))))) sfK218ClosureOutputMap == (sqEnvCons y (sqEnvCons p E)) $ =
+(named '(lameq @ ax_gen @ eqtr (eqcom sfComposeMap_value) @ eqtr k218RoleClosureOutput_at sqEnvCons_value));
+
+pub theorem k218RoleClosureOutput_matrix (E: set) (y x p v u c a k f: nat) (hf: $ sfWf f $):
+ $ sfNamedTemplate (sqEnvCons y (sqEnvCons x (sqEnvCons p (sqEnvCons v (sqEnvCons u (sqEnvCons c (sqEnvCons a E))))))) k 0 (sfRename sfK218ClosureOutputMap 0 f) = sfNamedTemplate (sqEnvCons y (sqEnvCons p E)) k 0 f $ =
+'(eqtr (ax_mp exNamedTemplate_rename hf) (sfNamedTemplateeq1 k218RoleClosureOutput_environment));
+
+theorem k218RoleKpRequest_zero: $ sfK218KpRequestMap @ 0 = 0 $ =
+'(eqtr sfK218KpRequestMap_value (ifpos d0lt2));
+
+theorem k218RoleKpRequest_one: $ sfK218KpRequestMap @ 1 = 1 $ =
+'(eqtr sfK218KpRequestMap_value (ifpos d1lt2));
+
+theorem k218RoleKpRequest_tail (i: nat): $ sfK218KpRequestMap @ (suc (suc i)) = (suc (suc (suc (suc i)))) $ =
+'(eqtr sfK218KpRequestMap_value (eqtr (ifneg (mpbi lenlt (mpbi lesuc (mpbi lesuc le01)))) (eqtr addS (suceq (eqtr addS (suceq add0))))));
+
+theorem k218RoleKpRequest_at_zero (E: set) (x p c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons c (sqEnvCons a E)))) sfK218KpRequestMap @ 0 = (sqEnvCons x (sqEnvCons p E)) @ 0 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleKpRequest_zero) (eqtr sqEnvCons_zero (eqcom sqEnvCons_zero))));
+
+theorem k218RoleKpRequest_at_one (E: set) (x p c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons c (sqEnvCons a E)))) sfK218KpRequestMap @ 1 = (sqEnvCons x (sqEnvCons p E)) @ 1 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleKpRequest_one) (eqtr (eqtr sqEnvCons_suc sqEnvCons_zero) (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem k218RoleKpRequest_at_tail (E: set) (x p c a i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons c (sqEnvCons a E)))) sfK218KpRequestMap @ (suc (suc i)) = (sqEnvCons x (sqEnvCons p E)) @ (suc (suc i)) $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k218RoleKpRequest_tail) (eqtr (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_suc))) (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc)))));
+
+pub theorem k218RoleKpRequest_at (E: set) (x p c a i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons c (sqEnvCons a E)))) sfK218KpRequestMap @ i = (sqEnvCons x (sqEnvCons p E)) @ i $ =
+(named '(k218RoleCases_at k218RoleKpRequest_at_zero k218RoleKpRequest_at_one
+  (ax_gen {k218RoleKpRequest_at_tail : $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons c (sqEnvCons a E)))) sfK218KpRequestMap @ suc (suc j) = (sqEnvCons x (sqEnvCons p E)) @ suc (suc j) $})));
+
+pub theorem k218RoleKpRequest_environment (E: set) (x p c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons p (sqEnvCons c (sqEnvCons a E)))) sfK218KpRequestMap == (sqEnvCons x (sqEnvCons p E)) $ =
+(named '(lameq @ ax_gen @ eqtr (eqcom sfComposeMap_value) @ eqtr k218RoleKpRequest_at sqEnvCons_value));
+
+pub theorem k218RoleKpRequest_matrix (E: set) (x p c a k f: nat) (hf: $ sfWf f $):
+ $ sfNamedTemplate (sqEnvCons x (sqEnvCons p (sqEnvCons c (sqEnvCons a E)))) k 0 (sfRename sfK218KpRequestMap 0 f) = sfNamedTemplate (sqEnvCons x (sqEnvCons p E)) k 0 f $ =
+'(eqtr (ax_mp exNamedTemplate_rename hf) (sfNamedTemplateeq1 k218RoleKpRequest_environment));

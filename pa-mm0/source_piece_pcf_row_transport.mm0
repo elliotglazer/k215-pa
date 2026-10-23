@@ -1,0 +1,25 @@
+import "source_piece_pcf_d0_normalize.mm0";
+
+import "source_piece_pcf_table_join.mm0";
+
+import "source_piece_pcf_dn_mono_induction.mm0";
+
+def sfPieceCanonicalRow(count phi:nat):nat =
+ $ sfPiecePC sfLDomain sfPieceCanonicalLevel count phi 0 1 $;
+
+def sfPieceCanonicalRowWitnesses(count phi:nat):wff =
+ $ sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPieceCanonicalRow count phi)) /\
+   sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfPieceCanonicalRow count phi)) $;
+
+theorem sfPieceCanonicalRow_Dn(count phi:nat)(hf:$ sfWf phi $):
+ $ sfPieceCanonicalRow count phi = sfPieceDn count (sfPieceD0Canonical phi) $;
+
+theorem sfPieceRowWitness_from_Dn(count phi:nat)(hf:$ sfWf phi $)
+ (hm:$ sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPieceDn count (sfPieceD0Canonical phi))) $)
+ (he:$ sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfPieceDn count (sfPieceD0Canonical phi))) $):
+ $ sfPieceCanonicalRowWitnesses count phi $;
+
+theorem sfPieceRowWitness_guarded(count phi:nat)
+ (hm:$ sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPieceDn count (sfPieceD0Canonical (sfRename sfIdentityMap 0 phi)))) $)
+ (he:$ sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfPieceDn count (sfPieceD0Canonical (sfRename sfIdentityMap 0 phi)))) $):
+ $ sfWf phi -> sfPieceCanonicalRowWitnesses count phi $;

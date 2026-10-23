@@ -1,0 +1,219 @@
+import "source_l_replacement_next_def.mm1";
+
+@_ def sfLDefinabilityBody(m psi:nat):nat =
+ $ sfImp (sfLSeparationDef0 1 0) (sfImp (sfCLMembership 2 1 m)
+   (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0)))) $;
+
+@_ def sfLDefinabilityLaw(m psi:nat):nat =
+ $ sfAllPrefix (suc m) (sfAll (sfLDefinabilityBody m psi)) $;
+
+-- Renaming a definable profile.
+theorem lru_iff_rename(R:set)(k a b:nat):
+ $ sfRename R k (sfIff a b) = sfIff (sfRename R k a) (sfRename R k b) $ =
+ '(eqtr sfRename_sfAnd (nsAnd_eq sfRename_sfImp sfRename_sfImp));
+
+theorem lru_suck(k:nat): $ suc k = 1 + k $ = '(eqcom (eqtr addS1 (suceq add01)));
+
+theorem lru_matrix(R T:set)(k phi:nat)(hf:$ sfWf phi $):
+ $ sfRename R (suc k) (sfRename T 1 phi) = sfRename (sfComposeMap (sfRenameDepthMap R k) T) 1 phi $ =
+ '(eqtr (sfRenameeq2 lru_suck) (eqtr (ax_mp sfRename_depth sfRename_wf) (ax_mp sfRename_compose hf)));
+
+pub theorem sfLRepProfile_rename(R T:set)(k phi Y X:nat)(hf:$ sfWf phi $):
+ $ sfRename R k (sfPieceDefinableProfile T phi Y X) =
+   sfPieceDefinableProfile (sfComposeMap (sfRenameDepthMap R k) T) phi
+     (sfRenameIndex R k Y) (sfRenameIndex R k X) $ =
+ '(eqtr sfRename_sfAll (nsAll_eq (eqtr lru_iff_rename (sfIffeq
+   (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) sfRenameIndex_lift))
+   (eqtr sfRename_sfAnd (nsAnd_eq
+    (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) sfRenameIndex_lift))
+    (eqtr (ax_mp sfCLSetRel_rename sfRename_wf) (sfCLSetReleq sfRenameIndex_lift (lru_matrix hf)))))))));
+
+theorem lru_profile_wf(T:set)(psi Y X:nat):
+ $ sfWf (sfPieceDefinableProfile T psi Y X) $ =
+ '(ax_mp sfWf_all (mpbir sfWf_iff (ian sfWf_mem (ax_mp (ax_mp sfWf_and sfWf_mem) sfCLSetRel_wf))));
+
+-- The renaming map: A (index 0) stays at 0, parameter i (index i+1) goes to i+2.
+theorem lru_add2(i:nat): $ i + 2 = suc (suc i) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq add02))));
+
+theorem lru_n1(n:nat): $ n + 1 = suc n $ = '(eqtr addS (suceq add02));
+
+theorem lru_index_one: $ sfRenameIndex (sqEnvCons 0 (sfLReplacementStartMap 2)) 1 1 = 1 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sqEnvCons_zero)));
+
+theorem lru_index_tail(n:nat):
+ $ sfRenameIndex (sqEnvCons 0 (sfLReplacementStartMap 2)) 1 (n + 2) = n + 3 $ =
+ '(eqtr (trud (sfRenameIndex_congr_index (a1i addS)))
+   (eqtr sfRenameIndex_lift
+    (eqtr (suceq (eqtr sfRenameIndex_zero (eqtr (appeq2 lru_n1)
+      (eqtr sqEnvCons_suc sfLReplacementStartMap_at))))
+     (eqcom addS))));
+
+theorem lru_member_atom(n:nat):
+ $ sfRename (sqEnvCons 0 (sfLReplacementStartMap 2)) 1 (sfMem (n + 2) 1) = sfMem (n + 3) 1 $ =
+ '(eqtr sfRename_sfMem (nsMem_eq lru_index_tail lru_index_one));
+
+theorem lru_members_zero:
+ $ sfRename (sqEnvCons 0 (sfLReplacementStartMap 2)) 1 (sfCLMembership 2 1 0) =
+   sfCLMembership 3 1 0 $ =
+ '(eqtr (sfRenameeq3 sfCLMembership_zero)
+   (eqtr sfRename_sfImp (eqtr (nsImp_eq sfRename_bot sfRename_bot) (eqcom sfCLMembership_zero))));
+
+theorem lru_members_step(n:nat):
+ $ sfRename (sqEnvCons 0 (sfLReplacementStartMap 2)) 1 (sfCLMembership 2 1 n) =
+   sfCLMembership 3 1 n ->
+   sfRename (sqEnvCons 0 (sfLReplacementStartMap 2)) 1 (sfCLMembership 2 1 (suc n)) =
+   sfCLMembership 3 1 (suc n) $ =
+ '(eqtrd (a1i (sfRenameeq3 sfCLMembership_suc))
+   (eqtrd (a1i sfRename_sfAnd)
+    (eqtrd (sfAndeqd id (a1i lru_member_atom)) (a1i (eqcom sfCLMembership_suc)))));
+
+theorem lru_members(n:nat):
+ $ sfRename (sqEnvCons 0 (sfLReplacementStartMap 2)) 1 (sfCLMembership 2 1 n) =
+   sfCLMembership 3 1 n $ =
+ (named @ induct '(ind) 'n 'lru_members_zero 'lru_members_step);
+
+-- Both the renamed uniform profile and the level profile are the profile with map i -> i+4.
+theorem lru_mapL_at(i:nat):
+ $ sfComposeMap (sfRenameDepthMap (sqEnvCons 0 (sfLReplacementStartMap 2)) (suc (suc 0)))
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) @ i =
+   sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) @ i $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i (eqtr sfComposeMap_value
+      (eqtr sfSuccessorMap_value (suceq (eqtr sfLReplacementStartMap_at lru_add2)))))))
+    (eqtr sfRenameIndex_lift
+     (eqtr (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero
+        (eqtr sqEnvCons_suc sfLReplacementStartMap_at)))))
+      (eqcom (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+       (suceq (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+        (suceq sfLReplacementStartMap_at))))))))))));
+
+theorem lru_mapR_at(i:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0))
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) @ i =
+   sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) @ i $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i (eqtr sfComposeMap_value sfSuccessorMap_value))))
+    (eqtr sfRenameIndex_lift
+     (eqtr (suceq (eqtr sfRenameIndex_zero (eqtr sfSuccessorMap_value (suceq sfLReplacementStartMap_at))))
+      (eqcom (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+       (suceq (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+        (suceq sfLReplacementStartMap_at))))))))))));
+
+theorem lru_RI_22:
+ $ sfRenameIndex (sqEnvCons 0 (sfLReplacementStartMap 2)) (suc (suc 0)) (suc (suc 0)) = suc (suc 0) $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sqEnvCons_zero)))));
+
+theorem lru_RS_11: $ sfRenameIndex sfSuccessorMap (suc 0) (suc 0) = suc (suc 0) $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)));
+
+theorem lru_left(psi:nat)(hf:$ sfWf psi $):
+ $ sfRename (sqEnvCons 0 (sfLReplacementStartMap 2)) (suc (suc 0))
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0) =
+   sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap
+     (sfLReplacementStartMap 2))) psi (suc (suc 0)) 0 $ =
+ (named '(eqtr (sfLRepProfile_rename hf)
+   (nsAll_eq (sfIffeq (nsMem_eq eqid (suceq (ax_mp sfRenameIndex_bound lt01S)))
+    (nsAnd_eq (nsMem_eq eqid (suceq lru_RI_22))
+     (sfCLSetReleq (suceq lru_RI_22)
+      (ax_mp (sfRename_extensional (!! ax_gen i @ ! lru_mapL_at i)) hf)))))));
+
+theorem lru_right(psi:nat)(hf:$ sfWf psi $):
+ $ sfLLevelDefinableProfile psi =
+   sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap
+     (sfLReplacementStartMap 2))) psi (suc (suc 0)) 0 $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor lru_profile_wf))
+   (eqtr (sfLRepProfile_rename hf)
+    (nsAll_eq (sfIffeq (nsMem_eq eqid (suceq (ax_mp sfRenameIndex_bound lt01S)))
+     (nsAnd_eq (nsMem_eq eqid (suceq lru_RS_11))
+      (sfCLSetReleq (suceq lru_RS_11)
+       (ax_mp (sfRename_extensional (!! ax_gen i @ ! lru_mapR_at i)) hf))))))));
+
+-- The uniform body, opened at A and the parameters and renamed to the level layout.
+theorem lru_B_rename(m psi:nat)(hf:$ sfWf psi $):
+ $ sfRename (sqEnvCons 0 (sfLReplacementStartMap 2)) 0 (sfAll (sfLDefinabilityBody m psi)) =
+   sfAll (sfImp (sfLSeparationDef0 1 0) (sfImp (sfCLMembership 3 1 m)
+     (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi))))) $ =
+ '(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq
+   (eqtr sfLRepDef0_rename (sfLSeparationDef0_eq lru_index_one (ax_mp sfRenameIndex_bound lt01S)))
+   (eqtr sfRename_sfImp (nsImp_eq lru_members
+    (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq
+     (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S)
+      (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S))))
+     (eqtr (lru_left hf) (eqcom (lru_right hf)))))))))))));
+
+theorem lru_B2_wf(m psi:nat):
+ $ sfWf (sfImp (sfLSeparationDef0 1 0) (sfImp (sfCLMembership 3 1 m)
+     (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi))))) $ =
+ '(ax_mp (ax_mp sfWf_imp sfLSeparationDef0_wf) (ax_mp (ax_mp sfWf_imp sfCLMembership_wf)
+   (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfShift_wf))));
+
+theorem lru_antecedent_wf(m:nat): $ sfWf (sfLReplacementDefinableAntecedent m) $ =
+ '(ax_mp (ax_mp sfWf_and sfCLOrdinalAt_wf)
+   (ax_mp (ax_mp sfWf_and sfCLHierarchyAt_wf) sfCLMembership_wf));
+
+theorem lru_open_zfr(m psi:nat)(hf:$ sfWf psi $)
+ (hU:$ sfTheoryProvable zfrAxioms (sfLDefinabilityLaw m psi) $):
+ $ sfTheoryProvable zfrAxioms (sfAll (sfImp (sfLSeparationDef0 1 0) (sfImp (sfCLMembership 3 1 m)
+     (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi)))))) $ =
+ '(mpbi (sfTheoryProvableeq2 (lru_B_rename hf))
+   (ax_mp (ax_mp sfTheoryProvable_rename zfrAxioms_closed)
+    (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) hU)));
+
+-- Contexts: G1 = antecedent : [opened uniform law]; G3 = Def0 Y D : shift G1.
+theorem lru_g1_wf(m psi:nat):
+ $ sfContextWf (sfLReplacementDefinableAntecedent m :
+   (sfAll (sfImp (sfLSeparationDef0 1 0) (sfImp (sfCLMembership 3 1 m)
+     (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi))))) : 0)) $ =
+ '(mpbir sfContextWf_cons (ian lru_antecedent_wf
+   (mpbir sfContextWf_cons (ian (ax_mp sfWf_all lru_B2_wf) sfContextWf_nil))));
+
+theorem lru_g3_wf(G:nat)(hg:$ sfContextWf G $):
+ $ sfContextWf (sfLSeparationDef0 1 0 : sfContextShift G) $ =
+ '(mpbir sfContextWf_cons (ian sfLSeparationDef0_wf (ax_mp sfContextShift_preserves_wf hg)));
+
+theorem lru_at_d(G m psi:nat)(hg:$ sfContextWf G $)
+ (hB:$ nsLocal G (sfAll (sfImp (sfLSeparationDef0 1 0) (sfImp (sfCLMembership 3 1 m)
+     (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi)))))) $)
+ (hM:$ nsLocal G (sfCLMembership 2 0 m) $):
+ $ nsLocal (sfLSeparationDef0 1 0 : sfContextShift G)
+   (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi))) $ =
+ '(ax_mp (ax_mp nsLocal_mp
+    (ax_mp (ax_mp nsLocal_mp
+      (sfRQ_rewrite (ax_mp sfSubst_shift_up_identity lru_B2_wf)
+       (ax_mp nsLocal_AllE
+        (sfRQ_rewrite sfShift_sfAll
+         (ax_mp (ax_mp (ax_mp nsLocal_weaken (lru_g3_wf hg)) sfContextSub_cons)
+          (ax_mp sfSepLocal_shift hB))))))
+     (ax_mp (ax_mp nsLocal_hyp (lru_g3_wf hg)) sfContext_member_head)))
+   (ax_mp (ax_mp (ax_mp nsLocal_weaken (lru_g3_wf hg)) sfContextSub_cons)
+    (sfRQ_rewrite sfCLMembership_shift (ax_mp sfSepLocal_shift hM))));
+
+theorem lru_local(m psi:nat):
+ $ nsLocal (sfAll (sfImp (sfLSeparationDef0 1 0) (sfImp (sfCLMembership 3 1 m)
+     (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi))))) : 0)
+   (sfLLevelDefinableBody m psi) $ =
+ '(ax_mp nsLocal_II
+   (ax_mp (sfLocal_allI lru_g1_wf)
+    (ax_mp nsLocal_II
+     (lru_at_d lru_g1_wf
+      (ax_mp (ax_mp nsLocal_hyp lru_g1_wf) (ax_mp sfContext_member_tail sfContext_member_head))
+      (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2
+       (ax_mp (ax_mp nsLocal_hyp lru_g1_wf) sfContext_member_head)))))));
+
+pub theorem sfLLevelDefinableLaw_from_definability(m psi:nat)(hf:$ sfWf psi $)
+ (hU:$ sfTheoryProvable zfrAxioms (sfLDefinabilityLaw m psi) $):
+ $ sfTheoryProvable zfrAxioms (sfLLevelDefinableLaw m psi) $ =
+ '(ax_mp (ax_mp sfTheoryProvable_prefix_intro zfrAxioms_closed)
+   (ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed)
+     (mpbir sfTheoryContext_cons (ian
+      (mpbir sfTheoryProofClass_value (lru_open_zfr hf hU))
+      sfTheoryContext_nil)))
+    lru_local));
+
+pub theorem sfLReplacementDefinableLaw_from_definability(m psi:nat)(hf:$ sfWf psi $)
+ (hU:$ sfTheoryProvable zfrAxioms (sfLDefinabilityLaw m psi) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLNextLevelLaw $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m psi) $ =
+ '(sfLReplacementDefinableLaw_from_level_next (sfLLevelDefinableLaw_from_definability hf hU) hL);

@@ -1,0 +1,78 @@
+import "zfc_schemas.mm1";
+
+@_ def sfSepIndex (i: nat): nat = $ if (i = 0) 0 (i + 2) $;
+@_ def sfRepAIndex (i: nat): nat = $ if (i = 0) 2 (if (i = 1) 1 (i + 1)) $;
+@_ def sfRepBIndex (i: nat): nat = $ if (i = 0) 2 (if (i = 1) 0 (i + 1)) $;
+@_ def sfRepCIndex (i: nat): nat = $ if (i = 0) 0 (if (i = 1) 1 (i + 2)) $;
+@_ abstract def sfSepMap (.i: nat): set = $ \ i, sfSepIndex i $;
+@_ abstract def sfRepAMap (.i: nat): set = $ \ i, sfRepAIndex i $;
+@_ abstract def sfRepBMap (.i: nat): set = $ \ i, sfRepBIndex i $;
+@_ abstract def sfRepCMap (.i: nat): set = $ \ i, sfRepCIndex i $;
+
+pub theorem sfSepMap_value (i: nat): $ sfSepMap @ i = sfSepIndex i $ =
+(named '(!! applame j ,eqtac));
+pub theorem sfRepAMap_value (i: nat): $ sfRepAMap @ i = sfRepAIndex i $ =
+(named '(!! applame j ,eqtac));
+pub theorem sfRepBMap_value (i: nat): $ sfRepBMap @ i = sfRepBIndex i $ =
+(named '(!! applame j ,eqtac));
+pub theorem sfRepCMap_value (i: nat): $ sfRepCMap @ i = sfRepCIndex i $ =
+(named '(!! applame j ,eqtac));
+
+pub theorem sfSepMap_zero: $ sfSepMap @ 0 = 0 $ =
+'(eqtr sfSepMap_value (ifpos eqid));
+pub theorem sfSepMap_suc (i: nat): $ sfSepMap @ suc i = i + 3 $ =
+'(eqtr sfSepMap_value (eqtr (ifneg peano1) addSass));
+pub theorem sfRepAMap_zero: $ sfRepAMap @ 0 = 2 $ =
+'(eqtr sfRepAMap_value (ifpos eqid));
+pub theorem sfRepAMap_one: $ sfRepAMap @ 1 = 1 $ =
+'(eqtr sfRepAMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+pub theorem sfRepAMap_tail (i: nat): $ sfRepAMap @ suc (suc i) = i + 3 $ =
+'(eqtr sfRepAMap_value (eqtr (ifneg peano1)
+  (eqtr (ifneg (mt (bi1 peano2) peano1)) (eqtr addSass addSass))));
+pub theorem sfRepBMap_zero: $ sfRepBMap @ 0 = 2 $ =
+'(eqtr sfRepBMap_value (ifpos eqid));
+pub theorem sfRepBMap_one: $ sfRepBMap @ 1 = 0 $ =
+'(eqtr sfRepBMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+pub theorem sfRepBMap_tail (i: nat): $ sfRepBMap @ suc (suc i) = i + 3 $ =
+'(eqtr sfRepBMap_value (eqtr (ifneg peano1)
+  (eqtr (ifneg (mt (bi1 peano2) peano1)) (eqtr addSass addSass))));
+pub theorem sfRepCMap_zero: $ sfRepCMap @ 0 = 0 $ =
+'(eqtr sfRepCMap_value (ifpos eqid));
+pub theorem sfRepCMap_one: $ sfRepCMap @ 1 = 1 $ =
+'(eqtr sfRepCMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+pub theorem sfRepCMap_tail (i: nat): $ sfRepCMap @ suc (suc i) = i + 4 $ =
+'(eqtr sfRepCMap_value (eqtr (ifneg peano1)
+  (eqtr (ifneg (mt (bi1 peano2) peano1)) (eqtr addSass addSass))));
+
+theorem sfSchema_if_lt (G p: wff) (a b c: nat)
+  (h1: $ G -> a < c $) (h2: $ G -> b < c $):
+  $ G -> if p a b < c $ =
+'(ifbothd lteq1 lteq1 (syl h1 anl) (syl h2 anl));
+theorem sfSchema_plus2 (i: nat): $ i + 2 = suc (suc i) $ =
+'(eqtr addS (suceq (eqtr addS (suceq add0))));
+theorem sfSchema_shift1_bound (i n: nat):
+  $ i < n -> i + 1 < suc n $ =
+'(sylibr (lteq1 add12) (bi1 ltsuc));
+theorem sfSchema_shift2_bound (i n: nat):
+  $ i < n -> i + 2 < suc (suc n) $ =
+'(sylibr (lteq1 sfSchema_plus2) (syl (bi1 ltsuc) (bi1 ltsuc)));
+
+pub theorem sfSepMap_bound (n i: nat):
+  $ i < suc n -> sfSepMap @ i < suc (suc (suc n)) $ =
+'(sylibr (lteq1 sfSepMap_value) @
+  sfSchema_if_lt (a1i lt01S) sfSchema_shift2_bound);
+pub theorem sfRepAMap_bound (n i: nat):
+  $ i < suc (suc n) -> sfRepAMap @ i < suc (suc (suc n)) $ =
+'(sylibr (lteq1 sfRepAMap_value) @
+  sfSchema_if_lt (a1i (mpbi ltsuc (mpbi ltsuc lt01S))) @
+  sfSchema_if_lt (a1i (mpbi ltsuc lt01S)) sfSchema_shift1_bound);
+pub theorem sfRepBMap_bound (n i: nat):
+  $ i < suc (suc n) -> sfRepBMap @ i < suc (suc (suc n)) $ =
+'(sylibr (lteq1 sfRepBMap_value) @
+  sfSchema_if_lt (a1i (mpbi ltsuc (mpbi ltsuc lt01S))) @
+  sfSchema_if_lt (a1i lt01S) sfSchema_shift1_bound);
+pub theorem sfRepCMap_bound (n i: nat):
+  $ i < suc (suc n) -> sfRepCMap @ i < suc (suc (suc (suc n))) $ =
+'(sylibr (lteq1 sfRepCMap_value) @
+  sfSchema_if_lt (a1i lt01S) @
+  sfSchema_if_lt (a1i (mpbi ltsuc lt01S)) sfSchema_shift2_bound);

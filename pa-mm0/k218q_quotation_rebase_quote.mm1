@@ -1,0 +1,313 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_rebase_quote.mm1";
+import "k218q_bootstrap.mm1";
+import "k218q_quotation_rebase.mm1";
+import "quotation_quote_hygiene.mm1";
+import "k218q_quotation_quantifiers.mm1";
+
+@_ abstract def k218SQ_qqBaseClass (E: set) (.c .S .n .t .k .l: nat): set =
+ $ {c | A. S A. n A. t A. k A. l (sfBound n c ->
+ sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqQuoteHygiene (sqStackEnv S E) n t l c ->
+ k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+             (sqQuote (sqStackEnv S E) t l 0 c))} $;
+
+theorem k218SQ_qqB_value {S n t k l: nat} (E: set) (c: nat):
+ $ c e. k218SQ_qqBaseClass E <-> A. S A. n A. t A. k A. l (sfBound n c ->
+ sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqQuoteHygiene (sqStackEnv S E) n t l c ->
+ k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+             (sqQuote (sqStackEnv S E) t l 0 c)) $ =
+(named '(elabe ,eqtac));
+
+theorem k218SQ_qqB_all_at (E: set) (c S n t k l: nat):
+ $ (A. R A. p A. z A. q A. r (sfBound p c ->
+ sqQuoteHygiene (sqStackEnv R E) p z q c ->
+ sqQuoteHygiene (sqStackEnv R E) p z r c ->
+ k218IEquivalent (sqQuote (sqStackEnv R E) z q 0 c)
+             (sqQuote (sqStackEnv R E) z r 0 c))) ->
+ sfBound n c -> sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqQuoteHygiene (sqStackEnv S E) n t l c ->
+ k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+             (sqQuote (sqStackEnv S E) t l 0 c) $ =
+(named '(!! ealie R @ !! ealde p @ !! ealde z @ !! ealde q @ !! ealde r @ bi1d ,eqtac));
+
+theorem k218SQ_qqB_at (E: set) (c S n t k l: nat):
+ $ c e. k218SQ_qqBaseClass E -> sfBound n c ->
+ sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqQuoteHygiene (sqStackEnv S E) n t l c ->
+ k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+             (sqQuote (sqStackEnv S E) t l 0 c) $ =
+(named '(syl k218SQ_qqB_all_at (bi1 k218SQ_qqB_value)));
+
+theorem k218SQ_qqB_use (G: wff) (E: set) (c S n t k l: nat)
+ (hc: $ G -> c e. k218SQ_qqBaseClass E $) (hb: $ G -> sfBound n c $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k c $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l c $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+                       (sqQuote (sqStackEnv S E) t l 0 c) $ =
+'(mpd hl (mpd hk (mpd hb (syl k218SQ_qqB_at hc))));
+
+theorem k218SQ_qqB_transport (G: wff) (a b c d: nat)
+ (ha: $ G -> a = c $) (hb: $ G -> b = d $) (he: $ G -> k218IEquivalent c d $):
+ $ G -> k218IEquivalent a b $ = '(mpbird (k218IEquivalenteqd ha hb) he);
+
+theorem k218SQ_qqB_bot (E: set): $ sfBot e. k218SQ_qqBaseClass E $ =
+(named '(mpbir k218SQ_qqB_value @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ a1i @ a1i @
+ k218SQ_qqB_transport (a1i sqQuote_bot) (a1i sqQuote_bot) (a1i k218IEquivalent_refl)));
+
+theorem k218SQ_qqB_and_core (G: wff) (E: set) (a b S n t k l: nat)
+ (ha: $ G -> a e. k218SQ_qqBaseClass E $) (hb: $ G -> b e. k218SQ_qqBaseClass E $)
+ (hs: $ G -> sfBound n (sfAnd a b) $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k (sfAnd a b) $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l (sfAnd a b) $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 (sfAnd a b))
+                       (sqQuote (sqStackEnv S E) t l 0 (sfAnd a b)) $ =
+'(k218SQ_qqB_transport (a1i sqQuote_sfAnd) (a1i sqQuote_sfAnd) @
+ syl k218IEquivalent_and @ iand
+ (k218SQ_qqB_use ha (syl anl (syl (bi1 sfBound_sfAnd) hs))
+  (syl (sqQuoteHygiene_subformula (ltlei sfAnd_left_lt)) hk)
+  (syl (sqQuoteHygiene_subformula (ltlei sfAnd_left_lt)) hl))
+ (k218SQ_qqB_use hb (syl anr (syl (bi1 sfBound_sfAnd) hs))
+  (syl (sqQuoteHygiene_subformula (ltlei sfAnd_right_lt)) hk)
+  (syl (sqQuoteHygiene_subformula (ltlei sfAnd_right_lt)) hl)));
+
+theorem k218SQ_qqB_and (E: set) (a b: nat):
+ $ a e. k218SQ_qqBaseClass E /\ b e. k218SQ_qqBaseClass E -> sfAnd a b e. k218SQ_qqBaseClass E $ =
+(named '(mpbird (a1i k218SQ_qqB_value) @ !! iald S @ !! iald n @ !! iald t @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ k218SQ_qqB_and_core (syl anl (syl anl (syl anl anl))) (syl anr (syl anl (syl anl anl)))
+ (syl anr (syl anl anl)) (syl anr anl) anr));
+
+theorem k218SQ_qqB_or_core (G: wff) (E: set) (a b S n t k l: nat)
+ (ha: $ G -> a e. k218SQ_qqBaseClass E $) (hb: $ G -> b e. k218SQ_qqBaseClass E $)
+ (hs: $ G -> sfBound n (sfOr a b) $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k (sfOr a b) $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l (sfOr a b) $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 (sfOr a b))
+                       (sqQuote (sqStackEnv S E) t l 0 (sfOr a b)) $ =
+'(k218SQ_qqB_transport (a1i sqQuote_sfOr) (a1i sqQuote_sfOr) @
+ syl k218IEquivalent_or @ iand
+ (k218SQ_qqB_use ha (syl anl (syl (bi1 sfBound_sfOr) hs))
+  (syl (sqQuoteHygiene_subformula (ltlei sfOr_left_lt)) hk)
+  (syl (sqQuoteHygiene_subformula (ltlei sfOr_left_lt)) hl))
+ (k218SQ_qqB_use hb (syl anr (syl (bi1 sfBound_sfOr) hs))
+  (syl (sqQuoteHygiene_subformula (ltlei sfOr_right_lt)) hk)
+  (syl (sqQuoteHygiene_subformula (ltlei sfOr_right_lt)) hl)));
+
+theorem k218SQ_qqB_or (E: set) (a b: nat):
+ $ a e. k218SQ_qqBaseClass E /\ b e. k218SQ_qqBaseClass E -> sfOr a b e. k218SQ_qqBaseClass E $ =
+(named '(mpbird (a1i k218SQ_qqB_value) @ !! iald S @ !! iald n @ !! iald t @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ k218SQ_qqB_or_core (syl anl (syl anl (syl anl anl))) (syl anr (syl anl (syl anl anl)))
+ (syl anr (syl anl anl)) (syl anr anl) anr));
+
+theorem k218SQ_qqB_imp_core (G: wff) (E: set) (a b S n t k l: nat)
+ (ha: $ G -> a e. k218SQ_qqBaseClass E $) (hb: $ G -> b e. k218SQ_qqBaseClass E $)
+ (hs: $ G -> sfBound n (sfImp a b) $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k (sfImp a b) $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l (sfImp a b) $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 (sfImp a b))
+                       (sqQuote (sqStackEnv S E) t l 0 (sfImp a b)) $ =
+'(k218SQ_qqB_transport (a1i sqQuote_sfImp) (a1i sqQuote_sfImp) @
+ syl k218IEquivalent_imp @ iand
+ (k218SQ_qqB_use ha (syl anl (syl (bi1 sfBound_sfImp) hs))
+  (syl (sqQuoteHygiene_subformula (ltlei sfImp_left_lt)) hk)
+  (syl (sqQuoteHygiene_subformula (ltlei sfImp_left_lt)) hl))
+ (k218SQ_qqB_use hb (syl anr (syl (bi1 sfBound_sfImp) hs))
+  (syl (sqQuoteHygiene_subformula (ltlei sfImp_right_lt)) hk)
+  (syl (sqQuoteHygiene_subformula (ltlei sfImp_right_lt)) hl)));
+
+theorem k218SQ_qqB_imp (E: set) (a b: nat):
+ $ a e. k218SQ_qqBaseClass E /\ b e. k218SQ_qqBaseClass E -> sfImp a b e. k218SQ_qqBaseClass E $ =
+(named '(mpbird (a1i k218SQ_qqB_value) @ !! iald S @ !! iald n @ !! iald t @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ k218SQ_qqB_imp_core (syl anl (syl anl (syl anl anl))) (syl anr (syl anl (syl anl anl)))
+ (syl anr (syl anl anl)) (syl anr anl) anr));
+
+theorem k218SQ_qqB_binary (E: set): $ sfBinaryClosed (k218SQ_qqBaseClass E) $ =
+(named '(ax_gen @ ax_gen @ iand (iand k218SQ_qqB_and k218SQ_qqB_or) k218SQ_qqB_imp));
+
+theorem k218SQ_qqB_child_equiv (G: wff) (E: set) (S n t k l y c p: nat)
+ (hay: $ c < p $)
+ (hc: $ G -> c e. k218SQ_qqBaseClass E $) (hb: $ G -> sfBound (suc n) c $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k p $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l p $)
+ (hky: $ G -> sqAllocAvoid (suc k) (suc (c + sqAllocationMargin)) y $)
+ (hly: $ G -> sqAllocAvoid (suc l) (suc (c + sqAllocationMargin)) y $):
+ $ G -> k218IEquivalent
+ (sqQuote (sqEnvCons y (sqStackEnv S E)) t (suc k) 0 c)
+ (sqQuote (sqEnvCons y (sqStackEnv S E)) t (suc l) 0 c) $ =
+'(k218SQ_qqB_transport (eqcomd (syl qqB_stack_eval hb)) (eqcomd (syl qqB_stack_eval hb)) @
+ k218SQ_qqB_use hc hb
+ (mpd hky (syl (sqQuoteHygiene_stack_child hay) hk))
+ (mpd hly (syl (sqQuoteHygiene_stack_child hay) hl)));
+
+pub theorem k218SQ_sqQuote_bot_rebase (E: set) (t k l: nat):
+ $ k218IEquivalent (sqQuote E t k 0 sfBot) (sqQuote E t l 0 sfBot) $ =
+'(mpbir (trud (k218IEquivalenteqd (a1i sqQuote_bot) (a1i sqQuote_bot))) k218IEquivalent_refl);
+
+theorem k218SQ_qqB_alpha_all (G: wff) (f g x y: nat)
+ (hxy: $ G -> x != y $) (hb: $ G -> kBinderAbsent f x $)
+ (hf: $ G -> kFresh f y $) (hs: $ G -> kSubst f x y = g $):
+ $ G -> k218IEquivalent (kAll x f) (kAll y g) $ =
+'(k218SQ_qqB_transport eqidd (kAlleq2d (eqcomd hs)) @
+ mpd hf (mpd hb (syl k218IAlpha_all hxy)));
+
+theorem k218SQ_qqB_alpha_exists (G: wff) (f g x y: nat)
+ (hxy: $ G -> x != y $) (hb: $ G -> kBinderAbsent f x $)
+ (hf: $ G -> kFresh f y $) (hs: $ G -> kSubst f x y = g $):
+ $ G -> k218IEquivalent (kExists x f) (kExists y g) $ =
+'(k218SQ_qqB_transport eqidd (kExistseq2d (eqcomd hs)) @
+ mpd hf (mpd hb (syl k218IAlpha_exists hxy)));
+
+theorem k218SQ_qqB_all_bridge (G: wff) (E: set) (S n t k l c: nat)
+ (hc: $ G -> c e. k218SQ_qqBaseClass E $) (hs: $ G -> sfBound n (sfAll c) $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k (sfAll c) $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l (sfAll c) $)
+ (hsk: $ G -> kSubst (qqBaseGuardAll E S t k c) k (qqBaseCommonAll E S t k l c (sfAll c)) =
+ kImp (kMem t (qqBaseCommonAll E S t k l c (sfAll c)))
+ (sqQuote (sqEnvCons (qqBaseCommonAll E S t k l c (sfAll c)) (sqStackEnv S E)) t (suc k) 0 c) $)
+ (hsl: $ G -> kSubst (qqBaseGuardAll E S t l c) l (qqBaseCommonAll E S t k l c (sfAll c)) =
+ kImp (kMem t (qqBaseCommonAll E S t k l c (sfAll c)))
+ (sqQuote (sqEnvCons (qqBaseCommonAll E S t k l c (sfAll c)) (sqStackEnv S E)) t (suc l) 0 c) $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 (sfAll c))
+                       (sqQuote (sqStackEnv S E) t l 0 (sfAll c)) $ =
+'(k218SQ_qqB_transport (syl sqQuote_all_cons (syl sfBound_wf (syl (bi1 sfBound_sfAll) hs)))
+ (syl sqQuote_all_cons (syl sfBound_wf (syl (bi1 sfBound_sfAll) hs))) @
+ syl k218IEquivalent_trans @ iand
+ (k218SQ_qqB_alpha_all (a1i (ltnei (lelttr leaddid1 sqCommonName_range_left)))
+  (syl (sqScopeAll_absent ltsucid) (syl sfBound_wf (syl (bi1 sfBound_sfAll) hs)))
+  (a1i (ax_mp kFresh_above (ltlei sqCommonName_left))) hsk)
+ (syl k218IEquivalent_trans @ iand
+  (syl k218IEquivalent_guarded_all (k218SQ_qqB_child_equiv sfAll_body_lt hc (syl (bi1 sfBound_sfAll) hs) hk hl
+    (a1i (ax_mp (sqAllocAvoid_successor sfAll_body_lt) sqCommonName_avoid_left))
+    (a1i (ax_mp (sqAllocAvoid_successor sfAll_body_lt) sqCommonName_avoid_right))))
+  (syl k218IEquivalent_sym @ k218SQ_qqB_alpha_all (a1i (ltnei (lelttr leaddid1 sqCommonName_range_right)))
+    (syl (sqScopeAll_absent ltsucid) (syl sfBound_wf (syl (bi1 sfBound_sfAll) hs)))
+    (a1i (ax_mp kFresh_above (ltlei sqCommonName_right))) hsl)));
+
+theorem k218SQ_qqB_ex_bridge (G: wff) (E: set) (S n t k l c: nat)
+ (hc: $ G -> c e. k218SQ_qqBaseClass E $) (hs: $ G -> sfBound n (sfEx c) $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k (sfEx c) $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l (sfEx c) $)
+ (hsk: $ G -> kSubst (qqBaseGuardEx E S t k c) k (qqBaseCommonEx E S t k l c (sfEx c)) =
+ kAnd (kMem t (qqBaseCommonEx E S t k l c (sfEx c)))
+ (sqQuote (sqEnvCons (qqBaseCommonEx E S t k l c (sfEx c)) (sqStackEnv S E)) t (suc k) 0 c) $)
+ (hsl: $ G -> kSubst (qqBaseGuardEx E S t l c) l (qqBaseCommonEx E S t k l c (sfEx c)) =
+ kAnd (kMem t (qqBaseCommonEx E S t k l c (sfEx c)))
+ (sqQuote (sqEnvCons (qqBaseCommonEx E S t k l c (sfEx c)) (sqStackEnv S E)) t (suc l) 0 c) $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 (sfEx c))
+                       (sqQuote (sqStackEnv S E) t l 0 (sfEx c)) $ =
+'(k218SQ_qqB_transport (syl sqQuote_ex_cons (syl sfBound_wf (syl (bi1 sfBound_sfEx) hs)))
+ (syl sqQuote_ex_cons (syl sfBound_wf (syl (bi1 sfBound_sfEx) hs))) @
+ syl k218IEquivalent_trans @ iand
+ (k218SQ_qqB_alpha_exists (a1i (ltnei (lelttr leaddid1 sqCommonName_range_left)))
+  (syl (sqScopeEx_absent ltsucid) (syl sfBound_wf (syl (bi1 sfBound_sfEx) hs)))
+  (a1i (ax_mp kFresh_above (ltlei sqCommonName_left))) hsk)
+ (syl k218IEquivalent_trans @ iand
+  (syl k218IEquivalent_guarded_exists (k218SQ_qqB_child_equiv sfEx_body_lt hc (syl (bi1 sfBound_sfEx) hs) hk hl
+    (a1i (ax_mp (sqAllocAvoid_successor sfEx_body_lt) sqCommonName_avoid_left))
+    (a1i (ax_mp (sqAllocAvoid_successor sfEx_body_lt) sqCommonName_avoid_right))))
+  (syl k218IEquivalent_sym @ k218SQ_qqB_alpha_exists (a1i (ltnei (lelttr leaddid1 sqCommonName_range_right)))
+    (syl (sqScopeEx_absent ltsucid) (syl sfBound_wf (syl (bi1 sfBound_sfEx) hs)))
+    (a1i (ax_mp kFresh_above (ltlei sqCommonName_right))) hsl)));
+
+theorem k218SQ_qqB_mem_core (G: wff) (E: set) (S n t k l a b: nat)
+ (hs: $ G -> sfBound n (sfMem a b) $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k (sfMem a b) $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l (sfMem a b) $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 (sfMem a b))
+                       (sqQuote (sqStackEnv S E) t l 0 (sfMem a b)) $ =
+'(k218SQ_qqB_transport
+ (a1i (eqtr sqQuote_sfMem (sqMembereq eqid sfNamedIndex_zero sfNamedIndex_zero add0)))
+ (a1i (eqtr sqQuote_sfMem (sqMembereq eqid sfNamedIndex_zero sfNamedIndex_zero add0))) @
+ mpd (sqQuoteHygiene_atom_template leaddid2 hl
+    (syl anl (syl (bi1 sfBound_sfMem) hs)) (syl anr (syl (bi1 sfBound_sfMem) hs))) @
+ mpd (sqQuoteHygiene_atom_template leaddid2 hk
+    (syl anl (syl (bi1 sfBound_sfMem) hs)) (syl anr (syl (bi1 sfBound_sfMem) hs))) @
+ a1i (ax_mp k218SQ_sfNamedTemplate_fresh_base_equivalent sqMemberSource_bound));
+
+theorem k218SQ_qqB_mem (E: set) (a b: nat): $ sfMem a b e. k218SQ_qqBaseClass E $ =
+(named '(mpbir k218SQ_qqB_value @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ exp @ exp @
+ k218SQ_qqB_mem_core anll anlr anr));
+
+theorem k218SQ_qqB_eq_core (G: wff) (E: set) (S n t k l a b: nat)
+ (hs: $ G -> sfBound n (sfEq a b) $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k (sfEq a b) $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l (sfEq a b) $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 (sfEq a b))
+                       (sqQuote (sqStackEnv S E) t l 0 (sfEq a b)) $ =
+'(k218SQ_qqB_transport
+ (a1i (eqtr sqQuote_sfEq (sqEqualeq eqid sfNamedIndex_zero sfNamedIndex_zero add0)))
+ (a1i (eqtr sqQuote_sfEq (sqEqualeq eqid sfNamedIndex_zero sfNamedIndex_zero add0))) @
+ mpd (sqQuoteHygiene_atom_template leaddid1 hl
+    (syl anl (syl (bi1 sfBound_sfEq) hs)) (syl anr (syl (bi1 sfBound_sfEq) hs))) @
+ mpd (sqQuoteHygiene_atom_template leaddid1 hk
+    (syl anl (syl (bi1 sfBound_sfEq) hs)) (syl anr (syl (bi1 sfBound_sfEq) hs))) @
+ a1i (ax_mp k218SQ_sfNamedTemplate_fresh_base_equivalent sqEqualSource_bound));
+
+theorem k218SQ_qqB_eq (E: set) (a b: nat): $ sfEq a b e. k218SQ_qqBaseClass E $ =
+(named '(mpbir k218SQ_qqB_value @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ exp @ exp @
+ k218SQ_qqB_eq_core anll anlr anr));
+
+theorem k218SQ_qqB_atomic (E: set): $ sfAtomicClosed (k218SQ_qqBaseClass E) $ =
+(named '(ax_gen @ ax_gen @ ian k218SQ_qqB_mem k218SQ_qqB_eq));
+
+theorem k218SQ_qqB_all_core (G: wff) (E: set) (S n t k l c: nat)
+ (hc: $ G -> c e. k218SQ_qqBaseClass E $) (hs: $ G -> sfBound n (sfAll c) $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k (sfAll c) $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l (sfAll c) $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 (sfAll c))
+                       (sqQuote (sqStackEnv S E) t l 0 (sfAll c)) $ =
+'(k218SQ_qqB_all_bridge hc hs hk hl
+ (qqB_subst_all (syl (bi1 sfBound_sfAll) hs)
+  (syl sqQuoteHygiene_nonzero hk) (syl sqQuoteHygiene_tag_neq hk) (syl sqQuoteHygiene_avoid hk))
+ (qqB_subst_all (syl (bi1 sfBound_sfAll) hs)
+  (syl sqQuoteHygiene_nonzero hl) (syl sqQuoteHygiene_tag_neq hl) (syl sqQuoteHygiene_avoid hl)));
+
+theorem k218SQ_qqB_all (E: set) (c: nat):
+ $ c e. k218SQ_qqBaseClass E -> sfAll c e. k218SQ_qqBaseClass E $ =
+(named '(mpbird (a1i k218SQ_qqB_value) @ !! iald S @ !! iald n @ !! iald t @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ k218SQ_qqB_all_core (syl anl (syl anl anl)) (syl anr (syl anl anl)) (syl anr anl) anr));
+
+theorem k218SQ_qqB_ex_core (G: wff) (E: set) (S n t k l c: nat)
+ (hc: $ G -> c e. k218SQ_qqBaseClass E $) (hs: $ G -> sfBound n (sfEx c) $)
+ (hk: $ G -> sqQuoteHygiene (sqStackEnv S E) n t k (sfEx c) $)
+ (hl: $ G -> sqQuoteHygiene (sqStackEnv S E) n t l (sfEx c) $):
+ $ G -> k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 (sfEx c))
+                       (sqQuote (sqStackEnv S E) t l 0 (sfEx c)) $ =
+'(k218SQ_qqB_ex_bridge hc hs hk hl
+ (qqB_subst_ex (syl (bi1 sfBound_sfEx) hs)
+  (syl sqQuoteHygiene_nonzero hk) (syl sqQuoteHygiene_tag_neq hk) (syl sqQuoteHygiene_avoid hk))
+ (qqB_subst_ex (syl (bi1 sfBound_sfEx) hs)
+  (syl sqQuoteHygiene_nonzero hl) (syl sqQuoteHygiene_tag_neq hl) (syl sqQuoteHygiene_avoid hl)));
+
+theorem k218SQ_qqB_ex (E: set) (c: nat):
+ $ c e. k218SQ_qqBaseClass E -> sfEx c e. k218SQ_qqBaseClass E $ =
+(named '(mpbird (a1i k218SQ_qqB_value) @ !! iald S @ !! iald n @ !! iald t @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ k218SQ_qqB_ex_core (syl anl (syl anl anl)) (syl anr (syl anl anl)) (syl anr anl) anr));
+
+theorem k218SQ_qqB_quantifier (E: set): $ sfQuantifierClosed (k218SQ_qqBaseClass E) $ =
+(named '(ax_gen @ iand k218SQ_qqB_all k218SQ_qqB_ex));
+
+theorem k218SQ_qqB_closed (E: set): $ sfConstructionClosed (k218SQ_qqBaseClass E) $ =
+'(ian (ian (ian k218SQ_qqB_bot k218SQ_qqB_atomic) k218SQ_qqB_binary) k218SQ_qqB_quantifier);
+
+pub theorem k218SQ_sqQuote_rebase_stack (E: set) (S n t k l c: nat):
+ $ sfBound n c -> sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqQuoteHygiene (sqStackEnv S E) n t l c ->
+ k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+             (sqQuote (sqStackEnv S E) t l 0 c) $ =
+'(mpd id (syl k218SQ_qqB_at (syl (ax_mp sfWf_induction k218SQ_qqB_closed) sfBound_wf)));
+
+theorem k218SQ_qqB_final (G: wff) (E: set) (n t k l c: nat)
+ (hb: $ G -> sfBound n c $)
+ (hk: $ G -> sqQuoteHygiene E n t k c $)
+ (hl: $ G -> sqQuoteHygiene E n t l c $):
+ $ G -> k218IEquivalent (sqQuote E t k 0 c) (sqQuote E t l 0 c) $ =
+'(k218SQ_qqB_transport (eqcomd (syl qqB_nil_eval hb)) (eqcomd (syl qqB_nil_eval hb)) @
+ mpd (syl (sqQuoteHygiene_agree qqB_nil_agree) hl) @
+ mpd (syl (sqQuoteHygiene_agree qqB_nil_agree) hk) @ syl k218SQ_sqQuote_rebase_stack hb);
+
+pub theorem k218SQ_sqQuote_fresh_base_equivalent (E: set) (n t k l c: nat):
+ $ sfBound n c -> sqQuoteHygiene E n t k c -> sqQuoteHygiene E n t l c ->
+ k218IEquivalent (sqQuote E t k 0 c) (sqQuote E t l 0 c) $ =
+'(exp @ exp @ k218SQ_qqB_final anll anlr anr);

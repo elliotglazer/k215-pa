@@ -1,0 +1,318 @@
+import "source_bounds.mm1";
+
+-- Total source-formula renaming by a set-valued function graph R.
+-- Below binder depth d the index is fixed; free index d + i maps to d + R(i).
+-- No equality with the source general finite-map trace relation is assumed.
+
+
+@_ def sfRenameIndex (R: set) (d i: nat): nat = $ if (i < d) i (d  +  (R @ (i - d))) $;
+@_ def sfRenameBody (R: set) (d c h: nat): nat =
+$ if (c = 0) 0
+  (if (sfTag c = 1) (sfMem (sfRenameIndex R d (sfLeft c)) (sfRenameIndex R d (sfRight c)))
+  (if (sfTag c = 2) (sfEq (sfRenameIndex R d (sfLeft c)) (sfRenameIndex R d (sfRight c)))
+  (if (sfTag c = 3) (sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (sfAll (h @ (suc d, sfLeft c)))
+  (if (sfTag c = 7 /\ sfRight c = 0) (sfEx (h @ (suc d, sfLeft c))) 0))))))) $;
+@_ abstract def sfRenameStep (R: set) (.h: nat): set =
+$ \ h, sfRenameBody R (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+@_ abstract def sfRename (R: set) (d c: nat): nat = $ srec (sfRenameStep R) (d, c) $;
+@_ abstract def sfRenameHistory (R: set) (d c .i: nat): nat =
+$ \. i e. upto (d, c), srec (sfRenameStep R) i $;
+
+pub theorem sfRenameStep_apply (R: set) (h: nat):
+  $ sfRenameStep R @ h = sfRenameBody R (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $ =
+(named '(!! applame j ,eqtac));
+pub theorem sfRenameHistory_size (R: set) (d c: nat): $ sfHistoryLength (sfRenameHistory R d c) = (d, c) $ =
+(named '(sreclem eqid));
+pub theorem sfRenameHistory_lookup (R: set) (d c e a: nat):
+  $ (e, a) < (d, c) -> sfRenameHistory R d c @ (e, a) = sfRename R e a $ =
+(named '(syl (apprlame sreceq2) (bi2 elupto)));
+pub theorem sfRename_unfold (R: set) (d c: nat):
+  $ sfRename R d c = sfRenameBody R d c (sfRenameHistory R d c) $ =
+(named '(eqtr srecval @ eqtr sfRenameStep_apply @
+  sfRenameBodyeq eqsid (eqtr (fsteq sfRenameHistory_size) fstpr)
+    (eqtr (sndeq sfRenameHistory_size) sndpr) eqid));
+
+theorem sfRenameBody_sfMem (R: set) (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $):
+  $ sfRenameBody R d c h = sfMem (sfRenameIndex R d (sfLeft c)) (sfRenameIndex R d (sfRight c)) $ =
+'(eqtr (ifneg h0) (ifpos ht));
+
+theorem sfRenameBody_sfEq (R: set) (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $):
+  $ sfRenameBody R d c h = sfEq (sfRenameIndex R d (sfLeft c)) (sfRenameIndex R d (sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifpos ht)));
+
+theorem sfRenameBody_sfAnd (R: set) (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $):
+  $ sfRenameBody R d c h = sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (ifpos ht))));
+
+theorem sfRenameBody_sfOr (R: set) (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $):
+  $ sfRenameBody R d c h = sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (ifpos ht)))));
+
+theorem sfRenameBody_sfImp (R: set) (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $):
+  $ sfRenameBody R d c h = sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (ifpos ht))))));
+
+theorem sfRenameBody_sfAll (R: set) (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $):
+  $ sfRenameBody R d c h = sfAll (h @ (suc d, sfLeft c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (ifpos (ian ht hz))))))));
+
+theorem sfRenameBody_sfEx (R: set) (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $):
+  $ sfRenameBody R d c h = sfEx (h @ (suc d, sfLeft c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr (ifneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ifpos (ian ht hz)))))))));
+
+theorem sfRenameHistory_child (R: set) (d c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $):
+  $ sfRenameHistory R d c @ (d, sfLeft c) = sfRename R d a $ =
+'(eqtr (appeq2 (preq2 hl)) (sfRenameHistory_lookup (sfKey_lt ha)));
+theorem sfRenameHistory_right (R: set) (d c a: nat) (hr: $ sfRight c = a $) (ha: $ a < c $):
+  $ sfRenameHistory R d c @ (d, sfRight c) = sfRename R d a $ =
+'(eqtr (appeq2 (preq2 hr)) (sfRenameHistory_lookup (sfKey_lt ha)));
+theorem sfRenameHistory_underBinder (R: set) (d c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $):
+  $ sfRenameHistory R d c @ (suc d, sfLeft c) = sfRename R (suc d) a $ =
+'(eqtr (appeq2 (preq2 hl)) (sfRenameHistory_lookup (sfKey_underBinder_lt ha)));
+
+pub theorem sfRename_bot (R: set) (d: nat):
+  $ sfRename R d sfBot = sfBot $ =
+'(eqtr sfRename_unfold (ifpos eqid));
+
+pub theorem sfRename_sfMem (R: set) (d a b: nat):
+  $ sfRename R d (sfMem a b) = sfMem (sfRenameIndex R d a) (sfRenameIndex R d b) $ =
+'(eqtr sfRename_unfold @ eqtr (sfRenameBody_sfMem sfMem_ne_sfBot sfMem_tag) (eqtr (sfMem_eq_left (sfRenameIndexeq3 sfMem_left)) (sfMem_eq_right (sfRenameIndexeq3 sfMem_right))));
+
+pub theorem sfRename_sfEq (R: set) (d a b: nat):
+  $ sfRename R d (sfEq a b) = sfEq (sfRenameIndex R d a) (sfRenameIndex R d b) $ =
+'(eqtr sfRename_unfold @ eqtr (sfRenameBody_sfEq sfEq_ne_sfBot sfEq_tag) (eqtr (sfEq_eq_left (sfRenameIndexeq3 sfEq_left)) (sfEq_eq_right (sfRenameIndexeq3 sfEq_right))));
+
+pub theorem sfRename_sfAnd (R: set) (d a b: nat):
+  $ sfRename R d (sfAnd a b) = sfAnd (sfRename R d a) (sfRename R d b) $ =
+'(eqtr sfRename_unfold @ eqtr (sfRenameBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (eqtr (sfAnd_eq_left (sfRenameHistory_child sfAnd_left sfAnd_left_lt)) (sfAnd_eq_right (sfRenameHistory_right sfAnd_right sfAnd_right_lt))));
+
+pub theorem sfRename_sfOr (R: set) (d a b: nat):
+  $ sfRename R d (sfOr a b) = sfOr (sfRename R d a) (sfRename R d b) $ =
+'(eqtr sfRename_unfold @ eqtr (sfRenameBody_sfOr sfOr_ne_sfBot sfOr_tag) (eqtr (sfOr_eq_left (sfRenameHistory_child sfOr_left sfOr_left_lt)) (sfOr_eq_right (sfRenameHistory_right sfOr_right sfOr_right_lt))));
+
+pub theorem sfRename_sfImp (R: set) (d a b: nat):
+  $ sfRename R d (sfImp a b) = sfImp (sfRename R d a) (sfRename R d b) $ =
+'(eqtr sfRename_unfold @ eqtr (sfRenameBody_sfImp sfImp_ne_sfBot sfImp_tag) (eqtr (sfImp_eq_left (sfRenameHistory_child sfImp_left sfImp_left_lt)) (sfImp_eq_right (sfRenameHistory_right sfImp_right sfImp_right_lt))));
+
+pub theorem sfRename_sfAll (R: set) (d a: nat):
+  $ sfRename R d (sfAll a) = sfAll (sfRename R (suc d) a) $ =
+'(eqtr sfRename_unfold @ eqtr (sfRenameBody_sfAll sfAll_ne_sfBot sfAll_tag sfAll_right) (sfAll_eq (sfRenameHistory_underBinder sfAll_left sfAll_body_lt)));
+
+pub theorem sfRename_sfEx (R: set) (d a: nat):
+  $ sfRename R d (sfEx a) = sfEx (sfRename R (suc d) a) $ =
+'(eqtr sfRename_unfold @ eqtr (sfRenameBody_sfEx sfEx_ne_sfBot sfEx_tag sfEx_right) (sfEx_eq (sfRenameHistory_underBinder sfEx_left sfEx_body_lt)));
+
+theorem sfRenameBody_bad0 (G: wff) (R: set) (d c h: nat) (ht: $ G -> sfTag c = 0 $):
+  $ G -> sfRenameBody R d c h = 0 $ =
+'(syl6eq ifid (ifeq3d (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S))))) (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))))))))))));
+
+theorem sfRenameBody_bad6 (G: wff) (R: set) (d c h: nat) (ht: $ G -> sfTag c = 6 $) (hr: $ G -> sfRight c != 0 $):
+  $ G -> sfRenameBody R d c h = 0 $ =
+'(syl6eq ifid (ifeq3d (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc lt01S))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (eqtrd (syl ifneg (syl (con3 anr) hr)) (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))))));
+
+theorem sfRenameBody_bad7 (G: wff) (R: set) (d c h: nat) (ht: $ G -> sfTag c = 7 $) (hr: $ G -> sfRight c != 0 $):
+  $ G -> sfRenameBody R d c h = 0 $ =
+'(syl6eq ifid (ifeq3d (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc lt01S))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (eqtrd (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))) (syl ifneg (syl (con3 anr) hr))))))))));
+
+
+
+pub theorem sfRename_tag0 (R: set) (d c: nat):
+  $ sfTag c = 0 -> sfRename R d c = 0 $ =
+'(eqtrd (a1i sfRename_unfold) (sfRenameBody_bad0 id));
+
+pub theorem sfRename_bad_all (R: set) (d c: nat):
+  $ sfTag c = 6 -> sfRight c != 0 -> sfRename R d c = 0 $ =
+'(exp @ eqtrd (a1i sfRename_unfold) (sfRenameBody_bad6 anl anr));
+
+pub theorem sfRename_bad_ex (R: set) (d c: nat):
+  $ sfTag c = 7 -> sfRight c != 0 -> sfRename R d c = 0 $ =
+'(exp @ eqtrd (a1i sfRename_unfold) (sfRenameBody_bad7 anl anr));
+
+
+pub theorem sfRenameIndex_bound (R: set) (d i: nat): $ i < d -> sfRenameIndex R d i = i $ = 'ifpos;
+pub theorem sfRenameIndex_free (R: set) (d i: nat): $ ~i < d -> sfRenameIndex R d i = d  +  (R @ (i - d)) $ = 'ifneg;
+pub theorem sfRenameIndex_zero (R: set) (i: nat): $ sfRenameIndex R 0 i = R @ i $ =
+'(eqtr (sfRenameIndex_free lt02) (eqtr add01 (appeq2 sub02)));
+theorem sfRename_suc_if (p: wff) (a b: nat):
+  $ suc (if p a b) = if p (suc a) (suc b) $ =
+'(cases (eqtr4d (suceqd ifpos) ifpos) (eqtr4d (suceqd ifneg) ifneg));
+pub theorem sfRenameIndex_lift (R: set) (d i: nat):
+  $ sfRenameIndex R (suc d) (suc i) = suc (sfRenameIndex R d i) $ =
+'(eqtr (ifeq (bicom ltsuc) eqid (eqtr (addeq2 (appeq2 subSS)) addS1))
+  (eqcom sfRename_suc_if));
+
+theorem sfRename_induction_at (R: set) (c a: nat):
+  $ A. j (j < c -> A. m sfWf (sfRename R m j)) ->
+      a < c -> A. m sfWf (sfRename R m a) $ =
+(named '(!! eale j ,eqtac));
+theorem sfRename_induction_specialize (R: set) (d a: nat):
+  $ A. m sfWf (sfRename R m a) -> sfWf (sfRename R d a) $ =
+(named '(!! eale m ,eqtac));
+theorem sfRename_induction_use {j m: nat} (G: wff j m) (R: set) (d c a: nat)
+  (hi: $ G -> A. j (j < c -> A. m sfWf (sfRename R m j)) $)
+  (ha: $ G -> a < c $):
+  $ G -> sfWf (sfRename R d a) $ =
+'(syl sfRename_induction_specialize @ mpd ha (syl sfRename_induction_at hi));
+theorem sfRename_history_wf {j m: nat} (G: wff j m) (R: set) (d c e a: nat)
+  (hi: $ G -> A. j (j < c -> A. m sfWf (sfRename R m j)) $)
+  (ha: $ G -> a < c $) (hk: $ G -> (e, a) < (d, c) $):
+  $ G -> sfWf (sfRenameHistory R d c @ (e, a)) $ =
+'(mpbird (srecpeq2d (syl sfRenameHistory_lookup hk)) (sfRename_induction_use hi ha));
+theorem sfRename_if_wf (G p: wff) (a b: nat)
+  (hp: $ G /\ p -> sfWf a $) (hb: $ G -> sfWf b $):
+  $ G -> sfWf (if p a b) $ =
+'(ifbothd srecpeq2 srecpeq2 hp (syl hb anl));
+theorem sfRename_tagZero (c: nat): $ c = 0 -> sfTag c = 0 $ =
+'(eqtrd (modeq1d id) (a1i mod01));
+theorem sfRename_code_positive (G: wff) (c tag: nat)
+  (ht: $ G -> sfTag c = tag $) (hn: $ tag != 0 $):
+  $ G -> 0 < c $ =
+'(syl (bi2 lt01) @ syl (con3 sfRename_tagZero) (mpbiri hn (noteqd (eqeq1d ht))));
+
+theorem sfRenameBody_wf {j m: nat} (G: wff j m) (R: set) (d c: nat)
+  (hi: $ G -> A. j (j < c -> A. m sfWf (sfRename R m j)) $):
+  $ G -> sfWf (sfRenameBody R d c (sfRenameHistory R d c)) $ =
+'(sfRename_if_wf (a1i sfWf_bot) (sfRename_if_wf (a1i sfWf_mem) (sfRename_if_wf (a1i sfWf_eq) (sfRename_if_wf (sylc sfWf_and (sfRename_history_wf (syl hi anl) (syl sfLeft_lt (sfRename_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfRename_code_positive anr (ltneri lt01S))))) (sfRename_history_wf (syl hi anl) (syl sfRight_lt (sfRename_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfRename_code_positive anr (ltneri lt01S)))))) (sfRename_if_wf (sylc sfWf_or (sfRename_history_wf (syl hi anl) (syl sfLeft_lt (sfRename_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfRename_code_positive anr (ltneri lt01S))))) (sfRename_history_wf (syl hi anl) (syl sfRight_lt (sfRename_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfRename_code_positive anr (ltneri lt01S)))))) (sfRename_if_wf (sylc sfWf_imp (sfRename_history_wf (syl hi anl) (syl sfLeft_lt (sfRename_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfRename_code_positive anr (ltneri lt01S))))) (sfRename_history_wf (syl hi anl) (syl sfRight_lt (sfRename_code_positive anr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfRename_code_positive anr (ltneri lt01S)))))) (sfRename_if_wf (syl sfWf_all (sfRename_history_wf (syl hi anl) (syl sfLeft_lt (sfRename_code_positive (syl anl anr) (ltneri lt01S))) (syl sfKey_underBinder_lt (syl sfLeft_lt (sfRename_code_positive (syl anl anr) (ltneri lt01S)))))) (sfRename_if_wf (syl sfWf_ex (sfRename_history_wf (syl hi anl) (syl sfLeft_lt (sfRename_code_positive (syl anl anr) (ltneri lt01S))) (syl sfKey_underBinder_lt (syl sfLeft_lt (sfRename_code_positive (syl anl anr) (ltneri lt01S)))))) (a1i sfWf_bot)))))))));
+theorem sfRename_bound_rename (R: set) (c: nat):
+  $ A. q sfWf (sfRename R q c) <-> A. m sfWf (sfRename R m c) $ =
+(named '(cbval ,eqtac));
+theorem sfRename_wf_step {j m: nat} (G: wff j m) (R: set) (c: nat)
+  (hi: $ G -> A. j (j < c -> A. m sfWf (sfRename R m j)) $):
+  $ G -> A. m sfWf (sfRename R m c) $ =
+'(sylib sfRename_bound_rename @ !! iald q @
+  mpbird (a1i (srecpeq2 sfRename_unfold)) (sfRenameBody_wf hi));
+theorem sfRename_wf_all (R: set) (c: nat):
+  $ A. m sfWf (sfRename R m c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (A. m sfWf (sfRename R m j) <-> A. m sfWf (sfRename R m c)) $}
+  ,eqtac (sfRename_wf_step anr)));
+pub theorem sfRename_wf (R: set) (d c: nat): $ sfWf (sfRename R d c) $ =
+(named '(ax_mp sfRename_induction_specialize
+  {sfRename_wf_all : $ A. m sfWf (sfRename R m c) $}));
+pub theorem sfRename_preserves_wf (R: set) (d c: nat): $ sfWf c -> sfWf (sfRename R d c) $ =
+'(a1i sfRename_wf);
+
+pub theorem sfRename_congr (G: wff) (R S: set) (d e a b: nat)
+  (hR: $ G -> R == S $) (hd: $ G -> d = e $) (ha: $ G -> a = b $):
+  $ G -> sfRename R d a = sfRename S e b $ =
+'(sfRenameeqd hR hd ha);
+
+pub theorem sfRename_congr_graph (G: wff) (R S: set) (d a: nat) (h: $ G -> R == S $):
+  $ G -> sfRename R d a = sfRename S d a $ =
+'(sfRename_congr h (a1i eqid) (a1i eqid));
+
+pub theorem sfRename_congr_depth (G: wff) (R: set) (d e a: nat) (h: $ G -> d = e $):
+  $ G -> sfRename R d a = sfRename R e a $ =
+'(sfRename_congr (a1i eqsid) h (a1i eqid));
+
+pub theorem sfRename_congr_formula (G: wff) (R: set) (d a b: nat) (h: $ G -> a = b $):
+  $ G -> sfRename R d a = sfRename R d b $ =
+'(sfRename_congr (a1i eqsid) (a1i eqid) h);
+
+do (apply (register-eqd 'sfRename)
+  '(sfRename_congr sfRename_congr_graph sfRename_congr_depth sfRename_congr_formula));
+
+pub theorem sfRenameIndex_congr (G: wff) (R S: set) (d e a b: nat)
+  (hR: $ G -> R == S $) (hd: $ G -> d = e $) (ha: $ G -> a = b $):
+  $ G -> sfRenameIndex R d a = sfRenameIndex S e b $ =
+'(sfRenameIndexeqd hR hd ha);
+
+pub theorem sfRenameIndex_congr_graph (G: wff) (R S: set) (d a: nat) (h: $ G -> R == S $):
+  $ G -> sfRenameIndex R d a = sfRenameIndex S d a $ =
+'(sfRenameIndex_congr h (a1i eqid) (a1i eqid));
+
+pub theorem sfRenameIndex_congr_depth (G: wff) (R: set) (d e a: nat) (h: $ G -> d = e $):
+  $ G -> sfRenameIndex R d a = sfRenameIndex R e a $ =
+'(sfRenameIndex_congr (a1i eqsid) h (a1i eqid));
+
+pub theorem sfRenameIndex_congr_index (G: wff) (R: set) (d a b: nat) (h: $ G -> a = b $):
+  $ G -> sfRenameIndex R d a = sfRenameIndex R d b $ =
+'(sfRenameIndex_congr (a1i eqsid) (a1i eqid) h);
+
+do (apply (register-eqd 'sfRenameIndex)
+  '(sfRenameIndex_congr sfRenameIndex_congr_graph sfRenameIndex_congr_depth sfRenameIndex_congr_index));
+
+theorem sfRename_map_at (R: set) (n m a: nat):
+  $ A. i (i < n -> R @ i < m) -> a < n -> R @ a < m $ =
+(named '(!! eale i ,eqtac));
+theorem sfRenameIndex_kept_bound (R: set) (d i m: nat):
+  $ i < d -> sfRenameIndex R d i < d  +  m $ =
+'(mpbird (lteq1d sfRenameIndex_bound) (ltletrd id (a1i leaddid1)));
+theorem sfRenameIndex_free_bound (R: set) (d i n m: nat):
+  $ (A. j (j < n -> R @ j < m)) /\ i < d  +  n /\ ~ i < d ->
+      sfRenameIndex R d i < d  +  m $ =
+'(mpbird (lteq1d (syl sfRenameIndex_free anr)) @ syl (bi1 ltadd2) @
+  sylc sfRename_map_at anll
+    (mpbird (syl ltsubadd2 (mpbird (a1i lenlt) anr)) anlr));
+pub theorem sfRenameIndex_bound_map {j: nat} (R: set) (d i n m: nat):
+  $ (A. j (j < n -> R @ j < m)) -> i < d  +  n ->
+      sfRenameIndex R d i < d  +  m $ =
+'(exp @ casesda (syl sfRenameIndex_kept_bound anr) sfRenameIndex_free_bound);
+
+theorem sfRename_bound_cond (G p I J: wff) (b a c: nat)
+  (hp: $ G /\ p -> I -> sfBound b a $)
+  (hn: $ G -> J -> sfBound b c $):
+  $ G -> ifp p I J -> sfBound b (if p a c) $ =
+'(eord
+  (impd @ exp @ sylibrd hp (srecpeq2d (preq2d (syl ifpos anr))))
+  (impd @ exp @ sylibrd (syl hn anl) (srecpeq2d (preq2d (syl ifneg anr)))));
+theorem sfRename_bound_ind_at (R: set) (n m c a: nat):
+  $ A. j (j < c -> A. q (sfBound (q + n) j -> sfBound (q + m) (sfRename R q j))) ->
+    a < c -> A. q (sfBound (q + n) a -> sfBound (q + m) (sfRename R q a)) $ =
+(named '(!! eale j ,eqtac));
+theorem sfRename_bound_ind_specialize (R: set) (n m d a: nat):
+  $ A. q (sfBound (q + n) a -> sfBound (q + m) (sfRename R q a)) ->
+      sfBound (d + n) a -> sfBound (d + m) (sfRename R d a) $ =
+(named '(!! eale q ,eqtac));
+theorem sfRename_bound_use {j q: nat} (G: wff j q) (R: set) (n m d c a: nat)
+  (hi: $ G -> A. j (j < c -> A. q (sfBound (q + n) j -> sfBound (q + m) (sfRename R q j))) $)
+  (ha: $ G -> a < c $):
+  $ G -> sfBound (d + n) a -> sfBound (d + m) (sfRename R d a) $ =
+'(syl sfRename_bound_ind_specialize @ mpd ha (syl sfRename_bound_ind_at hi));
+theorem sfRename_bound_history {j q: nat} (G: wff j q) (R: set) (n m d c e a: nat)
+  (hi: $ G -> A. j (j < c -> A. q (sfBound (q + n) j -> sfBound (q + m) (sfRename R q j))) $)
+  (ha: $ G -> a < c $) (hk: $ G -> (e, a) < (d, c) $):
+  $ G -> sfBound (e + n) a -> sfBound (e + m) (sfRenameHistory R d c @ (e, a)) $ =
+'(sylibrd (sfRename_bound_use hi ha)
+  (srecpeq2d (preq2d (syl sfRenameHistory_lookup hk))));
+theorem sfRename_source_history (b c e a: nat):
+  $ (e, a) e. sfBoundPrevious b c -> sfBound e a $ =
+'(syl anr (bi1 sfBoundPrevious_value));
+
+theorem sfRename_bound_body {i j q: nat} (G: wff i j q) (R: set) (d n m c: nat)
+  (hm: $ G -> A. i (i < n -> R @ i < m) $)
+  (hi: $ G -> A. j (j < c -> A. q (sfBound (q + n) j -> sfBound (q + m) (sfRename R q j))) $):
+  $ G -> sfBoundAllowed (d + n) c (sfBoundPrevious (d + n) c) ->
+      sfBound (d + m) (sfRenameBody R d c (sfRenameHistory R d c)) $ =
+'(sfRename_bound_cond (a1i (a1i sfBound_bot)) (sfRename_bound_cond (exp @ syl (bi2 sfBound_sfMem) (iand (sylc sfRenameIndex_bound_map (syl hm anll) (syl anl anr)) (sylc sfRenameIndex_bound_map (syl hm anll) (syl anr anr)))) (sfRename_bound_cond (exp @ syl (bi2 sfBound_sfEq) (iand (sylc sfRenameIndex_bound_map (syl hm anll) (syl anl anr)) (sylc sfRenameIndex_bound_map (syl hm anll) (syl anr anr)))) (sfRename_bound_cond (exp @ syl (bi2 sfBound_sfAnd) (iand (mpd (syl sfRename_source_history (syl anl anr)) (sfRename_bound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S)))))) (mpd (syl sfRename_source_history (syl anr anr)) (sfRename_bound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S)))))))) (sfRename_bound_cond (exp @ syl (bi2 sfBound_sfOr) (iand (mpd (syl sfRename_source_history (syl anl anr)) (sfRename_bound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S)))))) (mpd (syl sfRename_source_history (syl anr anr)) (sfRename_bound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S)))))))) (sfRename_bound_cond (exp @ syl (bi2 sfBound_sfImp) (iand (mpd (syl sfRename_source_history (syl anl anr)) (sfRename_bound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))) (syl sfKey_lt (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S)))))) (mpd (syl sfRename_source_history (syl anr anr)) (sfRename_bound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))) (syl sfKey_lt (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S)))))))) (sfRename_bound_cond (exp @ syl (bi2 sfBound_sfAll) (mpbid (a1i (srecpeq2 (preq1 addS1))) (mpd (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl sfRename_source_history anr)) (sfRename_bound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive (syl anl anlr) (ltneri lt01S))) (syl sfKey_underBinder_lt (syl sfLeft_lt (sfRename_code_positive (syl anl anlr) (ltneri lt01S)))))))) (sfRename_bound_cond (exp @ syl (bi2 sfBound_sfEx) (mpbid (a1i (srecpeq2 (preq1 addS1))) (mpd (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl sfRename_source_history anr)) (sfRename_bound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive (syl anl anlr) (ltneri lt01S))) (syl sfKey_underBinder_lt (syl sfLeft_lt (sfRename_code_positive (syl anl anlr) (ltneri lt01S)))))))) (a1i (a1i sfBound_bot))))))))));
+
+theorem sfRename_bound_actual {i j q: nat} (G: wff i j q) (R: set) (d n m c: nat)
+  (hm: $ G -> A. i (i < n -> R @ i < m) $)
+  (hi: $ G -> A. j (j < c -> A. q (sfBound (q + n) j -> sfBound (q + m) (sfRename R q j))) $):
+  $ G -> sfBound (d + n) c -> sfBound (d + m) (sfRename R d c) $ =
+'(syl5bi sfBound_unfold @ sylibrd (sfRename_bound_body hm hi)
+  (a1i (srecpeq2 (preq2 sfRename_unfold))));
+
+theorem sfRename_bound_alpha (R: set) (n m c: nat):
+  $ A. k (sfBound (k + n) c -> sfBound (k + m) (sfRename R k c)) <->
+    A. q (sfBound (q + n) c -> sfBound (q + m) (sfRename R q c)) $ =
+(named '(cbval ,eqtac));
+theorem sfRename_bound_step {i j q: nat} (G: wff i j q) (R: set) (n m c: nat)
+  (hm: $ G -> A. i (i < n -> R @ i < m) $)
+  (hi: $ G -> A. j (j < c -> A. q (sfBound (q + n) j -> sfBound (q + m) (sfRename R q j))) $):
+  $ G -> A. q (sfBound (q + n) c -> sfBound (q + m) (sfRename R q c)) $ =
+'(sylib sfRename_bound_alpha @ !! iald k @ sfRename_bound_actual hm hi);
+theorem sfRename_bound_all (R: set) (n m c: nat):
+  $ (A. i (i < n -> R @ i < m)) ->
+      A. q (sfBound (q + n) c -> sfBound (q + m) (sfRename R q c)) $ =
+(named '(!! indstr j y
+  {,eqtac : $ j = c -> (A. q (sfBound (q + n) j -> sfBound (q + m) (sfRename R q j)) <-> A. q (sfBound (q + n) c -> sfBound (q + m) (sfRename R q c))) $}
+  ,eqtac (sfRename_bound_step anl anr)));
+pub theorem sfRename_bound {i: nat} (R: set) (d n m c: nat):
+  $ (A. i (i < n -> R @ i < m)) -> sfBound (d + n) c ->
+      sfBound (d + m) (sfRename R d c) $ =
+(named '(syl sfRename_bound_ind_specialize
+  {sfRename_bound_all : $ (A. i (i < n -> R @ i < m)) -> A. q (sfBound (q + n) c -> sfBound (q + m) (sfRename R q c)) $}));

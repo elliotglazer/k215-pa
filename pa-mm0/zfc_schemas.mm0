@@ -1,0 +1,57 @@
+import "source_syntax_elim.mm0";
+import "source_bounds.mm0";
+
+-- Literal open constructors from SetSchemaConstructors.v. Inputs are the
+-- already-renamed bodies at their stated binder depths. These definitions
+-- do not assert that arbitrary inputs are instances of a ZFC schema.
+def sfIff (a b: nat): nat = $ sfAnd (sfImp a b) (sfImp b a) $;
+def sfSeparation (body: nat): nat =
+$ sfAll (sfEx (sfAll (sfIff (sfMem 0 1) (sfAnd (sfMem 0 2) body)))) $;
+def sfFunctionality (bodyA bodyB: nat): nat =
+$ sfAll (sfAll (sfAll (sfImp bodyA (sfImp bodyB (sfEq 1 0))))) $;
+def sfReplacement (bodyA bodyB bodyC: nat): nat =
+$ sfImp (sfFunctionality bodyA bodyB)
+    (sfAll (sfEx (sfAll
+      (sfIff (sfMem 0 1) (sfEx (sfAnd (sfMem 0 3) bodyC)))))) $;
+
+-- Internal PA recursion, not an external iteration over standard naturals.
+def sfAllPrefix (n c .a: nat): nat = $ rec c (\ a, sfAll a) n $;
+
+theorem sfSeparation_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> sfSeparation a = sfSeparation b $;
+theorem sfReplacement_congr (G: wff) (a b c d e f: nat)
+  (h1: $ G -> a = b $) (h2: $ G -> c = d $) (h3: $ G -> e = f $):
+  $ G -> sfReplacement a c e = sfReplacement b d f $;
+theorem sfAllPrefix_congr (G: wff) (n m a b: nat)
+  (h1: $ G -> n = m $) (h2: $ G -> a = b $):
+  $ G -> sfAllPrefix n a = sfAllPrefix m b $;
+
+theorem sfAllPrefix_zero (c: nat): $ sfAllPrefix 0 c = c $;
+theorem sfAllPrefix_suc (n c: nat):
+  $ sfAllPrefix (suc n) c = sfAll (sfAllPrefix n c) $;
+theorem sfWf_iff (a b: nat):
+  $ sfWf (sfIff a b) <-> sfWf a /\ sfWf b $;
+theorem sfWf_separation (body: nat):
+  $ sfWf (sfSeparation body) <-> sfWf body $;
+theorem sfWf_functionality (a b: nat):
+  $ sfWf (sfFunctionality a b) <-> sfWf a /\ sfWf b $;
+theorem sfWf_replacement (a b c: nat):
+  $ sfWf (sfReplacement a b c) <-> sfWf a /\ sfWf b /\ sfWf c $;
+theorem sfWf_allPrefix (n c: nat):
+  $ sfWf (sfAllPrefix n c) <-> sfWf c $;
+
+theorem sfBound_iff (n a b: nat):
+  $ sfBound n (sfIff a b) <-> sfBound n a /\ sfBound n b $;
+theorem sfBound_separation (n body: nat):
+  $ sfBound n (sfSeparation body) <-> sfBound (suc (suc (suc n))) body $;
+theorem sfBound_functionality (n a b: nat):
+  $ sfBound n (sfFunctionality a b) <->
+    sfBound (suc (suc (suc n))) a /\ sfBound (suc (suc (suc n))) b $;
+theorem sfBound_replacement (n a b c: nat):
+  $ sfBound n (sfReplacement a b c) <->
+    sfBound (suc (suc (suc n))) a /\ sfBound (suc (suc (suc n))) b /\
+    sfBound (suc (suc (suc (suc n)))) c $;
+theorem sfBound_allPrefix (m n c: nat):
+  $ sfBound m (sfAllPrefix n c) <-> sfBound (m + n) c $;
+theorem sfBound_allPrefix_closed (n c: nat):
+  $ sfBound 0 (sfAllPrefix n c) <-> sfBound n c $;

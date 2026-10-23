@@ -1,0 +1,26 @@
+import "source_l_choice_transfer.mm1";
+import "source_reflection_transfer_tv_choice_ordinal.mm1";
+
+-- The ordinal predicate goes down to L (sfTVChoiceOrdinal_downward_local, L08 family).
+theorem chod_eq: $ sfLChoiceOrdDown =
+  sfAll (sfImp sfLeastOrdinalPredicate (sfRelativize sfLDomain sfLeastOrdinalPredicate)) $ =
+'(nsAll_eq (nsImp_eq cht_ordinal_zero (sfRelativizeeq2 cht_ordinal_zero)));
+
+theorem chod_local: $ nsLocal 0 sfLChoiceOrdDown $ =
+'(mpbir (nsLocal_formula_eq chod_eq)
+  (ax_mp (sfLocal_allI sfContextWf_nil)
+   (mpbir (nsLocal_context_eq sfContextShift_nil) sfTVChoiceOrdinal_downward_local)));
+
+pub theorem sfLChoiceOrdDown_zfr: $ sfTheoryProvable zfrAxioms sfLChoiceOrdDown $ =
+'(ax_mp (sfTheory_local sfTheoryContext_nil) chod_local);
+
+pub theorem sfLChoice_from_hierarchy_laws
+ (hi: $ sfRelativeAxiomImages zfrAxioms zfrAxioms sfLDomain $)
+ (hN: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (h2: $ sfTheoryProvable zfrAxioms sfLChoiceT2 $)
+ (hUp: $ sfTheoryProvable zfrAxioms sfLChoiceUp $)
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $ =
+'(sfLChoice_from_hierarchy hi hN hE hU h2 hUp hOL sfLChoiceOrdDown_zfr);

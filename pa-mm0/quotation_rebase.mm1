@@ -1,0 +1,301 @@
+import "quotation_rebase_hygiene.mm1";
+import "k230_equivalence.mm1";
+import "k230_alpha.mm1";
+import "quotation_substitution.mm1";
+import "quotation_substitution_conditional.mm1";
+
+-- The stack is numerical: no quantification over an arithmetic class E.
+@_ abstract def ntBaseClass (E: set) (.c .S .n .k .l: nat): set =
+ $ {c | A. S A. n A. k A. l (sfBound n c ->
+ sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c))} $;
+theorem ntB_value {S n k l: nat} (E: set) (c: nat):
+ $ c e. ntBaseClass E <-> A. S A. n A. k A. l (sfBound n c ->
+ sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c)) $ =
+(named '(elabe ,eqtac));
+theorem ntB_all_at (E: set) (c S n k l: nat):
+ $ (A. R A. p A. q A. r (sfBound p c ->
+ sqRebaseHygiene (sqStackEnv R E) p q c 0 ->
+ sqRebaseHygiene (sqStackEnv R E) p r c 0 ->
+ kEquivalent (sfNamedTemplate (sqStackEnv R E) q 0 c)
+             (sfNamedTemplate (sqStackEnv R E) r 0 c))) ->
+ sfBound n c -> sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c) $ =
+(named '(!! ealie R @ !! ealde p @ !! ealde q @ !! ealde r @ bi1d ,eqtac));
+theorem ntB_at (E: set) (c S n k l: nat):
+ $ c e. ntBaseClass E -> sfBound n c ->
+ sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c) $ =
+(named '(syl ntB_all_at (bi1 ntB_value)));
+theorem ntB_use (G: wff) (E: set) (c S n k l: nat)
+ (hc: $ G -> c e. ntBaseClass E $) (hb: $ G -> sfBound n c $)
+ (hk: $ G -> sqRebaseHygiene (sqStackEnv S E) n k c 0 $)
+ (hl: $ G -> sqRebaseHygiene (sqStackEnv S E) n l c 0 $):
+ $ G -> kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+                       (sfNamedTemplate (sqStackEnv S E) l 0 c) $ =
+'(mpd hl (mpd hk (mpd hb (syl ntB_at hc))));
+theorem ntB_transport (G: wff) (a b c d: nat)
+ (ha: $ G -> a = c $) (hb: $ G -> b = d $) (he: $ G -> kEquivalent c d $):
+ $ G -> kEquivalent a b $ = '(mpbird (kEquivalenteqd ha hb) he);
+
+theorem ntB_bot (E: set): $ sfBot e. ntBaseClass E $ =
+(named '(mpbir ntB_value @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ a1i @ a1i @
+ ntB_transport (a1i sfNamedTemplate_bot) (a1i sfNamedTemplate_bot) (a1i kEquivalent_refl)));
+theorem ntB_mem (E: set) (a b: nat): $ sfMem a b e. ntBaseClass E $ =
+(named '(mpbir ntB_value @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ a1i @ a1i @
+ ntB_transport (a1i (eqtr sfNamedTemplate_sfMem (kMemeq sfNamedIndex_zero sfNamedIndex_zero)))
+ (a1i (eqtr sfNamedTemplate_sfMem (kMemeq sfNamedIndex_zero sfNamedIndex_zero)))
+ (a1i kEquivalent_refl)));
+theorem ntB_eq (E: set) (a b: nat): $ sfEq a b e. ntBaseClass E $ =
+(named '(mpbir ntB_value @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ a1i @ a1i @
+ ntB_transport (a1i (eqtr sfNamedTemplate_sfEq (kEqeq sfNamedIndex_zero sfNamedIndex_zero)))
+ (a1i (eqtr sfNamedTemplate_sfEq (kEqeq sfNamedIndex_zero sfNamedIndex_zero)))
+ (a1i kEquivalent_refl)));
+theorem ntB_atomic (E: set): $ sfAtomicClosed (ntBaseClass E) $ =
+(named '(ax_gen @ ax_gen @ ian ntB_mem ntB_eq));
+theorem ntB_and_core (G: wff) (E: set) (a b S n k l: nat)
+ (ha: $ G -> a e. ntBaseClass E $) (hb: $ G -> b e. ntBaseClass E $)
+ (hs: $ G -> sfBound n (sfAnd a b) $)
+ (hk: $ G -> sqRebaseHygiene (sqStackEnv S E) n k (sfAnd a b) 0 $)
+ (hl: $ G -> sqRebaseHygiene (sqStackEnv S E) n l (sfAnd a b) 0 $):
+ $ G -> kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 (sfAnd a b))
+                       (sfNamedTemplate (sqStackEnv S E) l 0 (sfAnd a b)) $ =
+'(ntB_transport (a1i sfNamedTemplate_sfAnd) (a1i sfNamedTemplate_sfAnd) @
+ syl kEquivalent_and @ iand
+ (ntB_use ha (syl anl (syl (bi1 sfBound_sfAnd) hs))
+  (syl (sqRebaseHygiene_subformula (ltlei sfAnd_left_lt)) hk)
+  (syl (sqRebaseHygiene_subformula (ltlei sfAnd_left_lt)) hl))
+ (ntB_use hb (syl anr (syl (bi1 sfBound_sfAnd) hs))
+  (syl (sqRebaseHygiene_subformula (ltlei sfAnd_right_lt)) hk)
+  (syl (sqRebaseHygiene_subformula (ltlei sfAnd_right_lt)) hl)));
+theorem ntB_and (E: set) (a b: nat):
+ $ a e. ntBaseClass E /\ b e. ntBaseClass E -> sfAnd a b e. ntBaseClass E $ =
+(named '(mpbird (a1i ntB_value) @ !! iald S @ !! iald n @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ ntB_and_core (syl anl (syl anl (syl anl anl))) (syl anr (syl anl (syl anl anl)))
+ (syl anr (syl anl anl)) (syl anr anl) anr));
+theorem ntB_or_core (G: wff) (E: set) (a b S n k l: nat)
+ (ha: $ G -> a e. ntBaseClass E $) (hb: $ G -> b e. ntBaseClass E $)
+ (hs: $ G -> sfBound n (sfOr a b) $)
+ (hk: $ G -> sqRebaseHygiene (sqStackEnv S E) n k (sfOr a b) 0 $)
+ (hl: $ G -> sqRebaseHygiene (sqStackEnv S E) n l (sfOr a b) 0 $):
+ $ G -> kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 (sfOr a b))
+                       (sfNamedTemplate (sqStackEnv S E) l 0 (sfOr a b)) $ =
+'(ntB_transport (a1i sfNamedTemplate_sfOr) (a1i sfNamedTemplate_sfOr) @
+ syl kEquivalent_or @ iand
+ (ntB_use ha (syl anl (syl (bi1 sfBound_sfOr) hs))
+  (syl (sqRebaseHygiene_subformula (ltlei sfOr_left_lt)) hk)
+  (syl (sqRebaseHygiene_subformula (ltlei sfOr_left_lt)) hl))
+ (ntB_use hb (syl anr (syl (bi1 sfBound_sfOr) hs))
+  (syl (sqRebaseHygiene_subformula (ltlei sfOr_right_lt)) hk)
+  (syl (sqRebaseHygiene_subformula (ltlei sfOr_right_lt)) hl)));
+theorem ntB_or (E: set) (a b: nat):
+ $ a e. ntBaseClass E /\ b e. ntBaseClass E -> sfOr a b e. ntBaseClass E $ =
+(named '(mpbird (a1i ntB_value) @ !! iald S @ !! iald n @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ ntB_or_core (syl anl (syl anl (syl anl anl))) (syl anr (syl anl (syl anl anl)))
+ (syl anr (syl anl anl)) (syl anr anl) anr));
+theorem ntB_imp_core (G: wff) (E: set) (a b S n k l: nat)
+ (ha: $ G -> a e. ntBaseClass E $) (hb: $ G -> b e. ntBaseClass E $)
+ (hs: $ G -> sfBound n (sfImp a b) $)
+ (hk: $ G -> sqRebaseHygiene (sqStackEnv S E) n k (sfImp a b) 0 $)
+ (hl: $ G -> sqRebaseHygiene (sqStackEnv S E) n l (sfImp a b) 0 $):
+ $ G -> kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 (sfImp a b))
+                       (sfNamedTemplate (sqStackEnv S E) l 0 (sfImp a b)) $ =
+'(ntB_transport (a1i sfNamedTemplate_sfImp) (a1i sfNamedTemplate_sfImp) @
+ syl kEquivalent_imp @ iand
+ (ntB_use ha (syl anl (syl (bi1 sfBound_sfImp) hs))
+  (syl (sqRebaseHygiene_subformula (ltlei sfImp_left_lt)) hk)
+  (syl (sqRebaseHygiene_subformula (ltlei sfImp_left_lt)) hl))
+ (ntB_use hb (syl anr (syl (bi1 sfBound_sfImp) hs))
+  (syl (sqRebaseHygiene_subformula (ltlei sfImp_right_lt)) hk)
+  (syl (sqRebaseHygiene_subformula (ltlei sfImp_right_lt)) hl)));
+theorem ntB_imp (E: set) (a b: nat):
+ $ a e. ntBaseClass E /\ b e. ntBaseClass E -> sfImp a b e. ntBaseClass E $ =
+(named '(mpbird (a1i ntB_value) @ !! iald S @ !! iald n @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ ntB_imp_core (syl anl (syl anl (syl anl anl))) (syl anr (syl anl (syl anl anl)))
+ (syl anr (syl anl anl)) (syl anr anl) anr));
+theorem ntB_binary (E: set): $ sfBinaryClosed (ntBaseClass E) $ =
+(named '(ax_gen @ ax_gen @ iand (iand ntB_and ntB_or) ntB_imp));
+
+pub theorem sfNamedTemplate_mem_rebase (E: set) (k l a b: nat):
+ $ kEquivalent (sfNamedTemplate E k 0 (sfMem a b)) (sfNamedTemplate E l 0 (sfMem a b)) $ =
+'(mpbir (trud (kEquivalenteqd
+ (a1i (eqtr sfNamedTemplate_sfMem (kMemeq sfNamedIndex_zero sfNamedIndex_zero)))
+ (a1i (eqtr sfNamedTemplate_sfMem (kMemeq sfNamedIndex_zero sfNamedIndex_zero))))) kEquivalent_refl);
+pub theorem sfNamedTemplate_eq_rebase (E: set) (k l a b: nat):
+ $ kEquivalent (sfNamedTemplate E k 0 (sfEq a b)) (sfNamedTemplate E l 0 (sfEq a b)) $ =
+'(mpbir (trud (kEquivalenteqd
+ (a1i (eqtr sfNamedTemplate_sfEq (kEqeq sfNamedIndex_zero sfNamedIndex_zero)))
+ (a1i (eqtr sfNamedTemplate_sfEq (kEqeq sfNamedIndex_zero sfNamedIndex_zero))))) kEquivalent_refl);
+
+theorem ntB_stack_eval (E: set) (S y n k c: nat):
+ $ sfBound n c -> sfNamedTemplate (sqStackEnv (y : S) E) k 0 c =
+ sfNamedTemplate (sqEnvCons y (sqStackEnv S E)) k 0 c $ =
+'(syl (sfNamedTemplate_environment sqStackEnv_cons_agree) (bi2 (srecpeq2 (preq1 add01))));
+theorem ntB_child_equiv (G: wff) (E: set) (S n k l y c p: nat)
+ (hay: $ c < p $)
+ (hc: $ G -> c e. ntBaseClass E $) (hb: $ G -> sfBound (suc n) c $)
+ (hk: $ G -> sqRebaseHygiene (sqStackEnv S E) n k p 0 $)
+ (hl: $ G -> sqRebaseHygiene (sqStackEnv S E) n l p 0 $)
+ (hky: $ G -> sqAllocAvoid (suc k) (suc (c + 0)) y $)
+ (hly: $ G -> sqAllocAvoid (suc l) (suc (c + 0)) y $):
+ $ G -> kEquivalent
+ (sfNamedTemplate (sqEnvCons y (sqStackEnv S E)) (suc k) 0 c)
+ (sfNamedTemplate (sqEnvCons y (sqStackEnv S E)) (suc l) 0 c) $ =
+'(ntB_transport (eqcomd (syl ntB_stack_eval hb)) (eqcomd (syl ntB_stack_eval hb)) @
+ ntB_use hc hb
+ (mpd hky (syl (sqRebaseHygiene_stack_child hay) hk))
+ (mpd hly (syl (sqRebaseHygiene_stack_child hay) hl)));
+
+@_ def ntBaseBody (E: set) (S k c: nat): nat =
+ $ sfNamedTemplate (sqEnvCons k (sqStackEnv S E)) (suc k) 0 c $;
+@_ def ntBaseCommon (E: set) (S k l c p: nat): nat =
+ $ sqCommonName (ntBaseBody E S k c) (ntBaseBody E S l c) k l (suc (p + 0)) $;
+theorem ntB_common_left (E: set) (S k l c p: nat):
+ $ ntBaseBody E S k c < ntBaseCommon E S k l c p $ = 'sqCommonName_left;
+theorem ntB_common_right (E: set) (S k l c p: nat):
+ $ ntBaseBody E S l c < ntBaseCommon E S k l c p $ = 'sqCommonName_right;
+theorem ntB_common_name_left (E: set) (S k l c p: nat):
+ $ k != ntBaseCommon E S k l c p $ =
+'(ltnei (lelttr leaddid1 sqCommonName_range_left));
+theorem ntB_common_name_right (E: set) (S k l c p: nat):
+ $ l != ntBaseCommon E S k l c p $ =
+'(ltnei (lelttr leaddid1 sqCommonName_range_right));
+theorem ntB_common_child_left (E: set) (S k l c p: nat) (hc: $ c < p $):
+ $ sqAllocAvoid (suc k) (suc (c + 0)) (ntBaseCommon E S k l c p) $ =
+'(ax_mp (sqAllocAvoid_successor hc) sqCommonName_avoid_left);
+theorem ntB_common_child_right (E: set) (S k l c p: nat) (hc: $ c < p $):
+ $ sqAllocAvoid (suc l) (suc (c + 0)) (ntBaseCommon E S k l c p) $ =
+'(ax_mp (sqAllocAvoid_successor hc) sqCommonName_avoid_right);
+
+theorem ntB_alpha_all (G: wff) (f g x y: nat)
+ (hxy: $ G -> x != y $) (hb: $ G -> kBinderAbsent f x $)
+ (hf: $ G -> kFresh f y $) (hs: $ G -> kSubst f x y = g $):
+ $ G -> kEquivalent (kAll x f) (kAll y g) $ =
+'(ntB_transport eqidd (kAlleq2d (eqcomd hs)) @
+ mpd hf (mpd hb (syl kAlpha_all hxy)));
+
+theorem ntB_alpha_exists (G: wff) (f g x y: nat)
+ (hxy: $ G -> x != y $) (hb: $ G -> kBinderAbsent f x $)
+ (hf: $ G -> kFresh f y $) (hs: $ G -> kSubst f x y = g $):
+ $ G -> kEquivalent (kExists x f) (kExists y g) $ =
+'(ntB_transport eqidd (kExistseq2d (eqcomd hs)) @
+ mpd hf (mpd hb (syl kAlpha_exists hxy)));
+
+theorem ntB_all_bridge (G: wff) (E: set) (S n k l c: nat)
+ (hc: $ G -> c e. ntBaseClass E $) (hs: $ G -> sfBound n (sfAll c) $)
+ (hk: $ G -> sqRebaseHygiene (sqStackEnv S E) n k (sfAll c) 0 $)
+ (hl: $ G -> sqRebaseHygiene (sqStackEnv S E) n l (sfAll c) 0 $)
+ (hsk: $ G -> kSubst (ntBaseBody E S k c) k (ntBaseCommon E S k l c (sfAll c)) =
+ sfNamedTemplate (sqEnvCons (ntBaseCommon E S k l c (sfAll c)) (sqStackEnv S E)) (suc k) 0 c $)
+ (hsl: $ G -> kSubst (ntBaseBody E S l c) l (ntBaseCommon E S k l c (sfAll c)) =
+ sfNamedTemplate (sqEnvCons (ntBaseCommon E S k l c (sfAll c)) (sqStackEnv S E)) (suc l) 0 c $):
+ $ G -> kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 (sfAll c))
+                       (sfNamedTemplate (sqStackEnv S E) l 0 (sfAll c)) $ =
+'(ntB_transport (syl sfNamedTemplate_all_cons (syl sfBound_wf (syl (bi1 sfBound_sfAll) hs)))
+ (syl sfNamedTemplate_all_cons (syl sfBound_wf (syl (bi1 sfBound_sfAll) hs))) @
+ syl kEquivalent_trans @ iand
+ (ntB_alpha_all (a1i ntB_common_name_left)
+  (syl (sfNamedTemplate_binder_absent ltsucid) (syl sfBound_wf (syl (bi1 sfBound_sfAll) hs)))
+  (a1i (ax_mp kFresh_above (ltlei ntB_common_left))) hsk)
+ (syl kEquivalent_trans @ iand
+  (syl kEquivalent_all (ntB_child_equiv sfAll_body_lt hc (syl (bi1 sfBound_sfAll) hs) hk hl
+    (a1i (ntB_common_child_left sfAll_body_lt)) (a1i (ntB_common_child_right sfAll_body_lt))))
+  (syl kEquivalent_sym @ ntB_alpha_all (a1i ntB_common_name_right)
+    (syl (sfNamedTemplate_binder_absent ltsucid) (syl sfBound_wf (syl (bi1 sfBound_sfAll) hs)))
+    (a1i (ax_mp kFresh_above (ltlei ntB_common_right))) hsl)));
+
+theorem ntB_ex_bridge (G: wff) (E: set) (S n k l c: nat)
+ (hc: $ G -> c e. ntBaseClass E $) (hs: $ G -> sfBound n (sfEx c) $)
+ (hk: $ G -> sqRebaseHygiene (sqStackEnv S E) n k (sfEx c) 0 $)
+ (hl: $ G -> sqRebaseHygiene (sqStackEnv S E) n l (sfEx c) 0 $)
+ (hsk: $ G -> kSubst (ntBaseBody E S k c) k (ntBaseCommon E S k l c (sfEx c)) =
+ sfNamedTemplate (sqEnvCons (ntBaseCommon E S k l c (sfEx c)) (sqStackEnv S E)) (suc k) 0 c $)
+ (hsl: $ G -> kSubst (ntBaseBody E S l c) l (ntBaseCommon E S k l c (sfEx c)) =
+ sfNamedTemplate (sqEnvCons (ntBaseCommon E S k l c (sfEx c)) (sqStackEnv S E)) (suc l) 0 c $):
+ $ G -> kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 (sfEx c))
+                       (sfNamedTemplate (sqStackEnv S E) l 0 (sfEx c)) $ =
+'(ntB_transport (syl sfNamedTemplate_ex_cons (syl sfBound_wf (syl (bi1 sfBound_sfEx) hs)))
+ (syl sfNamedTemplate_ex_cons (syl sfBound_wf (syl (bi1 sfBound_sfEx) hs))) @
+ syl kEquivalent_trans @ iand
+ (ntB_alpha_exists (a1i ntB_common_name_left)
+  (syl (sfNamedTemplate_binder_absent ltsucid) (syl sfBound_wf (syl (bi1 sfBound_sfEx) hs)))
+  (a1i (ax_mp kFresh_above (ltlei ntB_common_left))) hsk)
+ (syl kEquivalent_trans @ iand
+  (syl kEquivalent_exists (ntB_child_equiv sfEx_body_lt hc (syl (bi1 sfBound_sfEx) hs) hk hl
+    (a1i (ntB_common_child_left sfEx_body_lt)) (a1i (ntB_common_child_right sfEx_body_lt))))
+  (syl kEquivalent_sym @ ntB_alpha_exists (a1i ntB_common_name_right)
+    (syl (sfNamedTemplate_binder_absent ltsucid) (syl sfBound_wf (syl (bi1 sfBound_sfEx) hs)))
+    (a1i (ax_mp kFresh_above (ltlei ntB_common_right))) hsl)));
+
+theorem ntB_subst_use (G: wff) (E: set) (S n k y c: nat)
+ (hb: $ G -> sfBound (suc n) c $) (hz: $ G -> k != 0 $)
+ (he: $ G -> sqEnvAvoid (sqStackEnv S E) n k $):
+ $ G -> kSubst (ntBaseBody E S k c) k y =
+ sfNamedTemplate (sqEnvCons y (sqStackEnv S E)) (suc k) 0 c $ =
+'(mpd hb (mpd he (syl sfNamedTemplate_substitution_cons_when hz)));
+theorem ntB_all_core (G: wff) (E: set) (S n k l c: nat)
+ (hc: $ G -> c e. ntBaseClass E $) (hs: $ G -> sfBound n (sfAll c) $)
+ (hk: $ G -> sqRebaseHygiene (sqStackEnv S E) n k (sfAll c) 0 $)
+ (hl: $ G -> sqRebaseHygiene (sqStackEnv S E) n l (sfAll c) 0 $):
+ $ G -> kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 (sfAll c))
+                       (sfNamedTemplate (sqStackEnv S E) l 0 (sfAll c)) $ =
+'(ntB_all_bridge hc hs hk hl
+ (ntB_subst_use (syl (bi1 sfBound_sfAll) hs)
+  (syl sqRebaseHygiene_nonzero hk) (syl sqRebaseHygiene_avoid hk))
+ (ntB_subst_use (syl (bi1 sfBound_sfAll) hs)
+  (syl sqRebaseHygiene_nonzero hl) (syl sqRebaseHygiene_avoid hl)));
+theorem ntB_all (E: set) (c: nat):
+ $ c e. ntBaseClass E -> sfAll c e. ntBaseClass E $ =
+(named '(mpbird (a1i ntB_value) @ !! iald S @ !! iald n @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ ntB_all_core (syl anl (syl anl anl)) (syl anr (syl anl anl)) (syl anr anl) anr));
+theorem ntB_ex_core (G: wff) (E: set) (S n k l c: nat)
+ (hc: $ G -> c e. ntBaseClass E $) (hs: $ G -> sfBound n (sfEx c) $)
+ (hk: $ G -> sqRebaseHygiene (sqStackEnv S E) n k (sfEx c) 0 $)
+ (hl: $ G -> sqRebaseHygiene (sqStackEnv S E) n l (sfEx c) 0 $):
+ $ G -> kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 (sfEx c))
+                       (sfNamedTemplate (sqStackEnv S E) l 0 (sfEx c)) $ =
+'(ntB_ex_bridge hc hs hk hl
+ (ntB_subst_use (syl (bi1 sfBound_sfEx) hs)
+  (syl sqRebaseHygiene_nonzero hk) (syl sqRebaseHygiene_avoid hk))
+ (ntB_subst_use (syl (bi1 sfBound_sfEx) hs)
+  (syl sqRebaseHygiene_nonzero hl) (syl sqRebaseHygiene_avoid hl)));
+theorem ntB_ex (E: set) (c: nat):
+ $ c e. ntBaseClass E -> sfEx c e. ntBaseClass E $ =
+(named '(mpbird (a1i ntB_value) @ !! iald S @ !! iald n @ !! iald k @ !! iald l @ exp @ exp @ exp @
+ ntB_ex_core (syl anl (syl anl anl)) (syl anr (syl anl anl)) (syl anr anl) anr));
+theorem ntB_quantifier (E: set): $ sfQuantifierClosed (ntBaseClass E) $ =
+(named '(ax_gen @ iand ntB_all ntB_ex));
+theorem ntB_closed (E: set): $ sfConstructionClosed (ntBaseClass E) $ =
+'(ian (ian (ian ntB_bot ntB_atomic) ntB_binary) ntB_quantifier);
+pub theorem sfNamedTemplate_rebase_stack (E: set) (S n k l c: nat):
+ $ sfBound n c -> sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c) $ =
+'(mpd id (syl ntB_at (syl (ax_mp sfWf_induction ntB_closed) sfBound_wf)));
+theorem ntB_nil_agree (E: set) (n: nat): $ sqEnvAgree E (sqStackEnv 0 E) n $ =
+(named '(ax_gen @ a1i @ eqcom sqStackEnv_nil));
+theorem ntB_nil_eval (E: set) (n k c: nat):
+ $ sfBound n c -> sfNamedTemplate (sqStackEnv 0 E) k 0 c = sfNamedTemplate E k 0 c $ =
+'(syl (sfNamedTemplate_environment sqStackEnv_nil_agree) (bi2 (srecpeq2 (preq1 add01))));
+theorem ntB_final (G: wff) (E: set) (n k l c: nat)
+ (hb: $ G -> sfBound n c $)
+ (hk: $ G -> sqRebaseHygiene E n k c 0 $)
+ (hl: $ G -> sqRebaseHygiene E n l c 0 $):
+ $ G -> kEquivalent (sfNamedTemplate E k 0 c) (sfNamedTemplate E l 0 c) $ =
+'(ntB_transport (eqcomd (syl ntB_nil_eval hb)) (eqcomd (syl ntB_nil_eval hb)) @
+ mpd (syl (sqRebaseHygiene_agree ntB_nil_agree) hl) @
+ mpd (syl (sqRebaseHygiene_agree ntB_nil_agree) hk) @ syl sfNamedTemplate_rebase_stack hb);
+pub theorem sfNamedTemplate_fresh_base_equivalent (E: set) (n k l c: nat):
+ $ sfBound n c -> sqRebaseHygiene E n k c 0 -> sqRebaseHygiene E n l c 0 ->
+ kEquivalent (sfNamedTemplate E k 0 c) (sfNamedTemplate E l 0 c) $ =
+'(exp @ exp @ ntB_final anll anlr anr);

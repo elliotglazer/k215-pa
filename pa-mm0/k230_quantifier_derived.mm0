@@ -1,0 +1,36 @@
+import "k230_derived.mm0";
+
+
+
+-- Derived rules of the exact numerical K calculus.
+
+theorem kPropContra (a b: nat): $ kProvable (kImp (kImp a b) (kImp (kImp b kF) (kImp a kF))) $;
+
+theorem kPropDuplicate (a b: nat): $ kProvable (kImp (kImp a (kImp a b)) (kImp a b)) $;
+
+theorem kPropUseConj (a b c: nat): $ kProvable (kImp a (kImp (kImp (kImp (kImp a b) (kImp c kF)) kF) b)) $;
+
+theorem kProvable_syl (a b c: nat)
+  (hab: $ kProvable (kImp a b) $) (hbc: $ kProvable (kImp b c) $):
+  $ kProvable (kImp a c) $;
+
+theorem kAll_mono (x a b: nat) (h: $ kProvable (kImp a b) $):
+  $ kProvable (kImp (kAll x a) (kAll x b)) $;
+
+theorem kNot_mono (a b: nat) (h: $ kProvable (kImp a b) $):
+  $ kProvable (kImp (kNot b) (kNot a)) $;
+
+theorem kExists_mono (x a b: nat) (h: $ kProvable (kImp a b) $):
+  $ kProvable (kImp (kExists x a) (kExists x b)) $;
+
+theorem kExists_collapse (x a: nat)
+  (hv: $ kProvable (kImp a (kAll x a)) $):
+  $ kProvable (kImp (kExists x a) a) $;
+
+theorem kEquality_reflexive (x: nat): $ kProvable (kEq x x) $;
+
+theorem kCore_member (a b x m: nat) (hm: $ kProvable m $)
+  (hc: $ kProvable (kCore a b x m) $):
+  $ kProvable (kExists x (kMem b x)) $;
+
+theorem kBootstrap_domain_member: $ kProvable (kExists 3 (kMem 1 3)) $;

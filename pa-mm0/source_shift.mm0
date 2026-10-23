@@ -1,0 +1,70 @@
+import "source_syntax.mm0";
+
+def sfShiftIndex (d i: nat): nat = $ if (i < d) i (suc i) $;
+def sfHistoryLength (h .x .y .k: nat): nat =
+$ the {x | x e. {k | Dom h C_ upto k} /\
+    A. y (y e. {k | Dom h C_ upto k} -> x <= y)} $;
+def sfShiftBody (d c h: nat): nat =
+$ if (c = 0) 0
+  (if (sfTag c = 1) (sfMem (sfShiftIndex d (sfLeft c)) (sfShiftIndex d (sfRight c)))
+  (if (sfTag c = 2) (sfEq (sfShiftIndex d (sfLeft c)) (sfShiftIndex d (sfRight c)))
+  (if (sfTag c = 3) (sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (sfAll (h @ (suc d, sfLeft c)))
+  (if (sfTag c = 7 /\ sfRight c = 0) (sfEx (h @ (suc d, sfLeft c))) 0))))))) $;
+def sfShiftStep (.h: nat): set =
+$ \ h, sfShiftBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+def sfShift (d c: nat): nat = $ srec sfShiftStep (d, c) $;
+def sfShiftHistory (d c .i: nat): nat =
+$ \. i e. upto (d, c), srec sfShiftStep i $;
+
+theorem sfShiftIndex_bound (d i: nat): $ i < d -> sfShiftIndex d i = i $;
+theorem sfShiftIndex_free (d i: nat): $ ~i < d -> sfShiftIndex d i = suc i $;
+theorem sfKey_lt (d a c: nat): $ a < c -> (d, a) < (d, c) $;
+theorem sfKey_underBinder_lt (d a c: nat): $ a < c -> (suc d, a) < (d, c) $;
+theorem sfShiftStep_apply (h: nat):
+  $ sfShiftStep @ h = sfShiftBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+theorem sfShiftHistory_size (d c: nat): $ sfHistoryLength (sfShiftHistory d c) = (d, c) $;
+theorem sfShiftHistory_lookup (d c e a: nat):
+  $ (e, a) < (d, c) -> sfShiftHistory d c @ (e, a) = sfShift e a $;
+theorem sfShift_unfold (d c: nat):
+  $ sfShift d c = sfShiftBody d c (sfShiftHistory d c) $;
+
+theorem sfShift_bot (d: nat):
+  $ sfShift d sfBot = sfBot $;
+
+theorem sfShift_sfMem (d a b: nat):
+  $ sfShift d (sfMem a b) = sfMem (sfShiftIndex d a) (sfShiftIndex d b) $;
+
+theorem sfShift_sfEq (d a b: nat):
+  $ sfShift d (sfEq a b) = sfEq (sfShiftIndex d a) (sfShiftIndex d b) $;
+
+theorem sfShift_sfAnd (d a b: nat):
+  $ sfShift d (sfAnd a b) = sfAnd (sfShift d a) (sfShift d b) $;
+
+theorem sfShift_sfOr (d a b: nat):
+  $ sfShift d (sfOr a b) = sfOr (sfShift d a) (sfShift d b) $;
+
+theorem sfShift_sfImp (d a b: nat):
+  $ sfShift d (sfImp a b) = sfImp (sfShift d a) (sfShift d b) $;
+
+theorem sfShift_sfAll (d a: nat):
+  $ sfShift d (sfAll a) = sfAll (sfShift (suc d) a) $;
+
+theorem sfShift_sfEx (d a: nat):
+  $ sfShift d (sfEx a) = sfEx (sfShift (suc d) a) $;
+
+theorem sfShift_tag0 (d c: nat):
+  $ sfTag c = 0 -> sfShift d c = 0 $;
+
+theorem sfShift_bad_all (d c: nat):
+  $ sfTag c = 6 -> sfRight c != 0 -> sfShift d c = 0 $;
+
+theorem sfShift_bad_ex (d c: nat):
+  $ sfTag c = 7 -> sfRight c != 0 -> sfShift d c = 0 $;
+
+theorem sfShiftIndex_zero (i: nat):
+  $ sfShiftIndex 0 i = suc i $;
+
+

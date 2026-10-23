@@ -1,0 +1,32 @@
+import "k215_bundle_images_glue_all.mm0";
+import "k215_bundle_images_relfree.mm0";
+import "raw_source_prop_transfer.mm0";
+import "raw_source_quantifiers.mm0";
+
+-- The glue with its side conditions as an antecedent (k' = k under the conditions).
+def k215CGk (a b k q: nat): nat = $ if ((k != a /\ k != b) /\ q <= k) k (suc (a + b + q)) $;
+theorem k215Glue_d (a b k q: nat):
+  $ ((k != a /\ k != b) /\ q <= k) ->
+    zfcProvable (sfImp (k215BoundF (k215GPhi a b q)) (k215DecBundleGz a b k 0 (rawDecode q))) $;
+
+-- bound^L: ZFC proves, relativized to L, the closure of the bound principle k215BoundF for
+-- each matrix phi with at most N parameters (free indices below 2 + N).
+def k215BoundL (.phi .N: nat): wff =
+$ A. phi A. N (sfBound (2 + N) phi ->
+    zfcProvable (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF phi)))) $;
+
+-- Every closed core instance is in the glue class.
+theorem k215Core_glue_class (hb: $ k215BoundL $): $ k215CoreAxioms C_ k215BoundGlueClass $;
+
+-- core^L (and the K215/ZFC refutation transfer) from G1, L nonempty and bound^L.
+theorem k215CoreImagesL_from_boundL
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+  (hb:$ k215BoundL $):
+  $ k215CoreImagesL $;
+
+theorem k215_refutation_from_boundL
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+  (hb:$ k215BoundL $):
+  $ k215Inconsistent -> zfcInconsistent $;

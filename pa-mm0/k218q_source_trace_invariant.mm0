@@ -1,0 +1,57 @@
+import "k218q_named_at_closure.mm0";
+import "source_nd_quantifiers.mm0";
+
+def k218QRowProperty (n r: nat): wff =
+ $ ifp (fst r = 0)
+ (k218INamedAt n (fst (snd r)) (snd (snd r)))
+ (k218INamedAt n (fst (snd (snd r)) : fst (snd r)) (snd (snd (snd (snd r)))) /\
+  k218INamedAt n (fst (snd (snd (snd r))) : fst (snd r)) (snd (snd (snd (snd r))))) $;
+
+def k218QRowAt (n r: nat): wff =
+ $ sfRowWf r /\ (r <= n /\ k218QRowProperty n r) $;
+
+def k218QRowGood (r .n: nat): wff = $ E. n k218QRowAt n r $;
+
+def k218QRowClass (.r: nat): set = $ {r | k218QRowGood r} $;
+
+theorem k218QRowProperty_sequent (n G a: nat):
+ $ k218QRowProperty n (sfSequent G a) <-> k218INamedAt n G a $;
+
+theorem k218QRowProperty_branches (n G a b c: nat):
+ $ k218QRowProperty n (sfBranches G a b c) <-> (k218INamedAt n (a : G) c /\ k218INamedAt n (b : G) c) $;
+
+theorem k218QRowAt_wf (n r: nat):
+ $ k218QRowAt n r -> sfRowWf r $;
+
+theorem k218QRowAt_bound (n r: nat):
+ $ k218QRowAt n r -> r <= n $;
+
+theorem k218QRowAt_property (n r: nat):
+ $ k218QRowAt n r -> k218QRowProperty n r $;
+
+theorem k218QRowAt_intro (n r: nat):
+ $ sfRowWf r -> r <= n -> k218QRowProperty n r -> k218QRowAt n r $;
+
+theorem k218QRowAt_sequent (n G a: nat):
+ $ k218QRowAt n (sfSequent G a) -> k218INamedAt n G a $;
+
+theorem k218QRowAt_branches (n G a b c: nat):
+ $ k218QRowAt n (sfBranches G a b c) -> (k218INamedAt n (a : G) c /\ k218INamedAt n (b : G) c) $;
+
+theorem k218QRowGood_intro (n r: nat):
+ $ k218QRowAt n r -> k218QRowGood r $;
+
+theorem k218QRowGood_wf (r: nat):
+ $ k218QRowGood r -> sfRowWf r $;
+
+theorem k218QRowClass_value (r: nat):
+ $ r e. k218QRowClass <-> k218QRowGood r $;
+
+theorem k218QRowProperty_mono (n m r: nat):
+ $ n <= m -> k218QRowProperty n r -> k218QRowProperty m r $;
+
+theorem k218QRowAt_mono (n m r: nat):
+ $ n <= m -> k218QRowAt n r -> k218QRowAt m r $;
+
+theorem k218QT_named_raise (m n G a: nat):
+ $ m <= n -> k218QRowAt m (sfSequent G a) -> k218INamedAt n G a $;

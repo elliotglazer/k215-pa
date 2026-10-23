@@ -1,0 +1,37 @@
+import "source_piece_pcf_rep_cover_step_rule_r33.mm1";
+
+@_ abstract def sfPieceRepCoverPointBody(T:set)(n X:nat):nat = $ sfImp (sfPieceEnv (sfComposeMap sfSuccessorMap T) n 0) (sfMem 0 (suc X)) $;
+
+@_ abstract def sfPieceRepCoverPoint(T:set)(n X:nat):nat = $ sfAll (sfPieceRepCoverPointBody T n X) $;
+
+pub theorem sfPieceRepCoverPoint_wf(T:set)(n X:nat): $ sfWf (sfPieceRepCoverPoint T n X) $ = (named '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfPieceEnv_wf) sfWf_mem)));
+
+theorem pcr34_up_at(T:set)(i:nat): $ (sfComposeMap sfSuccessorMap T) @ i = suc (T @ i) $ = (named '(eqtr sfComposeMap_value sfSuccessorMap_value));
+
+theorem pcr34_depth_zero(R:set): $ sfRenameDepthMap R 1 @ 0 = 0 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S)));
+
+theorem pcr34_depth_suc(R:set)(i:nat): $ sfRenameDepthMap R 1 @ suc i = suc (R @ i) $ = (named '(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))));
+
+theorem pcr34_rename_map(R T:set)(i:nat): $ sfComposeMap (sfRenameDepthMap R 1) (sfComposeMap sfSuccessorMap T) @ i = sfComposeMap sfSuccessorMap (sfComposeMap R T) @ i $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 pcr34_up_at) (eqtr pcr34_depth_suc (eqcom (eqtr pcr34_up_at (suceq sfComposeMap_value)))))));
+
+pub theorem sfPieceRepCoverPoint_rename(R T:set)(n X:nat): $ sfRename R 0 (sfPieceRepCoverPoint T n X) = sfPieceRepCoverPoint (sfComposeMap R T) n (R @ X) $ = (named '(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr (ax_mp sfRename_as_map sfPieceEnv_wf) (eqtr sfPieceEnv_rename (sfPieceEnv_eq pcr34_depth_zero (ax_gen pcr34_rename_map)))) (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)))))))));
+
+pub theorem sfPieceRepCoverPoint_parameter_eq(T:set)(n X Y:nat)(h:$ X = Y $): $ sfPieceRepCoverPoint T n X = sfPieceRepCoverPoint T n Y $ = (named '(nsAll_eq (nsImp_eq eqid (nsMem_eq eqid (suceq h)))));
+
+pub theorem sfPieceRepCoverPoint_shift(T:set)(n X:nat): $ sfShift 0 (sfPieceRepCoverPoint T n X) = sfPieceRepCoverPoint (sfComposeMap sfSuccessorMap T) n (suc X) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepCoverPoint_wf)) (eqtr sfPieceRepCoverPoint_rename (sfPieceRepCoverPoint_parameter_eq sfSuccessorMap_value))));
+
+theorem pcr34_subst_map(T:set)(e i:nat): $ sfComposeMap (sfSubstDepthMap 0 e) (sfComposeMap sfSuccessorMap T) @ i = T @ i $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 pcr34_up_at) (eqtr sfSubstDepthMap_value sfSubstIndex_successor))));
+
+pub theorem sfPieceRepCoverPoint_instance(T:set)(n X e:nat): $ sfSubst 0 e (sfPieceRepCoverPointBody T n X) = sfImp (sfPieceEnv T n e) (sfMem e X) $ = (named '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfPieceEnv_subst (sfPieceEnv_eq sfSubstIndex_zero (ax_gen pcr34_subst_map))) (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor)))));
+
+pub theorem sfPieceRepCoverPoint_use(T:set)(G n X e:nat)(hq:$ nsLocal G (sfPieceRepCoverPoint T n X) $)(he:$ nsLocal G (sfPieceEnv T n e) $): $ nsLocal G (sfMem e X) $ = (named '(ax_mp (ax_mp nsLocal_mp (sfRQ_rewrite sfPieceRepCoverPoint_instance (ax_mp nsLocal_AllE hq))) he));
+
+theorem pcr34_liftrest_at(T:set)(v i:nat): $ sfPieceRepLiftRest (sfComposeMap sfSuccessorMap (sqEnvCons v T)) @ i = sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap T) @ i $ = (named '(eqtr sfPieceRepLiftRest_at (eqtr (suceq (eqtr pcr34_up_at (suceq sqEnvCons_suc))) (eqcom (eqtr pcr34_up_at (suceq pcr34_up_at))))));
+
+theorem pcr34_up_head(T:set)(v:nat): $ sfComposeMap sfSuccessorMap (sqEnvCons v T) @ 0 = suc v $ = (named '(eqtr pcr34_up_at (suceq sqEnvCons_zero)));
+
+theorem pcr34_env_suc(T:set)(n v:nat): $ sfPieceEnv (sfComposeMap sfSuccessorMap (sqEnvCons v T)) (suc n) 0 = sfEx (sfAnd (sfPieceEnv (sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap T)) n 0) (sfPieceRepExtension 0 (suc (suc v)) 1)) $ = (named '(eqtr sfPieceEnv_suc (nsEx_eq (nsAnd_eq (sfPieceEnv_eq eqid (ax_gen pcr34_liftrest_at)) (sfPieceRepExtension_eq eqid (suceq pcr34_up_head) eqid)))));
+
+theorem pcr34_mem_shift(x y:nat): $ sfShift 0 (sfMem x y) = sfMem (suc x) (suc y) $ = (named '(eqtr sfShift_sfMem (nsMem_eq sfShiftIndex_zero sfShiftIndex_zero)));
+
+pub theorem sfPieceRepCoverPoint_cons(T:set)(G n A X Y v:nat)(hq:$ nsLocal G (sfPieceRepCoverPoint T n X) $)(hs:$ nsLocal G (sfPieceRepEnvironmentCoverStep A X Y) $)(hv:$ nsLocal G (sfMem v A) $): $ nsLocal G (sfPieceRepCoverPoint (sqEnvCons v T) (suc n) Y) $ = (named '(ax_mp (sfLocal_allI (ax_mp nsLocal_context_wf hq)) (ax_mp nsLocal_II (ax_mp (ax_mp (sfLocal_exE sfWf_mem) (sfRQ_rewrite pcr34_env_suc (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfPieceEnv_wf sfContextShift_wf))) sfContext_member_head))) (sfRQ_rewrite (eqcom pcr34_mem_shift) (ax_mp (ax_mp (ax_mp (ax_mp sfPieceRepEnvironmentCoverStep_use (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfPieceEnv_wf) sfPieceRepExtension_wf) sfContextShift_wf))) sfContextSub_cons) (sfRQ_rewrite sfPieceRepEnvironmentCoverStep_shift (ax_mp sfSepLocal_shift (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfPieceEnv_wf sfContextShift_wf))) sfContextSub_cons) (sfRQ_rewrite sfPieceRepEnvironmentCoverStep_shift (ax_mp sfSepLocal_shift hs))))))) (sfPieceRepCoverPoint_use (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfPieceEnv_wf) sfPieceRepExtension_wf) sfContextShift_wf))) sfContextSub_cons) (sfRQ_rewrite sfPieceRepCoverPoint_shift (ax_mp sfSepLocal_shift (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfPieceEnv_wf sfContextShift_wf))) sfContextSub_cons) (sfRQ_rewrite sfPieceRepCoverPoint_shift (ax_mp sfSepLocal_shift hq)))))) (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfPieceEnv_wf) sfPieceRepExtension_wf) sfContextShift_wf))) sfContext_member_head)))) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfPieceEnv_wf) sfPieceRepExtension_wf) sfContextShift_wf))) sfContextSub_cons) (sfRQ_rewrite pcr34_mem_shift (ax_mp sfSepLocal_shift (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfPieceEnv_wf sfContextShift_wf))) sfContextSub_cons) (sfRQ_rewrite pcr34_mem_shift (ax_mp sfSepLocal_shift hv))))))) (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfPieceEnv_wf) sfPieceRepExtension_wf) sfContextShift_wf))) sfContext_member_head))))))));

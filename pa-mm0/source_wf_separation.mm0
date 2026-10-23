@@ -1,0 +1,92 @@
+import "source_wf_separation_logic.mm0";
+
+def wfSepFixedF0: nat = $ sfMem 0 1 $;
+
+def wfSepFixedF1: nat = $ sfMem 0 2 $;
+
+def wfSepFixedF2: nat = $ sfImp wfSepFixedF0 wfSepFixedF1 $;
+
+def wfSepFixedF3: nat = $ sfAll wfSepFixedF2 $;
+
+def wfSepFixedF4: nat = $ sfImp wfSepFixedF0 wfSepFixedF3 $;
+
+def wfSepFixedF5: nat = $ sfAll wfSepFixedF4 $;
+
+def wfSepFixedF6: nat = $ sfEx wfSepFixedF0 $;
+
+def wfSepFixedF7: nat = $ sfBot $;
+
+def wfSepFixedF8: nat = $ sfImp wfSepFixedF1 wfSepFixedF7 $;
+
+def wfSepFixedF9: nat = $ sfImp wfSepFixedF0 wfSepFixedF8 $;
+
+def wfSepFixedF10: nat = $ sfAll wfSepFixedF9 $;
+
+def wfSepFixedF11: nat = $ sfAnd wfSepFixedF0 wfSepFixedF10 $;
+
+def wfSepFixedF12: nat = $ sfEx wfSepFixedF11 $;
+
+def wfSepFixedF13: nat = $ sfImp wfSepFixedF6 wfSepFixedF12 $;
+
+def wfSepFixedF14: nat = $ sfImp wfSepFixedF3 wfSepFixedF13 $;
+
+def wfSepFixedF15: nat = $ sfAll wfSepFixedF14 $;
+
+def wfSepFixedF16: nat = $ sfAnd wfSepFixedF5 wfSepFixedF15 $;
+
+def wfSepFixedF17: nat = $ sfMem 2 0 $;
+
+def wfSepFixedF18: nat = $ sfAnd wfSepFixedF16 wfSepFixedF17 $;
+
+def wfSepFixedF19: nat = $ sfEx wfSepFixedF18 $;
+
+def wfSepFixedF20: nat = $ sfMem 1 0 $;
+
+def wfSepFixedF21: nat = $ sfAnd wfSepFixedF16 wfSepFixedF20 $;
+
+def wfSepFixedF22: nat = $ sfEx wfSepFixedF21 $;
+
+def wfSepFixedF23: nat = $ sfImp wfSepFixedF3 wfSepFixedF22 $;
+
+def wfSepFixedF24: nat = $ sfImp wfSepFixedF19 wfSepFixedF23 $;
+
+def wfSepFixedF25: nat = $ sfAll wfSepFixedF24 $;
+
+def wfSepFixedF26: nat = $ sfAll wfSepFixedF25 $;
+
+def wfSepFixedF27: nat = $ sfMem 3 0 $;
+
+def wfSepFixedF28: nat = $ sfAnd wfSepFixedF16 wfSepFixedF27 $;
+
+def wfSepFixedF29: nat = $ sfEx wfSepFixedF28 $;
+
+def wfSepFixedF30: nat = $ sfMem 0 3 $;
+
+def wfSepFixedF31: nat = $ sfImp wfSepFixedF0 wfSepFixedF30 $;
+
+def wfSepFixedF32: nat = $ sfAll wfSepFixedF31 $;
+
+def wfSepFixedF33: nat = $ sfImp wfSepFixedF32 wfSepFixedF22 $;
+
+def wfSepFixedF34: nat = $ sfImp wfSepFixedF29 wfSepFixedF33 $;
+
+def wfSepFixedF35: nat = $ sfAll wfSepFixedF34 $;
+
+def sfSepPoint (theta: nat): nat = $ sfIff (sfMem 0 1) (sfAnd (sfMem 0 2) theta) $;
+
+def sfSepRawProfile (theta: nat): nat = $ sfAll (sfSepPoint theta) $;
+
+def sfSepGuardProfile (theta: nat): nat = $ sfAll (sfImp sfWFDomain (sfSepPoint theta)) $;
+
+def sfSepWitness (theta: nat): nat = $ sfAnd sfWFDomain (sfSepGuardProfile theta) $;
+
+def sfSepGuarded (theta: nat): nat = $ sfAll (sfImp sfWFDomain (sfEx (sfSepWitness theta))) $;
+
+def sfSepLocalContext (theta: nat): nat = $ sfWFSubset : (sfSeparation theta : 0) $;
+
+theorem sfWFSeparation_local (theta: nat) (ht: $ sfWf theta $): $ nsLocal (sfSepLocalContext theta) (sfSepGuarded theta) $;
+
+theorem sfWFSeparation_theory (T: set) (theta: nat)
+ (ht: $ sfTheoryClosed T $) (hw: $ sfWf theta $):
+ $ sfTheoryProvable T sfWFSubset -> sfTheoryProvable T (sfSeparation theta) ->
+   sfTheoryProvable T (sfSepGuarded theta) $;

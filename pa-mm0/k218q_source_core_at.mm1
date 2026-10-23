@@ -1,0 +1,39 @@
+import "k218q_kp0_source.mm1";
+import "k218q_named_eigen.mm1";
+import "k218_source_core_bounds.mm1";
+
+theorem k218CA_B_N (E: set) (B f: nat):
+ $ B < k218SourceSeedBase E B f $ =
+'(lttr k218PS_B_lt_C k218SO_C_N);
+
+theorem k218CA_env_mono (E: set) (n B k: nat)
+ (hk: $ B <= k $) (he: $ A. j (j < n -> E @ j < B) $):
+ $ A. i (i < n -> E @ i < k) $ =
+(named '(ax_gen (syl (ltletrd id (a1i hk)) (ax_mp k218CRB_env_read he))));
+
+theorem k218CA_rebase {i j: nat} (E: set) (n B k f a: nat)
+ (hB: $ 3 < B $) (he: $ A. j (j < n -> E @ j < B) $)
+ (hk: $ B <= k $) (ha: $ sfBound n a $):
+ $ k218IEquivalent (sfNamedTemplate E (k218SourceSeedBase E B f) 0 a)
+     (sfNamedTemplate E k 0 a) $ =
+(named '(k218INamed_rebase
+ (lttr (lttr (lttr lt01S (mpbi ltsuc lt01S)) hB) k218CA_B_N)
+ (ltletr (lttr (lttr lt01S (mpbi ltsuc lt01S)) hB) hk)
+ {(k218CRB_env_mono k218CA_B_N he) : $ A. i (i < n -> E @ i < k218SourceSeedBase E B f) $}
+ {(k218CA_env_mono hk he) : $ A. i (i < n -> E @ i < k) $} ha));
+
+pub theorem k218QSourceSeededCore_at {i j: nat} (E: set) (n B k f: nat)
+ (hB: $ 3 < B $) (he1: $ sqEnvAvoid E n 1 $) (he3: $ sqEnvAvoid E n 3 $)
+ (he: $ A. j (j < n -> E @ j < B) $) (hk: $ B <= k $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218QProvable (sfNamedTemplate E k 0 (sfK218SeededCore f)) $ =
+(named '(k218QProvable_mp (!! k218QSourceSeededCore i j hB he1 he3 he hf)
+ (anl (!! k218CA_rebase i j hB he hk (sfK218SeededCore_bound hf)))));
+
+pub theorem k218QSourceKp0_at {i j: nat} (E: set) (n B k f: nat)
+ (hB: $ 3 < B $) (he1: $ sqEnvAvoid E n 1 $) (he3: $ sqEnvAvoid E n 3 $)
+ (he: $ A. j (j < n -> E @ j < B) $) (hk: $ B <= k $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218QProvable (sfNamedTemplate E k 0 (sfK218Kp0 f)) $ =
+(named '(k218QProvable_mp (!! k218QSourceKp0 i j hB he1 he3 he hf)
+ (anl (!! k218CA_rebase i j hB he hk (sfK218Kp0_bound hf)))));

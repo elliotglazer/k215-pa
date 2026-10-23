@@ -1,0 +1,28 @@
+import "source_piece_pcf_definable_conjunction.mm0";
+
+import "source_piece_pcf_definable_or.mm0";
+
+import "source_piece_pcf_rep_implication_named_r43.mm0";
+
+-- Disjunction at recipe level (Rocq Z_cl.rep_ex, Or branch: the union of {R1, R2}).
+-- Same layout as sfPieceDefinableConjunction_recipe: result at index 0, carrier at 1.
+
+theorem sfPieceDefinableOr_represents(T:set)(G A R1 R2 R phi psi e:nat)
+ (hU:$ nsLocal G (sfIff (sfMem e R) (sfOr (sfMem e R1) (sfMem e R2))) $)
+ (hA:$ sfPieceRepresentationAt T G A R1 phi e $)
+ (hB:$ sfPieceRepresentationAt T G A R2 psi e $):
+ $ sfPieceRepresentationAt T G A R (sfOr phi psi) e $;
+
+theorem sfPieceDefinableDisjunction_point(G n phi psi l r:nat)
+ (hl:$ sfBound n phi $)(hr:$ sfBound n psi $)
+ (hL:$ nsLocal G (sfPieceDefinableNamed n phi l 1) $)
+ (hR:$ nsLocal G (sfPieceDefinableNamed n psi r 1) $)
+ (hU:$ nsLocal G (sfPieceRepImplicationNamedUnion l r 0) $):
+ $ nsLocal (sfPieceDefinableParametersContext n G) (sfPieceDefinableRecipePoint n (sfOr phi psi)) $;
+
+theorem sfPieceDefinableDisjunction_recipe(G n phi psi l r:nat)
+ (hl:$ sfBound n phi $)(hr:$ sfBound n psi $)
+ (hL:$ nsLocal G (sfPieceDefinableNamed n phi l 1) $)
+ (hR:$ nsLocal G (sfPieceDefinableNamed n psi r 1) $)
+ (hU:$ nsLocal G (sfPieceRepImplicationNamedUnion l r 0) $):
+ $ nsLocal G (sfPieceDefinableRecipe n (sfOr phi psi)) $;

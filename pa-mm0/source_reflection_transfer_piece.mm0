@@ -1,0 +1,23 @@
+import "source_reflection_transfer_maps.mm0";
+
+import "source_reflection_limit_dn_elimination.mm0";
+
+import "source_reflection_limit_witness_mono.mm0";
+
+import "source_piece_conjunction_proofs.mm0";
+
+theorem sfReflectionTransfer_level(P:set)(d X y level:nat)(hl:$ sfBound 2 level $): $ sfRename (sqEnvCons y (sfPieceEnvironment P d X)) 0 level = sfORBinary level y d $;
+
+theorem sfReflectionTransfer_Ew(P:set)(d X y domain phi:nat)(hd:$ sfBound 1 domain $)(hf:$ sfWf phi $): $ sfRename (sqEnvCons y (sfPieceEnvironment P d X)) 0 (sfPieceEw domain (sfPieceShift3 phi)) = sfReflectionEwAt domain (sfRename P 1 phi) y $;
+
+theorem sfReflectionTransfer_D0_open(P:set)(d X y domain level phi:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hf:$ sfWf phi $): $ sfSubst 0 y (sfRename (sfPieceEnvironment P d X) 1 (sfImp level (sfPieceEw domain (sfPieceShift3 phi)))) = sfImp (sfORBinary level y d) (sfReflectionEwAt domain (sfRename P 1 phi) y) $;
+
+theorem sfReflectionTransfer_D0_local(P:set)(G d X y domain level phi:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hf:$ sfWf phi $)(hL:$ nsLocal G (sfORBinary level y d) $)(hD:$ nsLocal G (sfRename (sfPieceEnvironment P d X) 0 (sfPieceD0 domain level phi)) $): $ nsLocal G (sfReflectionEwAt domain (sfRename P 1 phi) y) $;
+
+theorem sfReflectionTransfer_tuple_matrix(T F:set)(count phi:nat)(hp:$ sfBound (suc count) phi $): $ sfRename (sfReflectionDnAppend T F count) 1 phi = sfRename T 1 phi $;
+
+theorem sfReflectionPH_PC_tuple(T F:set)(G domain level phi count d X y:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hp:$ sfBound (suc count) phi $)(hm:$ sfReflectionDnMembers T G X count $)(hL:$ nsLocal G (sfORBinary level y d) $)(hPC:$ nsLocal G (sfPiecePC domain level count phi d X) $): $ nsLocal G (sfReflectionEwAt domain (sfRename (sfReflectionDnAppend T F count) 1 phi) y) $;
+
+theorem sfReflectionPH_PC_local(T F:set)(G domain level phi count d X y z:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hp:$ sfBound (suc count) phi $)(hm:$ sfReflectionDnMembers T G X count $)(hL:$ nsLocal G (sfORBinary level y d) $)(hPC:$ nsLocal G (sfPiecePC domain level count phi d X) $)(hS:$ nsLocal G (sfCLSubset y z) $): $ nsLocal G (sfReflectionEwAt domain (sfRename T 1 phi) z) $;
+
+theorem sfReflectionPH_conjunction_local(T F:set)(G domain level sb sc n i d X y z:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hv:$ sfPieceTableValid sb sc n $)(hi:$ i < n $)(hm:$ sfReflectionDnMembers T G X (sfPieceCount sb sc i) $)(hL:$ nsLocal G (sfORBinary level y d) $)(hP:$ nsLocal G (sfPieceConjunction domain level sb sc n d X) $)(hS:$ nsLocal G (sfCLSubset y z) $): $ nsLocal G (sfReflectionEwAt domain (sfRename T 1 (sfPieceMatrix sb sc i)) z) $;

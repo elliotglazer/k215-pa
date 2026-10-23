@@ -1,0 +1,21 @@
+import "source_reflection_transfer_tv_from_rows.mm0";
+
+def sfTVBallContextStep(y:nat)(.z:nat):set = $ \ z, (suc (fst z), (sfMem 0 (suc (y + fst z))) : sfContextShift (snd z)) $;
+
+def sfTVBallContextRaw(G y n:nat):nat = $ rec (0, G) (sfTVBallContextStep y) n $;
+
+def sfTVBallContext(G y n:nat):nat = $ snd (sfTVBallContextRaw G y n) $;
+
+theorem sfTVBallContext_zero(G y:nat): $ sfTVBallContext G y 0 = G $;
+
+theorem sfTVBallContext_suc(G y n:nat): $ sfTVBallContext G y (suc n) = (sfMem 0 (y + suc n)) : sfContextShift (sfTVBallContext G y n) $;
+
+theorem sfTVBallContext_wf(G y n:nat)(hg:$ sfContextWf G $): $ sfContextWf (sfTVBallContext G y n) $;
+
+def sfTVBallSnocLaw(n:nat)(.v .a:nat):wff = $ A. v A. a (sfCLBall (suc n) v a = sfCLBall n v (sfAll (sfImp (sfMem 0 (suc (v + n))) a))) $;
+
+theorem sfTVBall_snoc(n y body:nat): $ sfCLBall (suc n) y body = sfCLBall n y (sfAll (sfImp (sfMem 0 (suc (y + n))) body)) $;
+
+def sfTVBallIntroLaw(G y n:nat)(.a:nat):wff = $ A. a (nsLocal (sfTVBallContext G y n) a -> nsLocal G (sfCLBall n y a)) $;
+
+theorem sfTVBall_introduce(G y n body:nat)(hg:$ sfContextWf G $): $ nsLocal (sfTVBallContext G y n) body -> nsLocal G (sfCLBall n y body) $;

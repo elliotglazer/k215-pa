@@ -1,0 +1,83 @@
+import "source_structural_induction.mm1";
+
+theorem sre_map_at {i: nat} (R S: set) (j: nat):
+ $ (A. i R @ i = S @ i) -> R @ j = S @ j $ =
+(named '(!! eale i ,eqtac));
+
+theorem sre_index_below (R S: set) (d j: nat):
+ $ j < d -> sfRenameIndex R d j = sfRenameIndex S d j $ =
+'(eqtrd sfRenameIndex_bound (eqcomd sfRenameIndex_bound));
+
+theorem sre_index_above {i: nat} (R S: set) (d j: nat) (h: $ A. i R @ i = S @ i $):
+ $ ~ j < d -> sfRenameIndex R d j = sfRenameIndex S d j $ =
+'(eqtrd sfRenameIndex_free (eqtrd (a1i (addeq2 (ax_mp sre_map_at h))) (eqcomd sfRenameIndex_free)));
+
+pub theorem sfRenameIndex_extensional {i: nat} (R S: set) (d j: nat) (h: $ A. i R @ i = S @ i $):
+ $ sfRenameIndex R d j = sfRenameIndex S d j $ =
+'(cases sre_index_below (sre_index_above h));
+
+def sfRenameExtensionalClass (R S: set) (.c .d: nat): set = $ {c | A. d sfRename R d c = sfRename S d c} $;
+
+theorem sre_value (R S: set) (c: nat):
+ $ c e. sfRenameExtensionalClass R S <-> A. d sfRename R d c = sfRename S d c $ =
+(named '(elabe ,eqtac));
+
+theorem sre_depth (R S: set) (d c: nat):
+ $ (A. j sfRename R j c = sfRename S j c) -> sfRename R d c = sfRename S d c $ =
+(named '(!! eale j ,eqtac));
+
+theorem sre_at (R S: set) (d c: nat):
+ $ c e. sfRenameExtensionalClass R S -> sfRename R d c = sfRename S d c $ =
+(named '(syl sre_depth (bi1 sre_value)));
+
+theorem sre_bot (R S: set):
+ $ sfBot e. sfRenameExtensionalClass R S $ =
+(named '(mpbir sre_value @ ax_gen @ eqtr sfRename_bot (eqcom sfRename_bot)));
+
+theorem sre_mem {i: nat} (R S: set) (a b: nat) (h: $ A. i R @ i = S @ i $):
+ $ sfMem a b e. sfRenameExtensionalClass R S $ =
+(named '(mpbir sre_value @ ax_gen @ eqtr sfRename_sfMem @ eqtr (trud (sfMemeqd (a1i (sfRenameIndex_extensional h)) (a1i (sfRenameIndex_extensional h)))) (eqcom sfRename_sfMem)));
+
+theorem sre_eq {i: nat} (R S: set) (a b: nat) (h: $ A. i R @ i = S @ i $):
+ $ sfEq a b e. sfRenameExtensionalClass R S $ =
+(named '(mpbir sre_value @ ax_gen @ eqtr sfRename_sfEq @ eqtr (trud (sfEqeqd (a1i (sfRenameIndex_extensional h)) (a1i (sfRenameIndex_extensional h)))) (eqcom sfRename_sfEq)));
+
+theorem sre_atomic {i: nat} (R S: set) (h: $ A. i R @ i = S @ i $):
+ $ sfAtomicClosed (sfRenameExtensionalClass R S) $ =
+(named '(ax_gen @ ax_gen @ ian (sre_mem h) (sre_eq h)));
+
+theorem sre_and (R S: set) (a b: nat):
+ $ a e. sfRenameExtensionalClass R S /\ b e. sfRenameExtensionalClass R S -> sfAnd a b e. sfRenameExtensionalClass R S $ =
+(named '(mpbird (a1i sre_value) @ !! iald d @ eqtrd (a1i sfRename_sfAnd) @ eqtrd (sfAndeqd (syl sre_at anl) (syl sre_at anr)) (a1i (eqcom sfRename_sfAnd))));
+
+theorem sre_or (R S: set) (a b: nat):
+ $ a e. sfRenameExtensionalClass R S /\ b e. sfRenameExtensionalClass R S -> sfOr a b e. sfRenameExtensionalClass R S $ =
+(named '(mpbird (a1i sre_value) @ !! iald d @ eqtrd (a1i sfRename_sfOr) @ eqtrd (sfOreqd (syl sre_at anl) (syl sre_at anr)) (a1i (eqcom sfRename_sfOr))));
+
+theorem sre_imp (R S: set) (a b: nat):
+ $ a e. sfRenameExtensionalClass R S /\ b e. sfRenameExtensionalClass R S -> sfImp a b e. sfRenameExtensionalClass R S $ =
+(named '(mpbird (a1i sre_value) @ !! iald d @ eqtrd (a1i sfRename_sfImp) @ eqtrd (sfImpeqd (syl sre_at anl) (syl sre_at anr)) (a1i (eqcom sfRename_sfImp))));
+
+theorem sre_binary (R S: set):
+ $ sfBinaryClosed (sfRenameExtensionalClass R S) $ =
+(named '(ax_gen @ ax_gen @ iand (iand sre_and sre_or) sre_imp));
+
+theorem sre_all (R S: set) (a: nat):
+ $ a e. sfRenameExtensionalClass R S -> sfAll a e. sfRenameExtensionalClass R S $ =
+(named '(mpbird (a1i sre_value) @ !! iald d @ eqtrd (a1i sfRename_sfAll) @ eqtrd (sfAlleqd sre_at) (a1i (eqcom sfRename_sfAll))));
+
+theorem sre_ex (R S: set) (a: nat):
+ $ a e. sfRenameExtensionalClass R S -> sfEx a e. sfRenameExtensionalClass R S $ =
+(named '(mpbird (a1i sre_value) @ !! iald d @ eqtrd (a1i sfRename_sfEx) @ eqtrd (sfExeqd sre_at) (a1i (eqcom sfRename_sfEx))));
+
+theorem sre_quantifier (R S: set):
+ $ sfQuantifierClosed (sfRenameExtensionalClass R S) $ =
+(named '(ax_gen @ iand sre_all sre_ex));
+
+theorem sre_closed {i: nat} (R S: set) (h: $ A. i R @ i = S @ i $):
+ $ sfConstructionClosed (sfRenameExtensionalClass R S) $ =
+'(ian (ian (ian sre_bot (sre_atomic h)) sre_binary) sre_quantifier);
+
+pub theorem sfRename_extensional {i: nat} (R S: set) (d c: nat) (h: $ A. i R @ i = S @ i $):
+ $ sfWf c -> sfRename R d c = sfRename S d c $ =
+(named '(syl sre_at (ax_mp sfWf_induction (sre_closed h))));

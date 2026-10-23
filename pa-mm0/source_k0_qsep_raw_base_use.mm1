@@ -1,0 +1,97 @@
+import "source_k0_qsep_kp0_witness.mm1";
+
+import "k218q_raw_base_singleton_closed.mm1";
+
+import "k218q_raw_base_pair_closed.mm1";
+
+import "k218q_raw_base_transitive_closed.mm1";
+
+import "k218q_raw_base_power_closed.mm1";
+
+@_ def sfK0QSepRawSingletonBody: nat = $ (sfEx (sfAnd (sfMem 1 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 2))))) $;
+
+theorem qsepRawsingletonBound1:
+ $ sfBound 1 (sfEx (sfAnd (sfMem 1 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 2))))) $ =
+'(mpbi sfBound_sfAll krbsingletoncClosed);
+
+pub theorem sfK0QSepRaw_singleton_source (E: set) (k x: nat) (hk: $ 0 < k $) (hx: $ x < k $):
+ $ k218QProvable (sfNamedTemplate (sqEnvCons x E) (suc k) 0 sfK0QSepRawSingletonBody) $ =
+(named '(k218QProvable_mp (ax_mp krbsingletoncAt hk) (sfK0QSep_all_specialization (ltner hk) hx sqEnvAvoid_zero qsepRawsingletonBound1)));
+
+@_ def sfK0QSepRawSingletonWitness (k x: nat): nat = $ (kExists (suc k) (kAnd (kMem x (suc k)) (kAll (suc (suc k)) (kImp (kMem (suc (suc k)) (suc k)) (kEq (suc (suc k)) x))))) $;
+
+pub theorem sfK0QSepRaw_singleton_named (E: set) (k x: nat):
+ $ sfNamedTemplate (sqEnvCons x E) (suc k) 0 sfK0QSepRawSingletonBody = sfK0QSepRawSingletonWitness k x $ =
+(named '(eqtr (ax_mp sfNamedTemplate_ex_cons (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_eq)))) (kExistseq2 (eqtr sfNamedTemplate_sfAnd (kAndeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)) (eqtr sfNamedIndex_zero sqEnvCons_zero))) (eqtr (ax_mp sfNamedTemplate_all_cons (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_eq)) (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)))) (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))))))))))));
+
+pub theorem sfK0QSepRaw_singleton_proved (k x: nat) (hk: $ 0 < k $) (hx: $ x < k $):
+ $ k218QProvable (sfK0QSepRawSingletonWitness k x) $ =
+(named '(mpbi (k218QProvableeq (! sfK0QSepRaw_singleton_named $ (sqNumericEnvironment 0) $ $ k $ $ x $))
+ (! sfK0QSepRaw_singleton_source $ (sqNumericEnvironment 0) $ $ k $ $ x $ hk hx)));
+
+@_ def sfK0QSepRawPairBody: nat = $ (sfEx (sfAnd (sfAnd (sfMem 2 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2)))))) $;
+
+theorem qsepRawpairBound1:
+ $ sfBound 1 (sfAll (sfEx (sfAnd (sfAnd (sfMem 2 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2))))))) $ =
+'(mpbi sfBound_sfAll krbpaircClosed);
+
+theorem qsepRawpairBound2:
+ $ sfBound 2 (sfEx (sfAnd (sfAnd (sfMem 2 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2)))))) $ =
+'(mpbi sfBound_sfAll (mpbi sfBound_sfAll krbpaircClosed));
+
+pub theorem sfK0QSepRaw_pair_source (E: set) (k b t: nat) (hk: $ 0 < k $) (hb: $ b < k $) (ht: $ t < k $):
+ $ k218QProvable (sfNamedTemplate (sqEnvCons t (sqEnvCons b E)) (suc (suc k)) 0 sfK0QSepRawPairBody) $ =
+(named '(k218QProvable_mp (k218QProvable_mp (ax_mp krbpaircAt hk) (sfK0QSep_all_specialization (ltner hk) hb sqEnvAvoid_zero qsepRawpairBound1)) (sfK0QSep_all_specialization peano1 (lttr ht ltsucid) (ax_mp (ax_mp k218RoleAvoid_cons (ltner (lttr hb ltsucid))) sqEnvAvoid_zero) qsepRawpairBound2)));
+
+@_ def sfK0QSepRawPairWitness (k b t: nat): nat = $ (kExists (suc (suc k)) (kAnd (kAnd (kMem b (suc (suc k))) (kMem t (suc (suc k)))) (kAll (suc (suc (suc k))) (kImp (kMem (suc (suc (suc k))) (suc (suc k))) (kDisj (kEq (suc (suc (suc k))) b) (kEq (suc (suc (suc k))) t)))))) $;
+
+pub theorem sfK0QSepRaw_pair_named (E: set) (k b t: nat):
+ $ sfNamedTemplate (sqEnvCons t (sqEnvCons b E)) (suc (suc k)) 0 sfK0QSepRawPairBody = sfK0QSepRawPairWitness k b t $ =
+(named '(eqtr (ax_mp sfNamedTemplate_ex_cons (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem)) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq))))) (kExistseq2 (eqtr sfNamedTemplate_sfAnd (kAndeq (eqtr sfNamedTemplate_sfAnd (kAndeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))) (eqtr sfNamedIndex_zero sqEnvCons_zero))) (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)) (eqtr sfNamedIndex_zero sqEnvCons_zero))))) (eqtr (ax_mp sfNamedTemplate_all_cons (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq))) (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)))) (eqtr sfNamedTemplate_sfOr (kDisjeq (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))))) (eqtr sfNamedTemplate_sfEq (kEqeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))))))))))))));
+
+pub theorem sfK0QSepRaw_pair_proved (k b t: nat) (hk: $ 0 < k $) (hb: $ b < k $) (ht: $ t < k $):
+ $ k218QProvable (sfK0QSepRawPairWitness k b t) $ =
+(named '(mpbi (k218QProvableeq (! sfK0QSepRaw_pair_named $ (sqNumericEnvironment 0) $ $ k $ $ b $ $ t $))
+ (! sfK0QSepRaw_pair_source $ (sqNumericEnvironment 0) $ $ k $ $ b $ $ t $ hk hb ht)));
+
+@_ def sfK0QSepRawTransitiveBody: nat = $ (sfEx (sfAnd (sfMem 1 0) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 2))))))) $;
+
+theorem qsepRawtransitiveBound1:
+ $ sfBound 1 (sfEx (sfAnd (sfMem 1 0) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 2))))))) $ =
+'(mpbi sfBound_sfAll krbtransitivecClosed);
+
+pub theorem sfK0QSepRaw_transitive_source (E: set) (k a: nat) (hk: $ 0 < k $) (ha: $ a < k $):
+ $ k218QProvable (sfNamedTemplate (sqEnvCons a E) (suc k) 0 sfK0QSepRawTransitiveBody) $ =
+(named '(k218QProvable_mp (ax_mp krbtransitivecAt hk) (sfK0QSep_all_specialization (ltner hk) ha sqEnvAvoid_zero qsepRawtransitiveBound1)));
+
+@_ def sfK0QSepRawTransitiveWitness (k a: nat): nat = $ (kExists (suc k) (kAnd (kMem a (suc k)) (kAll (suc (suc k)) (kImp (kMem (suc (suc k)) (suc k)) (kAll (suc (suc (suc k))) (kImp (kMem (suc (suc (suc k))) (suc (suc k))) (kMem (suc (suc (suc k))) (suc k)))))))) $;
+
+pub theorem sfK0QSepRaw_transitive_named (E: set) (k a: nat):
+ $ sfNamedTemplate (sqEnvCons a E) (suc k) 0 sfK0QSepRawTransitiveBody = sfK0QSepRawTransitiveWitness k a $ =
+(named '(eqtr (ax_mp sfNamedTemplate_ex_cons (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)))))) (kExistseq2 (eqtr sfNamedTemplate_sfAnd (kAndeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)) (eqtr sfNamedIndex_zero sqEnvCons_zero))) (eqtr (ax_mp sfNamedTemplate_all_cons (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)))) (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)))) (eqtr (ax_mp sfNamedTemplate_all_cons (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)) (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)))) (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))))))))))))))));
+
+pub theorem sfK0QSepRaw_transitive_proved (k a: nat) (hk: $ 0 < k $) (ha: $ a < k $):
+ $ k218QProvable (sfK0QSepRawTransitiveWitness k a) $ =
+(named '(mpbi (k218QProvableeq (! sfK0QSepRaw_transitive_named $ (sqNumericEnvironment 0) $ $ k $ $ a $))
+ (! sfK0QSepRaw_transitive_source $ (sqNumericEnvironment 0) $ $ k $ $ a $ hk ha)));
+
+@_ def sfK0QSepRawPowerBody: nat = $ (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 3)))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfMem 0 1))))) $;
+
+theorem qsepRawpowerBound1:
+ $ sfBound 1 (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 3)))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfMem 0 1))))) $ =
+'(mpbi sfBound_sfAll krbpowercClosed);
+
+pub theorem sfK0QSepRaw_power_source (E: set) (k a: nat) (hk: $ 0 < k $) (ha: $ a < k $):
+ $ k218QProvable (sfNamedTemplate (sqEnvCons a E) (suc k) 0 sfK0QSepRawPowerBody) $ =
+(named '(k218QProvable_mp (ax_mp krbpowercAt hk) (sfK0QSep_all_specialization (ltner hk) ha sqEnvAvoid_zero qsepRawpowerBound1)));
+
+@_ def sfK0QSepRawPowerWitness (k a: nat): nat = $ (kExists (suc k) (kAll (suc (suc k)) (kAnd (kImp (kMem (suc (suc k)) (suc k)) (kAll (suc (suc (suc k))) (kImp (kMem (suc (suc (suc k))) (suc (suc k))) (kMem (suc (suc (suc k))) a)))) (kImp (kAll (suc (suc (suc k))) (kImp (kMem (suc (suc (suc k))) (suc (suc k))) (kMem (suc (suc (suc k))) a))) (kMem (suc (suc k)) (suc k)))))) $;
+
+pub theorem sfK0QSepRaw_power_named (E: set) (k a: nat):
+ $ sfNamedTemplate (sqEnvCons a E) (suc k) 0 sfK0QSepRawPowerBody = sfK0QSepRawPowerWitness k a $ =
+(named '(eqtr (ax_mp sfNamedTemplate_ex_cons (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)))) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem))) sfWf_mem)))) (kExistseq2 (eqtr (ax_mp sfNamedTemplate_all_cons (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)))) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem))) sfWf_mem))) (kAlleq2 (eqtr sfNamedTemplate_sfAnd (kAndeq (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)))) (eqtr (ax_mp sfNamedTemplate_all_cons (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)) (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)))) (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))))))))))) (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr (ax_mp sfNamedTemplate_all_cons (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)) (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)))) (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))))))))) (eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero)))))))))))));
+
+pub theorem sfK0QSepRaw_power_proved (k a: nat) (hk: $ 0 < k $) (ha: $ a < k $):
+ $ k218QProvable (sfK0QSepRawPowerWitness k a) $ =
+(named '(mpbi (k218QProvableeq (! sfK0QSepRaw_power_named $ (sqNumericEnvironment 0) $ $ k $ $ a $))
+ (! sfK0QSepRaw_power_source $ (sqNumericEnvironment 0) $ $ k $ $ a $ hk ha)));

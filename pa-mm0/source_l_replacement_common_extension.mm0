@@ -1,0 +1,34 @@
+import "source_l_level_member_names.mm0";
+
+import "source_l_common_level_witness_rules.mm0";
+
+def sfLReplacementLevelExtendedAt (y x:nat):nat =
+ $ sfEx (sfEx (sfAnd (sfAnd (sfCLOrdinalAt 1) (sfCLHierarchyAt 1 0))
+  (sfAnd (sfCLSubset (suc (suc y)) 0) (sfMem (suc (suc x)) 0)))) $;
+
+def sfLReplacementLevelOpen(a y x:nat):nat =
+ $ sfImp (sfCLOrdinalAt a) (sfImp (sfCLHierarchyAt a y)
+  (sfImp (sfSubst 0 x sfLDomain) (sfLReplacementLevelExtendedAt y x))) $;
+
+def sfLReplacementLevelExtension:nat =
+ $ sfAll (sfAll (sfAll (sfLReplacementLevelOpen 2 1 0))) $;
+
+theorem sfLReplacementLevelExtension_canonical:
+ $ sfLReplacementLevelExtension = sfAll (sfAll (sfAll (sfLReplacementLevelOpen 2 1 0))) $;
+
+theorem sfLReplacementLevelExtension_bound:
+ $ sfBound 0 sfLReplacementLevelExtension $;
+
+theorem sfLReplacementLevelExtendedAt_subst (k t y x: nat):
+ $ sfSubst k t (sfLReplacementLevelExtendedAt y x) = sfLReplacementLevelExtendedAt (sfSubstIndex k t y) (sfSubstIndex k t x) $;
+
+theorem sfLReplacementLevelOpen_subst (k t a y x: nat):
+ $ sfSubst k t (sfLReplacementLevelOpen a y x) =
+   sfLReplacementLevelOpen (sfSubstIndex k t a) (sfSubstIndex k t y) (sfSubstIndex k t x) $;
+
+theorem sfLReplacementLevelExtension_use (G a y x: nat)
+ (he: $ nsLocal G sfLReplacementLevelExtension $)
+ (ha: $ nsLocal G (sfCLOrdinalAt a) $)
+ (hl: $ nsLocal G (sfCLHierarchyAt a y) $)
+ (hx: $ nsLocal G (sfSubst 0 x sfLDomain) $):
+ $ nsLocal G (sfLReplacementLevelExtendedAt y x) $;

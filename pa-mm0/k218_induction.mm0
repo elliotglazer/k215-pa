@@ -1,0 +1,31 @@
+-- Replayed in the distinct exact SeedG calculus. No K230 proof predicate is assumed.
+import "k218_proofs.mm0";
+import "trace_soundness.mm0";
+
+-- P is a formula abstraction over numbers, not a quantified set object.
+def k218MPClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (a e. P /\ kImp a b e. P -> b e. P) $;
+def k218GenClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (b e. P -> kAll a b e. P) $;
+def k218Closed (P: set): wff =
+  $ k218Axioms C_ P /\ k218MPClosed P /\ k218GenClosed P $;
+def k218Provable (a: nat) (.p: nat): wff = $ E. p k218Derives p a $;
+def k218Theorems (.a: nat): set = $ {a | k218Provable a} $;
+
+theorem k218MPClosed_apply (P: set) (a b: nat):
+  $ k218MPClosed P -> a e. P /\ kImp a b e. P -> b e. P $;
+theorem k218GenClosed_apply (P: set) (a b: nat):
+  $ k218GenClosed P -> b e. P -> kAll a b e. P $;
+theorem k218Closed_ruleSound (P: set): $ k218Closed P -> traceRuleSound k218Rules P $;
+theorem k218Derives_induction (P: set) (p a: nat):
+  $ k218Closed P -> k218Derives p a -> a e. P $;
+theorem k218Provable_intro (p a: nat): $ k218Derives p a -> k218Provable a $;
+theorem k218Provable_induction (P: set) (a: nat):
+  $ k218Closed P -> k218Provable a -> a e. P $;
+theorem k218Provable_axiom (a: nat): $ a e. k218Axioms -> k218Provable a $;
+theorem k218Provable_mp (a b: nat):
+  $ k218Provable a -> k218Provable (kImp a b) -> k218Provable b $;
+theorem k218Provable_gen (a b: nat): $ k218Provable b -> k218Provable (kAll a b) $;
+theorem k218Theorems_value (a: nat): $ a e. k218Theorems <-> k218Provable a $;
+theorem k218Theorems_closed: $ k218Closed k218Theorems $;
+theorem k218Theorems_least (P: set): $ k218Closed P -> k218Theorems C_ P $;

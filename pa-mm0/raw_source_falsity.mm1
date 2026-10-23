@@ -1,0 +1,37 @@
+import "raw_source_image.mm1";
+import "zfc_irreflexive.mm1";
+
+@_ def zfcExplosionProof (G p a: nat): nat = $ sfSequent G a : p $;
+
+pub theorem zfcProof_explosion (G p a: nat):
+  $ sfWf a -> sfNDFullDerives p (sfSequent G sfBot) ->
+    sfNDFullDerives (zfcExplosionProof G p a) (sfSequent G a) $ =
+'(exp @ mpd anr @ syl sfNDFullDerives_prop_unary @
+  syl sfNDPropUnary_Exp @ sylc sfRowWf_sequent_intro
+    (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anr))) anl);
+
+pub theorem zfcProvable_explosion (a: nat):
+  $ sfWf a -> zfcInconsistent -> zfcProvable a $ =
+(named '(eexd @ eexd @ exp @ syl zfcProvable_intro @
+  iand anrl (sylc zfcProof_explosion anl anrr)));
+
+theorem rawFProvable_congr (H: wff) (a b: nat) (h: $ H -> a = b $):
+  $ H -> (zfcProvable a <-> zfcProvable b) $ =
+(named '(exeqd @ exeqd @ aneq2d @ aneq2d @ lmemeqd
+  (sfSequent_congr (a1i eqid) h) (a1i eqid)));
+
+theorem rawFProvable_decode:
+  $ zfcProvable (rawDecode kF) <-> zfcProvable (sfMem 0 0) $ =
+'(trud (rawFProvable_congr (a1i rawDecode_kF)));
+
+pub theorem rawSource_falsity_forward:
+  $ zfcProvable (rawDecode kF) -> zfcInconsistent $ =
+'(syl (ax_mp zfcProvable_mp zfcProvable_no_self) (bi1 rawFProvable_decode));
+
+pub theorem rawSource_falsity_reverse:
+  $ zfcInconsistent -> zfcProvable (rawDecode kF) $ =
+'(syl (bi2 rawFProvable_decode) (ax_mp zfcProvable_explosion sfWf_mem));
+
+pub theorem rawSource_falsity:
+  $ zfcProvable (rawDecode kF) <-> zfcInconsistent $ =
+'(ibii rawSource_falsity_forward rawSource_falsity_reverse);

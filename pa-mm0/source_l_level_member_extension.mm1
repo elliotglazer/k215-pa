@@ -1,0 +1,15 @@
+import "source_l_level_extension_syntax.mm1";
+import "source_l_level_member_extension_replay.mm1";
+
+import "extracted_ltrans_weak.mm1";
+
+
+pub theorem sfLLevelExtension_context: $ slLEContext = sfLBackground $ = 'eqid;
+
+pub theorem sfLLevelExtension_formula: $ slLEFormula = sfImp sfLStageTrans (sfImp sfLLevelMember (sfImp sfLPairCommon2 sfLLevelExtension)) $ = 'eqid;
+
+pub theorem sfLLevelExtension_local: $ nsLocal sfLBackground (sfImp sfLStageTrans (sfImp sfLLevelMember (sfImp sfLPairCommon2 sfLLevelExtension))) $ = '(mpbi (nsLocal_context_eq sfLLevelExtension_context) (mpbi (nsLocal_formula_eq sfLLevelExtension_formula) slLECertificate));
+
+pub theorem sfLLevelExtension_factored_zfr: $ sfTheoryProvable zfrAxioms (sfImp sfLStageTrans (sfImp sfLLevelMember (sfImp sfLPairCommon2 sfLLevelExtension))) $ = '(ax_mp (sfTheory_local sfLBackground_zfr) sfLLevelExtension_local);
+
+pub theorem sfLLevelExtension_from_next_common2: $ sfTheoryProvable zfrAxioms sfLPairNextLevel -> sfTheoryProvable zfrAxioms sfLPairCommon2 -> sfTheoryProvable zfrAxioms sfLLevelExtension $ = '(syl sfTheoryProvable_mp (syl (ax_mp sfTheoryProvable_mp (ax_mp (ax_mp sfTheoryProvable_mp sfLLevelExtension_factored_zfr) sfLWeakStageTrans_zfr)) sfLLevelMember_from_next));

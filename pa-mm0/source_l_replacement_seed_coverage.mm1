@@ -1,0 +1,26 @@
+import "source_l_replacement_seed_producer.mm1";
+
+@_ def sfLReplacementSeedParameterMap:set =
+ $ sfComposeMap sfSuccessorMap sfLReplacementRangeTail $;
+
+theorem lrepSeedCoverage_matrix(phi:nat)(hf:$ sfWf phi $):
+ $ sfShift 2 (sfShift 2 (sfLReplacementSeedMatrix phi)) =
+ sfRelativize sfLDomain (sfShift 2 (sfShift 2 (sfShift 2 (sfShift 2 phi)))) $ =
+ '(eqtr (sfShifteq2 (ax_mp (ax_mp sfRelativize_shift sfLDomain_bound) sfRename_wf)) (eqtr (ax_mp (ax_mp sfRelativize_shift sfLDomain_bound) sfShift_wf) (sfRelativizeeq2 (sfShifteq2 (sfShifteq2 (eqcom (lrepRangeSource_C_shift hf)))))));
+
+theorem lrepSeedCoverage_rename(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename sfLReplacementSeedParameterMap 1 (sfLReplacementPsi phi) =
+ sfEx (sfAnd (sfMem 0 5) (sfShift 2 (sfShift 2 (sfShift 2 (sfShift 2 phi))))) $ =
+ '(eqtr (eqcom (ax_mp sfRename_compose (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfShift_wf)))) (eqtr (sfRenameeq3 (lrepRangeLink_rename hf)) (eqtr (ax_mp sfRename_successor (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfShift_wf))) (eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) (mt (bi2 ltsuc) lt02))))) eqid)))))));
+
+theorem lrepSeedCoverage_relative(phi:nat)(hf:$ sfWf phi $):
+ $ sfRelativize sfLDomain (sfRename sfLReplacementSeedParameterMap 1 (sfLReplacementPsi phi)) =
+ sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 5)
+  (sfRelativize sfLDomain (sfShift 2 (sfShift 2 (sfShift 2 (sfShift 2 phi))))))) $ =
+ '(eqtr (sfRelativizeeq2 (lrepSeedCoverage_rename hf)) (eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid))))));
+
+pub theorem sfLReplacement_seed_coverage_exact(phi:nat)(hf:$ sfWf phi $):
+ $ sfLReplacementSeedRange (sfLReplacementSeedMatrix phi) sfLReplacementSeedMetadata =
+ sfEx (sfEx (sfAnd sfLReplacementSeedMetadata
+  (sfLReplacementImageCoverage sfLReplacementSeedParameterMap sfLDomain (sfLReplacementPsi phi) 0))) $ =
+ '(nsEx_eq (nsEx_eq (nsAnd_eq eqid (nsAll_eq (nsImp_eq (ax_mp sfDomainAt_zero sfLDomain_bound) (nsImp_eq (eqtr (nsEx_eq (nsAnd_eq (ax_mp sfDomainAt_zero sfLDomain_bound) (nsAnd_eq eqid (lrepSeedCoverage_matrix hf)))) (eqcom (lrepSeedCoverage_relative hf))) eqid))))));

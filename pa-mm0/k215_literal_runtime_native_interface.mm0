@@ -1,0 +1,28 @@
+import "k215_literal_runtime_frame_base.mm0";
+import "k215_literal_runtime_progress.mm0";
+import "k215_literal_positive_halting.mm0";
+
+theorem k215PVector_rebuild (v: nat):
+ $ k215PVector (k215PR0 v) (k215PR1 v) (k215PR2 v) (k215PR3 v) (k215PR4 v) (k215PR5 v) (k215PR6 v) (k215PR7 v) (k215PR8 v) = v $;
+
+theorem k215PState_rebuild (s: nat): $ k215PState (k215PPC s) (k215PRegs s) = s $;
+
+def k215PNativeProgress (g s w r: nat) (.h .q: nat): wff =
+ $ E. h E. q k215TmControlProgress (k215PConfigFrame g s w r)
+     (k215PConfigFrame h (k215PStep s) w q) $;
+
+def k215PNativeOutcome (g s w r: nat): wff =
+ $ ifp (k215PStatus s = 4)
+   (k215TMHaltsFrom (k215PConfigFrame g s w r))
+   (k215PNativeProgress g s w r) $;
+
+theorem k215PNativeOutcome_stopped (g s w r: nat):
+ $ k215PStatus s = 4 -> k215TMHaltsFrom (k215PConfigFrame g s w r) -> k215PNativeOutcome g s w r $;
+
+theorem k215PNativeOutcome_exists (g s w r h q: nat):
+ $ k215TmControlProgress (k215PConfigFrame g s w r) (k215PConfigFrame h (k215PStep s) w q) ->
+   k215PNativeProgress g s w r $;
+
+theorem k215PNativeOutcome_progress (g s w r h q: nat):
+ $ k215PStatus s != 4 ->
+   k215TmControlProgress (k215PConfigFrame g s w r) (k215PConfigFrame h (k215PStep s) w q) -> k215PNativeOutcome g s w r $;

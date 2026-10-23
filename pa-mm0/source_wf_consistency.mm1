@@ -1,0 +1,25 @@
+import "source_wf_core_images.mm1";
+import "source_relative_theory.mm1";
+
+pub theorem sfWFZFR_images:
+  $ sfRelativeAxiomImages zfrAxioms zfcCoreAxioms sfWFDomain $ =
+(named '(ax_gen @ syl (bi2 sfRelativeAxiomClass_value) sfWFZFRAxiom_image));
+
+pub theorem sfWFZFR_transfer (a: nat):
+  $ sfBound 0 a -> sfTheoryProvable zfrAxioms a ->
+    sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $ =
+'(sfRelativeTheory_transfer zfcCoreAxioms_closed sfWFDomain_bound
+  sfWFZFR_images sfWFNonempty_core);
+
+pub theorem sfWFZFR_refutation:
+  $ sfTheoryProvable zfrAxioms sfBot -> sfTheoryProvable zfcCoreAxioms sfBot $ =
+'(sfRelativeTheory_refutation zfcCoreAxioms_closed sfWFDomain_bound
+  sfWFZFR_images sfWFNonempty_core);
+
+pub theorem sfWFCore_refutation:
+  $ sfTheoryProvable zfcCoreAxioms sfBot -> sfTheoryProvable zfrAxioms sfBot $ =
+'(ax_mp sfTheoryProvable_mono zfcCoreAxioms_subset_zfr);
+
+pub theorem sfWFZFR_core_equiconsistent:
+  $ sfTheoryProvable zfrAxioms sfBot <-> sfTheoryProvable zfcCoreAxioms sfBot $ =
+'(ibii sfWFZFR_refutation sfWFCore_refutation);

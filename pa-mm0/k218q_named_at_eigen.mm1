@@ -1,0 +1,122 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm1";
+import "k218q_rebase.mm1";
+import "k218q_named_at.mm1";
+
+@_ def k218INE_name (H S k c: nat): nat =
+ $ kFreshAllocate H (sfNamedTemplate (sqNumericEnvironment S) k 0 c) 0 k $;
+pub theorem k218INE_above (H S k c: nat): $ k < k218INE_name H S k c $ = 'kFreshAllocate_above_reserved;
+pub theorem k218INE_context (H S k c: nat): $ kContextFresh H (k218INE_name H S k c) $ = 'kFreshAllocate_context;
+pub theorem k218INE_formula (H S k c: nat):
+ $ kFresh (sfNamedTemplate (sqNumericEnvironment S) k 0 c) (k218INE_name H S k c) $ = 'kFreshAllocate_left;
+pub theorem k218INE_positive (H S k c: nat): $ 0 < k218INE_name H S k c $ = '(mpbir lt01 kFreshAllocate_nonzero);
+pub theorem k218INE_safe (H S n k c: nat):
+ $ sqEnvironmentSafe S n 0 k -> sqEnvironmentSafe S n 0 (k218INE_name H S k c) $ =
+'(ax_mp sqEnvironmentSafe_raise k218INE_above);
+pub theorem k218INE_safe_body (H S n k c: nat):
+ $ sqEnvironmentSafe S n 0 k ->
+   sqEnvironmentSafe (k218INE_name H S k c : S) (suc n) 0 (suc (k218INE_name H S k c)) $ =
+'(syl (ax_mp sqEnvironmentSafe_cons ltsucid)
+ (ax_mp sqEnvironmentSafe_raise (ltletr k218INE_above lesucid)));
+pub theorem k218INE_source_bound_mono (p n G: nat):
+ $ p <= n -> sqSourceBound p G -> sqSourceBound n G $ =
+(named '(exp @ !! iald a @ exp @
+ mpd anll (syl sfBound_mono (mpd anr (syl sqSourceBound_at anlr)))));
+
+theorem k218INE_source (F: wff) (H S n k G c: nat)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> k218INamedSupport H S k G $):
+ $ F -> k218INamedSupport H (k218INE_name H S k c : S)
+   (suc (k218INE_name H S k c)) (sfContextShift G) $ =
+'(mpd (mpd hg (mpd (syl (ax_mp sqEnvironmentSafe_raise (ltletr k218INE_above lesucid)) hs)
+ (mpd hs (syl k218INamedSupport_rebase hb)))) (syl k218INamedSupport_shift hw));
+theorem k218INE_AllI_point (F: wff) (H S n m k G a: nat)
+ (hp: $ F -> k218INamedAt m (sfContextShift G) a $) (hm: $ F -> m <= suc n $)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (ha: $ F -> sfBound n (sfAll a) $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> k218INamedSupport H S k G $):
+ $ F -> k218IHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 (sfAll a)) $ =
+'(k218QEquivBackward
+ (k218IND_rebase (syl sqEnvironmentSafe_positive hs) (a1i k218INE_positive)
+  (syl sqEnvironmentSafe_live_below hs) (syl sqEnvironmentSafe_live_below (syl k218INE_safe hs)) ha)
+ (mpbird (k218IHypProvableeq2d (syl sfNamedTemplate_all_cons
+    (syl sfBound_wf (syl (bi1 sfBound_sfAll) ha)))) @
+  syl (k218IHypProvable_gen_fresh k218INE_context) @
+  mpbid (k218IHypProvableeq2d (syl k218INamed_numeric_cons
+    (syl sfBound_wf (syl (bi1 sfBound_sfAll) ha)))) @
+  k218INA_use hp hm (syl k218INE_safe_body hs)
+   {(k218INE_source hw hb hs hg) : $ F ->
+    k218INamedSupport H (k218INE_name H S k (sfAll a) : S)
+     (suc (k218INE_name H S k (sfAll a))) (sfContextShift G) $}));
+pub theorem k218INamedAt_AllI (p G a: nat)
+ (hw: $ sfContextWf G $) (hb: $ sqSourceBound p G $)
+ (ha: $ sfBound p (sfAll a) $)
+ (hp: $ k218INamedAt (suc p) (sfContextShift G) a $):
+ $ k218INamedAt p G (sfAll a) $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @
+ k218INE_AllI_point (a1i hp) (syl (bi1 lesuc) anll) (a1i hw)
+ (mpd (a1i hb) (syl k218INE_source_bound_mono anll))
+ (mpd anll (a1i (ax_mp sfBound_mono ha))) anlr anr));
+
+@_ def k218INE_minor (H S k c a: nat): nat =
+ $ sfNamedTemplate (sqEnvCons (k218INE_name H S k c) (sqNumericEnvironment S))
+    (suc (k218INE_name H S k c)) 0 a : H $;
+theorem k218INE_minor_support (F: wff) (H S n k G a c: nat)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (ha: $ F -> sfWf a $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> k218INamedSupport H S k G $):
+ $ F -> k218INamedSupport (k218INE_minor H S k c a) (k218INE_name H S k c : S)
+   (suc (k218INE_name H S k c)) (a : sfContextShift G) $ =
+'(mpd (mpbird (k218IHypProvableeq2d (syl k218INamed_numeric_cons ha))
+   (a1i (k218IHypProvable_assumption lmemconsid))) @
+ syl k218INamedSupport_cons @ syl k218INamedSupport_weaken @ k218INE_source hw hb hs hg);
+theorem k218INE_ExE_minor (F: wff) (H S n m k G a c: nat)
+ (hp: $ F -> k218INamedAt m (a : sfContextShift G) (sfShift 0 c) $)
+ (hm: $ F -> m <= suc n $) (hw: $ F -> sfContextWf G $)
+ (hb: $ F -> sqSourceBound n G $) (ha: $ F -> sfWf a $) (hc: $ F -> sfBound n c $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> k218INamedSupport H S k G $):
+ $ F -> k218IHypProvable (k218INE_minor H S k c a)
+   (sfNamedTemplate (sqNumericEnvironment S) k 0 c) $ =
+'(k218QEquivBackward
+ (k218IND_rebase (syl sqEnvironmentSafe_positive hs) (a1i lt01S)
+  (syl sqEnvironmentSafe_live_below hs)
+  (syl sqEnvironmentSafe_live_below (syl (ax_mp sqEnvironmentSafe_raise (ltletr k218INE_above lesucid)) hs)) hc) @
+ mpbid (k218IHypProvableeq2d (syl k218INamed_numeric_shift (syl sfBound_wf hc))) @
+ k218INA_use hp hm (syl k218INE_safe_body hs) (k218INE_minor_support hw hb ha hs hg));
+theorem k218INE_ExE_major (F: wff) (H S n m k G a c: nat)
+ (hp: $ F -> k218INamedAt m G (sfEx a) $) (hm: $ F -> m <= n $)
+ (ha: $ F -> sfBound n (sfEx a) $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> k218INamedSupport H S k G $):
+ $ F -> k218IHypProvable H (kExists (k218INE_name H S k c)
+   (sfNamedTemplate (sqEnvCons (k218INE_name H S k c) (sqNumericEnvironment S))
+    (suc (k218INE_name H S k c)) 0 a)) $ =
+'(mpbid (k218IHypProvableeq2d (syl sfNamedTemplate_ex_cons
+   (syl sfBound_wf (syl (bi1 sfBound_sfEx) ha)))) @
+ k218QEquivForward
+ (k218IND_rebase (syl sqEnvironmentSafe_positive hs) (a1i k218INE_positive)
+  (syl sqEnvironmentSafe_live_below hs) (syl sqEnvironmentSafe_live_below (syl k218INE_safe hs)) ha)
+ (k218INA_use hp hm hs hg));
+theorem k218INE_ExE_point (F: wff) (H S n m j k G a c: nat)
+ (hp: $ F -> k218INamedAt m G (sfEx a) $)
+ (hq: $ F -> k218INamedAt j (a : sfContextShift G) (sfShift 0 c) $)
+ (hm: $ F -> m <= n $) (hj: $ F -> j <= suc n $)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (ha: $ F -> sfBound n (sfEx a) $) (hc: $ F -> sfBound n c $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> k218INamedSupport H S k G $):
+ $ F -> k218IHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 c) $ =
+'(sylc (k218IHypProvable_exists_elim (ax_mp k218IContextFresh_vacuous k218INE_context)
+   (ax_mp k218QFresh_vacuity k218INE_formula))
+ (k218INE_ExE_major hp hm ha hs hg)
+ (syl k218IHypProvable_deduction @ k218INE_ExE_minor hq hj hw hb
+  (syl sfBound_wf (syl (bi1 sfBound_sfEx) ha)) hc hs hg));
+pub theorem k218INamedAt_ExE (p G a c: nat)
+ (hw: $ sfContextWf G $) (hb: $ sqSourceBound p G $)
+ (ha: $ sfBound p (sfEx a) $) (hc: $ sfBound p c $)
+ (hp: $ k218INamedAt p G (sfEx a) $)
+ (hq: $ k218INamedAt (suc p) (a : sfContextShift G) (sfShift 0 c) $):
+ $ k218INamedAt p G c $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @
+ k218INE_ExE_point (a1i hp) (a1i hq) anll (syl (bi1 lesuc) anll) (a1i hw)
+ (mpd (a1i hb) (syl k218INE_source_bound_mono anll))
+ (mpd anll (a1i (ax_mp sfBound_mono ha)))
+ (mpd anll (a1i (ax_mp sfBound_mono hc))) anlr anr));

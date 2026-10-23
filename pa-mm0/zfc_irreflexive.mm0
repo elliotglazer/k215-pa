@@ -1,0 +1,71 @@
+import "zfc_propositional.mm0";
+
+def nsLocal (G a: nat) (.p: nat): wff = $ E. p sfNDFullDerives p (sfSequent G a) $;
+
+theorem nsLocal_intro (G p a: nat):
+  $ sfNDFullDerives p (sfSequent G a) -> nsLocal G a $;
+
+theorem nsLocal_wf (G a: nat):
+  $ nsLocal G a -> sfWf a $;
+
+theorem nsLocal_context_wf (G a: nat):
+  $ nsLocal G a -> sfContextWf G $;
+
+theorem nsLocal_hyp (G a: nat):
+  $ sfContextWf G -> a IN G -> nsLocal G a $;
+
+theorem nsLocal_mp (G a b: nat):
+  $ nsLocal G (sfImp a b) -> nsLocal G a -> nsLocal G b $;
+
+theorem nsLocal_II (G a b: nat):
+  $ nsLocal (a : G) b -> nsLocal G (sfImp a b) $;
+
+theorem nsLocal_weaken (G D a: nat):
+  $ sfContextWf D -> sfContextSub G D -> nsLocal G a -> nsLocal D a $;
+
+theorem nsLocal_AllE (G a t: nat):
+  $ nsLocal G (sfAll a) -> nsLocal G (sfSubst 0 t a) $;
+
+theorem nsLocal_CE1 (G a b: nat):
+  $ nsLocal G (sfAnd a b) -> nsLocal G a $;
+
+theorem nsLocal_CE2 (G a b: nat):
+  $ nsLocal G (sfAnd a b) -> nsLocal G b $;
+
+theorem nsLocal_DI1 (G a b: nat):
+  $ sfWf b -> nsLocal G a -> nsLocal G (sfOr a b) $;
+
+theorem nsLocal_ExI (G a t: nat):
+  $ sfWf a -> nsLocal G (sfSubst 0 t a) -> nsLocal G (sfEx a) $;
+
+theorem nsLocal_ExE_bottom (G a: nat):
+  $ nsLocal G (sfEx a) -> nsLocal (a : sfContextShift G) sfBot -> nsLocal G sfBot $;
+
+theorem nsLocal_DE (G a b c: nat):
+  $ nsLocal G (sfOr a b) -> nsLocal (a : G) c -> nsLocal (b : G) c -> nsLocal G c $;
+
+theorem nsLocal_or_idem (G a: nat) (h: $ nsLocal G (sfOr a a) $):
+  $ nsLocal G a $;
+
+def nsAxioms: nat = $ (zfcFoundation : (zfcPair : (zfcRefl : (zfcSym : (zfcEqElem : 0))))) $;
+
+def nsGx: nat = $ (sfMem 0 0 : nsAxioms) $;
+
+def nsGs: nat = $ ((sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1)))) : ((sfMem 1 1) : nsAxioms)) $;
+
+def nsGy: nat = $ ((sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot)))) : ((sfAll (sfAnd (sfImp (sfMem 0 2) (sfOr (sfEq 0 3) (sfEq 0 3))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 3)) (sfMem 0 2)))) : ((sfMem 2 2) : nsAxioms))) $;
+
+theorem nsAxioms_allowed:
+  $ zfcContext nsAxioms $;
+
+theorem zfcNoSelf_local:
+  $ nsLocal nsAxioms (sfImp (sfMem 0 0) sfBot) $;
+
+theorem nsLocal_to_ZFC (G a: nat):
+  $ zfcContext G -> nsLocal G a -> zfcProvable a $;
+
+theorem zfcProvable_no_self:
+  $ zfcProvable (sfImp (sfMem 0 0) sfBot) $;
+
+theorem zfcProvable_all_no_self:
+  $ zfcProvable (sfAll (sfImp (sfMem 0 0) sfBot)) $;

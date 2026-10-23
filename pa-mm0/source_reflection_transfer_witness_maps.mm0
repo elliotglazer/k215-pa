@@ -1,0 +1,29 @@
+import "source_reflection_transfer_cofinal_initial.mm0";
+
+import "source_piece_pcf_opening.mm0";
+
+def sfReflectionTupleMap(T:set)(start .i:nat):set = $ \ i, (T @ i) + start $;
+
+theorem sfReflectionTupleMap_at(T:set)(start i:nat): $ sfReflectionTupleMap T start @ i = (T @ i) + start $;
+
+theorem sfReflectionTuple_member(T:set)(G start X n i:nat)(hT:$ nsLocal G (sfReflectionTuple T start X n) $)(hi:$ i < n $): $ nsLocal G (sfMem ((T @ i) + start) X) $;
+
+theorem sfReflectionTuple_members(T:set)(G start X n:nat)(hT:$ nsLocal G (sfReflectionTuple T start X n) $): $ sfReflectionDnMembers (sfReflectionTupleMap T start) G X n $;
+
+def sfReflectionTupleEw(T:set)(start domain phi z:nat):nat = $ sfReflectionEwAt domain (sfRename (sfReflectionTupleMap T start) 1 phi) z $;
+
+theorem sfReflectionTupleEw_wf(T:set)(start domain phi z:nat)(hd:$ sfBound 1 domain $): $ sfWf (sfReflectionTupleEw T start domain phi z) $;
+
+theorem sfReflectionEwAt_rename(R:set)(domain matrix z:nat)(hd:$ sfBound 1 domain $): $ sfRename R 0 (sfReflectionEwAt domain matrix z) = sfReflectionEwAt domain (sfRename R 1 matrix) (R @ z) $;
+
+theorem sfReflectionTupleEw_shift(T:set)(start domain phi z:nat)(hd:$ sfBound 1 domain $)(hp:$ sfWf phi $): $ sfShift 0 (sfReflectionTupleEw T start domain phi z) = sfReflectionTupleEw T (suc start) domain phi (suc z) $;
+
+theorem sfReflectionTupleEw_shift2(T:set)(start domain phi z:nat)(hd:$ sfBound 1 domain $)(hp:$ sfWf phi $): $ sfShift 0 (sfShift 0 (sfReflectionTupleEw T start domain phi z)) = sfReflectionTupleEw T (suc (suc start)) domain phi (suc (suc z)) $;
+
+def sfReflectionPCLevel(level:nat):nat = $ sfORBinary level 1 0 $;
+
+theorem sfReflectionPCLevel_bound(level:nat)(hl:$ sfBound 2 level $): $ sfBound 2 (sfReflectionPCLevel level) $;
+
+theorem sfReflectionPCLevel_at(level d y:nat)(hl:$ sfBound 2 level $): $ sfORBinary (sfReflectionPCLevel level) y d = sfORBinary level d y $;
+
+theorem sfReflectionPH_tuple_local(T F:set)(G start domain level sb sc n i d X y z:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hv:$ sfPieceTableValid sb sc n $)(hi:$ i < n $)(hT:$ nsLocal G (sfReflectionTuple T start X (sfPieceCount sb sc i)) $)(hL:$ nsLocal G (sfORBinary level d y) $)(hP:$ nsLocal G (sfORBinary (sfPieceBinary domain (sfReflectionPCLevel level) sb sc n) d X) $)(hS:$ nsLocal G (sfCLSubset y z) $): $ nsLocal G (sfReflectionTupleEw T start domain (sfPieceMatrix sb sc i) z) $;

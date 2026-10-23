@@ -1,0 +1,13 @@
+import "source_piece_pcf_rep_cover_prefix_r35.mm1";
+
+import "source_piece_pcf_definable_realization.mm1";
+
+theorem sfPieceDefinableCoverRealization_add2(i:nat): $ 2 + i = suc (suc i) $ = (named '(eqtr addS1 (suceq (eqtr addS1 (suceq add01)))));
+
+pub theorem sfPieceDefinableCoverRealization_map(T:set)(X A i:nat): $ sfComposeMap (sfPieceEnvironment T X A) (sfPieceRepCoverTail 2) @ i = T @ i $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 (eqtr sfPieceRepCoverTail_at sfPieceDefinableCoverRealization_add2)) sfPieceEnvironment_tail)));
+
+pub theorem sfPieceDefinableCoverRealization_matrix(T:set)(n X A:nat): $ sfRename (sfPieceEnvironment T X A) 0 (sfPieceRepCoverMatrix n) = sfPieceRepCoverPoint T n X $ = (named '(eqtr (trud (sfRename_congr_formula (a1i sfPieceRepCoverMatrix_point))) (eqtr sfPieceRepCoverPoint_rename (eqtr (sfPieceRepCoverPoint_parameter_eq sfPieceEnvironment_zero) (sfPieceRepCoverPoint_map_eq (ax_gen sfPieceDefinableCoverRealization_map))))));
+
+pub theorem sfPieceDefinableCoverRealization_point(T:set)(G n X A:nat)(hc:$ nsLocal G (sfPieceRepEnvironmentCoverAt A X n) $)(hm:$ sfReflectionDnMembers T G A n $): $ nsLocal G (sfPieceRepCoverPoint T n X) $ = (named '(sfRQ_rewrite sfPieceDefinableCoverRealization_matrix (ax_mp (sfReflectionDn_eliminate_binary (ax_mp sfBound_wf sfPieceRepCoverMatrix_bound) sfPieceRepCoverCore_bound hm) (sfRQ_rewrite (eqtr (ax_mp (ax_mp sfRename_bounded_agreement sfPieceOpenMap_binary_agree) (mpbir (sfSchema_bound_index_eq add01) sfPieceRepCoverCore_bound)) (! sfReflectionDnOpen_rename $ T $ $ X $ $ A $ $ sfPieceRepCoverCore n $ sfPieceRepCoverCore_bound)) (sfRQ_rewrite (eqcom sfPieceRepCoverNamed_open) hc)))));
+
+pub theorem sfPieceDefinableCoverRealization_member(T:set)(G n X A e:nat)(hc:$ nsLocal G (sfPieceRepEnvironmentCoverAt A X n) $)(hm:$ sfReflectionDnMembers T G A n $)(he:$ nsLocal G (sfPieceEnv T n e) $): $ nsLocal G (sfMem e X) $ = (named '(sfPieceRepCoverPoint_use (sfPieceDefinableCoverRealization_point hc hm) he));

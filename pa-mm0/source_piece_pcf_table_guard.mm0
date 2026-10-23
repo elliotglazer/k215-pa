@@ -1,0 +1,22 @@
+import "source_piece_pcf_syntax.mm0";
+
+def sfPieceTableMember (sb sc n entry .i: nat): wff =
+ $ E. i (i < n /\ sfPieceBeta sb sc i = entry) $;
+
+def sfPieceTableMemberGuard (sb sc n .entry: nat): wff =
+ $ A. entry (sfPieceTableMember sb sc n entry ->
+   sfBound (suc (fst entry)) (snd entry)) $;
+
+theorem sfPieceTableMember_intro (sb sc n entry i: nat):
+ $ i < n -> sfPieceBeta sb sc i = entry -> sfPieceTableMember sb sc n entry $;
+
+theorem sfPieceTableValid_member (sb sc n entry: nat):
+ $ sfPieceTableValid sb sc n -> sfPieceTableMember sb sc n entry ->
+   sfBound (suc (fst entry)) (snd entry) $;
+
+theorem sfPieceTableValid_member_guard (sb sc n: nat):
+ $ sfPieceTableValid sb sc n <-> sfPieceTableMemberGuard sb sc n $;
+
+theorem sfPieceTableValid_member_pair (sb sc n entry count phi: nat):
+ $ sfPieceTableValid sb sc n -> sfPieceTableMember sb sc n entry ->
+   entry = (count, phi) -> sfBound (suc count) phi $;

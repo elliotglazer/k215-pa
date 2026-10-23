@@ -1,0 +1,162 @@
+import "source_l_separation_image_witness.mm1";
+
+@_ def sfLSeparationImageParameterStep(D:nat)(.G:nat):set =
+ $ \ G, D : sfContextShift G $;
+@_ def sfLSeparationImageParameterContext(D n G:nat):nat =
+ $ rec G (sfLSeparationImageParameterStep D) n $;
+
+pub theorem sfLSeparationImageParameterContext_zero(D G:nat):
+ $ sfLSeparationImageParameterContext D 0 G = G $ = 'rec0;
+theorem lsipx_step_value(D G:nat):
+ $ sfLSeparationImageParameterStep D @ G = D : sfContextShift G $ =
+ (named '(applame ,eqtac));
+pub theorem sfLSeparationImageParameterContext_suc(D n G:nat):
+ $ sfLSeparationImageParameterContext D (suc n) G =
+   D : sfContextShift (sfLSeparationImageParameterContext D n G) $ =
+ '(eqtr recS lsipx_step_value);
+
+theorem lsipx_context_base(D G:nat):
+ $ sfLSeparationImageParameterContext D 0 (D : sfContextShift G) =
+   D : sfContextShift (sfLSeparationImageParameterContext D 0 G) $ =
+ '(eqtr sfLSeparationImageParameterContext_zero
+   (eqcom (conseq2 (trud (sfContextShift_congr (a1i sfLSeparationImageParameterContext_zero))))));
+theorem lsipx_context_step(D n G:nat):
+ $ (sfLSeparationImageParameterContext D n (D : sfContextShift G) =
+   D : sfContextShift (sfLSeparationImageParameterContext D n G)) ->
+   sfLSeparationImageParameterContext D (suc n) (D : sfContextShift G) =
+   D : sfContextShift (sfLSeparationImageParameterContext D (suc n) G) $ =
+ '(eqtrd (a1i sfLSeparationImageParameterContext_suc)
+  (eqtrd (conseq2d (sfContextShift_congr id))
+   (a1i (eqcom (conseq2 (trud (sfContextShift_congr (a1i sfLSeparationImageParameterContext_suc))))))));
+
+pub theorem sfLSeparationImageParameterContext_commute(D n G:nat):
+ $ sfLSeparationImageParameterContext D n (D : sfContextShift G) =
+   D : sfContextShift (sfLSeparationImageParameterContext D n G) $ =
+ (named @ induct '(ind) 'n 'lsipx_context_base 'lsipx_context_step);
+
+theorem lsipx_context_unroll(D n G:nat):
+ $ sfLSeparationImageParameterContext D (suc n) G =
+   sfLSeparationImageParameterContext D n (D : sfContextShift G) $ =
+ '(eqtr sfLSeparationImageParameterContext_suc (eqcom sfLSeparationImageParameterContext_commute));
+
+@_ def sfLSeparationImageCloseLaw(D n .G .a:nat):wff =
+ $ A. G A. a (sfContextWf G ->
+    nsLocal (sfLSeparationImageParameterContext D n G) a ->
+    nsLocal G (sfGuardPrefix D n a)) $;
+
+theorem lsipx_close_at(D n G a:nat):
+ $ sfLSeparationImageCloseLaw D n -> sfContextWf G ->
+    nsLocal (sfLSeparationImageParameterContext D n G) a ->
+    nsLocal G (sfGuardPrefix D n a) $ =
+ (named '(!! ealie g @ !! ealde f @ bi1d ,eqtac));
+
+theorem lsipx_close_zero_each(D G a:nat):
+ $ sfContextWf G -> nsLocal (sfLSeparationImageParameterContext D 0 G) a ->
+   nsLocal G (sfGuardPrefix D 0 a) $ =
+ '(a1i (syl (bi2 (nsLocal_formula_eq sfGuardPrefix_zero))
+   (bi1 (nsLocal_context_eq sfLSeparationImageParameterContext_zero))));
+theorem lsipx_close_zero(D:nat): $ sfLSeparationImageCloseLaw D 0 $ =
+ (named '(ax_gen @ ax_gen lsipx_close_zero_each));
+
+theorem lsipx_close_subcontext(D G:nat)(hd:$ sfWf D $):
+ $ sfContextWf (D : sfContextShift G) $ =
+ '(mpbir sfContextWf_cons (ian hd sfContextShift_wf));
+
+theorem lsipx_close_step_cond(H:wff)(D n G a:nat)(hd:$ sfWf D $)
+ (hi:$ H -> sfLSeparationImageCloseLaw D n $)
+ (hg:$ H -> sfContextWf G $)
+ (hp:$ H -> nsLocal (sfLSeparationImageParameterContext D (suc n) G) a $):
+ $ H -> nsLocal G (sfGuardPrefix D (suc n) a) $ =
+ '(syl (bi2 (nsLocal_formula_eq sfGuardPrefix_suc))
+   (sylc sfSepLocal_allI hg
+     (syl nsLocal_II
+       (mpd (syl (bi1 (nsLocal_context_eq lsipx_context_unroll)) hp)
+        (mpd (a1i (lsipx_close_subcontext hd)) (syl lsipx_close_at hi))))));
+
+theorem lsipx_close_step_each(D n G a:nat)(hd:$ sfWf D $):
+ $ sfLSeparationImageCloseLaw D n -> sfContextWf G ->
+   nsLocal (sfLSeparationImageParameterContext D (suc n) G) a ->
+   nsLocal G (sfGuardPrefix D (suc n) a) $ =
+ '(exp @ exp @ lsipx_close_step_cond hd anll anlr anr);
+theorem lsipx_close_step(D n:nat)(hd:$ sfWf D $):
+ $ sfLSeparationImageCloseLaw D n -> sfLSeparationImageCloseLaw D (suc n) $ =
+ (named '(!! iald G @ !! iald a @ lsipx_close_step_each hd));
+theorem lsipx_close_all(D n:nat)(hd:$ sfWf D $):
+ $ sfLSeparationImageCloseLaw D n $ =
+ (named @ induct '(ind) 'n 'lsipx_close_zero '(lsipx_close_step hd));
+
+pub theorem sfLSeparationImage_guard_prefix(D n G a:nat)
+ (hd:$ sfWf D $)(hg:$ sfContextWf G $)
+ (hp:$ nsLocal (sfLSeparationImageParameterContext D n G) a $):
+ $ nsLocal G (sfGuardPrefix D n a) $ =
+ '(ax_mp (ax_mp (ax_mp lsipx_close_at (lsipx_close_all hd)) hg) hp);
+
+theorem lsipx_add3(i:nat): $ i + 3 = suc (suc (suc i)) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))));
+theorem lsipx_canonical_zero:
+ $ sfRenameDepthMap (sfLSeparationImageShiftEnv sfSuccessorMap) 1 @ 0 = sfSepMap @ 0 $ =
+ '(eqtr (eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S))
+   (eqcom sfSepMap_zero));
+theorem lsipx_canonical_suc(i:nat):
+ $ sfRenameDepthMap (sfLSeparationImageShiftEnv sfSuccessorMap) 1 @ suc i = sfSepMap @ suc i $ =
+ '(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift
+  (eqtr (suceq (eqtr sfRenameIndex_zero
+    (eqtr sfLSeparationImageShiftEnv_at (suceq sfSuccessorMap_value))))
+   (eqcom (eqtr sfSepMap_suc lsipx_add3)))));
+theorem lsipx_canonical_at(i:nat):
+ $ sfRenameDepthMap (sfLSeparationImageShiftEnv sfSuccessorMap) 1 @ i = sfSepMap @ i $ =
+ (named @ induct '(ind) 'i 'lsipx_canonical_zero '(a1i lsipx_canonical_suc));
+
+pub theorem sfLSeparationImageCanonical_body(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename (sfLSeparationImageShiftEnv sfSuccessorMap) 1 phi =
+   sfRename sfSepMap 0 phi $ =
+ (named '(eqtr (ax_mp sfRename_as_map hf)
+  (ax_mp (sfRename_extensional (!! ax_gen i @ ! lsipx_canonical_at i)) hf)));
+
+pub theorem sfLSeparationImageCanonical_witness(D phi:nat)(hf:$ sfWf phi $):
+ $ sfLSeparationImageWitness sfSuccessorMap D phi 0 =
+   sfEx (sfAnd D (sfAll (sfImp D
+    (sfIff (sfMem 0 1) (sfAnd (sfMem 0 2)
+      (sfRelativize D (sfRename sfSepMap 0 phi))))))) $ =
+ '(nsEx_eq (nsAnd_eq eqid (nsAll_eq (nsImp_eq eqid
+   (sfIffeq eqid (nsAnd_eq eqid (sfRelativizeeq2 (sfLSeparationImageCanonical_body hf))))))));
+
+pub theorem sfLSeparationImage_guarded(D G phi:nat)
+ (hg:$ sfContextWf G $)(hf:$ sfWf phi $)
+ (hp:$ nsLocal (D : sfContextShift G) (sfLSeparationImageWitness sfSuccessorMap D phi 0) $):
+ $ nsLocal G (sfRelativize D (sfSeparation (sfRename sfSepMap 0 phi))) $ =
+ '(sfRQ_rewrite (eqcom sfPieceSeparation_relativize)
+   (ax_mp (sfLocal_allI hg) (ax_mp nsLocal_II
+    (sfRQ_rewrite (sfLSeparationImageCanonical_witness hf) hp))));
+
+pub theorem sfLSeparationImage_schema_close(D G n phi:nat)
+ (hd:$ sfWf D $)(hg:$ sfContextWf G $)
+ (hp:$ nsLocal (sfLSeparationImageParameterContext D n G)
+    (sfRelativize D (sfSeparation (sfRename sfSepMap 0 phi))) $):
+ $ nsLocal G (sfRelativize D (zfcSeparationCode phi n)) $ =
+ '(sfRQ_rewrite (eqcom sfRelativize_prefix) (sfLSeparationImage_guard_prefix hd hg hp));
+
+
+theorem lsipx_context_wf_zero(D G:nat)(hg:$ sfContextWf G $):
+ $ sfContextWf (sfLSeparationImageParameterContext D 0 G) $ =
+ '(mpbir (trud (sfContextWf_congr (a1i sfLSeparationImageParameterContext_zero))) hg);
+theorem lsipx_context_wf_step(D n G:nat)(hd:$ sfWf D $):
+ $ sfContextWf (sfLSeparationImageParameterContext D n G) ->
+   sfContextWf (sfLSeparationImageParameterContext D (suc n) G) $ =
+ '(a1i (mpbir (trud (sfContextWf_congr (a1i sfLSeparationImageParameterContext_suc)))
+    (mpbir sfContextWf_cons (ian hd sfContextShift_wf))));
+
+pub theorem sfLSeparationImageParameterContext_wf(D n G:nat)
+ (hd:$ sfWf D $)(hg:$ sfContextWf G $):
+ $ sfContextWf (sfLSeparationImageParameterContext D n G) $ =
+ (named @ induct '(ind) 'n '(lsipx_context_wf_zero hg) '(lsipx_context_wf_step hd));
+
+pub theorem sfLSeparationImage_schema_from_witness(D G n phi:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)(hg:$ sfContextWf G $)
+ (hp:$ nsLocal (D : sfContextShift (sfLSeparationImageParameterContext D n G))
+    (sfLSeparationImageWitness sfSuccessorMap D phi 0) $):
+ $ nsLocal G (sfRelativize D (zfcSeparationCode phi n)) $ =
+ '(sfLSeparationImage_schema_close (ax_mp sfBound_wf hd) hg
+   (sfLSeparationImage_guarded
+     (sfLSeparationImageParameterContext_wf (ax_mp sfBound_wf hd) hg)
+     (ax_mp sfBound_wf hb) hp));

@@ -1,0 +1,43 @@
+import "proof_sequence.mm1";
+
+
+theorem k215PairDiagonal_def (k: nat): $ (k, 0) = k * suc k // 2 $ =
+ '(eqtr (addeq1 (diveq1 (muleq add0 (suceq add0)))) add0);
+theorem k215PairDiagonal_product (k: nat):
+ $ suc k * suc (suc k) = k * suc k + 2 * suc k $ =
+ '(eqtr mulS (eqtr (addeq1 mulS1) (eqtr addass (addeq2 (eqcom mul21)))));
+pub theorem k215PairDiagonal_succ (k: nat): $ (suc k, 0) = suc k + (k, 0) $ =
+ '(eqtr k215PairDiagonal_def
+   (eqtr (diveq1 k215PairDiagonal_product)
+     (eqtr (diveq1 addcom)
+       (eqtr (muladddiv2 d2ne0) (addeq2 (eqcom k215PairDiagonal_def))))));
+theorem k215PairZero_def (k: nat): $ (0, k) = (k, 0) + k $ =
+ '(eqtr preqadd (addeq1 (preq1 add01)));
+pub theorem k215PairDiagonal_rotate (k: nat): $ (suc k, 0) = suc (0, k) $ =
+ '(eqtr k215PairDiagonal_succ
+   (eqtr addS1 (eqtr (suceq addcom) (suceq (eqcom k215PairZero_def)))));
+pub theorem k215Pair_next (a b: nat): $ (a, suc b) = suc (suc a, b) $ =
+ '(eqtr preqadd
+   (eqtr (addeq1 (preq1 (eqtr addS (eqcom addS1))))
+     (eqtr addS (suceq (eqcom preqadd)))));
+pub theorem k215Pair_sum_step (a b k: nat) (h: $ a + b = suc k $):
+ $ (a, b) = b + suc (0, k) $ =
+ '(eqtr preqadd (eqtr (addeq1 (preq1 h))
+   (eqtr (addeq1 k215PairDiagonal_rotate) addcom)));
+
+@_ def k215PairAdvance (p: nat): nat =
+ $ if (fst p = 0) (suc (snd p), 0) (fst p - 1, suc (snd p)) $;
+do (apply (register-eqd 'k215PairAdvance) '(k215PairAdvanceeqd));
+theorem k215PairAdvance_pair (a b: nat):
+ $ k215PairAdvance (a, b) = if (a = 0) (suc b, 0) (a - 1, suc b) $ =
+ '(ifeq (eqeq1 fstpr) (preq (suceq sndpr) eqid) (preq (subeq1 fstpr) (suceq sndpr)));
+theorem k215PairAdvance_zero (b: nat): $ k215PairAdvance (0, b) = suc (0, b) $ =
+ '(eqtr k215PairAdvance_pair (eqtr (ifpos eqid) k215PairDiagonal_rotate));
+theorem k215PairAdvance_succ (a b: nat): $ k215PairAdvance (suc a, b) = suc (suc a, b) $ =
+ '(eqtr k215PairAdvance_pair (eqtr (ifneg peano1)
+   (eqtr (preq1 (eqtr subSS sub02)) k215Pair_next)));
+theorem k215PairAdvance_all (a b: nat): $ k215PairAdvance (a, b) = suc (a, b) $ =
+ (named @ induct '(ind) 'a 'k215PairAdvance_zero '(a1i k215PairAdvance_succ));
+pub theorem k215PairAdvance_correct (p: nat): $ k215PairAdvance p = suc p $ =
+ '(eqtr (k215PairAdvanceeq (eqcom fstsnd))
+   (eqtr k215PairAdvance_all (suceq fstsnd)));

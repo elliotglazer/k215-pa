@@ -1,0 +1,30 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_supported_environment.mm0";
+import "k218q_bootstrap.mm0";
+import "k218q_quotation_rebase_quote.mm0";
+import "k218q_quotation_contexts.mm0";
+
+def k218SQ_sqDomainSupport (H S t .i: nat): wff =
+ $ A. i (i < len S -> k218IHypProvable H (kMem t (sqNumericEnvironment S @ i))) $;
+
+theorem k218SQ_sqDomainSupport_at (H S t i: nat):
+ $ k218SQ_sqDomainSupport H S t -> i < len S -> k218IHypProvable H (kMem t (sqNumericEnvironment S @ i)) $;
+
+theorem k218SQ_sqDomainSupport_nil (H t: nat): $ k218SQ_sqDomainSupport H 0 t $;
+
+theorem k218SQ_sqDomainSupport_cons (H S t a: nat):
+ $ k218IHypProvable H (kMem t a) -> k218SQ_sqDomainSupport H S t -> k218SQ_sqDomainSupport H (a : S) t $;
+
+theorem k218SQ_sqDomainSupport_refine (H J S t: nat):
+ $ k218IContextSupports J H -> k218SQ_sqDomainSupport H S t -> k218SQ_sqDomainSupport J S t $;
+
+def k218SQ_sqSourceSupport (H S t k G: nat): wff =
+ $ k218IContextSupports H (sqContext (sqNumericEnvironment S) t k 0 G) $;
+
+theorem k218SQ_sqSourceSupport_member (H S t k G a: nat):
+ $ k218SQ_sqSourceSupport H S t k G -> a IN G -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) $;
+
+theorem k218SQ_sqSourceSupport_nil (H S t k: nat): $ k218SQ_sqSourceSupport H S t k 0 $;
+
+theorem k218SQ_sqSourceSupport_self (S t k G: nat):
+ $ k218SQ_sqSourceSupport (sqContext (sqNumericEnvironment S) t k 0 G) S t k G $;

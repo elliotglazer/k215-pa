@@ -1,0 +1,80 @@
+import "k215_calculus_source_ax_stack_loops.mm1";
+import "k215_literal_runtime_reach.mm1";
+import "k215_calculus_source_pairing.mm1";
+import "k215_calculus_source_ax_stack_lookups.mm1";
+
+@_ def k215PairAt4021State (pc a b t c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) b (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) a t (k215PR8 c)) $;
+
+do (apply (register-eqd 'k215PairAt4021State) '(k215PairAt4021Stateeqd));
+
+theorem k215PairAt4021TransferIn (a b t c: nat): $ k215PIter (4 * b + 1) (k215PairAt4021State k215PNum4021 a b t c) = (k215PairAt4021State k215PNum4025 (a + b) 0 (t + b) c) $ =
+ '(eqtr k215Loop4021Vector (k215PStateeq2 (k215PVectoreq eqid eqid eqid eqid eqid eqid addcom addcom eqid)));
+theorem k215PairAt4021TransferBack (a t c: nat): $ k215PIter (3 * a + 1) (k215PairAt4021State k215PNum4027 a 0 t c) = (k215PairAt4021State k215PNum4030 0 a t c) $ =
+ '(eqtr k215Loop4027Vector (k215PStateeq2 (k215PVectoreq2 add0)));
+pub theorem k215PairAt4021ReachIn (a b t c: nat): $ k215PReach (k215PairAt4021State k215PNum4021 a b t c) (k215PairAt4021State k215PNum4025 (a + b) 0 (t + b) c) $ =
+ '(k215PReach_intro k215PairAt4021TransferIn);
+theorem k215PairAt4021ReachBack (a t c: nat): $ k215PReach (k215PairAt4021State k215PNum4027 a 0 t c) (k215PairAt4021State k215PNum4030 0 a t c) $ =
+ '(k215PReach_intro k215PairAt4021TransferBack);
+
+
+theorem k215PairAt4021Step50Z (b t c: nat): $ k215PStep (k215PairAt4021State k215PNum4025 0 b t c) = (k215PairAt4021State k215PNum4031 0 b t c) $ = '(eqtr (eqtr (k215PAtCD k215PLookupPair4021_4025) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifpos eqid));
+
+theorem k215PairAt4021Reach50Z (b t c: nat): $ k215PReach (k215PairAt4021State k215PNum4025 0 b t c) (k215PairAt4021State k215PNum4031 0 b t c) $ = '(k215PReach_step k215PairAt4021Step50Z);
+
+theorem k215PairAt4021Step50S (a b t c: nat): $ k215PStep (k215PairAt4021State k215PNum4025 (suc a) b t c) = (k215PairAt4021State k215PNum4026 a b t c) $ = '(eqtr (eqtr (eqtr (k215PAtCD k215PLookupPair4021_4025) (ifeq (eqeq1 k215PGet6_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet6_vector)) (eqtr k215PSet6_vector (k215PVectoreq7 (eqtr subSS sub02))))));
+
+theorem k215PairAt4021Reach50S (a b t c: nat): $ k215PReach (k215PairAt4021State k215PNum4025 (suc a) b t c) (k215PairAt4021State k215PNum4026 a b t c) $ = '(k215PReach_step k215PairAt4021Step50S);
+
+theorem k215PairAt4021Step51 (a b t c: nat): $ k215PStep (k215PairAt4021State k215PNum4026 a b t c) = (k215PairAt4021State k215PNum4027 a b (suc t) c) $ = '(eqtr (k215PAtCI k215PLookupPair4021_4026) (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet7_vector)) k215PSet7_vector)));
+
+theorem k215PairAt4021Reach51 (a b t c: nat): $ k215PReach (k215PairAt4021State k215PNum4026 a b t c) (k215PairAt4021State k215PNum4027 a b (suc t) c) $ = '(k215PReach_step k215PairAt4021Step51);
+
+theorem k215PairAt4021Step55 (a b t c: nat): $ k215PStep (k215PairAt4021State k215PNum4030 a b t c) = (k215PairAt4021State k215PNum4021 a b t c) $ = '(k215PAtCC k215PLookupPair4021_4030);
+
+theorem k215PairAt4021Reach55 (a b t c: nat): $ k215PReach (k215PairAt4021State k215PNum4030 a b t c) (k215PairAt4021State k215PNum4021 a b t c) $ = '(k215PReach_step k215PairAt4021Step55);
+
+theorem k215PairAt4021Prefix (k t c: nat): $ k215PReach (k215PairAt4021State k215PNum4025 (suc k) 0 t c) (k215PairAt4021State k215PNum4021 0 k (suc t) c) $ = '(ax_mp (ax_mp k215PReach_trans k215PairAt4021Reach50S) (ax_mp (ax_mp k215PReach_trans k215PairAt4021Reach51) (ax_mp (ax_mp k215PReach_trans k215PairAt4021ReachBack) k215PairAt4021Reach55)));
+theorem k215PairAt4021ReachSum (a b t k c: nat): $ a + b = suc k -> k215PReach (k215PairAt4021State k215PNum4021 a b t c) (k215PairAt4021State k215PNum4025 (suc k) 0 (t + b) c) $ =
+ '(mpbid (k215PReacheq2d (k215PairAt4021Stateeq2d id)) (a1i k215PairAt4021ReachIn));
+pub theorem k215PairAt4021Cycle (a b t k c: nat): $ a + b = suc k -> k215PReach (k215PairAt4021State k215PNum4021 a b t c) (k215PairAt4021State k215PNum4021 0 k (suc (t + b)) c) $ =
+ '(mpd (a1i k215PairAt4021Prefix) (syl k215PReach_trans k215PairAt4021ReachSum));
+theorem k215PairAt4021ReachZeroIn (t c: nat): $ k215PReach (k215PairAt4021State k215PNum4021 0 0 t c) (k215PairAt4021State k215PNum4025 0 0 t c) $ =
+ '(mpbi (k215PReacheq2 (k215PairAt4021Stateeq eqid add0 eqid add0 eqid)) k215PairAt4021ReachIn);
+pub theorem k215PairAt4021Base (t c: nat): $ k215PReach (k215PairAt4021State k215PNum4021 0 0 t c) (k215PairAt4021State k215PNum4031 0 0 t c) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215PairAt4021ReachZeroIn) k215PairAt4021Reach50Z);
+
+
+@_ abstract def k215PairAt4021Run (a b t c: nat): wff =
+ $ k215PReach (k215PairAt4021State k215PNum4021 a b t c) (k215PairAt4021State k215PNum4031 0 0 (t + (a, b)) c) $;
+do (apply (register-eqd 'k215PairAt4021Run) '(k215PairAt4021Runeqd));
+theorem k215PairAt4021RunZero (t c: nat): $ k215PairAt4021Run 0 0 t c $ =
+ '(mpbi (k215PReacheq2 (k215PairAt4021Stateeq4 (eqcom (eqtr (addeq2 pr0) add0)))) k215PairAt4021Base);
+theorem k215PairAt4021RunBase (a b t c: nat): $ a + b = 0 -> k215PairAt4021Run a b t c $ =
+ '(mpbiri k215PairAt4021RunZero (k215PairAt4021Runeqd
+   (syl anl (bi1 addeq0)) (syl anr (bi1 addeq0)) eqidd eqidd));
+theorem k215PairAt4021SumStep (a b k: nat): $ a + b = suc k -> (a, b) = b + suc (0, k) $ =
+ '(eqtrd (a1i preqadd) (eqtrd (addeq1d (preq1d id))
+   (a1i (eqtr (addeq1 k215PairDiagonal_rotate) addcom))));
+theorem k215PairAt4021Accumulator (a b t k: nat): $ a + b = suc k -> suc (t + b) + (0, k) = t + (a, b) $ =
+ '(eqtrd
+   (a1i (eqtr addS1 (eqtr (suceq addass)
+     (eqtr (eqcom addS) (addeq2 (eqcom addS))))))
+   (addeq2d (eqcomd k215PairAt4021SumStep)));
+@_ abstract def k215PairAt4021Claim (k c: nat) (.a .b .t: nat): wff =
+ $ A. a A. b A. t (a + b = k -> k215PairAt4021Run a b t c) $;
+theorem k215PairAt4021Claim_at (a b t k c: nat): $ k215PairAt4021Claim k c -> a + b = k -> k215PairAt4021Run a b t c $ =
+ (named '(!! ealie i @ !! ealde j @ !! ealde l @ bi1d ,eqtac));
+theorem k215PairAt4021RunInductive (a b t k c: nat): $ k215PairAt4021Claim k c -> a + b = suc k -> k215PairAt4021Run a b t c $ =
+ '(exp @ mpd
+   (mpbid
+     (k215PReacheq2d (k215PairAt4021Stateeq4d (syl k215PairAt4021Accumulator anr)))
+     (mpd (a1i add01) (syl k215PairAt4021Claim_at anl)))
+   (syl k215PReach_trans (syl k215PairAt4021Cycle anr)));
+theorem k215PairAt4021Claim_all (k c: nat): $ k215PairAt4021Claim k c $ =
+ (named @ induct '(ind) 'k
+   '(ax_gen (ax_gen (ax_gen k215PairAt4021RunBase)))
+   '(iald @ iald @ iald k215PairAt4021RunInductive));
+pub theorem k215PairMacro4021 (a b t c: nat): $ k215PReach (k215PairAt4021State k215PNum4021 a b t c) (k215PairAt4021State k215PNum4031 0 0 (t + (a, b)) c) $ =
+ '(ax_mp (ax_mp k215PairAt4021Claim_at k215PairAt4021Claim_all) eqid);
+
+

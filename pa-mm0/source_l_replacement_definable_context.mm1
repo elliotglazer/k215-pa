@@ -1,0 +1,71 @@
+import "source_l_replacement_definable_instances.mm1";
+import "source_l_replacement_producer_context.mm1";
+
+theorem lrdc_coverage_wf(T:set)(psi Y:nat):
+ $ sfWf (sfLReplacementImageCoverage T sfLDomain psi Y) $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfLDomain_wf)
+   (ax_mp (ax_mp sfWf_imp (ax_mp sfRelativize_wf sfLDomain_wf)) sfWf_mem)));
+
+theorem lrdc_seed_wf(phi:nat): $ sfWf (sfLReplacementSeedImageBody phi) $ =
+ '(ax_mp (ax_mp sfWf_and sfLReplacement_seed_metadata_wf) lrdc_coverage_wf);
+
+theorem lrdc_collected_wf(start n psi:nat):
+ $ sfWf (sfLReplacementCollectedImageBody start n psi) $ =
+ '(ax_mp (ax_mp sfWf_and sfCLPoint_wf) lrdc_coverage_wf);
+
+theorem lrdc_reflected_wf(start n psi:nat):
+ $ sfWf (sfLReplacementReflectedImageBody start n psi) $ =
+ '(ax_mp (ax_mp sfWf_and sfCLReflectedPoint_wf) lrdc_coverage_wf);
+
+theorem lrdc_one_closed(G a f:nat)
+ (ha:$ sfWf a $)(hf:$ sfBound 0 f $)(hp:$ nsLocal G f $):
+ $ nsLocal (a : sfContextShift G) f $ =
+ '(sfRQ_rewrite (ax_mp sfShift_closed_identity hf)
+   (ax_mp (ax_mp (ax_mp nsLocal_weaken
+     (mpbir sfContextWf_cons (ian ha sfContextShift_wf))) sfContextSub_cons)
+     (ax_mp sfSepLocal_shift hp)));
+
+theorem lrdc_two_closed(G a f:nat)
+ (ha:$ sfWf a $)(hf:$ sfBound 0 f $)(hp:$ nsLocal G f $):
+ $ nsLocal (sfCLWitnessContext G a) f $ =
+ '(sfRQ_rewrite (eqtr (sfShifteq2 (ax_mp sfShift_closed_identity hf))
+     (ax_mp sfShift_closed_identity hf))
+   (sfLReplacementInWitnessContext_shift2 ha hp));
+
+theorem lrdc_seed_closed(G phi f:nat)
+ (hf:$ sfBound 0 f $)(hp:$ nsLocal G f $):
+ $ nsLocal (sfLReplacementSeedImageContext G phi) f $ =
+ '(lrdc_two_closed lrdc_seed_wf hf
+   (lrdc_one_closed (ax_mp sfWf_ex (ax_mp sfWf_ex lrdc_seed_wf)) hf hp));
+
+theorem lrdc_collected_closed(G start n psi f:nat)
+ (hf:$ sfBound 0 f $)(hp:$ nsLocal G f $):
+ $ nsLocal (sfLReplacementCollectedDefinableContext G start n psi) f $ =
+ '(lrdc_two_closed lrdc_reflected_wf hf
+   (lrdc_two_closed lrdc_collected_wf hf hp));
+
+theorem lrdc_law_in_callback(G n phi:nat)
+ (hb:$ sfBound (suc (suc n)) phi $)
+ (hD:$ nsLocal G (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) $):
+ $ nsLocal (sfLReplacementSchemaDefinableContext G n phi)
+   (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) $ =
+ '(lrdc_collected_closed (sfLReplacementDefinableLaw_bound (ax_mp sfLReplacementPsi_bound hb))
+   (lrdc_seed_closed (sfLReplacementDefinableLaw_bound (ax_mp sfLReplacementPsi_bound hb))
+    (sfLReplacementInput_lift
+     (ax_mp sfShift_closed_identity (sfLReplacementDefinableLaw_bound (ax_mp sfLReplacementPsi_bound hb)))
+     (sfLReplacementParameter_lift sfLDomain_wf
+      (ax_mp sfShift_closed_identity (sfLReplacementDefinableLaw_bound (ax_mp sfLReplacementPsi_bound hb))) hD))));
+
+theorem lrdc_point(G n phi:nat):
+ $ nsLocal (sfLReplacementSchemaDefinableContext G n phi)
+   (sfCLPoint 7 (suc n) 1 0) $ =
+ '(ax_mp sfCLReflectedPoint_forget
+   (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp
+     (mpbir sfContextWf_cons (ian lrdc_reflected_wf sfContextShift_wf))) sfContext_member_head)));
+
+pub theorem sfLReplacementDefinableLaw_to_callback(G n phi:nat)
+ (hb:$ sfBound (suc (suc n)) phi $)
+ (hD:$ nsLocal G (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) $):
+ $ nsLocal (sfLReplacementSchemaDefinableContext G n phi)
+   (sfLReplacementImageDefinable (sfLReplacementStartMap 7) sfLDomain (sfLReplacementPsi phi) 0) $ =
+ '(sfLReplacementDefinableLaw_replacement hb (lrdc_law_in_callback hb hD) lrdc_point);

@@ -1,0 +1,48 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_quantifiers.mm0";
+import "k218q_bootstrap.mm0";
+import "k218q_quotation_propositional.mm0";
+import "quotation_substitution.mm0";
+import "quotation_binders_absent.mm0";
+import "k218q_specialization.mm0";
+
+theorem k218SQ_sqQuote_all_specialization (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) a ->
+   k218QProvable (kImp (sqQuote E t k 0 (sfAll a))
+     (kImp (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a))) $;
+
+theorem k218SQ_sqQuote_exists_introduction (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) a ->
+   k218QProvable (kImp (kAnd (kMem t y) (sqQuote (sqEnvCons y E) t (suc k) 0 a))
+     (sqQuote E t k 0 (sfEx a))) $;
+
+theorem k218SQ_sqLocal_allE_avoid (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $)
+ (he: $ sqEnvAvoid E n k $) (ha: $ sfBound (suc n) a $):
+ $ k218SQ_sqLocal H E t k 0 (sfAll a) -> k218IHypProvable H (kMem t y) ->
+   k218SQ_sqLocal H (sqEnvCons y E) t (suc k) 0 a $;
+
+theorem k218SQ_sqLocal_exI_avoid (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (hy: $ y < k $)
+ (he: $ sqEnvAvoid E n k $) (ha: $ sfBound (suc n) a $):
+ $ k218SQ_sqLocal H (sqEnvCons y E) t (suc k) 0 a -> k218IHypProvable H (kMem t y) ->
+   k218SQ_sqLocal H E t k 0 (sfEx a) $;
+
+theorem k218SQ_sqLocal_allE (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ t < k $) (hy: $ y < k $)
+ (he: $ sqEnvBelow E n k $) (ha: $ sfBound (suc n) a $):
+ $ k218SQ_sqLocal H E t k 0 (sfAll a) -> k218IHypProvable H (kMem t y) ->
+   k218SQ_sqLocal H (sqEnvCons y E) t (suc k) 0 a $;
+
+theorem k218SQ_sqLocal_exI (H: nat) (E: set) (n t k y a: nat)
+ (hz: $ k != 0 $) (ht: $ t < k $) (hy: $ y < k $)
+ (he: $ sqEnvBelow E n k $) (ha: $ sfBound (suc n) a $):
+ $ k218SQ_sqLocal H (sqEnvCons y E) t (suc k) 0 a -> k218IHypProvable H (kMem t y) ->
+   k218SQ_sqLocal H E t k 0 (sfEx a) $;
+
+theorem k218SQ_sqLocal_allI (H: nat) (E: set) (t k a: nat)
+ (ha: $ sfWf a $) (hf: $ kContextFresh H k $):
+ $ k218SQ_sqLocal ((kMem t k) : H) (sqEnvCons k E) t (suc k) 0 a ->
+   k218SQ_sqLocal H E t k 0 (sfAll a) $;

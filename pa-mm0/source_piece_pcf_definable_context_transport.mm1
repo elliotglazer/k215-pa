@@ -1,0 +1,41 @@
+import "source_piece_pcf_definable_canonical.mm1";
+
+import "source_reflection_least_cond_ord_maps.mm1";
+
+do { (add-eqd-thm 'sfLCBinaryMap 'sfDefinableContextLCMapCong) (add-eqd-thm 'sfLCBinary 'sfDefinableContextLCCong) };
+
+@_ abstract def sfPieceDefinableContextTransportMap(n:nat): set = $ sfLCBinaryMap 0 1 (n + 2) $;
+
+theorem sfPieceDefinableContextTransport_undo_one: $ sfPieceDefinableParametersUndo @ 1 = 0 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_one) sfPieceRotate_two)));
+
+theorem sfPieceDefinableContextTransport_undo_two: $ sfPieceDefinableParametersUndo @ 2 = 1 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_two) sfPieceRotate_zero)));
+
+theorem sfPieceDefinableContextTransport_undo_tail(i:nat): $ sfPieceDefinableParametersUndo @ suc (suc (suc i)) = suc (suc (suc i)) $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_tail) sfPieceRotate_tail)));
+
+theorem sfPieceDefinableContextTransport_map_0: $ sfComposeMap sfPieceDefinableParametersUndo sfSuccessorMap @ 0 = sfRenameDepthMap sfSuccessorMap 2 @ 0 $ = (named '(eqtr (eqtr sfComposeMap_value (eqtr (appeq2 sfSuccessorMap_value) sfPieceDefinableContextTransport_undo_one)) (eqcom (eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S)))));
+
+theorem sfPieceDefinableContextTransport_map_1: $ sfComposeMap sfPieceDefinableParametersUndo sfSuccessorMap @ 1 = sfRenameDepthMap sfSuccessorMap 2 @ 1 $ = (named '(eqtr (eqtr sfComposeMap_value (eqtr (appeq2 sfSuccessorMap_value) sfPieceDefinableContextTransport_undo_two)) (eqcom (eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S))))));
+
+theorem sfPieceDefinableContextTransport_map_tail(i:nat): $ sfComposeMap sfPieceDefinableParametersUndo sfSuccessorMap @ suc (suc i) = sfRenameDepthMap sfSuccessorMap 2 @ suc (suc i) $ = (named '(eqtr (eqtr sfComposeMap_value (eqtr (appeq2 sfSuccessorMap_value) sfPieceDefinableContextTransport_undo_tail)) (eqcom (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)))))))));
+
+theorem sfPieceDefinableContextTransport_map_from1(i:nat): $ sfComposeMap sfPieceDefinableParametersUndo sfSuccessorMap @ suc i = sfRenameDepthMap sfSuccessorMap 2 @ suc i $ = (named @ induct '(ind) 'i 'sfPieceDefinableContextTransport_map_1 '(a1i sfPieceDefinableContextTransport_map_tail));
+
+theorem sfPieceDefinableContextTransport_map_at(i:nat): $ sfComposeMap sfPieceDefinableParametersUndo sfSuccessorMap @ i = sfRenameDepthMap sfSuccessorMap 2 @ i $ = (named @ induct '(ind) 'i 'sfPieceDefinableContextTransport_map_0 '(a1i sfPieceDefinableContextTransport_map_from1));
+
+pub theorem sfPieceDefinableContextTransport_shift_code(a:nat)(hf:$ sfWf a $): $ sfRename sfPieceDefinableParametersUndo 0 (sfShift 0 a) = sfShift 2 a $ = (named '(eqtr (trud (sfRename_congr_formula (a1i (eqcom (ax_mp sfRename_successor hf))))) (eqtr (ax_mp sfRename_compose hf) (eqtr (ax_mp (sfRename_extensional (ax_gen sfPieceDefinableContextTransport_map_at)) hf) (eqtr (eqcom (ax_mp sfRename_as_map hf)) (ax_mp sfRename_successor hf))))));
+
+pub theorem sfPieceDefinableContextTransport_lift(G a:nat)(hf:$ sfWf a $): $ nsLocal G a -> nsLocal (sfPieceDefinableParametersStep @ G) (sfShift 2 a) $ = (named '(syl (bi2 (nsLocal_context_eq sfPieceDefinableParametersStep_at)) (syl (bi1 (nsLocal_formula_eq (sfPieceDefinableContextTransport_shift_code hf))) (syl sfSepLocal_rename (syl (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) sfSepLocal_shift)))));
+
+pub theorem sfPieceDefinableContextTransportMap_zero(a:nat)(hf:$ sfWf a $): $ sfLCBinary a 0 1 (0 + 2) = a $ = (named '(eqtr (sfLCBinary_congr hf eqid eqid add01) (sfLCBinary_identity hf)));
+
+pub theorem sfPieceDefinableContextTransportMap_step(n a:nat)(hf:$ sfWf a $): $ sfShift 2 (sfLCBinary a 0 1 (n + 2)) = sfLCBinary a 0 1 (suc n + 2) $ = (named '(eqtr (sfLCBinary_shift hf leaddid2) (sfLCBinary_congr hf (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S)) (eqcom addS1))));
+
+theorem sfPieceDefinableContextTransport_zero(G a:nat)(hf:$ sfWf a $)(ha:$ nsLocal G a $): $ nsLocal (sfPieceDefinableParametersContext 0 G) (sfLCBinary a 0 1 (0 + 2)) $ = (named '(mpbir (nsLocal_context_eq sfPieceDefinableParametersContext_zero) (mpbir (nsLocal_formula_eq (sfPieceDefinableContextTransportMap_zero hf)) ha)));
+
+theorem sfPieceDefinableContextTransport_step(n G a:nat)(hf:$ sfWf a $): $ nsLocal (sfPieceDefinableParametersContext n G) (sfLCBinary a 0 1 (n + 2)) -> nsLocal (sfPieceDefinableParametersContext (suc n) G) (sfLCBinary a 0 1 (suc n + 2)) $ = (named '(syl (bi2 (nsLocal_context_eq sfPieceDefinableParametersContext_suc)) (syl (bi1 (nsLocal_formula_eq (sfPieceDefinableContextTransportMap_step hf))) (sfPieceDefinableContextTransport_lift sfLCBinary_wf))));
+
+pub theorem sfPieceDefinableContextTransport_all(n G a:nat)(hf:$ sfWf a $)(ha:$ nsLocal G a $): $ nsLocal (sfPieceDefinableParametersContext n G) (sfLCBinary a 0 1 (n + 2)) $ = (named @ induct '(ind) 'n '(sfPieceDefinableContextTransport_zero hf ha) '(sfPieceDefinableContextTransport_step hf));
+
+pub theorem sfPieceDefinableContextTransport_named_code(m n phi r A:nat)(hb:$ sfBound n phi $): $ sfLCBinary (sfPieceDefinableNamed n phi r A) 0 1 (m + 2) = sfPieceDefinableNamed n phi (sfPieceDefinableContextTransportMap m @ r) (sfPieceDefinableContextTransportMap m @ A) $ = (named '(eqtr (sfPieceDefinableNamed_rename hb) (sfPieceDefinableNamed_congr hb sfRenameIndex_zero sfRenameIndex_zero)));
+
+pub theorem sfPieceDefinableContextTransport_named(m G n phi r A:nat)(hb:$ sfBound n phi $)(hr:$ nsLocal G (sfPieceDefinableNamed n phi r A) $): $ nsLocal (sfPieceDefinableParametersContext m G) (sfPieceDefinableNamed n phi (sfPieceDefinableContextTransportMap m @ r) (sfPieceDefinableContextTransportMap m @ A)) $ = (named '(sfRQ_rewrite (sfPieceDefinableContextTransport_named_code hb) (sfPieceDefinableContextTransport_all sfORBinary_wf hr)));

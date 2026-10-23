@@ -1,0 +1,55 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm1";
+import "k218q_rebase.mm1";
+import "k218q_named_rebase.mm1";
+import "k230_fresh_allocation.mm1";
+
+pub theorem k218INamed_rebase (E: set) (n k l a: nat)
+ (hk: $ 0 < k $) (hl: $ 0 < l $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n l $)
+ (ha: $ sfBound n a $):
+ $ k218IEquivalent (sfNamedTemplate E k 0 a) (sfNamedTemplate E l 0 a) $ =
+'(ax_mp (ax_mp (ax_mp k218IsfNamedTemplate_fresh_base_equivalent ha)
+ (ian (sqAllocAvoid_below hk) (ax_mp sqSQ_range_below he)))
+ (ian (sqAllocAvoid_below hl) (ax_mp sqSQ_range_below hf)));
+
+pub theorem k218INamed_allI (E: set) (H n k z a: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (ha: $ sfBound n (sfAll a) $) (hh: $ kContextFresh H z $):
+ $ k218IHypProvable H (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a) ->
+   k218IHypProvable H (sfNamedTemplate E k 0 (sfAll a)) $ =
+'(rsyl (k218IHypProvable_gen_fresh hh)
+ (rsyl (bi2 (k218IHypProvableeq2 (ax_mp sfNamedTemplate_all_cons
+   (ax_mp sfBound_wf (mpbi sfBound_sfAll ha)))))
+  (mpi (k218IHypProvable_seed (anr (k218INamed_rebase hk hz he hf ha))) k218IHypProvable_mp)));
+
+theorem k218INamed_exE_minor (E: set) (H n k z a c: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (hc: $ sfBound n c $):
+ $ k218IHypProvable (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a : H)
+    (sfNamedTemplate (sqEnvCons z E) (suc z) 0 (sfShift 0 c)) ->
+   k218IHypProvable H (kImp (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a)
+    (sfNamedTemplate E k 0 c)) $ =
+'(rsyl (bi1 (k218IHypProvableeq2 (ax_mp sfNamedTemplate_source_shift (ax_mp sfBound_wf hc))))
+ (rsyl (mpi (k218IHypProvable_seed (anr (k218INamed_rebase hk lt01S he
+   (ax_mp sqEnvBelow_successor hf) hc))) k218IHypProvable_mp)
+  k218IHypProvable_deduction));
+
+pub theorem k218INamed_exE (E: set) (H n k z a c: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (ha: $ sfBound n (sfEx a) $) (hc: $ sfBound n c $)
+ (hh: $ kContextFresh H z $) (hfresh: $ kFresh (sfNamedTemplate E k 0 c) z $):
+ $ k218IHypProvable H (sfNamedTemplate E k 0 (sfEx a)) ->
+   k218IHypProvable (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a : H)
+    (sfNamedTemplate (sqEnvCons z E) (suc z) 0 (sfShift 0 c)) ->
+   k218IHypProvable H (sfNamedTemplate E k 0 c) $ =
+'(exp @ sylc
+ (k218IHypProvable_exists_elim (ax_mp k218IContextFresh_vacuous hh)
+   (ax_mp k218QFresh_vacuity hfresh))
+ (syl (rsyl (mpi (k218IHypProvable_seed (anl (k218INamed_rebase hk hz he hf ha))) k218IHypProvable_mp)
+   (bi1 (k218IHypProvableeq2 (ax_mp sfNamedTemplate_ex_cons
+     (ax_mp sfBound_wf (mpbi sfBound_sfEx ha)))))) anl)
+ (syl (k218INamed_exE_minor hk hz he hf hc) anr));

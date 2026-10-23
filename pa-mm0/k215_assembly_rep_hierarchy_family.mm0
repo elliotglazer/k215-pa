@@ -1,0 +1,51 @@
+import "k215_assembly_replacement_local.mm0";
+import "source_l_replacement_common_extension_source.mm0";
+import "source_piece_pcf_level_interfaces.mm0";
+import "source_l_replacement_common_producers.mm0";
+import "source_reflection_transfer_tv_producers.mm0";
+import "source_reflection_transfer_ph_hierarchy.mm0";
+import "source_l_replacement_seed_producer.mm0";
+import "source_zfc_interpretation.mm0";
+
+-- L10 split of k215_assembly_replacement_family (00000-A-L10-008, ~306k defs+terms).
+-- The family form of Replacement^L, with the five closed hierarchy facts and the
+-- power-level bound as rule hypotheses instead of importing the modules that prove them
+-- (source_l_compact_hierarchy_* alone is ~202k). The hypotheses are exactly the closed
+-- theorems
+--   hE sfLUniversalHierarchyExists_zfr          (source_l_universal_hierarchy_exists)
+--   hU sfLUniversalHierarchyUnique_zfr          (source_l_universal_hierarchy_unique)
+--   hS sfLPowerHierarchySubset_zfr              (source_l_compact_hierarchy_subset)
+--   hL sfLUniversalHierarchyLimit_reflection_zfr (source_l_universal_hierarchy_limit)
+--   hM sfLCompactHierarchyStage_reflection_zfr  (source_l_compact_hierarchy_stage)
+--   hK sfLPowerLevelBound_from_hierarchy_zfr    (source_l_power_collection_kernel)
+-- The proofs of the five producer-context facts replay source_l_replacement_producer_hierarchy
+-- without its imports source_l_replacement_common_source and source_l_power_collection_kernel
+-- (which carry source_l_nonempty_replay, 74k).
+
+theorem k215AssemblyRepH_schema_imp (n phi: nat)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $)
+ (hK: $ sfTheoryProvable zfrAxioms
+   (sfImp sfLUniversalHierarchyExists (sfImp sfLPowerHierarchySubset sfLPowerLevelBound)) $):
+ $ sfBound (suc (suc n)) phi ->
+   sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) ->
+   sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $;
+
+theorem k215AssemblyRepH_images_from_definable_laws {phi n: nat}
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $)
+ (hK: $ sfTheoryProvable zfrAxioms
+   (sfImp sfLUniversalHierarchyExists (sfImp sfLPowerHierarchySubset sfLPowerLevelBound)) $):
+ $ (A. phi A. n (sfBound (suc (suc n)) phi ->
+     sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)))) ->
+   sfZFCReplacementImages zfrAxioms sfLDomain $;
+
+-- Hypothesis-free last theorem (keeps check.py's false-final control well formed).
+theorem k215AssemblyRepH_if_bound (n phi: nat):
+ $ sfBound (suc (suc n)) (if (sfBound (suc (suc n)) phi) phi sfBot) $;

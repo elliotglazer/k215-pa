@@ -1,0 +1,38 @@
+import "source_l_common_level_collect_dom.mm0";
+import "source_l_common_level_two_join.mm0";
+import "source_l_common_level_two_shift.mm0";
+import "zfc_axioms.mm0";
+import "source_relativization_laws.mm0";
+import "source_relative_quantifiers.mm0";
+
+-- Choice in L: the source axiom matrix, unary instances and the named premise sentences.
+-- The matrix ACmat(x) of zfcChoice (free variable 0 = the family x).
+def sfLChoiceMatrix: nat = $ (sfImp (sfAll (sfImp (sfMem 0 1) (sfEx (sfMem 0 1)))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 2) (sfImp (sfImp (sfEq 1 0) (sfBot)) (sfImp (sfEx (sfAnd (sfMem 0 2) (sfMem 0 1))) (sfBot))))))) (sfEx (sfAll (sfImp (sfMem 0 2) (sfEx (sfAnd (sfAnd (sfMem 0 1) (sfMem 0 2)) (sfAll (sfImp (sfMem 0 2) (sfImp (sfMem 0 3) (sfEq 0 1))))))))))) $;
+
+-- x is in L; ACmat at x.
+def sfLChoiceD (x: nat): nat = $ sfLUnaryAt sfLDomain x $;
+def sfLChoiceAC (x: nat): nat = $ sfLUnaryAt sfLChoiceMatrix x $;
+
+-- T1: every ordinal has a level.  T2: every member of every level has a choice set.
+def sfLChoiceT1: nat = $ sfAll (sfImp (sfCLOrdinalAt 0) (sfEx (sfCLHierarchyAt 1 0))) $;
+def sfLChoiceT2: nat = $ sfAll (sfImp (sfCLOrdinalAt 0) (sfAll (sfImp (sfCLHierarchyAt 1 0)
+  (sfAll (sfImp (sfMem 0 1) sfLChoiceMatrix))))) $;
+-- Uniqueness of levels; upward absoluteness of the level relation for L;
+-- ordinals are in L; the ordinal predicate goes down to L.
+def sfLChoiceUnique: nat = $ sfAll (sfAll (sfAll (sfImp (sfCLOrdinalAt 2)
+  (sfImp (sfCLHierarchyAt 2 1) (sfImp (sfCLHierarchyAt 2 0) (sfEq 1 0)))))) $;
+def sfLChoiceUp: nat = $ sfAll (sfAll (sfImp (sfLChoiceD 1) (sfImp (sfLChoiceD 0)
+  (sfImp (sfRelativize sfLDomain (sfCLHierarchyAt 1 0)) (sfCLHierarchyAt 1 0))))) $;
+def sfLChoiceOrdL: nat = $ sfAll (sfImp (sfCLOrdinalAt 0) (sfLChoiceD 0)) $;
+def sfLChoiceOrdDown: nat = $ sfAll (sfImp (sfCLOrdinalAt 0) (sfRelativize sfLDomain (sfCLOrdinalAt 0))) $;
+
+def sfLChoiceContext: nat = $ sfRelativize sfLDomain sfLChoiceT1 : (sfRelativize sfLDomain sfLChoiceT2 :
+  (sfLChoiceUnique : (sfLChoiceUp : (sfLChoiceOrdL : (sfLChoiceOrdDown : (sfReflectionEqualitySubset : 0)))))) $;
+
+theorem sfLChoice_eq: $ zfcChoice = sfAll sfLChoiceMatrix $;
+
+theorem sfLChoiceMatrix_bound: $ sfBound 1 sfLChoiceMatrix $;
+
+theorem sfLChoiceContext_wf: $ sfContextWf sfLChoiceContext $;
+
+theorem sfLChoiceContext_shift: $ sfContextShift sfLChoiceContext = sfLChoiceContext $;

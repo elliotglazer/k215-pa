@@ -1,0 +1,31 @@
+import "source_piece_pcf_definable_membership.mm1";
+import "source_l_separation_image_profile.mm1";
+import "source_wf_separation_logic.mm1";
+
+@_ def sfLReplacementImageCoverage(T:set)(D psi Y:nat):nat =
+ $ sfAll (sfImp D (sfImp (sfRelativize D (sfRename T 1 psi)) (sfMem 0 (suc Y)))) $;
+
+@_ def sfLReplacementImageBody(T:set)(D psi X:nat):nat =
+ $ sfAll (sfImp D (sfIff (sfMem 0 (suc X)) (sfRelativize D (sfRename T 1 psi)))) $;
+
+@_ def sfLReplacementImageDefinable(T:set)(D psi Y:nat):nat =
+ $ sfEx (sfAnd D (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap T) psi (suc Y) 0)) $;
+
+@_ def sfLReplacementImageWitness(T:set)(D psi:nat):nat =
+ $ sfEx (sfAnd D (sfLReplacementImageBody (sfComposeMap sfSuccessorMap T) D psi 0)) $;
+
+pub theorem sfLReplacementImagePoint_local(G a b c d e:nat)
+ (ha:$ sfWf a $)(he:$ sfWf e $)
+ (hp:$ nsLocal G (sfIff a (sfAnd b c)) $)
+ (hs:$ nsLocal G (sfImp d (sfImp e b)) $)
+ (hr:$ nsLocal G (sfImp b (sfIff e c)) $)
+ (hd:$ nsLocal G d $): $ nsLocal G (sfIff a e) $ =
+ '(ax_mp (ax_mp sfLocal_and (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian ha (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hr)) (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_CE1 (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian ha (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hp))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha (ax_mp nsLocal_context_wf hp)))) sfContext_member_head)))))) (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_CE1 (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian ha (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hp))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian ha (ax_mp nsLocal_context_wf hp)))) sfContext_member_head)))))) (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_CE2 (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian he (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hp))) (ax_mp (ax_mp sfLocal_and (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian he (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hs)) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian he (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hd))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian he (ax_mp nsLocal_context_wf hp)))) sfContext_member_head))) (ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian he (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hr)) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian he (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hs)) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian he (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hd))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian he (ax_mp nsLocal_context_wf hp)))) sfContext_member_head))))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian he (ax_mp nsLocal_context_wf hp)))) sfContext_member_head))))));
+
+pub theorem sfLReplacementImage_profile(T:set)(G D psi Y X:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile T psi Y X) $)
+ (hs:$ nsLocal G (sfLReplacementImageCoverage T D psi Y) $)
+ (hr:$ nsLocal G (sfLSeparationImageComparison T D psi Y) $):
+ $ nsLocal G (sfLReplacementImageBody T D psi X) $ =
+ '(ax_mp (sfLocal_allI (ax_mp nsLocal_context_wf hp)) (ax_mp nsLocal_II (sfLReplacementImagePoint_local sfWf_mem (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd)) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf hd) (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf hp))))) sfContextSub_cons) (ax_mp sfSepLocal_open hp)) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf hd) (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf hp))))) sfContextSub_cons) (ax_mp sfSepLocal_open hs)) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf hd) (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf hp))))) sfContextSub_cons) (ax_mp sfSepLocal_open hr)) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf hd) (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf hp))))) sfContext_member_head))));

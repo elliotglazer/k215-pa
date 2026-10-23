@@ -1,0 +1,70 @@
+import "source_l_separation_image_prefix.mm1";
+
+@_ def sfLReplacementPrefixOpenLaw(D n:nat)(.G .a:nat):wff =
+ $ A. G A. a (nsLocal G (sfAllPrefix n a) ->
+  nsLocal (sfLSeparationImageParameterContext D n G) a) $;
+
+theorem lrpo_one_if(H:wff)(D G a:nat)(hd:$ sfWf D $)
+ (hp:$ H -> nsLocal G (sfAll a) $):
+ $ H -> nsLocal (D : sfContextShift G) a $ =
+ '(syl (ax_mp (ax_mp nsLocal_weaken
+    (mpbir sfContextWf_cons (ian hd sfContextShift_wf))) sfContextSub_cons)
+  (mpbid (nsLocaleq2d (syl sfSubst_shift_up_identity (syl (bi1 sfWf_all_iff) (syl nsLocal_wf hp))))
+   (syl nsLocal_AllE (syl (bi1 (nsLocal_formula_eq sfShift_sfAll)) (syl sfSepLocal_shift hp)))));
+
+theorem lrpo_at(D n G a:nat):
+ $ sfLReplacementPrefixOpenLaw D n -> nsLocal G (sfAllPrefix n a) ->
+  nsLocal (sfLSeparationImageParameterContext D n G) a $ =
+ (named '(!! ealie g @ !! ealde f @ bi1d ,eqtac));
+
+theorem lrpo_zero_each(D G a:nat):
+ $ nsLocal G (sfAllPrefix 0 a) -> nsLocal (sfLSeparationImageParameterContext D 0 G) a $ =
+ '(syl (bi2 (nsLocal_context_eq sfLSeparationImageParameterContext_zero))
+  (bi1 (nsLocal_formula_eq sfAllPrefix_zero)));
+
+theorem lrpo_zero(D:nat): $ sfLReplacementPrefixOpenLaw D 0 $ =
+ (named '(ax_gen (ax_gen lrpo_zero_each)));
+
+theorem lrpo_step_if(H:wff)(D n G a:nat)(hd:$ sfWf D $)
+ (hi:$ H -> sfLReplacementPrefixOpenLaw D n $)
+ (hp:$ H -> nsLocal G (sfAllPrefix (suc n) a) $):
+ $ H -> nsLocal (sfLSeparationImageParameterContext D (suc n) G) a $ =
+ '(syl (bi2 (nsLocal_context_eq (eqtr sfLSeparationImageParameterContext_suc
+    (eqcom sfLSeparationImageParameterContext_commute))))
+  (mpd (lrpo_one_if hd (syl (bi1 (nsLocal_formula_eq sfAllPrefix_suc)) hp))
+   (syl lrpo_at hi)));
+
+theorem lrpo_step_each(D n G a:nat)(hd:$ sfWf D $):
+ $ sfLReplacementPrefixOpenLaw D n -> nsLocal G (sfAllPrefix (suc n) a) ->
+   nsLocal (sfLSeparationImageParameterContext D (suc n) G) a $ =
+ '(exp (lrpo_step_if hd anl anr));
+
+theorem lrpo_step(D n:nat)(hd:$ sfWf D $):
+ $ sfLReplacementPrefixOpenLaw D n -> sfLReplacementPrefixOpenLaw D (suc n) $ =
+ (named '(!! iald G @ !! iald a @ lrpo_step_each hd));
+
+theorem lrpo_all(D n:nat)(hd:$ sfWf D $): $ sfLReplacementPrefixOpenLaw D n $ =
+ (named @ induct '(ind) 'n 'lrpo_zero '(lrpo_step hd));
+
+pub theorem sfLReplacementPrefix_open(D n G a:nat)(hd:$ sfWf D $)
+ (hp:$ nsLocal G (sfAllPrefix n a) $):
+ $ nsLocal (sfLSeparationImageParameterContext D n G) a $ =
+ '(ax_mp (ax_mp lrpo_at (lrpo_all hd)) hp);
+
+theorem lrpl_zero(D G f:nat)(hp:$ nsLocal G f $):
+ $ nsLocal (sfLSeparationImageParameterContext D 0 G) f $ =
+ '(mpbir (nsLocal_context_eq sfLSeparationImageParameterContext_zero) hp);
+
+theorem lrpl_step(D G n f:nat)(hd:$ sfWf D $)(hf:$ sfShift 0 f = f $):
+ $ nsLocal (sfLSeparationImageParameterContext D n G) f ->
+   nsLocal (sfLSeparationImageParameterContext D (suc n) G) f $ =
+ '(syl (bi2 (nsLocal_context_eq sfLSeparationImageParameterContext_suc))
+  (syl (ax_mp (ax_mp nsLocal_weaken
+    (mpbir sfContextWf_cons (ian hd sfContextShift_wf))) sfContextSub_cons)
+   (syl (bi1 (nsLocal_formula_eq hf)) sfSepLocal_shift)));
+
+pub theorem sfLReplacementParameter_lift(D G n f:nat)
+ (hd:$ sfWf D $)(hf:$ sfShift 0 f = f $)(hp:$ nsLocal G f $):
+ $ nsLocal (sfLSeparationImageParameterContext D n G) f $ =
+ (named @ induct '(ind) 'n '(lrpl_zero hp) '(lrpl_step hd hf));
+

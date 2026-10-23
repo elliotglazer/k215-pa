@@ -1,0 +1,25 @@
+import "bb215_arithmetic_formula_step.mm1";
+
+import "bb215_arithmetic_formula_run_graph.mm1";
+
+@_ abstract def bb215ArithmeticFormulaRunScalarClosure (m c T n .i .x .y: nat): wff = $ A. i (i < n -> A. x (bb215ArithmeticFormulaHistoryPairGraph m c i x -> A. y (bb215ArithmeticFormulaStepGraph T x y -> bb215ArithmeticFormulaHistoryPairGraph m c (suc i) y))) $;
+
+theorem bb215ArithmeticFormulaRunScalarClosure_next (m c T i x: nat) {y: nat}: $ (A. y (bb215ArithmeticFormulaStepGraph T x y -> bb215ArithmeticFormulaHistoryPairGraph m c (suc i) y)) <-> bb215ArithmeticFormulaHistoryCell (m, c) (suc i) (bb215ArithmeticFormulaRunStep T @ x) $ = (named '(bitr (!! aleqi y (imeqi (bitr bb215ArithmeticFormulaStepGraph_correct eqcomb) bb215ArithmeticFormulaNthScalarCell_packed)) (bitr (!! aleqe y (bb215ArithmeticFormulaHistoryCelleq3d id)) (bb215ArithmeticFormulaHistoryCelleq3 (eqcom bb215ArithmeticFormulaRunStep_at)))));
+
+pub theorem bb215ArithmeticFormulaRunScalarClosure_packed (m c T n: nat) {i x: nat}: $ bb215ArithmeticFormulaRunScalarClosure m c T n <-> bb215ArithmeticFormulaRecClosure (m, c) (bb215ArithmeticFormulaRunStep T) n $ = (named '(!! aleqi i @ imeq2i @ !! aleqi x @ imeqi bb215ArithmeticFormulaNthScalarCell_packed bb215ArithmeticFormulaRunScalarClosure_next));
+
+@_ abstract def bb215ArithmeticFormulaRunScalarCertificate (m c T n v .y: nat): wff = $ bb215ArithmeticFormulaHistoryPairGraph m c 0 0 /\ bb215ArithmeticFormulaRunScalarClosure m c T n /\ A. y (bb215ArithmeticFormulaHistoryPairGraph m c n y -> y = v) $;
+
+pub theorem bb215ArithmeticFormulaRunScalarCertificate_packed (m c T n v: nat) {y: nat}: $ bb215ArithmeticFormulaRunScalarCertificate m c T n v <-> bb215ArithmeticFormulaRecCertificate (m, c) k215TMInitial (bb215ArithmeticFormulaRunStep T) n v $ = (named '(aneq (aneq (bitr bb215ArithmeticFormulaNthScalarCell_packed (bb215ArithmeticFormulaHistoryCelleq3 (eqcom k215TMInitial_zero))) bb215ArithmeticFormulaRunScalarClosure_packed) (!! aleqi y (imeq1i bb215ArithmeticFormulaNthScalarCell_packed))));
+
+@_ abstract def bb215ArithmeticFormulaRunScalarGraph (T n v .m .c: nat): wff = $ E. m E. c bb215ArithmeticFormulaRunScalarCertificate m c T n v $;
+
+theorem bb215ArithmeticFormulaRunScalarCertificate_introduce (m c T n v: nat) {p q: nat}: $ bb215ArithmeticFormulaRunScalarCertificate m c T n v -> bb215ArithmeticFormulaRunScalarGraph T n v $ = (named '(syl (!! iexe p @ !! exeqd q (bb215ArithmeticFormulaRunScalarCertificateeq1d id)) (!! iexe q (bb215ArithmeticFormulaRunScalarCertificateeq2d id))));
+
+theorem bb215ArithmeticFormulaRunScalarCertificate_unpacked (a T n v: nat) {y: nat}: $ bb215ArithmeticFormulaRecCertificate a k215TMInitial (bb215ArithmeticFormulaRunStep T) n v <-> bb215ArithmeticFormulaRunScalarCertificate (fst a) (snd a) T n v $ = (named '(bicom (bitr bb215ArithmeticFormulaRunScalarCertificate_packed (bb215ArithmeticFormulaRecCertificateeq1 fstsnd))));
+
+theorem bb215ArithmeticFormulaRunScalarCertificate_into_packed (m c T n v: nat) {a: nat}: $ bb215ArithmeticFormulaRunScalarCertificate m c T n v -> bb215ArithmeticFormulaRunGraph T n v $ = (named '(syl (!! iexe a (bb215ArithmeticFormulaRecCertificateeq1d id)) (bi1 bb215ArithmeticFormulaRunScalarCertificate_packed)));
+
+pub theorem bb215ArithmeticFormulaRunScalarGraph_packed (T n v: nat) {m c a: nat}: $ bb215ArithmeticFormulaRunScalarGraph T n v <-> bb215ArithmeticFormulaRunGraph T n v $ = (named '(ibii (!! eex m @ !! eex c bb215ArithmeticFormulaRunScalarCertificate_into_packed) (!! eex a @ syl bb215ArithmeticFormulaRunScalarCertificate_introduce (bi1 bb215ArithmeticFormulaRunScalarCertificate_unpacked))));
+
+pub theorem bb215ArithmeticFormulaRunScalarGraph_correct (T n v: nat): $ bb215ArithmeticFormulaRunScalarGraph T n v <-> bb215Run T n k215TMInitial = v $ = (named '(bitr bb215ArithmeticFormulaRunScalarGraph_packed bb215ArithmeticFormulaRunGraph_correct));

@@ -1,0 +1,75 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_supported_invariant.mm1";
+import "k218q_bootstrap.mm1";
+import "k218q_quotation_supported_quantifiers.mm1";
+import "source_nd_quantifiers.mm1";
+
+@_ def k218SQ_sqSupportedRowGoal (r S t k H: nat): wff =
+ $ ifp (fst r = 0)
+ (k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (snd (snd r))))
+ (k218IHypProvable (sqQuote (sqNumericEnvironment S) t k 0 (fst (snd (snd r))) : H)
+   (sqQuote (sqNumericEnvironment S) t k 0 (snd (snd (snd (snd r))))) /\
+  k218IHypProvable (sqQuote (sqNumericEnvironment S) t k 0 (fst (snd (snd (snd r)))) : H)
+   (sqQuote (sqNumericEnvironment S) t k 0 (snd (snd (snd (snd r)))))) $;
+
+@_ abstract def k218SQ_sqSupportedProperty (n r .S .t .k .H: nat): wff =
+ $ A. S A. t A. k A. H (sqEnvironmentSafe S n t k -> k218SQ_sqDomainSupport H S t ->
+ k218SQ_sqSourceSupport H S t k (fst (snd r)) -> k218SQ_sqSupportedRowGoal r S t k H) $;
+
+@_ def k218SQ_sqSupportedAt (n r: nat): wff =
+ $ sfRowWf r /\ (r <= n /\ k218SQ_sqSupportedProperty n r) $;
+
+@_ abstract def k218SQ_sqSupportedGood (r .n: nat): wff = $ E. n k218SQ_sqSupportedAt n r $;
+
+@_ abstract def k218SQ_sqSupportedClass (.r: nat): set = $ {r | k218SQ_sqSupportedGood r} $;
+
+pub theorem k218SQ_sqSupportedRowGoal_sequent (G a S t k H: nat):
+ $ k218SQ_sqSupportedRowGoal (sfSequent G a) S t k H <->
+ k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) $ =
+'(bitr (ifppos sfSequent_tag) @ k218IHypProvableeq2 (sqQuoteeq5 sfSequent_formula));
+
+pub theorem k218SQ_sqSupportedRowGoal_branches (G a b c S t k H: nat):
+ $ k218SQ_sqSupportedRowGoal (sfBranches G a b c) S t k H <->
+ (k218IHypProvable (sqQuote (sqNumericEnvironment S) t k 0 a : H) (sqQuote (sqNumericEnvironment S) t k 0 c) /\
+ k218IHypProvable (sqQuote (sqNumericEnvironment S) t k 0 b : H) (sqQuote (sqNumericEnvironment S) t k 0 c)) $ =
+'(bitr (ifpneg (mpbir (noteq (eqeq1 sfBranches_tag)) (ltneri lt01S))) @ aneq
+ (k218IHypProvableeq (conseq1 (sqQuoteeq5 sfBranches_left)) (sqQuoteeq5 sfBranches_formula))
+ (k218IHypProvableeq (conseq1 (sqQuoteeq5 sfBranches_right)) (sqQuoteeq5 sfBranches_formula)));
+
+pub theorem k218SQ_sqSupportedProperty_at (n r S t k H: nat):
+ $ k218SQ_sqSupportedProperty n r -> sqEnvironmentSafe S n t k -> k218SQ_sqDomainSupport H S t ->
+ k218SQ_sqSourceSupport H S t k (fst (snd r)) -> k218SQ_sqSupportedRowGoal r S t k H $ =
+(named '(!! ealie v @ !! ealde w @ !! ealde x @ !! ealde y @ bi1d ,eqtac));
+
+pub theorem k218SQ_sqSupportedAt_wf (n r: nat): $ k218SQ_sqSupportedAt n r -> sfRowWf r $ = 'anl;
+
+pub theorem k218SQ_sqSupportedAt_bound (n r: nat): $ k218SQ_sqSupportedAt n r -> r <= n $ = '(syl anl anr);
+
+pub theorem k218SQ_sqSupportedAt_property (n r: nat):
+ $ k218SQ_sqSupportedAt n r -> k218SQ_sqSupportedProperty n r $ = '(syl anr anr);
+
+pub theorem k218SQ_sqSupportedAt_intro (n r: nat):
+ $ sfRowWf r -> r <= n -> k218SQ_sqSupportedProperty n r -> k218SQ_sqSupportedAt n r $ =
+'(exp @ exp @ iand anll (iand anlr anr));
+
+pub theorem k218SQ_sqSupportedGood_intro (n r: nat): $ k218SQ_sqSupportedAt n r -> k218SQ_sqSupportedGood r $ =
+(named '(iexe ,eqtac));
+
+pub theorem k218SQ_sqSupportedGood_wf (r: nat): $ k218SQ_sqSupportedGood r -> sfRowWf r $ =
+(named '(eex k218SQ_sqSupportedAt_wf));
+
+pub theorem k218SQ_sqSupportedClass_value (r: nat):
+ $ r e. k218SQ_sqSupportedClass <-> k218SQ_sqSupportedGood r $ = (named '(elabe ,eqtac));
+
+pub theorem k218SQ_sqSupportedAt_use (n r S t k H: nat):
+ $ k218SQ_sqSupportedAt n r -> sqEnvironmentSafe S n t k -> k218SQ_sqDomainSupport H S t ->
+ k218SQ_sqSourceSupport H S t k (fst (snd r)) -> k218SQ_sqSupportedRowGoal r S t k H $ =
+'(syl k218SQ_sqSupportedProperty_at k218SQ_sqSupportedAt_property);
+
+pub theorem k218SQ_sqSupportedAt_sequent (n G a S t k H: nat):
+ $ k218SQ_sqSupportedAt n (sfSequent G a) -> sqEnvironmentSafe S n t k -> k218SQ_sqDomainSupport H S t ->
+ k218SQ_sqSourceSupport H S t k G -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) $ =
+'(exp @ exp @ exp @ syl (bi1 k218SQ_sqSupportedRowGoal_sequent) @
+ mpd (syl (bi2 (k218SQ_sqSourceSupporteq5 sfSequent_context)) anr) @
+ mpd (syl anr anl) @ mpd (syl anr (syl anl anl)) @
+ syl k218SQ_sqSupportedAt_use (syl anl (syl anl anl)));

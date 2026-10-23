@@ -1,0 +1,50 @@
+-- Dominated-rho8 K215 calculus. Shared arithmetic codes only; no K218 provability import.
+import "k218_codes.mm1";
+
+@_ def k215AxBody (n a b c u: nat): wff =
+$ n = kRho1 a b \/ (n = kRho2 a b c \/ (n = kRho3 a b c \/
+ (n = kRho4 a b c \/ (n = kRho5 a b c \/ (n = kRho6 a b \/
+ (n = k218RhoG a b c \/ ((u <= a /\ n = kRho8 a b c u) \/
+ (c != a /\ c != b /\ n = k218Bundle a b c)))))))) $;
+
+@_ abstract def k215Axioms (.n .a .b .c .u: nat): set =
+$ {n | n = 0 \/ E. a E. b E. c E. u k215AxBody n a b c u} $;
+
+pub theorem k215Axioms_value {a b c u: nat} (n: nat):
+  $ n e. k215Axioms <-> n = 0 \/ E. a E. b E. c E. u k215AxBody n a b c u $ =
+(named '(elabe ,eqtac));
+
+pub theorem k215Axioms_true: $ 0 e. k215Axioms $ =
+(named '(mpbir k215Axioms_value @ ax_mp orl eqid));
+
+pub theorem k215Axioms_instance (n a b c u: nat):
+  $ k215AxBody n a b c u -> n e. k215Axioms $ =
+(named '(syl (bi2 k215Axioms_value) @ syl orr @
+  syl (iexe ,eqtac) @ syl (iexe ,eqtac) @ syl (iexe ,eqtac) (iexe ,eqtac)));
+
+pub theorem k215Axioms_rho1 (a b: nat): $ kRho1 a b e. k215Axioms $ =
+(named '(k215Axioms_instance @ ax_mp orl eqid));
+pub theorem k215Axioms_rho2 (a b c: nat): $ kRho2 a b c e. k215Axioms $ =
+(named '(k215Axioms_instance (ax_mp orr (ax_mp orl eqid))));
+
+pub theorem k215Axioms_rho3 (a b c: nat): $ kRho3 a b c e. k215Axioms $ =
+(named '(k215Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orl eqid)))));
+
+pub theorem k215Axioms_rho4 (a b c: nat): $ kRho4 a b c e. k215Axioms $ =
+(named '(k215Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))));
+
+pub theorem k215Axioms_rho5 (a b c: nat): $ kRho5 a b c e. k215Axioms $ =
+(named '(k215Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))))));
+
+pub theorem k215Axioms_rho6 (a b: nat): $ kRho6 a b e. k215Axioms $ =
+(named '(k215Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))))));
+
+pub theorem k215Axioms_G (a b c: nat): $ k218RhoG a b c e. k215Axioms $ =
+(named '(k215Axioms_instance (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))))))));
+
+pub theorem k215Axioms_rho8_dominated (a b c u: nat): $ u <= a -> kRho8 a b c u e. k215Axioms $ =
+(named '(syl k215Axioms_instance (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orl (iand id (a1i eqid))))))))))));
+
+pub theorem k215Axioms_bundle (a b c: nat): $ c != a /\ c != b -> k218Bundle a b c e. k215Axioms $ =
+(named '(syl k215Axioms_instance (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (iand id (a1i eqid))))))))))));
+

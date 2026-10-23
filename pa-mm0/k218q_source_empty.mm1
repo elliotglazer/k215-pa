@@ -1,0 +1,48 @@
+import "k218q_empty.mm1";
+import "k218q_alpha.mm1";
+import "quotation_binders.mm1";
+import "zfc_fixed.mm1";
+
+theorem k218QE_false_fresh_three: $ kFresh kF 3 $ =
+'(mpbir kFresh_kF (ltneri lt01S));
+
+theorem k218QE_notmem_absent (c: nat):
+ $ kBinderAbsent (kNot (kMem 3 c)) 3 $ =
+'(mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem
+  (ax_mp kFresh_binder_absent k218QE_false_fresh_three)));
+
+theorem k218QE_notmem_subst (c: nat) (hc: $ 3 < c $):
+ $ kSubst (kNot (kMem 3 c)) 3 (suc c) = kNot (kMem (suc c) c) $ =
+'(eqtr kSubst_kImp (kImpeq
+  (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (ltneri hc))))
+  (ax_mp kSubst_fresh_identity k218QE_false_fresh_three)));
+
+pub theorem k218QEmpty_inner_alpha (c: nat) (hc: $ 3 < c $):
+ $ k218QProvable (kImp (kAll 3 (kNot (kMem 3 c)))
+     (kAll (suc c) (kNot (kMem (suc c) c)))) $ =
+'(mpbi (k218QProvableeq (kImpeq2 (kAlleq2 (k218QE_notmem_subst hc))))
+  (ax_mp (ax_mp (ax_mp k218IAlpha_all_forward (ltne (lttr hc ltsucid)))
+    k218QE_notmem_absent)
+    (ax_mp (ax_mp kFresh_not_intro
+      (ax_mp (ax_mp kFresh_mem_intro (ltneri (lttr hc ltsucid))) (ltneri ltsucid)))
+      peano1)));
+
+theorem k218QE_body_wf: $ sfWf (sfImp (sfMem 0 1) sfBot) $ =
+'(ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_bot);
+
+pub theorem k218QEmpty_source_syntax (E: set) (c: nat):
+ $ sfNamedTemplate E c 0 zfcEmpty =
+     kExists c (kAll (suc c) (kNot (kMem (suc c) c))) $ =
+'(eqtr (ax_mp sfNamedTemplate_ex_cons (ax_mp sfWf_all k218QE_body_wf))
+  (kExistseq2 (eqtr (ax_mp sfNamedTemplate_all_cons k218QE_body_wf)
+    (kAlleq2 (eqtr sfNamedTemplate_sfImp (kImpeq
+      (eqtr sfNamedTemplate_sfMem (kMemeq
+        (eqtr sfNamedIndex_zero sqEnvCons_zero)
+        (eqtr sfNamedIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero))))
+      sfNamedTemplate_bot))))));
+
+pub theorem k218QSourceEmpty (E: set):
+ $ k218QProvable (sfNamedTemplate E (k218QSeedCode kF) 0 zfcEmpty) $ =
+'(mpbir (k218QProvableeq k218QEmpty_source_syntax)
+  (ax_mp (ax_mp k218QProvable_mp k218QEmpty_witness)
+    (k218IExists_mono (k218QEmpty_inner_alpha k218QSeedCode_gt3))));

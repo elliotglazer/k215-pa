@@ -1,0 +1,137 @@
+import "source_renaming_cutoffs.mm0";
+import "source_renaming_laws.mm0";
+import "raw_source_prop_transfer.mm0";
+
+-- Numerical maps on finite Peano contexts and rows.  A complete proof
+-- transformation must vary depth across AllI and ExE; this is not a
+-- claim that applying one fixed map to every proof row preserves FullND.
+def sfRenameFormulaMap (R: set) (d .a: nat): set = $ \ a, sfRename R d a $;
+def sfContextRename (R: set) (d G: nat): nat = $ map (sfRenameFormulaMap R d) G $;
+def sfRenameRow (R: set) (d r: nat): nat =
+$ if (fst r = 0)
+  (sfSequent (sfContextRename R d (fst (snd r))) (sfRename R d (snd (snd r))))
+  (if (fst r = 1)
+    (sfBranches (sfContextRename R d (fst (snd r)))
+      (sfRename R d (fst (snd (snd r))))
+      (sfRename R d (fst (snd (snd (snd r)))))
+      (sfRename R d (snd (snd (snd (snd r))))))
+    (sfSequent 0 sfBot)) $;
+theorem sfRenameFormulaMap_value (R: set) (d a: nat):
+  $ sfRenameFormulaMap R d @ a = sfRename R d a $;
+theorem sfContextRename_nil (R: set) (d: nat): $ sfContextRename R d 0 = 0 $;
+theorem sfContextRename_cons (R: set) (d a G: nat):
+  $ sfContextRename R d (a : G) = sfRename R d a : sfContextRename R d G $;
+theorem sfContextRename_wf (R: set) (d G: nat): $ sfContextWf (sfContextRename R d G) $;
+theorem sfContextRename_member (R: set) (d a G: nat):
+  $ a IN G -> sfRename R d a IN sfContextRename R d G $;
+theorem sfContextRename_sub (R: set) (d G D: nat):
+  $ sfContextSub G D -> sfContextSub (sfContextRename R d G) (sfContextRename R d D) $;
+theorem sfContextRename_congr (H: wff) (R: set) (d G D: nat)
+  (h: $ H -> G = D $): $ H -> sfContextRename R d G = sfContextRename R d D $;
+theorem sfRenameRow_sequent (R: set) (d G a: nat):
+  $ sfRenameRow R d (sfSequent G a) = sfSequent (sfContextRename R d G) (sfRename R d a) $;
+theorem sfRenameRow_branches (R: set) (d G a b c: nat):
+  $ sfRenameRow R d (sfBranches G a b c) =
+    sfBranches (sfContextRename R d G) (sfRename R d a) (sfRename R d b) (sfRename R d c) $;
+theorem sfRenameRow_wf (R: set) (d r: nat): $ sfRowWf (sfRenameRow R d r) $;
+
+theorem sfRenameRow_congr (H: wff) (R: set) (d r s: nat)
+  (h: $ H -> r = s $): $ H -> sfRenameRow R d r = sfRenameRow R d s $;
+
+theorem sfNDCaseCtx_rename (R: set) (d r: nat):
+  $ sfNDCaseCtx r -> sfNDCaseCtx (sfRenameRow R d r) $;
+theorem sfNDCasePc_rename (R: set) (d r: nat):
+  $ sfNDCasePc r -> sfNDCasePc (sfRenameRow R d r) $;
+theorem sfNDCaseII_rename (R: set) (d r p: nat):
+  $ sfNDCaseII r p -> sfNDCaseII (sfRenameRow R d r) (sfRenameRow R d p) $;
+theorem sfNDCaseExp_rename (R: set) (d r p: nat):
+  $ sfNDCaseExp r p -> sfNDCaseExp (sfRenameRow R d r) (sfRenameRow R d p) $;
+theorem sfNDCaseCE1_rename (R: set) (d r p: nat):
+  $ sfNDCaseCE1 r p -> sfNDCaseCE1 (sfRenameRow R d r) (sfRenameRow R d p) $;
+theorem sfNDCaseCE2_rename (R: set) (d r p: nat):
+  $ sfNDCaseCE2 r p -> sfNDCaseCE2 (sfRenameRow R d r) (sfRenameRow R d p) $;
+theorem sfNDCaseDI1_rename (R: set) (d r p: nat):
+  $ sfNDCaseDI1 r p -> sfNDCaseDI1 (sfRenameRow R d r) (sfRenameRow R d p) $;
+theorem sfNDCaseDI2_rename (R: set) (d r p: nat):
+  $ sfNDCaseDI2 r p -> sfNDCaseDI2 (sfRenameRow R d r) (sfRenameRow R d p) $;
+theorem sfNDCaseIE_rename (R: set) (d r p q: nat):
+  $ sfNDCaseIE r p q -> sfNDCaseIE (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $;
+theorem sfNDCaseCI_rename (R: set) (d r p q: nat):
+  $ sfNDCaseCI r p q -> sfNDCaseCI (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $;
+theorem sfNDCaseBranchPair_rename (R: set) (d r p q: nat):
+  $ sfNDCaseBranchPair r p q -> sfNDCaseBranchPair (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $;
+theorem sfNDCaseDE_rename (R: set) (d r p q: nat):
+  $ sfNDCaseDE r p q -> sfNDCaseDE (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $;
+theorem sfNDCaseWk_rename (R: set) (d r p: nat):
+  $ sfNDCaseWk r p -> sfNDCaseWk (sfRenameRow R d r) (sfRenameRow R d p) $;
+
+theorem sfNDPropBase_rename (R: set) (d r: nat):
+  $ sfNDPropBase r -> sfNDPropBase (sfRenameRow R d r) $;
+theorem sfNDPropUnary_rename (R: set) (d r p: nat):
+  $ sfNDPropUnary r p -> sfNDPropUnary (sfRenameRow R d r) (sfRenameRow R d p) $;
+theorem sfNDPropBinary_rename (R: set) (d r p q: nat):
+  $ sfNDPropBinary r p q -> sfNDPropBinary (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R d q) $;
+def sfRenameRowMap (R: set) (d .r: nat): set = $ \ r, sfRenameRow R d r $;
+def sfRenameRows (R: set) (d p: nat): nat = $ map (sfRenameRowMap R d) p $;
+theorem sfRenameRowMap_value (R: set) (d r: nat):
+  $ sfRenameRowMap R d @ r = sfRenameRow R d r $;
+theorem sfRenameRows_nil (R: set) (d: nat): $ sfRenameRows R d 0 = 0 $;
+theorem sfRenameRows_cons (R: set) (d r p: nat):
+  $ sfRenameRows R d (r : p) = sfRenameRow R d r : sfRenameRows R d p $;
+theorem sfRenameRows_member (R: set) (d r p: nat):
+  $ r IN p -> sfRenameRow R d r IN sfRenameRows R d p $;
+theorem sfNDPropRules_rename (R: set) (d r l: nat):
+  $ (r, l) e. sfNDPropRules -> (sfRenameRow R d r, sfRenameRows R d l) e. sfNDPropRules $;
+theorem sfNDPropTrace_rename (R: set) (d p: nat):
+  $ traceValid sfNDPropRules p -> traceValid sfNDPropRules (sfRenameRows R d p) $;
+theorem sfNDPropDerives_rename (R: set) (d p r: nat):
+  $ sfNDPropDerives p r -> sfNDPropDerives (sfRenameRows R d p) (sfRenameRow R d r) $;
+
+def sfNDRenameExists (R: set) (d r .p: nat): wff =
+$ E. p sfNDFullDerives p (sfRenameRow R d r) $;
+def sfNDRenameGood (R: set) (r .d: nat): wff =
+$ sfRowWf r /\ A. d sfNDRenameExists R d r $;
+def sfNDRenameClass (R: set) (.r: nat): set = $ {r | sfNDRenameGood R r} $;
+theorem sfNDRenameClass_value (R: set) (r: nat):
+  $ r e. sfNDRenameClass R <-> sfNDRenameGood R r $;
+theorem sfNDRenameGood_wf (R: set) (r: nat): $ sfNDRenameGood R r -> sfRowWf r $;
+theorem sfNDRenameGood_at (R: set) (d r: nat):
+  $ sfNDRenameGood R r -> sfNDRenameExists R d r $;
+theorem sfNDPropBase_rename_good (R: set) (r: nat):
+  $ sfNDPropBase r -> sfNDRenameGood R r $;
+theorem sfNDPropUnary_rename_good (R: set) (r p: nat):
+  $ sfNDPropUnary r p -> sfNDRenameGood R p -> sfNDRenameGood R r $;
+theorem sfNDPropBinary_rename_good (R: set) (r p q: nat):
+  $ sfNDPropBinary r p q -> sfNDRenameGood R p -> sfNDRenameGood R q -> sfNDRenameGood R r $;
+-- This conditional form is discharged by sfNDRename_rules_sound below.
+theorem sfNDRename_trace_induction (R: set) (p r d: nat):
+  $ traceRuleSound sfNDFullRules (sfNDRenameClass R) ->
+    sfNDFullDerives p r -> sfNDRenameExists R d r $;
+
+theorem sfContextRename_shift (R: set) (d G: nat):
+  $ sfContextWf G -> sfContextRename R (suc d) (sfContextShift G) = sfContextShift (sfContextRename R d G) $;
+
+theorem sfNDQuantUnary_AllI_rename (R: set) (d r p: nat):
+  $ sfNDCaseAllI r p -> sfRowWf r -> sfNDQuantUnary (sfRenameRow R d r) (sfRenameRow R (suc d) p) $;
+theorem sfNDQuantUnary_AllE_rename (R: set) (d r p: nat):
+  $ sfNDCaseAllE r p -> sfRowWf p -> sfNDQuantUnary (sfRenameRow R d r) (sfRenameRow R d p) $;
+theorem sfNDQuantUnary_ExI_rename (R: set) (d r p: nat):
+  $ sfNDCaseExI r p -> sfRowWf r -> sfNDQuantUnary (sfRenameRow R d r) (sfRenameRow R d p) $;
+theorem sfNDQuantBinary_ExE_rename (R: set) (d r p q: nat):
+  $ sfNDCaseExE r p q -> sfRowWf r -> sfNDQuantBinary (sfRenameRow R d r) (sfRenameRow R d p) (sfRenameRow R (suc d) q) $;
+
+theorem sfNDQuantUnary_rename_good (R: set) (r p: nat):
+  $ sfNDQuantUnary r p -> sfNDRenameGood R p -> sfNDRenameGood R r $;
+theorem sfNDQuantBinary_rename_good (R: set) (r p q: nat):
+  $ sfNDQuantBinary r p q -> sfNDRenameGood R p -> sfNDRenameGood R q -> sfNDRenameGood R r $;
+theorem sfNDRename_rules_sound (R: set):
+  $ traceRuleSound sfNDFullRules (sfNDRenameClass R) $;
+theorem sfNDFullDerives_rename (R: set) (d p r: nat):
+  $ sfNDFullDerives p r -> sfNDRenameExists R d r $;
+
+theorem zfcContext_rename_identity (R: set) (G: nat):
+  $ zfcContext G -> sfContextRename R 0 G = G $;
+theorem zfcProvable_rename (R: set) (a: nat):
+  $ zfcProvable a -> zfcProvable (sfRename R 0 a) $;
+theorem rawSource_gen (x a: nat):
+  $ zfcProvable (rawDecode a) -> zfcProvable (rawDecode (kAll x a)) $;

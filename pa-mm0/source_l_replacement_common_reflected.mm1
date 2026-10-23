@@ -1,0 +1,115 @@
+import "source_l_replacement_common_reflection.mm1";
+
+@_ def sfLReplacementAbovePoint(count psi a:nat):nat =
+ $ sfAnd (sfCLOrdinalAt 0) (sfAnd (sfMem (suc a) 0) (sfCLReflection sfLDomain count psi 0)) $;
+@_ def sfLReplacementAboveAt(count psi a:nat):nat =
+ $ sfEx (sfLReplacementAbovePoint count psi a) $;
+@_ def sfLReplacementAboveLaw(count psi:nat):nat =
+ $ sfAll (sfImp (sfCLOrdinalAt 0) (sfLReplacementAboveAt count psi 0)) $;
+@_ def sfLReplacementLevelExistsLaw:nat =
+ $ sfAll (sfImp (sfCLOrdinalAt 0) (sfEx (sfCLHierarchyAt 1 0))) $;
+@_ def sfLReplacementReflectedRecipe(T:set)(start params count psi:nat):nat =
+ $ sfEx (sfEx (sfAnd (sfCLReflectedPoint (suc (suc start)) params count psi 1 0)
+    (sfLReplacementImageCoverage (sfLReplacementShift2Map T) sfLDomain psi 0))) $;
+
+theorem lrrAbove_point_wf(count psi a:nat): $ sfWf (sfLReplacementAbovePoint count psi a) $ =
+ '(ax_mp (ax_mp sfWf_and sfCLOrdinalAt_wf) (ax_mp (ax_mp sfWf_and sfWf_mem) (sfCLReflection_wf sfLDomain_wf)));
+theorem lrrAbove_point_subst(count psi a:nat)(hb:$ sfBound count psi $):
+ $ sfSubst 1 a (sfLReplacementAbovePoint count psi 0) = sfLReplacementAbovePoint count psi a $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_hit add12) (ax_mp sfSubstIndex_bound lt01S))) (ax_mp sfSubst_bound_identity (sfCLReflection_bound sfLDomain_bound hb lt01S))))));
+theorem lrrAbove_open(count psi a:nat)(hb:$ sfBound count psi $):
+ $ sfSubst 0 a (sfImp (sfCLOrdinalAt 0) (sfLReplacementAboveAt count psi 0)) =
+ sfImp (sfCLOrdinalAt a) (sfLReplacementAboveAt count psi a) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq sfSubstIndex_zero)) (eqtr sfSubst_sfEx (nsEx_eq (lrrAbove_point_subst hb)))));
+theorem lrrLevel_open(a:nat):
+ $ sfSubst 0 a (sfImp (sfCLOrdinalAt 0) (sfEx (sfCLHierarchyAt 1 0))) =
+ sfImp (sfCLOrdinalAt a) (sfEx (sfCLHierarchyAt (suc a) 0)) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq sfSubstIndex_zero)) (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq (eqtr sfSubstIndex_hit add12) (ax_mp sfSubstIndex_bound lt01S)))))));
+pub theorem sfLReplacementAbove_use(G count psi a:nat)(hb:$ sfBound count psi $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw count psi) $)(ha:$ nsLocal G (sfCLOrdinalAt a) $):
+ $ nsLocal G (sfLReplacementAboveAt count psi a) $ =
+ '(ax_mp (ax_mp nsLocal_mp (sfRQ_rewrite (lrrAbove_open hb) (ax_mp nsLocal_AllE hA))) ha);
+pub theorem sfLReplacementLevelExists_use(G a:nat)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $)(ha:$ nsLocal G (sfCLOrdinalAt a) $):
+ $ nsLocal G (sfEx (sfCLHierarchyAt (suc a) 0)) $ =
+ '(ax_mp (ax_mp nsLocal_mp (sfRQ_rewrite lrrLevel_open (ax_mp nsLocal_AllE hL))) ha);
+pub theorem sfLReplacementLevelExists_bound: $ sfBound 0 sfLReplacementLevelExistsLaw $ =
+ '(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian
+  (sfCLOrdinalAt_bound lt01S) (mpbir sfBound_sfEx (sfCLHierarchyAt_bound (mpbi ltsuc lt01S) lt01S)))));
+
+@_ def lrrAboveFirst(G count psi a:nat):nat =
+ $ sfLReplacementAbovePoint count psi a : sfContextShift G $;
+@_ def lrrAboveSecond(G count psi a:nat):nat =
+ $ sfCLHierarchyAt 1 0 : sfContextShift (lrrAboveFirst G count psi a) $;
+
+theorem lrrAbove_first_wf(G count psi a:nat): $ sfContextWf (lrrAboveFirst G count psi a) $ =
+ '(mpbir sfContextWf_cons (ian lrrAbove_point_wf sfContextShift_wf));
+theorem lrrAbove_second_wf(G count psi a:nat): $ sfContextWf (lrrAboveSecond G count psi a) $ =
+ '(mpbir sfContextWf_cons (ian sfCLHierarchyAt_wf sfContextShift_wf));
+theorem lrrAbove_first_point(G count psi a:nat):
+ $ nsLocal (lrrAboveFirst G count psi a) (sfLReplacementAbovePoint count psi a) $ =
+ '(ax_mp (ax_mp nsLocal_hyp lrrAbove_first_wf) sfContext_member_head);
+theorem lrrAbove_newlevel(G count psi a:nat)(hL:$ nsLocal G sfLReplacementLevelExistsLaw $):
+ $ nsLocal (lrrAboveFirst G count psi a) (sfEx (sfCLHierarchyAt 1 0)) $ =
+ '(sfLReplacementLevelExists_use
+   (ax_mp (ax_mp (ax_mp nsLocal_weaken lrrAbove_first_wf) sfContextSub_cons)
+    (sfRQ_rewrite (ax_mp sfShift_closed_identity sfLReplacementLevelExists_bound) (ax_mp sfSepLocal_shift hL)))
+   (ax_mp nsLocal_CE1 lrrAbove_first_point));
+theorem lrrAbove_shifted_point(G count psi a:nat)(hb:$ sfBound count psi $):
+ $ nsLocal (lrrAboveSecond G count psi a)
+  (sfAnd (sfCLOrdinalAt 1) (sfAnd (sfMem (suc (suc a)) 1) (sfCLReflection sfLDomain count psi 1))) $ =
+ '(sfRQ_rewrite (eqtr sfShift_sfAnd (nsAnd_eq sfCLOrdinalAt_shift (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq sfShiftIndex_zero sfShiftIndex_zero)) (sfCLReflection_shift sfLDomain_bound hb)))))
+  (ax_mp (ax_mp (ax_mp nsLocal_weaken lrrAbove_second_wf) sfContextSub_cons)
+   (ax_mp sfSepLocal_shift lrrAbove_first_point)));
+
+theorem lrrAbove_lift_twice(G count psi a f:nat)(hp:$ nsLocal G f $):
+ $ nsLocal (lrrAboveSecond G count psi a) (sfShift 0 (sfShift 0 f)) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken lrrAbove_second_wf) sfContextSub_cons)
+  (ax_mp sfSepLocal_shift
+   (ax_mp (ax_mp (ax_mp nsLocal_weaken lrrAbove_first_wf) sfContextSub_cons)
+    (ax_mp sfSepLocal_shift hp))));
+
+theorem lrrAbove_shifted_members(G start params count psi a X:nat)
+ (hp:$ nsLocal G (sfCLPoint start params a X) $):
+ $ nsLocal (lrrAboveSecond G count psi a)
+  (sfCLPoint (suc (suc start)) params (suc (suc a)) (suc (suc X))) $ =
+ '(sfRQ_rewrite (eqtr (sfShifteq2 sfCLPoint_shift) sfCLPoint_shift) (lrrAbove_lift_twice hp));
+theorem lrrAbove_shifted_subset(G count psi a:nat)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $):
+ $ nsLocal (lrrAboveSecond G count psi a) (sfReflectionHierarchySubsetNormal sfCLHierarchy) $ =
+ '(sfRQ_rewrite (eqtr (sfShifteq2 (rfmc_subnormal_shift sfCLHierarchy_bound)) (rfmc_subnormal_shift sfCLHierarchy_bound))
+  (lrrAbove_lift_twice hS));
+theorem lrrAbove_shifted_coverage(T:set)(G count psi a X:nat)(hb:$ sfBound count psi $)
+ (hc:$ nsLocal G (sfLReplacementImageCoverage T sfLDomain psi X) $):
+ $ nsLocal (lrrAboveSecond G count psi a)
+  (sfLReplacementImageCoverage (sfLReplacementShift2Map T) sfLDomain psi (suc (suc X))) $ =
+ '(sfRQ_rewrite (eqtr (sfShifteq2 (sfLReplacementCoverage_shift sfLDomain_bound (ax_mp sfBound_wf hb)))
+   (sfLReplacementCoverage_shift sfLDomain_bound (ax_mp sfBound_wf hb))) (lrrAbove_lift_twice hc));
+
+theorem lrrAbove_inner(T:set)(G start params count psi a X:nat)(hb:$ sfBound count psi $)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hp:$ nsLocal G (sfCLPoint start params a X) $)
+ (hc:$ nsLocal G (sfLReplacementImageCoverage T sfLDomain psi X) $):
+ $ nsLocal (lrrAboveSecond G count psi a)
+  (sfAnd (sfCLReflectedPoint (suc (suc start)) params count psi 1 0)
+   (sfLReplacementImageCoverage (sfLReplacementShift2Map T) sfLDomain psi 0)) $ =
+ '(sfLReplacementReflectedCoverage_from_above sfLDomain_bound
+  (lrrAbove_shifted_subset hS) (lrrAbove_shifted_members hp)
+  (ax_mp nsLocal_CE1 (lrrAbove_shifted_point hb))
+  (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE2 (lrrAbove_shifted_point hb)))
+  (ax_mp (ax_mp nsLocal_hyp lrrAbove_second_wf) sfContext_member_head)
+  (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 (lrrAbove_shifted_point hb)))
+  (lrrAbove_shifted_coverage hb hc));
+
+pub theorem sfLReplacementReflect_collected(T:set)(G start params count psi a X:nat)
+ (hb:$ sfBound count psi $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw count psi) $)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hp:$ nsLocal G (sfCLPoint start params a X) $)
+ (hc:$ nsLocal G (sfLReplacementImageCoverage T sfLDomain psi X) $):
+ $ nsLocal G (sfLReplacementReflectedRecipe T start params count psi) $ =
+ '(sfLReplacementEx_mono (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfCLReflectedPoint_wf) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfLDomain_wf) (ax_mp (ax_mp sfWf_imp (ax_mp sfRelativize_wf sfLDomain_wf)) sfWf_mem)))))
+  (sfLReplacementAbove_use hb hA (ax_mp nsLocal_CE1 (ax_mp sfCLPoint_pair hp)))
+  (sfLReplacementEx_mono (ax_mp (ax_mp sfWf_and sfCLReflectedPoint_wf) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfLDomain_wf) (ax_mp (ax_mp sfWf_imp (ax_mp sfRelativize_wf sfLDomain_wf)) sfWf_mem))))
+   (lrrAbove_newlevel hL) (lrrAbove_inner hb hS hp hc)));

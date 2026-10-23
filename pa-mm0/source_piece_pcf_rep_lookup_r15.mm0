@@ -1,0 +1,36 @@
+import "source_piece_pcf_rep_lookup_laws_r14.mm0";
+
+def sfPieceRepLookupResult(e x w v:nat):nat = $ sfPieceRepIff (sfPieceRepApplication e x w) (sfEq w v) $;
+
+theorem sfPieceRepLookupResult_wf(e x w v:nat):
+ $ sfWf (sfPieceRepLookupResult e x w v) $;
+
+def pcrvSomeGood(n .G:nat):wff = $ A. G ((nsLocal G sfPieceRepLookupLaws) -> (nsLocal G (sfPieceNumeralSome n))) $;
+
+def sfPieceEnvLookupGood(T:set)(n .G .r .h .i .e .x .w:nat):wff = $ A. G A. r A. h A. i A. e A. x A. w (sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepLookupLaws) -> i < n -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral (n - 1 - i) x)) -> (nsLocal G (sfPieceRepLookupResult e x w (h + (T @ (r + i)))))) $;
+
+def pcrvGoodAt1(T:set)(n G .r .h .i .e .x .w:nat):wff = $ A. r A. h A. i A. e A. x A. w (sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepLookupLaws) -> i < n -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral (n - 1 - i) x)) -> (nsLocal G (sfPieceRepLookupResult e x w (h + (T @ (r + i)))))) $;
+
+def pcrvGoodAt2(T:set)(n G r .h .i .e .x .w:nat):wff = $ A. h A. i A. e A. x A. w (sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepLookupLaws) -> i < n -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral (n - 1 - i) x)) -> (nsLocal G (sfPieceRepLookupResult e x w (h + (T @ (r + i)))))) $;
+
+def pcrvGoodAt3(T:set)(n G r h .i .e .x .w:nat):wff = $ A. i A. e A. x A. w (sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepLookupLaws) -> i < n -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral (n - 1 - i) x)) -> (nsLocal G (sfPieceRepLookupResult e x w (h + (T @ (r + i)))))) $;
+
+def pcrvGoodAt4(T:set)(n G r h i .e .x .w:nat):wff = $ A. e A. x A. w (sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepLookupLaws) -> i < n -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral (n - 1 - i) x)) -> (nsLocal G (sfPieceRepLookupResult e x w (h + (T @ (r + i)))))) $;
+
+def pcrvGoodAt5(T:set)(n G r h i e .x .w:nat):wff = $ A. x A. w (sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepLookupLaws) -> i < n -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral (n - 1 - i) x)) -> (nsLocal G (sfPieceRepLookupResult e x w (h + (T @ (r + i)))))) $;
+
+def pcrvGoodAt6(T:set)(n G r h i e x .w:nat):wff = $ A. w (sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepLookupLaws) -> i < n -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral (n - 1 - i) x)) -> (nsLocal G (sfPieceRepLookupResult e x w (h + (T @ (r + i)))))) $;
+
+def pcrvGoodAt7(T:set)(n G r h i e x w:nat):wff = $ (sfContextSub sfFormulaEqualityContext G -> (nsLocal G sfPieceRepLookupLaws) -> i < n -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral (n - 1 - i) x)) -> (nsLocal G (sfPieceRepLookupResult e x w (h + (T @ (r + i)))))) $;
+
+def pcrvEnvBody(T:set)(r h n e:nat):nat = $ sfAnd (sfPieceEnv (sfPieceRepOffset T (suc r) (suc h)) n 0) (sfPieceRepExtension 0 (suc (h + (T @ r))) (suc e)) $;
+
+def pcrvFirst(T:set)(G r h n e:nat):nat = $ pcrvEnvBody T r h n e : sfContextShift G $;
+
+def pcrvSecond(T:set)(G r h n e:nat):nat = $ sfPieceNumeral n 0 : sfContextShift (pcrvFirst T G r h n e) $;
+
+theorem sfPieceEnv_lookup_induction(T:set)(n:nat):
+ $ sfPieceEnvLookupGood T n $;
+
+theorem sfPieceEnv_lookup_from_laws(T:set)(G n i e x w:nat)(hq:$ sfContextSub sfFormulaEqualityContext G $)(hl:$ (nsLocal G sfPieceRepLookupLaws) $)(hi:$ i < n $)(he:$ (nsLocal G (sfPieceEnv T n e)) $)(hx:$ (nsLocal G (sfPieceNumeral (n - 1 - i) x)) $):
+ $ (nsLocal G (sfPieceRepIff (sfPieceRepApplication e x w) (sfEq w (T @ i)))) $;

@@ -1,0 +1,69 @@
+import "source_l_replacement_common_step.mm1";
+
+@_ def sfLReplacementCollectorFormula(start count seed:nat):nat =
+ $ sfImp (sfCLPredicates sfLDomain start count) (sfLReplacementSeededRecipe start count seed) $;
+@_ def lrcCollectHyp(G start n:nat):nat =
+ $ sfCLPredicates sfLDomain start (suc n) : G $;
+
+theorem lrcCollect_true(G:nat)(hg:$ sfContextWf G $): $ nsLocal G sfCLTrue $ =
+ '(ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_hyp
+  (mpbir sfContextWf_cons (ian sfWf_bot hg))) sfContext_member_head));
+
+theorem lrcCollect_zero_recipe(G start a seed:nat)(hg:$ sfContextWf G $)
+ (ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a seed) $):
+ $ nsLocal G (sfLReplacementSeededRecipe start 0 seed) $ =
+ '(sfLReplacementSeededRecipe_intro
+  (ax_mp (ax_mp sfLocal_and
+   (ax_mp (sfCLPoint_build ho hl)
+    (sfRQ_rewrite (eqcom sfCLMembership_zero) (lrcCollect_true hg))))
+   (sfLReplacementSubset_refl hg)));
+
+theorem lrcCollect_zero(G start a seed:nat)(hg:$ sfContextWf G $)
+ (ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a seed) $):
+ $ nsLocal G (sfLReplacementCollectorFormula start 0 seed) $ =
+ '(ax_mp nsLocal_II
+  (ax_mp (ax_mp (ax_mp nsLocal_weaken
+   (mpbir sfContextWf_cons (ian sfCLPredicates_wf hg))) sfContextSub_cons)
+   (lrcCollect_zero_recipe hg ho hl)));
+
+theorem lrcCollect_hyp_wf(G start n:nat)(hg:$ sfContextWf G $):
+ $ sfContextWf (lrcCollectHyp G start n) $ =
+ '(mpbir sfContextWf_cons (ian sfCLPredicates_wf hg));
+
+theorem lrcCollect_hyp(G start n:nat)(hg:$ sfContextWf G $):
+ $ nsLocal (lrcCollectHyp G start n) (sfCLPredicates sfLDomain start (suc n)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (lrcCollect_hyp_wf hg)) sfContext_member_head);
+
+theorem lrcCollect_prefix(G start n:nat)(hg:$ sfContextWf G $):
+ $ nsLocal (lrcCollectHyp G start n) (sfCLPredicates sfLDomain start n) $ =
+ '(ax_mp nsLocal_CE1 (sfRQ_rewrite sfCLPredicates_suc (lrcCollect_hyp hg)));
+
+theorem lrcCollect_last(G start n:nat)(hg:$ sfContextWf G $):
+ $ nsLocal (lrcCollectHyp G start n) (sfLReplacementCollectInput start n) $ =
+ '(ax_mp nsLocal_CE2 (sfRQ_rewrite sfCLPredicates_suc (lrcCollect_hyp hg)));
+
+theorem lrcCollect_step(G start n seed:nat)(hg:$ sfContextWf G $)
+ (he:$ sfLReplacementLevelExtension IN G $):
+ $ nsLocal G (sfLReplacementCollectorFormula start n seed) ->
+   nsLocal G (sfLReplacementCollectorFormula start (suc n) seed) $ =
+ '(syl nsLocal_II
+  (sylc nsLocal_mp
+   (syl (ax_mp nsLocal_mp
+    (sfLReplacementCollect_step (lrcCollect_hyp_wf hg) (ax_mp sfContext_member_tail he)))
+    (sylc nsLocal_mp
+     (ax_mp (ax_mp nsLocal_weaken (lrcCollect_hyp_wf hg)) sfContextSub_cons)
+     (a1i (lrcCollect_prefix hg))))
+   (a1i (lrcCollect_last hg))));
+
+pub theorem sfLReplacementSeededCollector_local(G start count a seed:nat)
+ (hg:$ sfContextWf G $)(he:$ sfLReplacementLevelExtension IN G $)
+ (ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a seed) $):
+ $ nsLocal G (sfLReplacementCollectorFormula start count seed) $ =
+ (named @ induct '(ind) 'count '(lrcCollect_zero hg ho hl) '(lrcCollect_step hg he));
+
+pub theorem sfLReplacementSeededCollector_use(G start count a seed:nat)
+ (he:$ sfLReplacementLevelExtension IN G $)
+ (ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a seed) $)
+ (hi:$ nsLocal G (sfCLPredicates sfLDomain start count) $):
+ $ nsLocal G (sfLReplacementSeededRecipe start count seed) $ =
+ '(ax_mp (ax_mp nsLocal_mp (sfLReplacementSeededCollector_local (ax_mp nsLocal_context_wf hi) he ho hl)) hi);

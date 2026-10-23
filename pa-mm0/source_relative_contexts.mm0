@@ -1,0 +1,176 @@
+import "source_relativization_laws.mm0";
+
+import "source_domain_discharge.mm0";
+
+def sfDomainAt (D i: nat): nat = $ sfSubst 0 i D $;
+
+def sfDomainStep (D .p: nat): set =
+$ \ p, (suc (fst p), snd p |> sfDomainAt D (fst p)) $;
+
+def sfDomainState (D k: nat): nat = $ rec (0, 0) (sfDomainStep D) k $;
+
+def sfDomainGuards (D k: nat): nat = $ snd (sfDomainState D k) $;
+
+def sfRelativizeMap (D .a: nat): set = $ \ a, sfRelativize D a $;
+
+def sfContextRelativize (D G: nat): nat = $ map (sfRelativizeMap D) G $;
+
+def sfRelativeContext (D G k: nat): nat =
+$ sfContextRelativize D G ++ sfDomainGuards D k $;
+
+def sfContextBound (k G .a: nat): wff = $ all {a | sfBound k a} G $;
+
+theorem sfDomainAt_congr (H: wff) (D E i j: nat)
+ (hd: $ H -> D = E $) (hi: $ H -> i = j $):
+ $ H -> sfDomainAt D i = sfDomainAt E j $;
+
+theorem sfDomainAt_wf (D i: nat): $ sfWf (sfDomainAt D i) $;
+
+theorem sfDomainAt_zero (D: nat):
+ $ sfBound 1 D -> sfDomainAt D 0 = D $;
+
+theorem sfDomainStep_value (D p: nat):
+ $ sfDomainStep D @ p = (suc (fst p), snd p |> sfDomainAt D (fst p)) $;
+
+theorem sfDomainState_zero (D: nat): $ sfDomainState D 0 = (0, 0) $;
+
+theorem sfDomainState_suc (D k: nat):
+ $ sfDomainState D (suc k) =
+ (suc (fst (sfDomainState D k)),
+  snd (sfDomainState D k) |> sfDomainAt D (fst (sfDomainState D k))) $;
+
+theorem sfDomainState_index (D k: nat): $ fst (sfDomainState D k) = k $;
+
+theorem sfDomainGuards_zero (D: nat): $ sfDomainGuards D 0 = 0 $;
+
+theorem sfDomainGuards_suc (D k: nat):
+ $ sfDomainGuards D (suc k) = sfDomainGuards D k |> sfDomainAt D k $;
+
+theorem sfDomainGuards_length (D k: nat): $ len (sfDomainGuards D k) = k $;
+
+theorem sfDomainGuards_wf (D k: nat): $ sfContextWf (sfDomainGuards D k) $;
+
+theorem sfRelativizeMap_value (D a: nat):
+ $ sfRelativizeMap D @ a = sfRelativize D a $;
+
+theorem sfContextRelativize_zero (D: nat): $ sfContextRelativize D 0 = 0 $;
+
+theorem sfContextRelativize_cons (D a G: nat):
+ $ sfContextRelativize D (a : G) = sfRelativize D a : sfContextRelativize D G $;
+
+theorem sfContextRelativize_length (D G: nat):
+ $ len (sfContextRelativize D G) = len G $;
+
+theorem sfContextRelativize_wf (D G: nat):
+ $ sfWf D -> sfContextWf (sfContextRelativize D G) $;
+
+theorem sfRelativeContext_length (D G k: nat):
+ $ len (sfRelativeContext D G k) = len G + k $;
+
+theorem sfRelativeContext_wf (D G k: nat):
+ $ sfWf D -> sfContextWf (sfRelativeContext D G k) $;
+
+def sfDomainMember (D k a .i: nat): wff =
+ $ E. i (i < k /\ a = sfDomainAt D i) $;
+
+theorem sfDomainGuards_member (D k a: nat):
+ $ a IN sfDomainGuards D k <-> sfDomainMember D k a $;
+
+theorem sfDomainAt_shift (D i: nat):
+ $ sfBound 1 D -> sfShift 0 (sfDomainAt D i) = sfDomainAt D (suc i) $;
+
+theorem sfDC_map_snoc (F: set) (G a: nat):
+ $ map F (G |> a) = map F G |> F @ a $;
+
+theorem sfDomainMember_mono (D k m a: nat):
+ $ k <= m -> sfDomainMember D k a -> sfDomainMember D m a $;
+
+theorem sfDomainGuards_mono (D k m: nat):
+ $ k <= m -> sfContextSub (sfDomainGuards D k) (sfDomainGuards D m) $;
+
+theorem sfDomainGuards_contains (D k i: nat):
+ $ i < k -> sfDomainAt D i IN sfDomainGuards D k $;
+
+theorem sfContextRelativize_member_iff {b: nat} (D G a: nat):
+ $ a IN sfContextRelativize D G <-> E. b (b IN G /\ a = sfRelativize D b) $;
+
+theorem sfContextRelativize_member (D G a: nat):
+ $ a IN G -> sfRelativize D a IN sfContextRelativize D G $;
+
+theorem sfRelativeContext_member (D G k a: nat):
+ $ a IN sfRelativeContext D G k <->
+   (a IN sfContextRelativize D G \/ sfDomainMember D k a) $;
+
+theorem sfRelativeContext_mono (D G k m: nat):
+ $ k <= m -> sfContextSub (sfRelativeContext D G k) (sfRelativeContext D G m) $;
+
+theorem sfContextShift_snoc (G a: nat):
+ $ sfContextShift (G |> a) = sfContextShift G |> sfShift 0 a $;
+
+theorem sfDomainGuards_shift_cons (D k: nat):
+ $ sfBound 1 D -> sfDomainGuards D (suc k) = D : sfContextShift (sfDomainGuards D k) $;
+
+theorem sfContextRelativize_congr (H: wff) (D G J: nat)
+ (h: $ H -> G = J $):
+ $ H -> sfContextRelativize D G = sfContextRelativize D J $;
+
+theorem sfContextRelativize_shift (D G: nat):
+ $ sfBound 1 D -> sfContextWf G ->
+ sfContextShift (sfContextRelativize D G) = sfContextRelativize D (sfContextShift G) $;
+
+theorem sfDC_bound_congr (H: wff) (n m a b: nat)
+ (hn: $ H -> n = m $) (ha: $ H -> a = b $):
+ $ H -> (sfBound n a <-> sfBound m b) $;
+
+theorem sfShift_zero_bound (n c: nat):
+ $ sfBound n c -> sfBound (suc n) (sfShift 0 c) $;
+
+theorem sfDomainAt_bound_self (D i: nat):
+ $ sfBound 1 D -> sfBound (suc i) (sfDomainAt D i) $;
+
+theorem sfDomainAt_bound (D k i: nat):
+ $ sfBound 1 D -> i < k -> sfBound k (sfDomainAt D i) $;
+
+theorem sfContextBound_nil (k: nat): $ sfContextBound k 0 $;
+
+theorem sfContextBound_cons (k a G: nat):
+ $ sfContextBound k (a : G) <-> sfBound k a /\ sfContextBound k G $;
+
+theorem sfContextBound_append (k G J: nat):
+ $ sfContextBound k (G ++ J) <-> sfContextBound k G /\ sfContextBound k J $;
+
+theorem sfContextBound_member (k G a: nat):
+ $ sfContextBound k G -> a IN G -> sfBound k a $;
+
+theorem sfDomainGuards_bound (D k: nat):
+ $ sfBound 1 D -> sfContextBound k (sfDomainGuards D k) $;
+
+theorem sfContextRelativize_bound (D k G: nat):
+ $ sfBound 1 D -> sfContextBound k G -> sfContextBound k (sfContextRelativize D G) $;
+
+theorem sfRelativeContext_bound (D k G: nat):
+ $ sfBound 1 D -> sfContextBound k G -> sfContextBound k (sfRelativeContext D G k) $;
+
+theorem sfDC_map_append (F: set) (G H: nat):
+ $ map F (G ++ H) = map F G ++ map F H $;
+
+theorem sfContextShift_append (G H: nat):
+ $ sfContextShift (G ++ H) = sfContextShift G ++ sfContextShift H $;
+
+theorem sfRelativeContext_sub (D G H k: nat):
+ $ sfContextSub G H -> sfContextSub (sfRelativeContext D G k) (sfRelativeContext D H k) $;
+
+theorem sfRelativeContext_shift_member (D G k a: nat):
+ $ sfBound 1 D -> sfContextWf G ->
+ (a IN sfRelativeContext D (sfContextShift G) (suc k) <->
+  a IN (D : sfContextShift (sfRelativeContext D G k))) $;
+
+theorem sfRelativeContext_shift_sub (D G k: nat):
+ $ sfBound 1 D -> sfContextWf G ->
+ sfContextSub (sfRelativeContext D (sfContextShift G) (suc k))
+  (D : sfContextShift (sfRelativeContext D G k)) $;
+
+theorem sfRelativeContext_shift_sub_back (D G k: nat):
+ $ sfBound 1 D -> sfContextWf G ->
+ sfContextSub (D : sfContextShift (sfRelativeContext D G k))
+  (sfRelativeContext D (sfContextShift G) (suc k)) $;

@@ -1,0 +1,46 @@
+import "quotient_quotation.mm0";
+import "k230_contexts.mm0";
+import "k230_disjunction.mm0";
+
+-- Local rules for the actual quotient quotation; no translated axiom is assumed.
+def sqLocal (H: nat) (E: set) (t k d c: nat): wff =
+ $ kHypProvable H (sqQuote E t k d c) $;
+
+theorem sqLocal_assumption (H: nat) (E: set) (t k d a: nat):
+ $ sqQuote E t k d a IN H -> sqLocal H E t k d a $;
+
+theorem sqLocal_peirce (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d (sfImp (sfImp (sfImp a b) a) a) $;
+
+theorem sqLocal_impI (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal ((sqQuote E t k d a) : H) E t k d b ->
+   sqLocal H E t k d (sfImp a b) $;
+
+theorem sqLocal_impE (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d a -> sqLocal H E t k d (sfImp a b) ->
+   sqLocal H E t k d b $;
+
+theorem sqLocal_botE (H: nat) (E: set) (t k d a: nat):
+ $ sqLocal H E t k d sfBot -> sqLocal H E t k d a $;
+
+theorem sqLocal_andI (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d a -> sqLocal H E t k d b ->
+   sqLocal H E t k d (sfAnd a b) $;
+
+theorem sqLocal_andE1 (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d (sfAnd a b) -> sqLocal H E t k d a $;
+
+theorem sqLocal_andE2 (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d (sfAnd a b) -> sqLocal H E t k d b $;
+
+theorem sqLocal_orI1 (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d a -> sqLocal H E t k d (sfOr a b) $;
+
+theorem sqLocal_orI2 (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d b -> sqLocal H E t k d (sfOr a b) $;
+
+theorem sqLocal_orE (H: nat) (E: set) (t k d a b c: nat):
+ $ sqLocal H E t k d (sfOr a b) ->
+   sqLocal ((sqQuote E t k d a) : H) E t k d c ->
+   sqLocal ((sqQuote E t k d b) : H) E t k d c ->
+   sqLocal H E t k d c $;

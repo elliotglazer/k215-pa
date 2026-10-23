@@ -1,0 +1,129 @@
+import "raw_source_distribution.mm1";
+
+import "raw_source_quantifiers.mm1";
+
+import "k218_codes.mm1";
+
+theorem rsgCtx_cons (H: wff) (a G: nat)
+  (ha: $ H -> sfWf a $) (hG: $ H -> sfContextWf G $):
+  $ H -> sfContextWf (a : G) $ = '(syl (bi2 sfContextWf_cons) (iand ha hG));
+
+theorem rsgArrow_context (a b c d: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfWf d -> sfContextWf (rawArrowContext a b c d) $ =
+'(exp @ exp @ exp @ rsgCtx_cons (syl anr anll)
+  (rsgCtx_cons (sylc sfWf_imp (syl anl anll) anlr)
+    (rsgCtx_cons (sylc sfWf_imp anlr anr)
+      (rsgCtx_cons (sylc sfWf_imp (syl anr anll) (syl anl anll)) (a1i sfContextWf_nil)))));
+
+theorem rsgArrow_body (a b c d: nat):
+  $ sfContextWf (rawArrowContext a b c d) ->
+    sfNDFullDerives (rawArrowBody a b c d) (sfSequent (rawArrowContext a b c d) d) $ =
+'(sylc zfcNDMp_derives
+  (mpi (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)) zfcNDHyp_derives)
+  (sylc zfcNDMp_derives
+    (mpi (ax_mp sfContext_member_tail sfContext_member_head) zfcNDHyp_derives)
+    (sylc zfcNDMp_derives
+      (mpi (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))) zfcNDHyp_derives)
+      (mpi sfContext_member_head zfcNDHyp_derives))));
+
+theorem rsgArrow_provable (a b c d: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfWf d ->
+    zfcProvable (sfImp (sfImp b a)
+      (sfImp (sfImp c d) (sfImp (sfImp a c) (sfImp b d)))) $ =
+'(exp @ exp @ exp @ syl zfcProvable_intro @ iand (a1i zfcContext_nil) @
+  syl zfcNDIntro_derives @ syl zfcNDIntro_derives @ syl zfcNDIntro_derives @
+  syl zfcNDIntro_derives @ syl rsgArrow_body (imp @ imp @ imp rsgArrow_context));
+
+theorem rsgArrow_apply (H: wff) (a b c d: nat)
+  (ha: $ H -> sfWf a $) (hb: $ H -> sfWf b $)
+  (hc: $ H -> sfWf c $) (hd: $ H -> sfWf d $)
+  (hba: $ H -> zfcProvable (sfImp b a) $)
+  (hcd: $ H -> zfcProvable (sfImp c d) $):
+  $ H -> zfcProvable (sfImp (sfImp a c) (sfImp b d)) $ =
+'(sylc zfcProvable_mp
+  (sylc zfcProvable_mp
+    (mpd hd (mpd hc (mpd hb (syl rsgArrow_provable ha)))) hba) hcd);
+
+theorem rsgProvCongr (G: wff) (a b: nat) (h: $ G -> a = b $):
+ $ G -> (zfcProvable a <-> zfcProvable b) $ =
+(named '(exeqd @ exeqd @ aneq2d @ aneq2d @ lmemeqd (sfSequent_congr (a1i eqid) h) (a1i eqid)));
+
+theorem rsgImpCongr (a b c d: nat) (h: $ a = c $) (j: $ b = d $):
+ $ sfImp a b = sfImp c d $ =
+'(trud (sfImp_congr (a1i h) (a1i j)));
+
+theorem rsgAllCongr (a b: nat) (h: $ a = b $):
+ $ sfAll a = sfAll b $ =
+'(trud (sfAll_congr (a1i h)));
+
+theorem rsgEqCongr (a b c d: nat) (h: $ a = c $) (j: $ b = d $):
+ $ sfEq a b = sfEq c d $ =
+'(trud (sfEq_congr (a1i h) (a1i j)));
+
+theorem rsgRenameCongr (R: set) (a b: nat) (h: $ a = b $):
+ $ sfRename R 0 a = sfRename R 0 b $ =
+'(sreceq2 (preq2 h));
+
+@_ def rsgVacuityProof (a: nat): nat = $ zfcNDIntro 0 ((sfSequent (a : 0) (sfAll (sfShift 0 a))) : (zfcNDHyp (sfContextShift (a : 0)) (sfShift 0 a))) a (sfAll (sfShift 0 a)) $;
+
+theorem rsgShiftContext (a: nat):
+ $ sfContextShift (a : 0) = sfShift 0 a : 0 $ =
+'(eqtr sfContextShift_cons (conseq2 sfContextShift_nil));
+
+theorem rsgShiftHyp (a: nat):
+ $ sfNDFullDerives (zfcNDHyp (sfContextShift (a : 0)) (sfShift 0 a)) (sfSequent (sfContextShift (a : 0)) (sfShift 0 a)) $ =
+'(ax_mp (ax_mp zfcNDHyp_derives sfContextShift_wf) (mpbir (lmemeq2 rsgShiftContext) sfContext_member_head));
+
+pub theorem rsgVacuity (a: nat) (h: $ sfWf a $):
+ $ zfcProvable (sfImp a (sfAll (sfShift 0 a))) $ =
+'(ax_mp zfcProvable_intro (ian zfcContext_nil (ax_mp zfcNDIntro_derives (ax_mp (ax_mp sfNDFullDerives_AllI (ax_mp (ax_mp sfRowWf_sequent_intro (mpbir sfContextWf_cons (ian h sfContextWf_nil))) (ax_mp sfWf_all sfShift_wf))) rsgShiftHyp))));
+
+theorem rsgMemLeft (a b: nat):
+ $ a < kMem a b $ =
+'(mpbi (lteq1 raw_kMem_left) (ax_mp rawLeft_lt raw_kMem_positive));
+
+theorem rsgMemRight (a b: nat):
+ $ b < kMem a b $ =
+'(mpbi (lteq1 raw_kMem_right) (ax_mp rawRight_lt raw_kMem_positive));
+
+theorem rsgRenameLeft (a b: nat):
+ $ sfRenameIndex (rawBinderMap (kMem a b)) 0 a = suc a $ =
+'(eqtr sfRenameIndex_zero (ax_mp rawBinderMap_other (ltne rsgMemLeft)));
+
+theorem rsgRenameRight (a b: nat):
+ $ sfRenameIndex (rawBinderMap (kMem a b)) 0 b = suc b $ =
+'(eqtr sfRenameIndex_zero (ax_mp rawBinderMap_other (ltne rsgMemRight)));
+
+theorem rsgAllEqDecode (a b: nat):
+ $ rawDecode (kAll (kMem a b) (kEq a b)) = sfAll (sfShift 0 (sfEq a b)) $ =
+'(eqtr rawDecode_kAll (rsgAllCongr (eqtr (rsgRenameCongr rawDecode_kEq) (eqtr sfRename_sfEq (eqtr (rsgEqCongr rsgRenameLeft rsgRenameRight) (eqcom (eqtr sfShift_sfEq (rsgEqCongr sfShiftIndex_zero sfShiftIndex_zero))))))));
+
+theorem rsgImpNonzero (a b: nat):
+ $ a != 0 -> kImp a b != 0 $ =
+'(con3 (syl anl (bi1 raw_kImp_zero_iff)));
+
+theorem rsgEqImpDecode (a b v: nat):
+ $ rawDecode (kImp (kEq a b) v) = sfImp (sfEq a b) (rawDecode v) $ =
+'(eqtr (ax_mp rawDecode_kImp (ax_mp rsgImpNonzero (ax_mp (bi1 lt01) raw_kEq_positive))) (rsgImpCongr rawDecode_kEq eqid));
+
+@_ def rsgOrdinaryG (a b c: nat): nat = $ sfImp (sfEq c a) (sfImp (sfEq c b) (sfAll (sfShift 0 (sfEq a b)))) $;
+
+theorem rsgGDecode (a b c: nat):
+ $ rawDecode (k218RhoG a b c) = rsgOrdinaryG a b c $ =
+'(eqtr rsgEqImpDecode (rsgImpCongr eqid (eqtr rsgEqImpDecode (rsgImpCongr eqid rsgAllEqDecode))));
+
+theorem rsgRight (p q r: nat) (hp: $ sfWf p $) (hq: $ sfWf q $) (hr: $ sfWf r $) (h: $ zfcProvable (sfImp q r) $):
+ $ zfcProvable (sfImp (sfImp p q) (sfImp p r)) $ =
+'(trud (rsgArrow_apply (a1i hp) (a1i hp) (a1i hq) (a1i hr) (a1i (ax_mp zfcProvable_identity hp)) (a1i h)));
+
+theorem rsgOrdinaryRho7 (a b c: nat):
+ $ zfcProvable (sfImp (sfEq c a) (sfImp (sfEq c b) (sfEq a b))) $ =
+'(ax_mp zfcProvable_mp (trud (rsgArrow_apply (a1i sfWf_eq) (a1i sfWf_eq) (a1i (ax_mp (ax_mp sfWf_imp sfWf_eq) sfWf_eq)) (a1i (ax_mp (ax_mp sfWf_imp sfWf_eq) sfWf_eq)) (a1i zfcEquality_sym) (a1i (ax_mp zfcProvable_identity (ax_mp (ax_mp sfWf_imp sfWf_eq) sfWf_eq))))) zfcEquality_trans);
+
+theorem rsgOrdinaryG_provable (a b c: nat):
+ $ zfcProvable (rsgOrdinaryG a b c) $ =
+'(ax_mp zfcProvable_mp (rsgRight sfWf_eq (ax_mp (ax_mp sfWf_imp sfWf_eq) sfWf_eq) (ax_mp (ax_mp sfWf_imp sfWf_eq) (ax_mp sfWf_all sfShift_wf)) (rsgRight sfWf_eq sfWf_eq (ax_mp sfWf_all sfShift_wf) (rsgVacuity sfWf_eq))) rsgOrdinaryRho7);
+
+pub theorem rawSource_SeedG (a b c: nat):
+ $ zfcProvable (rawDecode (k218RhoG a b c)) $ =
+'(mpbir (trud (rsgProvCongr (a1i rsgGDecode))) rsgOrdinaryG_provable);

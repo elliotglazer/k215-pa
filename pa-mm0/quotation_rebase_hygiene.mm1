@@ -1,0 +1,120 @@
+import "quotation_allocation.mm1";
+import "quotation_stack_environment.mm1";
+import "quotation_freshness.mm1";
+
+-- Existing names may lie on either side of an allocation interval.
+@_ abstract def sqRangeEnvironment (E: set) (n k q .i: nat): wff =
+ $ A. i (i < n -> sqAllocAvoid k q (E @ i)) $;
+pub theorem sqRangeEnvironment_at (E: set) (n k q i: nat):
+ $ sqRangeEnvironment E n k q -> i < n -> sqAllocAvoid k q (E @ i) $ =
+(named '(!! eale j ,eqtac));
+pub theorem sqRangeEnvironment_zero (E: set) (k q: nat):
+ $ sqRangeEnvironment E 0 k q $ =
+(named '(ax_gen @ absurd lt02));
+theorem sqRH_below_when (k q x: nat):
+ $ x < k -> sqAllocAvoid k q x $ =
+(named '(!! iald i @ a1d @ syl ltne @ ltletrd id (a1i leaddid1)));
+theorem sqRE_below_at (E: set) (n k q i: nat):
+ $ (A. j (j < n -> E @ j < k)) -> i < n -> sqAllocAvoid k q (E @ i) $ =
+(named '(syl6 sqRH_below_when @ !! eale j ,eqtac));
+pub theorem sqRangeEnvironment_below {i: nat} (E: set) (n k q: nat)
+ (he: $ A. i (i < n -> E @ i < k) $):
+ $ sqRangeEnvironment E n k q $ =
+(named '(ax_gen @ ax_mp sqRE_below_at he));
+theorem sqRE_mono_at (E: set) (n k q r i: nat) (hr: $ r <= q $):
+ $ sqRangeEnvironment E n k q -> i < n -> sqAllocAvoid k r (E @ i) $ =
+'(syl6 (sqAllocAvoid_mono hr) sqRangeEnvironment_at);
+pub theorem sqRangeEnvironment_mono (E: set) (n k q r: nat) (hr: $ r <= q $):
+ $ sqRangeEnvironment E n k q -> sqRangeEnvironment E n k r $ =
+(named '(iald (sqRE_mono_at hr)));
+theorem sqRE_agree_at (E F: set) (n k q i: nat) (he: $ sqEnvAgree E F n $):
+ $ sqRangeEnvironment E n k q -> i < n -> sqAllocAvoid k q (F @ i) $ =
+'(exp @ mpbid (sqAllocAvoideq3d (syl (ax_mp sqEnvAgree_at he) anr))
+ (mpd anr (syl sqRangeEnvironment_at anl)));
+pub theorem sqRangeEnvironment_agree (E F: set) (n k q: nat) (he: $ sqEnvAgree E F n $):
+ $ sqRangeEnvironment E n k q -> sqRangeEnvironment F n k q $ =
+(named '(iald (sqRE_agree_at he)));
+theorem sqRE_cons_zero (E: set) (n k q y: nat):
+ $ sqAllocAvoid k q y -> sqRangeEnvironment E n k q ->
+ 0 < suc n -> sqAllocAvoid k q (sqEnvCons y E @ 0) $ =
+'(a1d @ a1d @ mpbird (a1i (sqAllocAvoideq3 sqEnvCons_zero)) id);
+theorem sqRE_cons_suc (E: set) (n k q y i: nat):
+ $ sqAllocAvoid k q y -> sqRangeEnvironment E n k q ->
+ suc i < suc n -> sqAllocAvoid k q (sqEnvCons y E @ suc i) $ =
+'(a1i @ syl6 (bi2 (sqAllocAvoideq3 sqEnvCons_suc)) @
+ syl5 (bi2 ltsuc) sqRangeEnvironment_at);
+theorem sqRE_cons_at (E: set) (n k q y i: nat):
+ $ sqAllocAvoid k q y -> sqRangeEnvironment E n k q ->
+ i < suc n -> sqAllocAvoid k q (sqEnvCons y E @ i) $ =
+(named @ induct '(ind) 'i 'sqRE_cons_zero '(a1i sqRE_cons_suc));
+pub theorem sqRangeEnvironment_cons (E: set) (n k q y: nat):
+ $ sqAllocAvoid k q y -> sqRangeEnvironment E n k q ->
+ sqRangeEnvironment (sqEnvCons y E) (suc n) k q $ =
+(named '(exp @ !! iald i @ mpd anr (syl sqRE_cons_at anl)));
+
+@_ def sqRebaseHygiene (E: set) (n k c m: nat): wff =
+ $ sqAllocAvoid k (suc (c + m)) 0 /\ sqRangeEnvironment E n k (suc (c + m)) $;
+pub theorem sqRebaseHygiene_zero (E: set) (n k c m: nat):
+ $ sqRebaseHygiene E n k c m -> sqAllocAvoid k (suc (c + m)) 0 $ = 'anl;
+pub theorem sqRebaseHygiene_environment (E: set) (n k c m: nat):
+ $ sqRebaseHygiene E n k c m -> sqRangeEnvironment E n k (suc (c + m)) $ = 'anr;
+pub theorem sqRebaseHygiene_nonzero (E: set) (n k c m: nat):
+ $ sqRebaseHygiene E n k c m -> k != 0 $ =
+'(syl necom @ mpbid (a1i (noteq (eqeq2 add0))) @
+ syl (mpi lt01S sqAllocAvoid_at) anl);
+pub theorem sqRebaseHygiene_avoid (E: set) (n k c m: nat):
+ $ sqRebaseHygiene E n k c m -> sqEnvAvoid E n k $ =
+(named '(!! iald i @ exp @ syl necom @
+ mpbid (a1i (noteq (eqeq2 add0))) @
+ syl (mpi lt01S sqAllocAvoid_at) (mpd anr (syl sqRangeEnvironment_at (syl anr anl)))));
+pub theorem sqRebaseHygiene_below {i: nat} (E: set) (n k c m: nat)
+ (hk: $ 0 < k $) (he: $ A. i (i < n -> E @ i < k) $):
+ $ sqRebaseHygiene E n k c m $ =
+'(ian (sqAllocAvoid_below hk) (sqRangeEnvironment_below he));
+pub theorem sqRebaseHygiene_subformula (E: set) (n k a c m: nat) (ha: $ a <= c $):
+ $ sqRebaseHygiene E n k c m -> sqRebaseHygiene E n k a m $ =
+'(iand (syl (sqAllocAvoid_mono (mpbi lesuc (mpbi leadd1 ha))) anl)
+ (syl (sqRangeEnvironment_mono (mpbi lesuc (mpbi leadd1 ha))) anr));
+theorem sqRE_successor_at (E: set) (n k a c m i: nat) (ha: $ a < c $):
+ $ sqRangeEnvironment E n k (suc (c + m)) -> i < n ->
+ sqAllocAvoid (suc k) (suc (a + m)) (E @ i) $ =
+'(syl6 (sqAllocAvoid_successor ha) sqRangeEnvironment_at);
+theorem sqRE_successor (E: set) (n k a c m: nat) (ha: $ a < c $):
+ $ sqRangeEnvironment E n k (suc (c + m)) ->
+ sqRangeEnvironment E n (suc k) (suc (a + m)) $ =
+(named '(iald (sqRE_successor_at ha)));
+pub theorem sqRebaseHygiene_child (E: set) (n k a c m y: nat) (ha: $ a < c $):
+ $ sqRebaseHygiene E n k c m -> sqAllocAvoid (suc k) (suc (a + m)) y ->
+ sqRebaseHygiene (sqEnvCons y E) (suc n) (suc k) a m $ =
+'(exp @ iand (syl (sqAllocAvoid_successor ha) (syl anl anl))
+ (mpd (syl (sqRE_successor ha) (syl anr anl)) (syl sqRangeEnvironment_cons anr)));
+pub theorem sqRebaseHygiene_agree (E F: set) (n k c m: nat) (he: $ sqEnvAgree E F n $):
+ $ sqRebaseHygiene E n k c m -> sqRebaseHygiene F n k c m $ =
+'(iand anl (syl (sqRangeEnvironment_agree he) anr));
+theorem sqRH_stack_agree (S y n: nat) (E: set):
+ $ sqEnvAgree (sqEnvCons y (sqStackEnv S E)) (sqStackEnv (y : S) E) n $ =
+(named '(ax_gen @ a1i @ eqcom sqStackEnv_cons));
+pub theorem sqRebaseHygiene_stack_child (S n k a c m y: nat) (E: set) (ha: $ a < c $):
+ $ sqRebaseHygiene (sqStackEnv S E) n k c m -> sqAllocAvoid (suc k) (suc (a + m)) y ->
+ sqRebaseHygiene (sqStackEnv (y : S) E) (suc n) (suc k) a m $ =
+'(syl6 (sqRebaseHygiene_agree sqRH_stack_agree)
+ (sqRebaseHygiene_child ha));
+
+-- One explicit arithmetic witness is above two formula codes and both ranges.
+@_ def sqCommonName (f g k l q: nat): nat = $ suc ((f + g) + (k + l) + q) $;
+pub theorem sqCommonName_left (f g k l q: nat): $ f < sqCommonName f g k l q $ =
+'(lelttr (letr (letr leaddid1 leaddid1) leaddid1) ltsucid);
+pub theorem sqCommonName_right (f g k l q: nat): $ g < sqCommonName f g k l q $ =
+'(lelttr (letr (letr leaddid2 leaddid1) leaddid1) ltsucid);
+pub theorem sqCommonName_range_left (f g k l q: nat):
+ $ k + q < sqCommonName f g k l q $ =
+'(lelttr (mpbi leadd1 (letr leaddid1 leaddid2)) ltsucid);
+pub theorem sqCommonName_range_right (f g k l q: nat):
+ $ l + q < sqCommonName f g k l q $ =
+'(lelttr (mpbi leadd1 (letr leaddid2 leaddid2)) ltsucid);
+pub theorem sqCommonName_avoid_left (f g k l q: nat):
+ $ sqAllocAvoid k q (sqCommonName f g k l q) $ =
+'(sqAllocAvoid_above (ltlei sqCommonName_range_left));
+pub theorem sqCommonName_avoid_right (f g k l q: nat):
+ $ sqAllocAvoid l q (sqCommonName f g k l q) $ =
+'(sqAllocAvoid_above (ltlei sqCommonName_range_right));

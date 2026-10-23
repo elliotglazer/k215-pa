@@ -1,0 +1,42 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_bootstrap.mm0";
+import "k218q_bootstrap.mm0";
+import "k218q_quotation_supported_environment.mm0";
+import "k230_bootstrap_discharge.mm0";
+
+theorem k218SQ_sqBootstrap_repeat_domain (H t a n: nat):
+ $ k218IHypProvable H (kMem t a) -> k218SQ_sqDomainSupport H (repeat a n) t $;
+
+theorem k218SQ_sqBootstrap_default_domain (n: nat):
+ $ k218SQ_sqDomainSupport kQuotientContext (repeat 3 n) 1 $;
+
+theorem k218SQ_sqBootstrap_default_source (n: nat):
+ $ k218SQ_sqSourceSupport kQuotientContext (repeat 3 n) 1 4 0 $;
+
+def k218SQ_sqBootstrapConsequence (n a .S .k: nat): wff =
+ $ A. S A. k (sqEnvironmentSafe S n 1 k ->
+   k218SQ_sqDomainSupport kQuotientContext S 1 ->
+   k218IHypProvable kQuotientContext (sqQuote (sqNumericEnvironment S) 1 k 0 a)) $;
+
+theorem k218SQ_sqBootstrapConsequence_at (n a S k: nat):
+ $ k218SQ_sqBootstrapConsequence n a -> sqEnvironmentSafe S n 1 k ->
+   k218SQ_sqDomainSupport kQuotientContext S 1 ->
+   k218IHypProvable kQuotientContext (sqQuote (sqNumericEnvironment S) 1 k 0 a) $;
+
+theorem k218SQ_sqBootstrapConsequence_default (n a: nat):
+ $ k218SQ_sqBootstrapConsequence n a ->
+   k218IHypProvable kQuotientContext (sqQuote (sqNumericEnvironment (repeat 3 n)) 1 4 0 a) $;
+
+theorem k218SQ_sqBootstrapConsequence_closed (n a: nat):
+ $ sfBound 0 a -> k218SQ_sqBootstrapConsequence n a ->
+   k218IHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $;
+
+theorem k218SQ_sqBootstrapConsequence_exists_closed {n: nat} (a: nat):
+ $ sfBound 0 a -> (E. n k218SQ_sqBootstrapConsequence n a) ->
+   k218IHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $;
+
+theorem k218SQ_sqBootstrapConsequence_false (n: nat):
+ $ k218SQ_sqBootstrapConsequence n sfBot -> k218IHypProvable kQuotientContext kF $;
+
+theorem k218SQ_sqBootstrapConsequence_refutation {n: nat}:
+ $ (E. n k218SQ_sqBootstrapConsequence n sfBot) -> k218QProvable kF $;

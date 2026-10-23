@@ -1,0 +1,21 @@
+import "source_l_choice_up_ll.mm1";
+import "extracted_ltrans_implication.mm1";
+
+-- sfLTransC and sfLTransitivity (ltrans family) have the same body:
+--   sfAll (sfImp sfLDomain (sfAll (sfImp (sfMem 0 1) sfLDomain)))
+-- so the hypotheses match after unfolding the definitions.
+
+pub theorem sfLChoiceUp_from_transitivity (hT: $ sfTheoryProvable zfrAxioms sfLTransitivity $):
+ $ sfTheoryProvable zfrAxioms sfLChoiceUp $ =
+'(sfLChoiceUp_from_trans hT);
+
+pub theorem sfLChoice_from_transitivity
+ (hi: $ sfRelativeAxiomImages zfrAxioms zfrAxioms sfLDomain $)
+ (hN: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (h2: $ sfTheoryProvable zfrAxioms sfLChoiceT2 $)
+ (hT: $ sfTheoryProvable zfrAxioms sfLTransitivity $)
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $ =
+'(sfLChoice_from_hierarchy_trans hi hN hE hU h2 hT hOL);

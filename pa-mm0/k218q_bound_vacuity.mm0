@@ -1,0 +1,21 @@
+import "k218q_alpha.mm0";
+import "k218q_equivalence.mm0";
+import "k230_fresh_allocation.mm0";
+
+-- Rename a bound variable before applying the syntactic freshness rule.
+-- The source variable need not be fresh in the body.
+def k218QBoundName (f x: nat): nat = $ kFreshAllocate 0 f 0 x $;
+
+theorem k218QBinderAbsent_false (x: nat): $ kBinderAbsent kF x $;
+theorem k218QBinderAbsent_not (f x: nat) (hf: $ kBinderAbsent f x $):
+ $ kBinderAbsent (kNot f) x $;
+theorem k218QBinderAbsent_and (f g x: nat)
+ (hf: $ kBinderAbsent f x $) (hg: $ kBinderAbsent g x $):
+ $ kBinderAbsent (kAnd f g) x $;
+
+theorem k218QBound_all_vacuity (f x: nat) (hf: $ kBinderAbsent f x $):
+ $ k218QProvable (kImp (kAll x f) (kAll x (kAll x f))) $;
+
+theorem k218QBound_exists_vacuity (f x: nat)
+ (hx: $ x != 0 $) (hf: $ kBinderAbsent f x $):
+ $ k218QProvable (kImp (kExists x f) (kAll x (kExists x f))) $;

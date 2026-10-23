@@ -1,0 +1,54 @@
+import "source_bounds.mm1";
+
+@_ abstract def paTermZero: nat = $ 0 $;
+
+@_ abstract def paTermVariable (i: nat): nat = $ sfMem i 0 $;
+
+@_ abstract def paTermSuccessor (a: nat): nat = $ sfEq a 0 $;
+
+@_ abstract def paTermAddition (a b: nat): nat = $ sfAnd a b $;
+
+@_ abstract def paTermMultiplication (a b: nat): nat = $ sfOr a b $;
+
+@_ abstract def paTermBoundAllowed (n c h: nat): wff = $ ifp (c = 0) (0 = 0)
+ (ifp (sfTag c = 1) (sfRight c = 0 /\ sfLeft c < n)
+ (ifp (sfTag c = 2) (sfRight c = 0 /\ (n,  sfLeft c) e. h)
+ (ifp (sfTag c = 3) ((n,  sfLeft c) e. h /\ (n,  sfRight c) e. h)
+ (ifp (sfTag c = 4) ((n,  sfLeft c) e. h /\ (n,  sfRight c) e. h)
+ (0 != 0))))) $;
+
+@_ abstract def paTermBoundStep (.k .h: nat): set = $ S\ k,  {h | paTermBoundAllowed (fst k) (snd k) h} $;
+
+@_ abstract def paTermBound (n c: nat): wff = $ srecp paTermBoundStep (n,  c) $;
+
+@_ abstract def paTermBoundPrevious (n c .i: nat): nat = $ sep (upto (n,  c)) {i | srecp paTermBoundStep i} $;
+
+@_ abstract def paTerm (c .n: nat): wff = $ E. n paTermBound n c $;
+
+pub theorem paTermBoundStep_value (k h: nat): $ (k, h) e. paTermBoundStep <-> paTermBoundAllowed (fst k) (snd k) h $ = (named '(elsabe @ elabed ,eqtac));
+
+pub theorem paTermBoundPrevious_value (n c m a: nat): $ (m, a) e. paTermBoundPrevious n c <-> (m, a) < (n, c) /\ paTermBound m a $ = (named '(bitr elsep @ bitr (aneq1i elupto) (aneq2i (elabe ,eqtac))));
+
+pub theorem paTermBound_unfold (n c: nat): $ paTermBound n c <-> paTermBoundAllowed n c (paTermBoundPrevious n c) $ = (named '(bitr srecpval @ bitr paTermBoundStep_value (paTermBoundAllowedeq fstpr sndpr eqid)));
+
+theorem paTermBoundAllowed_sfMem (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ paTermBoundAllowed n c h <-> sfRight c = 0 /\ sfLeft c < n $ = (named '(bitr (ifpneg h0) (ifppos ht)));
+
+theorem paTermBoundAllowed_sfEq (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $): $ paTermBoundAllowed n c h <-> sfRight c = 0 /\ (n, sfLeft c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht))));
+
+theorem paTermBoundAllowed_sfAnd (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ paTermBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht)))));
+
+theorem paTermBoundAllowed_sfOr (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ paTermBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht))))));
+
+theorem paTermBoundPrevious_child (n c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $): $ (n, sfLeft c) e. paTermBoundPrevious n c <-> paTermBound n a $ = (named '(bitr (eleq1 (preq2 hl)) @ bitr paTermBoundPrevious_value (bian1 (sfKey_lt ha))));
+
+theorem paTermBoundPrevious_right (n c a: nat) (hr: $ sfRight c = a $) (ha: $ a < c $): $ (n, sfRight c) e. paTermBoundPrevious n c <-> paTermBound n a $ = (named '(bitr (eleq1 (preq2 hr)) @ bitr paTermBoundPrevious_value (bian1 (sfKey_lt ha))));
+
+pub theorem paTermBound_zero (n: nat): $ paTermBound n paTermZero $ = (named '(mpbir paTermBound_unfold @ mpbir (ifppos eqid) eqid));
+
+pub theorem paTermBound_variable (n i: nat): $ paTermBound n (paTermVariable i) <-> i < n $ = (named '(bitr paTermBound_unfold @ bitr (paTermBoundAllowed_sfMem sfMem_ne_sfBot sfMem_tag) @ bitr (aneq (eqeq1 sfMem_right) (lteq1 sfMem_left)) (bian1 eqid)));
+
+pub theorem paTermBound_successor (n a: nat): $ paTermBound n (paTermSuccessor a) <-> paTermBound n a $ = (named '(bitr paTermBound_unfold @ bitr (paTermBoundAllowed_sfEq sfEq_ne_sfBot sfEq_tag) @ bitr (aneq (eqeq1 sfEq_right) (paTermBoundPrevious_child sfEq_left sfEq_left_lt)) (bian1 eqid)));
+
+pub theorem paTermBound_addition (n a b: nat): $ paTermBound n (paTermAddition a b) <-> paTermBound n a /\ paTermBound n b $ = (named '(bitr paTermBound_unfold @ bitr (paTermBoundAllowed_sfAnd sfAnd_ne_sfBot sfAnd_tag) @ aneq (paTermBoundPrevious_child sfAnd_left sfAnd_left_lt) (paTermBoundPrevious_right sfAnd_right sfAnd_right_lt)));
+
+pub theorem paTermBound_multiplication (n a b: nat): $ paTermBound n (paTermMultiplication a b) <-> paTermBound n a /\ paTermBound n b $ = (named '(bitr paTermBound_unfold @ bitr (paTermBoundAllowed_sfOr sfOr_ne_sfBot sfOr_tag) @ aneq (paTermBoundPrevious_child sfOr_left sfOr_left_lt) (paTermBoundPrevious_right sfOr_right sfOr_right_lt)));

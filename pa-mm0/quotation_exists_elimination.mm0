@@ -1,0 +1,14 @@
+import "quotation_quantifiers.mm0";
+
+-- Scoped existential elimination with explicit freshness of the conclusion.
+theorem sqLocal_exE_matrix (H: nat) (E: set) (t k a q: nat)
+ (ha: $ sfWf a $) (hf: $ kContextFresh H k $) (hq: $ kFresh q k $):
+ $ sqLocal H E t k 0 (sfEx a) ->
+   kHypProvable (sqScopeEx E t k a : H) q -> kHypProvable H q $;
+theorem sqExMatrix_support (H: nat) (E: set) (t k a: nat):
+ $ kContextSupports (sqScopeEx E t k a : H)
+     (sqScopeBody E t k a : (kMem t k : H)) $;
+theorem sqLocal_exE_split (H: nat) (E: set) (t k a q: nat)
+ (ha: $ sfWf a $) (hf: $ kContextFresh H k $) (hq: $ kFresh q k $):
+ $ sqLocal H E t k 0 (sfEx a) ->
+   kHypProvable (sqScopeBody E t k a : (kMem t k : H)) q -> kHypProvable H q $;

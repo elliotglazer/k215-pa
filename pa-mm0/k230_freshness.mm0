@@ -1,0 +1,71 @@
+import "raw_source_image.mm0";
+
+import "source_named_template.mm0";
+
+def kFreshAllowed (x c h: nat): wff =
+$ ifp (c = 0) (0 = 0)
+ (ifp (rawTag c = 1 \/ rawTag c = 3) (x != rawLeft c /\ x != rawRight c)
+  (ifp (rawTag c = 2) (x != rawLeft c /\ rawRight c e. h)
+    (rawLeft c e. h /\ rawRight c e. h))) $;
+
+def kFreshStep (x .c .h: nat): set = $ S\ c, {h | kFreshAllowed x c h} $;
+
+def kFresh (c x: nat): wff = $ srecp (kFreshStep x) c $;
+
+def kFreshPrevious (x c .a: nat): nat = $ sep (upto c) {a | kFresh a x} $;
+
+theorem kFreshStep_value (x c h: nat):
+ $ (c, h) e. kFreshStep x <-> kFreshAllowed x c h $;
+
+theorem kFreshPrevious_value (x c a: nat):
+ $ a e. kFreshPrevious x c <-> a < c /\ kFresh a x $;
+
+theorem kFresh_unfold (c x: nat):
+ $ kFresh c x <-> kFreshAllowed x c (kFreshPrevious x c) $;
+
+theorem kFresh_congr (H: wff) (a b x y: nat)
+ (ha: $ H -> a = b $) (hx: $ H -> x = y $):
+ $ H -> (kFresh a x <-> kFresh b y) $;
+
+theorem kFresh_zero (x: nat): $ kFresh 0 x $;
+
+theorem kFresh_kMem (a b x: nat):
+ $ kFresh (kMem a b) x <-> x != a /\ x != b $;
+
+theorem kFresh_kEq (a b x: nat):
+ $ kFresh (kEq a b) x <-> x != a /\ x != b $;
+
+theorem kFresh_kAll (a b x: nat):
+ $ kFresh (kAll a b) x <-> x != a /\ kFresh b x $;
+
+theorem kFresh_kImp (a b x: nat):
+ $ kFresh (kImp a b) x <-> kFresh a x /\ kFresh b x $;
+
+theorem kFresh_kF (x: nat): $ kFresh kF x <-> x != 0 $;
+
+theorem kFresh_kNot (a x: nat):
+ $ kFresh (kNot a) x <-> kFresh a x /\ x != 0 $;
+
+theorem kFresh_imp_intro (a b x: nat):
+ $ kFresh a x -> kFresh b x -> kFresh (kImp a b) x $;
+
+theorem kFresh_mem_intro (a b x: nat):
+ $ x != a -> x != b -> kFresh (kMem a b) x $;
+
+theorem kFresh_eq_intro (a b x: nat):
+ $ x != a -> x != b -> kFresh (kEq a b) x $;
+
+theorem kFresh_all_intro (a b x: nat):
+ $ x != a -> kFresh b x -> kFresh (kAll a b) x $;
+
+theorem kFresh_not_intro (a x: nat):
+ $ kFresh a x -> x != 0 -> kFresh (kNot a) x $;
+
+theorem kFresh_and_intro (a b x: nat):
+ $ x != 0 -> kFresh a x -> kFresh b x -> kFresh (kAnd a b) x $;
+
+theorem kFresh_disj_intro (a b x: nat):
+ $ x != 0 -> kFresh a x -> kFresh b x -> kFresh (kDisj a b) x $;
+
+theorem kFresh_exists_intro (a b x: nat):
+ $ x != 0 -> x != a -> kFresh b x -> kFresh (kExists a b) x $;

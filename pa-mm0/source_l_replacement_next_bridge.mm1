@@ -1,0 +1,34 @@
+import "source_l_replacement_next_def.mm1";
+import "source_l_pair_next.mm1";
+
+-- From sfTVLDomain_literal: the raw ordinal and level parts of sfLDomain (srcLF13, srcLF777)
+-- are sfCLOrdinalAt 1 and sfCLHierarchyAt 1 0.
+theorem lrnb_domain_parts:
+ $ srcLF13 = sfCLOrdinalAt 1 /\ srcLF777 = sfCLHierarchyAt 1 0 $ =
+ '(mpbi sfAnd_injective (anli (mpbi sfAnd_injective
+   (mpbi sfEx_injective (mpbi sfEx_injective sfTVLDomain_literal)))));
+
+-- sfLPairNextLevel (slPFF817) shares the raw subformulas slPFF13 = srcLF13 and
+-- slPFF777 = srcLF777 (definitionally), and its Def0 part slPFF810 is sfLSeparationDef0 2 0.
+theorem lrnb_ord: $ sfCLOrdinalAt 1 = slPFF13 $ = '(eqcom (anli lrnb_domain_parts));
+theorem lrnb_level: $ sfCLHierarchyAt 1 0 = slPFF777 $ = '(eqcom (anri lrnb_domain_parts));
+theorem lrnb_def0: $ sfLSeparationDef0 2 0 = slPFF810 $ = 'eqid;
+
+theorem lrnb_body: $ sfLNextLevelBody = slPFF815 $ =
+ '(nsImp_eq lrnb_ord (nsImp_eq lrnb_level
+   (nsEx_eq (nsEx_eq (nsAnd_eq (nsAnd_eq lrnb_ord lrnb_level) lrnb_def0)))));
+
+pub theorem sfLNextLevelLaw_pair_literal: $ sfLPairNextLevel = sfLNextLevelLaw $ =
+ '(eqcom (eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq
+   (eqtr sfAllPrefix_zero lrnb_body))))));
+
+pub theorem sfLNextLevelLaw_zfr: $ sfTheoryProvable zfrAxioms sfLNextLevelLaw $ =
+ '(mpbi (sfTheoryProvableeq2 sfLNextLevelLaw_pair_literal) sfLPairNextLevel_zfr);
+
+pub theorem sfLNextDefLaw_zfr: $ sfTheoryProvable zfrAxioms sfLNextDefLaw $ =
+ '(sfLNextDefLaw_from_level_law sfLNextLevelLaw_zfr);
+
+pub theorem sfLReplacementDefinableLaw_from_level_zfr(m psi:nat)
+ (hU:$ sfTheoryProvable zfrAxioms (sfLLevelDefinableLaw m psi) $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m psi) $ =
+ '(sfLReplacementDefinableLaw_from_level_next hU sfLNextLevelLaw_zfr);

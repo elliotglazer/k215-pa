@@ -1,0 +1,268 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+import "k215_calculus_operational.mm1";
+
+do (apply (register-eqd 'k218EnumState) '(k218EnumStateeqd));
+do (apply (register-eqd 'k215EnumStep) '(k215EnumStepeqd));
+do (apply (register-eqd 'k215EnumAdvance) '(k215EnumAdvanceeqd));
+do (apply (register-eqd 'k215EnumIter) '(k215EnumItereqd));
+do (apply (register-eqd 'k215CmdAX) '(k215CmdAXeqd));
+do (apply (register-eqd 'k215CmdDROP) '(k215CmdDROPeqd));
+do (apply (register-eqd 'k215NipPrefix) '(k215NipPrefixeqd));
+do (apply (register-eqd 'k215DiscardPrefix) '(k215DiscardPrefixeqd));
+
+-- Source leaf = DISCARD ; AX ; NIP^j ; DROP ; NIP^(11-j).
+@_ def k215LeafTail (j r: nat): nat =
+ $ k215NipPrefix j (suc (k215CmdDROP (k215NipPrefix ((suc 10) - j) r))) $;
+@_ def k215LeafPrefix (j a b c r: nat): nat =
+ $ k215DiscardPrefix (suc (k215CmdAX c b a (k215LeafTail j r))) $;
+@_ def k215BundleLeafPrefix (a b c r: nat): nat =
+ $ k215DiscardPrefix (suc (k215CmdAX c b a (k215NipPrefix 10 r))) $;
+
+theorem k215Leaf_after_run (m n s t: nat) (h: $ k215EnumIter n s = suc t $):
+ $ k215EnumIter (m + n) s = k215EnumIter m t $ =
+(named @ induct '(ind) 'm
+ '(eqtr (k215EnumItereq1 add01) (eqtr h (eqcom k215EnumIter_zero)))
+ '(eqtrd (a1i (k215EnumItereq1 addS1))
+   (eqtrd (a1i k215EnumIter_succ)
+     (eqtrd (k215EnumAdvanceeqd id) (a1i (eqcom k215EnumIter_succ))))));
+
+theorem k215Leaf_gate_neone (a b c: nat): $ k218Gate a b c != 1 $ =
+'(cases
+  (mpbiri (necom d1ne0) (noteqd (eqeq1d ifpos)))
+  (mpbiri k215Command_Imp_neone (noteqd (eqeq1d ifneg))));
+
+theorem k215Leaf_AXstep (a b c r np w: nat):
+ $ k215EnumStep (k218EnumState (suc (k215CmdAX c b a r)) np 0 w 0 0) =
+   suc (k218EnumState r np (k218Gate a b c) (k215AxStack a 0 b c 0 0 w) 0 0) $ =
+'(eqtr k215StepAX_continue
+  (suceq (k218EnumStateeq eqid eqid (k218Gateeq add01 add01 eqid)
+    (k215AxStackeq add01 eqid add01 eqid eqid eqid eqid) eqid eqid)));
+
+theorem k215Leaf_DROPstep (r np t w d h: nat):
+ $ k215EnumStep (k218EnumState (k215NipPrefix 0 (suc (k215CmdDROP r))) np t w d h) =
+   suc (k218EnumState r np h (t, w) d h) $ =
+'(eqtr (k215EnumStepeq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))
+  k215StepDROP_continue);
+
+theorem k215LeafTail_1 (r: nat):
+ $ k215LeafTail 1 r = k215NipPrefix 1 (suc (k215CmdDROP (k215NipPrefix 10 r))) $ =
+'(k215NipPrefixeq2 (suceq (k215CmdDROPeq (k215NipPrefixeq1 (eqtr subSS sub02)))));
+
+theorem k215LeafCore_1 (a b c r np w: nat):
+ $ k215EnumIter (suc (suc (suc 10)))
+   (k218EnumState (suc (k215CmdAX c b a (k215NipPrefix 1 (suc (k215CmdDROP (k215NipPrefix 10 r)))))) np 0 w 0 0) =
+   suc (k218EnumState r np (kRho1 a b) w 0 0) $ =
+'(eqtr (k215Iter_after_step k215Leaf_AXstep) (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0))) (eqtr (k215Iter_after_step k215Leaf_DROPstep) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Leaf_gate_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_All_neone)) (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))))));
+
+theorem k215LeafTail_2 (r: nat):
+ $ k215LeafTail 2 r = k215NipPrefix 2 (suc (k215CmdDROP (k215NipPrefix 9 r))) $ =
+'(k215NipPrefixeq2 (suceq (k215CmdDROPeq (k215NipPrefixeq1 (eqtr subSS (eqtr subSS sub02))))));
+
+theorem k215LeafCore_2 (a b c r np w: nat):
+ $ k215EnumIter (suc (suc (suc 10)))
+   (k218EnumState (suc (k215CmdAX c b a (k215NipPrefix 2 (suc (k215CmdDROP (k215NipPrefix 9 r)))))) np 0 w 0 0) =
+   suc (k218EnumState r np (kRho2 a b c) w 0 0) $ =
+'(eqtr (k215Iter_after_step k215Leaf_AXstep) (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0))) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step k215Leaf_DROPstep) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Leaf_gate_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_All_neone)) (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))))));
+
+theorem k215LeafTail_3 (r: nat):
+ $ k215LeafTail 3 r = k215NipPrefix 3 (suc (k215CmdDROP (k215NipPrefix 8 r))) $ =
+'(k215NipPrefixeq2 (suceq (k215CmdDROPeq (k215NipPrefixeq1 (eqtr subSS (eqtr subSS (eqtr subSS sub02)))))));
+
+theorem k215LeafCore_3 (a b c r np w: nat):
+ $ k215EnumIter (suc (suc (suc 10)))
+   (k218EnumState (suc (k215CmdAX c b a (k215NipPrefix 3 (suc (k215CmdDROP (k215NipPrefix 8 r)))))) np 0 w 0 0) =
+   suc (k218EnumState r np (kRho3 a b c) w 0 0) $ =
+'(eqtr (k215Iter_after_step k215Leaf_AXstep) (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0))) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step k215Leaf_DROPstep) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Leaf_gate_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_All_neone)) (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))))));
+
+theorem k215LeafTail_4 (r: nat):
+ $ k215LeafTail 4 r = k215NipPrefix 4 (suc (k215CmdDROP (k215NipPrefix 7 r))) $ =
+'(k215NipPrefixeq2 (suceq (k215CmdDROPeq (k215NipPrefixeq1 (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS sub02))))))));
+
+theorem k215LeafCore_4 (a b c r np w: nat):
+ $ k215EnumIter (suc (suc (suc 10)))
+   (k218EnumState (suc (k215CmdAX c b a (k215NipPrefix 4 (suc (k215CmdDROP (k215NipPrefix 7 r)))))) np 0 w 0 0) =
+   suc (k218EnumState r np (kRho4 a b c) w 0 0) $ =
+'(eqtr (k215Iter_after_step k215Leaf_AXstep) (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0))) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step k215Leaf_DROPstep) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Leaf_gate_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_All_neone)) (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))))));
+
+theorem k215LeafTail_5 (r: nat):
+ $ k215LeafTail 5 r = k215NipPrefix 5 (suc (k215CmdDROP (k215NipPrefix 6 r))) $ =
+'(k215NipPrefixeq2 (suceq (k215CmdDROPeq (k215NipPrefixeq1 (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS sub02)))))))));
+
+theorem k215LeafCore_5 (a b c r np w: nat):
+ $ k215EnumIter (suc (suc (suc 10)))
+   (k218EnumState (suc (k215CmdAX c b a (k215NipPrefix 5 (suc (k215CmdDROP (k215NipPrefix 6 r)))))) np 0 w 0 0) =
+   suc (k218EnumState r np (kRho5 a b c) w 0 0) $ =
+'(eqtr (k215Iter_after_step k215Leaf_AXstep) (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0))) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step k215Leaf_DROPstep) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Leaf_gate_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_All_neone)) (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))))));
+
+theorem k215LeafTail_6 (r: nat):
+ $ k215LeafTail 6 r = k215NipPrefix 6 (suc (k215CmdDROP (k215NipPrefix 5 r))) $ =
+'(k215NipPrefixeq2 (suceq (k215CmdDROPeq (k215NipPrefixeq1 (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS sub02))))))))));
+
+theorem k215LeafCore_6 (a b c r np w: nat):
+ $ k215EnumIter (suc (suc (suc 10)))
+   (k218EnumState (suc (k215CmdAX c b a (k215NipPrefix 6 (suc (k215CmdDROP (k215NipPrefix 5 r)))))) np 0 w 0 0) =
+   suc (k218EnumState r np (kRho6 a c) w 0 0) $ =
+'(eqtr (k215Iter_after_step k215Leaf_AXstep) (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0))) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step k215Leaf_DROPstep) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Leaf_gate_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_All_neone)) (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))))));
+
+theorem k215LeafTail_7 (r: nat):
+ $ k215LeafTail 7 r = k215NipPrefix 7 (suc (k215CmdDROP (k215NipPrefix 4 r))) $ =
+'(k215NipPrefixeq2 (suceq (k215CmdDROPeq (k215NipPrefixeq1 (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS sub02)))))))))));
+
+theorem k215LeafCore_7 (a b c r np w: nat):
+ $ k215EnumIter (suc (suc (suc 10)))
+   (k218EnumState (suc (k215CmdAX c b a (k215NipPrefix 7 (suc (k215CmdDROP (k215NipPrefix 4 r)))))) np 0 w 0 0) =
+   suc (k218EnumState r np (k218RhoG a b c) w 0 0) $ =
+'(eqtr (k215Iter_after_step k215Leaf_AXstep) (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0))) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step k215Leaf_DROPstep) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Leaf_gate_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_All_neone)) (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))))));
+
+theorem k215LeafTail_8 (r: nat):
+ $ k215LeafTail 8 r = k215NipPrefix 8 (suc (k215CmdDROP (k215NipPrefix 3 r))) $ =
+'(k215NipPrefixeq2 (suceq (k215CmdDROPeq (k215NipPrefixeq1 (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS (eqtr subSS sub02))))))))))));
+
+theorem k215LeafCore_8 (a b c r np w: nat):
+ $ k215EnumIter (suc (suc (suc 10)))
+   (k218EnumState (suc (k215CmdAX c b a (k215NipPrefix 8 (suc (k215CmdDROP (k215NipPrefix 3 r)))))) np 0 w 0 0) =
+   suc (k218EnumState r np (kRho8 a b c 0) w 0 0) $ =
+'(eqtr (k215Iter_after_step k215Leaf_AXstep) (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0))) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step k215Leaf_DROPstep) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Leaf_gate_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_All_neone)) (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))))));
+
+@_ def k215LeafTime: nat = $ (suc (suc (suc 10))) + (suc (suc 10)) $;
+@_ def k215BundleLeafTime: nat = $ (suc 10) + (suc (suc 10)) $;
+
+pub theorem k215LeafR1_run (a b c r np t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState (suc (k215LeafPrefix 1 a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (kRho1 a b) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_1))
+    eqid eqid eqid eqid eqid)) k215LeafCore_1));
+
+pub theorem k215LeafR1_run_first (a b c r t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState 0 (k215LeafPrefix 1 a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215LeafPrefix 1 a b c r)) (kRho1 a b) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run_first)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_1))
+    eqid eqid eqid eqid eqid)) k215LeafCore_1));
+
+pub theorem k215LeafR2_run (a b c r np t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState (suc (k215LeafPrefix 2 a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (kRho2 a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_2))
+    eqid eqid eqid eqid eqid)) k215LeafCore_2));
+
+pub theorem k215LeafR2_run_first (a b c r t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState 0 (k215LeafPrefix 2 a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215LeafPrefix 2 a b c r)) (kRho2 a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run_first)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_2))
+    eqid eqid eqid eqid eqid)) k215LeafCore_2));
+
+pub theorem k215LeafR3_run (a b c r np t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState (suc (k215LeafPrefix 3 a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (kRho3 a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_3))
+    eqid eqid eqid eqid eqid)) k215LeafCore_3));
+
+pub theorem k215LeafR3_run_first (a b c r t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState 0 (k215LeafPrefix 3 a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215LeafPrefix 3 a b c r)) (kRho3 a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run_first)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_3))
+    eqid eqid eqid eqid eqid)) k215LeafCore_3));
+
+pub theorem k215LeafR4_run (a b c r np t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState (suc (k215LeafPrefix 4 a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (kRho4 a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_4))
+    eqid eqid eqid eqid eqid)) k215LeafCore_4));
+
+pub theorem k215LeafR4_run_first (a b c r t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState 0 (k215LeafPrefix 4 a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215LeafPrefix 4 a b c r)) (kRho4 a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run_first)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_4))
+    eqid eqid eqid eqid eqid)) k215LeafCore_4));
+
+pub theorem k215LeafR5_run (a b c r np t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState (suc (k215LeafPrefix 5 a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (kRho5 a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_5))
+    eqid eqid eqid eqid eqid)) k215LeafCore_5));
+
+pub theorem k215LeafR5_run_first (a b c r t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState 0 (k215LeafPrefix 5 a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215LeafPrefix 5 a b c r)) (kRho5 a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run_first)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_5))
+    eqid eqid eqid eqid eqid)) k215LeafCore_5));
+
+pub theorem k215LeafR6_run (a b c r np t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState (suc (k215LeafPrefix 6 a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (kRho6 a c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_6))
+    eqid eqid eqid eqid eqid)) k215LeafCore_6));
+
+pub theorem k215LeafR6_run_first (a b c r t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState 0 (k215LeafPrefix 6 a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215LeafPrefix 6 a b c r)) (kRho6 a c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run_first)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_6))
+    eqid eqid eqid eqid eqid)) k215LeafCore_6));
+
+pub theorem k215LeafG_run (a b c r np t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState (suc (k215LeafPrefix 7 a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (k218RhoG a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_7))
+    eqid eqid eqid eqid eqid)) k215LeafCore_7));
+
+pub theorem k215LeafG_run_first (a b c r t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState 0 (k215LeafPrefix 7 a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215LeafPrefix 7 a b c r)) (k218RhoG a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run_first)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_7))
+    eqid eqid eqid eqid eqid)) k215LeafCore_7));
+
+pub theorem k215LeafR8_run (a b c r np t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState (suc (k215LeafPrefix 8 a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (kRho8 a b c 0) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_8))
+    eqid eqid eqid eqid eqid)) k215LeafCore_8));
+
+pub theorem k215LeafR8_run_first (a b c r t w: nat):
+ $ k215EnumIter k215LeafTime (k218EnumState 0 (k215LeafPrefix 8 a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215LeafPrefix 8 a b c r)) (kRho8 a b c 0) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run_first)
+  (eqtr (k215EnumItereq2 (k218EnumStateeq (suceq (k215CmdAXeq4 k215LeafTail_8))
+    eqid eqid eqid eqid eqid)) k215LeafCore_8));
+
+theorem k215BundleLeafCore (a b c r np w: nat):
+ $ k215EnumIter (suc 10)
+   (k218EnumState (suc (k215CmdAX c b a (k215NipPrefix 10 r))) np 0 w 0 0) =
+   suc (k218EnumState r np (k218Gate a b c) w 0 0) $ =
+'(eqtr (k215Iter_after_step k215Leaf_AXstep) (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0))) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_Imp_neone)) (eqtr (k215Iter_after_step (k215StepNips_pair k215Command_All_neone)) (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))));
+
+pub theorem k215BundleLeaf_run (a b c r np t w: nat):
+ $ k215EnumIter k215BundleLeafTime (k218EnumState (suc (k215BundleLeafPrefix a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (k218Gate a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run) k215BundleLeafCore);
+pub theorem k215BundleLeaf_enabled_run (a b c r np t w: nat):
+ $ c != a /\ c != b ->
+   k215EnumIter k215BundleLeafTime (k218EnumState (suc (k215BundleLeafPrefix a b c r)) np t w 0 0) =
+   suc (k218EnumState r np (k218Bundle a b c) w 0 0) $ =
+'(eqtrd (a1i k215BundleLeaf_run)
+  (suceqd (k218EnumStateeqd eqidd eqidd k218Gate_enabled eqidd eqidd eqidd)));
+
+pub theorem k215BundleLeaf_run_first (a b c r t w: nat):
+ $ k215EnumIter k215BundleLeafTime (k218EnumState 0 (k215BundleLeafPrefix a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215BundleLeafPrefix a b c r)) (k218Gate a b c) w 0 0) $ =
+'(eqtr (k215Leaf_after_run k215Discard_run_first) k215BundleLeafCore);
+pub theorem k215BundleLeaf_enabled_run_first (a b c r t w: nat):
+ $ c != a /\ c != b ->
+   k215EnumIter k215BundleLeafTime (k218EnumState 0 (k215BundleLeafPrefix a b c r) t w 0 0) =
+   suc (k218EnumState r (suc (k215BundleLeafPrefix a b c r)) (k218Bundle a b c) w 0 0) $ =
+'(eqtrd (a1i k215BundleLeaf_run_first)
+  (suceqd (k218EnumStateeqd eqidd eqidd k218Gate_enabled eqidd eqidd eqidd)));

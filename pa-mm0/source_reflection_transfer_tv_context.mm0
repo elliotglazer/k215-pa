@@ -1,0 +1,19 @@
+import "source_reflection_transfer_tv_ball_intro.mm0";
+
+def sfTVLiftMap(n:nat)(.i:nat):set = $ \ i, n + i $;
+
+def sfTVLift(n a:nat):nat = $ sfRename (sfTVLiftMap n) 0 a $;
+
+theorem sfTVLiftMap_at(n i:nat): $ sfTVLiftMap n @ i = n + i $;
+
+theorem sfTVLift_zero(a:nat)(ha:$ sfWf a $): $ sfTVLift 0 a = a $;
+
+theorem sfTVLift_shift(n a:nat)(ha:$ sfWf a $): $ sfShift 0 (sfTVLift n a) = sfTVLift (suc n) a $;
+
+theorem sfTVBallContext_lift(G y n a:nat)(ha:$ sfWf a $)(hp:$ nsLocal G a $): $ nsLocal (sfTVBallContext G y n) (sfTVLift n a) $;
+
+theorem sfTVBallContext_closed_lift(G y n a:nat)(ha:$ sfBound 0 a $)(hp:$ nsLocal G a $): $ nsLocal (sfTVBallContext G y n) a $;
+
+theorem sfTVBallContext_members(G y n:nat): $ sfReflectionDnMembers sfIdentityMap (sfTVBallContext G y n) (y + n) n $;
+
+theorem sfTVBallContext_tuple(G y n:nat)(hg:$ sfContextWf G $): $ nsLocal (sfTVBallContext G y n) (sfReflectionTuple sfIdentityMap 0 (y + n) n) $;

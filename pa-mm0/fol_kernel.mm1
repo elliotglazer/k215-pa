@@ -1,0 +1,50 @@
+import "mp_kernel.mm1";
+
+@_ def fAll (a: nat): nat = $ suc (4, a) $;
+
+@_ abstract def genRules (.c .l .b: nat): set =
+$ S\ c, {l | E. b (b IN l /\ c = fAll b)} $;
+
+@_ def folRules (A: set): set = $ mpRules A u. genRules $;
+
+pub theorem genRules_value {b: nat} (c l: nat):
+  $ (c, l) e. genRules <-> E. b (b IN l /\ c = fAll b) $ =
+(named '(elsabe @ elabed ,eqtac));
+
+theorem genRules_extend (c l r: nat):
+  $ (c, l) e. genRules -> (c, l ++ r) e. genRules $ =
+(named '(syl (bi2 genRules_value) @ syl
+  (eximi @ iand (syl lmem_append_left anl) anr)
+  (bi1 genRules_value)));
+
+theorem folRules_extend (A: set) (c l r: nat):
+  $ (c, l) e. folRules A -> (c, l ++ r) e. folRules A $ =
+'(syl (bi2 elun) @ syl (orim mpRules_extend genRules_extend) (bi1 elun));
+pub theorem folRules_stable (A: set): $ traceAppendStable (folRules A) $ =
+(named '(ax_gen @ ax_gen @ ax_gen folRules_extend));
+
+pub theorem folDerives_axiom (A: set) (a: nat):
+  $ a e. A -> traceDerives (folRules A) (a : 0) a $ =
+'(syl (traceDerives_monotone ssun1) mpDerives_axiom);
+
+theorem folRules_mp (A: set) (a b l: nat):
+  $ a IN l /\ fImp a b IN l -> (b, l) e. folRules A $ =
+'(syl elun1 mpRules_mp);
+theorem folValid_append (A: set) (p q: nat):
+  $ traceValid (folRules A) p -> traceValid (folRules A) q ->
+    traceValid (folRules A) (p ++ q) $ =
+'(traceValid_append folRules_stable);
+pub theorem folDerives_mp (A: set) (p q a b: nat):
+  $ traceDerives (folRules A) p a -> traceDerives (folRules A) q (fImp a b) ->
+    traceDerives (folRules A) (b : (p ++ q)) b $ =
+'(exp @ syl traceDerives_head @ iand
+  (mpd (syl anl anr) (syl folValid_append (syl anl anl)))
+  (syl folRules_mp @ iand
+    (syl lmem_append_left (syl anr anl))
+    (syl lmem_append_right (syl anr anr))));
+
+theorem genRules_intro (a p: nat): $ a IN p -> (fAll a, p) e. genRules $ =
+(named '(syl (bi2 genRules_value) @ syl (iexe ,eqtac) @ iand id (a1i eqid)));
+pub theorem folDerives_gen (A: set) (p a: nat):
+  $ traceDerives (folRules A) p a -> traceDerives (folRules A) (fAll a : p) (fAll a) $ =
+'(syl traceDerives_head @ iand anl (syl (syl elun2 genRules_intro) anr));

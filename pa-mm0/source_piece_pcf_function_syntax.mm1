@@ -1,0 +1,103 @@
+import "source_piece_pcf_bounds.mm1";
+import "source_piece_conjunction_proofs.mm1";
+
+@_ def sfPieceFunctionCount(E:set)(i:nat):nat = $ fst (E @ i) $;
+@_ def sfPieceFunctionMatrix(E:set)(i:nat):nat = $ snd (E @ i) $;
+@_ def sfPieceFunctionTableValid(E:set)(n .i:nat):wff =
+ $ A. i (i < n -> sfBound (suc (sfPieceFunctionCount E i)) (sfPieceFunctionMatrix E i)) $;
+@_ def sfPieceFunctionRows(domain level:nat)(E:set)(d X .i:nat):set =
+ $ \ i, sfPiecePC domain level (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) d X $;
+@_ def sfPieceFunctionConjunction(domain level:nat)(E:set)(n d X:nat):nat =
+ $ sfCLFold (sfPieceFunctionRows domain level E d X) n $;
+@_ def sfPieceFunctionBinary(domain level:nat)(E:set)(n:nat):nat =
+ $ sfPieceFunctionConjunction domain level E n 0 1 $;
+
+pub theorem sfPieceFunctionTableValid_at (E:set)(n i:nat):
+ $ sfPieceFunctionTableValid E n -> i < n ->
+   sfBound (suc (sfPieceFunctionCount E i)) (sfPieceFunctionMatrix E i) $ =
+(named '(!! eale j ,eqtac));
+
+pub theorem sfPieceFunctionTableValid_prefix (E:set)(n:nat):
+ $ sfPieceFunctionTableValid E (suc n) -> sfPieceFunctionTableValid E n $ =
+(named '(alimi (imim1i (ax_mp (com12 ltletr) lesucid))));
+
+pub theorem sfPieceFunctionTableValid_last (E:set)(n:nat):
+ $ sfPieceFunctionTableValid E (suc n) ->
+   sfBound (suc (sfPieceFunctionCount E n)) (sfPieceFunctionMatrix E n) $ =
+'(mpd (a1i ltsucid) sfPieceFunctionTableValid_at);
+
+
+pub theorem sfPieceFunctionRows_value (domain level:nat)(E:set)(d X i:nat):
+ $ sfPieceFunctionRows domain level E d X @ i =
+   sfPiecePC domain level (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) d X $ =
+(named '(applame ,eqtac));
+
+pub theorem sfPieceFunctionConjunction_zero (domain level:nat)(E:set)(d X:nat):
+ $ sfPieceFunctionConjunction domain level E 0 d X = sfCLTrue $ = 'sfCLFold_zero;
+
+pub theorem sfPieceFunctionConjunction_suc (domain level:nat)(E:set)(n d X:nat):
+ $ sfPieceFunctionConjunction domain level E (suc n) d X =
+   sfAnd (sfPieceFunctionConjunction domain level E n d X)
+    (sfPiecePC domain level (sfPieceFunctionCount E n) (sfPieceFunctionMatrix E n) d X) $ =
+'(eqtr sfCLFold_suc (trud (sfAndeqd (a1i eqid) (a1i sfPieceFunctionRows_value))));
+
+
+pub theorem sfPieceFunctionConjunction_wf (domain level:nat)(E:set)(n d X:nat):
+ $ sfWf (sfPieceFunctionConjunction domain level E n d X) $ =
+(named @ induct '(ind) 'n
+ '(mpbir (sfSchema_wf_eq sfPieceFunctionConjunction_zero) (ax_mp (ax_mp sfWf_imp sfWf_bot) sfWf_bot))
+ '(mpbird (a1i (sfSchema_wf_eq sfPieceFunctionConjunction_suc))
+  (syl (bi2 sfWf_and_iff) (iand id (a1i sfPiecePC_wf)))));
+
+pub theorem sfPieceFunctionBinary_wf (domain level:nat)(E:set)(n:nat):
+ $ sfWf (sfPieceFunctionBinary domain level E n) $ = 'sfPieceFunctionConjunction_wf;
+
+theorem pcfF_binary_n_eqd(domain level:nat)(E:set)(a b:nat):
+ $ a = b -> sfPieceFunctionBinary domain level E a = sfPieceFunctionBinary domain level E b $ =
+ (named ',eqtac);
+
+theorem pcfB_bformula(a b:nat)(h:$ a = b $): $ sfBound 2 a <-> sfBound 2 b $ =
+ '(ax_mp srecpeq2 (preq2 h));
+theorem pcfB_pc_zero_cond(H:wff)(domain level count phi:nat)
+ (hd:$ H -> sfBound 1 domain $)(hl:$ H -> sfBound 2 level $)
+ (hb:$ H -> sfBound (suc count) phi $):
+ $ H -> sfBound 2 (sfPiecePC domain level count phi 0 1) $ =
+ '(mpd hb (mpd hl (syl sfPiecePC_binary_bound hd)));
+theorem pcfB_rows_each (H: wff) (domain level:nat)(E:set)(n i:nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hv: $ H -> sfPieceFunctionTableValid E n $):
+ $ H -> i < n -> sfBound 2 (sfPieceFunctionRows domain level E 0 1 @ i) $ =
+(named '(exp @ mpbird (a1i (pcfB_bformula sfPieceFunctionRows_value))
+ (pcfB_pc_zero_cond (syl hd anl) (syl hl anl)
+  (mpd anr (syl sfPieceFunctionTableValid_at (syl hv anl))))));
+
+theorem pcfB_rows_bound (H: wff) (domain level:nat)(E:set)(n:nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hv: $ H -> sfPieceFunctionTableValid E n $):
+ $ H -> sfCLRowBounds (sfPieceFunctionRows domain level E 0 1) 2 n $ =
+(named '(!! iald i @ pcfB_rows_each hd hl hv));
+
+theorem pcfB_binary_cond (H: wff) (domain level:nat)(E:set)(n:nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hv: $ H -> sfPieceFunctionTableValid E n $):
+ $ H -> sfBound 2 (sfPieceFunctionBinary domain level E n) $ =
+'(syl sfCLFold_bound (pcfB_rows_bound hd hl hv));
+
+pub theorem sfPieceFunctionBinary_bound (domain level:nat)(E:set)(n:nat):
+ $ sfBound 1 domain -> sfBound 2 level -> sfPieceFunctionTableValid E n ->
+   sfBound 2 (sfPieceFunctionBinary domain level E n) $ =
+(named '(exp @ exp @ pcfB_binary_cond anll anlr anr));
+
+@_ def sfPieceFunctionRowProofs(domain level:nat)(E:set)(n d X G:nat):wff =
+ $ sfCLRowProofs (sfPieceFunctionRows domain level E d X) G n $;
+pub theorem sfPieceFunctionConjunction_intro(domain level:nat)(E:set)(n d X G:nat)(hg:$ sfContextWf G $):
+ $ sfPieceFunctionRowProofs domain level E n d X G -> nsLocal G (sfPieceFunctionConjunction domain level E n d X) $ =
+ '(sfCLFold_proof hg);
+pub theorem sfPieceFunctionConjunction_project(domain level:nat)(E:set)(n d X G:nat):
+ $ nsLocal G (sfPieceFunctionConjunction domain level E n d X) -> sfPieceFunctionRowProofs domain level E n d X G $ =
+ 'sfPieceFold_project;
+pub theorem sfPieceFunctionConjunction_member(domain level:nat)(E:set)(n d X G i:nat):
+ $ nsLocal G (sfPieceFunctionConjunction domain level E n d X) -> i < n ->
+   nsLocal G (sfPiecePC domain level (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) d X) $ =
+ '(syl6 (bi1 (nsLocal_formula_eq sfPieceFunctionRows_value))
+   (syl sfCLRowProofs_at sfPieceFunctionConjunction_project));

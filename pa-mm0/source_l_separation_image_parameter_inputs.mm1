@@ -1,0 +1,65 @@
+import "source_l_separation_image_prefix.mm1";
+import "source_l_common_level_transport.mm1";
+
+theorem slGuardTrue(G:nat)(hg:$ sfContextWf G $): $ nsLocal G sfCLTrue $ =
+ '(ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfWf_bot hg))) sfContext_member_head));
+
+pub theorem slGuardCons_base(D G start:nat)(hg:$ sfContextWf G $)(h0:$ nsLocal G (sfSubst 0 start D) $):
+ $ nsLocal G (sfCLPredicates D (suc start) 0) -> nsLocal G (sfCLPredicates D start 1) $ =
+ '(a1i (mpbir (nsLocal_formula_eq sfCLPredicates_suc)
+   (ax_mp (ax_mp sfLocal_and (mpbir (nsLocal_formula_eq sfCLPredicates_zero) (slGuardTrue hg)))
+    (mpbir (nsLocal_formula_eq (sfSubsteq2 add01)) h0))));
+
+pub theorem slGuardCons_step_cond(H:wff)(D G start n:nat)
+ (hi:$ H -> (nsLocal G (sfCLPredicates D (suc start) n) -> nsLocal G (sfCLPredicates D start (suc n))) $)
+ (hs:$ H -> nsLocal G (sfCLPredicates D (suc start) (suc n)) $):
+ $ H -> nsLocal G (sfCLPredicates D start (suc (suc n))) $ =
+ '(syl (bi2 (nsLocal_formula_eq sfCLPredicates_suc))
+   (sylc sfLocal_and
+    (mpd (syl nsLocal_CE1 (syl (bi1 (nsLocal_formula_eq sfCLPredicates_suc)) hs)) hi)
+    (syl (bi1 (nsLocal_formula_eq (sfSubsteq2 (eqtr addS2 (eqcom addS1)))))
+     (syl nsLocal_CE2 (syl (bi1 (nsLocal_formula_eq sfCLPredicates_suc)) hs)))));
+
+pub theorem slGuardCons_step(D G start n:nat):
+ $ (nsLocal G (sfCLPredicates D (suc start) n) -> nsLocal G (sfCLPredicates D start (suc n))) ->
+   nsLocal G (sfCLPredicates D (suc start) (suc n)) -> nsLocal G (sfCLPredicates D start (suc (suc n))) $ =
+ '(exp @ slGuardCons_step_cond anl anr);
+
+pub theorem sfLSeparationImagePredicate_cons(D G start n:nat)(hg:$ sfContextWf G $)(h0:$ nsLocal G (sfSubst 0 start D) $):
+ $ nsLocal G (sfCLPredicates D (suc start) n) -> nsLocal G (sfCLPredicates D start (suc n)) $ =
+ (named @ induct '(ind) 'n '(slGuardCons_base hg h0) 'slGuardCons_step);
+
+pub theorem slGuardParams_base(D G:nat)(hg:$ sfContextWf G $):
+ $ nsLocal (sfLSeparationImageParameterContext D 0 G) (sfCLPredicates D 0 0) $ =
+ '(mpbir (nsLocal_context_eq sfLSeparationImageParameterContext_zero)
+   (mpbir (nsLocal_formula_eq sfCLPredicates_zero) (slGuardTrue hg)));
+
+theorem slGuardParamContext_wf(D G n:nat)(hd:$ sfBound 1 D $):
+ $ sfContextWf (D : sfContextShift (sfLSeparationImageParameterContext D n G)) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp sfBound_wf hd) sfContextShift_wf));
+theorem slGuardParamHead(D G n:nat)(hd:$ sfBound 1 D $):
+ $ nsLocal (D : sfContextShift (sfLSeparationImageParameterContext D n G)) (sfSubst 0 0 D) $ =
+ '(mpbir (nsLocal_formula_eq (ax_mp sfSubst_bound_top_identity hd))
+   (ax_mp (ax_mp nsLocal_hyp (slGuardParamContext_wf hd)) sfContext_member_head));
+
+pub theorem slGuardParams_step_cond(H:wff)(D G n:nat)(hd:$ sfBound 1 D $)
+ (hi:$ H -> nsLocal (sfLSeparationImageParameterContext D n G) (sfCLPredicates D 0 n) $):
+ $ H -> nsLocal (sfLSeparationImageParameterContext D (suc n) G) (sfCLPredicates D 0 (suc n)) $ =
+ '(syl (bi2 (nsLocal_context_eq sfLSeparationImageParameterContext_suc))
+   (syl (sfLSeparationImagePredicate_cons (slGuardParamContext_wf hd) (slGuardParamHead hd))
+    (syl (ax_mp (ax_mp nsLocal_weaken (slGuardParamContext_wf hd)) sfContextSub_cons)
+     (syl (bi1 (nsLocal_formula_eq (sfCLPredicates_shift hd)))
+      (syl sfSepLocal_shift hi)))));
+
+pub theorem slGuardParams_step(D G n:nat)(hd:$ sfBound 1 D $):
+ $ nsLocal (sfLSeparationImageParameterContext D n G) (sfCLPredicates D 0 n) ->
+   nsLocal (sfLSeparationImageParameterContext D (suc n) G) (sfCLPredicates D 0 (suc n)) $ =
+ '(slGuardParams_step_cond hd id);
+
+pub theorem sfLSeparationImageParameterPredicates(D G n:nat)(hd:$ sfBound 1 D $)(hg:$ sfContextWf G $):
+ $ nsLocal (sfLSeparationImageParameterContext D n G) (sfCLPredicates D 0 n) $ =
+ (named @ induct '(ind) 'n '(slGuardParams_base hg) '(slGuardParams_step hd));
+
+pub theorem sfLSeparationImageAllInputPredicates(D G n:nat)(hd:$ sfBound 1 D $)(hg:$ sfContextWf G $):
+ $ nsLocal (D : sfContextShift (sfLSeparationImageParameterContext D n G)) (sfCLPredicates D 0 (suc n)) $ =
+ '(mpbi (nsLocal_context_eq sfLSeparationImageParameterContext_suc) (sfLSeparationImageParameterPredicates hd hg));

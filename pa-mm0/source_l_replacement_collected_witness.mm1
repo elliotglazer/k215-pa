@@ -1,0 +1,105 @@
+import "source_l_replacement_reflected_witness.mm1";
+
+@_ def sfLReplacementCollectedImageBody(start n psi:nat):nat =
+ $ sfAnd (sfCLPoint (suc (suc start)) n 1 0)
+    (sfLReplacementImageCoverage (sfLReplacementShift2Map (sfLReplacementStartMap start)) sfLDomain psi 0) $;
+@_ def sfLReplacementCollectedImageContext(G start n psi:nat):nat =
+ $ sfCLWitnessContext G (sfLReplacementCollectedImageBody start n psi) $;
+@_ def sfLReplacementCollectedDefinableContext(G start n psi:nat):nat =
+ $ sfLReplacementReflectedImageContext (sfLReplacementCollectedImageContext G start n psi)
+     (suc (suc start)) n psi $;
+
+pub theorem sfLReplacementAboveLaw_bound(count psi:nat)(hb:$ sfBound count psi $):
+ $ sfBound 0 (sfLReplacementAboveLaw count psi) $ =
+ '(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound lt01S)
+  (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian
+   (sfCLOrdinalAt_bound (lttri lt01S (mpbi ltsuc lt01S)))
+   (mpbir sfBound_sfAnd (ian
+    (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) (lttri lt01S (mpbi ltsuc lt01S))))
+    (sfCLReflection_bound sfLDomain_bound hb (lttri lt01S (mpbi ltsuc lt01S)))))))))));
+
+pub theorem sfLReplacementInWitnessContext_shift2(G A f:nat)
+ (ha:$ sfWf A $)(hp:$ nsLocal G f $):
+ $ nsLocal (sfCLWitnessContext G A) (sfShift 0 (sfShift 0 f)) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken
+  (mpbir sfContextWf_cons (ian ha sfContextShift_wf))) sfContextSub_cons)
+  (ax_mp sfSepLocal_shift
+   (ax_mp (ax_mp (ax_mp nsLocal_weaken
+    (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex ha) sfContextShift_wf))) sfContextSub_cons)
+    (ax_mp sfSepLocal_shift hp))));
+
+theorem lrcw_body_wf(start n psi:nat):
+ $ sfWf (sfLReplacementCollectedImageBody start n psi) $ =
+ '(ax_mp (ax_mp sfWf_and sfCLPoint_wf)
+  (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfLDomain_wf)
+   (ax_mp (ax_mp sfWf_imp (ax_mp sfRelativize_wf sfLDomain_wf)) sfWf_mem))));
+
+theorem lrcw_context_wf(G start n psi:nat):
+ $ sfContextWf (sfLReplacementCollectedImageContext G start n psi) $ =
+ '(mpbir sfContextWf_cons (ian lrcw_body_wf sfContextShift_wf));
+
+theorem lrcw_point(G start n psi:nat):
+ $ nsLocal (sfLReplacementCollectedImageContext G start n psi)
+   (sfLReplacementCollectedImageBody start n psi) $ =
+ '(ax_mp (ax_mp nsLocal_hyp lrcw_context_wf) sfContext_member_head);
+
+theorem lrcw_coverage(G start n psi:nat)(hf:$ sfWf psi $):
+ $ nsLocal (sfLReplacementCollectedImageContext G start n psi)
+  (sfLReplacementImageCoverage (sfLReplacementStartMap (suc (suc start))) sfLDomain psi 0) $ =
+ (named '(sfRQ_rewrite
+   (sfLReplacementCoverage_map hf (!! ax_gen i @ ! lrrw_shift2_start_at start i))
+   (ax_mp nsLocal_CE2 lrcw_point)));
+
+theorem lrcw_above(G start n psi:nat)(hb:$ sfBound (suc n) psi $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw (suc n) psi) $):
+ $ nsLocal (sfLReplacementCollectedImageContext G start n psi)
+    (sfLReplacementAboveLaw (suc n) psi) $ =
+ '(sfRQ_rewrite (eqtr (sfShifteq2 (ax_mp sfShift_closed_identity (sfLReplacementAboveLaw_bound hb)))
+    (ax_mp sfShift_closed_identity (sfLReplacementAboveLaw_bound hb)))
+  (sfLReplacementInWitnessContext_shift2 lrcw_body_wf hA));
+
+theorem lrcw_exists(G start n psi:nat)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $):
+ $ nsLocal (sfLReplacementCollectedImageContext G start n psi) sfLReplacementLevelExistsLaw $ =
+ '(sfRQ_rewrite (eqtr (sfShifteq2 (ax_mp sfShift_closed_identity sfLReplacementLevelExists_bound))
+    (ax_mp sfShift_closed_identity sfLReplacementLevelExists_bound))
+  (sfLReplacementInWitnessContext_shift2 lrcw_body_wf hL));
+
+theorem lrcw_subset(G start n psi:nat)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $):
+ $ nsLocal (sfLReplacementCollectedImageContext G start n psi)
+   (sfReflectionHierarchySubsetNormal sfCLHierarchy) $ =
+ '(sfRQ_rewrite (eqtr (sfShifteq2 (rfmc_subnormal_shift sfCLHierarchy_bound))
+    (rfmc_subnormal_shift sfCLHierarchy_bound))
+  (sfLReplacementInWitnessContext_shift2 lrcw_body_wf hS));
+
+pub theorem sfLReplacementWitness_from_collected(G start n psi:nat)
+ (hb:$ sfBound (suc n) psi $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw (suc n) psi) $)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hc:$ nsLocal G (sfLReplacementCollectedRecipe (sfLReplacementStartMap start) sfLDomain psi start n) $)
+ (hd:$ nsLocal (sfLReplacementCollectedDefinableContext G start n psi)
+  (sfLReplacementImageDefinable (sfLReplacementStartMap (suc (suc (suc (suc start))))) sfLDomain psi 0) $):
+ $ nsLocal G (sfLReplacementImageWitness (sfLReplacementStartMap start) sfLDomain psi) $ =
+ '(sfLReplacementDoubleEx_eliminate lrcw_body_wf
+  (sfLReplacementImageWitness_wf sfLDomain_bound) hc
+  (sfRQ_rewrite
+   (eqcom (eqtr (sfShifteq2 (sfLReplacementStartWitness_shift sfLDomain_bound (ax_mp sfBound_wf hb)))
+    (sfLReplacementStartWitness_shift sfLDomain_bound (ax_mp sfBound_wf hb))))
+   (sfLReplacementWitness_from_reflected_recipe hb
+    (sfLReplacementReflect_collected hb (lrcw_above hb hA) (lrcw_exists hL) (lrcw_subset hS)
+     (ax_mp nsLocal_CE1 lrcw_point) (lrcw_coverage (ax_mp sfBound_wf hb))) hd)));
+
+pub theorem sfLReplacementWitness_from_seeded_collection(G start n psi seed:nat)
+ (hb:$ sfBound (suc n) psi $)
+ (hA:$ nsLocal G (sfLReplacementAboveLaw (suc n) psi) $)
+ (hL:$ nsLocal G sfLReplacementLevelExistsLaw $)
+ (hS:$ nsLocal G (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hp:$ nsLocal G (sfLReplacementImageCoverage (sfLReplacementStartMap start) sfLDomain psi seed) $)
+ (hc:$ nsLocal G (sfLReplacementSeededRecipe start n seed) $)
+ (hd:$ nsLocal (sfLReplacementCollectedDefinableContext G start n psi)
+  (sfLReplacementImageDefinable (sfLReplacementStartMap (suc (suc (suc (suc start))))) sfLDomain psi 0) $):
+ $ nsLocal G (sfLReplacementImageWitness (sfLReplacementStartMap start) sfLDomain psi) $ =
+ '(sfLReplacementWitness_from_collected hb hA hL hS
+  (sfLReplacementCollectedCoverage sfLDomain_bound (ax_mp sfBound_wf hb) hp hc) hd);

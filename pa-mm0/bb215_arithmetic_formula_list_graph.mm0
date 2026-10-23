@@ -1,0 +1,29 @@
+import "bb215_arithmetic_formula_rec_graph.mm0";
+
+def bb215ArithmeticFormulaListTail (l: nat): nat = $ snd (l - 1) $;
+
+def bb215ArithmeticFormulaListHead (l: nat): nat = $ if (l = 0) 0 (suc (fst (l - 1))) $;
+
+def bb215ArithmeticFormulaListTailStep (.l: nat): set = $ \ l, bb215ArithmeticFormulaListTail l $;
+
+def bb215ArithmeticFormulaListDrop (n l: nat): nat = $ rec l bb215ArithmeticFormulaListTailStep n $;
+
+theorem bb215ArithmeticFormulaListTailStep_at (l: nat): $ bb215ArithmeticFormulaListTailStep @ l = bb215ArithmeticFormulaListTail l $;
+
+theorem bb215ArithmeticFormulaListTail_zero: $ bb215ArithmeticFormulaListTail 0 = 0 $;
+
+theorem bb215ArithmeticFormulaListTail_cons (a l: nat): $ bb215ArithmeticFormulaListTail (a : l) = l $;
+
+theorem bb215ArithmeticFormulaListHead_zero: $ bb215ArithmeticFormulaListHead 0 = 0 $;
+
+theorem bb215ArithmeticFormulaListHead_cons (a l: nat): $ bb215ArithmeticFormulaListHead (a : l) = suc a $;
+
+theorem bb215ArithmeticFormulaListDrop_zero (l: nat): $ bb215ArithmeticFormulaListDrop 0 l = l $;
+
+theorem bb215ArithmeticFormulaListDrop_succ (n l: nat): $ bb215ArithmeticFormulaListDrop (suc n) l = bb215ArithmeticFormulaListTail (bb215ArithmeticFormulaListDrop n l) $;
+
+theorem bb215ArithmeticFormulaListNth_iterate (n l: nat): $ nth n l = bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n l) $;
+
+def bb215ArithmeticFormulaListNthGraph (n l v .u: nat): wff = $ E. u (bb215ArithmeticFormulaRecGraph l bb215ArithmeticFormulaListTailStep n u /\ bb215ArithmeticFormulaListHead u = v) $;
+
+theorem bb215ArithmeticFormulaListNthGraph_correct (n l v: nat): $ bb215ArithmeticFormulaListNthGraph n l v <-> nth n l = v $;

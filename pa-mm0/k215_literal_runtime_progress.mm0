@@ -1,0 +1,37 @@
+import "k215_literal_runtime_reach.mm0";
+
+def k215PStatus (s: nat): nat = $ k215PETag (k215PLookup (k215PPC s)) $;
+
+def k215PProgress (s t: nat) (.n: nat): wff = $ E. n k215PIter (suc n) s = t $;
+
+theorem k215PIter_one (s: nat): $ k215PIter 1 s = k215PStep s $;
+
+theorem k215PIter_after_step (n s t: nat):
+ $ k215PStep s = t -> k215PIter (suc n) s = k215PIter n t $;
+
+theorem k215PProgress_intro (n s t: nat):
+ $ k215PIter (suc n) s = t -> k215PProgress s t $;
+
+theorem k215PProgress_start (s u t: nat):
+ $ k215PStep s = u -> k215PReach u t -> k215PProgress s t $;
+
+theorem k215PProgress_reach (s t: nat):
+ $ k215PProgress s t -> k215PReach s t $;
+
+theorem k215PProgress_comp (s t u: nat):
+ $ k215PProgress s t -> k215PReach t u -> k215PProgress s u $;
+
+theorem k215PStep_stopped (s: nat):
+ $ k215PStatus s = 4 -> k215PStep s = s $;
+
+theorem k215PIter_stopped (n s: nat):
+ $ k215PStatus s = 4 -> k215PIter n s = s $;
+
+theorem k215PHaltsFrom_intro (n s: nat):
+ $ k215PStatus (k215PIter n s) = 4 -> k215PHaltsFrom s $;
+
+theorem k215PReach_halts (s t: nat):
+ $ k215PReach s t -> k215PHaltsFrom t -> k215PHaltsFrom s $;
+
+theorem k215PProgress_budget (s t n: nat):
+ $ k215PProgress s t -> k215PStatus (k215PIter (suc n) s) = 4 -> k215PStatus (k215PIter n t) = 4 $;

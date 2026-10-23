@@ -1,0 +1,57 @@
+import "k215_calculus_source_decode.mm1";
+import "k215_calculus_source_nip_unpair.mm1";
+import "k215_calculus_source_nip_comparison.mm1";
+
+
+theorem k215NipDispatch (u t w d h v: nat):
+ $ k215PReach (k215PState k215Num23 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState k215PNum4725 (k215PVector u t w 0 d h 0 0 v)) $ =
+ '(k215PReach_step (eqtr (eqtr (k215PAtCD k215PLookupNip_23)
+   (ifeq (eqeq1 k215PGet3_vector) eqid eqid)) (ifpos eqid)));
+theorem k215NipOne (u t w d h v: nat):
+ $ k215PReach (k215PState k215PNum4725 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState k215PNum4726 (k215PVector u t w 0 d h 1 0 v)) $ =
+ '(k215PReach_step (eqtr (k215PAtCI k215PLookupNip_4725)
+   (k215PStateeq2 (eqtr (k215PSeteq2 (suceq k215PGet6_vector)) k215PSet6_vector))));
+theorem k215NipToComparison (u t w d h v: nat):
+ $ k215PReach (k215PState k215Num23 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState k215PNum4726 (k215PVector u t w 0 d h 1 0 v)) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215NipDispatch) k215NipOne);
+pub theorem k215NipHaltSource (u t w d h v: nat):
+ $ h = 1 -> k215PReach (k215PState k215Num23 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState k215PNum4736 (k215PVector u t w 0 d 0 0 0 v)) $ =
+ '(syl (ax_mp k215PReach_trans k215NipToComparison) k215Comparison4726Equal);
+theorem k215NipMiss (u t w d h v: nat):
+ $ h != 1 -> k215PReach (k215PState k215PNum4726 (k215PVector u t w 0 d h 1 0 v))
+   (k215PState k215PNum4737 (k215PVector u t w 0 d 0 0 0 v)) $ =
+ 'k215Comparison4726Different;
+theorem k215NipUnpairIn (u t w d v: nat):
+ $ k215UnpairAt4737State k215PNum4737 0 0 w (k215PVector u t w 0 d 0 0 0 v) =
+   k215PState k215PNum4737 (k215PVector u t w 0 d 0 0 0 v) $ =
+ '(k215PStateeq2 (k215PVectoreq k215PR0_vector k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+theorem k215NipUnpairOut (u t w d v: nat):
+ $ k215UnpairAt4737State k215PNum4745 (fst w) (snd w) 0 (k215PVector u t w 0 d 0 0 0 v) =
+   k215PState k215PNum4745 (k215PVector u t 0 0 d 0 (fst w) (snd w) v) $ =
+ '(k215PStateeq2 (k215PVectoreq k215PR0_vector k215PR1_vector eqid k215PR3_vector k215PR4_vector k215PR5_vector eqid eqid k215PR8_vector));
+theorem k215NipUnpair (u t w d v: nat):
+ $ k215PReach (k215PState k215PNum4737 (k215PVector u t w 0 d 0 0 0 v))
+   (k215PState k215PNum4745 (k215PVector u t 0 0 d 0 (fst w) (snd w) v)) $ =
+ '(mpbi (k215PReacheq k215NipUnpairIn k215NipUnpairOut) k215UnpairMacro4737_clean);
+theorem k215NipRestoreStack (u t w d v: nat):
+ $ k215PReach (k215PState k215PNum4745 (k215PVector u t 0 0 d 0 (fst w) (snd w) v))
+   (k215PState k215PNum4748 (k215PVector u t (snd w) 0 d 0 (fst w) 0 v)) $ =
+ '(k215PReach_intro (eqtr k215Loop4745Vector (k215PStateeq2 (k215PVectoreq3 add0))));
+theorem k215NipRestoreHead (u t w d v: nat):
+ $ k215PReach (k215PState k215PNum4748 (k215PVector u t (snd w) 0 d 0 (fst w) 0 v))
+   (k215PState 0 (k215PVector u t (snd w) 0 d (fst w) 0 0 v)) $ =
+ '(k215PReach_intro (eqtr k215Loop4748Vector (k215PStateeq2 (k215PVectoreq6 add0))));
+theorem k215NipPop (u t w d v: nat):
+ $ k215PReach (k215PState k215PNum4737 (k215PVector u t w 0 d 0 0 0 v))
+   (k215PState 0 (k215PVector u t (snd w) 0 d (fst w) 0 0 v)) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215NipUnpair)
+   (ax_mp (ax_mp k215PReach_trans k215NipRestoreStack) k215NipRestoreHead));
+pub theorem k215NipPopSource (u t w d h v: nat):
+ $ h != 1 -> k215PReach (k215PState k215Num23 (k215PVector u t w 0 d h 0 0 v))
+   (k215PState 0 (k215PVector u t (snd w) 0 d (fst w) 0 0 v)) $ =
+ '(syl (ax_mp k215PReach_trans k215NipToComparison)
+   (mpd (a1i k215NipPop) (syl k215PReach_trans k215NipMiss)));

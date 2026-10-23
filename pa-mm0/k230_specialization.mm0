@@ -1,0 +1,33 @@
+import "k230_leibniz.mm0";
+
+-- Substitution removes its source name if that name has no binder occurrence.
+theorem kReplace_avoids_source (x y a: nat):
+ $ x != y -> x != kReplace x y a $;
+def kSubstOutputFreshClass (x y .f: nat): set =
+$ {f | x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x} $;
+theorem kSubstOutputFresh_value (x y f: nat):
+ $ f e. kSubstOutputFreshClass x y <->
+   (x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x) $;
+theorem kSubstOutputFresh_closed (x y: nat):
+ $ kRawConstructionClosed (kSubstOutputFreshClass x y) $;
+theorem kSubst_output_fresh (f x y: nat):
+ $ x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x $;
+theorem kSubst_output_vacuity (f x y: nat):
+ $ x != y /\ kBinderAbsent f x ->
+   kProvable (kImp (kSubst f x y) (kAll x (kSubst f x y))) $;
+
+theorem kNamed_specialization_macro (G: wff) (x y f v: nat)
+ (he: $ G -> kProvable (kImp (kEq x y) (kImp f v)) $)
+ (hv: $ G -> kProvable (kImp v (kAll x v)) $):
+ $ G -> kProvable (kImp (kAll x f) v) $;
+theorem kNamed_exists_intro_macro (G: wff) (x y f v: nat)
+ (he: $ G -> kProvable (kImp (kEq x y) (kImp v f)) $)
+ (hv: $ G -> kProvable (kImp v (kAll x v)) $):
+ $ G -> kProvable (kImp v (kExists x f)) $;
+
+theorem kNamed_specialization (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kBinderAbsent f y ->
+   kProvable (kImp (kAll x f) (kSubst f x y)) $;
+theorem kNamed_exists_intro (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kBinderAbsent f y ->
+   kProvable (kImp (kSubst f x y) (kExists x f)) $;

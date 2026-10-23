@@ -1,0 +1,151 @@
+import "source_renaming_laws.mm1";
+import "source_structural_induction.mm1";
+
+theorem exRenamePrefix_at_map (R S: set) (n a: nat):
+ $ (A. i (i < n -> R @ i = S @ i)) -> a < n -> R @ a = S @ a $ =
+(named '(!! eale i ,eqtac));
+
+theorem exRenamePrefix_kept (R S: set) (d a: nat):
+ $ a < d -> sfRenameIndex R d a = sfRenameIndex S d a $ =
+'(eqtrd sfRenameIndex_bound (eqcomd sfRenameIndex_bound));
+
+theorem exRenamePrefix_free {i: nat} (R S: set) (d n a: nat):
+ $ (A. i (i < n -> R @ i = S @ i)) /\ a < d + n /\ ~a < d ->
+ sfRenameIndex R d a = sfRenameIndex S d a $ =
+'(eqtrd (syl sfRenameIndex_free anr) @
+ eqtrd (addeq2d (sylc exRenamePrefix_at_map anll
+   (mpbird (syl ltsubadd2 (mpbird (a1i lenlt) anr)) anlr)))
+ (eqcomd (syl sfRenameIndex_free anr)));
+
+pub theorem exRenamePrefix_index {i: nat} (R S: set) (d n a: nat):
+ $ (A. i (i < n -> R @ i = S @ i)) -> a < d + n -> sfRenameIndex R d a = sfRenameIndex S d a $ =
+'(exp @ casesda (syl exRenamePrefix_kept anr) exRenamePrefix_free);
+
+@_ abstract def exRenamePrefixClass (R S: set) (n .c .d .i: nat): set =
+$ {c | A. d ((A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c ->
+ sfRename R d c = sfRename S d c)} $;
+
+pub theorem exRenamePrefix_value {d i: nat} (R S: set) (n c: nat):
+ $ c e. exRenamePrefixClass R S n <->
+ A. d ((A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c -> sfRename R d c = sfRename S d c) $ =
+(named '(elabe ,eqtac));
+
+theorem exRenamePrefix_depth (R S: set) (d n c: nat):
+ $ A. j ((A. i (i < n -> R @ i = S @ i)) -> sfBound (j + n) c -> sfRename R j c = sfRename S j c) ->
+ (A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $ =
+(named '(!! eale j ,eqtac));
+
+theorem exRenamePrefix_at {i: nat} (R S: set) (d n c: nat):
+ $ c e. exRenamePrefixClass R S n ->
+ (A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $ =
+(named '(syl exRenamePrefix_depth {(bi1 exRenamePrefix_value) :
+ $ c e. exRenamePrefixClass R S n -> A. j ((A. i (i < n -> R @ i = S @ i)) ->
+ sfBound (j + n) c -> sfRename R j c = sfRename S j c) $}));
+
+theorem exRenamePrefix_use {i: nat} (G: wff i) (R S: set) (d n c: nat)
+ (hc: $ G -> c e. exRenamePrefixClass R S n $)
+ (hm: $ G -> (A. i (i < n -> R @ i = S @ i)) $) (hb: $ G -> sfBound (d + n) c $):
+ $ G -> sfRename R d c = sfRename S d c $ =
+'(mpd hb (mpd hm (syl exRenamePrefix_at hc)));
+
+theorem exRenamePrefix_bot (R S: set) (n: nat):
+ $ sfBot e. exRenamePrefixClass R S n $ =
+(named '(mpbir exRenamePrefix_value @ ax_gen @ a1i @ a1i @
+ eqtr sfRename_bot (eqcom sfRename_bot)));
+
+theorem exRenamePrefix_mem (R S: set) (n a b: nat):
+ $ sfMem a b e. exRenamePrefixClass R S n $ =
+(named '(mpbir exRenamePrefix_value @ ax_gen @ exp @
+ eqtrd (a1i sfRename_sfMem) @
+ eqtrd (sfMem_congr
+   (sylc exRenamePrefix_index anl (syl anl (syl (bi1 sfBound_sfMem) anr)))
+   (sylc exRenamePrefix_index anl (syl anr (syl (bi1 sfBound_sfMem) anr))))
+ (a1i (eqcom sfRename_sfMem))));
+
+theorem exRenamePrefix_eq (R S: set) (n a b: nat):
+ $ sfEq a b e. exRenamePrefixClass R S n $ =
+(named '(mpbir exRenamePrefix_value @ ax_gen @ exp @
+ eqtrd (a1i sfRename_sfEq) @
+ eqtrd (sfEq_congr
+   (sylc exRenamePrefix_index anl (syl anl (syl (bi1 sfBound_sfEq) anr)))
+   (sylc exRenamePrefix_index anl (syl anr (syl (bi1 sfBound_sfEq) anr))))
+ (a1i (eqcom sfRename_sfEq))));
+
+theorem exRenamePrefix_atomic (R S: set) (n: nat):
+ $ sfAtomicClosed (exRenamePrefixClass R S n) $ =
+(named '(ax_gen @ ax_gen @ ian exRenamePrefix_mem exRenamePrefix_eq));
+
+theorem exRenamePrefix_and (R S: set) (n a b: nat):
+ $ a e. exRenamePrefixClass R S n /\ b e. exRenamePrefixClass R S n ->
+ sfAnd a b e. exRenamePrefixClass R S n $ =
+(named '(mpbird (a1i exRenamePrefix_value) @ !! iald d @ exp @ exp @
+ eqtrd (a1i sfRename_sfAnd) @
+ eqtrd (sfAnd_congr
+  (exRenamePrefix_use (syl anl (syl anl anl)) (syl anr anl)
+   (syl anl (syl (bi1 sfBound_sfAnd) anr)))
+  (exRenamePrefix_use (syl anr (syl anl anl)) (syl anr anl)
+   (syl anr (syl (bi1 sfBound_sfAnd) anr))))
+ (a1i (eqcom sfRename_sfAnd))));
+
+theorem exRenamePrefix_or (R S: set) (n a b: nat):
+ $ a e. exRenamePrefixClass R S n /\ b e. exRenamePrefixClass R S n ->
+ sfOr a b e. exRenamePrefixClass R S n $ =
+(named '(mpbird (a1i exRenamePrefix_value) @ !! iald d @ exp @ exp @
+ eqtrd (a1i sfRename_sfOr) @
+ eqtrd (sfOr_congr
+  (exRenamePrefix_use (syl anl (syl anl anl)) (syl anr anl)
+   (syl anl (syl (bi1 sfBound_sfOr) anr)))
+  (exRenamePrefix_use (syl anr (syl anl anl)) (syl anr anl)
+   (syl anr (syl (bi1 sfBound_sfOr) anr))))
+ (a1i (eqcom sfRename_sfOr))));
+
+theorem exRenamePrefix_imp (R S: set) (n a b: nat):
+ $ a e. exRenamePrefixClass R S n /\ b e. exRenamePrefixClass R S n ->
+ sfImp a b e. exRenamePrefixClass R S n $ =
+(named '(mpbird (a1i exRenamePrefix_value) @ !! iald d @ exp @ exp @
+ eqtrd (a1i sfRename_sfImp) @
+ eqtrd (sfImp_congr
+  (exRenamePrefix_use (syl anl (syl anl anl)) (syl anr anl)
+   (syl anl (syl (bi1 sfBound_sfImp) anr)))
+  (exRenamePrefix_use (syl anr (syl anl anl)) (syl anr anl)
+   (syl anr (syl (bi1 sfBound_sfImp) anr))))
+ (a1i (eqcom sfRename_sfImp))));
+
+theorem exRenamePrefix_binary (R S: set) (n: nat):
+ $ sfBinaryClosed (exRenamePrefixClass R S n) $ =
+(named '(ax_gen @ ax_gen @
+ iand (iand exRenamePrefix_and exRenamePrefix_or) exRenamePrefix_imp));
+
+theorem exRenamePrefix_all (R S: set) (n a: nat):
+ $ a e. exRenamePrefixClass R S n -> sfAll a e. exRenamePrefixClass R S n $ =
+(named '(mpbird (a1i exRenamePrefix_value) @ !! iald d @ exp @ exp @
+ eqtrd (a1i sfRename_sfAll) @
+ eqtrd (sfAll_congr (exRenamePrefix_use anll anlr
+  (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfAll) anr))))
+ (a1i (eqcom sfRename_sfAll))));
+
+theorem exRenamePrefix_ex (R S: set) (n a: nat):
+ $ a e. exRenamePrefixClass R S n -> sfEx a e. exRenamePrefixClass R S n $ =
+(named '(mpbird (a1i exRenamePrefix_value) @ !! iald d @ exp @ exp @
+ eqtrd (a1i sfRename_sfEx) @
+ eqtrd (sfEx_congr (exRenamePrefix_use anll anlr
+  (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfEx) anr))))
+ (a1i (eqcom sfRename_sfEx))));
+
+theorem exRenamePrefix_quantifier (R S: set) (n: nat):
+ $ sfQuantifierClosed (exRenamePrefixClass R S n) $ =
+(named '(ax_gen @ iand exRenamePrefix_all exRenamePrefix_ex));
+
+theorem exRenamePrefix_closed (R S: set) (n: nat):
+ $ sfConstructionClosed (exRenamePrefixClass R S n) $ =
+'(ian (ian (ian exRenamePrefix_bot exRenamePrefix_atomic)
+ exRenamePrefix_binary) exRenamePrefix_quantifier);
+
+theorem exRenamePrefix_wf {i: nat} (R S: set) (d n c: nat):
+ $ sfWf c -> (A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c ->
+ sfRename R d c = sfRename S d c $ =
+'(syl exRenamePrefix_at (ax_mp sfWf_induction exRenamePrefix_closed));
+
+pub theorem exRenamePrefix_bounded {i: nat} (R S: set) (d n c: nat):
+ $ (A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $ =
+'(exp @ mpd anr (mpd anl (syl exRenamePrefix_wf (syl sfBound_wf anr))));

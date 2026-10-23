@@ -1,0 +1,145 @@
+import "source_l_separation_image_reflection.mm1";
+
+@_ def sfLSeparationImageWitnessPoint(T:set)(D phi x:nat):nat =
+ $ sfAnd D (sfPieceSeparationLocalBody (sfLSeparationImageShiftEnv T) D phi 0 (suc x)) $;
+@_ def sfLSeparationImageWitness(T:set)(D phi x:nat):nat =
+ $ sfEx (sfLSeparationImageWitnessPoint T D phi x) $;
+@_ def sfLSeparationImageCandidateBody(T:set)(D phi Y x:nat):nat =
+ $ sfAnd D (sfPieceDefinableProfile
+    (sfComposeMap sfSuccessorMap (sqEnvCons x T))
+    (sfPieceSeparationPredicate phi) (suc Y) 0) $;
+@_ def sfLSeparationImageCandidate(T:set)(D phi Y x:nat):nat =
+ $ sfEx (sfLSeparationImageCandidateBody T D phi Y x) $;
+@_ def sfLSeparationImageCandidateContext(T:set)(G D phi Y x:nat):nat =
+ $ (sfLSeparationImageCandidateBody T D phi Y x) : sfContextShift G $;
+
+pub theorem sfLSeparationImageLocalBody_wf(T:set)(D phi X x:nat)(hd:$ sfBound 1 D $):
+ $ sfWf (sfPieceSeparationLocalBody T D phi X x) $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp (ax_mp sfBound_wf hd))
+   (mpbir sfWf_iff (ian sfWf_mem
+    (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd)))))));
+
+pub theorem sfLSeparationImageWitness_wf(T:set)(D phi x:nat)(hd:$ sfBound 1 D $):
+ $ sfWf (sfLSeparationImageWitness T D phi x) $ =
+ '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) (sfLSeparationImageLocalBody_wf hd)));
+
+theorem lsiw_candidate_body_wf(T:set)(D phi Y x:nat)(hd:$ sfBound 1 D $):
+ $ sfWf (sfLSeparationImageCandidateBody T D phi Y x) $ =
+ '(ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd))
+  (ax_mp sfWf_all (mpbir sfWf_iff (ian sfWf_mem
+   (ax_mp (ax_mp sfWf_and sfWf_mem) sfCLSetRel_wf)))));
+
+theorem lsiw_context_wf(T:set)(G D phi Y x:nat)(hd:$ sfBound 1 D $):
+ $ sfContextWf (sfLSeparationImageCandidateContext T G D phi Y x) $ =
+ '(mpbir sfContextWf_cons (ian (lsiw_candidate_body_wf hd) sfContextShift_wf));
+theorem lsiw_hyp(T:set)(G D phi Y x:nat)(hd:$ sfBound 1 D $):
+ $ nsLocal (sfLSeparationImageCandidateContext T G D phi Y x)
+    (sfLSeparationImageCandidateBody T D phi Y x) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (lsiw_context_wf hd)) sfContext_member_head);
+
+theorem lsiw_liftcons_zero(T:set)(x:nat):
+ $ sfComposeMap sfSuccessorMap (sqEnvCons x T) @ 0 =
+   sqEnvCons (suc x) (sfLSeparationImageShiftEnv T) @ 0 $ =
+ '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+  (eqtr (suceq sqEnvCons_zero) (eqcom sqEnvCons_zero))));
+theorem lsiw_liftcons_suc(T:set)(x i:nat):
+ $ sfComposeMap sfSuccessorMap (sqEnvCons x T) @ suc i =
+   sqEnvCons (suc x) (sfLSeparationImageShiftEnv T) @ suc i $ =
+ '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+  (eqtr (suceq sqEnvCons_suc)
+   (eqcom (eqtr sqEnvCons_suc sfLSeparationImageShiftEnv_at)))));
+theorem lsiw_liftcons_at(T:set)(x i:nat):
+ $ sfComposeMap sfSuccessorMap (sqEnvCons x T) @ i =
+   sqEnvCons (suc x) (sfLSeparationImageShiftEnv T) @ i $ =
+ (named @ induct '(ind) 'i 'lsiw_liftcons_zero '(a1i lsiw_liftcons_suc));
+
+pub theorem sfLSeparationImageCandidateProfile_exact(T:set)(phi Y x:nat):
+ $ sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sqEnvCons x T))
+    (sfPieceSeparationPredicate phi) (suc Y) 0 =
+   sfPieceDefinableProfile (sqEnvCons (suc x) (sfLSeparationImageShiftEnv T))
+    (sfPieceSeparationPredicate phi) (suc Y) 0 $ =
+ (named '(nsAll_eq (sfIffeq eqid (nsAnd_eq eqid (sfCLSetReleq2
+  (ax_mp (sfRename_extensional (!! ax_gen i @ ! lsiw_liftcons_at T x i))
+   sfPieceSeparationPredicate_wf))))));
+
+theorem lsiw_profile(T:set)(G D phi Y x:nat)(hd:$ sfBound 1 D $):
+ $ nsLocal (sfLSeparationImageCandidateContext T G D phi Y x)
+   (sfPieceDefinableProfile (sqEnvCons (suc x) (sfLSeparationImageShiftEnv T))
+     (sfPieceSeparationPredicate phi) (suc Y) 0) $ =
+ '(sfRQ_rewrite sfLSeparationImageCandidateProfile_exact (ax_mp nsLocal_CE2 (lsiw_hyp hd)));
+
+theorem lsiw_index_lift(k i:nat):
+ $ sfShiftIndex (suc k) (suc i) = suc (sfShiftIndex k i) $ =
+ '(eqtr (eqcom sfRenameIndex_successor)
+  (eqtr sfRenameIndex_lift (suceq sfRenameIndex_successor)));
+
+pub theorem sfLSeparationImageSubset_shift(x Y:nat):
+ $ sfShift 0 (sfCLSubset x Y) = sfCLSubset (suc x) (suc Y) $ =
+ '(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfImp (nsImp_eq
+  (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S)
+    (eqtr lsiw_index_lift (suceq sfShiftIndex_zero))))
+  (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S)
+    (eqtr lsiw_index_lift (suceq sfShiftIndex_zero))))))));
+
+theorem lsiw_subset(T:set)(G D phi Y x:nat)(hd:$ sfBound 1 D $)
+ (hs:$ nsLocal G (sfCLSubset x Y) $):
+ $ nsLocal (sfLSeparationImageCandidateContext T G D phi Y x)
+   (sfCLSubset (suc x) (suc Y)) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken (lsiw_context_wf hd)) sfContextSub_cons)
+   (sfRQ_rewrite sfLSeparationImageSubset_shift (ax_mp sfSepLocal_shift hs)));
+
+theorem lsiw_reflection(T:set)(G D n phi beta Y x:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (hf:$ nsLocal G (sfCLReflection D (suc n) phi beta) $):
+ $ nsLocal (sfLSeparationImageCandidateContext T G D phi Y x)
+   (sfCLReflection D (suc n) phi (suc beta)) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken (lsiw_context_wf hd)) sfContextSub_cons)
+   (sfRQ_rewrite (sfCLReflection_shift hd hb) (ax_mp sfSepLocal_shift hf)));
+
+theorem lsiw_hierarchy(T:set)(G D phi beta Y x:nat)(hd:$ sfBound 1 D $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $):
+ $ nsLocal (sfLSeparationImageCandidateContext T G D phi Y x)
+   (sfCLHierarchyAt (suc beta) (suc Y)) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken (lsiw_context_wf hd)) sfContextSub_cons)
+   (sfRQ_rewrite (eqtr sfCLHierarchyAt_shift_cutoff
+      (sfCLHierarchyAteq sfShiftIndex_zero sfShiftIndex_zero))
+     (ax_mp sfSepLocal_shift hl)));
+
+theorem lsiw_rows(T:set)(G D n phi Y x:nat)(hd:$ sfBound 1 D $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageShiftEnv T) (suc Y))
+    (sfLSeparationImageCandidateContext T G D phi Y x) n $ =
+ '(sfLSeparationImage_rows_weaken (lsiw_context_wf hd) sfContextSub_cons
+    (sfLSeparationImage_rows_shift hr));
+
+theorem lsiw_point(T:set)(G D n phi beta Y x:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (hs:$ nsLocal G (sfCLSubset x Y) $)
+ (hf:$ nsLocal G (sfCLReflection D (suc n) phi beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal (sfLSeparationImageCandidateContext T G D phi Y x)
+    (sfLSeparationImageWitnessPoint T D phi x) $ =
+ '(ax_mp (ax_mp sfLocal_and (ax_mp nsLocal_CE1 (lsiw_hyp hd)))
+   (sfLSeparationImage_profile_from_reflection hd hb (lsiw_profile hd)
+     (lsiw_subset hd hs) (lsiw_reflection hd hb hf) (lsiw_hierarchy hd hl) (lsiw_rows hd hr)));
+
+pub theorem sfLSeparationImage_eigen_witness(G a:nat)(ha:$ sfWf a $)
+ (hp:$ nsLocal G a $):
+ $ nsLocal G (sfShift 0 (sfEx a)) $ =
+ '(sfRQ_rewrite (eqcom sfShift_sfEx)
+   (ax_mp (ax_mp nsLocal_ExI sfShift_wf)
+    (sfRQ_rewrite (eqcom (ax_mp sfSubst_shift_up_identity ha)) hp)));
+
+pub theorem sfLSeparationImage_witness_from_candidate(T:set)(G D n phi beta Y x:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (he:$ nsLocal G (sfLSeparationImageCandidate T D phi Y x) $)
+ (hs:$ nsLocal G (sfCLSubset x Y) $)
+ (hf:$ nsLocal G (sfCLReflection D (suc n) phi beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal G (sfLSeparationImageWitness T D phi x) $ =
+ '(ax_mp (ax_mp (sfLocal_exE (sfLSeparationImageWitness_wf hd)) he)
+   (sfLSeparationImage_eigen_witness
+     (ax_mp nsLocal_wf (lsiw_point hd hb hs hf hl hr))
+     (lsiw_point hd hb hs hf hl hr)));

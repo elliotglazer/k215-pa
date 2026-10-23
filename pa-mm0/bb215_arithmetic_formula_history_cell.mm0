@@ -1,0 +1,21 @@
+import "bb215_arithmetic_formula_finite_cell.mm0";
+
+import "bb215_arithmetic_formula_depth_three_sat.mm0";
+
+def bb215ArithmeticFormulaHistoryPairGraph (m c i y .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph i y p /\ bb215ArithmeticFormulaFiniteCell m c p) $;
+
+theorem bb215ArithmeticFormulaHistoryPairGraph_correct (m c i y: nat) {p: nat}: $ bb215ArithmeticFormulaHistoryPairGraph m c i y <-> bb215ArithmeticFormulaFiniteCell m c (i, y) $;
+
+def bb215ArithmeticFormulaHistoryPairCode: nat = $ paFormulaEx (paFormulaAnd (paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 0)) (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable 3) (paTermVariable 4)) (paTermSuccessor (paTermAddition (paTermVariable 3) (paTermVariable 4)))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 4)))) (paFormulaAnd (paFormulaAnd (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermZero)) (paTermVariable 0)) (paTermVariable 2))) (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermZero)) (paTermVariable 0)) (paTermVariable 3)))) (paFormulaAll (paFormulaImp (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermZero)) (paTermVariable 0)) (paTermVariable 1))) (paFormulaEx (paFormulaEqual (paTermAddition (paTermVariable 1) (paTermVariable 0)) (paTermVariable 2)))) (paFormulaEx (paFormulaEqual (paTermMultiplication (paTermVariable 0) (paTermVariable 1)) (paTermVariable 3)))))) (paFormulaEx (paFormulaEqual (paTermMultiplication (paTermVariable 0) (paTermSuccessor (paTermMultiplication (paTermVariable 2) (paTermSuccessor (paTermVariable 1))))) (paTermVariable 3))))) $;
+
+def bb215ArithmeticFormulaHistoryPairSource: nat = $ paSourceFormulaEx (sfAnd (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 0)) (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable 3) (paSourceTermVariable 4)) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable 3) (paSourceTermVariable 4)))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 4)))) (sfAnd (sfAnd (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermZero)) (paSourceTermVariable 0)) (paSourceTermVariable 2))) (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermZero)) (paSourceTermVariable 0)) (paSourceTermVariable 3)))) (paSourceFormulaAll (sfImp (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermZero)) (paSourceTermVariable 0)) (paSourceTermVariable 1))) (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermVariable 1) (paSourceTermVariable 0)) (paSourceTermVariable 2)))) (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermVariable 0) (paSourceTermVariable 1)) (paSourceTermVariable 3)))))) (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermVariable 0) (paSourceTermSuccessor (paSourceTermMultiplication (paSourceTermVariable 2) (paSourceTermSuccessor (paSourceTermVariable 1))))) (paSourceTermVariable 3))))) $;
+
+theorem bb215ArithmeticFormulaHistoryPairCode_bound: $ paFormulaBound 4 bb215ArithmeticFormulaHistoryPairCode $;
+
+theorem bb215ArithmeticFormulaHistoryPairCode_satisfies (E: set): $ bb215ArithmeticFormulaDepthThreeSat E bb215ArithmeticFormulaHistoryPairCode <-> bb215ArithmeticFormulaHistoryPairGraph (E @ 0) (E @ 1) (E @ 2) (E @ 3) $;
+
+theorem bb215ArithmeticFormulaHistoryPairCode_represents (E: set): $ bb215ArithmeticFormulaDepthThreeSat E bb215ArithmeticFormulaHistoryPairCode <-> bb215ArithmeticFormulaFiniteCell (E @ 0) (E @ 1) (E @ 2, E @ 3) $;
+
+theorem bb215ArithmeticFormulaHistoryPairSource_exact: $ paFormulaSource bb215ArithmeticFormulaHistoryPairCode = bb215ArithmeticFormulaHistoryPairSource $;
+
+theorem bb215ArithmeticFormulaHistoryPairSource_bound: $ sfBound 4 bb215ArithmeticFormulaHistoryPairSource $;

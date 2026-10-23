@@ -1,0 +1,35 @@
+import "source_l_common_level_blocks.mm1";
+
+@_ def sfCLSubset (a b: nat): nat =
+ $ sfAll (sfImp (sfMem 0 (suc a)) (sfMem 0 (suc b))) $;
+
+theorem sfCLSubset_subst (a b x: nat):
+ $ sfSubst 0 x (sfImp (sfMem 0 (suc a)) (sfMem 0 (suc b))) = sfImp (sfMem x a) (sfMem x b) $ =
+ '(eqtr sfSubst_sfImp
+   (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))
+             (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))));
+pub theorem sfCLSubset_use (G a b x: nat) (hs: $ nsLocal G (sfCLSubset a b) $):
+ $ nsLocal G (sfMem x a) -> nsLocal G (sfMem x b) $ =
+ '(ax_mp nsLocal_mp (sfRQ_rewrite sfCLSubset_subst (ax_mp nsLocal_AllE hs)));
+
+theorem sfCLMembership_left (G start y n: nat):
+ $ nsLocal G (sfCLMembership start y (suc n)) -> nsLocal G (sfCLMembership start y n) $ =
+ '(syl nsLocal_CE1 (bi1 (nsLocal_formula_eq sfCLMembership_suc)));
+theorem sfCLMembership_right (G start y n: nat):
+ $ nsLocal G (sfCLMembership start y (suc n)) -> nsLocal G (sfMem (n + start) y) $ =
+ '(syl nsLocal_CE2 (bi1 (nsLocal_formula_eq sfCLMembership_suc)));
+theorem sfCLMembership_join (G start y n: nat):
+ $ nsLocal G (sfCLMembership start y n) -> nsLocal G (sfMem (n + start) y) ->
+   nsLocal G (sfCLMembership start y (suc n)) $ =
+ '(syl6 (bi2 (nsLocal_formula_eq sfCLMembership_suc)) sfLocal_and);
+theorem sfCLMembership_mono_step (G start a b n: nat) (hs: $ nsLocal G (sfCLSubset a b) $):
+ $ (nsLocal G (sfCLMembership start a n) -> nsLocal G (sfCLMembership start b n)) ->
+   nsLocal G (sfCLMembership start a (suc n)) -> nsLocal G (sfCLMembership start b (suc n)) $ =
+ '(exp @ sylc sfCLMembership_join
+   (mpd (syl sfCLMembership_left anr) anl)
+   (syl (sfCLSubset_use hs) (syl sfCLMembership_right anr)));
+pub theorem sfCLMembership_mono (G start a b n: nat) (hs: $ nsLocal G (sfCLSubset a b) $):
+ $ nsLocal G (sfCLMembership start a n) -> nsLocal G (sfCLMembership start b n) $ =
+ (named @ induct '(ind) 'n
+   '(bi1 (nsLocal_formula_eq (eqtr sfCLMembership_zero (eqcom sfCLMembership_zero))))
+   '(sfCLMembership_mono_step hs));

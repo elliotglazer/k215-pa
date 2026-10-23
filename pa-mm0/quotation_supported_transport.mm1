@@ -1,0 +1,80 @@
+import "quotation_supported_invariant.mm1";
+import "source_context_shift.mm1";
+import "source_syntax_laws.mm1";
+
+@_ abstract def sqSourceBound (n G .a: nat): wff =
+ $ A. a (a IN G -> sfBound n a) $;
+pub theorem sqSourceBound_at (n G a: nat):
+ $ sqSourceBound n G -> a IN G -> sfBound n a $ =
+(named '(!! eale b ,eqtac));
+theorem sqST_members_at (H S t k G a: nat):
+ $ (A. b (b IN G -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 b))) ->
+ a IN G -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) $ =
+(named '(!! eale b ,eqtac));
+theorem sqST_member_entry (H S t k G a b: nat):
+ $ (A. c (c IN G -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 c))) ->
+ (a IN G /\ b = sqQuote (sqNumericEnvironment S) t k 0 a) -> b e. kContextProofClass H $ =
+'(exp @ syl (bi2 kContextProofClass_value) @
+ mpbird (kHypProvableeq2d anrr) @ mpd anrl (syl sqST_members_at anl));
+theorem sqST_map_member (H S t k G b: nat):
+ $ (A. c (c IN G -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 c))) ->
+ b IN sqContext (sqNumericEnvironment S) t k 0 G -> b e. kContextProofClass H $ =
+(named '(syl5bi sqContext_member_iff @ eexd sqST_member_entry));
+pub theorem sqSourceSupport_from_members {a: nat} (H S t k G: nat):
+ $ (A. a (a IN G -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a))) ->
+ sqSourceSupport H S t k G $ =
+(named '(iald sqST_map_member));
+pub theorem sqSourceSupport_to_members {a: nat} (H S t k G: nat):
+ $ sqSourceSupport H S t k G ->
+ A. a (a IN G -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a)) $ =
+(named '(iald sqSourceSupport_member));
+
+theorem sqST_hyp_transfer (F: wff) (H a b: nat)
+ (he: $ F -> kEquivalent a b $) (ha: $ F -> kHypProvable H a $):
+ $ F -> kHypProvable H b $ =
+'(sylc kHypProvable_mp ha (syl kHypProvable_seed (syl anl he)));
+theorem sqST_base_member (F: wff) (H S n t k l G a: nat)
+ (hb: $ F -> sqSourceBound n G $)
+ (hk: $ F -> sqEnvironmentSafe S n t k $) (hl: $ F -> sqEnvironmentSafe S n t l $)
+ (hs: $ F -> sqSourceSupport H S t k G $) (ha: $ F -> a IN G $):
+ $ F -> kHypProvable H (sqQuote (sqNumericEnvironment S) t l 0 a) $ =
+'(sqST_hyp_transfer
+ (mpd (syl sqEnvironmentSafe_hygiene hl) @ mpd (syl sqEnvironmentSafe_hygiene hk) @
+ syl sqQuote_fresh_base_equivalent (mpd ha (syl sqSourceBound_at hb)))
+ (mpd ha (syl sqSourceSupport_member hs)));
+pub theorem sqSourceSupport_rebase (H S n t k l G: nat):
+ $ sqSourceBound n G -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe S n t l ->
+ sqSourceSupport H S t k G -> sqSourceSupport H S t l G $ =
+(named '(exp @ exp @ exp @ syl sqSourceSupport_from_members @ !! iald a @ exp @
+ sqST_base_member (syl anl (syl anl (syl anl anl)))
+ (syl anr (syl anl (syl anl anl))) (syl anr (syl anl anl)) (syl anr anl) anr));
+
+pub theorem sqNumeric_quote_cons (S z t k a: nat):
+ $ sfWf a -> sqQuote (sqNumericEnvironment (z : S)) t k 0 a =
+ sqQuote (sqEnvCons z (sqNumericEnvironment S)) t k 0 a $ =
+'(syl (sqQuote_environment sqNumericEnvironment_cons_agree) @
+ syl (bi2 (srecpeq2 (preq1 add01))) sfWf_code_bound);
+pub theorem sqNumeric_quote_shift (S z t k a: nat):
+ $ sfWf a -> sqQuote (sqNumericEnvironment (z : S)) t k 0 (sfShift 0 a) =
+ sqQuote (sqNumericEnvironment S) t k 0 a $ =
+'(eqtrd (syl sqNumeric_quote_cons (a1i sfShift_wf)) sqQuote_source_shift);
+pub theorem sqShift_member_iff {b: nat} (G a: nat):
+ $ a IN sfContextShift G <-> E. b (b IN G /\ a = sfShift 0 b) $ =
+(named '(bitr lmemmap @ exeqi (aneq2i (eqeq2 sfShiftMap_value))));
+theorem sqST_shift_member (H S z t k G a b: nat):
+ $ sfContextWf G -> sqSourceSupport H S t k G ->
+ (b IN G /\ a = sfShift 0 b) ->
+ kHypProvable H (sqQuote (sqNumericEnvironment (z : S)) t k 0 a) $ =
+'(exp @ exp @ mpbird (kHypProvableeq2d (sqQuoteeq5d anrr)) @
+ mpbird (kHypProvableeq2d (syl sqNumeric_quote_shift
+   (mpd anrl (syl sfContextWf_member anll)))) @
+ mpd anrl (syl sqSourceSupport_member anlr));
+theorem sqST_shift_at (H S z t k G a: nat):
+ $ sfContextWf G -> sqSourceSupport H S t k G -> a IN sfContextShift G ->
+ kHypProvable H (sqQuote (sqNumericEnvironment (z : S)) t k 0 a) $ =
+(named '(exp @ syl5bi sqShift_member_iff @ eexd @ imp sqST_shift_member));
+pub theorem sqSourceSupport_shift (H S z t k G: nat):
+ $ sfContextWf G -> sqSourceSupport H S t k G ->
+ sqSourceSupport H (z : S) t k (sfContextShift G) $ =
+(named '(exp @ syl sqSourceSupport_from_members @ !! iald a @
+ mpd anr (syl sqST_shift_at anl)));

@@ -1,0 +1,149 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_supported_quantifier_closure.mm1";
+import "k218q_bootstrap.mm1";
+import "k218q_quotation_supported_eigenvariables.mm1";
+
+theorem k218SQ_sqQC_premise (F: wff) (H S n m t k G a: nat)
+ (hp: $ F -> k218SQ_sqSupportedAt m (sfSequent G a) $) (hm: $ F -> m <= n $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $) (hd: $ F -> k218SQ_sqDomainSupport H S t $)
+ (hg: $ F -> k218SQ_sqSourceSupport H S t k G $):
+ $ F -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) $ =
+'(mpd hg (mpd hd (mpd (mpd hs (syl sqEnvironmentSafe_cutoff hm)) (syl k218SQ_sqSupportedAt_sequent hp))));
+
+theorem k218SQ_sqQC_AllE_core (F: wff) (H S n m t k G a i: nat)
+ (hp: $ F -> k218SQ_sqSupportedAt m (sfSequent G (sfAll a)) $) (hm: $ F -> m <= n $)
+ (hi: $ F -> i < n $) (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> k218SQ_sqDomainSupport H S t $) (hg: $ F -> k218SQ_sqSourceSupport H S t k G $):
+ $ F -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfSubst 0 i a)) $ =
+'(mpd (k218SQ_sqQC_premise hp hm hs hd hg) @
+ mpd (syl (bi1 sfBound_sfAll) (mpd hm (syl sfBound_mono (syl k218SQ_sqSupportedAt_formula_bound hp)))) @
+ mpd hi @ mpd hd @ syl k218SQ_sqSupported_AllE hs);
+
+theorem k218SQ_sqQC_ExI_core (F: wff) (H S n m t k G a i: nat)
+ (hp: $ F -> k218SQ_sqSupportedAt m (sfSequent G (sfSubst 0 i a)) $) (hm: $ F -> m <= n $)
+ (hi: $ F -> i < n $) (hb: $ F -> sfBound n (sfEx a) $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> k218SQ_sqDomainSupport H S t $) (hg: $ F -> k218SQ_sqSourceSupport H S t k G $):
+ $ F -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfEx a)) $ =
+'(mpd (k218SQ_sqQC_premise hp hm hs hd hg) @ mpd (syl (bi1 sfBound_sfEx) hb) @
+ mpd hi @ mpd hd @ syl k218SQ_sqSupported_ExI hs);
+
+theorem k218SQ_sqQC_AllE_property (F: wff) (m G a i: nat)
+ (hw: $ F -> sfRowWf (sfSequent G (sfSubst 0 i a)) $)
+ (hp: $ F -> k218SQ_sqSupportedAt m (sfSequent G (sfAll a)) $):
+ $ F -> k218SQ_sqSupportedProperty (sfSequent G (sfSubst 0 i a) + m + suc i) (sfSequent G (sfSubst 0 i a)) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H @ exp @ exp @ exp @
+ syl (bi2 k218SQ_sqSupportedRowGoal_sequent) @ k218SQ_sqQC_AllE_core
+ (syl hp (syl anl (syl anl anl)))
+ (a1i (letr leaddid2 leaddid1)) (a1i leaddid2)
+ (syl anr (syl anl anl)) (syl anr anl)
+ (syl (bi1 (k218SQ_sqSourceSupporteq5 sfSequent_context)) anr)));
+
+pub theorem k218SQ_sqSupported_AllE_at (m G a i: nat):
+ $ sfRowWf (sfSequent G (sfSubst 0 i a)) -> k218SQ_sqSupportedAt m (sfSequent G (sfAll a)) ->
+ k218SQ_sqSupportedAt (sfSequent G (sfSubst 0 i a) + m + suc i) (sfSequent G (sfSubst 0 i a)) $ =
+'(exp @ mpd (k218SQ_sqQC_AllE_property anl anr)
+ (mpd (a1i (letr leaddid1 leaddid1)) (syl k218SQ_sqSupportedAt_intro anl)));
+
+pub theorem k218SQ_sqSupported_AllE_good (G a i: nat):
+ $ sfRowWf (sfSequent G (sfSubst 0 i a)) -> k218SQ_sqSupportedGood (sfSequent G (sfAll a)) ->
+ k218SQ_sqSupportedGood (sfSequent G (sfSubst 0 i a)) $ =
+(named '(eexd (syl6 k218SQ_sqSupportedGood_intro k218SQ_sqSupported_AllE_at)));
+
+theorem k218SQ_sqQC_ExI_property (F: wff) (m G a i: nat)
+ (hw: $ F -> sfRowWf (sfSequent G (sfEx a)) $)
+ (hp: $ F -> k218SQ_sqSupportedAt m (sfSequent G (sfSubst 0 i a)) $):
+ $ F -> k218SQ_sqSupportedProperty (sfSequent G (sfEx a) + m + suc i) (sfSequent G (sfEx a)) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H @ exp @ exp @ exp @
+ syl (bi2 k218SQ_sqSupportedRowGoal_sequent) @ k218SQ_sqQC_ExI_core
+ (syl hp (syl anl (syl anl anl)))
+ (a1i (letr leaddid2 leaddid1)) (a1i leaddid2)
+ (mpd (a1i (letr leaddid1 leaddid1)) (syl sqRowWf_sequent_formula_bound (syl hw (syl anl (syl anl anl)))))
+ (syl anr (syl anl anl)) (syl anr anl)
+ (syl (bi1 (k218SQ_sqSourceSupporteq5 sfSequent_context)) anr)));
+
+pub theorem k218SQ_sqSupported_ExI_at (m G a i: nat):
+ $ sfRowWf (sfSequent G (sfEx a)) -> k218SQ_sqSupportedAt m (sfSequent G (sfSubst 0 i a)) ->
+ k218SQ_sqSupportedAt (sfSequent G (sfEx a) + m + suc i) (sfSequent G (sfEx a)) $ =
+'(exp @ mpd (k218SQ_sqQC_ExI_property anl anr)
+ (mpd (a1i (letr leaddid1 leaddid1)) (syl k218SQ_sqSupportedAt_intro anl)));
+
+pub theorem k218SQ_sqSupported_ExI_good (G a i: nat):
+ $ sfRowWf (sfSequent G (sfEx a)) -> k218SQ_sqSupportedGood (sfSequent G (sfSubst 0 i a)) ->
+ k218SQ_sqSupportedGood (sfSequent G (sfEx a)) $ =
+(named '(eexd (syl6 k218SQ_sqSupportedGood_intro k218SQ_sqSupported_ExI_at)));
+
+theorem k218SQ_sqQC_ExE_property (F: wff) (m j G a c: nat)
+ (hw: $ F -> sfRowWf (sfSequent G c) $)
+ (hp: $ F -> k218SQ_sqSupportedAt m (sfSequent G (sfEx a)) $)
+ (hq: $ F -> k218SQ_sqSupportedAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) $):
+ $ F -> k218SQ_sqSupportedProperty (sfSequent G c + m + j) (sfSequent G c) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H @ exp @ exp @ exp @
+ syl (bi2 k218SQ_sqSupportedRowGoal_sequent) @ k218SQ_sqSupported_ExE_core
+ (syl hp (syl anl (syl anl anl))) (syl hq (syl anl (syl anl anl)))
+ (a1i (letr leaddid2 leaddid1)) (a1i (letr leaddid2 lesucid))
+ (syl anl (syl (bi1 sfRowWf_sequent) (syl hw (syl anl (syl anl anl)))))
+ (mpd (a1i (letr leaddid1 leaddid1)) (syl sqRowWf_sequent_source_bound (syl hw (syl anl (syl anl anl)))))
+ (mpd (a1i (letr leaddid1 leaddid1)) (syl sqRowWf_sequent_formula_bound (syl hw (syl anl (syl anl anl)))))
+ (syl anr (syl anl anl)) (syl anr anl)
+ (syl (bi1 (k218SQ_sqSourceSupporteq5 sfSequent_context)) anr)));
+
+pub theorem k218SQ_sqSupported_ExE_at (m j G a c: nat):
+ $ sfRowWf (sfSequent G c) -> k218SQ_sqSupportedAt m (sfSequent G (sfEx a)) ->
+ k218SQ_sqSupportedAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) ->
+ k218SQ_sqSupportedAt (sfSequent G c + m + j) (sfSequent G c) $ =
+'(exp @ exp @ mpd (k218SQ_sqQC_ExE_property anll anlr anr)
+ (mpd (a1i (letr leaddid1 leaddid1)) (syl k218SQ_sqSupportedAt_intro anll)));
+
+theorem k218SQ_sqQC_ExE_good_at (m j G a c: nat):
+ $ sfRowWf (sfSequent G c) -> k218SQ_sqSupportedAt m (sfSequent G (sfEx a)) ->
+ k218SQ_sqSupportedAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) ->
+ k218SQ_sqSupportedGood (sfSequent G c) $ =
+'(exp @ exp @ syl k218SQ_sqSupportedGood_intro @
+ mpd anr (mpd anlr (syl k218SQ_sqSupported_ExE_at anll)));
+
+pub theorem k218SQ_sqSupported_ExE (G a c: nat):
+ $ sfRowWf (sfSequent G c) -> k218SQ_sqSupportedGood (sfSequent G (sfEx a)) ->
+ k218SQ_sqSupportedGood (sfSequent (a : sfContextShift G) (sfShift 0 c)) ->
+ k218SQ_sqSupportedGood (sfSequent G c) $ =
+(named '(eexd @ exp @ eexd @ imp k218SQ_sqQC_ExE_good_at));
+
+theorem k218SQ_sqQC_unary_transport (r p R P: nat)
+ (h: $ sfRowWf R -> k218SQ_sqSupportedGood P -> k218SQ_sqSupportedGood R $):
+ $ sfRowWf r -> (r = R /\ p = P) -> k218SQ_sqSupportedGood p -> k218SQ_sqSupportedGood r $ =
+'(exp @ exp @ mpbird (k218SQ_sqSupportedGoodeqd (syl anl anlr)) @
+ mpd (mpbid (k218SQ_sqSupportedGoodeqd (syl anr anlr)) anr)
+ (syl h (mpbid (sfRowWf_congr (syl anl anlr)) anll)));
+
+theorem k218SQ_sqQC_binary_transport (r p q R P Q: nat)
+ (h: $ sfRowWf R -> k218SQ_sqSupportedGood P -> k218SQ_sqSupportedGood Q -> k218SQ_sqSupportedGood R $):
+ $ sfRowWf r -> (r = R /\ (p = P /\ q = Q)) ->
+ k218SQ_sqSupportedGood p -> k218SQ_sqSupportedGood q -> k218SQ_sqSupportedGood r $ =
+'(exp @ exp @ exp @ mpbird (k218SQ_sqSupportedGoodeqd (syl anl anllr)) @
+ mpd (mpbid (k218SQ_sqSupportedGoodeqd (syl anr (syl anr anllr))) anr) @
+ mpd (mpbid (k218SQ_sqSupportedGoodeqd (syl anl (syl anr anllr))) anlr) @
+ syl h (mpbid (sfRowWf_congr (syl anl anllr)) (syl anl anll)));
+
+pub theorem k218SQ_sqSupportedCase_AllI (r p: nat):
+ $ sfRowWf r -> sfNDCaseAllI r p -> k218SQ_sqSupportedGood p -> k218SQ_sqSupportedGood r $ =
+(named '(eexd @ eexd @ k218SQ_sqQC_unary_transport k218SQ_sqSupported_AllI));
+
+pub theorem k218SQ_sqSupportedCase_AllE (r p: nat):
+ $ sfRowWf r -> sfNDCaseAllE r p -> k218SQ_sqSupportedGood p -> k218SQ_sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ k218SQ_sqQC_unary_transport k218SQ_sqSupported_AllE_good));
+
+pub theorem k218SQ_sqSupportedCase_ExI (r p: nat):
+ $ sfRowWf r -> sfNDCaseExI r p -> k218SQ_sqSupportedGood p -> k218SQ_sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ k218SQ_sqQC_unary_transport k218SQ_sqSupported_ExI_good));
+
+pub theorem k218SQ_sqSupportedCase_ExE (r p q: nat):
+ $ sfRowWf r -> sfNDCaseExE r p q -> k218SQ_sqSupportedGood p -> k218SQ_sqSupportedGood q -> k218SQ_sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ k218SQ_sqQC_binary_transport k218SQ_sqSupported_ExE));
+
+pub theorem k218SQ_sqSupported_quant_unary (r p: nat):
+ $ sfNDQuantUnary r p -> k218SQ_sqSupportedGood p -> k218SQ_sqSupportedGood r $ =
+'(imp (eord k218SQ_sqSupportedCase_AllI (eord k218SQ_sqSupportedCase_AllE k218SQ_sqSupportedCase_ExI)));
+
+pub theorem k218SQ_sqSupported_quant_binary (r p q: nat):
+ $ sfNDQuantBinary r p q -> k218SQ_sqSupportedGood p -> k218SQ_sqSupportedGood q -> k218SQ_sqSupportedGood r $ =
+'(imp k218SQ_sqSupportedCase_ExE);

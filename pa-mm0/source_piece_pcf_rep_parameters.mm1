@@ -1,0 +1,41 @@
+
+import "source_reflection_limit_dn_elimination.mm1";
+
+pub theorem sfPieceParameterMembers_weaken(T:set)(G H A n:nat)
+ (hw:$ sfContextWf H $)(hs:$ sfContextSub G H $)
+ (hm:$ sfReflectionDnMembers T G A n $):
+ $ sfReflectionDnMembers T H A n $ =
+ (named '(ax_gen @ syl (ax_mp (ax_mp nsLocal_weaken hw) hs) (ax_mp sfReflectionDnMembers_at hm)));
+
+theorem pcpm_cons_zero(T:set)(G A v n:nat)(hv:$ nsLocal G (sfMem v A) $):
+ $ 0 < suc n -> nsLocal G (sfMem (sqEnvCons v T @ 0) A) $ =
+ '(a1i (mpbir (nsLocal_formula_eq (nsMem_eq sqEnvCons_zero eqid)) hv));
+theorem pcpm_cons_suc(T:set)(G A v n i:nat)(hm:$ sfReflectionDnMembers T G A n $):
+ $ suc i < suc n -> nsLocal G (sfMem (sqEnvCons v T @ suc i) A) $ =
+ '(mpbird (a1i (nsLocal_formula_eq (nsMem_eq sqEnvCons_suc eqid)))
+   (syl (ax_mp sfReflectionDnMembers_at hm) (bi2 ltsuc)));
+theorem pcpm_cons_each(T:set)(G A v n i:nat)
+ (hv:$ nsLocal G (sfMem v A) $)(hm:$ sfReflectionDnMembers T G A n $):
+ $ i < suc n -> nsLocal G (sfMem (sqEnvCons v T @ i) A) $ =
+ (named @ induct '(ind) 'i '(pcpm_cons_zero hv) '(a1i (pcpm_cons_suc hm)));
+
+pub theorem sfPieceParameterMembers_cons(T:set)(G A v n:nat)
+ (hv:$ nsLocal G (sfMem v A) $)(hm:$ sfReflectionDnMembers T G A n $):
+ $ sfReflectionDnMembers (sqEnvCons v T) G A (suc n) $ =
+ (named '(ax_gen @ pcpm_cons_each hv hm));
+
+pub theorem sfPieceParameterMembers_head(T:set)(G A v n:nat)
+ (hm:$ sfReflectionDnMembers (sqEnvCons v T) G A (suc n) $):
+ $ nsLocal G (sfMem v A) $ =
+ '(sfRQ_rewrite (nsMem_eq sqEnvCons_zero eqid)
+   (ax_mp (ax_mp sfReflectionDnMembers_at hm) lt01S));
+
+theorem pcpm_tail_each(T:set)(G A v n i:nat)
+ (hm:$ sfReflectionDnMembers (sqEnvCons v T) G A (suc n) $):
+ $ i < n -> nsLocal G (sfMem (T @ i) A) $ =
+ '(syl (bi1 (nsLocal_formula_eq (nsMem_eq sqEnvCons_suc eqid)))
+   (syl (ax_mp sfReflectionDnMembers_at hm) (bi1 ltsuc)));
+pub theorem sfPieceParameterMembers_tail(T:set)(G A v n:nat)
+ (hm:$ sfReflectionDnMembers (sqEnvCons v T) G A (suc n) $):
+ $ sfReflectionDnMembers T G A n $ =
+ (named '(ax_gen @ pcpm_tail_each hm));

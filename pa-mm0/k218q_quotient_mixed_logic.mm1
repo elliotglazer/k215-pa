@@ -1,0 +1,37 @@
+import "k218q_quotient_mixed_atoms.mm1";
+
+@_ def k218QHEquiv (H a b: nat): wff = $ k218IHypProvable H (kImp a b) /\ k218IHypProvable H (kImp b a) $;
+
+pub theorem k218QHEquiv_refl (H a: nat): $ k218QHEquiv H a a $ = '(ian (k218IHypProvable_seed k218IPropI) (k218IHypProvable_seed k218IPropI));
+
+pub theorem k218QHEquiv_sym (H a b: nat): $ k218QHEquiv H a b -> k218QHEquiv H b a $ = 'ancom;
+
+pub theorem k218QHEquiv_trans (H a b c: nat): $ k218QHEquiv H a b /\ k218QHEquiv H b c -> k218QHEquiv H a c $ = '(iand (k218QMHyp_syl anll anrl) (k218QMHyp_syl anrr anlr));
+
+pub theorem k218QMHyp_imp (G: wff) (H a ap b bp: nat) (ha: $ G -> k218IHypProvable H (kImp ap a) $) (hb: $ G -> k218IHypProvable H (kImp b bp) $): $ G -> k218IHypProvable H (kImp (kImp a b) (kImp ap bp)) $ = '(k218QHypMp (a1i (k218IHypProvable_seed (ax_mp k218QProvable_axiom k218QAxioms_true))) (k218QHypMp (syl k218IHypProvable_imp_weaken hb) (k218QHypMp (syl k218IHypProvable_imp_weaken ha) (a1i (k218IHypProvable_seed k218ITransport_imp_lemma)))));
+
+pub theorem k218QMHyp_not (G: wff) (H a b: nat) (ha: $ G -> k218IHypProvable H (kImp a b) $): $ G -> k218IHypProvable H (kImp (kNot b) (kNot a)) $ = '(k218QHypMp ha (a1i (k218IHypProvable_seed k218IPropContra)));
+
+pub theorem k218QHEquiv_imp (H a ap b bp: nat): $ k218QHEquiv H a ap /\ k218QHEquiv H b bp -> k218QHEquiv H (kImp a b) (kImp ap bp) $ = '(iand (k218QMHyp_imp anlr anrl) (k218QMHyp_imp anll anrr));
+
+pub theorem k218QHEquiv_not (H a b: nat): $ k218QHEquiv H a b -> k218QHEquiv H (kNot a) (kNot b) $ = '(iand (k218QMHyp_not anr) (k218QMHyp_not anl));
+
+pub theorem k218QHEquiv_and (H a ap b bp: nat): $ k218QHEquiv H a ap /\ k218QHEquiv H b bp -> k218QHEquiv H (kAnd a b) (kAnd ap bp) $ = '(syl k218QHEquiv_not (syl k218QHEquiv_imp (iand anl (syl k218QHEquiv_not anr))));
+
+pub theorem k218QHEquiv_or (H a ap b bp: nat): $ k218QHEquiv H a ap /\ k218QHEquiv H b bp -> k218QHEquiv H (kDisj a b) (kDisj ap bp) $ = '(syl k218QHEquiv_imp (iand (syl k218QHEquiv_not anl) anr));
+
+theorem k218QM_vacuous_congr (G: wff) (H J z: nat) (he: $ G -> H = J $): $ G -> (k218IContextVacuous H z <-> k218IContextVacuous J z) $ = (named '(aleqd @ imeq1d (lmemeq2d he)));
+
+def k218QMGenContext (H z: nat): nat = $ if (k218IContextVacuous H z) H 0 $;
+
+pub theorem k218QMGenContext_vacuous (H z: nat): $ k218IContextVacuous (k218QMGenContext H z) z $ = '(cases (mpbird (k218QM_vacuous_congr ifpos) id) (mpbird (k218QM_vacuous_congr ifneg) (a1i k218IContextVacuous_nil)));
+
+pub theorem k218QMHyp_gen_d (G: wff) (H z a: nat) (hv: $ G -> k218IContextVacuous H z $) (ha: $ G -> k218IHypProvable H a $): $ G -> k218IHypProvable H (kAll z a) $ = '(mpbid (k218IHypProvableeq1d (syl ifpos hv)) (syl (k218IHypProvable_gen k218QMGenContext_vacuous) (mpbird (k218IHypProvableeq1d (syl ifpos hv)) ha)));
+
+pub theorem k218QMHyp_gen (H z a: nat): $ k218IContextVacuous H z -> k218IHypProvable H a -> k218IHypProvable H (kAll z a) $ = '(exp (k218QMHyp_gen_d anl anr));
+
+pub theorem k218QMHyp_all (G: wff) (H z a b: nat) (hv: $ G -> k218IContextVacuous H z $) (ha: $ G -> k218IHypProvable H (kImp a b) $): $ G -> k218IHypProvable H (kImp (kAll z a) (kAll z b)) $ = '(k218QHypMp (k218QMHyp_gen_d hv ha) (a1i (k218IHypProvable_seed (ax_mp k218QProvable_axiom k218QAxioms_rho2))));
+
+pub theorem k218QHEquiv_all (H z a b: nat): $ k218IContextVacuous H z -> k218QHEquiv H a b -> k218QHEquiv H (kAll z a) (kAll z b) $ = '(exp (iand (k218QMHyp_all anl anrl) (k218QMHyp_all anl anrr)));
+
+pub theorem k218QHEquiv_exists (H z a b: nat): $ k218IContextVacuous H z -> k218QHEquiv H a b -> k218QHEquiv H (kExists z a) (kExists z b) $ = '(syl6 k218QHEquiv_not (syl5 k218QHEquiv_not k218QHEquiv_all));

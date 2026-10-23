@@ -1,0 +1,31 @@
+import "source_piece_pcf_rep_uniform_laws.mm0";
+
+import "source_piece_pcf_rep_case_or.mm0";
+
+import "source_piece_pcf_rep_case_and.mm0";
+
+-- The And and Or step laws of sfPieceRepUniform hold, so the uniform representation
+-- theorem needs only the Mem, Eq, Imp, All and Ex laws.
+-- This closure has three large replays (union, difference, empty): it is over the stock
+-- mm0-c capacity on the host (lanes/L04.md, B1).
+
+theorem sfPieceRepOrLaw_holds (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ sfPieceRepOrLaw G A C $;
+
+theorem sfPieceRepAndLaw_holds (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ sfPieceRepAndLaw G A C $;
+
+theorem sfPieceRepUniform_from_remaining (G A B C n phi: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hm: $ sfPieceRepMemLaw G A C $) (he: $ sfPieceRepEqLaw G A C $)
+  (hi: $ sfPieceRepImpLaw G A C $) (hl: $ sfPieceRepAllLaw G A C $)
+  (hx: $ sfPieceRepExLaw G A C $):
+  $ sfBound n phi -> nsLocal G (sfPieceDefinableWitness A C n phi) $;

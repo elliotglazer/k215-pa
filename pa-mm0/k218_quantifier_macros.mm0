@@ -1,0 +1,29 @@
+-- Untrusted replay of pure logical macros. SeedG proofs are checked independently.
+import "k218_g.mm0";
+
+-- Finite global K proof macros, with every vacuity premise explicit.
+
+theorem k218PropNegativeImplication (p q: nat): $ k218Provable (kImp (kImp p kF) (kImp p q)) $;
+
+theorem k218PropCasesImplication (p q r: nat): $ k218Provable (kImp (kImp (kImp p kF) r) (kImp (kImp q r) (kImp (kImp p q) r))) $;
+
+theorem k218Vacuity_negation (x p: nat)
+  (hv: $ k218Provable (kImp p (kAll x p)) $):
+  $ k218Provable (kImp (kNot p) (kAll x (kNot p))) $;
+
+theorem k218Vacuity_implication (x p q: nat)
+  (hp: $ k218Provable (kImp p (kAll x p)) $)
+  (hq: $ k218Provable (kImp q (kAll x q)) $):
+  $ k218Provable (kImp (kImp p q) (kAll x (kImp p q))) $;
+
+theorem k218Vacuity_universal (x y p: nat)
+  (hv: $ k218Provable (kImp p (kAll y p)) $):
+  $ k218Provable (kImp (kAll x p) (kAll y (kAll x p))) $;
+
+theorem k218Vacuity_truth (x: nat):
+  $ k218Provable (kImp 0 (kAll x 0)) $;
+
+
+theorem k218Exists_elimination (x p q: nat)
+  (hv: $ k218Provable (kImp q (kAll x q)) $):
+  $ k218Provable (kImp (kAll x (kImp p q)) (kImp (kExists x p) q)) $;

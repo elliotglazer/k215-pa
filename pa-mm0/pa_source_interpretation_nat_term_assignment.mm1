@@ -1,0 +1,9 @@
+import "pa_source_interpretation_nat_term_substitution.mm1";
+
+@_ abstract def paNatTermConsEnvironment (E: set) (v .i: nat): set = $ \ i, if (i = 0) v (E @ (i - 1)) $;
+
+pub theorem paNatTermConsEnvironment_value (E: set) (v i: nat): $ paNatTermConsEnvironment E v @ i = if (i = 0) v (E @ (i - 1)) $ = (named '(!! applame j ,eqtac));
+
+pub theorem paNatTermConsEnvironment_zero (E: set) (v: nat): $ paNatTermConsEnvironment E v @ 0 = v $ = (named '(eqtr paNatTermConsEnvironment_value (ifpos eqid)));
+
+pub theorem paNatTermConsEnvironment_suc (E: set) (v i: nat): $ paNatTermConsEnvironment E v @ suc i = E @ i $ = (named '(eqtr paNatTermConsEnvironment_value (eqtr (ifneg peano1) (appeq2 sucsub1))));

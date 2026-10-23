@@ -1,0 +1,41 @@
+import "source_l_separation_image_op5_support.mm1";
+
+import "source_piece_pcf_definable_cover_realization.mm1";
+
+import "source_piece_pcf_definable_conjunction.mm1";
+
+@_ abstract def sfPieceDefinableExistentialSome(R A e:nat): nat = $ sfEx (sfAnd (sfMem 0 (suc A)) (sfLSeparationOp5SC (suc R) (suc e) 0)) $;
+
+@_ abstract def sfPieceDefinableExistentialBody(T:set)(phi A:nat): nat = $ sfAnd (sfMem 0 (suc A)) (sfCLSetRel (suc A) (sfRename T 1 phi)) $;
+
+@_ abstract def sfPieceDefinableExistentialValue(T:set)(phi A:nat): nat = $ sfCLSetRel A (sfRename T 0 (sfEx phi)) $;
+
+pub theorem sfPieceDefinableExistentialSome_wf(R A e:nat): $ sfWf (sfPieceDefinableExistentialSome R A e) $ = (named '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfLSeparationOp5SC_wf)));
+
+pub theorem sfPieceDefinableExistentialBody_wf(T:set)(phi A:nat): $ sfWf (sfPieceDefinableExistentialBody T phi A) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) sfCLSetRel_wf));
+
+pub theorem sfPieceDefinableExistential_SC_depth(T:set)(k R e x:nat): $ sfRename T k (sfLSeparationOp5SC R e x) = sfLSeparationOp5SC (sfRenameIndex T k R) (sfRenameIndex T k e) (sfRenameIndex T k x) $ = (named '(eqtr (ax_mp sfRename_as_map sfLSeparationOp5SC_wf) (eqtr sfLSeparationOp5SC_rename (sfLSeparationOp5SC_eq sfRenameDepthMap_value sfRenameDepthMap_value sfRenameDepthMap_value))));
+
+pub theorem sfPieceDefinableExistentialSome_rename(T:set)(R A e:nat): $ sfRename T 0 (sfPieceDefinableExistentialSome R A e) = sfPieceDefinableExistentialSome (T @ R) (T @ A) (T @ e) $ = (named '(eqtr sfRename_sfEx (sfExeq (eqtr sfRename_sfAnd (sfAndeq (eqtr sfRename_sfMem (sfMemeq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)))) (eqtr sfPieceDefinableExistential_SC_depth (sfLSeparationOp5SC_eq (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)) (ax_mp sfRenameIndex_bound lt01S))))))));
+
+pub theorem sfPieceDefinableExistentialSome_congr(R A e R1 A1 e1:nat)(hr:$ R = R1 $)(ha:$ A = A1 $)(he:$ e = e1 $): $ sfPieceDefinableExistentialSome R A e = sfPieceDefinableExistentialSome R1 A1 e1 $ = (named '(sfExeq (sfAndeq (sfMemeq eqid (suceq ha)) (sfLSeparationOp5SC_eq (suceq hr) (suceq he) eqid))));
+
+pub theorem sfPieceDefinableExistentialSome_shift(R A e:nat): $ sfShift 0 (sfPieceDefinableExistentialSome R A e) = sfPieceDefinableExistentialSome (suc R) (suc A) (suc e) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceDefinableExistentialSome_wf)) (eqtr sfPieceDefinableExistentialSome_rename (sfPieceDefinableExistentialSome_congr sfSuccessorMap_value sfSuccessorMap_value sfSuccessorMap_value))));
+
+pub theorem sfPieceDefinableExistentialSome_instance(R A e x:nat): $ sfSubst 0 x (sfAnd (sfMem 0 (suc A)) (sfLSeparationOp5SC (suc R) (suc e) 0)) = sfAnd (sfMem x A) (sfLSeparationOp5SC R e x) $ = (named '(eqtr sfSubst_sfAnd (sfAndeq (eqtr sfSubst_sfMem (sfMemeq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfLSeparationOp5SC_subst (sfLSeparationOp5SC_eq sfSubstIndex_successor sfSubstIndex_successor sfSubstIndex_zero)))));
+
+pub theorem sfPieceDefinableExistentialSome_intro(G R A e x:nat)(hx:$ nsLocal G (sfMem x A) $)(hs:$ nsLocal G (sfLSeparationOp5SC R e x) $): $ nsLocal G (sfPieceDefinableExistentialSome R A e) $ = (named '(ax_mp (ax_mp nsLocal_ExI (ax_mp (ax_mp sfWf_and sfWf_mem) sfLSeparationOp5SC_wf)) (sfRQ_rewrite (eqcom sfPieceDefinableExistentialSome_instance) (sfLocal_and hx hs))));
+
+pub theorem sfPieceDefinableExistentialValue_unfold(T:set)(phi A:nat): $ sfPieceDefinableExistentialValue T phi A = sfEx (sfPieceDefinableExistentialBody T phi A) $ = (named '(eqtr (sfCLSetReleq2 sfRename_sfEx) sfCLSetRel_sfEx));
+
+pub theorem sfPieceDefinableExistentialBody_instance(T:set)(phi A x:nat)(hf:$ sfWf phi $): $ sfSubst 0 x (sfPieceDefinableExistentialBody T phi A) = sfAnd (sfMem x A) (sfLSeparationOp5Value T phi A x) $ = (named '(eqtr sfSubst_sfAnd (sfAndeq (eqtr sfSubst_sfMem (sfMemeq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr (ax_mp sfSubst_as_map sfCLSetRel_wf) (eqtr (ax_mp sfCLSetRel_rename sfRename_wf) (trud (sfCLSetRel_formula_congr (a1i (eqtr sfRenameIndex_zero (eqtr sfSubstDepthMap_value sfSubstIndex_successor))) (a1i (eqtr (eqcom (ax_mp sfSubst_as_map sfRename_wf)) (sfReflectionTransfer_open hf))))))))));
+
+pub theorem sfPieceDefinableExistentialValue_intro(T:set)(G phi A x:nat)(hf:$ sfWf phi $)(hx:$ nsLocal G (sfMem x A) $)(hv:$ nsLocal G (sfLSeparationOp5Value T phi A x) $): $ nsLocal G (sfPieceDefinableExistentialValue T phi A) $ = (named '(sfRQ_rewrite (eqcom sfPieceDefinableExistentialValue_unfold) (ax_mp (ax_mp nsLocal_ExI sfPieceDefinableExistentialBody_wf) (sfRQ_rewrite (eqcom (sfPieceDefinableExistentialBody_instance hf)) (sfLocal_and hx hv)))));
+
+pub theorem sfPieceDefinableExistentialValue_shift(T:set)(phi A:nat)(hf:$ sfWf phi $): $ sfShift 0 (sfPieceDefinableExistentialValue T phi A) = sfPieceDefinableExistentialValue (sfComposeMap sfSuccessorMap T) phi (suc A) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfCLSetRel_wf)) (eqtr (ax_mp sfCLSetRel_rename sfRename_wf) (trud (sfCLSetRel_formula_congr (a1i (eqtr sfRenameIndex_zero sfSuccessorMap_value)) (a1i (ax_mp sfRename_compose (ax_mp sfWf_ex hf))))))));
+
+pub theorem sfPieceDefinableExistential_under(G h a:nat)(hh:$ sfWf h $)(hp:$ nsLocal G a $): $ nsLocal (h : sfContextShift G) (sfShift 0 a) $ = (named '(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian hh sfContextShift_wf))) sfContextSub_cons) (ax_mp sfSepLocal_shift hp)));
+
+pub theorem sfPieceDefinableExistential_cons(G h a:nat)(hh:$ sfWf h $)(hp:$ nsLocal G a $): $ nsLocal (h : G) a $ = (named '(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian hh (ax_mp nsLocal_context_wf hp)))) sfContextSub_cons) hp));
+
+pub theorem sfPieceDefinableExistential_hyp(G h:nat)(hh:$ sfWf h $): $ nsLocal (h : sfContextShift G) h $ = (named '(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian hh sfContextShift_wf))) sfContext_member_head));

@@ -1,0 +1,24 @@
+import "source_l_replacement_functionality.mm0";
+
+import "source_l_replacement_schema.mm0";
+
+def sfLReplacementAmbientBody(phi:nat):nat =
+ $ sfAll (sfIff (sfMem 0 1) (sfEx (sfAnd (sfMem 0 3)
+  (sfRename sfRepCMap 0 (sfLReplacementMatrix phi))))) $;
+
+def sfLReplacementRawAxiom(phi:nat):nat =
+ $ sfReplacement (sfRename sfRepAMap 0 (sfLReplacementMatrix phi))
+  (sfRename sfRepBMap 0 (sfLReplacementMatrix phi))
+  (sfRename sfRepCMap 0 (sfLReplacementMatrix phi)) $;
+
+theorem sfLReplacement_ambient_functionality(phi:nat)(hf:$ sfWf phi $):
+ $ nsLocal 0 (sfImp (sfLReplacementFunctional phi)
+ (sfFunctionality (sfRename sfRepAMap 0 (sfLReplacementMatrix phi))
+ (sfRename sfRepBMap 0 (sfLReplacementMatrix phi)))) $;
+
+def lrepAmbientContext(phi:nat):nat =
+ $ sfLReplacementFunctional phi : (sfLReplacementRawAxiom phi : 0) $;
+
+theorem sfLReplacement_ambient_image(phi n:nat)(hb:$ sfBound (suc (suc n)) phi $):
+ $ sfTheoryProvable zfrAxioms (sfImp (sfLReplacementFunctional phi)
+ (sfAll (sfEx (sfLReplacementAmbientBody phi)))) $;

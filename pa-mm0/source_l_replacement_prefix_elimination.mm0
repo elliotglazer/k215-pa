@@ -1,0 +1,15 @@
+import "source_l_common_level_ball_use.mm0";
+
+def sfLReplacementPrefixSubstLaw(t n body:nat)(.k:nat):wff =
+ $ A. k sfSubst k t (sfAllPrefix n body) = sfAllPrefix n (sfSubst (n + k) t body) $;
+
+def sfLReplacementPrefixElimLaw(R:set)(n:nat)(.G .body:nat):wff =
+ $ A. G A. body (nsLocal G (sfAllPrefix n body) ->
+  nsLocal G (sfRename (sfCLBallEnv R n) 0 body)) $;
+
+theorem sfLReplacementPrefix_subst(t n body k:nat):
+ $ sfSubst k t (sfAllPrefix n body) = sfAllPrefix n (sfSubst (n + k) t body) $;
+
+theorem sfLReplacementPrefix_eliminate(R:set)(n G body:nat)
+ (hp:$ nsLocal G (sfAllPrefix n body) $):
+ $ nsLocal G (sfRename (sfCLBallEnv R n) 0 body) $;

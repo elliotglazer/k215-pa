@@ -1,0 +1,81 @@
+import "source_piece_pcf_rep_neq_r12.mm1";
+
+import "source_piece_pcf_rep_r16_kernel_empty_unique.mm1";
+
+import "source_piece_pcf_rep_r16_kernel_successor_unique.mm1";
+
+import "source_piece_pcf_rep_r16_kernel_successor_lift.mm1";
+
+import "source_piece_pcf_rep_r16_kernel_no_self.mm1";
+
+theorem pcrb_EmptyUnique_eq:
+ $ sfPieceRepR16KernelEmptyUniqueFormula = sfPieceRepEmptyUniqueLaw $ =
+ 'eqid;
+
+theorem pcrb_EmptyUnique_local:
+ $ (nsLocal sfLBackground sfPieceRepEmptyUniqueLaw) $ =
+ '(mpbi (nsLocal_formula_eq pcrb_EmptyUnique_eq) sfPieceRepR16KernelEmptyUnique_local);
+
+theorem pcrb_SuccessorUnique_eq:
+ $ sfPieceRepR16KernelSuccessorUniqueFormula = sfPieceRepSuccessorUniqueLaw $ =
+ 'eqid;
+
+theorem pcrb_SuccessorUnique_local:
+ $ (nsLocal sfLBackground sfPieceRepSuccessorUniqueLaw) $ =
+ '(mpbi (nsLocal_formula_eq pcrb_SuccessorUnique_eq) sfPieceRepR16KernelSuccessorUnique_local);
+
+theorem pcrb_SuccessorLift_eq:
+ $ sfPieceRepR16KernelSuccessorLiftFormula = sfPieceRepSuccessorLiftLaw $ =
+ 'eqid;
+
+theorem pcrb_SuccessorLift_local:
+ $ (nsLocal sfLBackground sfPieceRepSuccessorLiftLaw) $ =
+ '(mpbi (nsLocal_formula_eq pcrb_SuccessorLift_eq) sfPieceRepR16KernelSuccessorLift_local);
+
+theorem pcrb_NoSelf_eq:
+ $ sfPieceRepR16KernelNoSelfFormula = sfPieceRepNoSelfLaw $ =
+ 'eqid;
+
+theorem pcrb_NoSelf_local:
+ $ (nsLocal sfLBackground sfPieceRepNoSelfLaw) $ =
+ '(mpbi (nsLocal_formula_eq pcrb_NoSelf_eq) sfPieceRepR16KernelNoSelf_local);
+
+theorem pcrb_background_refl:
+ $ zfcRefl IN sfLBackground $ =
+ '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem pcrb_background_sym:
+ $ zfcSym IN sfLBackground $ =
+ '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem pcrb_background_trans:
+ $ zfcTrans IN sfLBackground $ =
+ '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem pcrb_background_element:
+ $ zfcEqElem IN sfLBackground $ =
+ '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem pcrb_sub_cons(a G D:nat):
+ $ a IN D -> sfContextSub G D -> sfContextSub (a : G) D $ =
+ '(syl6 (bi2 allS) ian);
+
+pub theorem sfPieceEquality_background:
+ $ sfContextSub sfFormulaEqualityContext sfLBackground $ =
+ '(ax_mp (ax_mp pcrb_sub_cons pcrb_background_refl) (ax_mp (ax_mp pcrb_sub_cons pcrb_background_sym) (ax_mp (ax_mp pcrb_sub_cons pcrb_background_trans) (ax_mp (ax_mp pcrb_sub_cons pcrb_background_element) all0))));
+
+theorem pcrb_weaken(G a:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $)(ha:$ nsLocal sfLBackground a $):
+ $ (nsLocal G a) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken hg) hb) ha);
+
+pub theorem sfPieceNumeral_unique(G k x y:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $)(hx:$ (nsLocal G (sfPieceNumeral k x)) $)(hy:$ (nsLocal G (sfPieceNumeral k y)) $):
+ $ (nsLocal G (sfEq x y)) $ =
+ '(sfPieceNumeral_unique_from_laws (pcrb_weaken hg hb pcrb_EmptyUnique_local) (pcrb_weaken hg hb pcrb_SuccessorUnique_local) hx hy);
+
+pub theorem sfPieceNumeral_lt(G k l x y:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $)(hlt:$ k < l $)(hx:$ (nsLocal G (sfPieceNumeral k x)) $)(hy:$ (nsLocal G (sfPieceNumeral l y)) $):
+ $ (nsLocal G (sfMem x y)) $ =
+ '(sfPieceNumeral_lt_from_laws (pcrb_weaken hg hb pcrb_EmptyUnique_local) (pcrb_weaken hg hb pcrb_SuccessorUnique_local) (pcrb_weaken hg hb pcrb_SuccessorLift_local) hlt hx hy);
+
+pub theorem sfPieceNumeral_neq(G k l x y:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $)(hne:$ k != l $)(hx:$ (nsLocal G (sfPieceNumeral k x)) $)(hy:$ (nsLocal G (sfPieceNumeral l y)) $):
+ $ (nsLocal G (sfImp (sfEq x y) sfBot)) $ =
+ '(sfPieceNumeral_neq_from_laws hg (ax_mp (ax_mp sfContextSub_trans sfPieceEquality_background) hb) (pcrb_weaken hg hb pcrb_EmptyUnique_local) (pcrb_weaken hg hb pcrb_SuccessorUnique_local) (pcrb_weaken hg hb pcrb_SuccessorLift_local) (pcrb_weaken hg hb pcrb_NoSelf_local) hne hx hy);

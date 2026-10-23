@@ -1,0 +1,26 @@
+import "k215_literal_runtime_registers.mm0";
+import "k215_literal_runtime_ordinals.mm0";
+
+def k215PEntryBound (e: nat): wff =
+ $ k215PEZero e < k215PNum4751 /\ k215PEPositive e < k215PNum4751 $;
+
+def k215PInRange (s: nat): wff = $ k215PPC s < k215PNum4751 $;
+
+theorem k215PInRange_state (pc regs: nat):
+ $ k215PInRange (k215PState pc regs) <-> pc < k215PNum4751 $;
+
+theorem k215PLookup_bound (pc: nat): $ k215PEntryBound (k215PLookup pc) $;
+
+theorem k215PStepEntry_bound (e regs: nat):
+ $ k215PEntryBound e -> k215PInRange (k215PStepEntry e regs) $;
+
+theorem k215PStep_bound (s: nat):
+ $ k215PInRange s -> k215PInRange (k215PStep s) $;
+
+theorem k215PIter_bound (n s: nat):
+ $ k215PInRange s -> k215PInRange (k215PIter n s) $;
+
+theorem k215PInitial_bound: $ k215PInRange k215PInitial $;
+
+theorem k215PInitialIter_bound (n: nat):
+ $ k215PPC (k215PIter n k215PInitial) < k215PNum4751 $;

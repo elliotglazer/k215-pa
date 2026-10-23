@@ -1,0 +1,27 @@
+-- Replayed in the distinct exact SeedG calculus. No K230 proof predicate is assumed.
+import "k218_codes.mm0";
+
+-- The numeric axiom family of Thm222.v, with no formula-class parameter.
+def k218AxBody (n a b c u: nat): wff =
+$ n = kRho1 a b \/ (n = kRho2 a b c \/ (n = kRho3 a b c \/
+ (n = kRho4 a b c \/ (n = kRho5 a b c \/ (n = kRho6 a b \/
+ (n = k218RhoG a b c \/ (n = kRho8 a b c u \/
+ (c != a /\ c != b /\ n = k218Bundle a b c)))))))) $;
+
+def k218Axioms (.n .a .b .c .u: nat): set =
+$ {n | n = 0 \/ E. a E. b E. c E. u k218AxBody n a b c u} $;
+
+theorem k218Axioms_value {a b c u: nat} (n: nat):
+  $ n e. k218Axioms <-> n = 0 \/ E. a E. b E. c E. u k218AxBody n a b c u $;
+theorem k218Axioms_true: $ 0 e. k218Axioms $;
+theorem k218Axioms_instance (n a b c u: nat):
+  $ k218AxBody n a b c u -> n e. k218Axioms $;
+theorem k218Axioms_rho1 (a b: nat): $ kRho1 a b e. k218Axioms $;
+theorem k218Axioms_rho2 (a b c: nat): $ kRho2 a b c e. k218Axioms $;
+theorem k218Axioms_rho3 (a b c: nat): $ kRho3 a b c e. k218Axioms $;
+theorem k218Axioms_rho4 (a b c: nat): $ kRho4 a b c e. k218Axioms $;
+theorem k218Axioms_rho5 (a b c: nat): $ kRho5 a b c e. k218Axioms $;
+theorem k218Axioms_rho6 (a b: nat): $ kRho6 a b e. k218Axioms $;
+theorem k218Axioms_G (a b c: nat): $ k218RhoG a b c e. k218Axioms $;
+theorem k218Axioms_rho8 (a b c u: nat): $ kRho8 a b c u e. k218Axioms $;
+theorem k218Axioms_bundle (a b c: nat): $ c != a /\ c != b -> k218Bundle a b c e. k218Axioms $;

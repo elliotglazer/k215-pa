@@ -1,0 +1,137 @@
+import "source_k0_qsep_kp0_witness.mm1";
+
+import "quotation_substitution.mm1";
+
+import "quotation_binders_absent.mm1";
+
+import "k218_role_substitution.mm1";
+
+pub theorem sfK0QSepTagged_input_substitution (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ u != 0 $)
+ (hK: $ u < K $) (hzK: $ z < K $)
+ (hr: $ r != u $) (ht: $ t != u $) (hb: $ b != u $)
+ (hother: $ y != u $) (he: $ sqEnvAvoid E n u $):
+ $ kSubst (sfK0QSepNamedTagged E r t b u y K theta) u z = sfK0QSepNamedTagged E r t b z y K theta $ =
+(named '(eqtr (qsSubst_kDisj h0) (kDisjeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss hr))) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss hb))))) (eqtr (qsSubst_kDisj h0) (kDisjeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss ht))) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss ht))))) (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss hother) kReplace_hit)) (eqtr (kSubst_kAll_open (ltner hK)) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltner hK)) kReplace_hit)) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss (ltner hK)) (ax_mp kReplace_miss hother))))))))) (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss hb))) (ax_mp kSubst_fresh_identity (ax_mp (ax_mp (sfNamedTemplate_fresh hK h0)
+ (mpbir (sfBoundeq1 add01) hf))
+ (ax_mp (ax_mp k218RoleAvoid_cons (ax_mp necom hother)) he))))))))))));
+
+theorem qsepTaggedinputAbsentSource (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ u != 0 $)
+ (hK: $ u < K $) (hzK: $ z < K $)
+ (hr: $ r != u $) (ht: $ t != u $) (hb: $ b != u $)
+ (hother: $ y != u $) (he: $ sqEnvAvoid E n u $):
+ $ kBinderAbsent (sfK0QSepNamedTagged E r t b u y K theta) u $ =
+'(ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))))) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sfNamedTemplate_binder_absent hK) (ax_mp sfBound_wf hf))))));
+
+theorem qsepTaggedinputAbsentTarget (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ u != 0 $)
+ (hK: $ u < K $) (hzK: $ z < K $)
+ (hr: $ r != u $) (ht: $ t != u $) (hb: $ b != u $)
+ (hother: $ y != u $) (he: $ sqEnvAvoid E n u $):
+ $ kBinderAbsent (sfK0QSepNamedTagged E r t b u y K theta) z $ =
+'(ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hzK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))))) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sfNamedTemplate_binder_absent hzK) (ax_mp sfBound_wf hf))))));
+
+pub theorem sfK0QSepTagged_input_specialization (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ u != 0 $)
+ (hK: $ u < K $) (hzK: $ z < K $)
+ (hr: $ r != u $) (ht: $ t != u $) (hb: $ b != u $)
+ (hother: $ y != u $) (he: $ sqEnvAvoid E n u $) (hz: $ u != z $):
+ $ k218QProvable (kImp (kAll u (sfK0QSepNamedTagged E r t b u y K theta)) (sfK0QSepNamedTagged E r t b z y K theta)) $ =
+(named '(mpbi (k218QProvableeq (kImpeq2 (sfK0QSepTagged_input_substitution hf h0 hK hzK hr ht hb hother he)))
+ (ax_mp (ax_mp (ax_mp k218INamed_specialization hz)
+ (qsepTaggedinputAbsentSource hf h0 hK hzK hr ht hb hother he)) (qsepTaggedinputAbsentTarget hf h0 hK hzK hr ht hb hother he))));
+
+pub theorem sfK0QSepTagged_input_exists_intro (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ u != 0 $)
+ (hK: $ u < K $) (hzK: $ z < K $)
+ (hr: $ r != u $) (ht: $ t != u $) (hb: $ b != u $)
+ (hother: $ y != u $) (he: $ sqEnvAvoid E n u $) (hz: $ u != z $):
+ $ k218QProvable (kImp (sfK0QSepNamedTagged E r t b z y K theta) (kExists u (sfK0QSepNamedTagged E r t b u y K theta))) $ =
+(named '(mpbi (k218QProvableeq (kImpeq1 (sfK0QSepTagged_input_substitution hf h0 hK hzK hr ht hb hother he)))
+ (ax_mp (ax_mp (ax_mp k218INamed_exists_intro hz)
+ (qsepTaggedinputAbsentSource hf h0 hK hzK hr ht hb hother he)) (qsepTaggedinputAbsentTarget hf h0 hK hzK hr ht hb hother he))));
+
+@_ def sfK0QSepTaggedRequest (E: set) (r t b c u y K theta: nat): nat = $ (kImp (kDisj (kEq u r) (kExists y (kAnd (kMem y c) (kAll K (kImp (kMem K u) (kMem K y)))))) (kImp (kExists y (kDisj (kAnd (kEq u r) (kEq y b)) (kDisj (kAnd (kEq u t) (kEq y t)) (kAnd (kAnd (kMem y u) (kAll K (kImp (kMem K u) (kEq K y)))) (kAnd (kMem y b) (sfNamedTemplate (sqEnvCons y E) K 0 theta)))))) (kExists y (kAnd (kMem y c) (kDisj (kAnd (kEq u r) (kEq y b)) (kDisj (kAnd (kEq u t) (kEq y t)) (kAnd (kAnd (kMem y u) (kAll K (kImp (kMem K u) (kEq K y)))) (kAnd (kMem y b) (sfNamedTemplate (sqEnvCons y E) K 0 theta))))))))) $;
+
+pub theorem sfK0QSepTaggedRequest_substitution (E: set) (n r t b c u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ u != 0 $)
+ (hK: $ u < K $) (hzK: $ z < K $)
+ (hr: $ r != u $) (ht: $ t != u $) (hb: $ b != u $)
+ (hother: $ y != u $) (he: $ sqEnvAvoid E n u $) (hc: $ c != u $) (huy: $ u < y $) (hzy: $ z < y $):
+ $ kSubst (sfK0QSepTaggedRequest E r t b c u y K theta) u z = sfK0QSepTaggedRequest E r t b c z y K theta $ =
+(named '(eqtr kSubst_kImp (kImpeq (eqtr (qsSubst_kDisj h0) (kDisjeq (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss hr))) (eqtr (ax_mp (qsSubst_kExists h0) hother) (kExistseq2 (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss hc))) (eqtr (kSubst_kAll_open (ltner hK)) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltner hK)) kReplace_hit)) (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltner hK)) (ax_mp kReplace_miss hother))))))))))))) (eqtr kSubst_kImp (kImpeq (eqtr (ax_mp (qsSubst_kExists h0) hother) (kExistseq2 (eqtr (qsSubst_kDisj h0) (kDisjeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss hr))) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss hb))))) (eqtr (qsSubst_kDisj h0) (kDisjeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss ht))) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss ht))))) (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss hother) kReplace_hit)) (eqtr (kSubst_kAll_open (ltner hK)) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltner hK)) kReplace_hit)) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss (ltner hK)) (ax_mp kReplace_miss hother))))))))) (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss hb))) (ax_mp kSubst_fresh_identity (ax_mp (ax_mp (sfNamedTemplate_fresh hK h0)
+ (mpbir (sfBoundeq1 add01) hf))
+ (ax_mp (ax_mp k218RoleAvoid_cons (ax_mp necom hother)) he))))))))))))) (eqtr (ax_mp (qsSubst_kExists h0) hother) (kExistseq2 (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss hc))) (eqtr (qsSubst_kDisj h0) (kDisjeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss hr))) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss hb))))) (eqtr (qsSubst_kDisj h0) (kDisjeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss ht))) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss ht))))) (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss hother) kReplace_hit)) (eqtr (kSubst_kAll_open (ltner hK)) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltner hK)) kReplace_hit)) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss (ltner hK)) (ax_mp kReplace_miss hother))))))))) (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss hb))) (ax_mp kSubst_fresh_identity (ax_mp (ax_mp (sfNamedTemplate_fresh hK h0)
+ (mpbir (sfBoundeq1 add01) hf))
+ (ax_mp (ax_mp k218RoleAvoid_cons (ax_mp necom hother)) he))))))))))))))))))));
+
+theorem qsepTaggedRequestAbsentSource (E: set) (n r t b c u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ u != 0 $)
+ (hK: $ u < K $) (hzK: $ z < K $)
+ (hr: $ r != u $) (ht: $ t != u $) (hb: $ b != u $)
+ (hother: $ y != u $) (he: $ sqEnvAvoid E n u $) (hc: $ c != u $) (huy: $ u < y $) (hzy: $ z < y $):
+ $ kBinderAbsent (sfK0QSepTaggedRequest E r t b c u y K theta) u $ =
+'(mpbir kBinderAbsent_kImp (ian (ax_mp (ax_mp kBinderAbsent_disj_intro kBinderAbsent_kEq) (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne huy)) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kMem)))))) (mpbir kBinderAbsent_kImp (ian (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne huy)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))))) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sfNamedTemplate_binder_absent hK) (ax_mp sfBound_wf hf))))))) (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne huy)) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))))) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sfNamedTemplate_binder_absent hK) (ax_mp sfBound_wf hf))))))))))));
+
+theorem qsepTaggedRequestAbsentTarget (E: set) (n r t b c u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ u != 0 $)
+ (hK: $ u < K $) (hzK: $ z < K $)
+ (hr: $ r != u $) (ht: $ t != u $) (hb: $ b != u $)
+ (hother: $ y != u $) (he: $ sqEnvAvoid E n u $) (hc: $ c != u $) (huy: $ u < y $) (hzy: $ z < y $):
+ $ kBinderAbsent (sfK0QSepTaggedRequest E r t b c u y K theta) z $ =
+'(mpbir kBinderAbsent_kImp (ian (ax_mp (ax_mp kBinderAbsent_disj_intro kBinderAbsent_kEq) (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne hzy)) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hzK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kMem)))))) (mpbir kBinderAbsent_kImp (ian (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne hzy)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hzK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))))) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sfNamedTemplate_binder_absent hzK) (ax_mp sfBound_wf hf))))))) (ax_mp (ax_mp kBinderAbsent_exists_intro (ltne hzy)) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hzK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))))) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sfNamedTemplate_binder_absent hzK) (ax_mp sfBound_wf hf))))))))))));
+
+pub theorem sfK0QSepTaggedRequest_specialization (E: set) (n r t b c u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ u != 0 $)
+ (hK: $ u < K $) (hzK: $ z < K $)
+ (hr: $ r != u $) (ht: $ t != u $) (hb: $ b != u $)
+ (hother: $ y != u $) (he: $ sqEnvAvoid E n u $) (hc: $ c != u $) (huy: $ u < y $) (hzy: $ z < y $) (hz: $ u != z $):
+ $ k218QProvable (kImp (kAll u (sfK0QSepTaggedRequest E r t b c u y K theta)) (sfK0QSepTaggedRequest E r t b c z y K theta)) $ =
+(named '(mpbi (k218QProvableeq (kImpeq2 (sfK0QSepTaggedRequest_substitution hf h0 hK hzK hr ht hb hother he hc huy hzy)))
+ (ax_mp (ax_mp (ax_mp k218INamed_specialization hz)
+ (qsepTaggedRequestAbsentSource hf h0 hK hzK hr ht hb hother he hc huy hzy)) (qsepTaggedRequestAbsentTarget hf h0 hK hzK hr ht hb hother he hc huy hzy))));
+
+pub theorem sfK0QSepTagged_output_substitution (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ y != 0 $)
+ (hK: $ y < K $) (hzK: $ z < K $)
+ (hr: $ r != y $) (ht: $ t != y $) (hb: $ b != y $)
+ (hother: $ u != y $) (he: $ sqEnvAvoid E n y $):
+ $ kSubst (sfK0QSepNamedTagged E r t b u y K theta) y z = sfK0QSepNamedTagged E r t b u z K theta $ =
+(named '(eqtr (qsSubst_kDisj h0) (kDisjeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss hr))) (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss hb))))) (eqtr (qsSubst_kDisj h0) (kDisjeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss hother) (ax_mp kReplace_miss ht))) (eqtr kSubst_kEq (kEqeq kReplace_hit (ax_mp kReplace_miss ht))))) (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss hother))) (eqtr (kSubst_kAll_open (ltner hK)) (kAlleq2 (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltner hK)) (ax_mp kReplace_miss hother))) (eqtr kSubst_kEq (kEqeq (ax_mp kReplace_miss (ltner hK)) kReplace_hit)))))))) (eqtr (qsSubst_kAnd h0) (kAndeq (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss hb))) (k218RoleHead_substitution hK h0 he hf))))))))));
+
+theorem qsepTaggedoutputAbsentSource (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ y != 0 $)
+ (hK: $ y < K $) (hzK: $ z < K $)
+ (hr: $ r != y $) (ht: $ t != y $) (hb: $ b != y $)
+ (hother: $ u != y $) (he: $ sqEnvAvoid E n y $):
+ $ kBinderAbsent (sfK0QSepNamedTagged E r t b u y K theta) y $ =
+'(ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))))) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sfNamedTemplate_binder_absent hK) (ax_mp sfBound_wf hf))))));
+
+theorem qsepTaggedoutputAbsentTarget (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ y != 0 $)
+ (hK: $ y < K $) (hzK: $ z < K $)
+ (hr: $ r != y $) (ht: $ t != y $) (hb: $ b != y $)
+ (hother: $ u != y $) (he: $ sqEnvAvoid E n y $):
+ $ kBinderAbsent (sfK0QSepNamedTagged E r t b u y K theta) z $ =
+'(ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne hzK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))))) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sfNamedTemplate_binder_absent hzK) (ax_mp sfBound_wf hf))))));
+
+pub theorem sfK0QSepTagged_output_specialization (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ y != 0 $)
+ (hK: $ y < K $) (hzK: $ z < K $)
+ (hr: $ r != y $) (ht: $ t != y $) (hb: $ b != y $)
+ (hother: $ u != y $) (he: $ sqEnvAvoid E n y $) (hz: $ y != z $):
+ $ k218QProvable (kImp (kAll y (sfK0QSepNamedTagged E r t b u y K theta)) (sfK0QSepNamedTagged E r t b u z K theta)) $ =
+(named '(mpbi (k218QProvableeq (kImpeq2 (sfK0QSepTagged_output_substitution hf h0 hK hzK hr ht hb hother he)))
+ (ax_mp (ax_mp (ax_mp k218INamed_specialization hz)
+ (qsepTaggedoutputAbsentSource hf h0 hK hzK hr ht hb hother he)) (qsepTaggedoutputAbsentTarget hf h0 hK hzK hr ht hb hother he))));
+
+pub theorem sfK0QSepTagged_output_exists_intro (E: set) (n r t b u y z K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (h0: $ y != 0 $)
+ (hK: $ y < K $) (hzK: $ z < K $)
+ (hr: $ r != y $) (ht: $ t != y $) (hb: $ b != y $)
+ (hother: $ u != y $) (he: $ sqEnvAvoid E n y $) (hz: $ y != z $):
+ $ k218QProvable (kImp (sfK0QSepNamedTagged E r t b u z K theta) (kExists y (sfK0QSepNamedTagged E r t b u y K theta))) $ =
+(named '(mpbi (k218QProvableeq (kImpeq1 (sfK0QSepTagged_output_substitution hf h0 hK hzK hr ht hb hother he)))
+ (ax_mp (ax_mp (ax_mp k218INamed_exists_intro hz)
+ (qsepTaggedoutputAbsentSource hf h0 hK hzK hr ht hb hother he)) (qsepTaggedoutputAbsentTarget hf h0 hK hzK hr ht hb hother he))));

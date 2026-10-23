@@ -1,0 +1,37 @@
+import "source_piece_pcf_definable_disjunction.mm0";
+
+import "source_piece_pcf_definable_union_use.mm0";
+
+import "source_piece_pcf_definable_witness_transport.mm0";
+
+import "source_piece_pcf_definable_calibration.mm0";
+
+import "source_piece_pcf_definable_existential_syntax.mm0";
+
+import "source_reflection_transfer_tv_existential.mm0";
+
+import "extracted_rename_prefix.mm0";
+
+-- Or case of the uniform representation theorem (Rocq Z_cl.rep_ex, Or branch), in
+-- hypothesis form: from representing witnesses for a and b in C, the union of the two
+-- witnesses (union producer) represents sfOr a b.
+
+-- Named form of the recipe at result 0, carrier 1.
+theorem sfPieceRepCaseNamed_recipe (n phi: nat) (hb: $ sfBound n phi $):
+  $ sfPieceDefinableNamed n phi 0 1 = sfPieceDefinableRecipe n phi $;
+
+-- Disjunction rule on named representations at arbitrary indices.
+theorem sfPieceRepCaseOr_rule (G n a b w A l r: nat)
+  (hg: $ sfContextWf G $) (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hL: $ nsLocal G (sfPieceDefinableNamed n a l A) $)
+  (hR: $ nsLocal G (sfPieceDefinableNamed n b r A) $)
+  (hU: $ nsLocal G (sfPieceRepImplicationNamedUnion l r w) $):
+  $ nsLocal G (sfPieceDefinableNamed n (sfOr a b) w A) $;
+
+theorem sfPieceRepCaseOr (G A B C n a b: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hba: $ sfBound n a $) (hbb: $ sfBound n b $)
+  (hwa: $ nsLocal G (sfPieceDefinableWitness A C n a) $)
+  (hwb: $ nsLocal G (sfPieceDefinableWitness A C n b) $):
+  $ nsLocal G (sfPieceDefinableWitness A C n (sfOr a b)) $;

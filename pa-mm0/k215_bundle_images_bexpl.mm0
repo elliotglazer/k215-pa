@@ -1,0 +1,21 @@
+import "k215_bundle_images_bcore.mm0";
+import "source_l_common_level_reflection_use.mm0";
+import "source_l_separation_image_rows.mm0";
+import "source_renaming_agreement.mm0";
+
+-- (lane L01, bound^L step 2) From the reflection of the selector formula c = k215BRefl q in the
+-- level Y = 0 (beta = 1), with the matrix parameter rows (index k + 5 in Y for k < n), to the ball
+-- hypothesis k215BBall q of the core: the parameter block of the reflection ball is split off and
+-- eliminated by the rows; the remaining nine arguments stay quantified over Y.
+
+-- Splitting a ball: the outer n arguments first, then the inner m.
+def k215BXSplitLaw (m n .y .body: nat): wff =
+ $ A. y A. body (sfCLBall (m + n) y body = sfCLBall n y (sfCLBall m (y + n) body)) $;
+theorem k215BX_split (m n y body: nat):
+  $ sfCLBall (m + n) y body = sfCLBall n y (sfCLBall m (y + n) body) $;
+
+theorem k215BX_ball (G n q: nat) (hq: $ sfWf q $) (hb: $ sfBound (2 + n) q $)
+  (hp: $ nsLocal G (sfCLReflection sfLDomain (9 + n) (k215BRefl q) 1) $)
+  (hl: $ nsLocal G (sfCLHierarchyAt 1 0) $)
+  (hr: $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageParameterMap 4) 0) G n $):
+  $ nsLocal G (k215BBall q) $;

@@ -1,0 +1,54 @@
+import "k215_induction.mm1";
+import "k218_induction.mm1";
+
+pub theorem k215Cal_Imp_zero: $ kImp 0 0 = 0 $ =
+'(eqtr (muleq2 pr0) mul0);
+
+theorem k215Cal_body (n a b c u: nat):
+  $ k215AxBody n a b c u -> k218AxBody n a b c u $ =
+'(orim id (orim id (orim id (orim id (orim id (orim id (orim id (orim anr id))))))));
+
+theorem k215Cal_family {a b c u: nat} (n: nat):
+  $ E. a E. b E. c E. u k215AxBody n a b c u ->
+    E. a E. b E. c E. u k218AxBody n a b c u $ =
+(named '(eximi @ eximi @ eximi @ eximi k215Cal_body));
+
+theorem k215Cal_axiom (n: nat):
+  $ n e. k215Axioms -> n e. k218Axioms $ =
+(named '(syl (bi2 k218Axioms_value) @
+  syl (orim2 k215Cal_family) (bi1 k215Axioms_value)));
+
+pub theorem k215Cal_Axioms_subset: $ k215Axioms C_ k218Axioms $ =
+(named '(ax_gen k215Cal_axiom));
+
+theorem k215Cal_mp (c l: nat):
+  $ (c, l) e. k215MpRules -> (c, l) e. k218MpRules $ =
+(named '(syl (bi2 k218MpRules_value) @
+  syl (orim1 k215Cal_axiom) (bi1 k215MpRules_value)));
+
+theorem k215Cal_gen (c l: nat):
+  $ (c, l) e. k215GenRules -> (c, l) e. k218GenRules $ =
+(named '(syl (bi2 k218GenRules_value) (bi1 k215GenRules_value)));
+
+theorem k215Cal_rule (c l: nat):
+  $ (c, l) e. k215Rules -> (c, l) e. k218Rules $ =
+'(syl (bi2 elun) @ syl (orim k215Cal_mp k215Cal_gen) (bi1 elun));
+
+pub theorem k215Cal_Rules_subset: $ k215Rules C_ k218Rules $ =
+(named '(ssri2 k215Cal_rule));
+
+pub theorem k215Cal_Derives_forward (p a: nat):
+  $ k215Derives p a -> k218Derives p a $ =
+'(traceDerives_monotone k215Cal_Rules_subset);
+
+pub theorem k215Cal_Provable_forward (a: nat):
+  $ k215Provable a -> k218Provable a $ =
+(named '(eex @ syl k218Provable_intro k215Cal_Derives_forward));
+
+theorem k215Cal_inconsistent_witness (p: nat):
+  $ k215Derives p kF -> k218Inconsistent $ =
+(named '(syl (iexe ,eqtac) (! k215Cal_Derives_forward $ p $ $ kF $)));
+
+pub theorem k215Cal_Inconsistent_forward:
+  $ k215Inconsistent -> k218Inconsistent $ =
+(named '(eex k215Cal_inconsistent_witness));

@@ -1,0 +1,23 @@
+import "k215_bundle_images_boundf.mm0";
+import "k215_bundle_images_rename.mm0";
+import "source_renaming_agreement.mm0";
+
+-- S sends the labels a, b, k to 0, 1, 2 (a first) and every other index i to i + 3;
+-- T is a left inverse of S; S0 normalises the matrix so that a, b become its indices 0, 1.
+def k215GS (a b k: nat) (.i: nat): set = $ \ i, if (i = a) 0 (if (i = b) 1 (if (i = k) 2 (i + 3))) $;
+def k215GT (a b k: nat) (.j: nat): set = $ \ j, if (j = 0) a (if (j = 1) b (if (j = 2) k (j - 3))) $;
+def k215GS0 (a b: nat) (.i: nat): set = $ \ i, if (i = a) 0 (if (i = b) 1 (i + 2)) $;
+def k215GPhi (a b q: nat): nat = $ sfRename (k215GS0 a b) 0 (rawDecode q) $;
+def k215GX (phi B Z: nat): nat =
+ $ sfImp (sfRename (k215AddMap 3) 0 (k215BoundF phi)) (k215DecBundleGz 0 B 2 Z (k215QP phi 0 B 3)) $;
+
+theorem k215GX_congrB (phi B1 B2 Z: nat): $ B1 = B2 -> k215GX phi B1 Z = k215GX phi B2 Z $;
+theorem k215GX_congrZ (phi B Z1 Z2: nat): $ Z1 = Z2 -> k215GX phi B Z1 = k215GX phi B Z2 $;
+
+theorem k215GPhi_bound (a b q: nat): $ sfBound (2 + q) (k215GPhi a b q) $;
+theorem k215GPhi_wf (a b q: nat): $ sfWf (k215GPhi a b q) $;
+
+-- Glue from the template instance at the symbolic labels.
+theorem k215Glue_generic (a b k q: nat) (hka: $ k != a $) (hkb: $ k != b $) (hqk: $ q <= k $):
+  $ sfTheoryProvable zfrAxioms (k215GX (k215GPhi a b q) (k215GS a b k @ b) (k215GS a b k @ 0)) ->
+    zfcProvable (sfImp (k215BoundF (k215GPhi a b q)) (k215DecBundleGz a b k 0 (rawDecode q))) $;

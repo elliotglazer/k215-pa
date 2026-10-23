@@ -1,0 +1,37 @@
+import "source_piece_pcf_d0_kernels.mm1";
+import "source_piece_pcf_d0_normalize.mm1";
+import "source_piece_pcf_dn_exists.mm1";
+
+-- These conclusions keep the exact fixed source premise formulas.
+pub theorem sfPieceD0Base_exact(phi:nat)(hf:$ sfWf phi $):
+ $ sfPieceD0BaseLaw phi = sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceD0Canonical phi)) $ =
+'(sfPieceD0_source_base hf);
+pub theorem sfPieceD0Mono_exact(phi:nat)(hf:$ sfWf phi $):
+ $ sfPieceD0MonoLaw phi = sfPieceMonoCode (sfPieceD0Canonical phi) $ =
+'(sfPieceD0_source_mono hf);
+pub theorem sfPieceOrdinalExists_zfr:
+ $ sfTheoryProvable zfrAxioms sfPieceOrdinalExists $ =
+'sfPieceCanonicalOrdinalExists_zfr;
+
+pub theorem sfPieceD0CanonicalBase_from_fixed_source(phi:nat)(hf:$ sfWf phi $)
+ (ha:$ sfTheoryProvable zfrAxioms sfPieceLevelAbove $)
+ (hs:$ sfTheoryProvable zfrAxioms sfPieceLevelSub $):
+ $ sfTheoryProvable zfrAxioms (sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceD0Canonical phi))) $ =
+'(mpbi (trud (sfTheoryProvable_congr (a1i (sfPieceD0Base_exact hf))))
+ (sfPieceD0Base_zfr_rule hf ha hs sfPieceOrdinalExists_zfr));
+
+pub theorem sfPieceD0CanonicalMono_from_fixed_source(phi:nat)(hf:$ sfWf phi $)
+ (he:$ sfTheoryProvable zfrAxioms sfPieceLevelEx $)
+ (hs:$ sfTheoryProvable zfrAxioms sfPieceLevelSub $):
+ $ sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPieceD0Canonical phi)) $ =
+'(mpbi (trud (sfTheoryProvable_congr (a1i (sfPieceD0Mono_exact hf))))
+ (sfPieceD0Mono_zfr_rule hf he hs));
+
+pub theorem sfPieceDnD0_from_fixed_source(count phi:nat)(hf:$ sfWf phi $)
+ (he:$ sfTheoryProvable zfrAxioms sfPieceLevelEx $)
+ (hs:$ sfTheoryProvable zfrAxioms sfPieceLevelSub $)
+ (ha:$ sfTheoryProvable zfrAxioms sfPieceLevelAbove $):
+ $ sfTheoryProvable zfrAxioms (sfPieceDnExistenceCode count (sfPieceD0Canonical phi)) $ =
+'(sfPieceDn_exists (sfPieceD0Canonical_wf hf)
+ (sfPieceD0CanonicalBase_from_fixed_source hf ha hs)
+ (sfPieceD0CanonicalMono_from_fixed_source hf he hs));

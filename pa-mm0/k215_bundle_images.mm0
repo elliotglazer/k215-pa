@@ -1,0 +1,30 @@
+import "k215_bundle_images_rel_transfer.mm0";
+import "k215_bundle_images_decode.mm0";
+
+-- The K' core with label k and matrix code q decoupled (k215BundleG, decoded explicitly by
+-- k215BundleG_decode). Its closed instances; q <= k because the labels of rawDecode q are below
+-- q, so the bound label k is not free in the matrix (true for the bundle, where q = k).
+def k215CoreClosed (f .a .b .k .q .n: nat): wff =
+$ E. a E. b E. k E. q E. n
+  (((k != a /\ k != b) /\ q <= k) /\
+   (sfBound n (rawDecode (k215BundleG a b k q)) /\
+    f = sfAllPrefix n (rawDecode (k215BundleG a b k q)))) $;
+def k215CoreAxioms (.f: nat): set = $ {f | k215CoreClosed f} $;
+
+-- core^L (open premise): ZFC proves every closed decoupled core instance relativized to L.
+def k215CoreImagesL: wff = $ k215CoreAxioms C_ sfRelativeAxiomClass zfcAxioms sfLDomain $;
+
+theorem k215CoreAxioms_value (f: nat): $ f e. k215CoreAxioms <-> k215CoreClosed f $;
+
+-- Each bundle closure is a core closure with k = q = c.
+theorem k215BundleAxioms_core: $ k215BundleAxioms C_ k215CoreAxioms $;
+
+-- G2L from core^L.
+theorem k215BundleImagesL_from_core: $ k215CoreImagesL -> k215BundleImagesL $;
+
+-- Conditional K215/ZFC refutation transfer: G1, L nonempty, core^L.
+theorem k215_refutation_from_core
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc:$ k215CoreImagesL $):
+ $ k215Inconsistent -> zfcInconsistent $;

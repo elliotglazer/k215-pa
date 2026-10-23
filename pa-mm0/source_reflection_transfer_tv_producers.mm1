@@ -1,0 +1,25 @@
+import "source_reflection_transfer_tv_strict_piece.mm1";
+
+import "source_reflection_transfer_tv_reflection.mm1";
+
+import "source_piece_pcf_function_bound.mm1";
+
+import "source_piece_pcf_level_maps.mm1";
+
+import "source_piece_pcf_level_interfaces.mm1";
+
+pub theorem sfTVPieceLevelExists_eq: $ sfPieceLevelEx = sfLUniversalHierarchyExists $ = (named 'eqid);
+
+pub theorem sfTVPieceLevelSubset_eq: $ sfPieceLevelSub = sfLPowerHierarchySubset $ = (named 'eqid);
+
+pub theorem sfTVCanonicalPiece_pcf(n c:nat): $ (sfTVCanonicalPiece n c) = (sfPieceFunctionBinary sfLDomain sfPieceCanonicalLevel (sfTVEnumRows sfLDomain) (sfTVEnumLength (n + c) c)) $ = (named '(sfPieceFunctionBinaryeq eqid (eqcom sfPieceCanonicalLevel_hierarchy) eqsid eqid));
+
+pub theorem sfTVCanonicalPiece_has_ordinal_from_hierarchy(n c:nat)(hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)(hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $): $ sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfTVCanonicalPiece n c)) $ = (named '(mpbir (sfTheoryProvableeq2 (nsEx_eq (nsAnd_eq eqid sfTVCanonicalPiece_pcf))) (ax_mp (sfPieceFunctionPCf_exists_from_levels (mpbir (sfTheoryProvableeq2 sfTVPieceLevelExists_eq) hE) (mpbir (sfTheoryProvableeq2 sfTVPieceLevelSubset_eq) hS)) (sfTVEnumFunction_valid sfLDomain_bound))));
+
+pub theorem sfTVCanonicalPiece_mono_from_hierarchy(n c:nat)(hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)(hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $): $ sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfTVCanonicalPiece n c)) $ = (named '(mpbir (sfTheoryProvableeq2 (sfPieceMonoCode_eq sfTVCanonicalPiece_pcf)) (ax_mp (sfPieceFunctionPCf_mono_from_levels (mpbir (sfTheoryProvableeq2 sfTVPieceLevelExists_eq) hE) (mpbir (sfTheoryProvableeq2 sfTVPieceLevelSubset_eq) hS)) (sfTVEnumFunction_valid sfLDomain_bound))));
+
+pub theorem sfTVCanonicalPiece_strict_bound_from_hierarchy(n c:nat)(hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)(hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $): $ sfTheoryProvable zfrAxioms (sfTVStrictPieceBound (sfTVCanonicalPiece n c)) $ = (named '(sfTVStrictPieceBound_from_witnesses sfLUniversalHierarchyRelation_bound sfTVCanonicalPiece_bound (sfTVCanonicalPiece_mono_from_hierarchy hE hS) (sfTVCanonicalPiece_has_ordinal_from_hierarchy hE hS)));
+
+pub theorem sfTVCanonicalPiece_cond_bound_from_hierarchy(n c:nat)(hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)(hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $): $ sfTheoryProvable zfrAxioms (sfReflectionCondPiecesBound sfLUniversalHierarchyRelation (sfTVCanonicalPiece n c)) $ = (named '(sfTVCondPiecesBound_from_witnesses sfLUniversalHierarchyRelation_bound sfTVCanonicalPiece_bound (sfTVCanonicalPiece_mono_from_hierarchy hE hS) (sfTVCanonicalPiece_has_ordinal_from_hierarchy hE hS)));
+
+pub theorem sfTVCanonicalPiece_cond_producers_from_hierarchy(n c:nat)(hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)(hU:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)(hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $): $ sfReflectionCondProducers sfLUniversalHierarchyRelation (sfTVCanonicalPiece n c) $ = (named '(ian (mpbir (sfTheoryProvableeq2 sfLUniversalHierarchyExists_consumer_eq) hE) (ian (mpbir (sfTheoryProvableeq2 sfLUniversalHierarchyUnique_consumer_eq) hU) (sfTVCanonicalPiece_cond_bound_from_hierarchy hE hS))));

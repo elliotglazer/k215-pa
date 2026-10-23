@@ -1,0 +1,84 @@
+import "source_relativization_laws.mm1";
+import "zfc_irreflexive.mm1";
+
+theorem sfRQ_rewrite (G a b: nat) (he: $ a = b $) (hp: $ nsLocal G a $):
+  $ nsLocal G b $ =
+'(mpbi (nsLocal_formula_eq he) hp);
+
+theorem sfRQ_rewrite_context (G H a: nat) (he: $ G = H $) (hp: $ nsLocal G a $):
+  $ nsLocal H a $ =
+'(mpbi (nsLocal_context_eq he) hp);
+
+theorem sfRQ_allI_proof (G p a: nat) (hg: $ sfContextWf G $):
+  $ sfNDFullDerives p (sfSequent (sfContextShift G) a) ->
+    sfNDFullDerives (sfSequent G (sfAll a) : p) (sfSequent G (sfAll a)) $ =
+'(mpd id (syl sfNDFullDerives_AllI (sylc sfRowWf_sequent_intro
+  (a1i hg) (syl sfWf_all zfcProof_formula_wf))));
+
+pub theorem sfLocal_allI (G a: nat) (hg: $ sfContextWf G $):
+  $ nsLocal (sfContextShift G) a -> nsLocal G (sfAll a) $ =
+(named '(eex @ syl nsLocal_intro (sfRQ_allI_proof hg)));
+
+theorem sfRQ_exE_proof (G p q a b: nat) (hb: $ sfWf b $):
+  $ sfNDFullDerives p (sfSequent G (sfEx a)) ->
+    sfNDFullDerives q (sfSequent (a : sfContextShift G) (sfShift 0 b)) ->
+    sfNDFullDerives (sfSequent G b : (p ++ q)) (sfSequent G b) $ =
+'(exp @ mpd anr @ mpd anl @ syl sfNDFullDerives_ExE @
+  sylc sfRowWf_sequent_intro
+    (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anl))) (a1i hb));
+
+pub theorem sfLocal_exE (G a b: nat) (hb: $ sfWf b $):
+  $ nsLocal G (sfEx a) -> nsLocal (a : sfContextShift G) (sfShift 0 b) -> nsLocal G b $ =
+(named '(eex @ eexd @ exp @ syl nsLocal_intro (imp (sfRQ_exE_proof hb))));
+
+theorem sfRQ_and_proof (G p q a b: nat):
+  $ sfNDFullDerives p (sfSequent G a) -> sfNDFullDerives q (sfSequent G b) ->
+    sfNDFullDerives (sfSequent G (sfAnd a b) : (p ++ q)) (sfSequent G (sfAnd a b)) $ =
+'(exp @ mpd anr @ mpd anl @ syl sfNDFullDerives_prop_binary @
+  syl sfNDPropBinary_CI @ sylc sfRowWf_sequent_intro
+    (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anl)))
+    (sylc sfWf_and (syl zfcProof_formula_wf anl) (syl zfcProof_formula_wf anr)));
+
+pub theorem sfLocal_and (G a b: nat):
+  $ nsLocal G a -> nsLocal G b -> nsLocal G (sfAnd a b) $ =
+(named '(eex @ eexd @ exp @ syl nsLocal_intro (imp sfRQ_and_proof)));
+
+pub theorem sfRelative_AllE (D G a t: nat)
+  (hd: $ sfBound 1 D $) (ha: $ sfWf a $)
+  (hp: $ nsLocal G (sfRelativize D (sfAll a)) $)
+  (ht: $ nsLocal G (sfSubst 0 t D) $):
+  $ nsLocal G (sfRelativize D (sfSubst 0 t a)) $ =
+'(ax_mp (ax_mp nsLocal_mp (sfRQ_rewrite (eqtr sfSubst_sfImp (sfImp_eq_right (ax_mp (ax_mp sfRelativize_subst hd) ha))) (ax_mp nsLocal_AllE (sfRQ_rewrite sfRelativize_sfAll hp)))) ht);
+
+pub theorem sfRelative_AllI (D G a: nat)
+  (hg: $ sfContextWf G $)
+  (hp: $ nsLocal (D : sfContextShift G) (sfRelativize D a) $):
+  $ nsLocal G (sfRelativize D (sfAll a)) $ =
+'(sfRQ_rewrite (eqcom sfRelativize_sfAll) (ax_mp (sfLocal_allI hg) (ax_mp nsLocal_II hp)));
+
+pub theorem sfRelative_ExI (D G a t: nat)
+  (hd: $ sfBound 1 D $) (ha: $ sfWf a $)
+  (hp: $ nsLocal G (sfRelativize D (sfSubst 0 t a)) $)
+  (ht: $ nsLocal G (sfSubst 0 t D) $):
+  $ nsLocal G (sfRelativize D (sfEx a)) $ =
+'(sfRQ_rewrite (eqcom sfRelativize_sfEx) (ax_mp (ax_mp nsLocal_ExI (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd)))) (sfRQ_rewrite (eqcom sfSubst_sfAnd) (ax_mp (ax_mp sfLocal_and ht) (sfRQ_rewrite (eqcom (ax_mp (ax_mp sfRelativize_subst hd) ha)) hp)))));
+
+theorem sfRQ_and_context (G a b: nat) (hg: $ sfContextWf G $)
+  (ha: $ sfWf a $) (hb: $ sfWf b $):
+  $ sfContextWf (sfAnd a b : G) $ =
+'(mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and ha) hb) hg));
+
+pub theorem sfLocal_pair_assumptions (G a b c: nat)
+  (hg: $ sfContextWf G $) (ha: $ sfWf a $) (hb: $ sfWf b $)
+  (hp: $ nsLocal (b : (a : G)) c $):
+  $ nsLocal (sfAnd a b : G) c $ =
+'(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (sfRQ_and_context hg ha hb)) sfContextSub_cons) (ax_mp nsLocal_II (ax_mp nsLocal_II hp)))) (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (sfRQ_and_context hg ha hb)) sfContext_member_head)))) (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (sfRQ_and_context hg ha hb)) sfContext_member_head)));
+
+pub theorem sfRelative_ExE (D G a c: nat)
+  (hd: $ sfBound 1 D $) (hc: $ sfWf c $)
+  (hp: $ nsLocal G (sfRelativize D (sfEx a)) $)
+  (hq: $ nsLocal (sfRelativize D a : (D : sfContextShift G))
+       (sfRelativize D (sfShift 0 c)) $):
+  $ nsLocal G (sfRelativize D c) $ =
+'(ax_mp (ax_mp (sfLocal_exE (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd))) (sfRQ_rewrite sfRelativize_sfEx hp)) (sfLocal_pair_assumptions (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf hp)) (ax_mp sfBound_wf hd) (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd)) (sfRQ_rewrite (eqcom (ax_mp (ax_mp sfRelativize_shift hd) hc)) hq)));
+

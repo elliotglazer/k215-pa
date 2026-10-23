@@ -1,0 +1,100 @@
+import "k230_proofs.mm1";
+import "trace_soundness.mm1";
+
+do (apply (register-eqd 'kImp) '(kImp_congr kImp_congr_left kImp_congr_right));
+do (apply (register-eqd 'kAll) '(kAll_congr kAll_congr_left kAll_congr_right));
+
+theorem kDerives_congr (G: wff) (p q a b: nat)
+  (h1: $ G -> p = q $) (h2: $ G -> a = b $):
+  $ G -> (kDerives p a <-> kDerives q b) $ =
+'(aneqd (traceValideq2d h1) (lmemeqd h2 h1));
+theorem kDerives_congr_left (G: wff) (p q a: nat) (h: $ G -> p = q $):
+  $ G -> (kDerives p a <-> kDerives q a) $ = '(kDerives_congr h eqidd);
+theorem kDerives_congr_right (G: wff) (p a b: nat) (h: $ G -> a = b $):
+  $ G -> (kDerives p a <-> kDerives p b) $ = '(kDerives_congr eqidd h);
+do (apply (register-eqd 'kDerives)
+  '(kDerives_congr kDerives_congr_left kDerives_congr_right));
+
+@_ abstract def kMPClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (a e. P /\ kImp a b e. P -> b e. P) $;
+@_ abstract def kGenClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (b e. P -> kAll a b e. P) $;
+@_ def kClosed (P: set): wff =
+  $ kAxioms C_ P /\ kMPClosed P /\ kGenClosed P $;
+@_ abstract def kProvable (a: nat) (.p: nat): wff = $ E. p kDerives p a $;
+@_ abstract def kTheorems (.a: nat): set = $ {a | kProvable a} $;
+
+pub theorem kMPClosed_apply (P: set) (a b: nat):
+  $ kMPClosed P -> a e. P /\ kImp a b e. P -> b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+pub theorem kGenClosed_apply (P: set) (a b: nat):
+  $ kGenClosed P -> b e. P -> kAll a b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+theorem kProof_mp_payload (P: set) (a c l: nat):
+  $ kMPClosed P /\ traceClassAll P l ->
+    (a IN l /\ kImp a c IN l) -> c e. P $ =
+'(exp @ mpd
+  (iand (mpd (syl anl anr) (syl traceClassAll_get (syl anr anl)))
+        (mpd (syl anr anr) (syl traceClassAll_get (syl anr anl))))
+  (syl kMPClosed_apply (syl anl anl)));
+theorem kProof_mp_exists {a: nat} (P: set) (c l: nat):
+  $ kMPClosed P /\ traceClassAll P l ->
+    E. a (a IN l /\ kImp a c IN l) -> c e. P $ =
+(named '(eexd kProof_mp_payload));
+theorem kProof_mp_rule (P: set) (c l: nat):
+  $ kClosed P /\ traceClassAll P l -> (c, l) e. kMpRules -> c e. P $ =
+(named '(syl5bi kMpRules_value @ eord
+  (syl ssel (syl anl (syl anl anl)))
+  (syl kProof_mp_exists @ iand (syl anr (syl anl anl)) anr)));
+
+theorem kProof_gen_payload (P: set) (a b c l: nat):
+  $ kGenClosed P /\ traceClassAll P l ->
+    (b IN l /\ c = kAll a b) -> c e. P $ =
+'(exp @ mpd
+  (mpd (mpd (syl anl anr) (syl traceClassAll_get (syl anr anl)))
+       (syl kGenClosed_apply (syl anl anl)))
+  (bi2d (eleq1d (syl anr anr))));
+theorem kProof_gen_exists {a b: nat} (P: set) (c l: nat):
+  $ kGenClosed P /\ traceClassAll P l ->
+    E. a E. b (b IN l /\ c = kAll a b) -> c e. P $ =
+(named '(eexd @ eexd kProof_gen_payload));
+theorem kProof_gen_rule (P: set) (c l: nat):
+  $ kClosed P /\ traceClassAll P l -> (c, l) e. kGenRules -> c e. P $ =
+(named '(syl5bi kGenRules_value @ syl kProof_gen_exists @
+  iand (syl anr anl) anr));
+theorem kProof_rule (P: set) (c l: nat):
+  $ kClosed P /\ traceClassAll P l -> (c, l) e. kRules -> c e. P $ =
+'(syl5bi elun @ eord kProof_mp_rule kProof_gen_rule);
+pub theorem kClosed_ruleSound (P: set): $ kClosed P -> traceRuleSound kRules P $ =
+(named '(iald @ iald @ exp kProof_rule));
+pub theorem kDerives_induction (P: set) (p a: nat):
+  $ kClosed P -> kDerives p a -> a e. P $ =
+'(syl traceDerives_class kClosed_ruleSound);
+pub theorem kProvable_intro (p a: nat): $ kDerives p a -> kProvable a $ =
+(named '(iexe ,eqtac));
+pub theorem kProvable_induction (P: set) (a: nat):
+  $ kClosed P -> kProvable a -> a e. P $ =
+(named '(eexd kDerives_induction));
+pub theorem kProvable_axiom (a: nat): $ a e. kAxioms -> kProvable a $ =
+'(syl kProvable_intro kDerives_axiom);
+theorem kProvable_mp_witnesses (p q a b: nat):
+  $ kDerives p a -> kDerives q (kImp a b) -> kProvable b $ =
+'(syl6 kProvable_intro kDerives_mp);
+pub theorem kProvable_mp (a b: nat):
+  $ kProvable a -> kProvable (kImp a b) -> kProvable b $ =
+(named '(eex @ eexd kProvable_mp_witnesses));
+pub theorem kProvable_gen (a b: nat): $ kProvable b -> kProvable (kAll a b) $ =
+(named '(eex @ syl kProvable_intro kDerives_gen));
+pub theorem kTheorems_value (a: nat): $ a e. kTheorems <-> kProvable a $ =
+(named '(elabe ,eqtac));
+pub theorem kTheorems_closed: $ kClosed kTheorems $ =
+(named '(ian
+  (ian (ax_gen @ syl (bi2 kTheorems_value) kProvable_axiom)
+       (ax_gen @ ax_gen @ syl (bi2 kTheorems_value) @
+         mpd (syl (bi1 kTheorems_value) anr) @
+           syl kProvable_mp (syl (bi1 kTheorems_value) anl)))
+  (ax_gen @ ax_gen @ syl (bi2 kTheorems_value) @
+    syl kProvable_gen (bi1 kTheorems_value))));
+pub theorem kTheorems_least (P: set): $ kClosed P -> kTheorems C_ P $ =
+(named '(iald @ syl5 (bi1 kTheorems_value) kProvable_induction));

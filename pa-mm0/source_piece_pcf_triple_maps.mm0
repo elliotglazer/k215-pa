@@ -1,0 +1,27 @@
+import "source_reflection_least_cond_ord_maps.mm0";
+
+def sfPieceTripleMap(x y v z .i:nat):set = $ \ i, if (i = 0) x (if (i = 1) y (if (i = 2) v ((i - 3) + z))) $;
+
+def sfPieceTriple(phi x y v z:nat):nat = $ sfRename (sfPieceTripleMap x y v z) 0 phi $;
+
+theorem sfPCT_value(x y v z i:nat): $ sfPieceTripleMap x y v z @ i = if (i = 0) x (if (i = 1) y (if (i = 2) v ((i - 3) + z))) $;
+
+theorem sfPCT_zero(x y v z:nat): $ sfPieceTripleMap x y v z @ 0 = x $;
+
+theorem sfPCT_one(x y v z:nat): $ sfPieceTripleMap x y v z @ 1 = y $;
+
+theorem sfPCT_two(x y v z:nat): $ sfPieceTripleMap x y v z @ 2 = v $;
+
+theorem sfPCT_tail(x y v z i:nat): $ sfPieceTripleMap x y v z @ suc (suc (suc i)) = i + z $;
+
+theorem sfPieceTriple_congr(phi x y v z xx yy vv zz:nat)(hf:$ sfWf phi $)(hx:$ x = xx $)(hy:$ y = yy $)(hv:$ v = vv $)(hz:$ z = zz $): $ sfPieceTriple phi x y v z = sfPieceTriple phi xx yy vv zz $;
+
+theorem sfPieceTriple_wf(phi x y v z:nat): $ sfWf (sfPieceTriple phi x y v z) $;
+
+theorem sfPieceTriple_shift(phi x y v z d:nat)(hf:$ sfWf phi $)(hd:$ d <= z $): $ sfShift d (sfPieceTriple phi x y v z) = sfPieceTriple phi (sfShiftIndex d x) (sfShiftIndex d y) (sfShiftIndex d v) (suc z) $;
+
+theorem sfPieceTriple_subst(phi x y v z d t:nat)(hf:$ sfWf phi $)(hd:$ d < suc z $): $ sfSubst d t (sfPieceTriple phi x y v (suc z)) = sfPieceTriple phi (sfSubstIndex d t x) (sfSubstIndex d t y) (sfSubstIndex d t v) z $;
+
+theorem sfPieceTriple_identity(phi:nat)(hf:$ sfWf phi $): $ sfPieceTriple phi 0 1 2 3 = phi $;
+
+theorem sfPieceTriple_binary(phi x y z:nat)(hf:$ sfWf phi $): $ sfPieceTriple phi x y z (suc z) = sfLCBinary phi x y z $;

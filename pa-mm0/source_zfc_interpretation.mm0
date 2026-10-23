@@ -1,0 +1,54 @@
+import "source_relative_internal.mm0";
+
+def sfZFCFixedImages (T: set) (D .a: nat): wff = $ A. a (zfcFixed a -> sfTheoryProvable T (sfRelativize D a)) $;
+
+def sfZFCSeparationImages (T: set) (D .phi .n: nat): wff = $ A. phi A. n (sfBound (suc n) phi -> sfTheoryProvable T (sfRelativize D (zfcSeparationCode phi n))) $;
+
+def sfZFCReplacementImages (T: set) (D .phi .n: nat): wff = $ A. phi A. n (sfBound (suc (suc n)) phi -> sfTheoryProvable T (sfRelativize D (zfcReplacementCode phi n))) $;
+
+def sfZFCImageFamilies (T: set) (D: nat): wff = $ sfZFCFixedImages T D /\ (sfZFCSeparationImages T D /\ sfZFCReplacementImages T D) $;
+
+theorem sfZFCFixedImages_at (T: set) (D a: nat):
+ $ sfZFCFixedImages T D -> zfcFixed a -> sfTheoryProvable T (sfRelativize D a) $;
+
+theorem sfZFCSeparationImages_at (T: set) (D phi n: nat):
+ $ sfZFCSeparationImages T D -> sfBound (suc n) phi -> sfTheoryProvable T (sfRelativize D (zfcSeparationCode phi n)) $;
+
+theorem sfZFCClosedSeparation_image (T: set) (D a: nat):
+ $ sfZFCSeparationImages T D -> zfcClosedSeparation a -> sfTheoryProvable T (sfRelativize D a) $;
+
+theorem sfZFCReplacementImages_at (T: set) (D phi n: nat):
+ $ sfZFCReplacementImages T D -> sfBound (suc (suc n)) phi -> sfTheoryProvable T (sfRelativize D (zfcReplacementCode phi n)) $;
+
+theorem sfZFCClosedReplacement_image (T: set) (D a: nat):
+ $ sfZFCReplacementImages T D -> zfcClosedReplacement a -> sfTheoryProvable T (sfRelativize D a) $;
+
+theorem sfZFCImageFamilies_axiom (T: set) (D a: nat):
+ $ sfZFCImageFamilies T D -> a e. zfcAxioms -> sfTheoryProvable T (sfRelativize D a) $;
+
+theorem sfZFCImageFamilies_relative (T: set) (D: nat):
+ $ sfZFCImageFamilies T D -> sfRelativeAxiomImages zfcAxioms T D $;
+
+theorem sfZFCRelative_axiom_at (T: set) (D a: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> a e. zfcAxioms -> sfTheoryProvable T (sfRelativize D a) $;
+
+theorem sfZFCRelative_fixed (T: set) (D: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> sfZFCFixedImages T D $;
+
+theorem sfZFCRelative_separation (T: set) (D: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> sfZFCSeparationImages T D $;
+
+theorem sfZFCRelative_replacement (T: set) (D: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> sfZFCReplacementImages T D $;
+
+theorem sfZFCImageFamilies_from_relative (T: set) (D: nat):
+ $ sfRelativeAxiomImages zfcAxioms T D -> sfZFCImageFamilies T D $;
+
+theorem sfZFCImageFamilies_iff (T: set) (D: nat):
+ $ sfZFCImageFamilies T D <-> sfRelativeAxiomImages zfcAxioms T D $;
+
+theorem sfZFCImageFamilies_transfer (T: set) (D a: nat) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+ $ sfZFCImageFamilies T D -> sfTheoryProvable T (sfEx D) -> sfBound 0 a -> zfcProvable a -> sfTheoryProvable T (sfRelativize D a) $;
+
+theorem sfZFCImageFamilies_refutation (T: set) (D: nat) (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $):
+ $ sfZFCImageFamilies T D -> sfTheoryProvable T (sfEx D) -> zfcInconsistent -> sfTheoryProvable T sfBot $;

@@ -1,0 +1,37 @@
+import "source_reflection_transfer_tv_canonical.mm1";
+
+import "source_l_common_level_setrel_renaming.mm1";
+
+@_ def sfTVCanonicalPiece(n c:nat):nat = $ sfPieceFunctionBinary sfLDomain (sfReflectionPCLevel sfLUniversalHierarchyRelation) (sfTVEnumRows sfLDomain) (sfTVEnumLength (n + c) c) $;
+
+pub theorem sfTVCanonicalPiece_bound(n c:nat): $ sfBound 2 (sfTVCanonicalPiece n c) $ = (named '(ax_mp (ax_mp (ax_mp sfPieceFunctionBinary_bound sfLDomain_bound) (sfReflectionPCLevel_bound sfLUniversalHierarchyRelation_bound)) (sfTVEnumFunction_valid sfLDomain_bound)));
+
+pub theorem sfTVCanonicalProfile_bound(n c:nat): $ sfBound 3 (sfReflectionLimitProfile sfLUniversalHierarchyRelation (sfTVCanonicalPiece n c)) $ = (named '(sfReflectionLimitProfile_bound sfLUniversalHierarchyRelation_bound sfTVCanonicalPiece_bound));
+
+@_ def sfTVLevelBinderMap(.i:nat):set = $ \ i, if (i < 3) (suc i) 0 $;
+
+pub theorem sfTVLevelBinderMap_at(i:nat): $ sfTVLevelBinderMap @ i = if (i < 3) (suc i) 0 $ = (named '(!! applame j ,eqtac));
+
+theorem sftvref_map_low(i:nat): $ i < 3 -> sfTVLevelBinderMap @ i = sfSuccessorMap @ i $ = (named '(eqtrd (eqtrd (a1i sfTVLevelBinderMap_at) ifpos) (a1i (eqcom sfSuccessorMap_value))));
+
+pub theorem sfTVLevelBinderMap_zero: $ sfTVLevelBinderMap @ 0 = 1 $ = (named '(eqtr sfTVLevelBinderMap_at (ifpos lt01S)));
+
+pub theorem sfTVLevelBinderMap_three: $ sfTVLevelBinderMap @ 3 = 0 $ = (named '(eqtr sfTVLevelBinderMap_at (ifneg (mpbi lenlt leid))));
+
+pub theorem sfTVLevelBinderMap_small(a:nat)(ha:$ sfBound 3 a $): $ sfRename sfTVLevelBinderMap 0 a = sfShift 0 a $ = (named '(eqtr (ax_mp (ax_mp sfRename_bounded_agreement (ax_gen sftvref_map_low)) (mpbir (sfSchema_bound_index_eq add01) ha)) (ax_mp sfRename_successor (ax_mp sfBound_wf ha))));
+
+pub theorem sfTVLevelBinderMap_index(n:nat): $ sfRenameIndex sfTVLevelBinderMap n (3 + n) = n $ = (named '(eqtr (ax_mp sfRenameIndex_free (mpbi lenlt leaddid2)) (eqtr (addeq2 (eqtr (appeq2 pncan) sfTVLevelBinderMap_three)) add0)));
+
+pub theorem sfTVLevelBinderMap_block(n c:nat)(hb:$ sfBound n c $): $ sfRename sfTVLevelBinderMap 0 (sfCLBall n 3 (sfIff (sfRelativize sfLDomain c) (sfCLSetRel (3 + n) c))) = (sfCLBall n 0 (sfIff (sfRelativize sfLDomain c) (sfCLSetRel n c))) $ = (named '(eqtr sfCLBall_rename (sfCLBalleq eqid (eqtr sfRenameIndex_zero sfTVLevelBinderMap_three) (eqtr (sfRenameeq2 add0) (eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfImp (nsImp_eq (ax_mp sfRename_bound_identity (ax_mp (ax_mp sfRelativize_bound sfLDomain_bound) hb)) (eqtr (ax_mp sfCLSetRel_rename (ax_mp sfBound_wf hb)) (sfCLSetReleq sfTVLevelBinderMap_index (ax_mp sfRename_bound_identity hb))))) (eqtr sfRename_sfImp (nsImp_eq (eqtr (ax_mp sfCLSetRel_rename (ax_mp sfBound_wf hb)) (sfCLSetReleq sfTVLevelBinderMap_index (ax_mp sfRename_bound_identity hb))) (ax_mp sfRename_bound_identity (ax_mp (ax_mp sfRelativize_bound sfLDomain_bound) hb))))))))));
+
+@_ def sfTVReflectionOpen(G n c:nat):nat = $ (sfORBinary sfLUniversalHierarchyRelation 0 3) : ((sfReflectionLimitProfile sfLUniversalHierarchyRelation (sfTVCanonicalPiece n c)) : G) $;
+
+theorem sftvref_open_wf(G n c:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $): $ sfContextWf (sfTVReflectionOpen G n c) $ = (named '(mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf sfTVCanonicalProfile_bound) (ax_mp (ax_mp sfTheoryContext_wf ssid) hG))))));
+
+theorem sftvref_base_sub(G A B:nat): $ sfContextSub G (A : (B : G)) $ = (named '(ax_mp (ax_mp sfContextSub_trans sfContextSub_cons) sfContextSub_cons));
+
+theorem sftvref_open_tv(G n c:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $)(hb:$ sfBound n c $)(he:$ nsLocal G zfcRefl $)(hs:$ sfContextSub (sfReflectionPHProducerContext sfLUniversalHierarchyRelation) G $): $ nsLocal (sfTVReflectionOpen G n c) (sfCLBall n 3 (sfIff (sfRelativize sfLDomain c) (sfCLSetRel (3 + n) c))) $ = (named '(sfTV_canonical_from_profile (sftvref_open_wf hG) hb (ax_mp (ax_mp nsLocal_weaken (sftvref_open_wf hG)) sftvref_base_sub he) (ax_mp (ax_mp sfContextSub_trans hs) sftvref_base_sub) (ax_mp (ax_mp nsLocal_hyp (sftvref_open_wf hG)) (ax_mp sfContext_member_tail sfContext_member_head)) (ax_mp (ax_mp nsLocal_hyp (sftvref_open_wf hG)) sfContext_member_head)));
+
+theorem sftvref_open_rename(G n c:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $): $ sfContextRename sfTVLevelBinderMap 0 (sfTVReflectionOpen G n c) = (sfORBinary sfLUniversalHierarchyRelation 1 0) : sfContextShift ((sfReflectionLimitProfile sfLUniversalHierarchyRelation (sfTVCanonicalPiece n c)) : G) $ = (named '(eqtr (eqtr sfContextRename_cons (conseq (eqtr (sfORBinary_rename sfLUniversalHierarchyRelation_wf) (sfORBinary_congr sfLUniversalHierarchyRelation_wf sfTVLevelBinderMap_zero sfTVLevelBinderMap_three)) (eqtr sfContextRename_cons (conseq (sfTVLevelBinderMap_small sfTVCanonicalProfile_bound) (ax_mp (ax_mp sfTheoryContext_rename_identity ssid) hG))))) (conseq2 (eqcom (eqtr sfContextShift_cons (conseq2 (ax_mp (ax_mp sfTheoryContext_shift_identity ssid) hG)))))));
+
+pub theorem sfTV_reflection_from_profile(G n c:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $)(hb:$ sfBound n c $)(he:$ nsLocal G zfcRefl $)(hs:$ sfContextSub (sfReflectionPHProducerContext sfLUniversalHierarchyRelation) G $): $ nsLocal G (sfImp (sfReflectionLimitProfile sfLUniversalHierarchyRelation (sfTVCanonicalPiece n c)) (sfCLReflection sfLDomain n c 0)) $ = (named '(mpbir (nsLocal_formula_eq (nsImp_eq eqid (nsAll_eq (nsImp_eq sfTVCLHierarchy_relation eqid)))) (ax_mp nsLocal_II (ax_mp (sfLocal_allI (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf sfTVCanonicalProfile_bound) (ax_mp (ax_mp sfTheoryContext_wf ssid) hG)))) (ax_mp nsLocal_II (mpbi (trud (nsLocaleqd (a1i (sftvref_open_rename hG)) (a1i (sfTVLevelBinderMap_block hb)))) (ax_mp sfSepLocal_rename (sftvref_open_tv hG hb he hs))))))));

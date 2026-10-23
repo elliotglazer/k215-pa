@@ -1,0 +1,57 @@
+import "source_l_replacement_ambient.mm1";
+import "source_l_replacement_range_link.mm1";
+theorem lrepRangeSource_plus4(i:nat): $ i + 4 = suc (suc (suc (suc i))) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))))));
+
+theorem lrepRangeSource_C_zero:
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ 0 = sfRepCMap @ 0 $ =
+ '(eqtr sfRenameDepthMap_value (eqtr (ax_mp sfRenameIndex_bound lt01S) (eqcom sfRepCMap_zero)));
+
+theorem lrepRangeSource_C_one:
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ 1 = sfRepCMap @ 1 $ =
+ '(eqtr sfRenameDepthMap_value (eqtr (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (eqcom sfRepCMap_one)));
+
+theorem lrepRangeSource_C_tail(i:nat):
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ suc (suc i) = sfRepCMap @ suc (suc i) $ =
+ '(eqtr sfRenameDepthMap_value (eqtr (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero (eqtr sfComposeMap_value (eqtr (appeq2 sfSuccessorMap_value) sfSuccessorMap_value))))))) (eqtr (eqcom lrepRangeSource_plus4) (eqcom sfRepCMap_tail))));
+
+theorem lrepRangeSource_C_suc(i:nat):
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ suc i = sfRepCMap @ suc i $ =
+ (named @ induct '(ind) 'i 'lrepRangeSource_C_one '(a1i lrepRangeSource_C_tail));
+
+theorem lrepRangeSource_C_at(i:nat):
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ i = sfRepCMap @ i $ =
+ (named @ induct '(ind) 'i 'lrepRangeSource_C_zero '(a1i lrepRangeSource_C_suc));
+
+theorem lrepRangeSource_C_shift(phi:nat)(hf:$ sfWf phi $):
+ $ sfShift 2 (sfShift 2 phi) = sfRename sfRepCMap 0 phi $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfShift_wf)) (eqtr (sfRenameeq3 (eqcom (ax_mp sfRename_successor hf))) (eqtr (ax_mp sfRename_compose hf) (eqtr (ax_mp sfRename_as_map hf) (ax_mp (sfRename_extensional (!! ax_gen i @ ! lrepRangeSource_C_at i)) hf))))));
+
+
+theorem lrepRangeSource_matrix_C(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename sfRepCMap 0 (sfLReplacementMatrix phi) =
+ sfAnd (sfAnd (sfDomainAt sfLDomain 0) (sfDomainAt sfLDomain 1))
+ (sfRelativize sfLDomain (sfRename sfRepCMap 0 phi)) $ =
+ '(eqtr (lrepAmbient_matrix_rename hf) (nsAnd_eq (nsAnd_eq (sfSubsteq2 sfRepCMap_zero) (sfSubsteq2 sfRepCMap_one)) eqid));
+
+theorem lrepRangeSource_matrix_shift(phi:nat)(hf:$ sfWf phi $):
+ $ sfShift 2 (sfRename sfRepCMap 0 (sfLReplacementMatrix phi)) =
+ sfAnd (sfAnd (sfDomainAt sfLDomain 0) (sfDomainAt sfLDomain 1))
+ (sfLReplacementRangeMatrix phi) $ =
+ '(eqtr (sfShifteq2 (lrepRangeSource_matrix_C hf)) (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfAnd (nsAnd_eq (ax_mp sfShift_bound_identity (ax_mp (ax_mp sfBound_mono (ax_mp sfDomainAt_bound_self sfLDomain_bound)) (mpbi lesuc le01))) (ax_mp sfShift_bound_identity (ax_mp sfDomainAt_bound_self sfLDomain_bound)))) (eqtr (ax_mp (ax_mp sfRelativize_shift sfLDomain_bound) sfRename_wf) (sfRelativizeeq2 (sfShifteq2 (eqcom (lrepRangeSource_C_shift hf))))))));
+
+pub theorem sfLReplacementAmbientBody_shift(phi:nat)(hf:$ sfWf phi $):
+ $ sfShift 0 (sfLReplacementAmbientBody phi) =
+ sfLReplacementAmbientProfile (sfLReplacementRangeMatrix phi) $ =
+ '(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02)))) (eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) (mt (bi2 ltsuc) lt02))))) (lrepRangeSource_matrix_shift hf))))))) (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) (mt (bi2 ltsuc) lt02))))) (lrepRangeSource_matrix_shift hf))))) (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02))))))))));
+
+pub theorem sfLReplacement_range_from_raw_image(G phi:nat)(hf:$ sfWf phi $)
+ (hi:$ nsLocal G (sfShift 0 (sfLReplacementAmbientBody phi)) $)
+ (hb:$ nsLocal G (sfLReplacementIntersectionBound (sfLReplacementRangeMatrix phi)) $):
+ $ nsLocal G (sfLReplacementImageCoverage sfLReplacementRangeTail sfLDomain (sfLReplacementPsi phi) 0) $ =
+ '(ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp nsLocal_mp
+   (ax_mp (ax_mp (ax_mp sfLocal_hypothesis_replacement (ax_mp nsLocal_context_wf hi)) sfLocalCoverage_nil)
+    (sfLReplacement_range_coverage_from_image hf)))
+   (sfRQ_rewrite (sfLReplacementAmbientBody_shift hf) hi)))
+  hb);

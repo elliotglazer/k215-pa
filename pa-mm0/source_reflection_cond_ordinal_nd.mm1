@@ -1,0 +1,255 @@
+import "source_local_extra.mm1";
+
+@_ def rcondOrdNDF0: nat = $ sfMem 0 1 $;
+
+@_ def rcondOrdNDF1: nat = $ sfBot $;
+
+@_ def rcondOrdNDF2: nat = $ sfImp rcondOrdNDF0 rcondOrdNDF1 $;
+
+@_ def rcondOrdNDF3: nat = $ sfAll rcondOrdNDF2 $;
+
+@_ def rcondOrdNDF4: nat = $ sfEx rcondOrdNDF3 $;
+
+@_ def rcondOrdNDG5: nat = $ rcondOrdNDF4 : 0 $;
+
+@_ def rcondOrdNDF6: nat = $ sfMem 0 2 $;
+
+@_ def rcondOrdNDF7: nat = $ sfImp rcondOrdNDF6 rcondOrdNDF1 $;
+
+@_ def rcondOrdNDF8: nat = $ sfAll rcondOrdNDF7 $;
+
+@_ def rcondOrdNDG9: nat = $ rcondOrdNDF8 : 0 $;
+
+@_ def rcondOrdNDG10: nat = $ rcondOrdNDF0 : rcondOrdNDG9 $;
+
+@_ def rcondOrdNDG11: nat = $ rcondOrdNDF0 : 0 $;
+
+@_ def rcondOrdNDF12: nat = $ sfImp rcondOrdNDF0 rcondOrdNDF6 $;
+
+@_ def rcondOrdNDF13: nat = $ sfAll rcondOrdNDF12 $;
+
+@_ def rcondOrdNDF14: nat = $ sfImp rcondOrdNDF0 rcondOrdNDF13 $;
+
+@_ def rcondOrdNDG15: nat = $ rcondOrdNDF3 : 0 $;
+
+@_ def rcondOrdNDF16: nat = $ sfAll rcondOrdNDF14 $;
+
+@_ def rcondOrdNDF17: nat = $ sfImp rcondOrdNDF0 rcondOrdNDF16 $;
+
+@_ def rcondOrdNDF18: nat = $ sfAll rcondOrdNDF17 $;
+
+@_ def rcondOrdNDF19: nat = $ sfAnd rcondOrdNDF16 rcondOrdNDF18 $;
+
+@_ def rcondOrdNDF20: nat = $ sfEx rcondOrdNDF19 $;
+
+@_ def rcondOrdNDG21: nat = $ rcondOrdNDF3 : rcondOrdNDG5 $;
+
+theorem rcondOrdNDWf0: $ sfWf rcondOrdNDF0 $ = 'sfWf_mem;
+
+theorem rcondOrdNDWf1: $ sfWf rcondOrdNDF1 $ = 'sfWf_bot;
+
+theorem rcondOrdNDWf2: $ sfWf rcondOrdNDF2 $ = '(ax_mp (ax_mp sfWf_imp rcondOrdNDWf0) rcondOrdNDWf1);
+
+theorem rcondOrdNDWf3: $ sfWf rcondOrdNDF3 $ = '(ax_mp sfWf_all rcondOrdNDWf2);
+
+theorem rcondOrdNDWf4: $ sfWf rcondOrdNDF4 $ = '(ax_mp sfWf_ex rcondOrdNDWf3);
+
+theorem rcondOrdNDGWf5: $ sfContextWf 0 $ = 'sfContextWf_nil;
+
+theorem rcondOrdNDGWf6: $ sfContextWf rcondOrdNDG5 $ = '(mpbir sfContextWf_cons (ian rcondOrdNDWf4 rcondOrdNDGWf5));
+
+theorem rcondOrdNDMem7: $ rcondOrdNDF4 IN rcondOrdNDG5 $ = 'sfContext_member_head;
+
+theorem rcondOrdNDP8: $ nsLocal rcondOrdNDG5 rcondOrdNDF4 $ = '(ax_mp (ax_mp nsLocal_hyp rcondOrdNDGWf6) rcondOrdNDMem7);
+
+theorem rcondOrdNDWf9: $ sfWf rcondOrdNDF6 $ = 'sfWf_mem;
+
+theorem rcondOrdNDWf10: $ sfWf rcondOrdNDF7 $ = '(ax_mp (ax_mp sfWf_imp rcondOrdNDWf9) rcondOrdNDWf1);
+
+theorem rcondOrdNDWf11: $ sfWf rcondOrdNDF8 $ = '(ax_mp sfWf_all rcondOrdNDWf10);
+
+theorem rcondOrdNDGWf12: $ sfContextWf rcondOrdNDG9 $ = '(mpbir sfContextWf_cons (ian rcondOrdNDWf11 rcondOrdNDGWf5));
+
+theorem rcondOrdNDMem13: $ rcondOrdNDF8 IN rcondOrdNDG9 $ = 'sfContext_member_head;
+
+theorem rcondOrdNDP14: $ nsLocal rcondOrdNDG9 rcondOrdNDF8 $ = '(ax_mp (ax_mp nsLocal_hyp rcondOrdNDGWf12) rcondOrdNDMem13);
+
+theorem rcondOrdNDInst15: $ sfSubst 0 0 rcondOrdNDF6 = rcondOrdNDF0 $ = '(eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor));
+
+theorem rcondOrdNDInst16: $ sfSubst 0 0 rcondOrdNDF1 = rcondOrdNDF1 $ = 'sfSubst_bot;
+
+theorem rcondOrdNDInst17: $ sfSubst 0 0 rcondOrdNDF7 = rcondOrdNDF2 $ = '(eqtr sfSubst_sfImp (nsImp_eq rcondOrdNDInst15 rcondOrdNDInst16));
+
+theorem rcondOrdNDP18: $ nsLocal rcondOrdNDG9 rcondOrdNDF2 $ = '(sfRQ_rewrite rcondOrdNDInst17 (ax_mp nsLocal_AllE rcondOrdNDP14));
+
+theorem rcondOrdNDGWf19: $ sfContextWf rcondOrdNDG10 $ = '(mpbir sfContextWf_cons (ian rcondOrdNDWf0 rcondOrdNDGWf12));
+
+theorem rcondOrdNDMem20: $ rcondOrdNDF8 IN rcondOrdNDG10 $ = '(ax_mp sfContext_member_tail sfContext_member_head);
+
+theorem rcondOrdNDSub21: $ sfContextSub 0 rcondOrdNDG10 $ = '(mpbir (sseq1 (nseq lmems0)) ss01);
+
+theorem rcondOrdNDSub22: $ sfContextSub rcondOrdNDG9 rcondOrdNDG10 $ = '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian rcondOrdNDMem20 rcondOrdNDSub21)));
+
+theorem rcondOrdNDP23: $ nsLocal rcondOrdNDG10 rcondOrdNDF2 $ = '(ax_mp (ax_mp (ax_mp nsLocal_weaken rcondOrdNDGWf19) rcondOrdNDSub22) rcondOrdNDP18);
+
+theorem rcondOrdNDGWf24: $ sfContextWf rcondOrdNDG11 $ = '(mpbir sfContextWf_cons (ian rcondOrdNDWf0 rcondOrdNDGWf5));
+
+theorem rcondOrdNDMem25: $ rcondOrdNDF0 IN rcondOrdNDG11 $ = 'sfContext_member_head;
+
+theorem rcondOrdNDP26: $ nsLocal rcondOrdNDG11 rcondOrdNDF0 $ = '(ax_mp (ax_mp nsLocal_hyp rcondOrdNDGWf24) rcondOrdNDMem25);
+
+theorem rcondOrdNDMem27: $ rcondOrdNDF0 IN rcondOrdNDG10 $ = 'sfContext_member_head;
+
+theorem rcondOrdNDSub28: $ sfContextSub 0 rcondOrdNDG10 $ = '(mpbir (sseq1 (nseq lmems0)) ss01);
+
+theorem rcondOrdNDSub29: $ sfContextSub rcondOrdNDG11 rcondOrdNDG10 $ = '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian rcondOrdNDMem27 rcondOrdNDSub28)));
+
+theorem rcondOrdNDP30: $ nsLocal rcondOrdNDG10 rcondOrdNDF0 $ = '(ax_mp (ax_mp (ax_mp nsLocal_weaken rcondOrdNDGWf19) rcondOrdNDSub29) rcondOrdNDP26);
+
+theorem rcondOrdNDP31: $ nsLocal rcondOrdNDG10 rcondOrdNDF1 $ = '(ax_mp (ax_mp nsLocal_mp rcondOrdNDP23) rcondOrdNDP30);
+
+theorem rcondOrdNDWf32: $ sfWf rcondOrdNDF12 $ = '(ax_mp (ax_mp sfWf_imp rcondOrdNDWf0) rcondOrdNDWf9);
+
+theorem rcondOrdNDWf33: $ sfWf rcondOrdNDF13 $ = '(ax_mp sfWf_all rcondOrdNDWf32);
+
+theorem rcondOrdNDP34: $ nsLocal rcondOrdNDG10 rcondOrdNDF13 $ = '(ax_mp (sfLocal_falseE rcondOrdNDWf33) rcondOrdNDP31);
+
+theorem rcondOrdNDP35: $ nsLocal rcondOrdNDG9 rcondOrdNDF14 $ = '(ax_mp nsLocal_II rcondOrdNDP34);
+
+theorem rcondOrdNDShift36: $ sfShift 1 rcondOrdNDF0 = rcondOrdNDF6 $ = '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mpbi lenlt leid))));
+
+theorem rcondOrdNDShift37: $ sfShift 1 rcondOrdNDF1 = rcondOrdNDF1 $ = 'sfShift_bot;
+
+theorem rcondOrdNDShift38: $ sfShift 1 rcondOrdNDF2 = rcondOrdNDF7 $ = '(eqtr sfShift_sfImp (nsImp_eq rcondOrdNDShift36 rcondOrdNDShift37));
+
+theorem rcondOrdNDShift39: $ sfShift 0 rcondOrdNDF3 = rcondOrdNDF8 $ = '(eqtr sfShift_sfAll (nsAll_eq rcondOrdNDShift38));
+
+theorem rcondOrdNDGShift40: $ sfContextShift 0 = 0 $ = 'sfContextShift_nil;
+
+theorem rcondOrdNDGShift41: $ sfContextShift rcondOrdNDG15 = rcondOrdNDG9 $ = '(eqtr sfContextShift_cons (conseq rcondOrdNDShift39 rcondOrdNDGShift40));
+
+theorem rcondOrdNDGWf42: $ sfContextWf rcondOrdNDG15 $ = '(mpbir sfContextWf_cons (ian rcondOrdNDWf3 rcondOrdNDGWf5));
+
+theorem rcondOrdNDP43: $ nsLocal rcondOrdNDG15 rcondOrdNDF16 $ = '(ax_mp (sfLocal_allI rcondOrdNDGWf42) (mpbir (nsLocal_context_eq rcondOrdNDGShift41) rcondOrdNDP35));
+
+theorem rcondOrdNDWf44: $ sfWf rcondOrdNDF14 $ = '(ax_mp (ax_mp sfWf_imp rcondOrdNDWf0) rcondOrdNDWf33);
+
+theorem rcondOrdNDWf45: $ sfWf rcondOrdNDF16 $ = '(ax_mp sfWf_all rcondOrdNDWf44);
+
+theorem rcondOrdNDP46: $ nsLocal rcondOrdNDG10 rcondOrdNDF16 $ = '(ax_mp (sfLocal_falseE rcondOrdNDWf45) rcondOrdNDP31);
+
+theorem rcondOrdNDP47: $ nsLocal rcondOrdNDG9 rcondOrdNDF17 $ = '(ax_mp nsLocal_II rcondOrdNDP46);
+
+theorem rcondOrdNDGShift48: $ sfContextShift 0 = 0 $ = 'sfContextShift_nil;
+
+theorem rcondOrdNDGShift49: $ sfContextShift rcondOrdNDG15 = rcondOrdNDG9 $ = '(eqtr sfContextShift_cons (conseq rcondOrdNDShift39 rcondOrdNDGShift48));
+
+theorem rcondOrdNDP50: $ nsLocal rcondOrdNDG15 rcondOrdNDF18 $ = '(ax_mp (sfLocal_allI rcondOrdNDGWf42) (mpbir (nsLocal_context_eq rcondOrdNDGShift49) rcondOrdNDP47));
+
+theorem rcondOrdNDP51: $ nsLocal rcondOrdNDG15 rcondOrdNDF19 $ = '(ax_mp (ax_mp sfLocal_and rcondOrdNDP43) rcondOrdNDP50);
+
+theorem rcondOrdNDInst52: $ sfSubst 1 0 rcondOrdNDF0 = rcondOrdNDF0 $ = '(eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero))));
+
+theorem rcondOrdNDInst53: $ sfSubst 2 0 rcondOrdNDF0 = rcondOrdNDF0 $ = '(eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S)))));
+
+theorem rcondOrdNDInst54: $ sfSubst 2 0 rcondOrdNDF6 = rcondOrdNDF6 $ = '(eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero))))));
+
+theorem rcondOrdNDInst55: $ sfSubst 2 0 rcondOrdNDF12 = rcondOrdNDF12 $ = '(eqtr sfSubst_sfImp (nsImp_eq rcondOrdNDInst53 rcondOrdNDInst54));
+
+theorem rcondOrdNDInst56: $ sfSubst 1 0 rcondOrdNDF13 = rcondOrdNDF13 $ = '(eqtr sfSubst_sfAll (nsAll_eq rcondOrdNDInst55));
+
+theorem rcondOrdNDInst57: $ sfSubst 1 0 rcondOrdNDF14 = rcondOrdNDF14 $ = '(eqtr sfSubst_sfImp (nsImp_eq rcondOrdNDInst52 rcondOrdNDInst56));
+
+theorem rcondOrdNDInst58: $ sfSubst 0 0 rcondOrdNDF16 = rcondOrdNDF16 $ = '(eqtr sfSubst_sfAll (nsAll_eq rcondOrdNDInst57));
+
+theorem rcondOrdNDInst59: $ sfSubst 3 0 rcondOrdNDF0 = rcondOrdNDF0 $ = '(eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S)))));
+
+theorem rcondOrdNDInst60: $ sfSubst 3 0 rcondOrdNDF6 = rcondOrdNDF6 $ = '(eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S)))))));
+
+theorem rcondOrdNDInst61: $ sfSubst 3 0 rcondOrdNDF12 = rcondOrdNDF12 $ = '(eqtr sfSubst_sfImp (nsImp_eq rcondOrdNDInst59 rcondOrdNDInst60));
+
+theorem rcondOrdNDInst62: $ sfSubst 2 0 rcondOrdNDF13 = rcondOrdNDF13 $ = '(eqtr sfSubst_sfAll (nsAll_eq rcondOrdNDInst61));
+
+theorem rcondOrdNDInst63: $ sfSubst 2 0 rcondOrdNDF14 = rcondOrdNDF14 $ = '(eqtr sfSubst_sfImp (nsImp_eq rcondOrdNDInst53 rcondOrdNDInst62));
+
+theorem rcondOrdNDInst64: $ sfSubst 1 0 rcondOrdNDF16 = rcondOrdNDF16 $ = '(eqtr sfSubst_sfAll (nsAll_eq rcondOrdNDInst63));
+
+theorem rcondOrdNDInst65: $ sfSubst 1 0 rcondOrdNDF17 = rcondOrdNDF17 $ = '(eqtr sfSubst_sfImp (nsImp_eq rcondOrdNDInst52 rcondOrdNDInst64));
+
+theorem rcondOrdNDInst66: $ sfSubst 0 0 rcondOrdNDF18 = rcondOrdNDF18 $ = '(eqtr sfSubst_sfAll (nsAll_eq rcondOrdNDInst65));
+
+theorem rcondOrdNDInst67: $ sfSubst 0 0 rcondOrdNDF19 = rcondOrdNDF19 $ = '(eqtr sfSubst_sfAnd (nsAnd_eq rcondOrdNDInst58 rcondOrdNDInst66));
+
+theorem rcondOrdNDWf68: $ sfWf rcondOrdNDF17 $ = '(ax_mp (ax_mp sfWf_imp rcondOrdNDWf0) rcondOrdNDWf45);
+
+theorem rcondOrdNDWf69: $ sfWf rcondOrdNDF18 $ = '(ax_mp sfWf_all rcondOrdNDWf68);
+
+theorem rcondOrdNDWf70: $ sfWf rcondOrdNDF19 $ = '(ax_mp (ax_mp sfWf_and rcondOrdNDWf45) rcondOrdNDWf69);
+
+theorem rcondOrdNDP71: $ nsLocal rcondOrdNDG15 rcondOrdNDF20 $ = '(ax_mp (ax_mp nsLocal_ExI rcondOrdNDWf70) (mpbir (nsLocal_formula_eq rcondOrdNDInst67) rcondOrdNDP51));
+
+theorem rcondOrdNDGWf72: $ sfContextWf rcondOrdNDG21 $ = '(mpbir sfContextWf_cons (ian rcondOrdNDWf3 rcondOrdNDGWf6));
+
+theorem rcondOrdNDMem73: $ rcondOrdNDF3 IN rcondOrdNDG21 $ = 'sfContext_member_head;
+
+theorem rcondOrdNDSub74: $ sfContextSub 0 rcondOrdNDG21 $ = '(mpbir (sseq1 (nseq lmems0)) ss01);
+
+theorem rcondOrdNDSub75: $ sfContextSub rcondOrdNDG15 rcondOrdNDG21 $ = '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian rcondOrdNDMem73 rcondOrdNDSub74)));
+
+theorem rcondOrdNDP76: $ nsLocal rcondOrdNDG21 rcondOrdNDF20 $ = '(ax_mp (ax_mp (ax_mp nsLocal_weaken rcondOrdNDGWf72) rcondOrdNDSub75) rcondOrdNDP71);
+
+theorem rcondOrdNDShift77: $ sfShift 2 rcondOrdNDF0 = rcondOrdNDF0 $ = '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S))));
+
+theorem rcondOrdNDShift78: $ sfShift 2 rcondOrdNDF1 = rcondOrdNDF1 $ = 'sfShift_bot;
+
+theorem rcondOrdNDShift79: $ sfShift 2 rcondOrdNDF2 = rcondOrdNDF2 $ = '(eqtr sfShift_sfImp (nsImp_eq rcondOrdNDShift77 rcondOrdNDShift78));
+
+theorem rcondOrdNDShift80: $ sfShift 1 rcondOrdNDF3 = rcondOrdNDF3 $ = '(eqtr sfShift_sfAll (nsAll_eq rcondOrdNDShift79));
+
+theorem rcondOrdNDShift81: $ sfShift 0 rcondOrdNDF4 = rcondOrdNDF4 $ = '(eqtr sfShift_sfEx (nsEx_eq rcondOrdNDShift80));
+
+theorem rcondOrdNDGShift82: $ sfContextShift 0 = 0 $ = 'sfContextShift_nil;
+
+theorem rcondOrdNDGShift83: $ sfContextShift rcondOrdNDG5 = rcondOrdNDG5 $ = '(eqtr sfContextShift_cons (conseq rcondOrdNDShift81 rcondOrdNDGShift82));
+
+theorem rcondOrdNDShift84: $ sfShift 3 rcondOrdNDF0 = rcondOrdNDF0 $ = '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S))));
+
+theorem rcondOrdNDShift85: $ sfShift 3 rcondOrdNDF6 = rcondOrdNDF6 $ = '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+theorem rcondOrdNDShift86: $ sfShift 3 rcondOrdNDF12 = rcondOrdNDF12 $ = '(eqtr sfShift_sfImp (nsImp_eq rcondOrdNDShift84 rcondOrdNDShift85));
+
+theorem rcondOrdNDShift87: $ sfShift 2 rcondOrdNDF13 = rcondOrdNDF13 $ = '(eqtr sfShift_sfAll (nsAll_eq rcondOrdNDShift86));
+
+theorem rcondOrdNDShift88: $ sfShift 2 rcondOrdNDF14 = rcondOrdNDF14 $ = '(eqtr sfShift_sfImp (nsImp_eq rcondOrdNDShift77 rcondOrdNDShift87));
+
+theorem rcondOrdNDShift89: $ sfShift 1 rcondOrdNDF16 = rcondOrdNDF16 $ = '(eqtr sfShift_sfAll (nsAll_eq rcondOrdNDShift88));
+
+theorem rcondOrdNDShift90: $ sfShift 4 rcondOrdNDF0 = rcondOrdNDF0 $ = '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S))));
+
+theorem rcondOrdNDShift91: $ sfShift 4 rcondOrdNDF6 = rcondOrdNDF6 $ = '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+theorem rcondOrdNDShift92: $ sfShift 4 rcondOrdNDF12 = rcondOrdNDF12 $ = '(eqtr sfShift_sfImp (nsImp_eq rcondOrdNDShift90 rcondOrdNDShift91));
+
+theorem rcondOrdNDShift93: $ sfShift 3 rcondOrdNDF13 = rcondOrdNDF13 $ = '(eqtr sfShift_sfAll (nsAll_eq rcondOrdNDShift92));
+
+theorem rcondOrdNDShift94: $ sfShift 3 rcondOrdNDF14 = rcondOrdNDF14 $ = '(eqtr sfShift_sfImp (nsImp_eq rcondOrdNDShift84 rcondOrdNDShift93));
+
+theorem rcondOrdNDShift95: $ sfShift 2 rcondOrdNDF16 = rcondOrdNDF16 $ = '(eqtr sfShift_sfAll (nsAll_eq rcondOrdNDShift94));
+
+theorem rcondOrdNDShift96: $ sfShift 2 rcondOrdNDF17 = rcondOrdNDF17 $ = '(eqtr sfShift_sfImp (nsImp_eq rcondOrdNDShift77 rcondOrdNDShift95));
+
+theorem rcondOrdNDShift97: $ sfShift 1 rcondOrdNDF18 = rcondOrdNDF18 $ = '(eqtr sfShift_sfAll (nsAll_eq rcondOrdNDShift96));
+
+theorem rcondOrdNDShift98: $ sfShift 1 rcondOrdNDF19 = rcondOrdNDF19 $ = '(eqtr sfShift_sfAnd (nsAnd_eq rcondOrdNDShift89 rcondOrdNDShift97));
+
+theorem rcondOrdNDShift99: $ sfShift 0 rcondOrdNDF20 = rcondOrdNDF20 $ = '(eqtr sfShift_sfEx (nsEx_eq rcondOrdNDShift98));
+
+theorem rcondOrdNDWf100: $ sfWf rcondOrdNDF20 $ = '(ax_mp sfWf_ex rcondOrdNDWf70);
+
+theorem rcondOrdNDP101: $ nsLocal rcondOrdNDG5 rcondOrdNDF20 $ = '(ax_mp (ax_mp (sfLocal_exE rcondOrdNDWf100) rcondOrdNDP8) (mpbir (trud (nsLocaleqd (a1i (conseq2 rcondOrdNDGShift83)) (a1i rcondOrdNDShift99))) rcondOrdNDP76));
+
+@_ def rcondOrdNDContext: nat = $ rcondOrdNDG5 $;
+
+@_ def rcondOrdNDFormula: nat = $ rcondOrdNDF20 $;
+
+pub theorem rcondOrdNDCertificate: $ nsLocal rcondOrdNDContext rcondOrdNDFormula $ = 'rcondOrdNDP101;

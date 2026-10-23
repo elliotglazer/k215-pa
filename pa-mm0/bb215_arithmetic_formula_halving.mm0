@@ -1,0 +1,21 @@
+import "bb215_arithmetic_formula_qf_sat.mm0";
+
+import "pa_formula_source_bound.mm0";
+
+def bb215ArithmeticFormulaHalvingGraph (a q r: nat): wff = $ (r = 0 \/ r = 1) /\ 2 * q + r = a $;
+
+def bb215ArithmeticFormulaHalvingCode: nat = $ paFormulaAnd (paFormulaOr (paFormulaEqual (paTermVariable 2) (paTermZero)) (paFormulaEqual (paTermVariable 2) (paTermSuccessor (paTermZero)))) (paFormulaEqual (paTermAddition (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 1)) (paTermVariable 2)) (paTermVariable 0)) $;
+
+def bb215ArithmeticFormulaHalvingSource: nat = $ sfAnd (sfOr (paSourceFormulaEqual (paSourceTermVariable 2) (paSourceTermZero)) (paSourceFormulaEqual (paSourceTermVariable 2) (paSourceTermSuccessor (paSourceTermZero)))) (paSourceFormulaEqual (paSourceTermAddition (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 1)) (paSourceTermVariable 2)) (paSourceTermVariable 0)) $;
+
+theorem bb215ArithmeticFormulaHalvingGraph_correct (a q r: nat): $ bb215ArithmeticFormulaHalvingGraph a q r <-> a // 2 = q /\ a % 2 = r $;
+
+theorem bb215ArithmeticFormulaHalvingCode_bound: $ paFormulaBound 3 bb215ArithmeticFormulaHalvingCode $;
+
+theorem bb215ArithmeticFormulaHalvingCode_satisfies (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaHalvingCode <-> bb215ArithmeticFormulaHalvingGraph (E @ 0) (E @ 1) (E @ 2) $;
+
+theorem bb215ArithmeticFormulaHalvingCode_represents (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaHalvingCode <-> (E @ 0) // 2 = E @ 1 /\ (E @ 0) % 2 = E @ 2 $;
+
+theorem bb215ArithmeticFormulaHalvingSource_exact: $ paFormulaSource bb215ArithmeticFormulaHalvingCode = bb215ArithmeticFormulaHalvingSource $;
+
+theorem bb215ArithmeticFormulaHalvingSource_bound: $ sfBound 3 bb215ArithmeticFormulaHalvingSource $;

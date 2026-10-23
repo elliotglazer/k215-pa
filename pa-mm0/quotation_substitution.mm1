@@ -1,0 +1,297 @@
+import "k230_substitution.mm1";
+import "quotation_binders.mm1";
+import "quotation_freshness.mm1";
+
+-- This is a syntactic equation even when y would be captured.
+-- Capture-free proof transport later imposes y below the fresh binder base.
+@_ abstract def kReplaceEnvironment (x y: nat) (E: set) (.i: nat): set =
+ $ \ i, kReplace x y (E @ i) $;
+pub theorem kReplaceEnvironment_value (x y: nat) (E: set) (i: nat):
+ $ kReplaceEnvironment x y E @ i = kReplace x y (E @ i) $ =
+(named '(!! applame j ,eqtac));
+theorem qsSubst_eq (a b x y: nat) (h: $ a = b $):
+ $ kSubst a x y = kSubst b x y $ =
+'(trud (kSubst_congr (a1i h) eqidd eqidd));
+theorem qsReplace_eq (a b x y: nat) (h: $ a = b $):
+ $ kReplace x y a = kReplace x y b $ =
+'(trud (kReplace_congr eqidd eqidd (a1i h)));
+theorem qsIndex_below (E: set) (k d i x y: nat) (hk: $ x < k $):
+ $ i < d -> kReplace x y (sfNamedIndex E k d i) =
+ sfNamedIndex (kReplaceEnvironment x y E) k d i $ =
+'(eqtrd (kReplace_congr eqidd eqidd sfNamedIndex_bound) @
+ eqtrd (a1i (kReplace_miss (ltneri (ltletr hk leaddid1))))
+ (eqcomd sfNamedIndex_bound));
+theorem qsIndex_free (E: set) (k d i x y: nat):
+ $ ~i < d -> kReplace x y (sfNamedIndex E k d i) =
+ sfNamedIndex (kReplaceEnvironment x y E) k d i $ =
+'(eqtrd (kReplace_congr eqidd eqidd sfNamedIndex_free) @
+ eqtrd (a1i (eqcom kReplaceEnvironment_value)) (eqcomd sfNamedIndex_free));
+pub theorem sfNamedIndex_replace (E: set) (k d i x y: nat) (hk: $ x < k $):
+ $ kReplace x y (sfNamedIndex E k d i) =
+ sfNamedIndex (kReplaceEnvironment x y E) k d i $ =
+'(cases (qsIndex_below hk) qsIndex_free);
+
+pub theorem qsSubst_kF (x y: nat) (hz: $ x != 0 $):
+ $ kSubst kF x y = kF $ =
+'(kSubst_fresh_identity (mpbir kFresh_kF hz));
+pub theorem qsSubst_kNot (a x y: nat) (hz: $ x != 0 $):
+ $ kSubst (kNot a) x y = kNot (kSubst a x y) $ =
+'(eqtr kSubst_kImp (kImpeq2 (qsSubst_kF hz)));
+pub theorem qsSubst_kAnd (a b x y: nat) (hz: $ x != 0 $):
+ $ kSubst (kAnd a b) x y = kAnd (kSubst a x y) (kSubst b x y) $ =
+'(eqtr (qsSubst_kNot hz) (kNoteq (eqtr kSubst_kImp (kImpeq2 (qsSubst_kNot hz)))));
+pub theorem qsSubst_kDisj (a b x y: nat) (hz: $ x != 0 $):
+ $ kSubst (kDisj a b) x y = kDisj (kSubst a x y) (kSubst b x y) $ =
+'(eqtr kSubst_kImp (kImpeq1 (qsSubst_kNot hz)));
+pub theorem qsSubst_kExists (a b x y: nat) (hz: $ x != 0 $):
+ $ a != x -> kSubst (kExists a b) x y = kExists a (kSubst b x y) $ =
+'(eqtrd (a1i (qsSubst_kNot hz)) (kNoteqd
+ (eqtrd kSubst_kAll_open (a1i (kAlleq2 (qsSubst_kNot hz))))));
+
+@_ abstract def ntSubstClass (E: set) (k x y: nat) (.c .d: nat): set =
+$ {c | A. d (kSubst (sfNamedTemplate E k d c) x y =
+ sfNamedTemplate (kReplaceEnvironment x y E) k d c)} $;
+pub theorem ntSubst_value {d: nat} (E: set) (k x y c: nat):
+ $ c e. ntSubstClass E k x y <-> A. d
+ (kSubst (sfNamedTemplate E k d c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k d c) $ =
+(named '(elabe ,eqtac));
+theorem ntSubst_depth (E: set) (k x y d c: nat):
+ $ (A. j (kSubst (sfNamedTemplate E k j c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k j c)) ->
+ kSubst (sfNamedTemplate E k d c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k d c $ =
+(named '(!! eale j ,eqtac));
+theorem ntSubst_at (E: set) (k x y d c: nat):
+ $ c e. ntSubstClass E k x y ->
+ kSubst (sfNamedTemplate E k d c) x y = sfNamedTemplate (kReplaceEnvironment x y E) k d c $ =
+(named '(syl ntSubst_depth (bi1 ntSubst_value)));
+theorem ntSubst_bot (E: set) (k x y: nat) (hz: $ x != 0 $):
+ $ sfBot e. ntSubstClass E k x y $ =
+(named '(mpbir ntSubst_value @ ax_gen @
+ eqtr (qsSubst_eq sfNamedTemplate_bot) @ eqtr (qsSubst_kF hz) (eqcom sfNamedTemplate_bot)));
+theorem ntSubst_mem (E: set) (k x y a b: nat) (hk: $ x < k $):
+ $ sfMem a b e. ntSubstClass E k x y $ =
+(named '(mpbir ntSubst_value @ ax_gen @
+ eqtr (qsSubst_eq sfNamedTemplate_sfMem) @ eqtr kSubst_kMem @
+ eqtr (kMemeq (sfNamedIndex_replace hk) (sfNamedIndex_replace hk))
+ (eqcom sfNamedTemplate_sfMem)));
+theorem ntSubst_eq (E: set) (k x y a b: nat) (hk: $ x < k $):
+ $ sfEq a b e. ntSubstClass E k x y $ =
+(named '(mpbir ntSubst_value @ ax_gen @
+ eqtr (qsSubst_eq sfNamedTemplate_sfEq) @ eqtr kSubst_kEq @
+ eqtr (kEqeq (sfNamedIndex_replace hk) (sfNamedIndex_replace hk))
+ (eqcom sfNamedTemplate_sfEq)));
+theorem ntSubst_atomic (E: set) (k x y: nat) (hk: $ x < k $):
+ $ sfAtomicClosed (ntSubstClass E k x y) $ =
+(named '(ax_gen @ ax_gen @ ian (ntSubst_mem hk) (ntSubst_eq hk)));
+theorem ntSubst_and (E: set) (k x y a b: nat) (hz: $ x != 0 $):
+ $ a e. ntSubstClass E k x y /\ b e. ntSubstClass E k x y -> sfAnd a b e. ntSubstClass E k x y $ =
+(named '(mpbird (a1i ntSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfAnd)) @ eqtrd (a1i (qsSubst_kAnd hz)) @
+ eqtrd (kAndeqd (syl ntSubst_at anl) (syl ntSubst_at anr))
+ (a1i (eqcom sfNamedTemplate_sfAnd))));
+theorem ntSubst_or (E: set) (k x y a b: nat) (hz: $ x != 0 $):
+ $ a e. ntSubstClass E k x y /\ b e. ntSubstClass E k x y -> sfOr a b e. ntSubstClass E k x y $ =
+(named '(mpbird (a1i ntSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfOr)) @ eqtrd (a1i (qsSubst_kDisj hz)) @
+ eqtrd (kDisjeqd (syl ntSubst_at anl) (syl ntSubst_at anr))
+ (a1i (eqcom sfNamedTemplate_sfOr))));
+theorem ntSubst_imp (E: set) (k x y a b: nat):
+ $ a e. ntSubstClass E k x y /\ b e. ntSubstClass E k x y -> sfImp a b e. ntSubstClass E k x y $ =
+(named '(mpbird (a1i ntSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfImp)) @ eqtrd (a1i kSubst_kImp) @
+ eqtrd (kImpeqd (syl ntSubst_at anl) (syl ntSubst_at anr))
+ (a1i (eqcom sfNamedTemplate_sfImp))));
+theorem ntSubst_binary (E: set) (k x y: nat) (hz: $ x != 0 $):
+ $ sfBinaryClosed (ntSubstClass E k x y) $ =
+(named '(ax_gen @ ax_gen @ iand (iand (ntSubst_and hz) (ntSubst_or hz)) ntSubst_imp));
+theorem ntSubst_all (E: set) (k x y a: nat) (hk: $ x < k $):
+ $ a e. ntSubstClass E k x y -> sfAll a e. ntSubstClass E k x y $ =
+(named '(mpbird (a1i ntSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfAll)) @ eqtrd (a1i (kSubst_kAll_open (ltneri (ltletr hk leaddid1)))) @
+ eqtrd (kAlleq2d ntSubst_at) (a1i (eqcom sfNamedTemplate_sfAll))));
+theorem ntSubst_ex (E: set) (k x y a: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ a e. ntSubstClass E k x y -> sfEx a e. ntSubstClass E k x y $ =
+(named '(mpbird (a1i ntSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sfNamedTemplate_sfEx)) @ eqtrd (a1i (ax_mp (qsSubst_kExists hz) (ltneri (ltletr hk leaddid1)))) @
+ eqtrd (kExistseq2d ntSubst_at) (a1i (eqcom sfNamedTemplate_sfEx))));
+theorem ntSubst_quantifier (E: set) (k x y: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfQuantifierClosed (ntSubstClass E k x y) $ =
+(named '(ax_gen @ iand (ntSubst_all hk) (ntSubst_ex hk hz)));
+theorem ntSubst_closed (E: set) (k x y: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfConstructionClosed (ntSubstClass E k x y) $ =
+'(ian (ian (ian (ntSubst_bot hz) (ntSubst_atomic hk)) (ntSubst_binary hz)) (ntSubst_quantifier hk hz));
+pub theorem sfNamedTemplate_substitution (E: set) (k d c x y: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfWf c -> kSubst (sfNamedTemplate E k d c) x y =
+ sfNamedTemplate (kReplaceEnvironment x y E) k d c $ =
+'(syl ntSubst_at (ax_mp sfWf_induction (ntSubst_closed hk hz)));
+
+
+pub theorem kReplace_if (P: wff) (x y a b: nat):
+ $ kReplace x y (if P a b) = if P (kReplace x y a) (kReplace x y b) $ =
+'(cases
+ (eqtrd (kReplace_congr eqidd eqidd ifpos) (eqcomd ifpos))
+ (eqtrd (kReplace_congr eqidd eqidd ifneg) (eqcomd ifneg)));
+theorem qsAtomEnv_value (t a b i: nat):
+ $ sqAtomEnvironment t a b @ i = if (i = 0) t (if (i = 1) a b) $ =
+(named '(!! applame j ,eqtac));
+theorem qsAtom_replace_at (t a b x y i: nat):
+ $ kReplaceEnvironment x y (sqAtomEnvironment t a b) @ i =
+ sqAtomEnvironment (kReplace x y t) (kReplace x y a) (kReplace x y b) @ i $ =
+'(eqtr kReplaceEnvironment_value @ eqtr (qsReplace_eq qsAtomEnv_value) @
+ eqtr kReplace_if @ eqtr (ifeq3 kReplace_if) @ eqcom qsAtomEnv_value);
+theorem qsAtom_replace_agree (t a b x y: nat):
+ $ sqEnvAgree (kReplaceEnvironment x y (sqAtomEnvironment t a b))
+ (sqAtomEnvironment (kReplace x y t) (kReplace x y a) (kReplace x y b)) 3 $ =
+(named '(ax_gen @ a1i qsAtom_replace_at));
+pub theorem sqEqual_substitution (t a b k x y: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ kSubst (sqEqual t a b k) x y =
+ sqEqual (kReplace x y t) (kReplace x y a) (kReplace x y b) k $ =
+'(eqtr (ax_mp (sfNamedTemplate_substitution hk hz) sqEqualSource_wf)
+ (ax_mp (sfNamedTemplate_environment qsAtom_replace_agree)
+  (mpbir (srecpeq2 (preq1 add01)) sqEqualSource_bound)));
+pub theorem sqMember_substitution (t a b k x y: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ kSubst (sqMember t a b k) x y =
+ sqMember (kReplace x y t) (kReplace x y a) (kReplace x y b) k $ =
+'(eqtr (ax_mp (sfNamedTemplate_substitution hk hz) sqMemberSource_wf)
+ (ax_mp (sfNamedTemplate_environment qsAtom_replace_agree)
+  (mpbir (srecpeq2 (preq1 add01)) sqMemberSource_bound)));
+theorem qsSubst_guard (t a x y: nat) (ha: $ a != x $):
+ $ kSubst (kMem t a) x y = kMem (kReplace x y t) a $ =
+'(eqtr kSubst_kMem (kMemeq2 (kReplace_miss ha)));
+
+@_ abstract def qqSubstClass (E: set) (t k x y: nat) (.c .d: nat): set =
+$ {c | A. d (kSubst (sqQuote E t k d c) x y =
+ sqQuote (kReplaceEnvironment x y E) (kReplace x y t) k d c)} $;
+pub theorem qqSubst_value {d: nat} (E: set) (t k x y c: nat):
+ $ c e. qqSubstClass E t k x y <-> A. d
+ (kSubst (sqQuote E t k d c) x y = sqQuote (kReplaceEnvironment x y E) (kReplace x y t) k d c) $ =
+(named '(elabe ,eqtac));
+theorem qqSubst_depth (E: set) (t k x y d c: nat):
+ $ (A. j (kSubst (sqQuote E t k j c) x y = sqQuote (kReplaceEnvironment x y E) (kReplace x y t) k j c)) ->
+ kSubst (sqQuote E t k d c) x y = sqQuote (kReplaceEnvironment x y E) (kReplace x y t) k d c $ =
+(named '(!! eale j ,eqtac));
+theorem qqSubst_at (E: set) (t k x y d c: nat):
+ $ c e. qqSubstClass E t k x y ->
+ kSubst (sqQuote E t k d c) x y = sqQuote (kReplaceEnvironment x y E) (kReplace x y t) k d c $ =
+(named '(syl qqSubst_depth (bi1 qqSubst_value)));
+theorem qqSubst_bot (E: set) (t k x y: nat) (hz: $ x != 0 $):
+ $ sfBot e. qqSubstClass E t k x y $ =
+(named '(mpbir qqSubst_value @ ax_gen @
+ eqtr (qsSubst_eq sqQuote_bot) @ eqtr (qsSubst_kF hz) (eqcom sqQuote_bot)));
+theorem qqSubst_mem (E: set) (t k x y a b: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfMem a b e. qqSubstClass E t k x y $ =
+(named '(mpbir qqSubst_value @ ax_gen @
+ eqtr (qsSubst_eq sqQuote_sfMem) @
+ eqtr (sqMember_substitution (ltletr hk leaddid1) hz) @
+ eqtr (sqMembereq eqid (sfNamedIndex_replace hk) (sfNamedIndex_replace hk) eqid)
+ (eqcom sqQuote_sfMem)));
+theorem qqSubst_eq (E: set) (t k x y a b: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfEq a b e. qqSubstClass E t k x y $ =
+(named '(mpbir qqSubst_value @ ax_gen @
+ eqtr (qsSubst_eq sqQuote_sfEq) @
+ eqtr (sqEqual_substitution (ltletr hk leaddid1) hz) @
+ eqtr (sqEqualeq eqid (sfNamedIndex_replace hk) (sfNamedIndex_replace hk) eqid)
+ (eqcom sqQuote_sfEq)));
+theorem qqSubst_atomic (E: set) (t k x y: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfAtomicClosed (qqSubstClass E t k x y) $ =
+(named '(ax_gen @ ax_gen @ ian (qqSubst_mem hk hz) (qqSubst_eq hk hz)));
+theorem qqSubst_and (E: set) (t k x y a b: nat) (hz: $ x != 0 $):
+ $ a e. qqSubstClass E t k x y /\ b e. qqSubstClass E t k x y -> sfAnd a b e. qqSubstClass E t k x y $ =
+(named '(mpbird (a1i qqSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sqQuote_sfAnd)) @ eqtrd (a1i (qsSubst_kAnd hz)) @
+ eqtrd (kAndeqd (syl qqSubst_at anl) (syl qqSubst_at anr))
+ (a1i (eqcom sqQuote_sfAnd))));
+theorem qqSubst_or (E: set) (t k x y a b: nat) (hz: $ x != 0 $):
+ $ a e. qqSubstClass E t k x y /\ b e. qqSubstClass E t k x y -> sfOr a b e. qqSubstClass E t k x y $ =
+(named '(mpbird (a1i qqSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sqQuote_sfOr)) @ eqtrd (a1i (qsSubst_kDisj hz)) @
+ eqtrd (kDisjeqd (syl qqSubst_at anl) (syl qqSubst_at anr))
+ (a1i (eqcom sqQuote_sfOr))));
+theorem qqSubst_imp (E: set) (t k x y a b: nat):
+ $ a e. qqSubstClass E t k x y /\ b e. qqSubstClass E t k x y -> sfImp a b e. qqSubstClass E t k x y $ =
+(named '(mpbird (a1i qqSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sqQuote_sfImp)) @ eqtrd (a1i kSubst_kImp) @
+ eqtrd (kImpeqd (syl qqSubst_at anl) (syl qqSubst_at anr))
+ (a1i (eqcom sqQuote_sfImp))));
+theorem qqSubst_binary (E: set) (t k x y: nat) (hz: $ x != 0 $):
+ $ sfBinaryClosed (qqSubstClass E t k x y) $ =
+(named '(ax_gen @ ax_gen @ iand (iand (qqSubst_and hz) (qqSubst_or hz)) qqSubst_imp));
+theorem qqSubst_all (E: set) (t k x y a: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ a e. qqSubstClass E t k x y -> sfAll a e. qqSubstClass E t k x y $ =
+(named '(mpbird (a1i qqSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sqQuote_sfAll)) @
+ eqtrd (a1i (eqtr (kSubst_kAll_open (ltneri (ltletr hk leaddid1))) (kAlleq2 kSubst_kImp))) @
+ eqtrd (kAlleq2d (kImpeqd
+  (a1i (qsSubst_guard (ltneri (ltletr hk leaddid1)))) qqSubst_at))
+ (a1i (eqcom sqQuote_sfAll))));
+theorem qqSubst_ex (E: set) (t k x y a: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ a e. qqSubstClass E t k x y -> sfEx a e. qqSubstClass E t k x y $ =
+(named '(mpbird (a1i qqSubst_value) @ !! iald d @
+ eqtrd (a1i (qsSubst_eq sqQuote_sfEx)) @
+ eqtrd (a1i (eqtr (ax_mp (qsSubst_kExists hz) (ltneri (ltletr hk leaddid1))) (kExistseq2 (qsSubst_kAnd hz)))) @
+ eqtrd (kExistseq2d (kAndeqd
+  (a1i (qsSubst_guard (ltneri (ltletr hk leaddid1)))) qqSubst_at))
+ (a1i (eqcom sqQuote_sfEx))));
+theorem qqSubst_quantifier (E: set) (t k x y: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfQuantifierClosed (qqSubstClass E t k x y) $ =
+(named '(ax_gen @ iand (qqSubst_all hk hz) (qqSubst_ex hk hz)));
+theorem qqSubst_closed (E: set) (t k x y: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfConstructionClosed (qqSubstClass E t k x y) $ =
+'(ian (ian (ian (qqSubst_bot hz) (qqSubst_atomic hk hz)) (qqSubst_binary hz)) (qqSubst_quantifier hk hz));
+pub theorem sqQuote_substitution (E: set) (t k d c x y: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfWf c -> kSubst (sqQuote E t k d c) x y =
+ sqQuote (kReplaceEnvironment x y E) (kReplace x y t) k d c $ =
+'(syl qqSubst_at (ax_mp sfWf_induction (qqSubst_closed hk hz)));
+
+
+-- Replacing the designated outer name changes only the new head entry.
+theorem qsReplaceCons_zero (E: set) (k y: nat):
+ $ kReplaceEnvironment k y (sqEnvCons k E) @ 0 = sqEnvCons y E @ 0 $ =
+'(eqtr kReplaceEnvironment_value @ eqtr (qsReplace_eq sqEnvCons_zero) @
+ eqtr kReplace_hit (eqcom sqEnvCons_zero));
+theorem qsReplaceCons_suc (E: set) (n k y i: nat):
+ $ sqEnvAvoid E n k -> i < n ->
+ kReplaceEnvironment k y (sqEnvCons k E) @ suc i = sqEnvCons y E @ suc i $ =
+'(exp @ eqtrd (a1i kReplaceEnvironment_value) @
+ eqtrd (a1i (qsReplace_eq sqEnvCons_suc)) @
+ eqtrd (syl kReplace_miss (syl necom (mpd anr (syl sqEnvAvoid_at anl))))
+ (a1i (eqcom sqEnvCons_suc)));
+theorem qsReplaceCons_at (E: set) (n k y i: nat):
+ $ sqEnvAvoid E n k -> i < suc n ->
+ kReplaceEnvironment k y (sqEnvCons k E) @ i = sqEnvCons y E @ i $ =
+(named @ induct '(ind) 'i
+ '(a1i (a1i qsReplaceCons_zero))
+ '(a1i (syl5 (bi2 ltsuc) qsReplaceCons_suc)));
+pub theorem kReplaceEnvironment_cons_agree (E: set) (n k y: nat):
+ $ sqEnvAvoid E n k -> sqEnvAgree
+ (kReplaceEnvironment k y (sqEnvCons k E)) (sqEnvCons y E) (suc n) $ =
+(named '(iald qsReplaceCons_at));
+pub theorem kReplaceEnvironment_avoid (E: set) (n x y: nat):
+ $ sqEnvAvoid E n x -> sqEnvAgree (kReplaceEnvironment x y E) E n $ =
+(named '(iald @ exp @ eqtrd (a1i kReplaceEnvironment_value)
+ (syl kReplace_miss (syl necom (mpd anr (syl sqEnvAvoid_at anl))))));
+
+pub theorem sfNamedTemplate_substitution_cons (E: set) (n k y c: nat)
+ (hz: $ k != 0 $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) c ->
+ kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) 0 c) k y =
+ sfNamedTemplate (sqEnvCons y E) (suc k) 0 c $ =
+'(eqtrd (syl (sfNamedTemplate_substitution ltsucid hz) sfBound_wf)
+ (syl (sfNamedTemplate_environment (ax_mp kReplaceEnvironment_cons_agree he))
+  (bi2 (srecpeq2 (preq1 add01)))));
+pub theorem sqQuote_substitution_cons (E: set) (n t k y c: nat)
+ (hz: $ k != 0 $) (ht: $ k != t $) (he: $ sqEnvAvoid E n k $):
+ $ sfBound (suc n) c ->
+ kSubst (sqQuote (sqEnvCons k E) t (suc k) 0 c) k y =
+ sqQuote (sqEnvCons y E) t (suc k) 0 c $ =
+'(eqtrd (syl (sqQuote_substitution ltsucid hz) sfBound_wf) @
+ eqtrd (a1i (sqQuoteeq2 (kReplace_miss (necom ht)))) @
+ syl (sqQuote_environment (ax_mp kReplaceEnvironment_cons_agree he))
+ (bi2 (srecpeq2 (preq1 add01))));

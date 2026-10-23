@@ -1,0 +1,47 @@
+import "k230_bootstrap.mm1";
+import "k230_vacuity.mm1";
+
+@_ def kQuotientDomain: nat = $ kMem 1 3 $;
+@_ def kQuotientContext: nat = $ kQuotientDomain : (kEmptyMarker : 0) $;
+
+theorem kBD_ne30: $ 3 != 0 $ = '(ltneri lt01S);
+theorem kBD_ne31: $ 3 != 1 $ = '(ltneri (mpbi ltsuc lt01S));
+theorem kBD_ne32: $ 3 != 2 $ = '(ltneri ltsucid);
+theorem kBD_ne10: $ 1 != 0 $ = 'peano1;
+
+theorem kBD_false_three: $ kFresh kF 3 $ = '(mpbir kFresh_kF kBD_ne30);
+theorem kBD_false_one: $ kFresh kF 1 $ = '(mpbir kFresh_kF kBD_ne10);
+
+pub theorem kEmptyMarker_fresh_three: $ kFresh kEmptyMarker 3 $ =
+'(kFresh_all_intro kBD_ne32
+  (kFresh_imp_intro (kFresh_mem_intro kBD_ne32 kBD_ne31) kBD_false_three));
+
+pub theorem kEmptyMarker_context_fresh_three: $ kContextFresh (kEmptyMarker : 0) 3 $ =
+'(mpbir kContextFresh_cons (ian kEmptyMarker_fresh_three kContextFresh_nil));
+
+theorem kBD_context_vacuous_three: $ kContextVacuous (kEmptyMarker : 0) 3 $ =
+'(ax_mp kContextFresh_vacuous kEmptyMarker_context_fresh_three);
+
+theorem kBD_domain_in_marker_context:
+ $ kHypProvable (kEmptyMarker : 0) (kExists 3 kQuotientDomain) $ =
+'(ax_mp kHypProvable_seed kBootstrap_domain_member);
+
+pub theorem kBootstrap_domain_discharge:
+ $ kHypProvable kQuotientContext kF -> kHypProvable (kEmptyMarker : 0) kF $ =
+'(syl (ax_mp (kHypProvable_exists_elim kBD_context_vacuous_three
+   (ax_mp kFresh_vacuity kBD_false_three)) kBD_domain_in_marker_context)
+  kHypProvable_deduction);
+
+theorem kBD_marker_in_empty_context: $ kHypProvable 0 kEmptyObject $ =
+'(ax_mp kHypProvable_seed kBootstrap_empty);
+
+pub theorem kBootstrap_marker_discharge:
+ $ kHypProvable (kEmptyMarker : 0) kF -> kProvable kF $ =
+'(syl kHypProvable_empty @
+  syl (ax_mp (kHypProvable_exists_elim kContextVacuous_nil
+    (ax_mp kFresh_vacuity kBD_false_one)) kBD_marker_in_empty_context)
+  kHypProvable_deduction);
+
+pub theorem kBootstrap_refutation:
+ $ kHypProvable kQuotientContext kF -> kProvable kF $ =
+'(syl kBootstrap_marker_discharge kBootstrap_domain_discharge);

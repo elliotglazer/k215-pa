@@ -1,0 +1,107 @@
+import "source_bounds.mm0";
+
+-- Total source-formula renaming by a set-valued function graph R.
+-- Below binder depth d the index is fixed; free index d+i maps to d+R(i).
+-- No equality with the source general finite-map trace relation is assumed.
+
+
+def sfRenameIndex (R: set) (d i: nat): nat = $ if (i < d) i (d + (R @ (i - d))) $;
+def sfRenameBody (R: set) (d c h: nat): nat =
+$ if (c = 0) 0
+  (if (sfTag c = 1) (sfMem (sfRenameIndex R d (sfLeft c)) (sfRenameIndex R d (sfRight c)))
+  (if (sfTag c = 2) (sfEq (sfRenameIndex R d (sfLeft c)) (sfRenameIndex R d (sfRight c)))
+  (if (sfTag c = 3) (sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (sfAll (h @ (suc d, sfLeft c)))
+  (if (sfTag c = 7 /\ sfRight c = 0) (sfEx (h @ (suc d, sfLeft c))) 0))))))) $;
+def sfRenameStep (R: set) (.h: nat): set =
+$ \ h, sfRenameBody R (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+def sfRename (R: set) (d c: nat): nat = $ srec (sfRenameStep R) (d, c) $;
+def sfRenameHistory (R: set) (d c .i: nat): nat =
+$ \. i e. upto (d, c), srec (sfRenameStep R) i $;
+
+theorem sfRenameStep_apply (R: set) (h: nat):
+  $ sfRenameStep R @ h = sfRenameBody R (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+theorem sfRenameHistory_size (R: set) (d c: nat): $ sfHistoryLength (sfRenameHistory R d c) = (d, c) $;
+theorem sfRenameHistory_lookup (R: set) (d c e a: nat):
+  $ (e, a) < (d, c) -> sfRenameHistory R d c @ (e, a) = sfRename R e a $;
+theorem sfRename_unfold (R: set) (d c: nat):
+  $ sfRename R d c = sfRenameBody R d c (sfRenameHistory R d c) $;
+
+theorem sfRename_bot (R: set) (d: nat):
+  $ sfRename R d sfBot = sfBot $;
+
+theorem sfRename_sfMem (R: set) (d a b: nat):
+  $ sfRename R d (sfMem a b) = sfMem (sfRenameIndex R d a) (sfRenameIndex R d b) $;
+
+theorem sfRename_sfEq (R: set) (d a b: nat):
+  $ sfRename R d (sfEq a b) = sfEq (sfRenameIndex R d a) (sfRenameIndex R d b) $;
+
+theorem sfRename_sfAnd (R: set) (d a b: nat):
+  $ sfRename R d (sfAnd a b) = sfAnd (sfRename R d a) (sfRename R d b) $;
+
+theorem sfRename_sfOr (R: set) (d a b: nat):
+  $ sfRename R d (sfOr a b) = sfOr (sfRename R d a) (sfRename R d b) $;
+
+theorem sfRename_sfImp (R: set) (d a b: nat):
+  $ sfRename R d (sfImp a b) = sfImp (sfRename R d a) (sfRename R d b) $;
+
+theorem sfRename_sfAll (R: set) (d a: nat):
+  $ sfRename R d (sfAll a) = sfAll (sfRename R (suc d) a) $;
+
+theorem sfRename_sfEx (R: set) (d a: nat):
+  $ sfRename R d (sfEx a) = sfEx (sfRename R (suc d) a) $;
+
+theorem sfRename_tag0 (R: set) (d c: nat):
+  $ sfTag c = 0 -> sfRename R d c = 0 $;
+
+theorem sfRename_bad_all (R: set) (d c: nat):
+  $ sfTag c = 6 -> sfRight c != 0 -> sfRename R d c = 0 $;
+
+theorem sfRename_bad_ex (R: set) (d c: nat):
+  $ sfTag c = 7 -> sfRight c != 0 -> sfRename R d c = 0 $;
+
+
+theorem sfRenameIndex_bound (R: set) (d i: nat): $ i < d -> sfRenameIndex R d i = i $;
+theorem sfRenameIndex_free (R: set) (d i: nat): $ ~i < d -> sfRenameIndex R d i = d + (R @ (i - d)) $;
+theorem sfRenameIndex_zero (R: set) (i: nat): $ sfRenameIndex R 0 i = R @ i $;
+theorem sfRenameIndex_lift (R: set) (d i: nat):
+  $ sfRenameIndex R (suc d) (suc i) = suc (sfRenameIndex R d i) $;
+
+theorem sfRename_wf (R: set) (d c: nat): $ sfWf (sfRename R d c) $;
+theorem sfRename_preserves_wf (R: set) (d c: nat): $ sfWf c -> sfWf (sfRename R d c) $;
+
+theorem sfRename_congr (G: wff) (R S: set) (d e a b: nat)
+  (hR: $ G -> R == S $) (hd: $ G -> d = e $) (ha: $ G -> a = b $):
+  $ G -> sfRename R d a = sfRename S e b $;
+
+theorem sfRename_congr_graph (G: wff) (R S: set) (d a: nat) (h: $ G -> R == S $):
+  $ G -> sfRename R d a = sfRename S d a $;
+
+theorem sfRename_congr_depth (G: wff) (R: set) (d e a: nat) (h: $ G -> d = e $):
+  $ G -> sfRename R d a = sfRename R e a $;
+
+theorem sfRename_congr_formula (G: wff) (R: set) (d a b: nat) (h: $ G -> a = b $):
+  $ G -> sfRename R d a = sfRename R d b $;
+
+theorem sfRenameIndex_congr (G: wff) (R S: set) (d e a b: nat)
+  (hR: $ G -> R == S $) (hd: $ G -> d = e $) (ha: $ G -> a = b $):
+  $ G -> sfRenameIndex R d a = sfRenameIndex S e b $;
+
+theorem sfRenameIndex_congr_graph (G: wff) (R S: set) (d a: nat) (h: $ G -> R == S $):
+  $ G -> sfRenameIndex R d a = sfRenameIndex S d a $;
+
+theorem sfRenameIndex_congr_depth (G: wff) (R: set) (d e a: nat) (h: $ G -> d = e $):
+  $ G -> sfRenameIndex R d a = sfRenameIndex R e a $;
+
+theorem sfRenameIndex_congr_index (G: wff) (R: set) (d a b: nat) (h: $ G -> a = b $):
+  $ G -> sfRenameIndex R d a = sfRenameIndex R d b $;
+
+theorem sfRenameIndex_bound_map {j: nat} (R: set) (d i n m: nat):
+  $ (A. j (j < n -> R @ j < m)) -> i < d + n ->
+      sfRenameIndex R d i < d + m $;
+
+theorem sfRename_bound {i: nat} (R: set) (d n m c: nat):
+  $ (A. i (i < n -> R @ i < m)) -> sfBound (d + n) c ->
+      sfBound (d + m) (sfRename R d c) $;

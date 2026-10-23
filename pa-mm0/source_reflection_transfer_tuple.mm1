@@ -1,0 +1,41 @@
+import "source_reflection_transfer_piece.mm1";
+
+@_ def sfReflectionTupleRows(T:set)(start y .i:nat):set = $ \ i, sfMem ((T @ i) + start) y $;
+
+@_ def sfReflectionTuple(T:set)(start y count:nat):nat = $ sfCLFold (sfReflectionTupleRows T start y) count $;
+
+pub theorem sfReflectionTupleRows_at(T:set)(start y i:nat): $ sfReflectionTupleRows T start y @ i = sfMem ((T @ i) + start) y $ = (named '(!! applame j ,eqtac));
+
+pub theorem sfReflectionTuple_zero(T:set)(start y:nat): $ sfReflectionTuple T start y 0 = sfCLTrue $ = (named 'sfCLFold_zero);
+
+pub theorem sfReflectionTuple_suc(T:set)(start y n:nat): $ sfReflectionTuple T start y (suc n) = sfAnd (sfReflectionTuple T start y n) (sfMem ((T @ n) + start) y) $ = (named '(eqtr sfCLFold_suc (nsAnd_eq eqid sfReflectionTupleRows_at)));
+
+theorem rftt_true_wf: $ sfWf sfCLTrue $ = (named '(ax_mp (ax_mp sfWf_imp sfWf_bot) sfWf_bot));
+
+pub theorem sfReflectionTuple_wf(T:set)(start y n:nat): $ sfWf (sfReflectionTuple T start y n) $ = (named @ induct '(ind) 'n '(mpbir (sfSchema_wf_eq sfReflectionTuple_zero) rftt_true_wf) '(mpbird (a1i (sfSchema_wf_eq sfReflectionTuple_suc)) (mpd (a1i sfWf_mem) (syl sfWf_and id))));
+
+pub theorem sfReflectionTuple_prefix(T:set)(G start y n:nat): $ nsLocal G (sfReflectionTuple T start y (suc n)) -> nsLocal G (sfReflectionTuple T start y n) $ = (named '(syl nsLocal_CE1 (bi1 (nsLocal_formula_eq sfReflectionTuple_suc))));
+
+pub theorem sfReflectionTuple_last(T:set)(G start y n:nat): $ nsLocal G (sfReflectionTuple T start y (suc n)) -> nsLocal G (sfMem ((T @ n) + start) y) $ = (named '(syl nsLocal_CE2 (bi1 (nsLocal_formula_eq sfReflectionTuple_suc))));
+
+pub theorem sfReflectionTuple_append(T:set)(G start y n:nat): $ nsLocal G (sfReflectionTuple T start y n) -> nsLocal G (sfMem ((T @ n) + start) y) -> nsLocal G (sfReflectionTuple T start y (suc n)) $ = (named '(syl6 (bi2 (nsLocal_formula_eq sfReflectionTuple_suc)) sfLocal_and));
+
+theorem rftt_mono_step(T:set)(G start y z n:nat)(hs:$ nsLocal G (sfCLSubset y z) $): $ (nsLocal G (sfReflectionTuple T start y n) -> nsLocal G (sfReflectionTuple T start z n)) -> nsLocal G (sfReflectionTuple T start y (suc n)) -> nsLocal G (sfReflectionTuple T start z (suc n)) $ = (named '(exp @ sylc sfReflectionTuple_append (mpd (syl sfReflectionTuple_prefix anr) anl) (syl (sfCLSubset_use hs) (syl sfReflectionTuple_last anr))));
+
+pub theorem sfReflectionTuple_mono(T:set)(G start y z n:nat)(hs:$ nsLocal G (sfCLSubset y z) $): $ nsLocal G (sfReflectionTuple T start y n) -> nsLocal G (sfReflectionTuple T start z n) $ = (named @ induct '(ind) 'n '(bi1 (nsLocal_formula_eq (eqtr sfReflectionTuple_zero (eqcom sfReflectionTuple_zero)))) '(rftt_mono_step hs));
+
+theorem rftt_true_shift(k:nat): $ sfShift k sfCLTrue = sfCLTrue $ = (named '(eqtr sfShift_sfImp (nsImp_eq sfShift_bot sfShift_bot)));
+
+theorem rftt_shift_index(T:set)(k start i:nat)(hk:$ k <= start $): $ sfShiftIndex k ((T @ i) + start) = (T @ i) + suc start $ = (named '(eqtr (ax_mp sfShiftIndex_free (mpbi lenlt (ax_mp (ax_mp letr hk) leaddid2))) (eqcom addS2)));
+
+pub theorem sfReflectionTuple_shift(T:set)(k start y n:nat)(hk:$ k <= start $): $ sfShift k (sfReflectionTuple T start y n) = sfReflectionTuple T (suc start) (sfShiftIndex k y) n $ = (named @ induct '(ind) 'n '(eqtr (sfShifteq2 sfReflectionTuple_zero) (eqtr rftt_true_shift (eqcom sfReflectionTuple_zero))) '(eqtrd (a1i (sfShifteq2 sfReflectionTuple_suc)) (eqtrd (a1i sfShift_sfAnd) (eqtrd (sfAndeqd id (a1i (eqtr sfShift_sfMem (nsMem_eq (rftt_shift_index hk) eqid)))) (a1i (eqcom sfReflectionTuple_suc))))));
+
+theorem rftt_suc_sub1(a:nat): $ suc a - 1 = a $ = (named '(eqtr (subeq1 (eqcom add11)) pncan2));
+
+theorem rftt_subst_index(T:set)(k start t i:nat)(hk:$ k <= start $): $ sfSubstIndex k t ((T @ i) + suc start) = (T @ i) + start $ = (named '(eqtr (sfSubstIndexeq3 addS2) (eqtr (ax_mp sfSubstIndex_above (mpbi leltsuc (ax_mp (ax_mp letr hk) leaddid2))) rftt_suc_sub1)));
+
+theorem rftt_true_subst(k t:nat): $ sfSubst k t sfCLTrue = sfCLTrue $ = (named '(eqtr sfSubst_sfImp (nsImp_eq sfSubst_bot sfSubst_bot)));
+
+pub theorem sfReflectionTuple_subst(T:set)(k start y t n:nat)(hk:$ k <= start $): $ sfSubst k t (sfReflectionTuple T (suc start) y n) = sfReflectionTuple T start (sfSubstIndex k t y) n $ = (named @ induct '(ind) 'n '(eqtr (trud (sfSubst_congr eqidd eqidd (a1i sfReflectionTuple_zero))) (eqtr rftt_true_subst (eqcom sfReflectionTuple_zero))) '(eqtrd (a1i (trud (sfSubst_congr eqidd eqidd (a1i sfReflectionTuple_suc)))) (eqtrd (a1i sfSubst_sfAnd) (eqtrd (sfAndeqd id (a1i (eqtr sfSubst_sfMem (nsMem_eq (rftt_subst_index hk) eqid)))) (a1i (eqcom sfReflectionTuple_suc))))));
+
+pub theorem sfReflectionTuple_zero_shift(T:set)(start y n:nat): $ sfShift 0 (sfReflectionTuple T start y n) = sfReflectionTuple T (suc start) (suc y) n $ = (named '(eqtr (sfReflectionTuple_shift le01) (sfReflectionTupleeq3 sfShiftIndex_zero)));

@@ -1,0 +1,39 @@
+import "source_reflection_limit_dn_maps.mm0";
+
+import "source_piece_pcf_bounds.mm0";
+
+def sfReflectionDnAppend(T E:set)(count .i:nat):set = $ \ i, if (i < count) (T @ i) (E @ (i - count)) $;
+
+theorem sfReflectionDnAppend_at(T E:set)(count i:nat): $ sfReflectionDnAppend T E count @ i = if (i < count) (T @ i) (E @ (i - count)) $;
+
+theorem sfReflectionDnAppend_prefix(T E:set)(count i:nat): $ i < count -> sfReflectionDnAppend T E count @ i = T @ i $;
+
+theorem sfReflectionDnAppend_tail_at(T E:set)(count i:nat): $ sfReflectionDnAppend T E count @ (count + i) = E @ i $;
+
+theorem sfReflectionDnAppend_drop_at(T E:set)(count i:nat): $ sfReflectionDnTail (sfReflectionDnAppend T E count) count @ i = E @ i $;
+
+def sfReflectionDnMembers(T:set)(G X count .i:nat):wff = $ A. i (i < count -> nsLocal G (sfMem (T @ i) X)) $;
+
+theorem sfReflectionDnMembers_at(T:set)(G X count i:nat): $ sfReflectionDnMembers T G X count -> i < count -> nsLocal G (sfMem (T @ i) X) $;
+
+theorem sfReflectionDnMembers_prefix(T:set)(G X count:nat): $ sfReflectionDnMembers T G X (suc count) -> sfReflectionDnMembers T G X count $;
+
+theorem sfReflectionDnMembers_last(T:set)(G X count:nat): $ sfReflectionDnMembers T G X (suc count) -> nsLocal G (sfMem (T @ count) X) $;
+
+theorem sfReflectionDnAppend_members(T E:set)(G X count:nat)(hm:$ sfReflectionDnMembers T G X count $): $ sfReflectionDnMembers (sfReflectionDnAppend T E count) G X count $;
+
+def sfReflectionDnEliminationLaw(T:set)(G d X body count:nat):wff = $ sfReflectionDnMembers T G X count -> nsLocal G (sfRename (sfPieceEnvironment (sfReflectionDnTail T count) d X) 0 (sfPieceDn count body)) -> nsLocal G (sfRename (sfPieceEnvironment T d X) 0 body) $;
+
+theorem sfReflectionDn_eliminate_step(T:set)(G d X body count:nat)(hf:$ sfWf body $): $ nsLocal G (sfRename (sfPieceEnvironment (sfReflectionDnTail T (suc count)) d X) 0 (sfPieceDn (suc count) body)) -> nsLocal G (sfMem (T @ count) X) -> nsLocal G (sfRename (sfPieceEnvironment (sfReflectionDnTail T count) d X) 0 (sfPieceDn count body)) $;
+
+theorem sfReflectionDn_eliminate_tail(T:set)(G d X body count:nat)(hf:$ sfWf body $): $ sfReflectionDnEliminationLaw T G d X body count $;
+
+theorem sfReflectionDn_eliminate_binary(T E:set)(G d X body count:nat)(hf:$ sfWf body $)(hb:$ sfBound 2 (sfPieceDn count body) $)(hm:$ sfReflectionDnMembers T G X count $): $ nsLocal G (sfRename (sfPieceEnvironment E d X) 0 (sfPieceDn count body)) -> nsLocal G (sfRename (sfPieceEnvironment T d X) 0 body) $;
+
+theorem sfReflectionDn_eliminate_appended(T E F:set)(G d X body count:nat)(hb:$ sfBound (count + 2) body $)(hm:$ sfReflectionDnMembers T G X count $): $ nsLocal G (sfRename (sfPieceEnvironment E d X) 0 (sfPieceDn count body)) -> nsLocal G (sfRename (sfPieceEnvironment (sfReflectionDnAppend T F count) d X) 0 body) $;
+
+theorem sfReflectionDnOpen_agree(E:set)(d X:nat): $ sfRenameMapAgree (sfPieceOpenMap d X) (sfPieceEnvironment E d X) 2 $;
+
+theorem sfReflectionDnOpen_rename(E:set)(d X body:nat)(hb:$ sfBound 2 body $): $ sfRename (sfPieceOpenMap d X) 0 body = sfRename (sfPieceEnvironment E d X) 0 body $;
+
+theorem sfReflectionDn_PC_eliminate(T F:set)(G domain level phi count d X:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hp:$ sfBound (suc count) phi $)(hm:$ sfReflectionDnMembers T G X count $): $ nsLocal G (sfPiecePC domain level count phi d X) -> nsLocal G (sfRename (sfPieceEnvironment (sfReflectionDnAppend T F count) d X) 0 (sfPieceD0 domain level phi)) $;

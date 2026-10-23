@@ -1,0 +1,65 @@
+import "k215_calculus_compile.mm0";
+import "k215_calculus_search.mm0";
+
+def k215TerminalProgram: nat = $ k215CmdDROP 0 : k215NipsProgram 2 $;
+
+def k215TerminalPrefix (r: nat): nat = $ k215CmdDROP (k215NipPrefix 2 r) $;
+
+theorem k215TerminalProgram_prefix (r: nat):
+ $ k215ProgramPrefix k215TerminalProgram r = suc (k215TerminalPrefix r) $;
+
+theorem k215TerminalProgram_len: $ len k215TerminalProgram = 3 $;
+
+theorem k215Terminal_halts (r np w: nat):
+ $ k215EnumIter 3 (k218EnumState (k215ProgramPrefix k215TerminalProgram r) np 1 w 0 0) = 0 $;
+
+theorem k215Realizes_terminal_halts (L t w np: nat):
+ $ k215Realizes L 1 ->
+   k215EnumIter (len L + 3)
+    (k218EnumState (k215ProgramPrefix (L ++ k215TerminalProgram) 0) np t w 0 0) = 0 $;
+
+def k215WitnessProgram (L: nat): nat =
+ $ k215CmdAX 1 1 1 0 : (L ++ k215TerminalProgram) $;
+
+def k215WitnessCandidate (L: nat): nat =
+ $ k215CmdAX 1 1 1 (k215ProgramPrefix (L ++ k215TerminalProgram) 0) $;
+
+def k215WitnessTime (L: nat): nat = $ suc (len L + 3) $;
+
+theorem k215WitnessProgram_prefix (L: nat):
+ $ k215ProgramPrefix (k215WitnessProgram L) 0 = suc (k215WitnessCandidate L) $;
+
+theorem k215WitnessProgram_len (L: nat):
+ $ len (k215WitnessProgram L) = k215WitnessTime L $;
+
+theorem k215Witness_first_step (L t w d h: nat):
+ $ k215EnumStep (k218EnumState 0 (k215WitnessCandidate L) t w d h) =
+   suc (k218EnumState (k215ProgramPrefix (L ++ k215TerminalProgram) 0) (suc (k215WitnessCandidate L))
+     (k218Gate (d + 1) (h + 1) 1) (k215AxStack (d + 1) h (h + 1) 1 d t w) 0 0) $;
+
+theorem k215Witness_halts_state (L t w d h: nat):
+ $ k215Realizes L 1 ->
+   k215EnumIter (k215WitnessTime L) (k218EnumState 0 (k215WitnessCandidate L) t w d h) = 0 $;
+
+theorem k215Witness_halts_boundary (L s: nat):
+ $ k215Realizes L 1 -> k218EnumPL s = 0 /\ k218EnumNP s = k215WitnessCandidate L ->
+   k215EnumIter (k215WitnessTime L) s = 0 $;
+
+theorem k215EnumHalts_intro (n: nat): $ k215EnumIter n k215EnumInitial = 0 -> k215EnumHalts $;
+
+theorem k215EnumReach_halts (n s: nat):
+ $ k215EnumReach k215EnumInitial s -> k215EnumIter n s = 0 -> k215EnumHalts $;
+
+theorem k215Witness_search_halts (L: nat):
+ $ k215Realizes L 1 -> k215SearchAt k215EnumInitial (k215WitnessCandidate L) -> k215EnumHalts $;
+
+theorem k215WitnessCandidate_ge_four (L: nat):
+ $ 4 <= k215WitnessCandidate L $;
+
+theorem k215Realizes_enum_halts (L: nat): $ k215Realizes L 1 -> k215EnumHalts $;
+
+theorem k215Realizable_enum_halts: $ k215Realizable 1 -> k215EnumHalts $;
+
+theorem k215Inconsistent_enum_halts: $ k215Inconsistent -> k215EnumHalts $;
+
+theorem k215EnumHalts_iff_kInconsistent: $ k215EnumHalts <-> k215Inconsistent $;

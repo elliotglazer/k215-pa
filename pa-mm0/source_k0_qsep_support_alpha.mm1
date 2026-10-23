@@ -1,0 +1,43 @@
+import "source_k0_qsep_support.mm1";
+
+import "source_k0_qsep_tagged_substitution.mm1";
+
+import "k218q_alpha.mm1";
+
+@_ def sfK0QSepSupportBody (E: set) (r t b c u y K theta: nat): nat = $ (kImp (kMem u c) (kExists y (kDisj (kAnd (kEq y r) (kEq u b)) (kDisj (kAnd (kEq y t) (kEq u t)) (kAnd (kAnd (kMem u y) (kAll K (kImp (kMem K y) (kEq K u)))) (kAnd (kMem u b) (sfNamedTemplate (sqEnvCons u E) K 0 theta))))))) $;
+
+pub theorem sfK0QSepSupportBody_substitution (E: set) (n r t b c u x y K theta: nat) (hf: $ sfBound (suc n) theta $) (hu0: $ u != 0 $) (hx0: $ x != 0 $)
+ (huK: $ u < K $) (hxK: $ x < K $)
+ (hru: $ r != u $) (htu: $ t != u $) (hbu: $ b != u $) (hcu: $ c != u $) (hyu: $ y != u $)
+ (hxu: $ x != u $) (hxr: $ x != r $) (hxt: $ x != t $) (hxb: $ x != b $) (hxc: $ x != c $) (hyx: $ y != x $)
+ (heu: $ sqEnvAvoid E n u $) (hex: $ sqEnvAvoid E n x $):
+ $ kSubst (sfK0QSepSupportBody E r t b c u y K theta) u x = sfK0QSepSupportBody E r t b c x y K theta $ =
+(named '(eqtr kSubst_kImp (kImpeq
+ (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss hcu)))
+ (eqtr (ax_mp (qsSubst_kExists hu0) hyu) (kExistseq2
+ (! sfK0QSepTagged_output_substitution $ E $ $ n $ $ r $ $ t $ $ b $ $ y $ $ u $ $ x $ $ K $ $ theta $ hf hu0 huK hxK hru htu hbu hyu heu))))));
+
+theorem qsepSupportBodyAbsent (E: set) (n r t b c u x y K theta: nat) (hf: $ sfBound (suc n) theta $) (hu0: $ u != 0 $) (hx0: $ x != 0 $)
+ (huK: $ u < K $) (hxK: $ x < K $)
+ (hru: $ r != u $) (htu: $ t != u $) (hbu: $ b != u $) (hcu: $ c != u $) (hyu: $ y != u $)
+ (hxu: $ x != u $) (hxr: $ x != r $) (hxt: $ x != t $) (hxb: $ x != b $) (hxc: $ x != c $) (hyx: $ y != x $)
+ (heu: $ sqEnvAvoid E n u $) (hex: $ sqEnvAvoid E n x $):
+ $ kBinderAbsent (sfK0QSepSupportBody E r t b c u y K theta) u $ =
+'(mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (ax_mp (ax_mp kBinderAbsent_exists_intro (ax_mp necom hyu)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_disj_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kEq) kBinderAbsent_kEq)) (ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (ax_mp kBinderAbsent_all_intro (ltne huK)) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem kBinderAbsent_kEq))))) (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (ax_mp (sfNamedTemplate_binder_absent huK) (ax_mp sfBound_wf hf)))))))));
+
+theorem qsepSupportBodyFresh (E: set) (n r t b c u x y K theta: nat) (hf: $ sfBound (suc n) theta $) (hu0: $ u != 0 $) (hx0: $ x != 0 $)
+ (huK: $ u < K $) (hxK: $ x < K $)
+ (hru: $ r != u $) (htu: $ t != u $) (hbu: $ b != u $) (hcu: $ c != u $) (hyu: $ y != u $)
+ (hxu: $ x != u $) (hxr: $ x != r $) (hxt: $ x != t $) (hxb: $ x != b $) (hxc: $ x != c $) (hyx: $ y != x $)
+ (heu: $ sqEnvAvoid E n u $) (hex: $ sqEnvAvoid E n x $):
+ $ kFresh (sfK0QSepSupportBody E r t b c u y K theta) x $ =
+(named '(mpbir kFresh_kImp (ian (mpbir kFresh_kMem (ian hxu hxc)) (ax_mp (ax_mp (ax_mp kFresh_exists_intro hx0) (ax_mp necom hyx)) (ax_mp (ax_mp (ax_mp kFresh_disj_intro hx0) (ax_mp (ax_mp (ax_mp kFresh_and_intro hx0) (mpbir kFresh_kEq (ian (ax_mp necom hyx) hxr))) (mpbir kFresh_kEq (ian hxu hxb)))) (ax_mp (ax_mp (ax_mp kFresh_disj_intro hx0) (ax_mp (ax_mp (ax_mp kFresh_and_intro hx0) (mpbir kFresh_kEq (ian (ax_mp necom hyx) hxt))) (mpbir kFresh_kEq (ian hxu hxt)))) (ax_mp (ax_mp (ax_mp kFresh_and_intro hx0) (ax_mp (ax_mp (ax_mp kFresh_and_intro hx0) (mpbir kFresh_kMem (ian hxu (ax_mp necom hyx)))) (ax_mp (ax_mp kFresh_all_intro (ltne hxK)) (mpbir kFresh_kImp (ian (mpbir kFresh_kMem (ian (ltne hxK) (ax_mp necom hyx))) (mpbir kFresh_kEq (ian (ltne hxK) hxu))))))) (ax_mp (ax_mp (ax_mp kFresh_and_intro hx0) (mpbir kFresh_kMem (ian hxu hxb))) (ax_mp (ax_mp (sfNamedTemplate_fresh hxK hx0) (mpbir (sfBoundeq1 add01) hf)) (ax_mp (ax_mp k218RoleAvoid_cons hxu) hex))))))))));
+
+pub theorem sfK0QSepTaggedSupport_alpha (E: set) (n r t b c u x y K theta: nat) (hf: $ sfBound (suc n) theta $) (hu0: $ u != 0 $) (hx0: $ x != 0 $)
+ (huK: $ u < K $) (hxK: $ x < K $)
+ (hru: $ r != u $) (htu: $ t != u $) (hbu: $ b != u $) (hcu: $ c != u $) (hyu: $ y != u $)
+ (hxu: $ x != u $) (hxr: $ x != r $) (hxt: $ x != t $) (hxb: $ x != b $) (hxc: $ x != c $) (hyx: $ y != x $)
+ (heu: $ sqEnvAvoid E n u $) (hex: $ sqEnvAvoid E n x $):
+ $ k218QProvable (kImp (sfK0QSepTaggedSupport E r t b c u y K theta) (sfK0QSepTaggedSupport E r t b c x y K theta)) $ =
+(named '(mpbi (k218QProvableeq (kImpeq2 (kAlleq2 (! sfK0QSepSupportBody_substitution $ E $ $ n $ $ r $ $ t $ $ b $ $ c $ $ u $ $ x $ $ y $ $ K $ $ theta $ hf hu0 hx0 huK hxK hru htu hbu hcu hyu hxu hxr hxt hxb hxc hyx heu hex))))
+ (ax_mp (ax_mp (ax_mp k218IAlpha_all_forward (ax_mp necom hxu)) (! qsepSupportBodyAbsent $ E $ $ n $ $ r $ $ t $ $ b $ $ c $ $ u $ $ x $ $ y $ $ K $ $ theta $ hf hu0 hx0 huK hxK hru htu hbu hcu hyu hxu hxr hxt hxb hxc hyx heu hex)) (! qsepSupportBodyFresh $ E $ $ n $ $ r $ $ t $ $ b $ $ c $ $ u $ $ x $ $ y $ $ K $ $ theta $ hf hu0 hx0 huK hxK hru htu hbu hcu hyu hxu hxr hxt hxb hxc hyx heu hex))));

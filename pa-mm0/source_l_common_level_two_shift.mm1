@@ -1,0 +1,84 @@
+import "source_l_common_level_two_wf.mm1";
+
+-- Shifting the point formulas under the two witness binders.
+
+theorem cl2_not_lt2 (j: nat): $ ~ suc (suc j) < 2 $ =
+'(mpbi lenlt (mpbi lesuc (mpbi lesuc le01)));
+
+theorem cl2_lev_shift2: $ sfShift 2 (sfCL2Lev 1 0) = sfCL2Lev 1 0 $ =
+'(eqtr sfShift_sfAnd (nsAnd_eq
+  (eqtr sfCLOrdinalAt_shift_cutoff (sfCLOrdinalAteq (ax_mp sfShiftIndex_bound d1lt2)))
+  (eqtr sfCLHierarchyAt_shift_cutoff (sfCLHierarchyAteq (ax_mp sfShiftIndex_bound d1lt2)
+    (ax_mp sfShiftIndex_bound d0lt2)))));
+
+theorem cl2_mem_shift2 (j: nat):
+ $ sfShift 2 (sfMem (suc (suc j)) 0) = sfMem (suc (suc (suc j))) 0 $ =
+'(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_free cl2_not_lt2) (ax_mp sfShiftIndex_bound d0lt2)));
+
+theorem cl2_pt_shift2 (j: nat):
+ $ sfShift 2 (sfCL2Pt 1 0 (suc (suc j))) = sfCL2Pt 1 0 (suc (suc (suc j))) $ =
+'(eqtr sfShift_sfAnd (nsAnd_eq cl2_lev_shift2 cl2_mem_shift2));
+
+theorem cl2_both_shift2 (i j: nat):
+ $ sfShift 2 (sfCL2Both 1 0 (suc (suc i)) (suc (suc j))) =
+   sfCL2Both 1 0 (suc (suc (suc i))) (suc (suc (suc j))) $ =
+'(eqtr sfShift_sfAnd (nsAnd_eq cl2_lev_shift2
+  (eqtr sfShift_sfAnd (nsAnd_eq cl2_mem_shift2 cl2_mem_shift2))));
+
+theorem cl2_ex_shift (j: nat):
+ $ sfShift 0 (sfCL2Ex (suc (suc j))) = sfCL2Ex (suc (suc (suc j))) $ =
+'(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfEx (nsEx_eq cl2_pt_shift2))));
+
+theorem cl2_bex_shift (i j: nat):
+ $ sfShift 0 (sfCL2BothEx (suc (suc i)) (suc (suc j))) =
+   sfCL2BothEx (suc (suc (suc i))) (suc (suc (suc j))) $ =
+'(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfEx (nsEx_eq cl2_both_shift2))));
+
+theorem cl2_ex_shift2 (j: nat):
+ $ sfShift 0 (sfShift 0 (sfCL2Ex (suc (suc j)))) = sfCL2Ex (suc (suc (suc (suc j)))) $ =
+'(eqtr (sfShifteq eqid cl2_ex_shift) cl2_ex_shift);
+
+theorem cl2_bex_shift2 (i j: nat):
+ $ sfShift 0 (sfShift 0 (sfCL2BothEx (suc (suc i)) (suc (suc j)))) =
+   sfCL2BothEx (suc (suc (suc (suc i)))) (suc (suc (suc (suc j)))) $ =
+'(eqtr (sfShifteq eqid cl2_bex_shift) cl2_bex_shift);
+
+theorem cl2_pt_shift0 (d y k: nat):
+ $ sfShift 0 (sfCL2Pt d y k) = sfCL2Pt (suc d) (suc y) (suc k) $ =
+'(eqtr sfShift_sfAnd (nsAnd_eq
+  (eqtr sfShift_sfAnd (nsAnd_eq sfCLOrdinalAt_shift sfCLHierarchyAt_shift))
+  (eqtr sfShift_sfMem (nsMem_eq sfShiftIndex_zero sfShiftIndex_zero))));
+
+theorem cl2_pt_shift0_2 (d y k: nat):
+ $ sfShift 0 (sfShift 0 (sfCL2Pt d y k)) = sfCL2Pt (suc (suc d)) (suc (suc y)) (suc (suc k)) $ =
+'(eqtr (sfShifteq eqid cl2_pt_shift0) cl2_pt_shift0);
+-- Moving facts into the context of the two existential witnesses.
+
+theorem cl2_inner_wf (G point: nat) (hg: $ sfContextWf G $) (hp: $ sfWf point $):
+ $ sfContextWf (sfEx point : sfContextShift G) $ =
+'(mpbir sfContextWf_cons (ian (ax_mp sfWf_ex hp) (ax_mp sfContextShift_preserves_wf hg)));
+
+theorem cl2_witness_wf (G point: nat) (hg: $ sfContextWf G $) (hp: $ sfWf point $):
+ $ sfContextWf (sfCLWitnessContext G point) $ =
+'(mpbir sfContextWf_cons (ian hp (ax_mp sfContextShift_preserves_wf (cl2_inner_wf hg hp))));
+
+theorem cl2_witness_head (G point: nat) (hg: $ sfContextWf G $) (hp: $ sfWf point $):
+ $ nsLocal (sfCLWitnessContext G point) point $ =
+'(ax_mp (ax_mp nsLocal_hyp (cl2_witness_wf hg hp)) sfContext_member_head);
+
+theorem cl2_transport (G point phi: nat) (hg: $ sfContextWf G $) (hp: $ sfWf point $)
+ (h: $ nsLocal G phi $):
+ $ nsLocal (sfCLWitnessContext G point) (sfShift 0 (sfShift 0 phi)) $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (cl2_witness_wf hg hp)) sfContextSub_cons)
+  (ax_mp sfSepLocal_shift
+   (ax_mp (ax_mp (ax_mp nsLocal_weaken (cl2_inner_wf hg hp)) sfContextSub_cons)
+    (ax_mp sfSepLocal_shift h))));
+
+theorem cl2_closed_shift2 (phi: nat) (hb: $ sfBound 0 phi $):
+ $ sfShift 0 (sfShift 0 phi) = phi $ =
+'(eqtr (sfShifteq eqid (ax_mp sfShift_closed_identity hb)) (ax_mp sfShift_closed_identity hb));
+
+pub theorem cl2_transport_closed (G point phi: nat) (hg: $ sfContextWf G $) (hp: $ sfWf point $)
+ (hb: $ sfBound 0 phi $) (h: $ nsLocal G phi $):
+ $ nsLocal (sfCLWitnessContext G point) phi $ =
+'(mpbi (nsLocal_formula_eq (cl2_closed_shift2 hb)) (cl2_transport hg hp h));

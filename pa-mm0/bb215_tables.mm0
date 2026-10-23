@@ -1,0 +1,57 @@
+import "k215_literal_iteration.mm0";
+
+def bb215Action (T q b: nat): nat = $ nth (q, b) T - 1 $;
+
+def bb215Valid (T .q .b: nat): wff = $ A. q A. b (q < k215Num215 -> b < 2 -> k215TMValidAction (bb215Action T q b)) $;
+
+def bb215Step (T s: nat): nat = $ if (k215TMQ s < k215Num215) (k215TMMove (bb215Action T (k215TMQ s) (k215TMR s % 2)) (k215TML s) (k215TMR s)) s $;
+
+def bb215Run (T n s .x: nat): nat = $ rec s (\ x, bb215Step T x) n $;
+
+def bb215Halted (T n: nat): wff = $ k215TMQ (bb215Run T n k215TMInitial) = k215Num215 $;
+
+def bb215Halts (T .n: nat): wff = $ E. n bb215Halted T n $;
+
+def bb215Upper (b .T: nat): wff = $ A. T (bb215Valid T -> bb215Halts T -> bb215Halted T b) $;
+
+def bb215First (T b .n: nat): wff = $ bb215Halted T b /\ A. n (n < b -> ~bb215Halted T n) $;
+
+def bb215Value (b .T: nat): wff = $ bb215Upper b /\ E. T (bb215Valid T /\ bb215First T b) $;
+
+def bb215RepresentsLiteral (T .q .b: nat): wff = $ bb215Valid T /\ A. q A. b ((q < k215Num215 /\ b < 2) -> bb215Action T q b = k215TMAction q b) $;
+
+theorem bb215Run_zero (T s: nat): $ bb215Run T 0 s = s $;
+
+theorem bb215Run_succ (T n s: nat): $ bb215Run T (suc n) s = bb215Step T (bb215Run T n s) $;
+
+theorem bb215Step_stopped (T s: nat): $ k215TMQ s = k215Num215 -> bb215Step T s = s $;
+
+theorem bb215Run_stopped (T n s: nat): $ k215TMQ s = k215Num215 -> bb215Run T n s = s $;
+
+theorem bb215Run_add (T m n s: nat): $ bb215Run T (m + n) s = bb215Run T n (bb215Run T m s) $;
+
+theorem bb215Halted_halting (T n: nat): $ bb215Halted T n -> bb215Halts T $;
+
+theorem bb215Value_upper (b: nat): $ bb215Value b -> bb215Upper b $;
+
+theorem bb215Upper_at (b T: nat): $ bb215Upper b -> bb215Valid T -> bb215Halts T -> bb215Halted T b $;
+
+theorem bb215Upper_decides (b T: nat): $ bb215Upper b -> bb215Valid T -> (bb215Halts T <-> bb215Halted T b) $;
+
+theorem bb215Literal_has_table {T: nat}: $ E. T bb215RepresentsLiteral T $;
+
+theorem bb215Represents_valid (T: nat): $ bb215RepresentsLiteral T -> bb215Valid T $;
+
+theorem bb215Represents_action (T q b: nat): $ bb215RepresentsLiteral T -> (q < k215Num215 /\ b < 2) -> bb215Action T q b = k215TMAction q b $;
+
+theorem bb215Represents_step (T s: nat): $ bb215RepresentsLiteral T -> bb215Step T s = k215TMStep s $;
+
+theorem bb215Represents_run (T n s: nat): $ bb215RepresentsLiteral T -> bb215Run T n s = k215TMRun n s $;
+
+theorem bb215Represents_halted (T n: nat): $ bb215RepresentsLiteral T -> (bb215Halted T n <-> k215TMQ (k215TMRun n k215TMInitial) = k215Num215) $;
+
+theorem bb215Represents_halts (T: nat): $ bb215RepresentsLiteral T -> (bb215Halts T <-> k215LiteralHalts) $;
+
+theorem bb215Upper_decides_literal (b: nat): $ bb215Upper b -> (k215LiteralHalts <-> k215TMQ (k215TMRun b k215TMInitial) = k215Num215) $;
+
+theorem bb215Value_decides_literal (b: nat): $ bb215Value b -> (k215LiteralHalts <-> k215TMQ (k215TMRun b k215TMInitial) = k215Num215) $;

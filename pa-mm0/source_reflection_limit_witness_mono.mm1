@@ -1,0 +1,37 @@
+import "source_k_upper_ex_logic.mm1";
+
+import "source_l_common_level_members.mm1";
+
+import "source_piece_pcf_syntax.mm1";
+
+import "source_theory_local.mm1";
+
+def sfReflectionEwAt(domain matrix z:nat):nat = $ sfImp (sfEx (sfAnd domain matrix)) (sfEx (sfAnd (sfMem 0 (suc z)) matrix)) $;
+
+def sfReflectionEwMonoLaw(domain matrix z w:nat):nat = $ sfImp (sfCLSubset z w) (sfImp (sfReflectionEwAt domain matrix z) (sfReflectionEwAt domain matrix w)) $;
+
+theorem rwmSubset_wf(z w:nat): $ sfWf (sfCLSubset z w) $ = (named '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)));
+
+theorem rwmSubset_shift(z w:nat): $ sfShift 0 (sfCLSubset z w) = sfCLSubset (suc z) (suc w) $ = (named '(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02)))) (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02)))))))));
+
+theorem rwmWitness_wf(matrix z:nat)(hm:$ sfWf matrix $): $ sfWf (sfAnd (sfMem 0 (suc z)) matrix) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) hm));
+
+theorem rwmEw_wf(domain matrix z:nat)(hd:$ sfWf domain $)(hm:$ sfWf matrix $): $ sfWf (sfReflectionEwAt domain matrix z) $ = (named '(ax_mp (ax_mp sfWf_imp (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and hd) hm))) (ax_mp sfWf_ex (rwmWitness_wf hm))));
+
+pub theorem sfReflectionWitness_exists_mono(G matrix z w:nat)(hg:$ sfContextWf G $)(hm:$ sfWf matrix $)(hs:$ nsLocal G (sfCLSubset z w) $): $ nsLocal G (sfEx (sfAnd (sfMem 0 (suc z)) matrix)) -> nsLocal G (sfEx (sfAnd (sfMem 0 (suc w)) matrix)) $ = (named '(sfUpperLocal_ex_map hg (rwmWitness_wf hm) (rwmWitness_wf hm) (ax_mp (ax_mp sfLocal_and (ax_mp (sfCLSubset_use (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (rwmWitness_wf hm) sfContextShift_wf))) sfContextSub_cons) (sfRQ_rewrite rwmSubset_shift (ax_mp sfSepLocal_shift hs)))) (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (rwmWitness_wf hm) sfContextShift_wf))) sfContext_member_head)))) (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (rwmWitness_wf hm) sfContextShift_wf))) sfContext_member_head)))));
+
+pub theorem sfReflectionEw_mono_local(G domain matrix z w:nat)(hg:$ sfContextWf G $)(hd:$ sfWf domain $)(hm:$ sfWf matrix $)(hs:$ nsLocal G (sfCLSubset z w) $)(he:$ nsLocal G (sfReflectionEwAt domain matrix z) $): $ nsLocal G (sfReflectionEwAt domain matrix w) $ = (named '(ax_mp nsLocal_II (ax_mp (sfReflectionWitness_exists_mono (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and hd) hm)) hg)) hm (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and hd) hm)) hg))) sfContextSub_cons) hs)) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and hd) hm)) hg))) sfContextSub_cons) he)) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and hd) hm)) hg))) sfContext_member_head)))));
+
+pub theorem sfReflectionEwMono_pure_meta(domain matrix z w:nat)(hd:$ sfWf domain $)(hm:$ sfWf matrix $): $ nsLocal 0 (sfReflectionEwMonoLaw domain matrix z w) $ = (named '(ax_mp nsLocal_II (ax_mp nsLocal_II (sfReflectionEw_mono_local (mpbir sfContextWf_cons (ian (rwmEw_wf hd hm) (mpbir sfContextWf_cons (ian rwmSubset_wf sfContextWf_nil)))) hd hm (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (rwmEw_wf hd hm) (mpbir sfContextWf_cons (ian rwmSubset_wf sfContextWf_nil))))) (ax_mp sfContext_member_tail sfContext_member_head)) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (rwmEw_wf hd hm) (mpbir sfContextWf_cons (ian rwmSubset_wf sfContextWf_nil))))) sfContext_member_head)))));
+
+pub theorem sfReflectionEwMono_zfr_meta(domain matrix z w:nat)(hd:$ sfWf domain $)(hm:$ sfWf matrix $): $ sfTheoryProvable zfrAxioms (sfReflectionEwMonoLaw domain matrix z w) $ = (named '(ax_mp sfTheory_pure (sfReflectionEwMono_pure_meta hd hm)));
+
+pub theorem sfReflectionEwAt_zero(domain matrix:nat): $ sfReflectionEwAt domain matrix 0 = sfPieceEw domain matrix $ = (named 'eqid);
+
+do { (add-eqd-thm 'sfReflectionEwAt 'rwmAtCong) (add-eqd-thm 'sfReflectionEwMonoLaw 'rwmLawCong) };
+
+theorem rwmSafe_wf(P:wff)(phi:nat)(hp:$ P -> sfWf phi $): $ sfWf (if P phi sfBot) $ = (named '(cases (mpbird (sfContextsWf_congr ifpos) hp) (mpbird (sfContextsWf_congr ifneg) (a1i sfWf_bot))));
+
+theorem rwmSafe(domain matrix z w:nat): $ sfTheoryProvable zfrAxioms (sfReflectionEwMonoLaw (if (sfWf domain /\ sfWf matrix) domain sfBot) (if (sfWf domain /\ sfWf matrix) matrix sfBot) z w) $ = (named '(sfReflectionEwMono_zfr_meta (rwmSafe_wf anl) (rwmSafe_wf anr)));
+
+pub theorem sfReflectionEwMono_zfr(domain matrix z w:nat): $ (sfWf domain /\ sfWf matrix) -> sfTheoryProvable zfrAxioms (sfReflectionEwMonoLaw domain matrix z w) $ = (named '(mpbid (sfTheoryProvable_congr (rwmLawCongeqd ifpos ifpos eqidd eqidd)) (a1i rwmSafe)));

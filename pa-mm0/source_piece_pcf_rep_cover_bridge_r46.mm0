@@ -1,0 +1,28 @@
+import "source_piece_pcf_rep_cover_background_r41.mm0";
+import "source_piece_pcf_rep_cover_use_r42.mm0";
+
+theorem sfPieceRepEnvironmentCover_background(G n A B C:nat)
+ (hg:$ sfContextWf G $)(hbg:$ sfContextSub sfLBackground G $)
+ (hs:$ nsLocal G (sfPieceRepSuccessor A B) $)
+ (hc:$ nsLocal G (sfPieceRepClosure B C) $):
+ $ nsLocal G (sfPieceRepEnvironmentCover A C n) $;
+
+def sfPieceRepCoverWitnessContext(G A C n:nat):nat =
+ $ sfPieceRepEnvironmentCoverBody A C n : sfContextShift G $;
+
+theorem sfPieceRepCoverWitnessContext_wf(G A C n:nat):
+ $ sfContextWf (sfPieceRepCoverWitnessContext G A C n) $;
+
+theorem sfPieceRepCoverWitnessContext_member(G A C n:nat):
+ $ nsLocal (sfPieceRepCoverWitnessContext G A C n) (sfMem 0 (suc C)) $;
+
+theorem sfPieceRepCoverWitnessContext_cover(G A C n:nat):
+ $ nsLocal (sfPieceRepCoverWitnessContext G A C n)
+   (sfPieceRepEnvironmentCoverAt (suc A) 0 n) $;
+
+theorem sfPieceRepEnvironmentCover_background_eliminate(G n A B C out:nat)
+ (hg:$ sfContextWf G $)(hbg:$ sfContextSub sfLBackground G $)
+ (hs:$ nsLocal G (sfPieceRepSuccessor A B) $)
+ (hc:$ nsLocal G (sfPieceRepClosure B C) $)(ho:$ sfWf out $)
+ (hp:$ nsLocal (sfPieceRepCoverWitnessContext G A C n) (sfShift 0 out) $):
+ $ nsLocal G out $;

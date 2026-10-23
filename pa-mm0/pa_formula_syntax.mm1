@@ -1,0 +1,70 @@
+import "pa_source_interpretation_terms.mm1";
+
+@_ abstract def paFormulaFalse: nat = $ 0 $;
+
+@_ abstract def paFormulaEqual (a b: nat): nat = $ sfMem a b $;
+
+@_ abstract def paFormulaAnd (a b: nat): nat = $ sfAnd a b $;
+
+@_ abstract def paFormulaOr (a b: nat): nat = $ sfOr a b $;
+
+@_ abstract def paFormulaImp (a b: nat): nat = $ sfImp a b $;
+
+@_ abstract def paFormulaAll (a: nat): nat = $ sfAll a $;
+
+@_ abstract def paFormulaEx (a: nat): nat = $ sfEx a $;
+
+@_ abstract def paFormulaBoundAllowed (n c h: nat): wff = $ ifp (c = 0) (0 = 0)
+ (ifp (sfTag c = 1) (paTermBound n (sfLeft c) /\ paTermBound n (sfRight c))
+ (ifp (sfTag c = 3) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 4) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 5) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 6 /\ sfRight c = 0) ((suc n, sfLeft c) e. h)
+ (ifp (sfTag c = 7 /\ sfRight c = 0) ((suc n, sfLeft c) e. h)
+ (0 != 0))))))) $;
+
+@_ abstract def paFormulaBoundStep (.k .h: nat): set = $ S\ k, {h | paFormulaBoundAllowed (fst k) (snd k) h} $;
+
+@_ abstract def paFormulaBound (n c: nat): wff = $ srecp paFormulaBoundStep (n, c) $;
+
+@_ abstract def paFormulaBoundPrevious (n c .i: nat): nat = $ sep (upto (n, c)) {i | srecp paFormulaBoundStep i} $;
+
+@_ abstract def paFormula (c .n: nat): wff = $ E. n paFormulaBound n c $;
+
+pub theorem paFormulaBoundStep_value (k h: nat): $ (k, h) e. paFormulaBoundStep <-> paFormulaBoundAllowed (fst k) (snd k) h $ = (named '(elsabe @ elabed ,eqtac));
+
+pub theorem paFormulaBoundPrevious_value (n c m a: nat): $ (m, a) e. paFormulaBoundPrevious n c <-> (m, a) < (n, c) /\ paFormulaBound m a $ = (named '(bitr elsep @ bitr (aneq1i elupto) (aneq2i (elabe ,eqtac))));
+
+pub theorem paFormulaBound_unfold (n c: nat): $ paFormulaBound n c <-> paFormulaBoundAllowed n c (paFormulaBoundPrevious n c) $ = (named '(bitr srecpval @ bitr paFormulaBoundStep_value (paFormulaBoundAllowedeq fstpr sndpr eqid)));
+
+theorem paFormulaBoundAllowed_Equal (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ paFormulaBoundAllowed n c h <-> paTermBound n (sfLeft c) /\ paTermBound n (sfRight c) $ = (named '(bitr (ifpneg h0) (ifppos ht)));
+
+theorem paFormulaBoundAllowed_And (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ paFormulaBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (ifppos ht))));
+
+theorem paFormulaBoundAllowed_Or (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ paFormulaBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht)))));
+
+theorem paFormulaBoundAllowed_Imp (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $): $ paFormulaBoundAllowed n c h <-> (n, sfLeft c) e. h /\ (n, sfRight c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos ht))))));
+
+theorem paFormulaBoundAllowed_All (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $): $ paFormulaBoundAllowed n c h <-> (suc n, sfLeft c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifppos (ian ht hz))))))));
+
+theorem paFormulaBoundAllowed_Ex (n c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $): $ paFormulaBoundAllowed n c h <-> (suc n, sfLeft c) e. h $ = (named '(bitr (ifpneg h0) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr (ltletr ltsucid lesucid) lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (bitr (ifpneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (bitr (ifpneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid)))) (ifppos (ian ht hz)))))))));
+
+theorem paFormulaBoundPrevious_child (n c a: nat) (h: $ sfLeft c = a $) (ha: $ a < c $): $ (n, sfLeft c) e. paFormulaBoundPrevious n c <-> paFormulaBound n a $ = (named '(bitr (eleq1 (preq2 h)) @ bitr paFormulaBoundPrevious_value (bian1 (sfKey_lt ha))));
+
+theorem paFormulaBoundPrevious_right (n c a: nat) (h: $ sfRight c = a $) (ha: $ a < c $): $ (n, sfRight c) e. paFormulaBoundPrevious n c <-> paFormulaBound n a $ = (named '(bitr (eleq1 (preq2 h)) @ bitr paFormulaBoundPrevious_value (bian1 (sfKey_lt ha))));
+
+theorem paFormulaBoundPrevious_underBinder (n c a: nat) (h: $ sfLeft c = a $) (ha: $ a < c $): $ (suc n, sfLeft c) e. paFormulaBoundPrevious n c <-> paFormulaBound (suc n) a $ = (named '(bitr (eleq1 (preq2 h)) @ bitr paFormulaBoundPrevious_value (bian1 (sfKey_underBinder_lt ha))));
+
+pub theorem paFormulaBound_false (n: nat): $ paFormulaBound n paFormulaFalse $ = (named '(mpbir paFormulaBound_unfold @ mpbir (ifppos eqid) eqid));
+
+pub theorem paFormulaBound_equal (n a b: nat): $ paFormulaBound n (paFormulaEqual a b) <-> paTermBound n a /\ paTermBound n b $ = (named '(bitr paFormulaBound_unfold @ bitr (paFormulaBoundAllowed_Equal sfMem_ne_sfBot sfMem_tag) @ aneq (paTermBoundeq2 sfMem_left) (paTermBoundeq2 sfMem_right)));
+
+pub theorem paFormulaBound_and (n a b: nat): $ paFormulaBound n (paFormulaAnd a b) <-> paFormulaBound n a /\ paFormulaBound n b $ = (named '(bitr paFormulaBound_unfold @ bitr (paFormulaBoundAllowed_And sfAnd_ne_sfBot sfAnd_tag) @ aneq (paFormulaBoundPrevious_child sfAnd_left sfAnd_left_lt) (paFormulaBoundPrevious_right sfAnd_right sfAnd_right_lt)));
+
+pub theorem paFormulaBound_or (n a b: nat): $ paFormulaBound n (paFormulaOr a b) <-> paFormulaBound n a /\ paFormulaBound n b $ = (named '(bitr paFormulaBound_unfold @ bitr (paFormulaBoundAllowed_Or sfOr_ne_sfBot sfOr_tag) @ aneq (paFormulaBoundPrevious_child sfOr_left sfOr_left_lt) (paFormulaBoundPrevious_right sfOr_right sfOr_right_lt)));
+
+pub theorem paFormulaBound_imp (n a b: nat): $ paFormulaBound n (paFormulaImp a b) <-> paFormulaBound n a /\ paFormulaBound n b $ = (named '(bitr paFormulaBound_unfold @ bitr (paFormulaBoundAllowed_Imp sfImp_ne_sfBot sfImp_tag) @ aneq (paFormulaBoundPrevious_child sfImp_left sfImp_left_lt) (paFormulaBoundPrevious_right sfImp_right sfImp_right_lt)));
+
+pub theorem paFormulaBound_all (n a: nat): $ paFormulaBound n (paFormulaAll a) <-> paFormulaBound (suc n) a $ = (named '(bitr paFormulaBound_unfold @ bitr (paFormulaBoundAllowed_All sfAll_ne_sfBot sfAll_tag sfAll_right) (paFormulaBoundPrevious_underBinder sfAll_left sfAll_body_lt)));
+
+pub theorem paFormulaBound_ex (n a: nat): $ paFormulaBound n (paFormulaEx a) <-> paFormulaBound (suc n) a $ = (named '(bitr paFormulaBound_unfold @ bitr (paFormulaBoundAllowed_Ex sfEx_ne_sfBot sfEx_tag sfEx_right) (paFormulaBoundPrevious_underBinder sfEx_left sfEx_body_lt)));

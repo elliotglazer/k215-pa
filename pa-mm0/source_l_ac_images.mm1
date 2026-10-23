@@ -1,0 +1,98 @@
+import "source_l_choice_up.mm1";
+import "source_reflection_transfer_tv_images.mm1";
+
+-- L03: G1 (sfZFCImageFamilies zfrAxioms sfLDomain) from the actual images, with Choice^L produced
+-- here.  New: the ZFR axiom images in L (hi of sfLChoice_from_transitivity) from the choice-free
+-- fixed images (zfcCoreFixed: Refl..Omega), Foundation^L, and the Separation / Replacement images.
+-- Every heavy fact is a hypothesis (light closure); the final assembly supplies them.
+
+-- The choice-free core images: transitivity of L, and Empty, Pair, Union, Power, Omega in L.
+def sfLACCore: wff = $ sfTheoryProvable zfrAxioms sfLTransitivity /\
+  (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcEmpty) /\
+  (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) /\
+  (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) /\
+  (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPower) /\
+   sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega))))) $;
+
+-- zfcCoreFixed a is a ten-way disjunction of equations (as zfcFixed minus Foundation and Choice);
+-- each case is transported from the named image (sfLF_transport, source_l_fixed_family).
+pub theorem sfLACCore_fixed (a: nat):
+ $ sfLACCore -> zfcCoreFixed a -> sfTheoryProvable zfrAxioms (sfRelativize sfLDomain a) $ =
+'(eord (sfLF_transport (a1i sfLRefl_zfr)) (eord (sfLF_transport (a1i sfLSym_zfr))
+  (eord (sfLF_transport (a1i sfLTrans_zfr)) (eord (sfLF_transport (a1i sfLEqElem_zfr))
+  (eord (sfLF_transport (syl sfLExt_zfr anl)) (eord (sfLF_transport (syl anl anr))
+  (eord (sfLF_transport (syl (syl anl anr) anr)) (eord (sfLF_transport (syl (syl (syl anl anr) anr) anr))
+  (eord (sfLF_transport (syl (syl (syl (syl anl anr) anr) anr) anr))
+   (sfLF_transport (syl (syl (syl (syl anr anr) anr) anr) anr)))))))))));
+
+-- zfrAxioms = core axioms (core fixed, closed Separation, closed Replacement) + Foundation.
+pub theorem sfLACZFR_axiom (a: nat):
+ $ sfLACCore /\ (sfZFCSeparationImages zfrAxioms sfLDomain /\ sfZFCReplacementImages zfrAxioms sfLDomain) ->
+   a e. zfrAxioms -> sfTheoryProvable zfrAxioms (sfRelativize sfLDomain a) $ =
+'(syl5 (bi1 zfrAxioms_value) (eord
+  (syl5 (bi1 zfcCoreAxioms_value) (eord (syl sfLACCore_fixed anl)
+    (eord (syl sfZFCClosedSeparation_image (syl anl anr)) (syl sfZFCClosedReplacement_image (syl anr anr)))))
+  (sfLF_transport (a1i sfLFoundation_zfr))));
+
+pub theorem sfLACZFRImages:
+ $ sfLACCore /\ (sfZFCSeparationImages zfrAxioms sfLDomain /\ sfZFCReplacementImages zfrAxioms sfLDomain) ->
+   sfRelativeAxiomImages zfrAxioms zfrAxioms sfLDomain $ =
+(named '(iald @ syl6 (bi2 sfRelativeAxiomClass_value) sfLACZFR_axiom));
+
+pub theorem sfLACChoice_cond
+ (hTrans: $ sfTheoryProvable zfrAxioms sfLTransitivity $)
+ (hPair: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $)
+ (hUnion: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $)
+ (hPower: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPower) $)
+ (hOmega: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) $)
+ (hSep: $ sfZFCSeparationImages zfrAxioms sfLDomain $)
+ (hRep: $ sfZFCReplacementImages zfrAxioms sfLDomain $)
+ (hN: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (h2: $ sfTheoryProvable zfrAxioms sfLChoiceT2 $)
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $ =
+'(sfLChoice_from_transitivity
+  (ax_mp sfLACZFRImages (ian (ian hTrans (ian sfLEmpty_zfr (ian hPair (ian hUnion (ian hPower hOmega)))))
+    (ian hSep hRep)))
+  hN hE hU h2 hTrans hOL);
+
+pub theorem sfLACFixed_cond
+ (hTrans: $ sfTheoryProvable zfrAxioms sfLTransitivity $)
+ (hPair: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $)
+ (hUnion: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $)
+ (hPower: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPower) $)
+ (hOmega: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) $)
+ (hSep: $ sfZFCSeparationImages zfrAxioms sfLDomain $)
+ (hRep: $ sfZFCReplacementImages zfrAxioms sfLDomain $)
+ (hN: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (h2: $ sfTheoryProvable zfrAxioms sfLChoiceT2 $)
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ sfZFCFixedImages zfrAxioms sfLDomain $ =
+'(sfTVLFixedImages_from_actual_images hTrans hPair hUnion hPower hOmega
+  (sfLACChoice_cond hTrans hPair hUnion hPower hOmega hSep hRep hN hE hU h2 hOL));
+
+pub theorem sfLACG1_cond
+ (hTrans: $ sfTheoryProvable zfrAxioms sfLTransitivity $)
+ (hPair: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) $)
+ (hUnion: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) $)
+ (hPower: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPower) $)
+ (hOmega: $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) $)
+ (hSep: $ sfZFCSeparationImages zfrAxioms sfLDomain $)
+ (hRep: $ sfZFCReplacementImages zfrAxioms sfLDomain $)
+ (hN: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (h2: $ sfTheoryProvable zfrAxioms sfLChoiceT2 $)
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ sfZFCImageFamilies zfrAxioms sfLDomain $ =
+'(ian (sfLACFixed_cond hTrans hPair hUnion hPower hOmega hSep hRep hN hE hU h2 hOL) (ian hSep hRep));
+
+-- Hypothesis-free last theorem (check.py's false-final control): the ZFR images in L, implication form.
+pub theorem sfLACZFRImages_imp:
+ $ sfLACCore /\ (sfZFCSeparationImages zfrAxioms sfLDomain /\ sfZFCReplacementImages zfrAxioms sfLDomain) ->
+   sfRelativeAxiomImages zfrAxioms zfrAxioms sfLDomain $ =
+'sfLACZFRImages;

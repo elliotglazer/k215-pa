@@ -1,0 +1,121 @@
+import "source_structural_induction.mm1";
+
+@_ def sfRenameDepthMap (R: set) (k .i: nat): set = $ \ i, sfRenameIndex R k i $;
+
+pub theorem sfRenameDepthMap_value (R: set) (k i: nat):
+ $ sfRenameDepthMap R k @ i = sfRenameIndex R k i $ =
+(named '(!! applame j ,eqtac));
+
+theorem srd_index_at (R: set) (k d i: nat):
+ $ (A. j sfRenameIndex R (d + k) j = sfRenameIndex (sfRenameDepthMap R k) d j) -> sfRenameIndex R (d + k) i = sfRenameIndex (sfRenameDepthMap R k) d i $ =
+(named '(!! eale j ,eqtac));
+
+theorem srd_index_base (R: set) (k i: nat):
+ $ sfRenameIndex R (0 + k) i = sfRenameIndex (sfRenameDepthMap R k) 0 i $ =
+'(eqtr (trud (sfRenameIndex_congr_depth (a1i add01))) (eqcom (eqtr sfRenameIndex_zero sfRenameDepthMap_value)));
+
+theorem srd_index_step_zero (R: set) (k d: nat):
+ $ sfRenameIndex R (suc d + k) 0 = sfRenameIndex (sfRenameDepthMap R k) (suc d) 0 $ =
+'(eqtr (trud (sfRenameIndex_congr_depth (a1i addS1))) (eqtr (ax_mp sfRenameIndex_bound lt01S) (eqcom (ax_mp sfRenameIndex_bound lt01S))));
+
+theorem srd_index_step_suc (R: set) (k d i: nat):
+ $ (A. j sfRenameIndex R (d + k) j = sfRenameIndex (sfRenameDepthMap R k) d j) -> sfRenameIndex R (suc d + k) (suc i) = sfRenameIndex (sfRenameDepthMap R k) (suc d) (suc i) $ =
+(named '(eqtrd (a1i (trud (sfRenameIndex_congr_depth (a1i addS1)))) (eqtrd (a1i sfRenameIndex_lift) (eqtrd (suceqd srd_index_at) (a1i (eqcom sfRenameIndex_lift))))));
+
+theorem srd_index_step_each (R: set) (k d i: nat):
+ $ (A. j sfRenameIndex R (d + k) j = sfRenameIndex (sfRenameDepthMap R k) d j) -> sfRenameIndex R (suc d + k) i = sfRenameIndex (sfRenameDepthMap R k) (suc d) i $ =
+(named @ induct '(ind) 'i '(a1i srd_index_step_zero) '(a1i srd_index_step_suc));
+
+theorem srd_index_step_all (R: set) (k d: nat):
+ $ (A. j sfRenameIndex R (d + k) j = sfRenameIndex (sfRenameDepthMap R k) d j) -> A. i sfRenameIndex R (suc d + k) i = sfRenameIndex (sfRenameDepthMap R k) (suc d) i $ =
+(named '(iald srd_index_step_each));
+
+theorem srd_index_alpha (R: set) (k d: nat):
+ $ (A. j sfRenameIndex R (d + k) j = sfRenameIndex (sfRenameDepthMap R k) d j) <-> (A. i sfRenameIndex R (d + k) i = sfRenameIndex (sfRenameDepthMap R k) d i) $ =
+(named '(cbval ,eqtac));
+
+theorem srd_index_step_same (R: set) (k d: nat):
+ $ (A. i sfRenameIndex R (d + k) i = sfRenameIndex (sfRenameDepthMap R k) d i) -> A. i sfRenameIndex R (suc d + k) i = sfRenameIndex (sfRenameDepthMap R k) (suc d) i $ =
+(named '(syl srd_index_step_all (bi2 srd_index_alpha)));
+
+theorem srd_index_all (R: set) (k d: nat):
+ $ A. i sfRenameIndex R (d + k) i = sfRenameIndex (sfRenameDepthMap R k) d i $ =
+(named @ induct '(ind) 'd '(ax_gen srd_index_base) 'srd_index_step_same);
+
+pub theorem sfRenameIndex_depth (R: set) (k d i: nat):
+ $ sfRenameIndex R (d + k) i = sfRenameIndex (sfRenameDepthMap R k) d i $ =
+(named '(ax_mp srd_index_at srd_index_all));
+
+def sfRenameDepthClass (R: set) (k .c .d: nat): set = $ {c | A. d sfRename R (d + k) c = sfRename (sfRenameDepthMap R k) d c} $;
+
+theorem srd_value (R: set) (k c: nat):
+ $ c e. sfRenameDepthClass R k <-> A. d sfRename R (d + k) c = sfRename (sfRenameDepthMap R k) d c $ =
+(named '(elabe ,eqtac));
+
+theorem srd_depth (R: set) (k d c: nat):
+ $ (A. j sfRename R (j + k) c = sfRename (sfRenameDepthMap R k) j c) -> sfRename R (d + k) c = sfRename (sfRenameDepthMap R k) d c $ =
+(named '(!! eale j ,eqtac));
+
+theorem srd_at (R: set) (k d c: nat):
+ $ c e. sfRenameDepthClass R k -> sfRename R (d + k) c = sfRename (sfRenameDepthMap R k) d c $ =
+(named '(syl srd_depth (bi1 srd_value)));
+
+theorem srd_bot (R: set) (k: nat):
+ $ sfBot e. sfRenameDepthClass R k $ =
+(named '(mpbir srd_value @ ax_gen @ eqtr sfRename_bot (eqcom sfRename_bot)));
+
+theorem srd_mem (R: set) (k a b: nat):
+ $ sfMem a b e. sfRenameDepthClass R k $ =
+(named '(mpbir srd_value @ ax_gen @ eqtr sfRename_sfMem @ eqtr (trud (sfMemeqd (a1i sfRenameIndex_depth) (a1i sfRenameIndex_depth))) (eqcom sfRename_sfMem)));
+
+theorem srd_eq (R: set) (k a b: nat):
+ $ sfEq a b e. sfRenameDepthClass R k $ =
+(named '(mpbir srd_value @ ax_gen @ eqtr sfRename_sfEq @ eqtr (trud (sfEqeqd (a1i sfRenameIndex_depth) (a1i sfRenameIndex_depth))) (eqcom sfRename_sfEq)));
+
+theorem srd_atomic (R: set) (k: nat):
+ $ sfAtomicClosed (sfRenameDepthClass R k) $ =
+(named '(ax_gen @ ax_gen @ ian srd_mem srd_eq));
+
+theorem srd_and (R: set) (k a b: nat):
+ $ a e. sfRenameDepthClass R k /\ b e. sfRenameDepthClass R k -> sfAnd a b e. sfRenameDepthClass R k $ =
+(named '(mpbird (a1i srd_value) @ !! iald d @ eqtrd (a1i sfRename_sfAnd) @ eqtrd (sfAndeqd (syl srd_at anl) (syl srd_at anr)) (a1i (eqcom sfRename_sfAnd))));
+
+theorem srd_or (R: set) (k a b: nat):
+ $ a e. sfRenameDepthClass R k /\ b e. sfRenameDepthClass R k -> sfOr a b e. sfRenameDepthClass R k $ =
+(named '(mpbird (a1i srd_value) @ !! iald d @ eqtrd (a1i sfRename_sfOr) @ eqtrd (sfOreqd (syl srd_at anl) (syl srd_at anr)) (a1i (eqcom sfRename_sfOr))));
+
+theorem srd_imp (R: set) (k a b: nat):
+ $ a e. sfRenameDepthClass R k /\ b e. sfRenameDepthClass R k -> sfImp a b e. sfRenameDepthClass R k $ =
+(named '(mpbird (a1i srd_value) @ !! iald d @ eqtrd (a1i sfRename_sfImp) @ eqtrd (sfImpeqd (syl srd_at anl) (syl srd_at anr)) (a1i (eqcom sfRename_sfImp))));
+
+theorem srd_binary (R: set) (k: nat):
+ $ sfBinaryClosed (sfRenameDepthClass R k) $ =
+(named '(ax_gen @ ax_gen @ iand (iand srd_and srd_or) srd_imp));
+
+theorem srd_all (R: set) (k a: nat):
+ $ a e. sfRenameDepthClass R k -> sfAll a e. sfRenameDepthClass R k $ =
+(named '(mpbird (a1i srd_value) @ !! iald d @ eqtrd (a1i sfRename_sfAll) @ eqtrd (sfAlleqd (eqtrd (a1i (eqcom (trud (sfRename_congr_depth (a1i addS1))))) srd_at)) (a1i (eqcom sfRename_sfAll))));
+
+theorem srd_ex (R: set) (k a: nat):
+ $ a e. sfRenameDepthClass R k -> sfEx a e. sfRenameDepthClass R k $ =
+(named '(mpbird (a1i srd_value) @ !! iald d @ eqtrd (a1i sfRename_sfEx) @ eqtrd (sfExeqd (eqtrd (a1i (eqcom (trud (sfRename_congr_depth (a1i addS1))))) srd_at)) (a1i (eqcom sfRename_sfEx))));
+
+theorem srd_quantifier (R: set) (k: nat):
+ $ sfQuantifierClosed (sfRenameDepthClass R k) $ =
+(named '(ax_gen @ iand srd_all srd_ex));
+
+theorem srd_closed (R: set) (k: nat):
+ $ sfConstructionClosed (sfRenameDepthClass R k) $ =
+'(ian (ian (ian srd_bot srd_atomic) srd_binary) srd_quantifier);
+
+pub theorem sfRename_depth (R: set) (k d c: nat):
+ $ sfWf c -> sfRename R (d + k) c = sfRename (sfRenameDepthMap R k) d c $ =
+(named '(syl srd_at (ax_mp sfWf_induction srd_closed)));
+
+pub theorem sfRename_as_map (R: set) (k c: nat):
+ $ sfWf c -> sfRename R k c = sfRename (sfRenameDepthMap R k) 0 c $ =
+(named '(eqtrd (a1i (eqcom (trud (sfRename_congr_depth (a1i add01))))) sfRename_depth));
+
+pub theorem sfRename_mixed_compose (R S: set) (k c: nat):
+ $ sfWf c -> sfRename R k (sfRename S 0 c) = sfRename (sfComposeMap (sfRenameDepthMap R k) S) 0 c $ =
+(named '(eqtrd (a1i (ax_mp sfRename_as_map sfRename_wf)) sfRename_compose));

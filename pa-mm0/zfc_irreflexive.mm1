@@ -1,0 +1,512 @@
+import "zfc_propositional.mm1";
+
+
+theorem nsSequent_congr (H: wff) (a u b v: nat)
+  (h0: $ H -> a = u $) (h1: $ H -> b = v $):
+  $ H -> sfSequent a b = sfSequent u v $ = '(sfSequent_congr h0 h1);
+do (apply (register-eqd 'sfSequent)
+  '(nsSequent_congr sfSequent_congr_context sfSequent_congr_formula));
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+do (apply (register-eqd 'sfAnd) '(sfAnd_congr sfAnd_congr_left sfAnd_congr_right));
+do (apply (register-eqd 'sfOr) '(sfOr_congr sfOr_congr_left sfOr_congr_right));
+do (apply (register-eqd 'sfEq) '(sfEq_congr sfEq_congr_left sfEq_congr_right));
+do (apply (register-eqd 'sfMem) '(sfMem_congr sfMem_congr_left sfMem_congr_right));
+do (apply (register-eqd 'sfAll) '(sfAll_congr));
+do (apply (register-eqd 'sfEx) '(sfEx_congr));
+
+@_ abstract def nsLocal (G a: nat) (.p: nat): wff = $ E. p sfNDFullDerives p (sfSequent G a) $;
+
+pub theorem nsLocal_intro (G p a: nat):
+  $ sfNDFullDerives p (sfSequent G a) -> nsLocal G a $ =
+(named '(iexe ,eqtac));
+
+pub theorem nsLocal_wf (G a: nat):
+  $ nsLocal G a -> sfWf a $ =
+(named '(eex zfcProof_formula_wf));
+
+pub theorem nsLocal_context_wf (G a: nat):
+  $ nsLocal G a -> sfContextWf G $ =
+(named '(eex @ syl anl @ syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf));
+
+pub theorem nsLocal_hyp (G a: nat):
+  $ sfContextWf G -> a IN G -> nsLocal G a $ =
+'(exp @ syl nsLocal_intro (imp zfcNDHyp_derives));
+
+pub theorem nsLocal_mp (G a b: nat):
+  $ nsLocal G (sfImp a b) -> nsLocal G a -> nsLocal G b $ =
+(named '(eex @ eexd @ exp @ syl nsLocal_intro (imp zfcNDMp_derives)));
+
+pub theorem nsLocal_II (G a b: nat):
+  $ nsLocal (a : G) b -> nsLocal G (sfImp a b) $ =
+(named '(eex @ syl nsLocal_intro zfcNDIntro_derives));
+
+pub theorem nsLocal_weaken (G D a: nat):
+  $ sfContextWf D -> sfContextSub G D -> nsLocal G a -> nsLocal D a $ =
+(named '(exp @ eexd @ exp @ syl nsLocal_intro @ imp @ imp zfcProof_weaken));
+
+pub theorem nsLocal_AllE (G a t: nat):
+  $ nsLocal G (sfAll a) -> nsLocal G (sfSubst 0 t a) $ =
+(named '(eex @ syl nsLocal_intro @ mpd id @
+      syl sfNDFullDerives_AllE @ sylc sfRowWf_sequent_intro
+        (syl anl (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf))
+        (a1i sfSubst_wf)));
+
+pub theorem nsLocal_CE1 (G a b: nat):
+  $ nsLocal G (sfAnd a b) -> nsLocal G a $ =
+(named '(eex @ syl nsLocal_intro @ mpd id @
+      syl sfNDFullDerives_prop_unary @ syl sfNDPropUnary_CE1 @
+      sylc sfRowWf_sequent_intro
+        (syl anl (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf))
+        (syl anl (syl (bi1 sfWf_and_iff) zfcProof_formula_wf))));
+
+pub theorem nsLocal_CE2 (G a b: nat):
+  $ nsLocal G (sfAnd a b) -> nsLocal G b $ =
+(named '(eex @ syl nsLocal_intro @ mpd id @
+      syl sfNDFullDerives_prop_unary @ syl sfNDPropUnary_CE2 @
+      sylc sfRowWf_sequent_intro
+        (syl anl (syl (bi1 sfRowWf_sequent) sfNDFullDerives_wf))
+        (syl anr (syl (bi1 sfWf_and_iff) zfcProof_formula_wf))));
+
+pub theorem nsLocal_DI1 (G a b: nat):
+  $ sfWf b -> nsLocal G a -> nsLocal G (sfOr a b) $ =
+(named '(eexd @ exp @ syl nsLocal_intro @ mpd anr @
+      syl sfNDFullDerives_prop_unary @ syl sfNDPropUnary_DI1 @
+      sylc sfRowWf_sequent_intro
+        (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anr)))
+        (sylc sfWf_or (syl zfcProof_formula_wf anr) anl)));
+
+theorem nsLocal_formula_eq (G a b: nat) (h: $ a = b $):
+  $ nsLocal G a <-> nsLocal G b $ =
+'(trud @ nsLocaleq2d (a1i h));
+
+theorem nsLocal_context_eq (G D a: nat) (h: $ G = D $):
+  $ nsLocal G a <-> nsLocal D a $ =
+'(trud @ nsLocaleq1d (a1i h));
+
+theorem nsFull_congr (H: wff) (p q a b: nat) (hp: $ H -> p = q $) (ha: $ H -> a = b $):
+  $ H -> (sfNDFullDerives p a <-> sfNDFullDerives q b) $ =
+'(aneqd (trueeqd (lreceq3d hp)) (lmemeqd ha hp));
+
+pub theorem nsLocal_ExI (G a t: nat):
+  $ sfWf a -> nsLocal G (sfSubst 0 t a) -> nsLocal G (sfEx a) $ =
+(named '(eexd @ exp @ syl nsLocal_intro @ mpd anr @
+      syl sfNDFullDerives_ExI @ sylc sfRowWf_sequent_intro
+        (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anr)))
+        (syl sfWf_ex anl)));
+
+theorem nsExE_bottom_accepted (G p q a: nat):
+  $ sfNDFullDerives p (sfSequent G (sfEx a)) -> sfNDFullDerives q (sfSequent (a : sfContextShift G) sfBot) -> sfNDFullDerives (sfSequent G sfBot : (p ++ q)) (sfSequent G sfBot) $ =
+'(exp @ mpd
+      (mpbird (nsFull_congr (a1i eqid)
+        (sfSequent_congr_formula (a1i sfShift_bot))) anr) @
+      mpd anl @ syl sfNDFullDerives_ExE @ sylc sfRowWf_sequent_intro
+        (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anl)))
+        (a1i sfWf_bot));
+
+pub theorem nsLocal_ExE_bottom (G a: nat):
+  $ nsLocal G (sfEx a) -> nsLocal (a : sfContextShift G) sfBot -> nsLocal G sfBot $ =
+(named '(eex @ eexd @ exp @ syl nsLocal_intro (imp nsExE_bottom_accepted)));
+
+theorem nsDE_accepted (G p q r a b c: nat):
+  $ sfNDFullDerives p (sfSequent G (sfOr a b)) -> sfNDFullDerives q (sfSequent (a : G) c) -> sfNDFullDerives r (sfSequent (b : G) c) -> sfNDFullDerives (sfSequent G c : (p ++ (sfBranches G a b c : (q ++ r)))) (sfSequent G c) $ =
+'(exp @ exp @ mpd
+      (mpd anr @ mpd anlr @ syl sfNDFullDerives_prop_binary @
+        syl sfNDPropBinary_BranchPair @
+          mpd (syl zfcProof_formula_wf anr) @
+          mpd (syl anr (syl (bi1 sfWf_or_iff) (syl zfcProof_formula_wf anll))) @
+          mpd (syl anl (syl (bi1 sfWf_or_iff) (syl zfcProof_formula_wf anll))) @
+          syl sfRowWf_branches_intro
+            (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anll)))) @
+      mpd anll @ syl sfNDFullDerives_prop_binary @
+        syl sfNDPropBinary_DE @ sylc sfRowWf_sequent_intro
+          (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anll)))
+          (syl zfcProof_formula_wf anr));
+
+pub theorem nsLocal_DE (G a b c: nat):
+  $ nsLocal G (sfOr a b) -> nsLocal (a : G) c -> nsLocal (b : G) c -> nsLocal G c $ =
+(named '(eex @ eexd @ exp @ eexd @ exp @
+      syl nsLocal_intro @ imp @ imp nsDE_accepted));
+
+theorem nsMem_eq (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfMem a c = sfMem b d $ =
+'(trud @ sfMem_congr (a1i h1) (a1i h2));
+
+theorem nsEq_eq (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfEq a c = sfEq b d $ =
+'(trud @ sfEq_congr (a1i h1) (a1i h2));
+
+theorem nsAnd_eq (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfAnd a c = sfAnd b d $ =
+'(trud @ sfAnd_congr (a1i h1) (a1i h2));
+
+theorem nsOr_eq (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfOr a c = sfOr b d $ =
+'(trud @ sfOr_congr (a1i h1) (a1i h2));
+
+theorem nsImp_eq (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfImp a c = sfImp b d $ =
+'(trud @ sfImp_congr (a1i h1) (a1i h2));
+
+theorem nsAll_eq (a b: nat) (h: $ a = b $):
+  $ sfAll a = sfAll b $ =
+'(trud @ sfAll_congr (a1i h));
+
+theorem nsEx_eq (a b: nat) (h: $ a = b $):
+  $ sfEx a = sfEx b $ =
+'(trud @ sfEx_congr (a1i h));
+
+pub theorem nsLocal_or_idem (G a: nat) (h: $ nsLocal G (sfOr a a) $):
+  $ nsLocal G a $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_DE h)
+      (ax_mp (ax_mp nsLocal_hyp
+        (ax_mp (bi2 sfContextWf_cons)
+          (iani (ax_mp anl (ax_mp (bi1 sfWf_or_iff) (ax_mp nsLocal_wf h)))
+            (ax_mp nsLocal_context_wf h)))) sfContext_member_head))
+      (ax_mp (ax_mp nsLocal_hyp
+        (ax_mp (bi2 sfContextWf_cons)
+          (iani (ax_mp anl (ax_mp (bi1 sfWf_or_iff) (ax_mp nsLocal_wf h)))
+            (ax_mp nsLocal_context_wf h)))) sfContext_member_head));
+
+@_ abstract def nsAxioms: nat = $ (zfcFoundation : (zfcPair : (zfcRefl : (zfcSym : (zfcEqElem : 0))))) $;
+
+@_ abstract def nsGx: nat = $ (sfMem 0 0 : nsAxioms) $;
+
+@_ abstract def nsGs: nat = $ ((sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1)))) : ((sfMem 1 1) : nsAxioms)) $;
+
+@_ abstract def nsGy: nat = $ ((sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot)))) : ((sfAll (sfAnd (sfImp (sfMem 0 2) (sfOr (sfEq 0 3) (sfEq 0 3))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 3)) (sfMem 0 2)))) : ((sfMem 2 2) : nsAxioms))) $;
+
+theorem nszfcFoundation_axiom:
+  $ zfcFoundation e. zfcAxioms $ =
+'(ax_mp zfcFixed_member (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))))))))));
+
+theorem nszfcPair_axiom:
+  $ zfcPair e. zfcAxioms $ =
+'(ax_mp zfcFixed_member (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))))));
+
+theorem nszfcRefl_axiom:
+  $ zfcRefl e. zfcAxioms $ =
+'(ax_mp zfcFixed_member (ax_mp orl eqid));
+
+theorem nszfcSym_axiom:
+  $ zfcSym e. zfcAxioms $ =
+'(ax_mp zfcFixed_member (ax_mp orr (ax_mp orl eqid)));
+
+theorem nszfcEqElem_axiom:
+  $ zfcEqElem e. zfcAxioms $ =
+'(ax_mp zfcFixed_member (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))));
+
+pub theorem nsAxioms_allowed:
+  $ zfcContext nsAxioms $ =
+'(ax_mp (bi2 zfcContext_cons) (iani nszfcFoundation_axiom (ax_mp (bi2 zfcContext_cons) (iani nszfcPair_axiom (ax_mp (bi2 zfcContext_cons) (iani nszfcRefl_axiom (ax_mp (bi2 zfcContext_cons) (iani nszfcSym_axiom (ax_mp (bi2 zfcContext_cons) (iani nszfcEqElem_axiom zfcContext_nil))))))))));
+
+theorem nsAxioms_wf:
+  $ sfContextWf nsAxioms $ =
+'(ax_mp zfcContext_wf nsAxioms_allowed);
+
+theorem nsGx_wf:
+  $ sfContextWf nsGx $ =
+'(ax_mp (bi2 sfContextWf_cons) (iani sfWf_mem nsAxioms_wf));
+
+theorem nsGs_wf:
+  $ sfContextWf nsGs $ =
+'(ax_mp (bi2 sfContextWf_cons) (iani (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq)) sfWf_mem))) (ax_mp (bi2 sfContextWf_cons) (iani sfWf_mem nsAxioms_wf))));
+
+theorem nsGy_wf:
+  $ sfContextWf nsGy $ =
+'(ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_bot)))) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq)) sfWf_mem))) (ax_mp (bi2 sfContextWf_cons) (iani sfWf_mem nsAxioms_wf))))));
+
+theorem nsY_minimal:
+  $ nsLocal nsGy (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot)))) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGy_wf) sfContext_member_head);
+
+theorem nsY_pair:
+  $ nsLocal nsGy (sfAll (sfAnd (sfImp (sfMem 0 2) (sfOr (sfEq 0 3) (sfEq 0 3))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 3)) (sfMem 0 2)))) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGy_wf) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem nsY_self:
+  $ nsLocal nsGy (sfMem 2 2) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGy_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem nsY_refl:
+  $ nsLocal nsGy (sfAll (sfEq 0 0)) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGy_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))));
+
+theorem nsY_xx_eq_subst:
+  $ sfSubst 0 2 (sfEq 0 0) = (sfEq 2 2) $ =
+'(eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_zero));
+
+theorem nsY_xx_eq:
+  $ nsLocal nsGy (sfEq 2 2) $ =
+'(mpbi (nsLocal_formula_eq nsY_xx_eq_subst) (ax_mp nsLocal_AllE nsY_refl));
+
+theorem nsY_pair_y_subst:
+  $ sfSubst 0 0 (sfAnd (sfImp (sfMem 0 2) (sfOr (sfEq 0 3) (sfEq 0 3))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 3)) (sfMem 0 2))) = (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1))) $ =
+'(eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)))) (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))))));
+
+theorem nsY_pair_y:
+  $ nsLocal nsGy (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1))) $ =
+'(mpbi (nsLocal_formula_eq nsY_pair_y_subst) (ax_mp nsLocal_AllE nsY_pair));
+
+theorem nsY_ys:
+  $ nsLocal nsGy (sfMem 0 1) $ =
+'(ax_mp nsLocal_CE1 nsY_minimal);
+
+theorem nsY_pair_y_left:
+  $ nsLocal nsGy (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) $ =
+'(ax_mp nsLocal_CE1 nsY_pair_y);
+
+theorem nsY_yx_or:
+  $ nsLocal nsGy (sfOr (sfEq 0 2) (sfEq 0 2)) $ =
+'(ax_mp (ax_mp nsLocal_mp nsY_pair_y_left) nsY_ys);
+
+theorem nsY_yx:
+  $ nsLocal nsGy (sfEq 0 2) $ =
+'(nsLocal_or_idem nsY_yx_or);
+
+theorem nsY_sym:
+  $ nsLocal nsGy (sfAll (sfAll (sfImp (sfEq 1 0) (sfEq 0 1)))) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGy_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))))));
+
+theorem nsY_sym_y_subst:
+  $ sfSubst 0 0 (sfAll (sfImp (sfEq 1 0) (sfEq 0 1))) = (sfAll (sfImp (sfEq 1 0) (sfEq 0 1))) $ =
+'(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero))))))));
+
+theorem nsY_sym_y:
+  $ nsLocal nsGy (sfAll (sfImp (sfEq 1 0) (sfEq 0 1))) $ =
+'(mpbi (nsLocal_formula_eq nsY_sym_y_subst) (ax_mp nsLocal_AllE nsY_sym));
+
+theorem nsY_sym_yx_subst:
+  $ sfSubst 0 2 (sfImp (sfEq 1 0) (sfEq 0 1)) = (sfImp (sfEq 0 2) (sfEq 2 0)) $ =
+'(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_successor sfSubstIndex_zero)) (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor))));
+
+theorem nsY_sym_yx:
+  $ nsLocal nsGy (sfImp (sfEq 0 2) (sfEq 2 0)) $ =
+'(mpbi (nsLocal_formula_eq nsY_sym_yx_subst) (ax_mp nsLocal_AllE nsY_sym_y));
+
+theorem nsY_xy:
+  $ nsLocal nsGy (sfEq 2 0) $ =
+'(ax_mp (ax_mp nsLocal_mp nsY_sym_yx) nsY_yx);
+
+theorem nsY_elem:
+  $ nsLocal nsGy (sfAll (sfAll (sfAll (sfAll (sfImp (sfEq 3 1) (sfImp (sfEq 2 0) (sfImp (sfMem 3 2) (sfMem 1 0)))))))) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGy_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))))));
+
+theorem nsY_elem_0_subst:
+  $ sfSubst 0 2 (sfAll (sfAll (sfAll (sfImp (sfEq 3 1) (sfImp (sfEq 2 0) (sfImp (sfMem 3 2) (sfMem 1 0))))))) = (sfAll (sfAll (sfAll (sfImp (sfEq 5 1) (sfImp (sfEq 2 0) (sfImp (sfMem 5 2) (sfMem 1 0))))))) $ =
+'(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))))) (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))) (ax_mp sfSubstIndex_bound lt01S)))))))))))))));
+
+theorem nsY_elem_0:
+  $ nsLocal nsGy (sfAll (sfAll (sfAll (sfImp (sfEq 5 1) (sfImp (sfEq 2 0) (sfImp (sfMem 5 2) (sfMem 1 0))))))) $ =
+'(mpbi (nsLocal_formula_eq nsY_elem_0_subst) (ax_mp nsLocal_AllE nsY_elem));
+
+theorem nsY_elem_1_subst:
+  $ sfSubst 0 2 (sfAll (sfAll (sfImp (sfEq 5 1) (sfImp (sfEq 2 0) (sfImp (sfMem 5 2) (sfMem 1 0)))))) = (sfAll (sfAll (sfImp (sfEq 4 1) (sfImp (sfEq 4 0) (sfImp (sfMem 4 4) (sfMem 1 0)))))) $ =
+'(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))) (ax_mp sfSubstIndex_bound lt01S)))))))))))));
+
+theorem nsY_elem_1:
+  $ nsLocal nsGy (sfAll (sfAll (sfImp (sfEq 4 1) (sfImp (sfEq 4 0) (sfImp (sfMem 4 4) (sfMem 1 0)))))) $ =
+'(mpbi (nsLocal_formula_eq nsY_elem_1_subst) (ax_mp nsLocal_AllE nsY_elem_0));
+
+theorem nsY_elem_2_subst:
+  $ sfSubst 0 2 (sfAll (sfImp (sfEq 4 1) (sfImp (sfEq 4 0) (sfImp (sfMem 4 4) (sfMem 1 0))))) = (sfAll (sfImp (sfEq 3 3) (sfImp (sfEq 3 0) (sfImp (sfMem 3 3) (sfMem 3 0))))) $ =
+'(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (ax_mp sfSubstIndex_bound lt01S))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))) (eqtr sfSubst_sfMem (nsMem_eq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)) (ax_mp sfSubstIndex_bound lt01S)))))))))));
+
+theorem nsY_elem_2:
+  $ nsLocal nsGy (sfAll (sfImp (sfEq 3 3) (sfImp (sfEq 3 0) (sfImp (sfMem 3 3) (sfMem 3 0))))) $ =
+'(mpbi (nsLocal_formula_eq nsY_elem_2_subst) (ax_mp nsLocal_AllE nsY_elem_1));
+
+theorem nsY_elem_3_subst:
+  $ sfSubst 0 0 (sfImp (sfEq 3 3) (sfImp (sfEq 3 0) (sfImp (sfMem 3 3) (sfMem 3 0)))) = (sfImp (sfEq 2 2) (sfImp (sfEq 2 0) (sfImp (sfMem 2 2) (sfMem 2 0)))) $ =
+'(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_successor sfSubstIndex_zero)) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_successor sfSubstIndex_successor)) (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_successor sfSubstIndex_zero))))))));
+
+theorem nsY_elem_3:
+  $ nsLocal nsGy (sfImp (sfEq 2 2) (sfImp (sfEq 2 0) (sfImp (sfMem 2 2) (sfMem 2 0)))) $ =
+'(mpbi (nsLocal_formula_eq nsY_elem_3_subst) (ax_mp nsLocal_AllE nsY_elem_2));
+
+theorem nsY_elem_refl:
+  $ nsLocal nsGy (sfImp (sfEq 2 0) (sfImp (sfMem 2 2) (sfMem 2 0))) $ =
+'(ax_mp (ax_mp nsLocal_mp nsY_elem_3) nsY_xx_eq);
+
+theorem nsY_elem_xy:
+  $ nsLocal nsGy (sfImp (sfMem 2 2) (sfMem 2 0)) $ =
+'(ax_mp (ax_mp nsLocal_mp nsY_elem_refl) nsY_xy);
+
+theorem nsY_xy_mem:
+  $ nsLocal nsGy (sfMem 2 0) $ =
+'(ax_mp (ax_mp nsLocal_mp nsY_elem_xy) nsY_self);
+
+theorem nsY_pair_x_subst:
+  $ sfSubst 0 2 (sfAnd (sfImp (sfMem 0 2) (sfOr (sfEq 0 3) (sfEq 0 3))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 3)) (sfMem 0 2))) = (sfAnd (sfImp (sfMem 2 1) (sfOr (sfEq 2 2) (sfEq 2 2))) (sfImp (sfOr (sfEq 2 2) (sfEq 2 2)) (sfMem 2 1))) $ =
+'(eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)))) (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))))));
+
+theorem nsY_pair_x:
+  $ nsLocal nsGy (sfAnd (sfImp (sfMem 2 1) (sfOr (sfEq 2 2) (sfEq 2 2))) (sfImp (sfOr (sfEq 2 2) (sfEq 2 2)) (sfMem 2 1))) $ =
+'(mpbi (nsLocal_formula_eq nsY_pair_x_subst) (ax_mp nsLocal_AllE nsY_pair));
+
+theorem nsY_xx_or:
+  $ nsLocal nsGy (sfOr (sfEq 2 2) (sfEq 2 2)) $ =
+'(ax_mp (ax_mp nsLocal_DI1 sfWf_eq) nsY_xx_eq);
+
+theorem nsY_pair_x_right:
+  $ nsLocal nsGy (sfImp (sfOr (sfEq 2 2) (sfEq 2 2)) (sfMem 2 1)) $ =
+'(ax_mp nsLocal_CE2 nsY_pair_x);
+
+theorem nsY_xs:
+  $ nsLocal nsGy (sfMem 2 1) $ =
+'(ax_mp (ax_mp nsLocal_mp nsY_pair_x_right) nsY_xx_or);
+
+theorem nsY_minimal_all:
+  $ nsLocal nsGy (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot))) $ =
+'(ax_mp nsLocal_CE2 nsY_minimal);
+
+theorem nsY_minimal_x_subst:
+  $ sfSubst 0 2 (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot)) = (sfImp (sfMem 2 0) (sfImp (sfMem 2 1) sfBot)) $ =
+'(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor)) sfSubst_bot))));
+
+theorem nsY_minimal_x:
+  $ nsLocal nsGy (sfImp (sfMem 2 0) (sfImp (sfMem 2 1) sfBot)) $ =
+'(mpbi (nsLocal_formula_eq nsY_minimal_x_subst) (ax_mp nsLocal_AllE nsY_minimal_all));
+
+theorem nsY_minimal_xy:
+  $ nsLocal nsGy (sfImp (sfMem 2 1) sfBot) $ =
+'(ax_mp (ax_mp nsLocal_mp nsY_minimal_x) nsY_xy_mem);
+
+theorem nsY_bot:
+  $ nsLocal nsGy sfBot $ =
+'(ax_mp (ax_mp nsLocal_mp nsY_minimal_xy) nsY_xs);
+
+theorem nsS_pair:
+  $ nsLocal nsGs (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1)))) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGs_wf) sfContext_member_head);
+
+theorem nsS_refl:
+  $ nsLocal nsGs (sfAll (sfEq 0 0)) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGs_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem nsS_xx_eq_subst:
+  $ sfSubst 0 1 (sfEq 0 0) = (sfEq 1 1) $ =
+'(eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_zero));
+
+theorem nsS_xx_eq:
+  $ nsLocal nsGs (sfEq 1 1) $ =
+'(mpbi (nsLocal_formula_eq nsS_xx_eq_subst) (ax_mp nsLocal_AllE nsS_refl));
+
+theorem nsS_pair_x_subst:
+  $ sfSubst 0 1 (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1))) = (sfAnd (sfImp (sfMem 1 0) (sfOr (sfEq 1 1) (sfEq 1 1))) (sfImp (sfOr (sfEq 1 1) (sfEq 1 1)) (sfMem 1 0))) $ =
+'(eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)) (eqtr sfSubst_sfEq (nsEq_eq sfSubstIndex_zero sfSubstIndex_successor)))) (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))))));
+
+theorem nsS_pair_x:
+  $ nsLocal nsGs (sfAnd (sfImp (sfMem 1 0) (sfOr (sfEq 1 1) (sfEq 1 1))) (sfImp (sfOr (sfEq 1 1) (sfEq 1 1)) (sfMem 1 0))) $ =
+'(mpbi (nsLocal_formula_eq nsS_pair_x_subst) (ax_mp nsLocal_AllE nsS_pair));
+
+theorem nsS_xx_or:
+  $ nsLocal nsGs (sfOr (sfEq 1 1) (sfEq 1 1)) $ =
+'(ax_mp (ax_mp nsLocal_DI1 sfWf_eq) nsS_xx_eq);
+
+theorem nsS_pair_x_right:
+  $ nsLocal nsGs (sfImp (sfOr (sfEq 1 1) (sfEq 1 1)) (sfMem 1 0)) $ =
+'(ax_mp nsLocal_CE2 nsS_pair_x);
+
+theorem nsS_xs:
+  $ nsLocal nsGs (sfMem 1 0) $ =
+'(ax_mp (ax_mp nsLocal_mp nsS_pair_x_right) nsS_xx_or);
+
+theorem nsS_nonempty_subst:
+  $ sfSubst 0 1 (sfMem 0 1) = (sfMem 1 0) $ =
+'(eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor));
+
+theorem nsS_nonempty:
+  $ nsLocal nsGs (sfEx (sfMem 0 1)) $ =
+'(ax_mp (ax_mp nsLocal_ExI sfWf_mem) (mpbir (nsLocal_formula_eq nsS_nonempty_subst) nsS_xs));
+
+theorem nsS_foundation:
+  $ nsLocal nsGs (sfAll (sfImp (sfEx (sfMem 0 1)) (sfEx (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot))))))) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGs_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem nsS_foundation_s_subst:
+  $ sfSubst 0 0 (sfImp (sfEx (sfMem 0 1)) (sfEx (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot)))))) = (sfImp (sfEx (sfMem 0 1)) (sfEx (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot)))))) $ =
+'(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))) sfSubst_bot))))))))))));
+
+theorem nsS_foundation_s:
+  $ nsLocal nsGs (sfImp (sfEx (sfMem 0 1)) (sfEx (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot)))))) $ =
+'(mpbi (nsLocal_formula_eq nsS_foundation_s_subst) (ax_mp nsLocal_AllE nsS_foundation));
+
+theorem nsS_min_exists:
+  $ nsLocal nsGs (sfEx (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot))))) $ =
+'(ax_mp (ax_mp nsLocal_mp nsS_foundation_s) nsS_nonempty);
+
+theorem nsSelf0_shift:
+  $ sfShift 0 (sfMem 0 0) = sfMem 1 1 $ =
+'(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_free lt02) (ax_mp sfShiftIndex_free lt02)));
+
+theorem nsSelf1_shift:
+  $ sfShift 0 (sfMem 1 1) = sfMem 2 2 $ =
+'(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_free lt02) (ax_mp sfShiftIndex_free lt02)));
+
+theorem nsPair_shift:
+  $ sfShift 0 (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1)))) = (sfAll (sfAnd (sfImp (sfMem 0 2) (sfOr (sfEq 0 3) (sfEq 0 3))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 3)) (sfMem 0 2)))) $ =
+'(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mtbi ltsuc lt02)))) (eqtr sfShift_sfOr (nsOr_eq (eqtr sfShift_sfEq (nsEq_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mtbi ltsuc lt02)))) (eqtr sfShift_sfEq (nsEq_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mtbi ltsuc lt02)))))))) (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfOr (nsOr_eq (eqtr sfShift_sfEq (nsEq_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mtbi ltsuc lt02)))) (eqtr sfShift_sfEq (nsEq_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mtbi ltsuc lt02)))))) (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mtbi ltsuc lt02))))))))));
+
+theorem nsAxioms_shift:
+  $ sfContextShift nsAxioms = nsAxioms $ =
+'(ax_mp zfcContext_shift_identity nsAxioms_allowed);
+
+theorem nsGx_shift:
+  $ sfContextShift nsGx = (sfMem 1 1 : nsAxioms) $ =
+'(eqtr sfContextShift_cons (conseq nsSelf0_shift nsAxioms_shift));
+
+theorem nsGs_shift:
+  $ sfContextShift nsGs = ((sfAll (sfAnd (sfImp (sfMem 0 2) (sfOr (sfEq 0 3) (sfEq 0 3))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 3)) (sfMem 0 2)))) : ((sfMem 2 2) : nsAxioms)) $ =
+'(eqtr sfContextShift_cons (conseq nsPair_shift (eqtr sfContextShift_cons (conseq nsSelf1_shift nsAxioms_shift))));
+
+theorem nsY_context:
+  $ ((sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) sfBot)))) : sfContextShift nsGs) = nsGy $ =
+'(conseq2 nsGs_shift);
+
+theorem nsS_bot:
+  $ nsLocal nsGs sfBot $ =
+'(ax_mp (ax_mp nsLocal_ExE_bottom nsS_min_exists) (mpbir (nsLocal_context_eq nsY_context) nsY_bot));
+
+theorem nsX_pair:
+  $ nsLocal nsGx (sfAll (sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 2)) (sfMem 0 1))))))) $ =
+'(ax_mp (ax_mp nsLocal_hyp nsGx_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem nsX_pair_first_subst:
+  $ sfSubst 0 0 (sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 2)) (sfMem 0 1)))))) = (sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 2)) (sfMem 0 1)))))) $ =
+'(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))))))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))))))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S)))))))))))))));
+
+theorem nsX_pair_first:
+  $ nsLocal nsGx (sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 2)) (sfMem 0 1)))))) $ =
+'(mpbi (nsLocal_formula_eq nsX_pair_first_subst) (ax_mp nsLocal_AllE nsX_pair));
+
+theorem nsX_pair_second_subst:
+  $ sfSubst 0 0 (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 2)) (sfMem 0 1))))) = (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1))))) $ =
+'(eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S))))) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))))))) (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)))))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero)))))))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_lift (suceq (ax_mp sfSubstIndex_bound lt01S)))))))))))));
+
+theorem nsX_pair_second:
+  $ nsLocal nsGx (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1))))) $ =
+'(mpbi (nsLocal_formula_eq nsX_pair_second_subst) (ax_mp nsLocal_AllE nsX_pair_first));
+
+theorem nsS_context:
+  $ ((sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 2) (sfEq 0 2)) (sfMem 0 1)))) : sfContextShift nsGx) = nsGs $ =
+'(conseq2 nsGx_shift);
+
+theorem nsX_bot:
+  $ nsLocal nsGx sfBot $ =
+'(ax_mp (ax_mp nsLocal_ExE_bottom nsX_pair_second) (mpbir (nsLocal_context_eq nsS_context) nsS_bot));
+
+pub theorem zfcNoSelf_local:
+  $ nsLocal nsAxioms (sfImp (sfMem 0 0) sfBot) $ =
+'(ax_mp nsLocal_II nsX_bot);
+
+pub theorem nsLocal_to_ZFC (G a: nat):
+  $ zfcContext G -> nsLocal G a -> zfcProvable a $ =
+(named '(eexd @ exp @ syl zfcProvable_intro (iand anl anr)));
+
+pub theorem zfcProvable_no_self:
+  $ zfcProvable (sfImp (sfMem 0 0) sfBot) $ =
+'(ax_mp (ax_mp nsLocal_to_ZFC nsAxioms_allowed) zfcNoSelf_local);
+
+pub theorem zfcProvable_all_no_self:
+  $ zfcProvable (sfAll (sfImp (sfMem 0 0) sfBot)) $ =
+'(ax_mp zfcProvable_gen zfcProvable_no_self);

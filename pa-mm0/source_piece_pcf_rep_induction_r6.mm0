@@ -1,0 +1,42 @@
+import "source_piece_pcf_rep_transport.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def sfPieceRepSuccessorClosed(C:nat):nat =
+ $ sfAll (sfImp (sfMem 0 (suc C))
+   (sfEx (sfAnd (sfPieceRepSuccessor 1 0) (sfMem 0 (suc (suc C)))))) $;
+
+def sfPieceRepNumeralExists(C k:nat):nat =
+ $ sfEx (sfAnd (sfPieceNumeral k 0) (sfMem 0 (suc C))) $;
+
+def pcriBody(C k:nat):nat =
+ $ sfAnd (sfPieceNumeral k 0) (sfMem 0 (suc C)) $;
+
+def pcriSuccBody(C x:nat):nat =
+ $ sfAnd (sfPieceRepSuccessor (suc x) 0) (sfMem 0 (suc C)) $;
+
+def pcriSuccessorAt(C x:nat):nat = $ sfEx (pcriSuccBody C x) $;
+
+def pcriFirstContext(G C k:nat):nat = $ pcriBody C k : sfContextShift G $;
+
+def pcriSecondContext(G C k:nat):nat =
+ $ pcriSuccBody (suc C) 0 : sfContextShift (pcriFirstContext G C k) $;
+
+theorem sfPieceRepNumeralExists_wf(C k:nat):
+ $ sfWf (sfPieceRepNumeralExists C k) $;
+
+theorem sfPieceRepSuccessorClosed_wf(C:nat):
+ $ sfWf (sfPieceRepSuccessorClosed C) $;
+
+theorem sfPieceRepNumeralExists_intro(G C k x:nat)
+ (hn:$ nsLocal G (sfPieceNumeral k x) $)(hm:$ nsLocal G (sfMem x C) $):
+ $ nsLocal G (sfPieceRepNumeralExists C k) $;
+
+theorem sfPieceRepNumeralExists_step(G C k:nat)
+ (hs:$ nsLocal G (sfPieceRepSuccessorClosed C) $):
+ $ nsLocal G (sfPieceRepNumeralExists C k) -> nsLocal G (sfPieceRepNumeralExists C (suc k)) $;
+
+theorem sfPieceNumeralExists_of_empty_successor(G C k:nat)
+ (h0:$ nsLocal G (sfEx (sfAnd (sfPieceRepEmpty 0) (sfMem 0 (suc C)))) $)
+ (hs:$ nsLocal G (sfPieceRepSuccessorClosed C) $):
+ $ nsLocal G (sfPieceRepNumeralExists C k) $;

@@ -1,0 +1,64 @@
+import "k230_transport.mm1";
+import "source_named_template.mm1";
+
+@_ def kEquivalent (a b: nat): wff =
+ $ kProvable (kImp a b) /\ kProvable (kImp b a) $;
+
+pub theorem kEqProv_mp (G: wff) (a b: nat)
+ (ha: $ G -> kProvable a $) (hi: $ G -> kProvable (kImp a b) $):
+ $ G -> kProvable b $ = '(sylc kProvable_mp ha hi);
+
+pub theorem kEqProv_syl (G: wff) (a b c: nat)
+ (hab: $ G -> kProvable (kImp a b) $) (hbc: $ G -> kProvable (kImp b c) $):
+ $ G -> kProvable (kImp a c) $ =
+'(kEqProv_mp hbc (kEqProv_mp hab (a1i kPropB)));
+
+pub theorem kEqProv_all (G: wff) (x a b: nat)
+ (h: $ G -> kProvable (kImp a b) $):
+ $ G -> kProvable (kImp (kAll x a) (kAll x b)) $ =
+'(kEqProv_mp (syl kProvable_gen h) (a1i (ax_mp kProvable_axiom kAxioms_rho2)));
+
+pub theorem kEqProv_not (G: wff) (a b: nat)
+ (h: $ G -> kProvable (kImp a b) $):
+ $ G -> kProvable (kImp (kNot b) (kNot a)) $ =
+'(kEqProv_mp h (a1i kPropContra));
+
+pub theorem kEqProv_imp (G: wff) (a ap b bp: nat)
+ (ha: $ G -> kProvable (kImp ap a) $)
+ (hb: $ G -> kProvable (kImp b bp) $):
+ $ G -> kProvable (kImp (kImp a b) (kImp ap bp)) $ =
+'(kEqProv_mp (a1i (ax_mp kProvable_axiom kAxioms_true))
+  (kEqProv_mp (kEqProv_mp hb (a1i kPropK))
+    (kEqProv_mp (kEqProv_mp ha (a1i kPropK)) (a1i kTransport_imp_lemma))));
+
+pub theorem kEquivalent_refl (a: nat): $ kEquivalent a a $ = '(ian kPropI kPropI);
+pub theorem kEquivalent_sym (a b: nat): $ kEquivalent a b -> kEquivalent b a $ = 'ancom;
+pub theorem kEquivalent_trans (a b c: nat):
+ $ kEquivalent a b /\ kEquivalent b c -> kEquivalent a c $ =
+'(iand (kEqProv_syl anll anrl) (kEqProv_syl anrr anlr));
+pub theorem kEquivalent_imp (a ap b bp: nat):
+ $ kEquivalent a ap /\ kEquivalent b bp -> kEquivalent (kImp a b) (kImp ap bp) $ =
+'(iand (kEqProv_imp anlr anrl) (kEqProv_imp anll anrr));
+pub theorem kEquivalent_not (a b: nat):
+ $ kEquivalent a b -> kEquivalent (kNot a) (kNot b) $ =
+'(iand (kEqProv_not anr) (kEqProv_not anl));
+pub theorem kEquivalent_and (a ap b bp: nat):
+ $ kEquivalent a ap /\ kEquivalent b bp -> kEquivalent (kAnd a b) (kAnd ap bp) $ =
+'(syl kEquivalent_not @ syl kEquivalent_imp @ iand anl (syl kEquivalent_not anr));
+pub theorem kEquivalent_or (a ap b bp: nat):
+ $ kEquivalent a ap /\ kEquivalent b bp -> kEquivalent (kDisj a b) (kDisj ap bp) $ =
+'(syl kEquivalent_imp @ iand (syl kEquivalent_not anl) anr);
+pub theorem kEquivalent_all (x a b: nat):
+ $ kEquivalent a b -> kEquivalent (kAll x a) (kAll x b) $ =
+'(iand (kEqProv_all anl) (kEqProv_all anr));
+pub theorem kEquivalent_exists (x a b: nat):
+ $ kEquivalent a b -> kEquivalent (kExists x a) (kExists x b) $ =
+'(syl kEquivalent_not (syl kEquivalent_all kEquivalent_not));
+pub theorem kEquivalent_guarded_all (x guard a b: nat):
+ $ kEquivalent a b ->
+   kEquivalent (kAll x (kImp guard a)) (kAll x (kImp guard b)) $ =
+'(syl kEquivalent_all (syl kEquivalent_imp (iand (a1i kEquivalent_refl) id)));
+pub theorem kEquivalent_guarded_exists (x guard a b: nat):
+ $ kEquivalent a b ->
+   kEquivalent (kExists x (kAnd guard a)) (kExists x (kAnd guard b)) $ =
+'(syl kEquivalent_exists (syl kEquivalent_and (iand (a1i kEquivalent_refl) id)));

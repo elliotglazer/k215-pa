@@ -1,0 +1,21 @@
+import "source_theory_renaming.mm0";
+import "source_structural_induction.mm0";
+import "raw_source_distribution.mm0";
+
+def sfSuccessorMap (.i: nat): set = $ \ i, suc i $;
+theorem sfSuccessorMap_value (i: nat): $ sfSuccessorMap @ i = suc i $;
+theorem sfRenameIndex_successor (d i: nat):
+  $ sfRenameIndex sfSuccessorMap d i = sfShiftIndex d i $;
+def sfSuccessorShift (c .d: nat): wff =
+$ A. d (sfRename sfSuccessorMap d c = sfShift d c) $;
+def sfSuccessorShiftClass (.c: nat): set = $ {c | sfSuccessorShift c} $;
+theorem sfRename_successor (d c: nat):
+  $ sfWf c -> sfRename sfSuccessorMap d c = sfShift d c $;
+theorem sfTheoryProvable_shift (A: set) (a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A a -> sfTheoryProvable A (sfShift 0 a) $;
+theorem sfTheoryProvable_all_open (A: set) (a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A (sfAll a) -> sfTheoryProvable A a $;
+theorem sfTheoryProvable_prefix_intro (A: set) (n a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A a -> sfTheoryProvable A (sfAllPrefix n a) $;
+theorem sfTheoryProvable_prefix_elim (A: set) (n a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A (sfAllPrefix n a) -> sfTheoryProvable A a $;

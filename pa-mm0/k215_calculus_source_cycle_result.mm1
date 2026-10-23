@@ -1,0 +1,53 @@
+import "k215_calculus_source_commands.mm1";
+import "k215_calculus_source_cycle_positive.mm1";
+import "k215_calculus_iterator_algebra.mm1";
+
+
+
+@_ def k215PProgressResult (p r: nat): wff =
+ $ ifp (r = 0) (k215PHaltsFrom p) (k215PProgress p (k215PEnumConfig (r - 1))) $;
+do (apply (register-eqd 'k215PProgressResult) '(k215PProgressResulteqd));
+pub theorem k215PProgressResult_none (p: nat):
+ $ k215PProgressResult p 0 <-> k215PHaltsFrom p $ = '(ifppos eqid);
+pub theorem k215PProgressResult_some (p t: nat):
+ $ k215PProgressResult p (suc t) <-> k215PProgress p (k215PEnumConfig t) $ =
+ '(bitr (ifpneg peano1) (k215PProgresseq2 (k215PEnumConfigeq sucsub1)));
+theorem k215PProgressResult_comp_none (p u: nat):
+ $ k215PProgress p u -> k215PCommandResult u 0 -> k215PProgressResult p 0 $ =
+ '(syl6 (bi2 k215PProgressResult_none)
+   (syl5 (bi1 k215PCommandResult_none) (syl k215PReach_halts k215PProgress_reach)));
+theorem k215PProgressResult_comp_some (p u t: nat):
+ $ k215PProgress p u -> k215PCommandResult u (suc t) -> k215PProgressResult p (suc t) $ =
+ '(syl6 (bi2 k215PProgressResult_some) (syl5 (bi1 k215PCommandResult_some) k215PProgress_comp));
+pub theorem k215PProgressResult_comp (p u r: nat):
+ $ k215PProgress p u -> k215PCommandResult u r -> k215PProgressResult p r $ =
+ (named @ induct '(ind) 'r 'k215PProgressResult_comp_none '(a1i k215PProgressResult_comp_some));
+pub theorem k215PProgress_halts (p t: nat):
+ $ k215PProgress p t -> k215PHaltsFrom t -> k215PHaltsFrom p $ =
+ '(syl k215PReach_halts k215PProgress_reach);
+@_ def k215POptionHalts (r: nat): wff =
+ $ ifp (r = 0) T. (k215PHaltsFrom (k215PEnumConfig (r - 1))) $;
+do (apply (register-eqd 'k215POptionHalts) '(k215POptionHaltseqd));
+pub theorem k215POptionHalts_none: $ k215POptionHalts 0 $ = '(mpbir (ifppos eqid) itru);
+pub theorem k215POptionHalts_some (s: nat):
+ $ k215POptionHalts (suc s) <-> k215PHaltsFrom (k215PEnumConfig s) $ =
+ '(bitr (ifpneg peano1) (k215PHaltsFromeq (k215PEnumConfigeq sucsub1)));
+theorem k215PProgressResult_halts_none (p: nat):
+ $ k215PProgressResult p 0 -> k215POptionHalts 0 -> k215PHaltsFrom p $ =
+ '(com12 (a1i (bi1 k215PProgressResult_none)));
+theorem k215PProgressResult_halts_some (p t: nat):
+ $ k215PProgressResult p (suc t) -> k215POptionHalts (suc t) -> k215PHaltsFrom p $ =
+ '(syl5 (bi1 k215POptionHalts_some) (syl k215PProgress_halts (bi1 k215PProgressResult_some)));
+pub theorem k215PProgressResult_halts (p r: nat):
+ $ k215PProgressResult p r -> k215POptionHalts r -> k215PHaltsFrom p $ =
+ (named @ induct '(ind) 'r 'k215PProgressResult_halts_none '(a1i k215PProgressResult_halts_some));
+pub theorem k215EnumIter_after_step (n s: nat):
+ $ k215EnumIter (suc n) s = k215EnumOptionIter n (k215EnumStep s) $ =
+ '(eqtr (k215EnumItereq1 (eqcom add11))
+   (eqtr k215EnumIter_add (k215EnumOptionItereq2 (eqtr k215EnumIter_succ (eqtr (k215EnumAdvanceeq k215EnumIter_zero) k215EnumAdvance_some)))));
+pub theorem k215EnumIter_step_zero (n s: nat):
+ $ k215EnumStep s = 0 -> k215EnumIter (suc n) s = 0 $ =
+ '(eqtrd (a1i k215EnumIter_after_step) (eqtrd (k215EnumOptionItereq2d id) (a1i k215EnumOptionIter_none)));
+pub theorem k215EnumIter_step_some (n s t: nat):
+ $ k215EnumStep s = suc t -> k215EnumIter (suc n) s = k215EnumIter n t $ =
+ '(eqtrd (a1i k215EnumIter_after_step) (eqtrd (k215EnumOptionItereq2d id) (a1i k215EnumOptionIter_some)));

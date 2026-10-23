@@ -1,0 +1,35 @@
+import "quotation_rebase_hygiene.mm0";
+import "k230_equivalence.mm0";
+import "k230_alpha.mm0";
+import "quotation_substitution.mm0";
+import "quotation_substitution_conditional.mm0";
+
+def ntBaseClass (E: set) (.c .S .n .k .l: nat): set =
+ $ {c | A. S A. n A. k A. l (sfBound n c ->
+ sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c))} $;
+
+theorem sfNamedTemplate_mem_rebase (E: set) (k l a b: nat):
+ $ kEquivalent (sfNamedTemplate E k 0 (sfMem a b)) (sfNamedTemplate E l 0 (sfMem a b)) $;
+
+theorem sfNamedTemplate_eq_rebase (E: set) (k l a b: nat):
+ $ kEquivalent (sfNamedTemplate E k 0 (sfEq a b)) (sfNamedTemplate E l 0 (sfEq a b)) $;
+
+def ntBaseBody (E: set) (S k c: nat): nat =
+ $ sfNamedTemplate (sqEnvCons k (sqStackEnv S E)) (suc k) 0 c $;
+
+def ntBaseCommon (E: set) (S k l c p: nat): nat =
+ $ sqCommonName (ntBaseBody E S k c) (ntBaseBody E S l c) k l (suc (p + 0)) $;
+
+theorem sfNamedTemplate_rebase_stack (E: set) (S n k l c: nat):
+ $ sfBound n c -> sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ kEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c) $;
+
+theorem sfNamedTemplate_fresh_base_equivalent (E: set) (n k l c: nat):
+ $ sfBound n c -> sqRebaseHygiene E n k c 0 -> sqRebaseHygiene E n l c 0 ->
+ kEquivalent (sfNamedTemplate E k 0 c) (sfNamedTemplate E l 0 c) $;
+

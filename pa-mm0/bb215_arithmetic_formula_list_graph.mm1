@@ -1,0 +1,43 @@
+import "bb215_arithmetic_formula_rec_graph.mm1";
+
+@_ abstract def bb215ArithmeticFormulaListTail (l: nat): nat = $ snd (l - 1) $;
+
+@_ abstract def bb215ArithmeticFormulaListHead (l: nat): nat = $ if (l = 0) 0 (suc (fst (l - 1))) $;
+
+@_ abstract def bb215ArithmeticFormulaListTailStep (.l: nat): set = $ \ l, bb215ArithmeticFormulaListTail l $;
+
+@_ abstract def bb215ArithmeticFormulaListDrop (n l: nat): nat = $ rec l bb215ArithmeticFormulaListTailStep n $;
+
+pub theorem bb215ArithmeticFormulaListTailStep_at (l: nat): $ bb215ArithmeticFormulaListTailStep @ l = bb215ArithmeticFormulaListTail l $ = (named '(!! applame j ,eqtac));
+
+pub theorem bb215ArithmeticFormulaListTail_zero: $ bb215ArithmeticFormulaListTail 0 = 0 $ = (named '(eqtr (sndeq sub01) snd0));
+
+pub theorem bb215ArithmeticFormulaListTail_cons (a l: nat): $ bb215ArithmeticFormulaListTail (a : l) = l $ = (named 'conssnd);
+
+pub theorem bb215ArithmeticFormulaListHead_zero: $ bb215ArithmeticFormulaListHead 0 = 0 $ = (named '(ifpos eqid));
+
+pub theorem bb215ArithmeticFormulaListHead_cons (a l: nat): $ bb215ArithmeticFormulaListHead (a : l) = suc a $ = (named '(eqtr (ifneg consne0) (suceq consfst)));
+
+theorem bb215ArithmeticFormulaListNth_head (l: nat): $ nth 0 l = bb215ArithmeticFormulaListHead l $ = (named @ induct '(listind) 'l '(eqtr nth0 (eqcom bb215ArithmeticFormulaListHead_zero)) '(a1i (eqtr nthZ (eqcom bb215ArithmeticFormulaListHead_cons))));
+
+theorem bb215ArithmeticFormulaListNth_succ (n l: nat): $ nth (suc n) l = nth n (bb215ArithmeticFormulaListTail l) $ = (named @ induct '(listind) 'l '(eqtr4 nth0 (eqtr (ntheq2 bb215ArithmeticFormulaListTail_zero) nth0)) '(a1i (eqtr4 nthS (ntheq2 bb215ArithmeticFormulaListTail_cons))));
+
+pub theorem bb215ArithmeticFormulaListDrop_zero (l: nat): $ bb215ArithmeticFormulaListDrop 0 l = l $ = (named 'rec0);
+
+pub theorem bb215ArithmeticFormulaListDrop_succ (n l: nat): $ bb215ArithmeticFormulaListDrop (suc n) l = bb215ArithmeticFormulaListTail (bb215ArithmeticFormulaListDrop n l) $ = (named '(eqtr recS bb215ArithmeticFormulaListTailStep_at));
+
+theorem bb215ArithmeticFormulaListTail_commute (n l: nat): $ bb215ArithmeticFormulaListDrop n (bb215ArithmeticFormulaListTail l) = bb215ArithmeticFormulaListTail (bb215ArithmeticFormulaListDrop n l) $ = (named @ induct '(ind) 'n '(eqtr rec0 (eqcom (bb215ArithmeticFormulaListTaileq rec0))) '(eqtrd (a1i (eqtr recS bb215ArithmeticFormulaListTailStep_at)) (eqtrd (bb215ArithmeticFormulaListTaileqd id) (a1i (eqcom (bb215ArithmeticFormulaListTaileq (eqtr recS bb215ArithmeticFormulaListTailStep_at)))))));
+
+theorem bb215ArithmeticFormulaListDrop_first (n l: nat): $ bb215ArithmeticFormulaListDrop n (bb215ArithmeticFormulaListTail l) = bb215ArithmeticFormulaListDrop (suc n) l $ = (named '(eqtr bb215ArithmeticFormulaListTail_commute (eqcom bb215ArithmeticFormulaListDrop_succ)));
+
+theorem bb215ArithmeticFormulaListNth_iterate_at (n l: nat) {j: nat}: $ (A. j nth n j = bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n j)) -> nth n l = bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n l) $ = (named '(!! eale j ,eqtac));
+
+theorem bb215ArithmeticFormulaListNth_iterate_alpha (n: nat) {l j: nat}: $ (A. l nth n l = bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n l)) <-> A. j nth n j = bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n j) $ = (named '(cbval ,eqtac));
+
+theorem bb215ArithmeticFormulaListNth_iterate_all (n: nat) {l: nat}: $ A. l nth n l = bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n l) $ = (named @ induct '(ind) 'n '(!! ax_gen l @ eqtr4 bb215ArithmeticFormulaListNth_head (bb215ArithmeticFormulaListHeadeq rec0)) '(!! ialdh l nfal1 @ eqtrd (a1i bb215ArithmeticFormulaListNth_succ) (eqtrd (syl (!! bb215ArithmeticFormulaListNth_iterate_at j) (bi1 (!! bb215ArithmeticFormulaListNth_iterate_alpha l j))) (a1i (bb215ArithmeticFormulaListHeadeq bb215ArithmeticFormulaListDrop_first)))));
+
+pub theorem bb215ArithmeticFormulaListNth_iterate (n l: nat): $ nth n l = bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop n l) $ = (named '(ax_mp (!! bb215ArithmeticFormulaListNth_iterate_at j) (!! bb215ArithmeticFormulaListNth_iterate_all j)));
+
+@_ abstract def bb215ArithmeticFormulaListNthGraph (n l v .u: nat): wff = $ E. u (bb215ArithmeticFormulaRecGraph l bb215ArithmeticFormulaListTailStep n u /\ bb215ArithmeticFormulaListHead u = v) $;
+
+pub theorem bb215ArithmeticFormulaListNthGraph_correct (n l v: nat): $ bb215ArithmeticFormulaListNthGraph n l v <-> nth n l = v $ = (named '(bitr (!! exeqi u (aneq1i bb215ArithmeticFormulaRecGraph_correct)) (bitr (!! exeqi u (aneq1i eqcomb)) (bitr (!! exeqe u (eqeq1d (bb215ArithmeticFormulaListHeadeqd id))) (eqeq1 (eqcom bb215ArithmeticFormulaListNth_iterate))))));

@@ -1,0 +1,41 @@
+import "source_piece_pcf_definable_existential_point.mm0";
+
+def sfPieceDefinableExistentialProjection(R X A Y:nat): nat = $ sfAll (sfIff (sfMem 0 (suc Y)) (sfAnd (sfMem 0 (suc X)) (sfPieceDefinableExistentialSome (suc R) (suc A) 0))) $;
+
+def sfPieceDefinableExistentialTotal: nat = $ sfAll (sfLSeparationOp5Extensions 0) $;
+
+theorem sfPieceDefinableExistentialProjection_wf(R X A Y:nat): $ sfWf (sfPieceDefinableExistentialProjection R X A Y) $;
+
+theorem sfPieceDefinableExistentialSome_depth(T:set)(k R A e:nat): $ sfRename T k (sfPieceDefinableExistentialSome R A e) = sfPieceDefinableExistentialSome (sfRenameIndex T k R) (sfRenameIndex T k A) (sfRenameIndex T k e) $;
+
+theorem sfPieceDefinableExistentialProjection_rename(T:set)(R X A Y:nat): $ sfRename T 0 (sfPieceDefinableExistentialProjection R X A Y) = sfPieceDefinableExistentialProjection (T @ R) (T @ X) (T @ A) (T @ Y) $;
+
+theorem sfPieceDefinableExistentialProjection_congr(R X A Y R1 X1 A1 Y1:nat)(hr:$ R = R1 $)(hx:$ X = X1 $)(ha:$ A = A1 $)(hy:$ Y = Y1 $): $ sfPieceDefinableExistentialProjection R X A Y = sfPieceDefinableExistentialProjection R1 X1 A1 Y1 $;
+
+theorem sfPieceDefinableExistentialProjection_instance(R X A Y e:nat): $ sfSubst 0 e (sfIff (sfMem 0 (suc Y)) (sfAnd (sfMem 0 (suc X)) (sfPieceDefinableExistentialSome (suc R) (suc A) 0))) = sfIff (sfMem e Y) (sfAnd (sfMem e X) (sfPieceDefinableExistentialSome R A e)) $;
+
+theorem sfPieceDefinableExistentialProjection_member(G R X A Y e:nat)(hp:$ nsLocal G (sfPieceDefinableExistentialProjection R X A Y) $): $ nsLocal G (sfIff (sfMem e Y) (sfAnd (sfMem e X) (sfPieceDefinableExistentialSome R A e))) $;
+
+theorem sfPieceDefinableExistentialProjection_shift(R X A Y:nat): $ sfShift 0 (sfPieceDefinableExistentialProjection R X A Y) = sfPieceDefinableExistentialProjection (suc R) (suc X) (suc A) (suc Y) $;
+
+theorem sfPieceDefinableExistentialProjection_context(n G R X A Y:nat)(hp:$ nsLocal G (sfPieceDefinableExistentialProjection R X A Y) $): $ nsLocal (sfPieceDefinableParametersContext n G) (sfPieceDefinableExistentialProjection (sfPieceDefinableContextTransportMap n @ R) (sfPieceDefinableContextTransportMap n @ X) (sfPieceDefinableContextTransportMap n @ A) (sfPieceDefinableContextTransportMap n @ Y)) $;
+
+theorem sfPieceDefinableExistentialTotal_wf: $ sfWf sfPieceDefinableExistentialTotal $;
+
+theorem sfPieceDefinableExistentialTotal_rename(T:set): $ sfRename T 0 sfPieceDefinableExistentialTotal = sfPieceDefinableExistentialTotal $;
+
+theorem sfPieceDefinableExistentialTotal_shift: $ sfShift 0 sfPieceDefinableExistentialTotal = sfPieceDefinableExistentialTotal $;
+
+theorem sfPieceDefinableExistentialTotal_context(n G:nat)(he:$ nsLocal G sfPieceDefinableExistentialTotal $): $ nsLocal (sfPieceDefinableParametersContext n G) sfPieceDefinableExistentialTotal $;
+
+theorem sfPieceDefinableExistential_cover_wf(A X n:nat): $ sfWf (sfPieceRepEnvironmentCoverAt A X n) $;
+
+theorem sfPieceDefinableExistential_cover_congr(A X n B Y:nat)(ha:$ A = B $)(hx:$ X = Y $): $ sfPieceRepEnvironmentCoverAt A X n = sfPieceRepEnvironmentCoverAt B Y n $;
+
+theorem sfPieceDefinableExistential_cover_shift(A X n:nat): $ sfShift 0 (sfPieceRepEnvironmentCoverAt A X n) = sfPieceRepEnvironmentCoverAt (suc A) (suc X) n $;
+
+theorem sfPieceDefinableExistential_cover_context(m G A X n:nat)(hc:$ nsLocal G (sfPieceRepEnvironmentCoverAt A X n) $): $ nsLocal (sfPieceDefinableParametersContext m G) (sfPieceRepEnvironmentCoverAt (sfPieceDefinableContextTransportMap m @ A) (sfPieceDefinableContextTransportMap m @ X) n) $;
+
+theorem sfPieceDefinableExistential_recipe_point(G n phi R X:nat)(hb:$ sfBound (suc n) phi $)(hr:$ nsLocal G (sfPieceDefinableNamed (suc n) phi R 1) $)(hc:$ nsLocal G (sfPieceRepEnvironmentCoverAt 1 X n) $)(hp:$ nsLocal G (sfPieceDefinableExistentialProjection R X 1 0) $)(he:$ nsLocal G sfPieceDefinableExistentialTotal $): $ nsLocal (sfPieceDefinableParametersContext n G) (sfPieceDefinableRecipePoint n (sfEx phi)) $;
+
+theorem sfPieceDefinableExistential_recipe(G n phi R X:nat)(hb:$ sfBound (suc n) phi $)(hr:$ nsLocal G (sfPieceDefinableNamed (suc n) phi R 1) $)(hc:$ nsLocal G (sfPieceRepEnvironmentCoverAt 1 X n) $)(hp:$ nsLocal G (sfPieceDefinableExistentialProjection R X 1 0) $)(he:$ nsLocal G sfPieceDefinableExistentialTotal $): $ nsLocal G (sfPieceDefinableRecipe n (sfEx phi)) $;

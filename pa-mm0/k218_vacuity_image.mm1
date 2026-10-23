@@ -1,0 +1,49 @@
+import "k218_translation_vacuity.mm1";
+import "k218_bundle_transfer.mm1";
+
+pub theorem k218Translate_kVacuity (a b c: nat):
+  $ k218Translate (kVacuity a b c) =
+    kAnd (kImp (kMem a b) (kAll c (kMem a b)))
+      (kImp (k218EqInd a b) (kAll c (k218EqInd a b))) $ =
+'(eqtr k218Translate_kAnd @ kAndeq
+  (eqtr k218Translate_kImp @ kImpeq k218Translate_kMem
+    (eqtr k218Translate_kAll (kAlleq2 k218Translate_kMem)))
+  (eqtr k218Translate_kImp @ kImpeq k218Translate_kEq
+    (eqtr k218Translate_kAll (kAlleq2 k218Translate_kEq))));
+
+theorem k218VI_conjoin (G: wff) (p q: nat)
+  (hp: $ G -> k218Provable p $) (hq: $ G -> k218Provable q $):
+  $ G -> k218Provable (kAnd p q) $ =
+'(sylc k218Provable_mp hq (syl (mpi k218PropAndIntro k218Provable_mp) hp));
+
+pub theorem k218Translated_vacuity (a b c: nat):
+  $ c != a /\ c != b -> k218Provable (k218Translate (kVacuity a b c)) $ =
+'(mpbird (a1i (k218Provableeq k218Translate_kVacuity))
+  (k218VI_conjoin k218Membership_vacuity k218EqInd_vacuity_if));
+
+pub theorem k218Translate_kBundle (a b c: nat):
+  $ k218Translate (kBundle a b c) =
+    kAnd (k218Translate (k230 a b c)) (k218Translate (kVacuity a b c)) $ =
+'k218Translate_kAnd;
+
+@_ abstract def k218OldCoreImages (.a .b .c: nat): wff =
+  $ A. a A. b A. c
+    (c != a /\ c != b -> k218Provable (k218Translate (k230 a b c))) $;
+theorem k218VI_core_at (a b c: nat):
+  $ k218OldCoreImages ->
+    c != a /\ c != b -> k218Provable (k218Translate (k230 a b c)) $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+
+theorem k218VI_bundle_at (a b c: nat):
+  $ k218OldCoreImages -> c != a /\ c != b ->
+    kBundle a b c e. k218TranslatedClass $ =
+'(exp @ syl (bi2 k218TranslatedClass_value) @
+  mpbird (a1i (k218Provableeq k218Translate_kBundle)) @ k218VI_conjoin
+    (mpd anr (syl k218VI_core_at anl)) (syl k218Translated_vacuity anr));
+
+pub theorem k218OldCoreImages_bundle:
+  $ k218OldCoreImages -> k218OldBundleImages $ =
+(named '(iald @ iald @ iald k218VI_bundle_at));
+pub theorem k218OldCoreImages_transfer (a: nat):
+  $ k218OldCoreImages -> kProvable a -> k218Provable (k218Translate a) $ =
+'(syl k218OldBundleImages_transfer k218OldCoreImages_bundle);

@@ -1,0 +1,51 @@
+import "source_shift.mm0";
+
+-- A numerical de Bruijn free-index bound.  The strong recursion is on
+-- Cantor's pair (bound, formula), including the increased binder bound.
+def sfBoundAllowed (n c h: nat): wff =
+$ ifp (c = 0) (0 = 0)
+  (ifp (sfTag c = 1) (sfLeft c < n /\ sfRight c < n)
+  (ifp (sfTag c = 2) (sfLeft c < n /\ sfRight c < n)
+  (ifp (sfTag c = 3) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+  (ifp (sfTag c = 4) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+  (ifp (sfTag c = 5) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+  (ifp (sfTag c = 6 /\ sfRight c = 0) ((suc n, sfLeft c) e. h)
+  (ifp (sfTag c = 7 /\ sfRight c = 0) ((suc n, sfLeft c) e. h)
+    (0 != 0)))))))) $;
+def sfBoundStep (.k .h: nat): set =
+$ S\ k, {h | sfBoundAllowed (fst k) (snd k) h} $;
+def sfBound (n c: nat): wff = $ srecp sfBoundStep (n, c) $;
+def sfBoundPrevious (n c .i: nat): nat =
+$ sep (upto (n, c)) {i | srecp sfBoundStep i} $;
+
+theorem sfBoundStep_value (k h: nat):
+  $ (k, h) e. sfBoundStep <-> sfBoundAllowed (fst k) (snd k) h $;
+theorem sfBoundPrevious_value (n c m a: nat):
+  $ (m, a) e. sfBoundPrevious n c <-> (m, a) < (n, c) /\ sfBound m a $;
+theorem sfBound_unfold (n c: nat):
+  $ sfBound n c <-> sfBoundAllowed n c (sfBoundPrevious n c) $;
+
+theorem sfBound_bot (n: nat): $ sfBound n sfBot $;
+theorem sfBound_sfMem (n a b: nat):
+  $ sfBound n (sfMem a b) <-> a < n /\ b < n $;
+theorem sfBound_sfEq (n a b: nat):
+  $ sfBound n (sfEq a b) <-> a < n /\ b < n $;
+theorem sfBound_sfAnd (n a b: nat):
+  $ sfBound n (sfAnd a b) <-> sfBound n a /\ sfBound n b $;
+theorem sfBound_sfOr (n a b: nat):
+  $ sfBound n (sfOr a b) <-> sfBound n a /\ sfBound n b $;
+theorem sfBound_sfImp (n a b: nat):
+  $ sfBound n (sfImp a b) <-> sfBound n a /\ sfBound n b $;
+theorem sfBound_sfAll (n a: nat):
+  $ sfBound n (sfAll a) <-> sfBound (suc n) a $;
+theorem sfBound_sfEx (n a: nat):
+  $ sfBound n (sfEx a) <-> sfBound (suc n) a $;
+
+theorem sfBound_bad_zero (n c: nat):
+  $ c != 0 -> sfTag c = 0 -> ~ sfBound n c $;
+theorem sfBound_bad_all (n c: nat):
+  $ sfTag c = 6 -> sfRight c != 0 -> ~ sfBound n c $;
+theorem sfBound_bad_ex (n c: nat):
+  $ sfTag c = 7 -> sfRight c != 0 -> ~ sfBound n c $;
+
+theorem sfBound_wf (n c: nat): $ sfBound n c -> sfWf c $;

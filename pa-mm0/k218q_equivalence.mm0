@@ -1,0 +1,47 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_transport.mm0";
+import "source_named_template.mm0";
+
+def k218IEquivalent (a b: nat): wff =
+ $ k218QProvable (kImp a b) /\ k218QProvable (kImp b a) $;
+
+theorem k218IEqProv_mp (G: wff) (a b: nat)
+ (ha: $ G -> k218QProvable a $) (hi: $ G -> k218QProvable (kImp a b) $):
+ $ G -> k218QProvable b $;
+theorem k218IEqProv_syl (G: wff) (a b c: nat)
+ (hab: $ G -> k218QProvable (kImp a b) $) (hbc: $ G -> k218QProvable (kImp b c) $):
+ $ G -> k218QProvable (kImp a c) $;
+theorem k218IEqProv_all (G: wff) (x a b: nat)
+ (h: $ G -> k218QProvable (kImp a b) $):
+ $ G -> k218QProvable (kImp (kAll x a) (kAll x b)) $;
+theorem k218IEqProv_not (G: wff) (a b: nat)
+ (h: $ G -> k218QProvable (kImp a b) $):
+ $ G -> k218QProvable (kImp (kNot b) (kNot a)) $;
+theorem k218IEqProv_imp (G: wff) (a ap b bp: nat)
+ (ha: $ G -> k218QProvable (kImp ap a) $)
+ (hb: $ G -> k218QProvable (kImp b bp) $):
+ $ G -> k218QProvable (kImp (kImp a b) (kImp ap bp)) $;
+
+theorem k218IEquivalent_refl (a: nat): $ k218IEquivalent a a $;
+theorem k218IEquivalent_sym (a b: nat): $ k218IEquivalent a b -> k218IEquivalent b a $;
+theorem k218IEquivalent_trans (a b c: nat):
+ $ k218IEquivalent a b /\ k218IEquivalent b c -> k218IEquivalent a c $;
+theorem k218IEquivalent_imp (a ap b bp: nat):
+ $ k218IEquivalent a ap /\ k218IEquivalent b bp -> k218IEquivalent (kImp a b) (kImp ap bp) $;
+theorem k218IEquivalent_not (a b: nat):
+ $ k218IEquivalent a b -> k218IEquivalent (kNot a) (kNot b) $;
+theorem k218IEquivalent_and (a ap b bp: nat):
+ $ k218IEquivalent a ap /\ k218IEquivalent b bp -> k218IEquivalent (kAnd a b) (kAnd ap bp) $;
+theorem k218IEquivalent_or (a ap b bp: nat):
+ $ k218IEquivalent a ap /\ k218IEquivalent b bp -> k218IEquivalent (kDisj a b) (kDisj ap bp) $;
+theorem k218IEquivalent_all (x a b: nat):
+ $ k218IEquivalent a b -> k218IEquivalent (kAll x a) (kAll x b) $;
+theorem k218IEquivalent_exists (x a b: nat):
+ $ k218IEquivalent a b -> k218IEquivalent (kExists x a) (kExists x b) $;
+theorem k218IEquivalent_guarded_all (x guard a b: nat):
+ $ k218IEquivalent a b ->
+   k218IEquivalent (kAll x (kImp guard a)) (kAll x (kImp guard b)) $;
+theorem k218IEquivalent_guarded_exists (x guard a b: nat):
+ $ k218IEquivalent a b ->
+   k218IEquivalent (kExists x (kAnd guard a)) (kExists x (kAnd guard b)) $;

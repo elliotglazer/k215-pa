@@ -1,0 +1,47 @@
+import "source_reflection_limit_dn_maps.mm1";
+
+import "source_theory_prefix.mm1";
+
+import "source_omega_recursion_binary.mm1";
+
+theorem rft_depth_zero(R:set): $ sfRenameDepthMap R 1 @ 0 = 0 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound d0lt1)));
+
+theorem rft_depth_suc(R:set)(i:nat): $ sfRenameDepthMap R 1 @ suc i = suc (R @ i) $ = (named '(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))));
+
+@_ def sfReflectionTransferOpenMap(R:set)(y:nat):set = $ sfComposeMap (sfSubstDepthMap 0 y) (sfRenameDepthMap R 1) $;
+
+theorem rft_open_zero(R:set)(y:nat): $ sfReflectionTransferOpenMap R y @ 0 = sqEnvCons y R @ 0 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 rft_depth_zero) (eqtr sfSubstDepthMap_value (eqtr sfSubstIndex_zero (eqcom sqEnvCons_zero))))));
+
+theorem rft_open_suc(R:set)(y i:nat): $ sfReflectionTransferOpenMap R y @ suc i = sqEnvCons y R @ suc i $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 rft_depth_suc) (eqtr sfSubstDepthMap_value (eqtr sfSubstIndex_successor (eqcom sqEnvCons_suc))))));
+
+pub theorem sfReflectionTransferOpenMap_at(R:set)(y i:nat): $ sfReflectionTransferOpenMap R y @ i = sqEnvCons y R @ i $ = (named @ induct '(ind) 'i 'rft_open_zero '(a1i rft_open_suc));
+
+pub theorem sfReflectionTransfer_open(R:set)(y c:nat)(hc:$ sfWf c $): $ sfSubst 0 y (sfRename R 1 c) = sfRename (sqEnvCons y R) 0 c $ = (named '(eqtr (trud (sfSubst_congr eqidd eqidd (a1i (ax_mp sfRename_as_map hc)))) (eqtr (ax_mp sfSubst_rename_compose hc) (ax_mp (sfRename_extensional (ax_gen sfReflectionTransferOpenMap_at)) hc))));
+
+@_ def sfReflectionTransferShiftMap:set = $ sfRenameDepthMap sfSuccessorMap 1 $;
+
+@_ def sfReflectionTransferShift3Map:set = $ sfComposeMap sfReflectionTransferShiftMap (sfComposeMap sfReflectionTransferShiftMap sfReflectionTransferShiftMap) $;
+
+theorem rft_shift_zero: $ sfReflectionTransferShiftMap @ 0 = 0 $ = (named 'rft_depth_zero);
+
+theorem rft_shift_suc(i:nat): $ sfReflectionTransferShiftMap @ suc i = suc (suc i) $ = (named '(eqtr rft_depth_suc (suceq sfSuccessorMap_value)));
+
+theorem rft_shift3_zero: $ sfReflectionTransferShift3Map @ 0 = 0 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 (eqtr sfComposeMap_value (eqtr (appeq2 rft_shift_zero) rft_shift_zero))) rft_shift_zero)));
+
+theorem rft_shift3_suc(i:nat): $ sfReflectionTransferShift3Map @ suc i = suc (suc (suc (suc i))) $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 (eqtr sfComposeMap_value (eqtr (appeq2 rft_shift_suc) rft_shift_suc))) rft_shift_suc)));
+
+theorem rft_shift_map(phi:nat)(hf:$ sfWf phi $): $ sfShift 1 phi = sfRename sfReflectionTransferShiftMap 0 phi $ = (named '(eqtr (eqcom (ax_mp sfRename_successor hf)) (ax_mp sfRename_as_map hf)));
+
+theorem rft_shift2_map(phi:nat)(hf:$ sfWf phi $): $ sfShift 1 (sfShift 1 phi) = sfRename (sfComposeMap sfReflectionTransferShiftMap sfReflectionTransferShiftMap) 0 phi $ = (named '(eqtr (rft_shift_map sfShift_wf) (eqtr (trud (sfRename_congr_formula (a1i (rft_shift_map hf)))) (ax_mp sfRename_compose hf))));
+
+pub theorem sfReflectionTransferShift3_map(phi:nat)(hf:$ sfWf phi $): $ sfPieceShift3 phi = sfRename sfReflectionTransferShift3Map 0 phi $ = (named '(eqtr (rft_shift_map sfShift_wf) (eqtr (trud (sfRename_congr_formula (a1i (rft_shift2_map hf)))) (ax_mp sfRename_compose hf))));
+
+@_ def sfReflectionTransferMatrixMap(P:set)(d X y:nat):set = $ sfComposeMap (sfRenameDepthMap (sqEnvCons y (sfPieceEnvironment P d X)) 1) sfReflectionTransferShift3Map $;
+
+theorem rft_matrix_zero(P:set)(d X y:nat): $ sfReflectionTransferMatrixMap P d X y @ 0 = sfRenameDepthMap P 1 @ 0 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 rft_shift3_zero) (eqtr rft_depth_zero (eqcom rft_depth_zero)))));
+
+theorem rft_matrix_suc(P:set)(d X y i:nat): $ sfReflectionTransferMatrixMap P d X y @ suc i = sfRenameDepthMap P 1 @ suc i $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 rft_shift3_suc) (eqtr rft_depth_suc (eqtr (suceq (eqtr sqEnvCons_suc sfPieceEnvironment_tail)) (eqcom rft_depth_suc))))));
+
+pub theorem sfReflectionTransferMatrixMap_at(P:set)(d X y i:nat): $ sfReflectionTransferMatrixMap P d X y @ i = sfRenameDepthMap P 1 @ i $ = (named @ induct '(ind) 'i 'rft_matrix_zero '(a1i rft_matrix_suc));
+
+pub theorem sfReflectionTransfer_matrix(P:set)(d X y phi:nat)(hf:$ sfWf phi $): $ sfRename (sqEnvCons y (sfPieceEnvironment P d X)) 1 (sfPieceShift3 phi) = sfRename P 1 phi $ = (named '(eqtr (trud (sfRename_congr_formula (a1i (sfReflectionTransferShift3_map hf)))) (eqtr (ax_mp sfRename_mixed_compose hf) (eqtr (ax_mp (sfRename_extensional (ax_gen sfReflectionTransferMatrixMap_at)) hf) (eqcom (ax_mp sfRename_as_map hf))))));

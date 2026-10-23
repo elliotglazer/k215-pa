@@ -1,0 +1,23 @@
+-- Bridge between the four-place step instance sfTRS (source_omega_trec_atom) and the
+-- CL-parametric hierarchy/ordinal predicates of source_l_common_level_syntax (lane L08).
+-- Used to instantiate the level formula Lv(a, Y) = sfTRS S a Y Y Y of
+-- source_omega_ordinals_cover with S = sfCLHierarchy (the pinned LL formula).
+import "source_omega_trec_atom.mm1";
+
+import "source_l_common_level_syntax.mm1";
+
+import "source_syntax_laws.mm1";
+
+do { (set-timeout 5000) };
+
+theorem omcb_tail (b i: nat): $ if (i = 1) b (if (i = 2) b b) = b $ = (named '(eqtr (ax_mp ifeq3a (a1i ifid)) ifid));
+
+theorem omcb_hmap (a y i: nat): $ sfTRMap a y y y @ i = sfCLPairMap a y @ i $ = (named '(eqtr sfTRMap_value (eqtr (ax_mp ifeq3a (a1i omcb_tail)) (eqcom sfCLPairMap_value))));
+
+theorem omcb_omap (a i: nat): $ sfTRMap a a a a @ i = sfCLPairMap a a @ i $ = (named '(eqtr sfTRMap_value (eqtr (eqtr (ax_mp ifeq3a (a1i omcb_tail)) ifid) (eqcom (eqtr sfCLPairMap_value ifid)))));
+
+pub theorem sfTRS_CLHierarchyAt (a y: nat): $ sfTRS sfCLHierarchy a y y y = sfCLHierarchyAt a y $ = (named '(ax_mp (sfRename_extensional (ax_gen omcb_hmap)) sfCLHierarchy_wf));
+
+pub theorem sfTRS_CLOrdinalAt (a: nat): $ sfTRS sfCLOrdinal a a a a = sfCLOrdinalAt a $ = (named '(ax_mp (sfRename_extensional (ax_gen omcb_omap)) sfCLOrdinal_wf));
+
+pub theorem sfCLHierarchy_bound4: $ sfBound 4 sfCLHierarchy $ = (named '(ax_mp (ax_mp sfBound_mono_le (mpbi lesuc (mpbi lesuc le01))) sfCLHierarchy_bound));

@@ -1,0 +1,186 @@
+import "k215_calculus_derived_blocks.mm0";
+
+def k215NipsProgram (n: nat): nat = $ repeat (k215CmdNIP 0) n $;
+
+def k215DropProgram: nat = $ k215CmdDROP 0 : 0 $;
+
+def k215DiscardProgram: nat =
+ $ k215CmdMP 1 0 : (k215CmdAX 1 0 0 0 : k215NipsProgram 10) $;
+
+def k215LeafProgram (j a b c : nat): nat =
+ $ k215DiscardProgram ++ (k215CmdAX c b a 0 :
+   (k215NipsProgram j ++ (k215CmdDROP 0 : k215NipsProgram ((suc 10) - j)))) $;
+
+def k215BundleProgram (a b c: nat): nat =
+ $ k215DiscardProgram ++ (k215CmdAX c b a 0 : k215NipsProgram 10) $;
+
+def k215MPProgram (B: nat): nat =
+ $ k215CmdNIP 0 : (k215CmdDROP 0 : (k215CmdNIP 0 : (k215CmdMP B 0 : (k215CmdAX B 0 0 0 :
+   (k215NipsProgram 10 ++ (k215CmdDROP 0 : k215NipsProgram 2)))))) $;
+
+theorem k215NipsProgram_prefix (n r: nat):
+ $ k215ProgramPrefix (k215NipsProgram n) r = k215NipPrefix n r $;
+
+theorem k215DropProgram_prefix (r: nat):
+ $ k215ProgramPrefix k215DropProgram r = suc (k215CmdDROP r) $;
+
+theorem k215DiscardProgram_prefix (r: nat):
+ $ k215ProgramPrefix k215DiscardProgram r = suc (k215DiscardPrefix r) $;
+
+theorem k215LeafProgram_prefix (j a b c r: nat):
+ $ k215ProgramPrefix (k215LeafProgram j a b c ) r = suc (k215LeafPrefix j a b c r) $;
+
+theorem k215BundleProgram_prefix (a b c r: nat):
+ $ k215ProgramPrefix (k215BundleProgram a b c) r = suc (k215BundleLeafPrefix a b c r) $;
+
+theorem k215MPProgram_prefix (B r: nat):
+ $ k215ProgramPrefix (k215MPProgram B) r = suc (k215MPPrefix B r) $;
+
+theorem k215NipsProgram_len (n: nat): $ len (k215NipsProgram n) = n $;
+
+theorem k215DropProgram_len: $ len k215DropProgram = 1 $;
+
+theorem k215DiscardProgram_len: $ len k215DiscardProgram = suc (suc 10) $;
+
+theorem k215LeafProgram_len (j a b c : nat):
+ $ j <= suc 10 -> len (k215LeafProgram j a b c ) = k215LeafTime $;
+
+theorem k215BundleProgram_len (a b c: nat): $ len (k215BundleProgram a b c) = k215BundleLeafTime $;
+
+theorem k215MPProgram_len (B: nat): $ len (k215MPProgram B) = k215MPTime $;
+
+theorem k215Realizes_true: $ k215Realizes k215DiscardProgram 0 $;
+
+theorem k215Realizes_leaf1 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 1 a b c ) (kRho1 a b) $;
+
+theorem k215Realizes_leaf2 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 2 a b c ) (kRho2 a b c) $;
+
+theorem k215Realizes_leaf3 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 3 a b c ) (kRho3 a b c) $;
+
+theorem k215Realizes_leaf4 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 4 a b c ) (kRho4 a b c) $;
+
+theorem k215Realizes_leaf5 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 5 a b c ) (kRho5 a b c) $;
+
+theorem k215Realizes_leaf6 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 6 a b c ) (kRho6 a c) $;
+
+theorem k215Realizes_G (a b c : nat):
+ $ k215Realizes (k215LeafProgram 7 a b c ) (k218RhoG a b c) $;
+
+theorem k215Realizes_bundle (a b c: nat):
+ $ c != a /\ c != b -> k215Realizes (k215BundleProgram a b c) (k218Bundle a b c) $;
+
+def k215CounterProgram (i: nat): nat = $ if (i = 0) 0 (k215CmdMP i 0 : 0) $;
+
+def k215GenCoreProgram (i: nat): nat =
+ $ k215CmdNIP 0 : (k215CmdAX i 0 0 0 :
+   (k215NipsProgram 9 ++ (k215CmdDROP 0 : k215NipsProgram 2))) $;
+
+def k215GenProgram (i: nat): nat =
+ $ k215CmdDROP 0 : (k215CounterProgram i ++ k215GenCoreProgram i) $;
+
+def k215R8CoreProgram (a b c u: nat): nat =
+ $ k215CmdAX c b (a - u) 0 :
+   (k215NipsProgram 8 ++ (k215CmdDROP 0 : k215NipsProgram 3)) $;
+
+def k215R8Program (a b c u: nat): nat =
+ $ k215DiscardProgram ++ (k215CounterProgram u ++ k215R8CoreProgram a b c u) $;
+
+theorem k215CounterProgram_prefix (i r: nat):
+ $ k215ProgramPrefix (k215CounterProgram i) r = k215CounterPrefix i r $;
+
+theorem k215CounterProgram_len (i: nat):
+ $ len (k215CounterProgram i) = k215CounterTime i $;
+
+theorem k215GenCoreProgram_prefix (i r: nat):
+ $ k215ProgramPrefix (k215GenCoreProgram i) r = k215GenTail i r $;
+
+theorem k215GenProgram_prefix (i r: nat):
+ $ k215ProgramPrefix (k215GenProgram i) r = suc (k215GenPrefix i r) $;
+
+theorem k215GenCoreProgram_len (i: nat):
+ $ len (k215GenCoreProgram i) = suc (suc (suc (suc 10))) $;
+
+theorem k215GenProgram_len (i: nat):
+ $ len (k215GenProgram i) = k215GenTime i $;
+
+theorem k215R8CoreProgram_prefix (a b c u r: nat):
+ $ k215ProgramPrefix (k215R8CoreProgram a b c u) r =
+   suc (k215CmdAX c b (a - u) (k215NipPrefix 8 (suc (k215CmdDROP (k215NipPrefix 3 r))))) $;
+
+theorem k215R8Program_prefix (a b c u r: nat):
+ $ k215ProgramPrefix (k215R8Program a b c u) r = suc (k215R8Prefix a b c u r) $;
+
+theorem k215R8CoreProgram_len (a b c u: nat):
+ $ len (k215R8CoreProgram a b c u) = suc (suc (suc 10)) $;
+
+theorem k215R8Program_len (a b c u: nat):
+ $ len (k215R8Program a b c u) = k215R8Time u $;
+
+theorem k215Realizes_rho8 (a b c u: nat):
+ $ u <= a -> k215Realizes (k215R8Program a b c u) (kRho8 a b c u) $;
+
+theorem k215Realizable_rho8 (a b c u: nat):
+ $ u <= a -> k215Realizable (kRho8 a b c u) $;
+
+theorem k215GenProgram_runs (i X w: nat):
+ $ k215ProgramRuns (k215GenProgram i)
+    (k218EnumState 0 0 X w 0 0) (k218EnumState 0 0 (kAll i X) w 0 0) $;
+
+theorem k215DropProgram_runs (A w: nat):
+ $ k215ProgramRuns k215DropProgram
+    (k218EnumState 0 0 A w 0 0) (k218EnumState 0 0 0 (A, w) 0 0) $;
+
+theorem k215MPProgram_runs (A B w: nat):
+ $ k215ProgramRuns (k215MPProgram B)
+    (k218EnumState 0 0 (kImp A B) (A, w) 0 0) (k218EnumState 0 0 B w 0 0) $;
+
+theorem k215Realizes_gen (L i X: nat):
+ $ k215Realizes L X -> k215Realizes (L ++ k215GenProgram i) (kAll i X) $;
+
+theorem k215Realizable_gen (i X: nat): $ k215Realizable X -> k215Realizable (kAll i X) $;
+
+def k215MPCompile (B LA LI: nat): nat =
+ $ LA ++ (k215DropProgram ++ (LI ++ k215MPProgram B)) $;
+
+theorem k215Realizes_mp (LA LI A B: nat):
+ $ k215Realizes LA A -> k215Realizes LI (kImp A B) -> k215Realizes (k215MPCompile B LA LI) B $;
+
+theorem k215Realizable_mp (A B: nat):
+ $ k215Realizable A -> k215Realizable (kImp A B) -> k215Realizable B $;
+
+theorem k215Realizable_true: $ k215Realizable 0 $;
+
+theorem k215Realizable_rho1 (a b: nat): $ k215Realizable (kRho1 a b) $;
+
+theorem k215Realizable_rho2 (a b c: nat): $ k215Realizable (kRho2 a b c) $;
+
+theorem k215Realizable_rho3 (a b c: nat): $ k215Realizable (kRho3 a b c) $;
+
+theorem k215Realizable_rho4 (a b c: nat): $ k215Realizable (kRho4 a b c) $;
+
+theorem k215Realizable_rho5 (a b c: nat): $ k215Realizable (kRho5 a b c) $;
+
+theorem k215Realizable_rho6 (a b: nat): $ k215Realizable (kRho6 a b) $;
+
+theorem k215Realizable_rho7 (a b c: nat): $ k215Realizable (k218RhoG a b c) $;
+
+theorem k215Realizable_bundle (a b c: nat):
+ $ c != a /\ c != b -> k215Realizable (k218Bundle a b c) $;
+
+theorem k215Realizable_axiom (n: nat): $ n e. k215Axioms -> k215Realizable n $;
+
+def k215Compilables (.a: nat): set = $ {a | k215Realizable a} $;
+
+theorem k215Compilables_value (a: nat): $ a e. k215Compilables <-> k215Realizable a $;
+
+theorem k215Compilables_closed: $ k215Closed k215Compilables $;
+
+theorem k215Provable_realizable (a: nat): $ k215Provable a -> k215Realizable a $;
+
+theorem k215Derives_realizable (p a: nat): $ k215Derives p a -> k215Realizable a $;

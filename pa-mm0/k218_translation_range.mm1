@@ -1,0 +1,54 @@
+import "k218_equality_translation.mm1";
+
+theorem k218TR_syntax_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> (k218MemSyntax a <-> k218MemSyntax b) $ =
+'(k218MemSyntaxeqd h);
+
+theorem k218TR_ind_at (c a: nat):
+  $ A. j (j < c -> k218MemSyntax (k218Translate j)) ->
+    a < c -> k218MemSyntax (k218Translate a) $ =
+(named '(!! eale j ,eqtac));
+theorem k218TR_history_syntax {j: nat} (G: wff j) (c a: nat)
+  (hi: $ G -> A. j (j < c -> k218MemSyntax (k218Translate j)) $)
+  (ha: $ G -> a < c $):
+  $ G -> k218MemSyntax (k218TranslateHistory c @ a) $ =
+'(mpbird (k218TR_syntax_congr (syl k218TranslateHistory_lookup ha))
+  (mpd ha (syl k218TR_ind_at hi)));
+
+theorem k218TR_if_syntax (G p: wff) (a b: nat)
+  (hp: $ G /\ p -> k218MemSyntax a $)
+  (hb: $ G -> k218MemSyntax b $):
+  $ G -> k218MemSyntax (if p a b) $ =
+'(ifbothd k218MemSyntaxeq k218MemSyntaxeq hp (syl hb anl));
+
+theorem k218TR_tag2_positive (c: nat):
+  $ rawTag c = 2 -> 0 < c $ =
+'(mpbird (lteq2d (kRaw_rebuild id)) (a1i raw_kAll_positive));
+
+theorem k218TR_body_syntax {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> k218MemSyntax (k218Translate j)) $):
+  $ G -> k218MemSyntax (k218TranslateBody c (k218TranslateHistory c)) $ =
+'(k218TR_if_syntax (a1i k218MemSyntax_mem) @
+  k218TR_if_syntax (a1i k218MemSyntax_ind) @
+  k218TR_if_syntax
+    (syl k218MemSyntax_all
+      (k218TR_history_syntax (syl hi anl)
+        (syl rawRight_lt (syl k218TR_tag2_positive anr)))) @
+  k218TR_if_syntax
+    (sylc k218MemSyntax_imp
+      (k218TR_history_syntax (syl hi anl) (syl rawLeft_lt anr))
+      (k218TR_history_syntax (syl hi anl) (syl rawRight_lt anr)))
+    (a1i k218MemSyntax_zero));
+
+theorem k218TR_syntax_step {j: nat} (G: wff j) (c: nat)
+  (hi: $ G -> A. j (j < c -> k218MemSyntax (k218Translate j)) $):
+  $ G -> k218MemSyntax (k218Translate c) $ =
+'(mpbird (a1i (k218MemSyntaxeq k218Translate_unfold))
+  (k218TR_body_syntax hi));
+
+pub theorem k218Translate_range (c: nat):
+  $ k218MemSyntax (k218Translate c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c ->
+    (k218MemSyntax (k218Translate j) <-> k218MemSyntax (k218Translate c)) $}
+  ,eqtac (k218TR_syntax_step anr)));

@@ -1,0 +1,18 @@
+import "source_k0_qsep_domain_point.mm0";
+
+import "k218q_quantifier_macros.mm0";
+
+def sfK0QSepDomainProfile (t a b c x p: nat): nat =
+ $ kImp (kNot (kMem t t)) (kImp (kNot (kMem t b))
+   (kImp (kAll x (sfK0QSepRawProfile t a b c x p))
+     (kImp (kAll x (sfK0QSepRawEnvelope t a b x))
+       (kAll x (kImp (kMem t x)
+         (kAnd (kImp (kMem x c) (kAnd (kMem x a) p))
+           (kImp (kAnd (kMem x a) p) (kMem x c)))))))) $;
+
+-- Quantifies the exact pointwise matrix. The negative marker/envelope
+-- facts are moved through this quantifier only using the displayed freshness.
+theorem sfK0QSep_domain_profile (E: set) (t a b c x k theta: nat)
+ (hf: $ sfWf theta $) (hxt: $ x != t $) (hxb: $ x != b $):
+ $ k218QProvable (sfK0QSepDomainProfile t a b c x
+   (sfNamedTemplate (sqEnvCons x E) k 0 theta)) $;

@@ -1,0 +1,47 @@
+import "source_least_ordinal_binary.mm1";
+
+import "source_renaming_agreement.mm1";
+
+@_ def sfLeastOrdinalPredicate:nat = $ (sfAnd (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 2))))) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 2)))))))) $;
+
+def sfLeastOrdinalLaw(phi:nat):nat = $ sfImp (sfEx (sfAnd sfLeastOrdinalPredicate phi)) (sfEx (sfAnd (sfAnd sfLeastOrdinalPredicate phi) (sfAll (sfImp (sfMem 0 1) (sfImp (sfShift 1 phi) sfBot))))) $;
+
+theorem lobOriginalMap0: $ sfORBinaryMap 0 1 @ 0 = sfIdentityMap @ 0 $ = (named '(eqtr sfORBinaryMap_value (eqtr (ax_mp ifneg (ax_mp necom d1ne0)) (eqcom sfIdentityMap_value))));
+
+theorem lobOriginalMapCase0 (i:nat): $ i = 0 -> sfORBinaryMap 0 1 @ i = sfIdentityMap @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i lobOriginalMap0) (eqcomd (appeq2d id)))));
+
+theorem lobOriginalMap1: $ sfORBinaryMap 0 1 @ 1 = sfIdentityMap @ 1 $ = (named '(eqtr sfORBinaryMap_value (eqtr (ax_mp ifpos eqid) (eqcom sfIdentityMap_value))));
+
+theorem lobOriginalMapCase1 (i:nat): $ i = 1 -> sfORBinaryMap 0 1 @ i = sfIdentityMap @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i lobOriginalMap1) (eqcomd (appeq2d id)))));
+
+theorem lobOriginalMap_below (i:nat): $ i < 2 -> sfORBinaryMap 0 1 @ i = sfIdentityMap @ i $ = (named '(syl (eor lobOriginalMapCase0 lobOriginalMapCase1) (bi1 bool01)));
+
+pub theorem sfLeastOrdinalBinary_identity (phi:nat)(hb:$ sfBound 2 phi $): $ sfORBinary phi 0 1 = phi $ = (named '(eqtr (ax_mp (sfRename_agreement (ax_gen lobOriginalMap_below)) (mpbir (sfBoundeq add01 eqid) hb)) (ax_mp sfRename_identity (ax_mp sfBound_wf hb))));
+
+theorem lobOriginalShift0: $ sfShiftIndex 1 0 = 0 $ = '(ax_mp sfShiftIndex_bound d0lt1);
+
+theorem lobOriginalShift1: $ sfShiftIndex 1 1 = 2 $ = '(ax_mp sfShiftIndex_free ltirr);
+
+pub theorem sfLeastOrdinalBinary_shift_identity (phi:nat)(hb:$ sfBound 2 phi $): $ sfORBinary phi 0 2 = sfShift 1 phi $ = (named '(eqtr (eqcom (eqtr (sfORBinary_shift (ax_mp sfBound_wf hb)) (sfORBinary_congr (ax_mp sfBound_wf hb) lobOriginalShift0 lobOriginalShift1))) (trud (sfRL_Shift_formula (a1i (sfLeastOrdinalBinary_identity hb))))));
+
+pub theorem sfLeastOrdinalBinary_literal (phi:nat): $ sfLeastOrdinalBinaryLaw phi = (sfImp (sfEx (sfAnd sfLeastOrdinalPredicate (sfORBinary phi 0 1))) (sfEx (sfAnd (sfAnd sfLeastOrdinalPredicate (sfORBinary phi 0 1)) (sfAll (sfImp (sfMem 0 1) (sfImp (sfORBinary phi 0 2) sfBot)))))) $ = 'eqid;
+
+pub theorem sfLeastOrdinalLaw_original (phi:nat)(hb:$ sfBound 2 phi $): $ sfLeastOrdinalBinaryLaw phi = sfLeastOrdinalLaw phi $ = (named '(eqtr sfLeastOrdinalBinary_literal (nsImp_eq (nsEx_eq (nsAnd_eq eqid (sfLeastOrdinalBinary_identity hb))) (nsEx_eq (nsAnd_eq (nsAnd_eq eqid (sfLeastOrdinalBinary_identity hb)) (nsAll_eq (nsImp_eq eqid (nsImp_eq (sfLeastOrdinalBinary_shift_identity hb) eqid))))))));
+
+pub theorem sfLeastOrdinal_zfr_meta (phi:nat)(hb:$ sfBound 2 phi $): $ sfTheoryProvable zfrAxioms (sfLeastOrdinalLaw phi) $ = (named '(mpbi (trud (sfTheoryProvable_congr (a1i (sfLeastOrdinalLaw_original hb)))) (sfLeastOrdinalBinary_zfr_meta hb)));
+
+do { (add-eqd-thm 'sfLeastOrdinalLaw 'lobOriginalLawCong) };
+
+theorem lobOriginalLaw_congr (H:wff)(phi psi:nat)(h:$ H -> phi = psi $): $ H -> sfLeastOrdinalLaw phi = sfLeastOrdinalLaw psi $ = '(lobOriginalLawCongeqd h);
+
+theorem lobOriginalSafe_bound (P:wff)(n phi:nat)(hp:$ P -> sfBound n phi $): $ sfBound n (if P phi sfBot) $ = '(cases (mpbird (srecpeq2d (preq2d ifpos)) hp) (mpbird (srecpeq2d (preq2d ifneg)) (a1i sfBound_bot)));
+
+theorem lobOriginalSafe_theorem (phi:nat): $ sfTheoryProvable zfrAxioms (sfLeastOrdinalLaw (if (sfBound 2 phi) phi sfBot)) $ = '(sfLeastOrdinal_zfr_meta (lobOriginalSafe_bound id));
+
+pub theorem sfLeastOrdinal_zfr (phi:nat): $ sfBound 2 phi -> sfTheoryProvable zfrAxioms (sfLeastOrdinalLaw phi) $ = '(mpbid (sfTheoryProvable_congr (lobOriginalLaw_congr ifpos)) (a1i lobOriginalSafe_theorem));
+
+def sfLeastOrdinalAt(phi p:nat):nat = $ sfSubst 0 p (sfLeastOrdinalLaw phi) $;
+
+pub theorem sfLeastOrdinalAt_zfr (phi p:nat): $ sfBound 2 phi -> sfTheoryProvable zfrAxioms (sfLeastOrdinalAt phi p) $ = '(syl (syl sfTheoryProvable_allE (ax_mp sfTheoryProvable_gen zfrAxioms_closed)) sfLeastOrdinal_zfr);
+
+pub theorem sfLeastOrdinalLaw_bound (phi:nat)(hb:$ sfBound 2 phi $): $ sfBound 1 (sfLeastOrdinalLaw phi) $ = '(mpbi (sfBoundeq eqid (sfLeastOrdinalLaw_original hb)) (sfLeastOrdinalBinaryLaw_bound hb));

@@ -1,0 +1,21 @@
+import "source_k0_qrep_profile.mm0";
+
+import "k218_role_substitution.mm0";
+
+import "quotation_binders_absent.mm0";
+
+import "k218q_specialization.mm0";
+
+theorem sfK0QRepRelation_input_substitution (E: set) (n t R x y z phi: nat) (hf: $ sfBound (suc (suc n)) phi $) (hvR: $ x < R $) (hv0: $ x != 0 $) (hvt: $ x != t $) (hvo: $ x != y $) (he: $ sqEnvAvoid E n x $):
+ $ kSubst (sfK0QRepRelation E t R x y phi) x z = sfK0QRepRelation E t R z y phi $;
+
+theorem sfK0QRepRelation_output_substitution (E: set) (n t R x y z phi: nat) (hf: $ sfBound (suc (suc n)) phi $) (hvR: $ y < R $) (hv0: $ y != 0 $) (hvt: $ y != t $) (hvo: $ y != x $) (he: $ sqEnvAvoid E n y $):
+ $ kSubst (sfK0QRepRelation E t R x y phi) y z = sfK0QRepRelation E t R x z phi $;
+
+def sfK0QRepSupportBody (E: set) (t a c y x R phi: nat): nat = $ kImp (kAnd (kMem t y) (kMem y c)) (kExists x (kAnd (kAnd (kMem t x) (kMem x a)) (sfK0QRepRelation E t R x y phi))) $;
+
+theorem sfK0QRepSupport_specialization (E: set) (n t a c y x z R phi: nat) (hf: $ sfBound (suc (suc n)) phi $)
+ (hyR: $ y < R $) (hzR: $ z < R $) (hy0: $ y != 0 $)
+ (hyt: $ y != t $) (hya: $ y != a $) (hyc: $ y != c $)
+ (hyx: $ y != x $) (hzx: $ z != x $) (he: $ sqEnvAvoid E n y $) (hyz: $ y != z $):
+ $ k218QProvable (kImp (kAll y (sfK0QRepSupportBody E t a c y x R phi)) (sfK0QRepSupportBody E t a c z x R phi)) $;

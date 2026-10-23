@@ -1,0 +1,25 @@
+import "k215_literal_runtime_registers.mm0";
+import "k215_literal_dispatch.mm0";
+
+def k215PFile (regs w rest: nat): nat = $ ((k215PR2 regs) : ((k215PR8 regs) : ((k215PR1 regs) : ((k215PR4 regs) : ((k215PR3 regs) : ((k215PR7 regs) : ((k215PR0 regs) : ((k215PR5 regs) : ((k215PR6 regs) : (w : rest)))))))))) $;
+
+def k215PFrame (g pc regs w rest: nat): nat =
+ $ k215TmDispatchState (k215PEPath (k215PLookup pc))
+   (g + (k215Num64 - len (k215PEPath (k215PLookup pc))))
+   (k215PFile regs w rest) $;
+
+def k215PConfigFrame (g s w rest: nat): nat =
+ $ k215PFrame g (k215PPC s) (k215PRegs s) w rest $;
+
+theorem k215PFile_vector (a0 a1 a2 a3 a4 a5 a6 a7 a8 w rest: nat): $ k215PFile (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8) w rest = (a2 : (a8 : (a1 : (a4 : (a3 : (a7 : (a0 : (a5 : (a6 : (w : rest)))))))))) $;
+
+theorem k215PFrame_lookup (g pc regs w rest p tag arg zero positive: nat)
+ (h: $ k215PLookup pc = k215PEntry p tag arg zero positive $):
+ $ k215PFrame g pc regs w rest =
+   k215TmDispatchState p (g + (k215Num64 - len p)) (k215PFile regs w rest) $;
+
+theorem k215PConfigFrame_state (g pc regs w rest: nat):
+ $ k215PConfigFrame g (k215PState pc regs) w rest = k215PFrame g pc regs w rest $;
+
+theorem k215PFrame_Q (g pc regs w rest: nat):
+ $ k215TMQ (k215PFrame g pc regs w rest) = k215Num83 $;

@@ -1,0 +1,58 @@
+-- HOST: imports k215_assembly_native_conditional (PASSED 00000-A-L10-007; two staged sources).
+import "k215_assembly_native_conditional.mm0";
+import "k215_bundle_images.mm0";
+
+-- Staged form of k215_final_conditional (~288k defs+terms) that stays under ~25k.
+-- The two heavy closed theorems are rule hypotheses instead of imports:
+--   hm (M4) = k215ZFC_refutation_from_Limages   (k215_comparison_completed_schemas, ~274k,
+--             PASSED aws; statement copied verbatim)
+--   hn      = sfLNonempty_zfr                   (source_l_nonempty, ~78k, PASSED)
+--   hN      = k215PActualNativeLaw              (k215_literal_runtime_native_assembled_full,
+--             PASSED aws; its flat proof input is ~4 GB: 00000-A-L10-009 ran out of memory)
+-- The open premises are the same as in k215_final_conditional:
+--   hz (G1) sfZFCImageFamilies zfrAxioms sfLDomain, hc (core^L) k215CoreImagesL,
+--   and the BB clause as a bridge antecedent. L07's obligations give that antecedent through
+--   bb215ProvabilityValue_iff_open_obligations (bb215_provability_value_assembly, PASSED
+--   00000-L07-012); the composed form is not restated here to keep the compile small
+--   (012/013 ran out of memory with it, see lanes/L10.md).
+
+theorem K215_halts_iff_ZFC_inconsistent_staged
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc: $ k215CoreImagesL $)
+ (hm: $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> k215Inconsistent $)
+ (hN: $ k215PNativeLaw $):
+ $ k215LiteralHalts <-> zfcInconsistent $;
+
+theorem K215_nonhalting_iff_ZFC_consistent_staged
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc: $ k215CoreImagesL $)
+ (hm: $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> k215Inconsistent $)
+ (hN: $ k215PNativeLaw $):
+ $ ~zfcInconsistent <-> ~k215LiteralHalts $;
+
+theorem K215_full_consistency_BB215_nonprovability_staged_bridge {b: nat}
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc: $ k215CoreImagesL $)
+ (hm: $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> k215Inconsistent $)
+ (hN: $ k215PNativeLaw $):
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $;
+
+theorem K215_full_consistency_BB215_nonprovability_staged_nonhalting_bridge {b: nat}
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc: $ k215CoreImagesL $)
+ (hm: $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> k215Inconsistent $)
+ (hN: $ k215PNativeLaw $):
+ $ (~k215LiteralHalts -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   ((~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))) $;
+
+-- Hypothesis-free last theorem (keeps check.py's false-final control well formed).
+theorem ZFC_consistent_iff_BB215_no_value_provable_given_bridge_staged {b: nat}:
+ $ (~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) ->
+   (~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) $;

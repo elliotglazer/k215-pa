@@ -1,0 +1,27 @@
+import "source_reflection_least_cond_parameters_maps.mm0";
+
+def sfLCBinaryMap(x y z .i:nat):set = $ \ i, if (i = 0) x (if (i = 1) y ((i - 2) + z)) $;
+
+def sfLCBinary(phi x y z:nat):nat = $ sfRename (sfLCBinaryMap x y z) 0 phi $;
+
+theorem sfLCB_value(x y z i:nat): $ sfLCBinaryMap x y z @ i = if (i = 0) x (if (i = 1) y ((i - 2) + z)) $;
+
+theorem sfLCB_zero(x y z:nat): $ sfLCBinaryMap x y z @ 0 = x $;
+
+theorem sfLCB_one(x y z:nat): $ sfLCBinaryMap x y z @ 1 = y $;
+
+theorem sfLCB_tail(x y z i:nat): $ sfLCBinaryMap x y z @ suc (suc i) = i + z $;
+
+theorem sfLCBinary_congr(phi x y z xx yy zz:nat)(hf:$ sfWf phi $)(hx:$ x = xx $)(hy:$ y = yy $)(hz:$ z = zz $): $ sfLCBinary phi x y z = sfLCBinary phi xx yy zz $;
+
+theorem sfLCBinary_wf(phi x y z:nat): $ sfWf (sfLCBinary phi x y z) $;
+
+theorem sfLCBinary_shift(phi x y z d:nat)(hf:$ sfWf phi $)(hd:$ d <= z $): $ sfShift d (sfLCBinary phi x y z) = sfLCBinary phi (sfShiftIndex d x) (sfShiftIndex d y) (suc z) $;
+
+theorem sfLCBinary_subst(phi x y z d t:nat)(hf:$ sfWf phi $)(hd:$ d < suc z $): $ sfSubst d t (sfLCBinary phi x y (suc z)) = sfLCBinary phi (sfSubstIndex d t x) (sfSubstIndex d t y) z $;
+
+theorem sfLCBinary_identity(phi:nat)(hf:$ sfWf phi $): $ sfLCBinary phi 0 1 2 = phi $;
+
+theorem sfLCBinary_shift_two(phi:nat)(hf:$ sfWf phi $): $ sfLCBinary phi 0 1 3 = sfShift 2 phi $;
+
+theorem sfLCBinary_bound(n phi x y z:nat)(hb:$ sfBound (suc (suc n)) phi $)(hx:$ x < n + z $)(hy:$ y < n + z $): $ sfBound (n + z) (sfLCBinary phi x y z) $;

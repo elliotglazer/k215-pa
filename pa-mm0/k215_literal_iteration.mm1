@@ -1,0 +1,51 @@
+import "k215_literal_tm.mm1";
+
+do (apply (register-eqd 'k215TMStep) '(k215TMStepeqd));
+do (apply (register-eqd 'k215TMRun) '(k215TMRuneqd));
+
+pub theorem k215TMRun_add (m n s: nat):
+  $ k215TMRun (m + n) s = k215TMRun n (k215TMRun m s) $ =
+(named @ induct '(ind) 'n
+ '(eqtr (k215TMRuneq1 add0) (eqcom k215TMRun_zero))
+ '(eqtrd (a1i (k215TMRuneq1 addS))
+   (eqtrd (a1i k215TMRun_succ)
+     (eqtrd (k215TMStepeqd id) (a1i (eqcom k215TMRun_succ))))));
+pub theorem k215TMRun_splice (m n s t: nat):
+  $ k215TMRun m s = t -> k215TMRun (m + n) s = k215TMRun n t $ =
+(named '(eqtrd (a1i k215TMRun_add) (k215TMRuneq2d id)));
+pub theorem k215TMStep_stopped (s: nat):
+  $ k215TMQ s = k215Num215 -> k215TMStep s = s $ =
+'(syl k215TMStep_halted (mpbiri ltirr (noteqd (lteq1d id))));
+pub theorem k215TMRun_stopped (n s: nat):
+  $ k215TMQ s = k215Num215 -> k215TMRun n s = s $ =
+(named @ induct '(indd) 'n '(a1i k215TMRun_zero)
+ '(eqtrd (a1i k215TMRun_succ)
+   (eqtrd (k215TMStepeqd anr) (syl k215TMStep_stopped anl))));
+
+@_ abstract def k215TMReach (s t: nat) (.n: nat): wff = $ E. n k215TMRun n s = t $;
+@_ abstract def k215TMHaltsFrom (s: nat) (.n: nat): wff =
+  $ E. n k215TMQ (k215TMRun n s) = k215Num215 $;
+
+pub theorem k215TMReach_intro (n s t: nat): $ k215TMRun n s = t -> k215TMReach s t $ =
+(named '(iexe ,eqtac));
+pub theorem k215TMReach_refl (s: nat): $ k215TMReach s s $ = '(k215TMReach_intro k215TMRun_zero);
+theorem k215TMReach_trans_at (m n s t u: nat):
+  $ k215TMRun m s = t -> k215TMRun n t = u -> k215TMReach s u $ =
+'(exp @ syl k215TMReach_intro (eqtrd (syl k215TMRun_splice anl) anr));
+pub theorem k215TMReach_trans (s t u: nat):
+  $ k215TMReach s t -> k215TMReach t u -> k215TMReach s u $ =
+(named '(eex @ eexd k215TMReach_trans_at));
+pub theorem k215TMHaltsFrom_intro (n s: nat):
+  $ k215TMQ (k215TMRun n s) = k215Num215 -> k215TMHaltsFrom s $ =
+(named '(iexe ,eqtac));
+pub theorem k215TMHaltsFrom_stopped (s: nat):
+  $ k215TMQ s = k215Num215 -> k215TMHaltsFrom s $ =
+'(syl k215TMHaltsFrom_intro (eqtrd (a1i (k215TMQeq k215TMRun_zero)) id));
+theorem k215TMReach_halts_at (m n s t: nat):
+  $ k215TMRun m s = t -> k215TMQ (k215TMRun n t) = k215Num215 -> k215TMHaltsFrom s $ =
+'(exp @ syl k215TMHaltsFrom_intro (eqtrd (k215TMQeqd (syl k215TMRun_splice anl)) anr));
+pub theorem k215TMReach_halts (s t: nat):
+  $ k215TMReach s t -> k215TMHaltsFrom t -> k215TMHaltsFrom s $ =
+(named '(eex @ eexd k215TMReach_halts_at));
+pub theorem k215TMHaltsFrom_initial:
+  $ k215TMHaltsFrom k215TMInitial <-> k215LiteralHalts $ = (named 'biid);

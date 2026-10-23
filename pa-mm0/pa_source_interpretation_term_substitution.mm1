@@ -1,0 +1,51 @@
+import "pa_source_interpretation_term_lift_bound.mm1";
+
+@_ abstract def paTermSubstVariable (d a i: nat): nat = $ if (i < d) (paTermVariable i) (if (i = d) (paTermLift d a) (paTermVariable (i - 1))) $;
+
+@_ abstract def paTermSubstBody (d a c h: nat): nat = $ if (c = 0) paTermZero
+ (if (sfTag c = 1) (paTermSubstVariable d a (sfLeft c))
+ (if (sfTag c = 2) (paTermSuccessor (h @ (sfLeft c)))
+ (if (sfTag c = 3) (paTermAddition (h @ (sfLeft c)) (h @ (sfRight c)))
+ (if (sfTag c = 4) (paTermMultiplication (h @ (sfLeft c)) (h @ (sfRight c))) paTermZero)))) $;
+
+@_ abstract def paTermSubstStep (d a: nat) (.h: nat): set = $ \ h, paTermSubstBody d a (sfHistoryLength h) h $;
+
+@_ abstract def paTermSubst (d a c: nat): nat = $ srec (paTermSubstStep d a) c $;
+
+@_ abstract def paTermSubstHistory (d a c .i: nat): nat = $ \. i e. upto c, srec (paTermSubstStep d a) i $;
+
+pub theorem paTermSubstStep_apply (d a h: nat): $ paTermSubstStep d a @ h = paTermSubstBody d a (sfHistoryLength h) h $ = (named '(!! applame j ,eqtac));
+
+pub theorem paTermSubstHistory_size (d a c: nat): $ sfHistoryLength (paTermSubstHistory d a c) = c $ = (named '(sreclem eqid));
+
+pub theorem paTermSubstHistory_lookup (d a c b: nat): $ b < c -> paTermSubstHistory d a c @ b = paTermSubst d a b $ = (named '(syl (apprlame sreceq2) (bi2 elupto)));
+
+pub theorem paTermSubst_unfold (d a c: nat): $ paTermSubst d a c = paTermSubstBody d a c (paTermSubstHistory d a c) $ = (named '(eqtr srecval (eqtr paTermSubstStep_apply (paTermSubstBodyeq eqid eqid paTermSubstHistory_size eqid))));
+
+theorem paTermSubstHistory_child (d a c b: nat) (hl: $ sfLeft c = b $) (hb: $ b < c $): $ paTermSubstHistory d a c @ (sfLeft c) = paTermSubst d a b $ = (named '(eqtr (appeq2 hl) (paTermSubstHistory_lookup hb)));
+
+theorem paTermSubstHistory_right (d a c b: nat) (hr: $ sfRight c = b $) (hb: $ b < c $): $ paTermSubstHistory d a c @ (sfRight c) = paTermSubst d a b $ = (named '(eqtr (appeq2 hr) (paTermSubstHistory_lookup hb)));
+
+theorem paTermSubstBody_sfMem (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ paTermSubstBody d a c h = paTermSubstVariable d a (sfLeft c) $ = (named '(eqtr (ifneg h0) (ifpos ht)));
+
+theorem paTermSubstBody_sfEq (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $): $ paTermSubstBody d a c h = paTermSuccessor (h @ (sfLeft c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))));
+
+theorem paTermSubstBody_sfAnd (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ paTermSubstBody d a c h = paTermAddition (h @ (sfLeft c)) (h @ (sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht)))));
+
+theorem paTermSubstBody_sfOr (d a c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ paTermSubstBody d a c h = paTermMultiplication (h @ (sfLeft c)) (h @ (sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))))));
+
+pub theorem paTermSubst_zero (d a: nat): $ paTermSubst d a paTermZero = paTermZero $ = (named '(eqtr paTermSubst_unfold (ifpos eqid)));
+
+pub theorem paTermSubst_variable (d a i: nat): $ paTermSubst d a (paTermVariable i) = paTermSubstVariable d a i $ = (named '(eqtr paTermSubst_unfold (eqtr (paTermSubstBody_sfMem sfMem_ne_sfBot sfMem_tag) (paTermSubstVariableeq eqid eqid sfMem_left))));
+
+pub theorem paTermSubst_successor (d a b: nat): $ paTermSubst d a (paTermSuccessor b) = paTermSuccessor (paTermSubst d a b) $ = (named '(eqtr paTermSubst_unfold (eqtr (paTermSubstBody_sfEq sfEq_ne_sfBot sfEq_tag) (paTermSuccessoreq (paTermSubstHistory_child sfEq_left sfEq_left_lt)))));
+
+pub theorem paTermSubst_addition (d a b c: nat): $ paTermSubst d a (paTermAddition b c) = paTermAddition (paTermSubst d a b) (paTermSubst d a c) $ = (named '(eqtr paTermSubst_unfold (eqtr (paTermSubstBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (paTermAdditioneq (paTermSubstHistory_child sfAnd_left sfAnd_left_lt) (paTermSubstHistory_right sfAnd_right sfAnd_right_lt)))));
+
+pub theorem paTermSubst_multiplication (d a b c: nat): $ paTermSubst d a (paTermMultiplication b c) = paTermMultiplication (paTermSubst d a b) (paTermSubst d a c) $ = (named '(eqtr paTermSubst_unfold (eqtr (paTermSubstBody_sfOr sfOr_ne_sfBot sfOr_tag) (paTermMultiplicationeq (paTermSubstHistory_child sfOr_left sfOr_left_lt) (paTermSubstHistory_right sfOr_right sfOr_right_lt)))));
+
+pub theorem paTermSubstVariable_below (d a i: nat) (h: $ i < d $): $ paTermSubstVariable d a i = paTermVariable i $ = (named '(ifpos h));
+
+pub theorem paTermSubstVariable_hit (d a: nat): $ paTermSubstVariable d a d = paTermLift d a $ = (named '(eqtr (ifneg ltirr) (ifpos eqid)));
+
+pub theorem paTermSubstVariable_above (d a i: nat) (h: $ d < i $): $ paTermSubstVariable d a i = paTermVariable (i - 1) $ = (named '(eqtr (ifneg (ltnlt h)) (ifneg (ltner h))));

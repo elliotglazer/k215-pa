@@ -1,0 +1,27 @@
+import "source_reflection_transfer_tuple.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def sfReflectionCofinalPoint(T:set)(start n level K k y:nat):nat = $ sfAnd (sfMem k K) (sfAnd (sfORBinary level k y) (sfReflectionTuple T start y n)) $;
+
+def sfReflectionCofinalCommon(T:set)(start n level K:nat):nat = $ sfEx (sfEx (sfReflectionCofinalPoint T (suc (suc start)) n level (suc (suc K)) 1 0)) $;
+
+def sfReflectionCofinalMergePoint(level K X Y k z:nat):nat = $ sfAnd (sfMem k K) (sfAnd (sfORBinary level k z) (sfAnd (sfCLSubset X z) (sfCLSubset Y z))) $;
+
+def sfReflectionCofinalMergeAt(level K X Y:nat):nat = $ sfEx (sfEx (sfReflectionCofinalMergePoint level (suc (suc K)) (suc (suc X)) (suc (suc Y)) 1 0)) $;
+
+def sfReflectionCofinalContext(G point:nat):nat = $ point : sfContextShift (sfEx point : sfContextShift G) $;
+
+theorem sfReflectionCofinalPoint_wf(T:set)(start n level K k y:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalPoint T start n level K k y) $;
+
+theorem sfReflectionCofinalCommon_wf(T:set)(start n level K:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalCommon T start n level K) $;
+
+theorem sfReflectionCofinalCommon_shift(T:set)(start n level K:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionCofinalCommon T start n level K) = sfReflectionCofinalCommon T (suc start) n level (suc K) $;
+
+theorem sfReflectionCofinalPoint_open(T:set)(start n level K k y:nat)(hl:$ sfBound 2 level $): $ sfSubst 0 y (sfSubst 1 k (sfReflectionCofinalPoint T (suc (suc start)) n level (suc (suc K)) 1 0)) = sfReflectionCofinalPoint T start n level K k y $;
+
+theorem sfReflectionCofinalCommon_intro(T:set)(G start n level K k y:nat)(hl:$ sfBound 2 level $)(hp:$ nsLocal G (sfReflectionCofinalPoint T start n level K k y) $): $ nsLocal G (sfReflectionCofinalCommon T start n level K) $;
+
+theorem sfReflectionCofinal_lift2(G point a:nat)(hp:$ sfWf point $)(ha:$ nsLocal G a $): $ nsLocal (sfReflectionCofinalContext G point) (sfShift 0 (sfShift 0 a)) $;
+
+theorem sfReflectionCofinal_double_eliminate(G point out:nat)(hp:$ sfWf point $)(ho:$ sfWf out $)(he:$ nsLocal G (sfEx (sfEx point)) $): $ nsLocal (sfReflectionCofinalContext G point) (sfShift 0 (sfShift 0 out)) -> nsLocal G out $;

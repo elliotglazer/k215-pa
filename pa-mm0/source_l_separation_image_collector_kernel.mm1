@@ -1,0 +1,24 @@
+import "source_l_separation_image_collection.mm1";
+import "source_l_replacement_common_coverage.mm1";
+
+pub theorem sfLSeparationSeededRecipe_forget(G start count seed:nat)
+ (hc:$ nsLocal G (sfLReplacementSeededRecipe start count seed) $):
+ $ nsLocal G (sfCLRecipe start count) $ = '(sfLReplacementDoubleEx_mono sfLReplacementSeededPoint_wf sfCLPoint_wf hc (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfLReplacementSeededPoint_wf sfContextShift_wf))) sfContext_member_head)));
+pub theorem slSepWitnessLift(G point a:nat)(hp:$ sfWf point $)(ha:$ nsLocal G a $):
+ $ nsLocal (sfCLWitnessContext G point) (sfShift 0 (sfShift 0 a)) $ = '(ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian hp sfContextShift_wf))) sfContextSub_cons (ax_mp sfSepLocal_shift (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex hp) sfContextShift_wf))) sfContextSub_cons (ax_mp sfSepLocal_shift ha))));
+
+@_ def slSepInitialContext(G:nat):nat = $ sfCLWitnessContext G (sfCLPoint 2 0 1 0) $;
+
+pub theorem slSepInitial_hyp(G:nat): $ nsLocal (slSepInitialContext G) (sfCLPoint 2 0 1 0) $ = '(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfCLPoint_wf sfContextShift_wf))) sfContext_member_head);
+pub theorem slSepInitial_extension(G:nat)(he:$ nsLocal G sfLReplacementLevelExtension $):
+ $ nsLocal (slSepInitialContext G) sfLReplacementLevelExtension $ = '(mpbi (nsLocal_formula_eq (eqtr (sfShifteq2 (ax_mp sfShift_closed_identity sfLReplacementLevelExtension_bound)) (ax_mp sfShift_closed_identity sfLReplacementLevelExtension_bound))) (slSepWitnessLift sfCLPoint_wf he));
+pub theorem slSepInitial_inputs(G n:nat)(hi:$ nsLocal G (sfCLPredicates sfLDomain 0 n) $):
+ $ nsLocal (slSepInitialContext G) (sfCLPredicates sfLDomain 2 n) $ = '(mpbi (nsLocal_formula_eq (eqtr (sfShifteq2 (sfCLPredicates_shift sfLDomain_bound)) (sfCLPredicates_shift sfLDomain_bound))) (slSepWitnessLift sfCLPoint_wf hi));
+pub theorem slSepInitial_collected(G n:nat)(he:$ nsLocal G sfLReplacementLevelExtension $)
+ (hi:$ nsLocal G (sfCLPredicates sfLDomain 0 n) $):
+ $ nsLocal (slSepInitialContext G) (sfCLRecipe 2 n) $ = '(sfLSeparationSeededRecipe_forget (sfLSeparationImage_collect_from_proof (slSepInitial_extension he) (ax_mp nsLocal_CE1 (ax_mp sfCLPoint_pair slSepInitial_hyp)) (ax_mp nsLocal_CE2 (ax_mp sfCLPoint_pair slSepInitial_hyp)) (slSepInitial_inputs hi)));
+pub theorem sfLSeparationImage_collect_from_initial(G n:nat)
+ (he:$ nsLocal G sfLReplacementLevelExtension $)
+ (h0:$ nsLocal G (sfCLRecipe 0 0) $)
+ (hi:$ nsLocal G (sfCLPredicates sfLDomain 0 n) $):
+ $ nsLocal G (sfCLRecipe 0 n) $ = '(ax_mp (sfCLRecipe_eliminate (ax_mp nsLocal_context_wf h0) sfCLRecipe_wf h0) (mpbir (nsLocal_formula_eq (eqtr (sfShifteq2 sfCLRecipe_shift) sfCLRecipe_shift)) (slSepInitial_collected he hi)));

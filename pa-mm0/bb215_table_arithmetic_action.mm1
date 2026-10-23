@@ -1,0 +1,23 @@
+import "bb215_arithmetic_formula_pair.mm1";
+
+import "bb215_tables.mm1";
+
+pub theorem bb215TableArithmeticBit (a: nat): $ a <= 1 <-> a = 0 \/ a = 1 $ = (named '(bitr leloe (oreq1i lt12)));
+
+pub theorem bb215TableArithmeticPairComponents (w r a: nat): $ bb215ArithmeticFormulaPairGraph w r a <-> fst a = w /\ snd a = r $ = (named '(bitr bb215ArithmeticFormulaPairGraph_correct (bitr (eqeq1 (eqcom fstsnd)) prth)));
+
+@_ abstract def bb215TableArithmeticBitPair (r a: nat): wff = $ bb215ArithmeticFormulaPairGraph 0 r a \/ bb215ArithmeticFormulaPairGraph 1 r a $;
+
+pub theorem bb215TableArithmeticBitPair_components (r a: nat): $ bb215TableArithmeticBitPair r a <-> fst a <= 1 /\ snd a = r $ = (named '(bitr (oreqi bb215TableArithmeticPairComponents bb215TableArithmeticPairComponents) (bitr (bicom andir) (aneq1i (bicom bb215TableArithmeticBit)))));
+
+@_ abstract def bb215TableArithmeticActionGraph (a .r .t .k: nat): wff = $ E. r E. t E. k (bb215TableArithmeticBitPair r a /\ bb215TableArithmeticBitPair t r /\ t + k = k215Num215) $;
+
+theorem bbTAA_slack (a r t: nat) {k: nat}: $ (E. k (bb215TableArithmeticBitPair r a /\ bb215TableArithmeticBitPair t r /\ t + k = k215Num215)) <-> bb215TableArithmeticBitPair r a /\ bb215TableArithmeticBitPair t r /\ t <= k215Num215 $ = (named '(bitr exan1 (aneq2i (bicom dfle))));
+
+theorem bbTAA_target (r: nat) {t: nat}: $ (E. t (bb215TableArithmeticBitPair t r /\ t <= k215Num215)) <-> fst r <= 1 /\ snd r <= k215Num215 $ = (named '(bitr (!! exeqi t (bitr (aneq1i bb215TableArithmeticBitPair_components) anass)) (bitr exan1 (aneq2i (bitr (!! exeqi t (aneq1i eqcomb)) (!! exeqe t (leeq1d id)))))));
+
+theorem bbTAA_two (a r: nat) {t k: nat}: $ (E. t E. k (bb215TableArithmeticBitPair r a /\ bb215TableArithmeticBitPair t r /\ t + k = k215Num215)) <-> bb215TableArithmeticBitPair r a /\ (fst r <= 1 /\ snd r <= k215Num215) $ = (named '(bitr (!! exeqi t (bitr bbTAA_slack anass)) (bitr exan1 (aneq2i bbTAA_target))));
+
+theorem bbTAA_rest (a: nat) {r: nat}: $ (E. r (snd a = r /\ (fst r <= 1 /\ snd r <= k215Num215))) <-> fst (snd a) <= 1 /\ snd (snd a) <= k215Num215 $ = (named '(bitr (!! exeqi r (aneq1i eqcomb)) (!! exeqe r (aneqd (leeq1d (fsteqd id)) (leeq1d (sndeqd id))))));
+
+pub theorem bb215TableArithmeticActionGraph_correct (a: nat) {r t k: nat}: $ bb215TableArithmeticActionGraph a <-> k215TMValidAction a $ = (named '(bitr (!! exeqi r (bitr bbTAA_two (bitr (aneq1i bb215TableArithmeticBitPair_components) anass))) (bitr exan1 (bitr (aneq2i bbTAA_rest) (bicom anass)))));

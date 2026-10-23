@@ -1,0 +1,82 @@
+import "source_context_shift.mm0";
+import "source_substitution.mm0";
+import "source_nd_prop.mm0";
+
+-- Exact FullND quantifier rule shapes on Peano-list contexts.
+-- The source beta-context and trace equivalences remain separate obligations.
+
+def sfNDCaseAllI (r p: nat) (.g .a: nat): wff = $ E. g E. a (r = sfSequent g (sfAll a) /\ p = sfSequent (sfContextShift g) a) $;
+def sfNDCaseAllE (r p: nat) (.g .a .t: nat): wff = $ E. g E. a E. t (r = sfSequent g (sfSubst 0 t a) /\ p = sfSequent g (sfAll a)) $;
+def sfNDCaseExI (r p: nat) (.g .a .t: nat): wff = $ E. g E. a E. t (r = sfSequent g (sfEx a) /\ p = sfSequent g (sfSubst 0 t a)) $;
+def sfNDCaseExE (r p q: nat) (.g .a .c: nat): wff = $ E. g E. a E. c (r = sfSequent g c /\ (p = sfSequent g (sfEx a) /\ q = sfSequent (a : sfContextShift g) (sfShift 0 c))) $;
+theorem sfNDCaseAllI_intro (g a: nat): $ sfNDCaseAllI (sfSequent g (sfAll a)) (sfSequent (sfContextShift g) a) $;
+theorem sfNDCaseAllE_intro (g a t: nat): $ sfNDCaseAllE (sfSequent g (sfSubst 0 t a)) (sfSequent g (sfAll a)) $;
+theorem sfNDCaseExI_intro (g a t: nat): $ sfNDCaseExI (sfSequent g (sfEx a)) (sfSequent g (sfSubst 0 t a)) $;
+theorem sfNDCaseExE_intro (g a c: nat): $ sfNDCaseExE (sfSequent g c) (sfSequent g (sfEx a)) (sfSequent (a : sfContextShift g) (sfShift 0 c)) $;
+
+def sfNDQuantUnary (r p: nat): wff =
+$ sfRowWf r /\ (sfNDCaseAllI r p \/ (sfNDCaseAllE r p \/ sfNDCaseExI r p)) $;
+def sfNDQuantBinary (r p q: nat): wff = $ sfRowWf r /\ sfNDCaseExE r p q $;
+def sfNDQuantRules (.r .l .p .q: nat): set =
+$ S\ r, {l | (E. p (p IN l /\ sfNDQuantUnary r p)) \/
+    E. p E. q (p IN l /\ (q IN l /\ sfNDQuantBinary r p q))} $;
+def sfNDFullRules: set = $ sfNDPropRules u. sfNDQuantRules $;
+def sfNDFullDerives (p r: nat): wff = $ traceDerives sfNDFullRules p r $;
+
+theorem sfNDQuantRules_value {p q: nat} (r l: nat):
+  $ (r, l) e. sfNDQuantRules <->
+    (E. p (p IN l /\ sfNDQuantUnary r p)) \/
+    E. p E. q (p IN l /\ (q IN l /\ sfNDQuantBinary r p q)) $;
+theorem sfNDQuantRules_unary (r p l: nat):
+  $ p IN l /\ sfNDQuantUnary r p -> (r, l) e. sfNDQuantRules $;
+theorem sfNDQuantRules_binary (r p q l: nat):
+  $ p IN l /\ (q IN l /\ sfNDQuantBinary r p q) -> (r, l) e. sfNDQuantRules $;
+theorem sfNDQuantRules_stable: $ traceAppendStable sfNDQuantRules $;
+theorem sfNDQuantRules_guard (r l: nat): $ (r, l) e. sfNDQuantRules -> sfRowWf r $;
+theorem sfNDFullRules_stable: $ traceAppendStable sfNDFullRules $;
+theorem sfNDFullRules_guard (r l: nat): $ (r, l) e. sfNDFullRules -> sfRowWf r $;
+theorem sfNDFullDerives_wf (p r: nat): $ sfNDFullDerives p r -> sfRowWf r $;
+theorem sfNDFullDerives_from_prop (p r: nat): $ sfNDPropDerives p r -> sfNDFullDerives p r $;
+theorem sfNDFullDerives_unary (p r a: nat):
+  $ sfNDQuantUnary r a -> sfNDFullDerives p a -> sfNDFullDerives (r : p) r $;
+theorem sfNDFullDerives_binary (p q r a b: nat):
+  $ sfNDQuantBinary r a b -> sfNDFullDerives p a -> sfNDFullDerives q b ->
+    sfNDFullDerives (r : (p ++ q)) r $;
+
+theorem sfNDQuantUnary_AllI (g a: nat):
+  $ sfRowWf (sfSequent g (sfAll a)) -> sfNDQuantUnary (sfSequent g (sfAll a)) (sfSequent (sfContextShift g) a) $;
+
+theorem sfNDFullDerives_AllI (u: nat) (g a: nat):
+  $ sfRowWf (sfSequent g (sfAll a)) -> sfNDFullDerives u (sfSequent (sfContextShift g) a) ->
+    sfNDFullDerives ((sfSequent g (sfAll a)) : u) (sfSequent g (sfAll a)) $;
+
+theorem sfNDQuantUnary_AllE (g a t: nat):
+  $ sfRowWf (sfSequent g (sfSubst 0 t a)) -> sfNDQuantUnary (sfSequent g (sfSubst 0 t a)) (sfSequent g (sfAll a)) $;
+
+theorem sfNDFullDerives_AllE (u: nat) (g a t: nat):
+  $ sfRowWf (sfSequent g (sfSubst 0 t a)) -> sfNDFullDerives u (sfSequent g (sfAll a)) ->
+    sfNDFullDerives ((sfSequent g (sfSubst 0 t a)) : u) (sfSequent g (sfSubst 0 t a)) $;
+
+theorem sfNDQuantUnary_ExI (g a t: nat):
+  $ sfRowWf (sfSequent g (sfEx a)) -> sfNDQuantUnary (sfSequent g (sfEx a)) (sfSequent g (sfSubst 0 t a)) $;
+
+theorem sfNDFullDerives_ExI (u: nat) (g a t: nat):
+  $ sfRowWf (sfSequent g (sfEx a)) -> sfNDFullDerives u (sfSequent g (sfSubst 0 t a)) ->
+    sfNDFullDerives ((sfSequent g (sfEx a)) : u) (sfSequent g (sfEx a)) $;
+
+theorem sfNDQuantBinary_ExE (g a c: nat):
+  $ sfRowWf (sfSequent g c) -> sfNDQuantBinary (sfSequent g c)
+    (sfSequent g (sfEx a)) (sfSequent (a : sfContextShift g) (sfShift 0 c)) $;
+
+theorem sfNDFullDerives_ExE (u v g a c: nat):
+  $ sfRowWf (sfSequent g c) -> sfNDFullDerives u (sfSequent g (sfEx a)) ->
+    sfNDFullDerives v (sfSequent (a : sfContextShift g) (sfShift 0 c)) ->
+    sfNDFullDerives ((sfSequent g c) : (u ++ v)) (sfSequent g c) $;
+
+theorem sfNDFullDerives_prop_base (r: nat):
+  $ sfNDPropBase r -> sfNDFullDerives (r : 0) r $;
+theorem sfNDFullDerives_prop_unary (p r a: nat):
+  $ sfNDPropUnary r a -> sfNDFullDerives p a -> sfNDFullDerives (r : p) r $;
+theorem sfNDFullDerives_prop_binary (p q r a b: nat):
+  $ sfNDPropBinary r a b -> sfNDFullDerives p a -> sfNDFullDerives q b ->
+    sfNDFullDerives (r : (p ++ q)) r $;

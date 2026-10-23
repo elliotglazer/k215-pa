@@ -1,0 +1,80 @@
+import "source_k0_qsep_conditional_prefix.mm1";
+import "k218q_safe_prefix.mm1";
+
+@_ abstract def sfK0QSepSafe (n a .S .k: nat): wff =
+ $ A. S A. k (sfBound n a -> 2 < k -> sqEnvBelow (sqNumericEnvironment S) n k ->
+   k218QProvable (kImp kEmptyMarker (sqQuote (sqNumericEnvironment S) 1 k 0 a))) $;
+
+pub theorem sfK0QSepSafe_use (n a S k: nat):
+ $ sfK0QSepSafe n a -> sfBound n a -> 2 < k -> sqEnvBelow (sqNumericEnvironment S) n k ->
+   k218QProvable (kImp kEmptyMarker (sqQuote (sqNumericEnvironment S) 1 k 0 a)) $ =
+(named '(!! ealie s @ !! ealde t @ bi1d ,eqtac));
+
+theorem qsepSafe_cons_quote (S n k a: nat):
+ $ sfBound (suc n) a -> sqQuote (sqNumericEnvironment (k : S)) 1 (suc k) 0 a =
+   sqQuote (sqEnvCons k (sqNumericEnvironment S)) 1 (suc k) 0 a $ =
+'(syl (sqQuote_environment sqNumericEnvironment_cons_agree) (bi2 (srecpeq2 (preq1 add01))));
+
+theorem qsepSafe_marker_fresh (k: nat): $ 2 < k -> kFresh kEmptyMarker k $ =
+(begin
+ (have 'h2 '(ltner))
+ (have 'h1 '(syl ltner (lttr ltsucid)))
+ (have 'h0 '(syl ltner (lttr lt01S)))
+ (have 'mem '(mpbird (a1i kFresh_kMem) (iand h2 h1)))
+ (have 'bot '(mpbird (a1i kFresh_kF) h0))
+ (have 'body '(mpbird (a1i kFresh_kImp) (iand mem bot)))
+ (refine '(mpd body (syl kFresh_all_intro h2)))
+);
+
+theorem qsepSafe_all_point (G: wff) (n a S k: nat)
+ (hu: $ G -> sfK0QSepSafe (suc n) a $) (hf: $ G -> sfBound n (sfAll a) $)
+ (hk: $ G -> 2 < k $) (he: $ G -> sqEnvBelow (sqNumericEnvironment S) n k $):
+ $ G -> k218QProvable (kImp kEmptyMarker (sqQuote (sqNumericEnvironment S) 1 k 0 (sfAll a))) $ =
+(begin
+ (have 'bound '(syl (bi1 sfBound_sfAll) hf))
+ (have 'newbelow '(mpd (syl sqEnvBelow_successor he) (a1i (ax_mp k218SP_below_cons ltsucid))))
+ (have 'body '(mpd newbelow (mpd (lttrd hk (a1i ltsucid)) (mpd bound (syl sfK0QSepSafe_use hu)))))
+ (have 'renamed '(mpbid (k218QProvableeqd (kImpeq2d (syl qsepSafe_cons_quote bound))) body))
+ (have 'guarded '(k218IEqProv_syl renamed (a1i k218IPropK)))
+ (have 'vacuity '(syl k218QFresh_vacuity (syl qsepSafe_marker_fresh hk)))
+ (have 'generalized '(k218IEqProv_syl vacuity (k218IEqProv_all guarded)))
+ (refine '(mpbird (k218QProvableeqd (kImpeq2d (syl sqQuote_all_cons (syl sfBound_wf bound)))) generalized))
+);
+
+theorem qsepSafe_all_ready (n a S k: nat):
+ $ sfK0QSepSafe (suc n) a -> sfBound n (sfAll a) -> 2 < k -> sqEnvBelow (sqNumericEnvironment S) n k ->
+   k218QProvable (kImp kEmptyMarker (sqQuote (sqNumericEnvironment S) 1 k 0 (sfAll a))) $ =
+(named '(exp (exp (exp (qsepSafe_all_point (syl (syl anl anl) anl) (syl (syl anr anl) anl) (syl anr anl) anr)))));
+
+pub theorem sfK0QSepSafe_all (n a: nat):
+ $ sfK0QSepSafe (suc n) a -> sfK0QSepSafe n (sfAll a) $ =
+(named '(!! iald S @ !! iald k @ qsepSafe_all_ready));
+
+@_ local def qsepSafePC (n a .m: nat): wff =
+ $ A. m (sfK0QSepSafe (m + n) a -> sfK0QSepSafe m (sfAllPrefix n a)) $;
+
+theorem qsepSafePC_use (n a m: nat):
+ $ qsepSafePC n a -> sfK0QSepSafe (m + n) a -> sfK0QSepSafe m (sfAllPrefix n a) $ =
+(named '(!! ealie r @ bi1d ,eqtac));
+
+theorem qsepSafePC_zero (a: nat): $ qsepSafePC 0 a $ =
+(named '(ax_gen (syl (bi2 (sfK0QSepSafeeq2 sfAllPrefix_zero)) (bi1 (sfK0QSepSafeeq1 add0)))));
+
+theorem qsepSafePC_step_at (n a m: nat):
+ $ qsepSafePC n a -> sfK0QSepSafe (m + suc n) a -> sfK0QSepSafe m (sfAllPrefix (suc n) a) $ =
+(named '(exp (mpbird (a1i (sfK0QSepSafeeq2 sfAllPrefix_suc))
+ (syl sfK0QSepSafe_all (mpd (mpbird (a1i (sfK0QSepSafeeq1 addSass)) anr) (syl qsepSafePC_use anl))))));
+
+theorem qsepSafePC_step (n a: nat): $ qsepSafePC n a -> qsepSafePC (suc n) a $ =
+(named '(!! iald m @ qsepSafePC_step_at));
+
+theorem qsepSafePC_all (n a: nat): $ qsepSafePC n a $ =
+(named @ induct '(ind) 'n 'qsepSafePC_zero 'qsepSafePC_step);
+
+pub theorem sfK0QSepSafe_prefix (n m a: nat):
+ $ sfK0QSepSafe (m + n) a -> sfK0QSepSafe m (sfAllPrefix n a) $ =
+'(ax_mp qsepSafePC_use qsepSafePC_all);
+
+pub theorem sfK0QSepSafe_closed (n a: nat):
+ $ sfK0QSepSafe n a -> sfK0QSepSafe 0 (sfAllPrefix n a) $ =
+'(syl sfK0QSepSafe_prefix (bi2 (sfK0QSepSafeeq1 add01)));

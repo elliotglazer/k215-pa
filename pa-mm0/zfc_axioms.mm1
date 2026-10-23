@@ -1,0 +1,171 @@
+import "zfc_fixed.mm1";
+import "zfc_schema_maps.mm1";
+import "source_renaming.mm1";
+
+do (apply (register-eqd 'sfRename)
+  '(sfRename_congr sfRename_congr_graph sfRename_congr_depth sfRename_congr_formula));
+do (apply (register-eqd 'sfSeparation) '(sfSeparation_congr));
+do (apply (register-eqd 'sfReplacement) '(sfReplacement_congr));
+do (apply (register-eqd 'sfAllPrefix) '(sfAllPrefix_congr));
+theorem zfcBound_congr (G: wff) (n m a b: nat)
+  (h1: $ G -> n = m $) (h2: $ G -> a = b $):
+  $ G -> (sfBound n a <-> sfBound m b) $ =
+'(syl srecpeq2 (preqd h1 h2));
+do (apply (register-eqd 'sfBound) '(zfcBound_congr));
+theorem zfcFixed_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> (zfcFixed a <-> zfcFixed b) $ =
+'(oreqd (eqeq1d h) (oreqd (eqeq1d h) (oreqd (eqeq1d h)
+  (oreqd (eqeq1d h) (oreqd (eqeq1d h) (oreqd (eqeq1d h)
+  (oreqd (eqeq1d h) (oreqd (eqeq1d h) (oreqd (eqeq1d h)
+  (oreqd (eqeq1d h) (oreqd (eqeq1d h) (eqeq1d h))))))))))));
+do (apply (register-eqd 'zfcFixed) '(zfcFixed_congr));
+
+@_ def zfcSeparationCode (phi n: nat): nat =
+$ sfAllPrefix n (sfSeparation (sfRename sfSepMap 0 phi)) $;
+@_ def zfcReplacementCode (phi n: nat): nat =
+$ sfAllPrefix n (sfReplacement
+    (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi)
+    (sfRename sfRepCMap 0 phi)) $;
+@_ def zfcClosedSeparation (z .phi .n: nat): wff =
+$ sfBound 0 z /\ E. phi E. n
+    (sfBound (suc n) phi /\ z = zfcSeparationCode phi n) $;
+@_ def zfcClosedReplacement (z .phi .n: nat): wff =
+$ sfBound 0 z /\ E. phi E. n
+    (sfBound (suc (suc n)) phi /\ z = zfcReplacementCode phi n) $;
+@_ abstract def zfcAxioms (.z: nat): set =
+$ {z | zfcFixed z \/ (zfcClosedSeparation z \/ zfcClosedReplacement z)} $;
+
+pub theorem zfcSeparationCode_wf (phi n: nat): $ sfWf (zfcSeparationCode phi n) $ =
+'(mpbir sfWf_allPrefix (mpbir sfWf_separation sfRename_wf));
+pub theorem zfcReplacementCode_wf (phi n: nat): $ sfWf (zfcReplacementCode phi n) $ =
+'(mpbir sfWf_allPrefix (mpbir sfWf_replacement
+  (ian (ian sfRename_wf sfRename_wf) sfRename_wf)));
+pub theorem zfcAxioms_value (z: nat):
+  $ z e. zfcAxioms <-> zfcFixed z \/ (zfcClosedSeparation z \/ zfcClosedReplacement z) $ =
+(named '(elabe ,eqtac));
+pub theorem zfcClosedSeparation_closed (z: nat): $ zfcClosedSeparation z -> sfBound 0 z $ = (named 'anl);
+pub theorem zfcClosedReplacement_closed (z: nat): $ zfcClosedReplacement z -> sfBound 0 z $ = (named 'anl);
+pub theorem zfcAxioms_wf (z: nat): $ z e. zfcAxioms -> sfWf z $ =
+(named '(syl (eori zfcFixed_wf (eori (syl sfBound_wf anl) (syl sfBound_wf anl)))
+  (bi1 zfcAxioms_value)));
+pub theorem zfcFixed_member (z: nat): $ zfcFixed z -> z e. zfcAxioms $ =
+'(syl (bi2 zfcAxioms_value) orl);
+pub theorem zfcClosedSeparation_member (z: nat): $ zfcClosedSeparation z -> z e. zfcAxioms $ =
+'(syl (bi2 zfcAxioms_value) (syl orr orl));
+pub theorem zfcClosedReplacement_member (z: nat): $ zfcClosedReplacement z -> z e. zfcAxioms $ =
+'(syl (bi2 zfcAxioms_value) (syl orr orr));
+
+theorem zfcSeparation_witness_n (phi n z: nat):
+  $ (sfBound (suc n) phi /\ z = zfcSeparationCode phi n) ->
+    E. k (sfBound (suc k) phi /\ z = zfcSeparationCode phi k) $ =
+(named '(!! iexe k ,eqtac));
+theorem zfcSeparation_witness (phi n z: nat):
+  $ (sfBound (suc n) phi /\ z = zfcSeparationCode phi n) ->
+    E. p E. k (sfBound (suc k) p /\ z = zfcSeparationCode p k) $ =
+(named '(syl (!! iexe p ,eqtac) zfcSeparation_witness_n));
+theorem zfcReplacement_witness_n (phi n z: nat):
+  $ (sfBound (suc (suc n)) phi /\ z = zfcReplacementCode phi n) ->
+    E. k (sfBound (suc (suc k)) phi /\ z = zfcReplacementCode phi k) $ =
+(named '(!! iexe k ,eqtac));
+theorem zfcReplacement_witness (phi n z: nat):
+  $ (sfBound (suc (suc n)) phi /\ z = zfcReplacementCode phi n) ->
+    E. p E. k (sfBound (suc (suc k)) p /\ z = zfcReplacementCode p k) $ =
+(named '(syl (!! iexe p ,eqtac) zfcReplacement_witness_n));
+
+pub theorem zfcSeparationCode_member_checked (phi n: nat):
+  $ sfBound (suc n) phi -> sfBound 0 (zfcSeparationCode phi n) ->
+    zfcSeparationCode phi n e. zfcAxioms $ =
+(named '(exp @ syl zfcClosedSeparation_member @
+  iand anr (syl zfcSeparation_witness (iand anl (a1i eqid)))));
+pub theorem zfcReplacementCode_member_checked (phi n: nat):
+  $ sfBound (suc (suc n)) phi -> sfBound 0 (zfcReplacementCode phi n) ->
+    zfcReplacementCode phi n e. zfcAxioms $ =
+(named '(exp @ syl zfcClosedReplacement_member @
+  iand anr (syl zfcReplacement_witness (iand anl (a1i eqid)))));
+
+theorem zfcBound_index_eq (n m a: nat) (h: $ n = m $):
+  $ sfBound n a <-> sfBound m a $ = '(ax_mp srecpeq2 (preq1 h));
+theorem zfcRename_zero_bound (R: set) (n m c: nat)
+  (hm: $ A. i (i < n -> R @ i < m) $):
+  $ sfBound n c -> sfBound m (sfRename R 0 c) $ =
+'(syl (bi1 (zfcBound_index_eq add01)) @
+  sylbi (bicom (zfcBound_index_eq add01)) (ax_mp sfRename_bound hm));
+
+pub theorem zfcSeparationBody_bound (phi n: nat):
+  $ sfBound (suc n) phi ->
+    sfBound (suc (suc (suc n))) (sfRename sfSepMap 0 phi) $ =
+(named '(zfcRename_zero_bound (ax_gen sfSepMap_bound)));
+pub theorem zfcReplacementBodyA_bound (phi n: nat):
+  $ sfBound (suc (suc n)) phi ->
+    sfBound (suc (suc (suc n))) (sfRename sfRepAMap 0 phi) $ =
+(named '(zfcRename_zero_bound (ax_gen sfRepAMap_bound)));
+pub theorem zfcReplacementBodyB_bound (phi n: nat):
+  $ sfBound (suc (suc n)) phi ->
+    sfBound (suc (suc (suc n))) (sfRename sfRepBMap 0 phi) $ =
+(named '(zfcRename_zero_bound (ax_gen sfRepBMap_bound)));
+pub theorem zfcReplacementBodyC_bound (phi n: nat):
+  $ sfBound (suc (suc n)) phi ->
+    sfBound (suc (suc (suc (suc n)))) (sfRename sfRepCMap 0 phi) $ =
+(named '(zfcRename_zero_bound (ax_gen sfRepCMap_bound)));
+
+pub theorem zfcSeparationCode_closed (phi n: nat):
+  $ sfBound (suc n) phi -> sfBound 0 (zfcSeparationCode phi n) $ =
+'(syl (bi2 sfBound_allPrefix_closed) @
+  syl (bi2 sfBound_separation) zfcSeparationBody_bound);
+pub theorem zfcReplacementCode_closed (phi n: nat):
+  $ sfBound (suc (suc n)) phi -> sfBound 0 (zfcReplacementCode phi n) $ =
+'(syl (bi2 sfBound_allPrefix_closed) @
+  syl (bi2 sfBound_replacement) @
+  iand (iand zfcReplacementBodyA_bound zfcReplacementBodyB_bound)
+    zfcReplacementBodyC_bound);
+pub theorem zfcSeparationCode_member (phi n: nat):
+  $ sfBound (suc n) phi -> zfcSeparationCode phi n e. zfcAxioms $ =
+'(mpd zfcSeparationCode_closed zfcSeparationCode_member_checked);
+pub theorem zfcReplacementCode_member (phi n: nat):
+  $ sfBound (suc (suc n)) phi -> zfcReplacementCode phi n e. zfcAxioms $ =
+'(mpd zfcReplacementCode_closed zfcReplacementCode_member_checked);
+
+-- GENERATED FIXED AXIOM CLOSEDNESS
+theorem zfcRefl_closed_local: $ sfBound 0 zfcRefl $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfEq (ian lt01S lt01S)));
+
+theorem zfcSym_closed_local: $ sfBound 0 zfcSym $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) lt01S)) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc lt01S)))))));
+
+theorem zfcTrans_closed_local: $ sfBound 0 zfcTrans $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc (mpbi ltsuc lt01S)) (mpbi ltsuc lt01S))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) lt01S)) (mpbir sfBound_sfEq (ian (mpbi ltsuc (mpbi ltsuc lt01S)) lt01S)))))))));
+
+theorem zfcEqElem_closed_local: $ sfBound 0 zfcEqElem $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))) (mpbi ltsuc lt01S))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc (mpbi ltsuc lt01S)) lt01S)) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))) (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S))))))))))));
+
+theorem zfcExt_closed_local: $ sfBound 0 zfcExt $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) lt01S))))))));
+
+theorem zfcEmpty_closed_local: $ sfBound 0 zfcEmpty $ =
+'(mpbir sfBound_sfEx (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) sfBound_bot))));
+
+theorem zfcPair_closed_local: $ sfBound 0 zfcPair $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfEx (mpbir sfBound_sfAll (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfOr (ian (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))))))))));
+
+theorem zfcUnion_closed_local: $ sfBound 0 zfcUnion $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfEx (mpbir sfBound_sfAll (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S))))))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S))))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))))))))));
+
+theorem zfcPower_closed_local: $ sfBound 0 zfcPower $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfEx (mpbir sfBound_sfAll (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))))))))));
+
+theorem zfcOmega_closed_local: $ sfBound 0 zfcOmega $ =
+'(mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) sfBound_bot))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAll (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfOr (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))))))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) sfBound_bot))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAll (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfOr (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))))))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))))))))))));
+
+theorem zfcFoundation_closed_local: $ sfBound 0 zfcFoundation $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEx (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) sfBound_bot)))))))))));
+
+theorem zfcChoice_closed_local: $ sfBound 0 zfcChoice $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEx (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) lt01S)) sfBound_bot)) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))))) sfBound_bot)))))))))) (mpbir sfBound_sfEx (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc lt01S))))))))))))))))))));
+
+pub theorem zfcFixed_closed (z: nat): $ zfcFixed z -> sfBound 0 z $ =
+'(eori (mpbiri zfcRefl_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcSym_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcTrans_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcEqElem_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcExt_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcEmpty_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcPair_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcUnion_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcPower_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcOmega_closed_local (zfcBound_congr (a1i eqid) id)) (eori (mpbiri zfcFoundation_closed_local (zfcBound_congr (a1i eqid) id)) (mpbiri zfcChoice_closed_local (zfcBound_congr (a1i eqid) id)))))))))))));
+
+pub theorem zfcAxioms_closed (z: nat): $ z e. zfcAxioms -> sfBound 0 z $ =
+'(syl (eori zfcFixed_closed
+    (eori zfcClosedSeparation_closed zfcClosedReplacement_closed))
+  (bi1 zfcAxioms_value));

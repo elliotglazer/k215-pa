@@ -1,0 +1,26 @@
+import "k218_quantifier_macros.mm0";
+
+-- Proved normalization, not an identification by definition. The literal
+-- seed bundle is not definitionally kAnd(Vrel, kNot(NegSeed)).
+theorem k218NegImp_left (p q: nat):
+  $ k218Provable (kImp (kNot (kImp p q)) p) $;
+theorem k218NegImp_right (p q: nat):
+  $ k218Provable (kImp (kNot (kImp p q)) (kNot q)) $;
+
+theorem k218Bundle_to_conjunction (a b c: nat):
+  $ k218Provable (kImp (k218Bundle a b c)
+    (kAnd (k218Vrel a b c) (kNot (k218NegSeed a b c)))) $;
+theorem k218Bundle_from_conjunction (a b c: nat):
+  $ k218Provable (kImp
+    (kAnd (k218Vrel a b c) (kNot (k218NegSeed a b c))) (k218Bundle a b c)) $;
+
+theorem k218Bundle_vacuity (a b c: nat):
+  $ c != a /\ c != b -> k218Provable (k218Vrel a b c) $;
+theorem k218Bundle_seed (a b c: nat):
+  $ c != a /\ c != b -> k218Provable (kNot (k218NegSeed a b c)) $;
+
+theorem k218Membership_vacuity (a b x: nat):
+  $ x != a /\ x != b ->
+    k218Provable (kImp (kMem a b) (kAll x (kMem a b))) $;
+theorem k218False_vacuity (x: nat):
+  $ x != 0 -> k218Provable (kImp kF (kAll x kF)) $;

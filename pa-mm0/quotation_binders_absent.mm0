@@ -1,0 +1,44 @@
+import "k230_substitution.mm0";
+
+import "quotation_binders.mm0";
+
+theorem kBinderAbsent_kF (x: nat): $ kBinderAbsent kF x $;
+
+theorem kBinderAbsent_not_intro (a x: nat):
+ $ kBinderAbsent a x -> kBinderAbsent (kNot a) x $;
+
+theorem kBinderAbsent_and_intro (a b x: nat):
+ $ kBinderAbsent a x -> kBinderAbsent b x -> kBinderAbsent (kAnd a b) x $;
+
+theorem kBinderAbsent_disj_intro (a b x: nat):
+ $ kBinderAbsent a x -> kBinderAbsent b x -> kBinderAbsent (kDisj a b) x $;
+
+theorem kBinderAbsent_all_intro (a b x: nat):
+ $ x != a -> kBinderAbsent b x -> kBinderAbsent (kAll a b) x $;
+
+theorem kBinderAbsent_exists_intro (a b x: nat):
+ $ x != a -> kBinderAbsent b x -> kBinderAbsent (kExists a b) x $;
+
+def ntAbsentClass (E: set) (k x: nat) (.c .d: nat): set =
+ $ {c | A. d kBinderAbsent (sfNamedTemplate E k d c) x} $;
+
+theorem ntAbsent_value {d: nat} (E: set) (k x c: nat):
+ $ c e. ntAbsentClass E k x <-> A. d kBinderAbsent (sfNamedTemplate E k d c) x $;
+
+theorem sfNamedTemplate_binder_absent (E: set) (k d c x: nat) (hk: $ x < k $):
+ $ sfWf c -> kBinderAbsent (sfNamedTemplate E k d c) x $;
+
+theorem sqEqual_binder_absent (t a b k x: nat) (hk: $ x < k $):
+ $ kBinderAbsent (sqEqual t a b k) x $;
+
+theorem sqMember_binder_absent (t a b k x: nat) (hk: $ x < k $):
+ $ kBinderAbsent (sqMember t a b k) x $;
+
+def qqAbsentClass (E: set) (t k x: nat) (.c .d: nat): set =
+ $ {c | A. d kBinderAbsent (sqQuote E t k d c) x} $;
+
+theorem qqAbsent_value {d: nat} (E: set) (t k x c: nat):
+ $ c e. qqAbsentClass E t k x <-> A. d kBinderAbsent (sqQuote E t k d c) x $;
+
+theorem sqQuote_binder_absent (E: set) (t k d c x: nat) (hk: $ x < k $):
+ $ sfWf c -> kBinderAbsent (sqQuote E t k d c) x $;

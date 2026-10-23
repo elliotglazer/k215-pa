@@ -1,0 +1,33 @@
+import "source_piece_pcf_rep_induction_r6.mm0";
+
+def sfPieceRepEmptyUniqueLaw:nat = $ (sfAll (sfAll (sfImp (sfPieceRepEmpty 1) (sfImp (sfPieceRepEmpty 0) (sfEq 1 0))))) $;
+
+theorem pcru_empty_use(G x y:nat):
+ $ (nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G (sfPieceRepEmpty x)) -> (nsLocal G (sfPieceRepEmpty y)) -> (nsLocal G (sfEq x y)) $;
+
+def sfPieceRepSuccessorUniqueLaw:nat = $ (sfAll (sfAll (sfAll (sfAll (sfImp (sfEq 3 2) (sfImp (sfPieceRepSuccessor 3 1) (sfImp (sfPieceRepSuccessor 2 0) (sfEq 1 0)))))))) $;
+
+theorem pcru_successor_use(G x y s t:nat):
+ $ (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G (sfEq x y)) -> (nsLocal G (sfPieceRepSuccessor x s)) -> (nsLocal G (sfPieceRepSuccessor y t)) -> (nsLocal G (sfEq s t)) $;
+
+def sfPieceNumeralUniqueGood(k .G .x .y:nat):wff = $ A. G A. x A. y (nsLocal G sfPieceRepEmptyUniqueLaw -> nsLocal G sfPieceRepSuccessorUniqueLaw -> nsLocal G (sfPieceNumeral k x) -> nsLocal G (sfPieceNumeral k y) -> nsLocal G (sfEq x y)) $;
+
+def pcruGoodAt1(k G .x .y:nat):wff = $ A. x A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral k y)) -> (nsLocal G (sfEq x y))) $;
+
+def pcruGoodAt2(k G x .y:nat):wff = $ A. y ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral k y)) -> (nsLocal G (sfEq x y))) $;
+
+def pcruGoodAt3(k G x y:nat):wff = $ ((nsLocal G sfPieceRepEmptyUniqueLaw) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) -> (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeral k y)) -> (nsLocal G (sfEq x y))) $;
+
+def pcruFirstBody(k x:nat):nat = $ sfAnd (sfPieceNumeral k 0) (sfPieceRepSuccessor 0 (suc x)) $;
+
+def pcruSecondBody(k y:nat):nat = $ sfAnd (sfPieceNumeral k 0) (sfPieceRepSuccessor 0 (suc (suc y))) $;
+
+def pcruFirstContext(G k x:nat):nat = $ pcruFirstBody k x : sfContextShift G $;
+
+def pcruSecondContext(G k x y:nat):nat = $ pcruSecondBody k y : sfContextShift (pcruFirstContext G k x) $;
+
+theorem sfPieceNumeral_unique_induction(k:nat):
+ $ sfPieceNumeralUniqueGood k $;
+
+theorem sfPieceNumeral_unique_from_laws(G k x y:nat)(he:$ nsLocal G sfPieceRepEmptyUniqueLaw $)(hs:$ nsLocal G sfPieceRepSuccessorUniqueLaw $)(hx:$ nsLocal G (sfPieceNumeral k x) $)(hy:$ nsLocal G (sfPieceNumeral k y) $):
+ $ (nsLocal G (sfEq x y)) $;

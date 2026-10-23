@@ -1,0 +1,69 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm1";
+import "k218q_rebase.mm1";
+import "k218q_named_propositional.mm1";
+
+pub theorem k218IND_rebase (F: wff) (E: set) (n k l a: nat)
+ (hk: $ F -> 0 < k $) (hl: $ F -> 0 < l $)
+ (he: $ F -> sqEnvBelow E n k $) (hf: $ F -> sqEnvBelow E n l $)
+ (ha: $ F -> sfBound n a $):
+ $ F -> k218IEquivalent (sfNamedTemplate E k 0 a) (sfNamedTemplate E l 0 a) $ =
+'(mpd (iand (syl sqSQ_alloc_below hl) (syl sqSQ_range_below hf)) @
+ mpd (iand (syl sqSQ_alloc_below hk) (syl sqSQ_range_below he)) @
+ syl k218IsfNamedTemplate_fresh_base_equivalent ha);
+
+theorem k218IND_absent (F: wff) (E: set) (k a x: nat)
+ (ha: $ F -> sfWf a $) (hx: $ F -> x < k $):
+ $ F -> kBinderAbsent (sfNamedTemplate E k 0 a) x $ =
+'(mpd (syl sqSQ_alloc_below hx) (syl sfNamedTemplate_allocation_absent_zero ha));
+theorem k218IND_subst (F: wff) (E: set) (n k y a: nat)
+ (hz: $ F -> k != 0 $) (he: $ F -> sqEnvAvoid E n k $)
+ (ha: $ F -> sfBound (suc n) a $):
+ $ F -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) 0 a) k y =
+   sfNamedTemplate (sqEnvCons y E) (suc k) 0 a $ =
+'(mpd ha (mpd he (syl sfNamedTemplate_substitution_cons_when hz)));
+theorem k218IND_allE_scoped (F: wff) (H: nat) (E: set) (n k y a: nat)
+ (hz: $ F -> k != 0 $) (hy: $ F -> y < k $)
+ (he: $ F -> sqEnvAvoid E n k $) (ha: $ F -> sfBound (suc n) a $)
+ (hp: $ F -> k218IHypProvable H (sfNamedTemplate E k 0 (sfAll a)) $):
+ $ F -> k218IHypProvable H (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $ =
+'(k218QHypMp hp @ syl k218IHypProvable_seed @ k218QProvTransport
+ (kImpeqd (syl sfNamedTemplate_all_cons (syl sfBound_wf ha)) (eqcomd (k218IND_subst hz he ha)))
+ (mpd (k218IND_absent (syl sfBound_wf ha) (ltletrd hy (a1i lesucid)))
+  (mpd (k218IND_absent (syl sfBound_wf ha) (a1i ltsucid))
+   (syl k218INamed_specialization (syl ltner hy)))));
+theorem k218IND_exI_scoped (F: wff) (H: nat) (E: set) (n k y a: nat)
+ (hz: $ F -> k != 0 $) (hy: $ F -> y < k $)
+ (he: $ F -> sqEnvAvoid E n k $) (ha: $ F -> sfBound (suc n) a $)
+ (hp: $ F -> k218IHypProvable H (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $):
+ $ F -> k218IHypProvable H (sfNamedTemplate E k 0 (sfEx a)) $ =
+'(k218QHypMp hp @ syl k218IHypProvable_seed @ k218QProvTransport
+ (kImpeqd (eqcomd (k218IND_subst hz he ha)) (syl sfNamedTemplate_ex_cons (syl sfBound_wf ha)))
+ (mpd (k218IND_absent (syl sfBound_wf ha) (ltletrd hy (a1i lesucid)))
+  (mpd (k218IND_absent (syl sfBound_wf ha) (a1i ltsucid))
+   (syl k218INamed_exists_intro (syl ltner hy)))));
+theorem k218IND_child_rebase (F: wff) (E: set) (n k y a: nat)
+ (hk: $ F -> 0 < k $) (hy: $ F -> y < k $)
+ (he: $ F -> sqEnvBelow E n k $) (ha: $ F -> sfBound (suc n) a $):
+ $ F -> k218IEquivalent (sfNamedTemplate (sqEnvCons y E) k 0 a)
+   (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $ =
+'(k218IND_rebase hk (a1i lt01S) (mpd he (syl sqEnvBelow_cons hy))
+ (syl sqEnvBelow_successor (mpd he (syl sqEnvBelow_cons hy))) ha);
+pub theorem k218IND_allE (F: wff) (H: nat) (E: set) (n k i a: nat)
+ (hk: $ F -> 0 < k $) (he: $ F -> sqEnvBelow E n k $)
+ (hi: $ F -> i < n $) (ha: $ F -> sfBound (suc n) a $)
+ (hp: $ F -> k218IHypProvable H (sfNamedTemplate E k 0 (sfAll a)) $):
+ $ F -> k218IHypProvable H (sfNamedTemplate E k 0 (sfSubst 0 i a)) $ =
+'(k218QHypTransport (syl sfNamedTemplate_source_substitution (syl sfBound_wf ha)) @
+ k218QEquivBackward (k218IND_child_rebase hk (mpd hi (syl sqSQ_below_at he)) he ha)
+ (k218IND_allE_scoped (syl (bi1 lt01) hk) (mpd hi (syl sqSQ_below_at he))
+  (syl sqEnvBelow_avoid he) ha hp));
+pub theorem k218IND_exI (F: wff) (H: nat) (E: set) (n k i a: nat)
+ (hk: $ F -> 0 < k $) (he: $ F -> sqEnvBelow E n k $)
+ (hi: $ F -> i < n $) (ha: $ F -> sfBound (suc n) a $)
+ (hp: $ F -> k218IHypProvable H (sfNamedTemplate E k 0 (sfSubst 0 i a)) $):
+ $ F -> k218IHypProvable H (sfNamedTemplate E k 0 (sfEx a)) $ =
+'(k218IND_exI_scoped (syl (bi1 lt01) hk) (mpd hi (syl sqSQ_below_at he))
+ (syl sqEnvBelow_avoid he) ha
+ (k218QEquivForward (k218IND_child_rebase hk (mpd hi (syl sqSQ_below_at he)) he ha)
+  (k218QHypTransport (eqcomd (syl sfNamedTemplate_source_substitution (syl sfBound_wf ha))) hp)));

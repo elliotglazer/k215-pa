@@ -1,0 +1,23 @@
+import "k215_literal_runtime_native_interface.mm0";
+import "k215_literal_runtime_pc_bound.mm0";
+
+def k215PNativeLaw (.g .s .w .r: nat): wff =
+ $ A. g A. s A. w A. r (k215PInRange s -> k215PNativeOutcome g s w r) $;
+
+def k215PNativeFuture (s w: nat) (.h .q: nat): wff =
+ $ A. h A. q k215TMHaltsFrom (k215PConfigFrame h (k215PStep s) w q) $;
+
+def k215PNativeForwardClaim (n: nat) (.s .g .w .r: nat): wff =
+ $ A. s A. g A. w A. r
+   (k215PInRange s -> k215PStatus (k215PIter n s) = 4 ->
+    k215TMHaltsFrom (k215PConfigFrame g s w r)) $;
+
+theorem k215PNativeLaw_at (g s w r: nat):
+ $ k215PNativeLaw -> k215PInRange s -> k215PNativeOutcome g s w r $;
+
+theorem k215PNativeForward_all (n: nat):
+ $ k215PNativeLaw -> k215PNativeForwardClaim n $;
+
+theorem k215PNative_source_halts (s g w r: nat):
+ $ k215PNativeLaw -> k215PInRange s -> k215PHaltsFrom s ->
+   k215TMHaltsFrom (k215PConfigFrame g s w r) $;

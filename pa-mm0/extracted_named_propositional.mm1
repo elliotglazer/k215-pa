@@ -1,0 +1,63 @@
+import "extracted_named_support.mm1";
+
+@_ def exNamedLocal (H: nat) (E: set) (k d c: nat): wff =
+ $ kHypProvable H (sfNamedTemplate E k d c) $;
+
+pub theorem exNamedLocal_assumption (H: nat) (E: set) (k d a: nat):
+ $ sfNamedTemplate E k d a IN H -> exNamedLocal H E k d a $ =
+'kHypProvable_assumption;
+
+pub theorem exNamedLocal_peirce (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d (sfImp (sfImp (sfImp a b) a) a) $ =
+'(mpbir (kHypProvableeq2 (eqtr sfNamedTemplate_sfImp
+  (kImpeq1 (eqtr sfNamedTemplate_sfImp (kImpeq1 sfNamedTemplate_sfImp)))))
+  (kHypProvable_seed kPropP));
+
+pub theorem exNamedLocal_impI (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal ((sfNamedTemplate E k d a) : H) E k d b ->
+   exNamedLocal H E k d (sfImp a b) $ =
+'(syl (bi2 (kHypProvableeq2 sfNamedTemplate_sfImp)) kHypProvable_deduction);
+
+pub theorem exNamedLocal_impE (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d a -> exNamedLocal H E k d (sfImp a b) ->
+   exNamedLocal H E k d b $ =
+'(syl5bi (kHypProvableeq2 sfNamedTemplate_sfImp) kHypProvable_mp);
+
+pub theorem exNamedLocal_botE (H: nat) (E: set) (k d a: nat):
+ $ exNamedLocal H E k d sfBot -> exNamedLocal H E k d a $ =
+'(syl (mpi (kHypProvable_seed kPropF) kHypProvable_mp)
+  (bi1 (kHypProvableeq2 sfNamedTemplate_bot)));
+
+
+pub theorem exNamedLocal_andI (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d a -> exNamedLocal H E k d b ->
+   exNamedLocal H E k d (sfAnd a b) $ =
+'(syl6 (bi2 (kHypProvableeq2 sfNamedTemplate_sfAnd)) kHyp_andI);
+
+pub theorem exNamedLocal_andE1 (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d (sfAnd a b) -> exNamedLocal H E k d a $ =
+'(syl (mpi (kHypProvable_seed kPropAndLeft) kHypProvable_mp)
+  (bi1 (kHypProvableeq2 sfNamedTemplate_sfAnd)));
+
+pub theorem exNamedLocal_andE2 (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d (sfAnd a b) -> exNamedLocal H E k d b $ =
+'(syl (mpi (kHypProvable_seed kPropAndRight) kHypProvable_mp)
+  (bi1 (kHypProvableeq2 sfNamedTemplate_sfAnd)));
+
+pub theorem exNamedLocal_orI1 (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d a -> exNamedLocal H E k d (sfOr a b) $ =
+'(syl (bi2 (kHypProvableeq2 sfNamedTemplate_sfOr))
+  (mpi (kHypProvable_seed kPropB3) kHypProvable_mp));
+
+pub theorem exNamedLocal_orI2 (H: nat) (E: set) (k d a b: nat):
+ $ exNamedLocal H E k d b -> exNamedLocal H E k d (sfOr a b) $ =
+'(syl (bi2 (kHypProvableeq2 sfNamedTemplate_sfOr))
+  (mpi (kHypProvable_seed kPropK) kHypProvable_mp));
+
+
+pub theorem exNamedLocal_orE (H: nat) (E: set) (k d a b c: nat):
+ $ exNamedLocal H E k d (sfOr a b) ->
+   exNamedLocal ((sfNamedTemplate E k d a) : H) E k d c ->
+   exNamedLocal ((sfNamedTemplate E k d b) : H) E k d c ->
+   exNamedLocal H E k d c $ =
+'(sylbi (kHypProvableeq2 sfNamedTemplate_sfOr) kHyp_orE);

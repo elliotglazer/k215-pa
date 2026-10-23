@@ -1,0 +1,119 @@
+import "source_l_replacement_producer_context.mm1";
+
+@_ def sfLReplacementSeedProducerFormula(phi:nat):nat =
+ $ sfImp (sfLReplacementFunctional phi)
+   (sfAll (sfEx (sfLReplacementSeedRange (sfLReplacementSeedMatrix phi) sfLReplacementSeedMetadata))) $;
+@_ def sfLReplacementProducerContext(n phi:nat):nat =
+ $ sfLReplacementLevelExtension :
+  (sfLReplacementAboveLaw (suc (suc n)) (sfLReplacementPsi phi) :
+   (sfLReplacementLevelExistsLaw :
+    (sfReflectionHierarchySubsetNormal sfCLHierarchy :
+     (sfAllPrefix n (sfLReplacementSeedProducerFormula phi) : 0)))) $;
+@_ def sfLReplacementProducerDefinableContext(n phi:nat):nat =
+ $ sfLReplacementSchemaDefinableContext (sfLReplacementProducerContext n phi) n phi $;
+
+@_ def lrpsFunctionalContext(G phi:nat):nat = $ sfLReplacementFunctional phi : G $;
+
+theorem lrpsFunctional_wf(phi:nat): $ sfWf (sfLReplacementFunctional phi) $ =
+ '(ax_mp sfRelativize_wf sfLDomain_wf);
+
+theorem lrpsFunctionalContext_wf(G phi:nat)(hp:$ nsLocal G (sfLReplacementSeedProducerFormula phi) $):
+ $ sfContextWf (lrpsFunctionalContext G phi) $ =
+ '(mpbir sfContextWf_cons (ian lrpsFunctional_wf (ax_mp nsLocal_context_wf hp)));
+
+theorem lrps_seed_all(G phi:nat)(hp:$ nsLocal G (sfLReplacementSeedProducerFormula phi) $):
+ $ nsLocal (lrpsFunctionalContext G phi)
+  (sfAll (sfEx (sfLReplacementSeedRange (sfLReplacementSeedMatrix phi) sfLReplacementSeedMetadata))) $ =
+ '(ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp (ax_mp nsLocal_weaken (lrpsFunctionalContext_wf hp)) sfContextSub_cons) hp))
+  (ax_mp (ax_mp nsLocal_hyp (lrpsFunctionalContext_wf hp)) sfContext_member_head));
+
+pub theorem sfLReplacementSeedProducer_use(G phi:nat)
+ (hp:$ nsLocal G (sfLReplacementSeedProducerFormula phi) $):
+ $ nsLocal (sfLReplacementInputOverContext G phi)
+   (sfEx (sfLReplacementSeedRange (sfLReplacementSeedMatrix phi) sfLReplacementSeedMetadata)) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken
+    (mpbir sfContextWf_cons (ian sfLDomain_wf sfContextShift_wf))) sfContextSub_cons)
+   (sfRQ_rewrite (ax_mp sfSubst_shift_up_identity
+    (ax_mp (bi1 sfWf_all_iff) (ax_mp nsLocal_wf (lrps_seed_all hp))))
+    (ax_mp nsLocal_AllE (sfRQ_rewrite sfShift_sfAll (ax_mp sfSepLocal_shift (lrps_seed_all hp))))));
+
+theorem lrps_context_wf(n phi:nat)
+ (hE:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExtension $)
+ (hA:$ sfTheoryProvable zfrAxioms (sfLReplacementAboveLaw (suc (suc n)) (sfLReplacementPsi phi)) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExistsLaw $)
+ (hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hR:$ sfTheoryProvable zfrAxioms (sfLReplacementSeedProducerFormula phi) $):
+ $ sfContextWf (sfLReplacementProducerContext n phi) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hE)
+  (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hA)
+   (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hL)
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hS)
+     (mpbir sfContextWf_cons (ian
+      (ax_mp sfTheoryProvable_wf (ax_mp (sfTheoryProvable_prefix_intro zfrAxioms_closed) hR))
+       sfContextWf_nil))))))))));
+
+theorem lrps_context_proved(n phi:nat)
+ (hE:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExtension $)
+ (hA:$ sfTheoryProvable zfrAxioms (sfLReplacementAboveLaw (suc (suc n)) (sfLReplacementPsi phi)) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExistsLaw $)
+ (hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hR:$ sfTheoryProvable zfrAxioms (sfLReplacementSeedProducerFormula phi) $):
+ $ all (sfTheoryProofClass zfrAxioms) (sfLReplacementProducerContext n phi) $ =
+ '(mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hE)
+  (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hA)
+   (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hL)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hS)
+     (mpbir sfTheoryContext_cons (ian
+      (mpbir sfTheoryProofClass_value (ax_mp (sfTheoryProvable_prefix_intro zfrAxioms_closed) hR))
+       sfTheoryContext_nil))))))))));
+
+theorem lrps_hypE(n phi:nat)(hg:$ sfContextWf (sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementProducerContext n phi) sfLReplacementLevelExtension $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) sfContext_member_head);
+
+theorem lrps_hypA(n phi:nat)(hg:$ sfContextWf (sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementProducerContext n phi) (sfLReplacementAboveLaw (suc (suc n)) (sfLReplacementPsi phi)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem lrps_hypL(n phi:nat)(hg:$ sfContextWf (sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementProducerContext n phi) sfLReplacementLevelExistsLaw $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem lrps_hypS(n phi:nat)(hg:$ sfContextWf (sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementProducerContext n phi) (sfReflectionHierarchySubsetNormal sfCLHierarchy) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem lrps_hypR(n phi:nat)(hg:$ sfContextWf (sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementProducerContext n phi) (sfAllPrefix n (sfLReplacementSeedProducerFormula phi)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem lrps_into_input(G n phi f:nat)(hs:$ sfShift 0 f = f $)(hp:$ nsLocal G f $):
+ $ nsLocal (sfLReplacementSchemaInput G n phi) f $ =
+ '(sfLReplacementInput_lift hs (sfLReplacementParameter_lift sfLDomain_wf hs hp));
+
+theorem lrps_schema_local(n phi:nat)(hb:$ sfBound (suc (suc n)) phi $)
+ (hg:$ sfContextWf (sfLReplacementProducerContext n phi) $)
+ (hbase:$ all (sfTheoryProofClass zfrAxioms) (sfLReplacementProducerContext n phi) $)
+ (hd:$ nsLocal (sfLReplacementProducerDefinableContext n phi)
+   (sfLReplacementImageDefinable (sfLReplacementStartMap 7) sfLDomain (sfLReplacementPsi phi) 0) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $ =
+ '(sfLReplacement_schema_from_actual_seed hg hbase hb
+  (lrps_into_input (ax_mp sfShift_closed_identity sfLReplacementLevelExtension_bound) (lrps_hypE hg))
+  (lrps_into_input (ax_mp sfShift_closed_identity (sfLReplacementAboveLaw_bound (ax_mp sfLReplacementPsi_bound hb))) (lrps_hypA hg))
+  (lrps_into_input (ax_mp sfShift_closed_identity sfLReplacementLevelExists_bound) (lrps_hypL hg))
+  (lrps_into_input (rfmc_subnormal_shift sfCLHierarchy_bound) (lrps_hypS hg))
+  (sfLReplacementSeedProducer_use (sfLReplacementPrefix_open sfLDomain_wf (lrps_hypR hg))) hd);
+
+pub theorem sfLReplacement_schema_from_source_proofs(n phi:nat)
+ (hb:$ sfBound (suc (suc n)) phi $)
+ (hE:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExtension $)
+ (hA:$ sfTheoryProvable zfrAxioms (sfLReplacementAboveLaw (suc (suc n)) (sfLReplacementPsi phi)) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExistsLaw $)
+ (hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+ (hR:$ sfTheoryProvable zfrAxioms (sfLReplacementSeedProducerFormula phi) $)
+ (hd:$ nsLocal (sfLReplacementProducerDefinableContext n phi)
+   (sfLReplacementImageDefinable (sfLReplacementStartMap 7) sfLDomain (sfLReplacementPsi phi) 0) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $ =
+ '(lrps_schema_local hb (lrps_context_wf hE hA hL hS hR)
+   (lrps_context_proved hE hA hL hS hR) hd);

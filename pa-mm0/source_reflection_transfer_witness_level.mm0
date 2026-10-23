@@ -1,0 +1,13 @@
+import "source_reflection_transfer_witness_maps.mm0";
+
+def sfReflectionPHSubsetBody(level d z y:nat):nat = $ sfImp (sfORBinary level d y) (sfCLSubset y z) $;
+
+def sfReflectionPHSubsetAt(level d z:nat):nat = $ sfAll (sfReflectionPHSubsetBody level (suc d) (suc z) 0) $;
+
+theorem sfReflectionPHSubsetAt_rename(R:set)(level d z:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionPHSubsetAt level d z) = sfReflectionPHSubsetAt level (R @ d) (R @ z) $;
+
+theorem sfReflectionPHSubsetAt_shift(level d z:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionPHSubsetAt level d z) = sfReflectionPHSubsetAt level (suc d) (suc z) $;
+
+theorem sfReflectionPHSubsetAt_use(G level d z y:nat)(hl:$ sfBound 2 level $)(hS:$ nsLocal G (sfReflectionPHSubsetAt level d z) $)(hL:$ nsLocal G (sfORBinary level d y) $): $ nsLocal G (sfCLSubset y z) $;
+
+theorem sfReflectionPH_level_eliminate(T F:set)(G start domain level sb sc n i d X z:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hv:$ sfPieceTableValid sb sc n $)(hi:$ i < n $)(hT:$ nsLocal G (sfReflectionTuple T start X (sfPieceCount sb sc i)) $)(hE:$ nsLocal G (sfEx (sfORBinary level (suc d) 0)) $)(hP:$ nsLocal G (sfORBinary (sfPieceBinary domain (sfReflectionPCLevel level) sb sc n) d X) $)(hS:$ nsLocal G (sfReflectionPHSubsetAt level d z) $): $ nsLocal G (sfReflectionTupleEw T start domain (sfPieceMatrix sb sc i) z) $;

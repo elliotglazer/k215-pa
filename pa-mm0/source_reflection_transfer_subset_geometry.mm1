@@ -1,0 +1,47 @@
+import "source_reflection_transfer_merge_law.mm1";
+
+import "source_reflection_transfer_limit_profile.mm1";
+
+def sfReflectionKsSubsetBody(K b d:nat):nat = $ sfImp (sfMem d K) (sfCLSubset d b) $;
+
+def sfReflectionKsSubset(K b:nat):nat = $ sfAll (sfReflectionKsSubsetBody (suc K) (suc b) 0) $;
+
+theorem rfsg_body_wf(K b d:nat): $ sfWf (sfReflectionKsSubsetBody K b d) $ = (named '(ax_mp (ax_mp sfWf_imp sfWf_mem) rfc_subset_wf));
+
+theorem rfsg_body_rename(R:set)(K b d:nat): $ sfRename R 0 (sfReflectionKsSubsetBody K b d) = sfReflectionKsSubsetBody (R @ K) (R @ b) (R @ d) $ = (named '(eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) rfcl_subset_rename)));
+
+theorem rfsg_body_congr(K KP b bp d dp:nat)(hK:$ K = KP $)(hb:$ b = bp $)(hd:$ d = dp $): $ sfReflectionKsSubsetBody K b d = sfReflectionKsSubsetBody KP bp dp $ = (named '(nsImp_eq (nsMem_eq hd hK) (sfCLSubseteq hd hb)));
+
+theorem rfsg_wf(K b:nat): $ sfWf (sfReflectionKsSubset K b) $ = (named '(ax_mp sfWf_all rfsg_body_wf));
+
+pub theorem sfReflectionKsSubset_rename(R:set)(K b:nat): $ sfRename R 0 (sfReflectionKsSubset K b) = sfReflectionKsSubset (R @ K) (R @ b) $ = (named '(eqtr sfRename_sfAll (nsAll_eq (eqtr (ax_mp sfRename_as_map rfsg_body_wf) (eqtr rfsg_body_rename (rfsg_body_congr rfwl_depth1_tail rfwl_depth1_tail rfwl_depth1_zero))))));
+
+theorem rfsg_congr(K KP b bp:nat)(hK:$ K = KP $)(hb:$ b = bp $): $ sfReflectionKsSubset K b = sfReflectionKsSubset KP bp $ = (named '(nsAll_eq (rfsg_body_congr (suceq hK) (suceq hb) eqid)));
+
+pub theorem sfReflectionKsSubset_shift(K b:nat): $ sfShift 0 (sfReflectionKsSubset K b) = sfReflectionKsSubset (suc K) (suc b) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor rfsg_wf)) (eqtr sfReflectionKsSubset_rename (rfsg_congr sfSuccessorMap_value sfSuccessorMap_value))));
+
+theorem rfsg_shift2(K b:nat): $ sfShift 0 (sfShift 0 (sfReflectionKsSubset K b)) = sfReflectionKsSubset (suc (suc K)) (suc (suc b)) $ = (named '(eqtr (sfShifteq2 sfReflectionKsSubset_shift) sfReflectionKsSubset_shift));
+
+pub theorem sfReflectionKsSubset_use(G K b d:nat)(hK:$ nsLocal G (sfReflectionKsSubset K b) $)(hd:$ nsLocal G (sfMem d K) $): $ nsLocal G (sfCLSubset d b) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr rfsg_body_rename (rfsg_body_congr rfcc_cons_suc rfcc_cons_suc rfcc_cons_zero))) (ax_mp (rfcl_all_cons rfsg_body_wf) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity rfsg_wf)) hK)))) hd));
+
+theorem rfsg_ord_shift2(b:nat): $ sfShift 0 (sfShift 0 (sfReflectionOrdinalAt b)) = sfReflectionOrdinalAt (suc (suc b)) $ = (named '(eqtr (sfShifteq2 sfReflectionOrdinalAt_shift) sfReflectionOrdinalAt_shift));
+
+theorem rfsg_level_shift2(level b z:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfShift 0 (sfORBinary level b z)) = sfORBinary level (suc (suc b)) (suc (suc z)) $ = (named '(eqtr (sfShifteq2 (rfwl_binary_shift hl)) (rfwl_binary_shift hl)));
+
+pub theorem sfReflectionPHSubsetOn_from_subset(G level K b z:nat)(hl:$ sfBound 2 level $)(hO:$ nsLocal G (sfReflectionCofinalOrdinals K) $)(hK:$ nsLocal G (sfReflectionKsSubset K b) $)(hB:$ nsLocal G (sfReflectionOrdinalAt b) $)(hL:$ nsLocal G (sfORBinary level b z) $)(hS:$ nsLocal G (sfReflectionHierarchySubsetNormal level) $): $ nsLocal G (sfReflectionPHSubsetOn level K z) $ = (named '(ax_mp (sfLocal_allI (ax_mp nsLocal_context_wf hO)) (ax_mp nsLocal_II (ax_mp (sfLocal_allI (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) (mpbir (trud (nsLocaleq1d (a1i (eqtr sfContextShift_cons (conseq rfcstep_mem_shift eqid))))) (ax_mp nsLocal_II (sfReflectionHierarchySubset_use hl (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))))) sfContextSub_cons) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (mpbi (nsLocal_formula_eq (rfml_subset2 hl)) (ax_mp sfSepLocal_shift (ax_mp sfSepLocal_shift hS))))) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))))) sfContextSub_cons) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (mpbi (nsLocal_formula_eq rfsg_ord_shift2) (ax_mp sfSepLocal_shift (ax_mp sfSepLocal_shift hB))))) (sfReflectionCofinalOrdinals_use (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))))) sfContextSub_cons) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (mpbi (nsLocal_formula_eq rfml_ordinals2) (ax_mp sfSepLocal_shift (ax_mp sfSepLocal_shift hO))))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))))) (ax_mp sfContext_member_tail sfContext_member_head))) (sfReflectionKsSubset_use (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))))) sfContextSub_cons) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (mpbi (nsLocal_formula_eq rfsg_shift2) (ax_mp sfSepLocal_shift (ax_mp sfSepLocal_shift hK))))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))))) (ax_mp sfContext_member_tail sfContext_member_head))) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))))) sfContextSub_cons) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (mpbi (nsLocal_formula_eq (rfsg_level_shift2 hl)) (ax_mp sfSepLocal_shift (ax_mp sfSepLocal_shift hL))))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))))) sfContext_member_head))))))));
+
+pub theorem sfReflectionLimitProfile_KsSubset_eq(level P:nat): $ rflF339 level P = sfReflectionKsSubset 1 0 $ = (named 'eqid);
+
+pub theorem sfReflectionLimitProfile_KsSubset(G level P:nat)(h:$ nsLocal G (sfReflectionLimitProfile level P) $): $ nsLocal G (sfReflectionKsSubset 1 0) $ = (named '(mpbi (nsLocal_formula_eq sfReflectionLimitProfile_KsSubset_eq) (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 h))))));
+
+pub theorem sfReflectionLimitProfile_beta_ordinal(G level P:nat)(h:$ nsLocal G (sfReflectionLimitProfile level P) $): $ nsLocal G (sfReflectionOrdinalAt 0) $ = (named '(mpbir (nsLocal_formula_eq sfReflectionOrdinalAt_zero) (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 h)))))));
+
+pub theorem sfReflectionPHSubsetOn_from_profile(G level P z:nat)(hl:$ sfBound 2 level $)(h:$ nsLocal G (sfReflectionLimitProfile level P) $)(hL:$ nsLocal G (sfORBinary level 0 z) $)(hS:$ nsLocal G (sfReflectionHierarchySubsetNormal level) $): $ nsLocal G (sfReflectionPHSubsetOn level 1 z) $ = (named '(sfReflectionPHSubsetOn_from_subset hl (sfReflectionLimitProfile_ordinals h) (sfReflectionLimitProfile_KsSubset h) (sfReflectionLimitProfile_beta_ordinal h) hL hS));
+
+def sfReflectionSubsetProducerContext(level:nat):nat = $ (sfReflectionHierarchySubsetNormal level) : 0 $;
+
+def sfReflectionSubsetProfileLaw(level P z:nat):nat = $ sfImp (sfReflectionLimitProfile level P) (sfImp (sfORBinary level 0 z) (sfReflectionPHSubsetOn level 1 z)) $;
+
+pub theorem sfReflectionSubsetProducer_local(level P z:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ nsLocal (sfReflectionSubsetProducerContext level) (sfReflectionSubsetProfileLaw level P z) $ = (named '(ax_mp nsLocal_II (ax_mp nsLocal_II (sfReflectionPHSubsetOn_from_profile hl (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian (rflWf2769 hl hp) (mpbir sfContextWf_cons (ian rfmc_subnormal_wf sfContextWf_nil))))))) (ax_mp sfContext_member_tail sfContext_member_head)) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian (rflWf2769 hl hp) (mpbir sfContextWf_cons (ian rfmc_subnormal_wf sfContextWf_nil))))))) sfContext_member_head) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian (rflWf2769 hl hp) (mpbir sfContextWf_cons (ian rfmc_subnormal_wf sfContextWf_nil))))))) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))))));
+
+pub theorem sfReflectionSubsetProducer_zfr(level P z:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal level) $): $ sfTheoryProvable zfrAxioms (sfReflectionSubsetProfileLaw level P z) $ = (named '(ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed) (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hS) sfTheoryContext_nil))) (sfReflectionSubsetProducer_local hl hp)));

@@ -1,0 +1,74 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_supported_transport.mm1";
+import "k218q_bootstrap.mm1";
+import "k218q_quotation_supported_invariant.mm1";
+import "source_context_shift.mm1";
+import "source_syntax_laws.mm1";
+
+theorem k218SQ_sqST_members_at (H S t k G a: nat):
+ $ (A. b (b IN G -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 b))) ->
+ a IN G -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) $ =
+(named '(!! eale b ,eqtac));
+
+theorem k218SQ_sqST_member_entry (H S t k G a b: nat):
+ $ (A. c (c IN G -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 c))) ->
+ (a IN G /\ b = sqQuote (sqNumericEnvironment S) t k 0 a) -> b e. k218IContextProofClass H $ =
+'(exp @ syl (bi2 k218IContextProofClass_value) @
+ mpbird (k218IHypProvableeq2d anrr) @ mpd anrl (syl k218SQ_sqST_members_at anl));
+
+theorem k218SQ_sqST_map_member (H S t k G b: nat):
+ $ (A. c (c IN G -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 c))) ->
+ b IN sqContext (sqNumericEnvironment S) t k 0 G -> b e. k218IContextProofClass H $ =
+(named '(syl5bi sqContext_member_iff @ eexd k218SQ_sqST_member_entry));
+
+pub theorem k218SQ_sqSourceSupport_from_members {a: nat} (H S t k G: nat):
+ $ (A. a (a IN G -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a))) ->
+ k218SQ_sqSourceSupport H S t k G $ =
+(named '(iald k218SQ_sqST_map_member));
+
+pub theorem k218SQ_sqSourceSupport_to_members {a: nat} (H S t k G: nat):
+ $ k218SQ_sqSourceSupport H S t k G ->
+ A. a (a IN G -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a)) $ =
+(named '(iald k218SQ_sqSourceSupport_member));
+
+theorem k218SQ_sqST_hyp_transfer (F: wff) (H a b: nat)
+ (he: $ F -> k218IEquivalent a b $) (ha: $ F -> k218IHypProvable H a $):
+ $ F -> k218IHypProvable H b $ =
+'(sylc k218IHypProvable_mp ha (syl k218IHypProvable_seed (syl anl he)));
+
+theorem k218SQ_sqST_base_member (F: wff) (H S n t k l G a: nat)
+ (hb: $ F -> sqSourceBound n G $)
+ (hk: $ F -> sqEnvironmentSafe S n t k $) (hl: $ F -> sqEnvironmentSafe S n t l $)
+ (hs: $ F -> k218SQ_sqSourceSupport H S t k G $) (ha: $ F -> a IN G $):
+ $ F -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t l 0 a) $ =
+'(k218SQ_sqST_hyp_transfer
+ (mpd (syl sqEnvironmentSafe_hygiene hl) @ mpd (syl sqEnvironmentSafe_hygiene hk) @
+ syl k218SQ_sqQuote_fresh_base_equivalent (mpd ha (syl sqSourceBound_at hb)))
+ (mpd ha (syl k218SQ_sqSourceSupport_member hs)));
+
+pub theorem k218SQ_sqSourceSupport_rebase (H S n t k l G: nat):
+ $ sqSourceBound n G -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe S n t l ->
+ k218SQ_sqSourceSupport H S t k G -> k218SQ_sqSourceSupport H S t l G $ =
+(named '(exp @ exp @ exp @ syl k218SQ_sqSourceSupport_from_members @ !! iald a @ exp @
+ k218SQ_sqST_base_member (syl anl (syl anl (syl anl anl)))
+ (syl anr (syl anl (syl anl anl))) (syl anr (syl anl anl)) (syl anr anl) anr));
+
+theorem k218SQ_sqST_shift_member (H S z t k G a b: nat):
+ $ sfContextWf G -> k218SQ_sqSourceSupport H S t k G ->
+ (b IN G /\ a = sfShift 0 b) ->
+ k218IHypProvable H (sqQuote (sqNumericEnvironment (z : S)) t k 0 a) $ =
+'(exp @ exp @ mpbird (k218IHypProvableeq2d (sqQuoteeq5d anrr)) @
+ mpbird (k218IHypProvableeq2d (syl sqNumeric_quote_shift
+   (mpd anrl (syl sfContextWf_member anll)))) @
+ mpd anrl (syl k218SQ_sqSourceSupport_member anlr));
+
+theorem k218SQ_sqST_shift_at (H S z t k G a: nat):
+ $ sfContextWf G -> k218SQ_sqSourceSupport H S t k G -> a IN sfContextShift G ->
+ k218IHypProvable H (sqQuote (sqNumericEnvironment (z : S)) t k 0 a) $ =
+(named '(exp @ syl5bi sqShift_member_iff @ eexd @ imp k218SQ_sqST_shift_member));
+
+pub theorem k218SQ_sqSourceSupport_shift (H S z t k G: nat):
+ $ sfContextWf G -> k218SQ_sqSourceSupport H S t k G ->
+ k218SQ_sqSourceSupport H (z : S) t k (sfContextShift G) $ =
+(named '(exp @ syl k218SQ_sqSourceSupport_from_members @ !! iald a @
+ mpd anr (syl k218SQ_sqST_shift_at anl)));

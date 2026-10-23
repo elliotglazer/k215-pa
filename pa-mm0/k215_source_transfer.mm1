@@ -1,0 +1,65 @@
+import "raw_seed_logic.mm1";
+
+import "source_theory_renaming.mm1";
+
+import "k215_induction.mm1";
+
+@_ abstract def k215SourceBundleImages (.a .b .c: nat): wff = $ A. a A. b A. c (c != a /\ c != b -> zfcProvable (rawDecode (k218Bundle a b c))) $;
+
+@_ abstract def k215SourceImage (.a: nat): set = $ {a | zfcProvable (rawDecode a)} $;
+
+pub theorem k215SourceImage_value (a: nat):
+ $ a e. k215SourceImage <-> zfcProvable (rawDecode a) $ =
+(named '(elabe ,eqtac));
+
+pub theorem k215SourceBundleImages_at (a b c: nat):
+ $ k215SourceBundleImages -> c != a /\ c != b -> zfcProvable (rawDecode (k218Bundle a b c)) $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+
+theorem k215ST_derived_image (n q: nat) (hq: $ zfcProvable (rawDecode q) $):
+ $ n = q -> n e. k215SourceImage $ =
+'(mpbiri (mpbir k215SourceImage_value hq) (eleq1d id));
+
+theorem k215ST_bundle (n a b c: nat):
+ $ k215SourceBundleImages -> (c != a /\ c != b /\ n = k218Bundle a b c) -> n e. k215SourceImage $ =
+'(exp @ mpbird (eleq1d (syl anr anr)) (syl (bi2 k215SourceImage_value) (mpd (syl anl anr) (syl k215SourceBundleImages_at anl))));
+
+theorem k215ST_body (n a b c u: nat):
+ $ k215SourceBundleImages -> k215AxBody n a b c u -> n e. k215SourceImage $ =
+'(eord (a1i (k215ST_derived_image rawSource_rho1)) @ eord (a1i (k215ST_derived_image rawSource_rho2)) @ eord (a1i (k215ST_derived_image rawSource_rho3)) @ eord (a1i (k215ST_derived_image rawSource_rho4)) @ eord (a1i (k215ST_derived_image rawSource_rho5)) @ eord (a1i (k215ST_derived_image rawSource_rho6)) @ eord (a1i (k215ST_derived_image rawSource_SeedG)) @ eord (a1i (syl (k215ST_derived_image rawSource_rho8) anr)) k215ST_bundle);
+
+theorem k215ST_family {a b c u: nat} (n: nat):
+ $ k215SourceBundleImages -> E. a E. b E. c E. u k215AxBody n a b c u -> n e. k215SourceImage $ =
+(named '(eexd @ eexd @ eexd @ eexd k215ST_body));
+
+theorem k215ST_axiom (n: nat):
+ $ k215SourceBundleImages -> n e. k215Axioms -> n e. k215SourceImage $ =
+(named '(syl5 (bi1 k215Axioms_value) (eord (a1i (k215ST_derived_image rawSource_truth_provable)) k215ST_family)));
+
+pub theorem k215SourceBundleImages_axioms:
+ $ k215SourceBundleImages -> k215Axioms C_ k215SourceImage $ =
+(named '(iald k215ST_axiom));
+
+pub theorem k215SourceImage_mp:
+ $ k215MPClosed k215SourceImage $ =
+(named '(ax_gen @ ax_gen @ syl (bi2 k215SourceImage_value) @ mpd (syl (bi1 k215SourceImage_value) anr) (syl rawSource_mp (syl (bi1 k215SourceImage_value) anl))));
+
+theorem k215ST_raw_gen (x a: nat):
+ $ zfcProvable (rawDecode a) -> zfcProvable (rawDecode (kAll x a)) $ =
+'(syl (bi1 sfTheoryProvable_zfc) (syl (ax_mp sfTheoryProvable_raw_gen sfTheoryClosed_zfc) (bi2 sfTheoryProvable_zfc)));
+
+pub theorem k215SourceImage_gen:
+ $ k215GenClosed k215SourceImage $ =
+(named '(ax_gen @ ax_gen @ syl (bi2 k215SourceImage_value) @ syl k215ST_raw_gen (bi1 k215SourceImage_value)));
+
+pub theorem k215SourceBundleImages_closed:
+ $ k215SourceBundleImages -> k215Closed k215SourceImage $ =
+'(iand (iand k215SourceBundleImages_axioms (a1i k215SourceImage_mp)) (a1i k215SourceImage_gen));
+
+pub theorem k215Source_proof_transfer (a: nat):
+ $ k215SourceBundleImages -> k215Provable a -> zfcProvable (rawDecode a) $ =
+'(syl6 (bi1 k215SourceImage_value) (syl k215Provable_induction k215SourceBundleImages_closed));
+
+pub theorem k215Source_refutation_transfer:
+ $ k215SourceBundleImages -> k215Inconsistent -> zfcInconsistent $ =
+(named '(syl6 rawSource_falsity_forward k215Source_proof_transfer));

@@ -1,0 +1,198 @@
+import "source_l_separation_image_profile.mm1";
+import "source_l_common_level_reflection_use.mm1";
+import "source_l_common_level_setrel_renaming.mm1";
+import "source_renaming_agreement.mm1";
+import "source_l_common_level_reflection_transport.mm1";
+
+theorem lsirn_env_below (R: set) (count y i: nat):
+ $ i < count ->
+   sfComposeMap (sfCLBallEnv R count) (sfSubstDepthMap count y) @ i = R @ i $ =
+'(eqtrd (a1i sfComposeMap_value)
+ (eqtrd (appeq2d (eqtrd (a1i sfSubstDepthMap_value) sfSubstIndex_bound))
+  (eqtrd (a1i sfCLBallEnv_value) ifpos)));
+
+theorem lsirn_env_agree (R: set) (count y: nat):
+ $ sfRenameMapAgree (sfComposeMap (sfCLBallEnv R count) (sfSubstDepthMap count y)) R count $ =
+(named '(!! ax_gen i @ ! lsirn_env_below R count y i));
+
+theorem lsirn_phi_rename (R: set) (count y phi: nat) (hp: $ sfBound count phi $):
+ $ sfRename (sfComposeMap (sfCLBallEnv R count) (sfSubstDepthMap count y)) 0 phi =
+   sfRename R 0 phi $ =
+'(ax_mp (ax_mp sfRename_bounded_agreement lsirn_env_agree)
+ (mpbi (sfSchema_bound_index_eq (eqcom add01)) hp));
+
+theorem lsirn_env_carrier (R: set) (count y: nat):
+ $ sfComposeMap (sfCLBallEnv R count) (sfSubstDepthMap count y) @ count = y $ =
+'(eqtr sfComposeMap_value
+ (eqtr (appeq2 (eqtr sfSubstDepthMap_value sfSubstIndex_hit))
+  (eqtr sfCLBallEnv_value (eqtr (ax_mp ifneg (mpbi lenlt leaddid2)) pncan))));
+
+theorem lsirn_rename_iff (S: set) (k a b: nat):
+ $ sfRename S k (sfIff a b) = sfIff (sfRename S k a) (sfRename S k b) $ =
+'(eqtr sfRename_sfAnd (trud (sfAndeqd (a1i sfRename_sfImp) (a1i sfRename_sfImp))));
+
+theorem lsirn_matrix_wf (D count phi: nat) (hd: $ sfBound 1 D $):
+ $ sfWf (sfCLMatrixComparison D count phi) $ =
+'(mpbir sfWf_iff (ian (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd)) sfCLSetRel_wf));
+
+theorem lsirn_instance_compose (R: set) (D count phi y: nat) (hd: $ sfBound 1 D $):
+ $ sfCLReflectedInstance R D count phi y =
+   sfRename (sfComposeMap (sfCLBallEnv R count) (sfSubstDepthMap count y)) 0
+    (sfCLMatrixComparison D count phi) $ =
+'(eqtr (trud (sfRename_congr_formula (a1i (ax_mp sfSubst_as_map (lsirn_matrix_wf hd)))))
+ (ax_mp sfRename_compose (lsirn_matrix_wf hd)));
+
+theorem lsirn_relativize (R: set) (D count phi y: nat)
+ (hd: $ sfBound 1 D $) (hp: $ sfBound count phi $):
+ $ sfRename (sfComposeMap (sfCLBallEnv R count) (sfSubstDepthMap count y)) 0 (sfRelativize D phi) =
+   sfRelativize D (sfRename R 0 phi) $ =
+'(eqtr (ax_mp (ax_mp sfRelativize_rename hd) (ax_mp sfBound_wf hp))
+ (sfRelativizeeq2 (lsirn_phi_rename hp)));
+
+theorem lsirn_setrel (R: set) (count phi y: nat) (hp: $ sfBound count phi $):
+ $ sfRename (sfComposeMap (sfCLBallEnv R count) (sfSubstDepthMap count y)) 0 (sfCLSetRel count phi) =
+   sfCLSetRel y (sfRename R 0 phi) $ =
+'(eqtr (ax_mp sfCLSetRel_rename (ax_mp sfBound_wf hp))
+ (trud (sfCLSetRel_formula_congr
+  (a1i (eqtr sfRenameIndex_zero lsirn_env_carrier)) (a1i (lsirn_phi_rename hp)))));
+
+theorem lsirn_normalize (R: set) (D count phi y: nat)
+ (hd: $ sfBound 1 D $) (hp: $ sfBound count phi $):
+ $ sfCLReflectedInstance R D count phi y =
+   sfIff (sfRelativize D (sfRename R 0 phi)) (sfCLSetRel y (sfRename R 0 phi)) $ =
+'(eqtr (lsirn_instance_compose hd)
+ (eqtr lsirn_rename_iff (sfIffeq (lsirn_relativize hd hp) (lsirn_setrel hp))));
+
+theorem lsirn_use (R: set) (D G count phi beta y: nat)
+ (hd: $ sfBound 1 D $) (hf: $ sfBound count phi $)
+ (hp: $ nsLocal G (sfCLReflection D count phi beta) $)
+ (hl: $ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ sfCLRowProofs (sfCLBallMemberRows R y) G count ->
+   nsLocal G (sfIff (sfRelativize D (sfRename R 0 phi)) (sfCLSetRel y (sfRename R 0 phi))) $ =
+'(syl (bi1 (nsLocal_formula_eq (lsirn_normalize hd hf)))
+ (sfCLReflection_use_instance hp hl));
+
+@_ def sfLSeparationImageShiftEnv(T:set)(.i:nat):set = $ \ i, suc (T @ i) $;
+
+pub theorem sfLSeparationImageShiftEnv_at(T:set)(i:nat):
+ $ sfLSeparationImageShiftEnv T @ i = suc (T @ i) $ = (named '(applame ,eqtac));
+
+theorem lsir_rows_zero(T:set)(G Y z n:nat)
+ (hz:$ nsLocal G (sfMem z Y) $):
+ $ 0 < suc n -> nsLocal G (sfCLBallMemberRows (sqEnvCons z T) Y @ 0) $ =
+ '(a1i (mpbir (nsLocal_formula_eq
+  (eqtr sfCLBallMemberRows_value (nsMem_eq sqEnvCons_zero eqid))) hz));
+theorem lsir_rows_suc(T:set)(G Y z n i:nat)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ suc i < suc n -> nsLocal G (sfCLBallMemberRows (sqEnvCons z T) Y @ suc i) $ =
+ '(syl (syl
+  (bi2 (nsLocal_formula_eq (eqtr sfCLBallMemberRows_value
+    (eqtr (nsMem_eq sqEnvCons_suc eqid) (eqcom sfCLBallMemberRows_value)))))
+  (ax_mp sfCLRowProofs_at hr)) (bi2 ltsuc));
+theorem lsir_rows_at(T:set)(G Y z n i:nat)
+ (hz:$ nsLocal G (sfMem z Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ i < suc n -> nsLocal G (sfCLBallMemberRows (sqEnvCons z T) Y @ i) $ =
+ (named @ induct '(ind) 'i '(lsir_rows_zero hz) '(a1i (lsir_rows_suc hr)));
+
+pub theorem sfLSeparationImage_rows_cons(T:set)(G Y z n:nat)
+ (hz:$ nsLocal G (sfMem z Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ sfCLRowProofs (sfCLBallMemberRows (sqEnvCons z T) Y) G (suc n) $ =
+ (named '(!! ax_gen i @ ! lsir_rows_at T G Y z n i hz hr));
+
+theorem lsir_shift_row(T:set)(Y i:nat):
+ $ sfShift 0 (sfCLBallMemberRows T Y @ i) =
+   sfCLBallMemberRows (sfLSeparationImageShiftEnv T) (suc Y) @ i $ =
+ '(eqtr (sfShifteq2 sfCLBallMemberRows_value)
+  (eqtr sfShift_sfMem (eqtr (nsMem_eq sfShiftIndex_zero sfShiftIndex_zero)
+    (eqcom (eqtr sfCLBallMemberRows_value
+      (nsMem_eq sfLSeparationImageShiftEnv_at eqid))))));
+theorem lsir_shift_at(T:set)(G Y n i:nat)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ i < n -> nsLocal (sfContextShift G)
+    (sfCLBallMemberRows (sfLSeparationImageShiftEnv T) (suc Y) @ i) $ =
+ '(syl (bi1 (nsLocal_formula_eq lsir_shift_row))
+  (syl sfSepLocal_shift (ax_mp sfCLRowProofs_at hr)));
+
+pub theorem sfLSeparationImage_rows_shift(T:set)(G Y n:nat)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageShiftEnv T) (suc Y))
+    (sfContextShift G) n $ = (named '(!! ax_gen i @ ! lsir_shift_at T G Y n i hr));
+
+theorem lsir_weaken_at(T:set)(G H Y n i:nat)
+ (hg:$ sfContextWf H $)(hs:$ sfContextSub G H $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ i < n -> nsLocal H (sfCLBallMemberRows T Y @ i) $ =
+ '(syl (ax_mp (ax_mp nsLocal_weaken hg) hs) (ax_mp sfCLRowProofs_at hr));
+
+pub theorem sfLSeparationImage_rows_weaken(T:set)(G H Y n:nat)
+ (hg:$ sfContextWf H $)(hs:$ sfContextSub G H $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ sfCLRowProofs (sfCLBallMemberRows T Y) H n $ =
+ (named '(!! ax_gen i @ ! lsir_weaken_at T G H Y n i hg hs hr));
+
+theorem lsir_env_zero(T:set):
+ $ sqEnvCons 0 (sfLSeparationImageShiftEnv T) @ 0 = sfRenameDepthMap T 1 @ 0 $ =
+ '(eqtr sqEnvCons_zero (eqcom (eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound d0lt1))));
+theorem lsir_env_suc(T:set)(i:nat):
+ $ sqEnvCons 0 (sfLSeparationImageShiftEnv T) @ suc i = sfRenameDepthMap T 1 @ suc i $ =
+ '(eqtr sqEnvCons_suc (eqtr sfLSeparationImageShiftEnv_at (eqcom (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))))));
+theorem lsir_env_at(T:set)(i:nat):
+ $ sqEnvCons 0 (sfLSeparationImageShiftEnv T) @ i = sfRenameDepthMap T 1 @ i $ =
+ (named @ induct '(ind) 'i 'lsir_env_zero '(a1i lsir_env_suc));
+
+pub theorem sfLSeparationImage_binder_env(T:set)(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons 0 (sfLSeparationImageShiftEnv T)) 0 phi = sfRename T 1 phi $ =
+ (named '(eqtr (ax_mp (sfRename_extensional (!! ax_gen i @ ! lsir_env_at T i)) hf)
+  (eqcom (ax_mp sfRename_as_map hf))));
+
+theorem lsir_guard_wf(G D n phi beta Y:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (hp:$ nsLocal G (sfCLReflection D (suc n) phi beta) $):
+ $ sfContextWf ((sfMem 0 (suc Y)) : (sfContextShift G)) $ =
+ '(mpbir sfContextWf_cons (ian sfWf_mem
+   (ax_mp nsLocal_context_wf (ax_mp sfSepLocal_shift hp))));
+
+theorem lsir_reflected(T:set)(G D n phi beta Y:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (hp:$ nsLocal G (sfCLReflection D (suc n) phi beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal ((sfMem 0 (suc Y)) : (sfContextShift G))
+   (sfIff (sfRelativize D (sfRename T 1 phi))
+    (sfCLSetRel (suc Y) (sfRename T 1 phi))) $ =
+ '(sfRQ_rewrite
+   (sfIffeq (sfRelativizeeq2 (sfLSeparationImage_binder_env (ax_mp sfBound_wf hb)))
+    (sfCLSetReleq2 (sfLSeparationImage_binder_env (ax_mp sfBound_wf hb))))
+  (ax_mp (lsirn_use hd hb
+   (ax_mp (ax_mp (ax_mp nsLocal_weaken (lsir_guard_wf hd hb hp)) sfContextSub_cons)
+    (sfRQ_rewrite (sfCLReflection_shift hd hb) (ax_mp sfSepLocal_shift hp)))
+   (ax_mp (ax_mp (ax_mp nsLocal_weaken (lsir_guard_wf hd hb hp)) sfContextSub_cons)
+    (sfRQ_rewrite (eqtr sfCLHierarchyAt_shift_cutoff
+      (sfCLHierarchyAteq sfShiftIndex_zero sfShiftIndex_zero))
+      (ax_mp sfSepLocal_shift hl))))
+   (sfLSeparationImage_rows_cons
+    (ax_mp (ax_mp nsLocal_hyp (lsir_guard_wf hd hb hp)) sfContext_member_head)
+    (sfLSeparationImage_rows_weaken (lsir_guard_wf hd hb hp) sfContextSub_cons
+      (sfLSeparationImage_rows_shift hr)))));
+
+pub theorem sfLSeparationImage_comparison_from_reflection(T:set)(G D n phi beta Y:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (hp:$ nsLocal G (sfCLReflection D (suc n) phi beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal G (sfLSeparationImageComparison T D phi Y) $ =
+ '(ax_mp (sfLocal_allI (ax_mp nsLocal_context_wf hp))
+  (ax_mp nsLocal_II (lsir_reflected hd hb hp hl hr)));
+
+pub theorem sfLSeparationImage_profile_from_reflection(T:set)(G D n phi beta Y X x:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile (sqEnvCons x T) (sfPieceSeparationPredicate phi) Y X) $)
+ (hs:$ nsLocal G (sfCLSubset x Y) $)
+ (hf:$ nsLocal G (sfCLReflection D (suc n) phi beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal G (sfPieceSeparationLocalBody T D phi X x) $ =
+ '(sfLSeparationImage_profile hd (ax_mp sfBound_wf hb) hp hs
+   (sfLSeparationImage_comparison_from_reflection hd hb hf hl hr));

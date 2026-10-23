@@ -1,0 +1,23 @@
+import "source_reflection_transfer_cofinal_build.mm1";
+
+theorem rfci_safe_local(H:wff)(G F P:nat)(hF:$ H -> nsLocal G F $)(hp:$ sfContextWf P $)(hm:$ F IN P $): $ nsLocal (if H G P) F $ = (named '(cases (mpbird (nsLocaleq1d ifpos) hF) (mpbird (nsLocaleq1d ifneg) (a1i (ax_mp (ax_mp nsLocal_hyp hp) hm)))));
+
+def sfReflectionCofinalFallback(T:set)(start n level K:nat):nat = $ (sfReflectionCofinalCommon T start n level K) : ((sfReflectionCofinalHit level K ((T @ n) + start)) : ((sfReflectionCofinalMergeLaw level K) : 0)) $;
+
+theorem rfci_merge_wf(level K:nat)(hl:$ sfBound 2 level $): $ sfWf (sfReflectionCofinalMergeLaw level K) $ = (named '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (rfcl_mergebody_wf hl))))));
+
+theorem rfci_fallback_wf(T:set)(start n level K:nat)(hl:$ sfBound 2 level $): $ sfContextWf (sfReflectionCofinalFallback T start n level K) $ = (named '(mpbir sfContextWf_cons (ian (sfReflectionCofinalCommon_wf hl) (mpbir sfContextWf_cons (ian (rfcc_hit_wf hl) (mpbir sfContextWf_cons (ian (rfci_merge_wf hl) sfContextWf_nil)))))));
+
+pub theorem sfReflectionCofinal_extend_conditional(H:wff)(T:set)(G start n level K:nat)(hl:$ sfBound 2 level $)(hC:$ H -> nsLocal G (sfReflectionCofinalCommon T start n level K) $)(hH:$ H -> nsLocal G (sfReflectionCofinalHit level K ((T @ n) + start)) $)(hM:$ H -> nsLocal G (sfReflectionCofinalMergeLaw level K) $): $ H -> nsLocal G (sfReflectionCofinalCommon T start (suc n) level K) $ = (named '(mpbid (nsLocaleq1d ifpos) (a1i (sfReflectionCofinal_extend hl (rfci_safe_local hC (rfci_fallback_wf hl) sfContext_member_head) (rfci_safe_local hH (rfci_fallback_wf hl) (ax_mp sfContext_member_tail sfContext_member_head)) (rfci_safe_local hM (rfci_fallback_wf hl) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))))));
+
+theorem rfci_cover_rule(G level K Y a:nat)(hl:$ sfBound 2 level $)(hC:$ nsLocal G (sfReflectionCofinalCover level K Y) $): $ nsLocal G (sfMem a Y) -> nsLocal G (sfReflectionCofinalHit level K a) $ = (named '(ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq (eqtr sfRenameIndex_zero rfcc_cons_zero) (eqtr sfRenameIndex_zero rfcc_cons_suc))) (eqtr (sfReflectionCofinalHit_rename hl) (rfcc_hit_congr hl rfcc_cons_suc rfcc_cons_zero))))) (ax_mp (rfcl_all_cons (rfcc_cover_body_wf hl)) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all (rfcc_cover_body_wf hl)))) hC)))));
+
+def sfReflectionCofinalBuildLaw(T:set)(G start level K Y n:nat):wff = $ nsLocal G (sfReflectionTuple T start Y n) -> nsLocal G (sfReflectionCofinalCommon T start n level K) $;
+
+do { (add-eqd-thm 'sfORBinaryMap 'rfciORMap) (add-eqd-thm 'sfORBinary 'rfciOR) (add-eqd-thm 'sfReflectionCofinalPoint 'rfciPoint) (add-eqd-thm 'sfReflectionCofinalCommon 'rfciCommon) (add-eqd-thm 'sfReflectionCofinalBuildLaw 'rfciBuild) };
+
+theorem rfci_base(T:set)(G start level K Y n:nat)(hl:$ sfBound 2 level $)(hs:$ nsLocal G (sfReflectionCofinalSeed level K) $)(hc:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(hm:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $): $ sfReflectionCofinalBuildLaw T G start level K Y 0 $ = (named '(a1i (sfReflectionCofinal_seed_tuple hl hs)));
+
+theorem rfci_step(T:set)(G start level K Y n:nat)(hl:$ sfBound 2 level $)(hs:$ nsLocal G (sfReflectionCofinalSeed level K) $)(hc:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(hm:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $): $ sfReflectionCofinalBuildLaw T G start level K Y n -> sfReflectionCofinalBuildLaw T G start level K Y (suc n) $ = (named '(exp @ sfReflectionCofinal_extend_conditional hl (mpd (syl sfReflectionTuple_prefix anr) anl) (syl (rfci_cover_rule hl hc) (syl sfReflectionTuple_last anr)) (a1i hm)));
+
+pub theorem sfReflectionCofinal_build(T:set)(G start level K Y n:nat)(hl:$ sfBound 2 level $)(hs:$ nsLocal G (sfReflectionCofinalSeed level K) $)(hc:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(hm:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $): $ sfReflectionCofinalBuildLaw T G start level K Y n $ = (named @ induct '(ind) 'n '(rfci_base hl hs hc hm) '(rfci_step hl hs hc hm));

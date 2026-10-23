@@ -1,0 +1,24 @@
+import "k215_assembly_rep_hierarchy_family.mm1";
+
+-- See k215_assembly_g1_staged.mm0.
+pub theorem k215AssemblyG1_from_parts {phi n: nat}
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $)
+ (hSep: $ sfZFCSeparationImages zfrAxioms sfLDomain $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $)
+ (hK: $ sfTheoryProvable zfrAxioms
+   (sfImp sfLUniversalHierarchyExists (sfImp sfLPowerHierarchySubset sfLPowerLevelBound)) $):
+ $ (A. phi A. n (sfBound (suc (suc n)) phi ->
+     sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)))) ->
+   sfZFCImageFamilies zfrAxioms sfLDomain $ =
+ '(iand (a1i hF) (iand (a1i hSep)
+   (k215AssemblyRepH_images_from_definable_laws hE hU hS hL hM hK)));
+
+pub theorem k215AssemblyG1_unfold:
+ $ sfZFCImageFamilies zfrAxioms sfLDomain <->
+   (sfZFCFixedImages zfrAxioms sfLDomain /\
+    (sfZFCSeparationImages zfrAxioms sfLDomain /\ sfZFCReplacementImages zfrAxioms sfLDomain)) $ =
+ '(biid);

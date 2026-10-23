@@ -1,0 +1,46 @@
+import "proof_sequence.mm0";
+
+-- The literal machine's named-variable codes from KCode230.v and Codes230.v.
+-- These differ from the eight-tag de Bruijn codes of source_constructors.
+def kImp (a b: nat): nat = $ 4 * (a, b) $;
+def kMem (a b: nat): nat = $ 4 * (a, b) + 1 $;
+def kAll (a b: nat): nat = $ 4 * (a, b) + 2 $;
+def kEq (a b: nat): nat = $ 4 * (a, b) + 3 $;
+def kF: nat = $ 1 $;
+def kNot (a: nat): nat = $ kImp a kF $;
+def kAnd (a b: nat): nat = $ kNot (kImp a (kNot b)) $;
+def kExists (x a: nat): nat = $ kNot (kAll x (kNot a)) $;
+
+def kSubset (a b k: nat): nat = $ kAll k (kImp (kMem k a) (kMem k b)) $;
+def kRequest (b k m: nat): nat =
+  $ kAll b (kImp m (kExists b (kAnd m (kMem b k)))) $;
+def kCore (a b k m: nat): nat =
+  $ kExists k (kAnd (kImp m (kMem b k))
+      (kAll b (kImp (kMem b k)
+        (kExists a (kAnd m (kAll a (kImp (kSubset a b k) (kRequest b k m)))))))) $;
+def k230 (a b c: nat): nat = $ kCore a b c c $;
+def kVacuity (a b c: nat): nat =
+  $ kAnd (kImp (kMem a b) (kAll c (kMem a b)))
+         (kImp (kEq a b) (kAll c (kEq a b))) $;
+def kBundle (a b c: nat): nat = $ kAnd (k230 a b c) (kVacuity a b c) $;
+def kGate (a b c: nat): nat = $ if (c = a \/ c = b) 0 (kBundle a b c) $;
+
+def kRho1 (a b: nat): nat = $ kExists a (kEq a b) $;
+def kRho2 (a b c: nat): nat =
+  $ kImp (kAll a (kImp b c)) (kImp (kAll a b) (kAll a c)) $;
+def kRho3 (a b c: nat): nat = $ kImp (kEq a b) (kImp (kMem c a) (kMem c b)) $;
+def kRho4 (a b c: nat): nat = $ kImp (kAll a (kAll b c)) (kAll b (kAll a c)) $;
+def kRho5 (a b c: nat): nat = $ kImp (kEq c a) (kImp (kMem c b) (kMem a b)) $;
+def kRho6 (a b: nat): nat = $ kImp (kExists a (kAll a b)) b $;
+def kRho7 (a b c: nat): nat = $ kImp (kEq c a) (kImp (kEq c b) (kEq a b)) $;
+def kRho8 (a b c u: nat): nat =
+  $ kImp (kImp (kImp c u) a) (kImp (kImp a c) (kImp b c)) $;
+
+theorem kMem_zero: $ kMem 0 0 = kF $;
+theorem kImp_tag (a b: nat): $ kImp a b % 4 = 0 $;
+theorem kMem_tag (a b: nat): $ kMem a b % 4 = 1 $;
+theorem kAll_tag (a b: nat): $ kAll a b % 4 = 2 $;
+theorem kEq_tag (a b: nat): $ kEq a b % 4 = 3 $;
+theorem kGate_disabled (a b c: nat): $ c = a \/ c = b -> kGate a b c = 0 $;
+theorem kGate_enabled (a b c: nat):
+  $ c != a /\ c != b -> kGate a b c = kBundle a b c $;

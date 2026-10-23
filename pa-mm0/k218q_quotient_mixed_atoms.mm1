@@ -1,0 +1,47 @@
+import "k218q_quotient_atom_uniform.mm1";
+
+import "k218q_quotation_supported_theory.mm1";
+
+@_ def k218QMixed (H t k x y: nat): wff = $ x = y \/ k218IHypProvable H (sqEqual t x y k) $;
+
+@_ def k218QMBounds (k t x xp y yp: nat): wff = $ 0 < k /\ (t < k /\ (x < k /\ (xp < k /\ (y < k /\ yp < k)))) $;
+
+pub theorem k218QMHyp_same (H a b: nat): $ a = b -> k218IHypProvable H (kImp a b) $ = '(k218QHypTransport (kImpeq1d id) (a1i (k218IHypProvable_seed k218IPropI)));
+
+pub theorem k218QMHyp_syl (G: wff) (H a b c: nat) (ha: $ G -> k218IHypProvable H (kImp a b) $) (hb: $ G -> k218IHypProvable H (kImp b c) $): $ G -> k218IHypProvable H (kImp a c) $ = '(k218QHypMp hb (k218QHypMp ha (a1i (k218IHypProvable_seed k218IPropB))));
+
+pub theorem k218QM_sym_related (G: wff) (H k t x y: nat) (hb: $ G -> k218QASymBounds k t x y $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218IHypProvable H (sqEqual t x y k) $): $ G -> k218IHypProvable H (sqEqual t y x k) $ = '(k218QHypMp hr (k218QHypMp he (syl k218IHypProvable_seed (syl k218QA_sym_uniform hb))));
+
+pub theorem k218QM_sym (G: wff) (H k t x y: nat) (hb: $ G -> k218QASymBounds k t x y $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218QMixed H t k x y $): $ G -> k218QMixed H t k y x $ = '(mpd hr (eorda (syl orl (syl eqcom anr)) (syl orr (k218QM_sym_related (syl hb anl) (syl he anl) anr))));
+
+theorem k218QM_bounds_sym_left (k t x xp y yp: nat): $ k218QMBounds k t x xp y yp -> k218QASymBounds k t x xp $ = '(iand anl (iand (syl anl anr) (iand (syl (syl anl anr) anr) (syl (syl (syl anl anr) anr) anr))));
+
+theorem k218QM_bounds_trans_left (k t x xp y yp: nat): $ k218QMBounds k t x xp y yp -> k218QATransBounds k t xp x y $ = '(iand anl (iand (syl anl anr) (iand (syl (syl (syl anl anr) anr) anr) (iand (syl (syl anl anr) anr) (syl (syl (syl (syl anl anr) anr) anr) anr)))));
+
+theorem k218QM_bounds_trans_right (k t x xp y yp: nat): $ k218QMBounds k t x xp y yp -> k218QATransBounds k t x y yp $ = '(iand anl (iand (syl anl anr) (iand (syl (syl anl anr) anr) (iand (syl (syl (syl (syl anl anr) anr) anr) anr) (syl (syl (syl (syl (syl id anr) anr) anr) anr) anr)))));
+
+theorem k218QM_bounds_member_left (k t x xp y yp: nat): $ k218QMBounds k t x xp y yp -> k218QAMemberLeftBounds k t x xp y $ = '(iand anl (iand (syl anl anr) (iand (syl (syl anl anr) anr) (iand (syl (syl (syl anl anr) anr) anr) (syl (syl (syl (syl anl anr) anr) anr) anr)))));
+
+theorem k218QM_bounds_member_right (k t x xp y yp: nat): $ k218QMBounds k t x xp y yp -> k218QAMemberRightBounds k t xp y yp $ = '(iand anl (iand (syl anl anr) (iand (syl (syl (syl anl anr) anr) anr) (iand (syl (syl (syl (syl anl anr) anr) anr) anr) (syl (syl (syl (syl (syl id anr) anr) anr) anr) anr)))));
+
+pub theorem k218QM_member_left_related (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218IHypProvable H (sqEqual t x xp k) $): $ G -> k218IHypProvable H ((kImp (sqMember t x y k) (sqMember t xp y k))) $ = '(k218QHypMp hr (k218QHypMp he (syl k218IHypProvable_seed (syl k218QA_member_left_uniform (syl k218QM_bounds_member_left hb)))));
+
+pub theorem k218QM_member_left (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218QMixed H t k x xp $): $ G -> k218IHypProvable H ((kImp (sqMember t x y k) (sqMember t xp y k))) $ = '(mpd hr (eorda (syl k218QMHyp_same (syl (sqMembereq2d id) anr)) (k218QM_member_left_related (syl hb anl) (syl he anl) anr)));
+
+pub theorem k218QM_member_right_related (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218IHypProvable H (sqEqual t y yp k) $): $ G -> k218IHypProvable H ((kImp (sqMember t xp y k) (sqMember t xp yp k))) $ = '(k218QHypMp hr (k218QHypMp he (syl k218IHypProvable_seed (syl k218QA_member_right_uniform (syl k218QM_bounds_member_right hb)))));
+
+pub theorem k218QM_member_right (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218QMixed H t k y yp $): $ G -> k218IHypProvable H ((kImp (sqMember t xp y k) (sqMember t xp yp k))) $ = '(mpd hr (eorda (syl k218QMHyp_same (syl (sqMembereq3d id) anr)) (k218QM_member_right_related (syl hb anl) (syl he anl) anr)));
+
+pub theorem k218QM_equal_left_related (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218IHypProvable H (sqEqual t x xp k) $): $ G -> k218IHypProvable H ((kImp (sqEqual t x y k) (sqEqual t xp y k))) $ = '(k218QHypMp (k218QM_sym_related (syl k218QM_bounds_sym_left hb) he hr) (k218QHypMp he (syl k218IHypProvable_seed (syl k218QA_trans_uniform (syl k218QM_bounds_trans_left hb)))));
+
+pub theorem k218QM_equal_left (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218QMixed H t k x xp $): $ G -> k218IHypProvable H ((kImp (sqEqual t x y k) (sqEqual t xp y k))) $ = '(mpd hr (eorda (syl k218QMHyp_same (syl (sqEqualeq2d id) anr)) (k218QM_equal_left_related (syl hb anl) (syl he anl) anr)));
+
+pub theorem k218QM_equal_right_related (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218IHypProvable H (sqEqual t y yp k) $): $ G -> k218IHypProvable H ((kImp (sqEqual t x y k) (sqEqual t x yp k))) $ = '(k218QHypMp hr (k218QHypMp (k218QHypMp he (syl k218IHypProvable_seed (syl k218QA_trans_uniform (syl k218QM_bounds_trans_right hb)))) (a1i (k218IHypProvable_seed k218ICd103))));
+
+pub theorem k218QM_equal_right (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218QMixed H t k y yp $): $ G -> k218IHypProvable H ((kImp (sqEqual t x y k) (sqEqual t x yp k))) $ = '(mpd hr (eorda (syl k218QMHyp_same (syl (sqEqualeq3d id) anr)) (k218QM_equal_right_related (syl hb anl) (syl he anl) anr)));
+
+pub theorem k218QM_member_transport (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hx: $ G -> k218QMixed H t k x xp $) (hy: $ G -> k218QMixed H t k y yp $): $ G -> k218IHypProvable H ((kImp (sqMember t x y k) (sqMember t xp yp k))) $ = '(k218QMHyp_syl (k218QM_member_left hb he hx) (k218QM_member_right hb he hy));
+
+theorem k218QM_bounds_equal_right_after_left (k t x xp y yp: nat): $ k218QMBounds k t x xp y yp -> k218QMBounds k t xp xp y yp $ = '(iand anl (iand (syl anl anr) (iand (syl (syl (syl anl anr) anr) anr) (iand (syl (syl (syl anl anr) anr) anr) (iand (syl (syl (syl (syl anl anr) anr) anr) anr) (syl (syl (syl (syl (syl id anr) anr) anr) anr) anr))))));
+
+pub theorem k218QM_equal_transport (G: wff) (H k t x xp y yp: nat) (hb: $ G -> k218QMBounds k t x xp y yp $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hx: $ G -> k218QMixed H t k x xp $) (hy: $ G -> k218QMixed H t k y yp $): $ G -> k218IHypProvable H ((kImp (sqEqual t x y k) (sqEqual t xp yp k))) $ = '(k218QMHyp_syl (k218QM_equal_left hb he hx) (k218QM_equal_right (syl k218QM_bounds_equal_right_after_left hb) he hy));

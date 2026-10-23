@@ -1,0 +1,21 @@
+import "bb215_arithmetic_formula_finite_code.mm0";
+
+def bb215ArithmeticFormulaHistoryCell (a i y: nat): wff = $ bb215ArithmeticFormulaFiniteCell (fst a) (snd a) (i, y) $;
+
+def bb215ArithmeticFormulaRecValues (z: nat) (S: set) (.i: nat): set = $ \ i, rec z S i $;
+
+theorem bb215ArithmeticFormulaRecValues_at (z i: nat) (S: set): $ bb215ArithmeticFormulaRecValues z S @ i = rec z S i $;
+
+def bb215ArithmeticFormulaRecCharacterization (a z: nat) (S: set) (n .i .y: nat): wff = $ A. i A. y (bb215ArithmeticFormulaHistoryCell a i y <-> i <= n /\ y = rec z S i) $;
+
+def bb215ArithmeticFormulaRecClosure (a: nat) (S: set) (n .i .x: nat): wff = $ A. i (i < n -> A. x (bb215ArithmeticFormulaHistoryCell a i x -> bb215ArithmeticFormulaHistoryCell a (suc i) (S @ x))) $;
+
+def bb215ArithmeticFormulaRecCertificate (a z: nat) (S: set) (n v .y: nat): wff = $ bb215ArithmeticFormulaHistoryCell a 0 z /\ bb215ArithmeticFormulaRecClosure a S n /\ A. y (bb215ArithmeticFormulaHistoryCell a n y -> y = v) $;
+
+def bb215ArithmeticFormulaRecGraph (z: nat) (S: set) (n v .a: nat): wff = $ E. a bb215ArithmeticFormulaRecCertificate a z S n v $;
+
+theorem bb215ArithmeticFormulaRecGraph_sound (z n v: nat) (S: set): $ bb215ArithmeticFormulaRecGraph z S n v -> rec z S n = v $;
+
+theorem bb215ArithmeticFormulaRecGraph_witness (z n: nat) (S: set): $ bb215ArithmeticFormulaRecGraph z S n (rec z S n) $;
+
+theorem bb215ArithmeticFormulaRecGraph_correct (z n v: nat) (S: set): $ bb215ArithmeticFormulaRecGraph z S n v <-> rec z S n = v $;

@@ -1,0 +1,17 @@
+import "source_l_replacement_common_geometry.mm0";
+
+def sfLReplacementCollectInput (start n: nat): nat = $ sfSubst 0 (n + start) sfLDomain $;
+
+def sfLReplacementCollectContext (G start n seed: nat): nat = $ sfLReplacementCollectInput start n : (sfLReplacementSeededRecipe start n seed : G) $;
+
+def sfLReplacementCollectOldPoint (start n seed: nat): nat = $ sfLReplacementSeededPoint (suc (suc start)) n (suc (suc seed)) 1 0 $;
+
+def sfLReplacementCollectOldWitness (G start n seed: nat): nat = $ sfCLWitnessContext (sfLReplacementCollectContext G start n seed) (sfLReplacementCollectOldPoint start n seed) $;
+
+def sfLReplacementCollectNewMatrix (start n: nat): nat = $ sfAnd (sfAnd (sfCLOrdinalAt 1) (sfCLHierarchyAt 1 0)) (sfAnd (sfCLSubset 2 0) (sfMem (suc (suc (suc (suc (n + start))))) 0)) $;
+
+def sfLReplacementCollectNewWitness (G start n seed: nat): nat = $ sfCLWitnessContext (sfLReplacementCollectOldWitness G start n seed) (sfLReplacementCollectNewMatrix start n) $;
+
+theorem sfLReplacementCollect_step (G start n seed: nat)
+ (hg: $ sfContextWf G $) (he: $ sfLReplacementLevelExtension IN G $):
+ $ nsLocal G (sfImp (sfLReplacementSeededRecipe start n seed) (sfImp (sfLReplacementCollectInput start n) (sfLReplacementSeededRecipe start (suc n) seed))) $;

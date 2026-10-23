@@ -1,0 +1,49 @@
+import "source_reflection_transfer_tv_requirements.mm1";
+
+import "source_piece_pcf_table_guard.mm1";
+
+@_ def sfTVEnumIndex(k c s:nat):nat = $ (k, (c, s)) $;
+
+@_ def sfTVEnumLength(N C:nat):nat = $ suc (N, (C, 1)) $;
+
+@_ def sfTVEnumMatrixRaw(D k c s:nat):nat = $ if (sfBound (suc k) c) (if (s = 0) (sfRelativize D c) (sfImp (sfRelativize D c) sfBot)) sfBot $;
+
+@_ def sfTVEnumMatrix(D i:nat):nat = $ sfTVEnumMatrixRaw D (fst i) (fst (snd i)) (snd (snd i)) $;
+
+@_ def sfTVEnumEntry(D i:nat):nat = $ (fst i, sfTVEnumMatrix D i) $;
+
+@_ def sfTVEnumRows(D:nat)(.i:nat):set = $ \ i, sfTVEnumEntry D i $;
+
+pub theorem sfTVEnumRows_at(D i:nat): $ sfTVEnumRows D @ i = sfTVEnumEntry D i $ = (named '(!! applame j ,eqtac));
+
+pub theorem sfTVEnumIndex_bounded(k c s N C:nat)(hk:$ k <= N $)(hc:$ c <= C $)(hs:$ s <= 1 $): $ sfTVEnumIndex k c s < sfTVEnumLength N C $ = (named '(mpbi leltsuc (letr (mpbi lepr1 hk) (mpbi lepr2 (letr (mpbi lepr1 hc) (mpbi lepr2 hs))))));
+
+pub theorem sfTVEnumMatrix_at(D k c s:nat): $ sfTVEnumMatrix D (sfTVEnumIndex k c s) = sfTVEnumMatrixRaw D k c s $ = (named '(sfTVEnumMatrixRaweq eqid fstpr pi21pr pi22pr));
+
+pub theorem sfTVEnumMatrixRaw_positive(D k c:nat)(hb:$ sfBound (suc k) c $): $ sfTVEnumMatrixRaw D k c 0 = sfRelativize D c $ = (named '(eqtr (ifpos hb) (ifpos eqid)));
+
+pub theorem sfTVEnumMatrixRaw_negative(D k c:nat)(hb:$ sfBound (suc k) c $): $ sfTVEnumMatrixRaw D k c 1 = sfImp (sfRelativize D c) sfBot $ = (named '(eqtr (ifpos hb) (ifneg d1ne0)));
+
+theorem sftve_guarded_bound(D k c s:nat)(hd:$ sfBound 1 D $)(hb:$ sfBound (suc k) c $): $ sfBound (suc k) (sfTVEnumMatrixRaw D k c s) $ = (named '(mpbir (sfBoundeq2 (ifpos hb)) (cases (mpbird (sfBoundeq2d ifpos) (a1i (ax_mp (ax_mp sfRelativize_bound hd) hb))) (mpbird (sfBoundeq2d ifneg) (a1i (mpbir sfBound_sfImp (ian (ax_mp (ax_mp sfRelativize_bound hd) hb) sfBound_bot)))))));
+
+theorem sftve_bound_true(D k c s:nat)(hd:$ sfBound 1 D $): $ sfBound (suc k) c -> sfBound (suc k) (sfTVEnumMatrixRaw D k c s) $ = (named '(cases (com12 (exp (mpbird (sfBoundeq2d (eqtrd (syl ifpos anl) (syl ifpos anr))) (syl (ax_mp sfRelativize_bound hd) anl)))) (com12 (exp (mpbird (sfBoundeq2d (eqtrd (syl ifpos anl) (syl ifneg anr))) (mpbird (a1i sfBound_sfImp) (iand (syl (ax_mp sfRelativize_bound hd) anl) (a1i sfBound_bot))))))));
+
+pub theorem sfTVEnumMatrixRaw_bound(D k c s:nat)(hd:$ sfBound 1 D $): $ sfBound (suc k) (sfTVEnumMatrixRaw D k c s) $ = (named '(cases (sftve_bound_true hd) (mpbird (sfBoundeq2d ifneg) (a1i sfBound_bot))));
+
+pub theorem sfTVEnumEntry_bound(D i:nat)(hd:$ sfBound 1 D $): $ sfBound (suc (fst (sfTVEnumEntry D i))) (snd (sfTVEnumEntry D i)) $ = (named '(mpbir (trud (sfBoundeqd (a1i (suceq fstpr)) (a1i sndpr))) (sfTVEnumMatrixRaw_bound hd)));
+
+@_ def sfTVBetaRealizes(D sb sc N C:nat)(.i:nat):wff = $ A. i (i < sfTVEnumLength N C -> sfPieceBeta sb sc i = sfTVEnumEntry D i) $;
+
+pub theorem sfTVBetaRealizes_at(D sb sc N C i:nat): $ sfTVBetaRealizes D sb sc N C -> i < sfTVEnumLength N C -> sfPieceBeta sb sc i = sfTVEnumEntry D i $ = (named '(!! eale j ,eqtac));
+
+theorem sftve_realized_row(D sb sc N C i:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVBetaRealizes D sb sc N C $): $ i < sfTVEnumLength N C -> sfBound (suc (sfPieceCount sb sc i)) (sfPieceMatrix sb sc i) $ = (named '(mpbird (sfBoundeqd (suceqd (fsteqd (ax_mp sfTVBetaRealizes_at hr))) (sndeqd (ax_mp sfTVBetaRealizes_at hr))) (a1i (sfTVEnumEntry_bound hd))));
+
+pub theorem sfTVBetaRealizes_valid(D sb sc N C:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVBetaRealizes D sb sc N C $): $ sfPieceTableValid sb sc (sfTVEnumLength N C) $ = (named '(ax_gen (sftve_realized_row hd hr)));
+
+pub theorem sfTVBetaRealizes_positive(D sb sc N C k c:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVBetaRealizes D sb sc N C $)(hk:$ k <= N $)(hc:$ c <= C $)(hb:$ sfBound (suc k) c $): $ sfPieceBeta sb sc (sfTVEnumIndex k c 0) = (k, sfRelativize D c) $ = (named '(eqtr (ax_mp (ax_mp sfTVBetaRealizes_at hr) (sfTVEnumIndex_bounded hk hc le01)) (preq fstpr (eqtr sfTVEnumMatrix_at (sfTVEnumMatrixRaw_positive hb)))));
+
+pub theorem sfTVBetaRealizes_positive_member(D sb sc N C k c:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVBetaRealizes D sb sc N C $)(hk:$ k <= N $)(hc:$ c <= C $)(hb:$ sfBound (suc k) c $): $ sfPieceTableMember sb sc (sfTVEnumLength N C) (k, sfRelativize D c) $ = (named '(ax_mp (ax_mp sfPieceTableMember_intro (sfTVEnumIndex_bounded hk hc le01)) (sfTVBetaRealizes_positive hd hr hk hc hb)));
+
+pub theorem sfTVBetaRealizes_negative(D sb sc N C k c:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVBetaRealizes D sb sc N C $)(hk:$ k <= N $)(hc:$ c <= C $)(hb:$ sfBound (suc k) c $): $ sfPieceBeta sb sc (sfTVEnumIndex k c 1) = (k, (sfImp (sfRelativize D c) sfBot)) $ = (named '(eqtr (ax_mp (ax_mp sfTVBetaRealizes_at hr) (sfTVEnumIndex_bounded hk hc leid)) (preq fstpr (eqtr sfTVEnumMatrix_at (sfTVEnumMatrixRaw_negative hb)))));
+
+pub theorem sfTVBetaRealizes_negative_member(D sb sc N C k c:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVBetaRealizes D sb sc N C $)(hk:$ k <= N $)(hc:$ c <= C $)(hb:$ sfBound (suc k) c $): $ sfPieceTableMember sb sc (sfTVEnumLength N C) (k, (sfImp (sfRelativize D c) sfBot)) $ = (named '(ax_mp (ax_mp sfPieceTableMember_intro (sfTVEnumIndex_bounded hk hc leid)) (sfTVBetaRealizes_negative hd hr hk hc hb)));

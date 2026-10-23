@@ -1,0 +1,84 @@
+import "k218_bundle.mm1";
+
+@_ def k218SeedRequest (b k q: nat): nat =
+  $ kAll b (kImp q (kNot (kAll b (kImp q (kNot (kMem b k)))))) $;
+@_ def k218SeedClosureForm (a b k q r: nat): nat =
+  $ kAll b (kImp (kMem b k)
+    (kNot (kAll a (kImp q (kNot (kAll a (kImp (kSubset a b k) r))))))) $;
+@_ def k218SeedClosure (a b k q: nat): nat =
+  $ k218SeedClosureForm a b k q (k218SeedRequest b k q) $;
+@_ def k218Closure (a b k q: nat): nat =
+  $ kAll b (kImp (kMem b k)
+    (kExists a (kAnd q (kAll a (kImp (kSubset a b k) (kRequest b k q)))))) $;
+@_ def k218SeedN (a b c q: nat): nat =
+  $ kNot (kImp (k218Vrel a b c)
+    (kAll c (kImp (k218SeedClosure a b c q) (kNot (k218SeedRequest b c q))))) $;
+@_ def k218SeedY (a b c q: nat): nat =
+  $ kNot (kImp (k218Vrel a b c)
+    (kAll c (kImp (k218Closure a b c q) (kNot (kRequest b c q))))) $;
+
+pub theorem k218Seed_literal_structure (a b c: nat):
+  $ k218Bundle a b c = k218SeedN a b c c $ = 'eqid;
+
+pub theorem k218Imp_mono_left (a b c: nat)
+  (h: $ k218Provable (kImp a b) $):
+  $ k218Provable (kImp (kImp b c) (kImp a c)) $ =
+'(k218Provable_mp h k218PropB);
+pub theorem k218Imp_mono_both (a b c d: nat)
+  (hab: $ k218Provable (kImp a b) $)
+  (hcd: $ k218Provable (kImp c d) $):
+  $ k218Provable (kImp (kImp b c) (kImp a d)) $ =
+'(k218Provable_syl (k218Imp_mono_left hab) (k218Imp_mono_right hcd));
+
+pub theorem k218SeedRequest_to_request (b k q: nat):
+  $ k218Provable (kImp (k218SeedRequest b k q) (kRequest b k q)) $ =
+'(k218All_mono (k218Imp_mono_right
+  (k218Not_mono (k218All_mono k218PropDNE))));
+pub theorem k218Request_to_seedRequest (b k q: nat):
+  $ k218Provable (kImp (kRequest b k q) (k218SeedRequest b k q)) $ =
+'(k218All_mono (k218Imp_mono_right
+  (k218Not_mono (k218All_mono k218PropB3))));
+
+pub theorem k218SeedClosureForm_mono (a b k q r s: nat)
+  (h: $ k218Provable (kImp r s) $):
+  $ k218Provable (kImp (k218SeedClosureForm a b k q r)
+    (k218SeedClosureForm a b k q s)) $ =
+'(k218All_mono (k218Imp_mono_right (k218Not_mono
+  (k218All_mono (k218Imp_mono_right (k218Not_mono
+    (k218All_mono (k218Imp_mono_right h))))))));
+
+theorem k218SeedClosureForm_to_closure (a b k q: nat):
+  $ k218Provable (kImp (k218SeedClosureForm a b k q (kRequest b k q))
+    (k218Closure a b k q)) $ =
+'(k218All_mono (k218Imp_mono_right
+  (k218Not_mono (k218All_mono k218PropDNE))));
+theorem k218Closure_to_seedClosureForm (a b k q: nat):
+  $ k218Provable (kImp (k218Closure a b k q)
+    (k218SeedClosureForm a b k q (kRequest b k q))) $ =
+'(k218All_mono (k218Imp_mono_right
+  (k218Not_mono (k218All_mono k218PropB3))));
+
+pub theorem k218SeedClosure_to_closure (a b k q: nat):
+  $ k218Provable (kImp (k218SeedClosure a b k q) (k218Closure a b k q)) $ =
+'(k218Provable_syl (k218SeedClosureForm_mono k218SeedRequest_to_request)
+  k218SeedClosureForm_to_closure);
+pub theorem k218Closure_to_seedClosure (a b k q: nat):
+  $ k218Provable (kImp (k218Closure a b k q) (k218SeedClosure a b k q)) $ =
+'(k218Provable_syl k218Closure_to_seedClosureForm
+  (k218SeedClosureForm_mono k218Request_to_seedRequest));
+
+pub theorem k218SeedN_to_seedY (a b c q: nat):
+  $ k218Provable (kImp (k218SeedN a b c q) (k218SeedY a b c q)) $ =
+'(k218Not_mono (k218Imp_mono_right (k218All_mono
+  (k218Imp_mono_both k218SeedClosure_to_closure
+    (k218Not_mono k218SeedRequest_to_request)))));
+pub theorem k218SeedY_to_seedN (a b c q: nat):
+  $ k218Provable (kImp (k218SeedY a b c q) (k218SeedN a b c q)) $ =
+'(k218Not_mono (k218Imp_mono_right (k218All_mono
+  (k218Imp_mono_both k218Closure_to_seedClosure
+    (k218Not_mono k218Request_to_seedRequest)))));
+
+pub theorem k218Bundle_normalized_seed (a b c: nat):
+  $ c != a /\ c != b -> k218Provable (k218SeedY a b c c) $ =
+'(syl (mpi k218SeedN_to_seedY k218Provable_mp)
+  (syl k218Provable_axiom k218Axioms_bundle));

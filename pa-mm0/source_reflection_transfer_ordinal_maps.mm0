@@ -1,0 +1,29 @@
+import "source_reflection_transfer_witness_geometry.mm0";
+
+def sfReflectionOrdinalAt(d:nat):nat = $ sfSubst 0 d sfLeastOrdinalPredicate $;
+
+def sfReflectionOrdinalCode(d:nat):nat = $ sfAnd (sfAll (sfImp (sfMem (0) (suc (d))) (sfAll (sfImp (sfMem (0) (1)) (sfMem (0) (suc (suc (d)))))))) (sfAll (sfImp (sfMem (0) (suc (d))) (sfAll (sfImp (sfMem (0) (1)) (sfAll (sfImp (sfMem (0) (1)) (sfMem (0) (2)))))))) $;
+
+theorem sfReflectionOrdinalAt_expanded(d:nat): $ sfReflectionOrdinalAt d = sfReflectionOrdinalCode d $;
+
+theorem sfReflectionOrdinalAt_wf(d:nat): $ sfWf (sfReflectionOrdinalAt d) $;
+
+theorem sfReflectionOrdinalAt_rename(R:set)(d:nat): $ sfRename R 0 (sfReflectionOrdinalAt d) = sfReflectionOrdinalAt (R @ d) $;
+
+theorem sfReflectionOrdinalAt_shift(d:nat): $ sfShift 0 (sfReflectionOrdinalAt d) = sfReflectionOrdinalAt (suc d) $;
+
+theorem sfReflectionOrdinalAt_zero: $ sfReflectionOrdinalAt 0 = sfLeastOrdinalPredicate $;
+
+def sfReflectionOrdinalTransBody(d x:nat):nat = $ sfImp (sfMem x d) (sfCLSubset x d) $;
+
+theorem sfReflectionOrdinal_member_subset(G d x:nat)(hO:$ nsLocal G (sfReflectionOrdinalAt d) $)(hx:$ nsLocal G (sfMem x d) $): $ nsLocal G (sfCLSubset x d) $;
+
+def sfReflectionOrdinalCompareBody(x y:nat):nat = $ sfImp (sfReflectionOrdinalAt x) (sfImp (sfReflectionOrdinalAt y) (sfOr (sfOr (sfMem x y) (sfEq x y)) (sfMem y x))) $;
+
+def sfReflectionOrdinalCompare:nat = $ sfAll (sfAll (sfReflectionOrdinalCompareBody 1 0)) $;
+
+theorem sfReflectionOrdinalCompare_eq: $ sfReflectionOrdinalCompare = sfReflectionOrdinalTrichotomy $;
+
+def sfReflectionOrdinalPair(x y:nat):set = $ sqEnvCons y (sqEnvCons x sfIdentityMap) $;
+
+theorem sfReflectionOrdinalCompare_use(G x y:nat)(hC:$ nsLocal G sfReflectionOrdinalTrichotomy $)(hX:$ nsLocal G (sfReflectionOrdinalAt x) $)(hY:$ nsLocal G (sfReflectionOrdinalAt y) $): $ nsLocal G (sfOr (sfOr (sfMem x y) (sfEq x y)) (sfMem y x)) $;

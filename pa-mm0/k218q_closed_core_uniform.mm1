@@ -1,0 +1,58 @@
+import "k218q_closed_core.mm1";
+import "k218_source_core_bound_reflection.mm1";
+
+@_ def sfK218BoundGuard (n f: nat): nat =
+ $ if (sfBound (suc (suc n)) f) f sfBot $;
+
+pub theorem sfK218BoundGuard_valid (n f: nat):
+ $ sfBound (suc (suc n)) f -> sfK218BoundGuard n f = f $ = 'ifpos;
+
+theorem k218CU_bound_positive (n f: nat):
+ $ sfBound (suc (suc n)) f -> sfBound (suc (suc n)) (sfK218BoundGuard n f) $ =
+'(mpbird (sfBoundeq2d ifpos) id);
+
+theorem k218CU_bound_negative (n f: nat):
+ $ ~sfBound (suc (suc n)) f -> sfBound (suc (suc n)) (sfK218BoundGuard n f) $ =
+'(mpbird (sfBoundeq2d ifneg) (a1i sfBound_bot));
+
+pub theorem sfK218BoundGuard_bound (n f: nat):
+ $ sfBound (suc (suc n)) (sfK218BoundGuard n f) $ =
+'(cases k218CU_bound_positive k218CU_bound_negative);
+
+theorem k218CU_seed_guard {i j: nat} (n f: nat):
+ $ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218SeededCore (sfK218BoundGuard n f)))) $ =
+(named '(!! k218QClosedSeededCore i j sfK218BoundGuard_bound));
+
+theorem k218CU_kp0_guard {i j: nat} (n f: nat):
+ $ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218Kp0 (sfK218BoundGuard n f)))) $ =
+(named '(!! k218QClosedKp0 i j sfK218BoundGuard_bound));
+
+pub theorem k218QClosedSeededCore_uniform (n f: nat):
+ $ sfBound (suc (suc n)) f ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218SeededCore f))) $ =
+(named '(mpbid (k218QProvableeqd (sfNamedTemplateeq4d
+ (sfAllPrefixeq2d (sfK218SeededCoreeqd sfK218BoundGuard_valid))))
+ (a1i (!! k218CU_seed_guard i j))));
+
+pub theorem k218QClosedKp0_uniform (n f: nat):
+ $ sfBound (suc (suc n)) f ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218Kp0 f))) $ =
+(named '(mpbid (k218QProvableeqd (sfNamedTemplateeq4d
+ (sfAllPrefixeq2d (sfK218Kp0eqd sfK218BoundGuard_valid))))
+ (a1i (!! k218CU_kp0_guard i j))));
+
+pub theorem k218QClosedSeededCore_from_source (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218SeededCore f)) ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218SeededCore f))) $ =
+'(syl6 k218QClosedSeededCore_uniform sfK218SeededCore_closed_reflection);
+
+pub theorem k218QClosedKp0_from_source (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218Kp0 f)) ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218Kp0 f))) $ =
+'(syl6 k218QClosedKp0_uniform sfK218Kp0_closed_reflection);

@@ -1,0 +1,77 @@
+import "source_l_domain.mm0";
+import "source_relative_contexts.mm0";
+import "source_wf_separation_logic.mm0";
+import "source_hypothesis_replacement.mm0";
+import "source_theory_local.mm0";
+
+def lrepFunctionalF0 (a b c: nat): nat = $ sfImp b (sfEq 1 0) $;
+
+def lrepFunctionalF1 (a b c: nat): nat = $ sfImp a (lrepFunctionalF0 a b c) $;
+
+def lrepFunctionalF2 (a b c: nat): nat = $ sfImp (sfDomainAt sfLDomain 0) (lrepFunctionalF1 a b c) $;
+
+def lrepFunctionalF3 (a b c: nat): nat = $ sfAll (lrepFunctionalF2 a b c) $;
+
+def lrepFunctionalF4 (a b c: nat): nat = $ sfImp (sfDomainAt sfLDomain 0) (lrepFunctionalF3 a b c) $;
+
+def lrepFunctionalF5 (a b c: nat): nat = $ sfAll (lrepFunctionalF4 a b c) $;
+
+def lrepFunctionalF6 (a b c: nat): nat = $ sfImp (sfDomainAt sfLDomain 0) (lrepFunctionalF5 a b c) $;
+
+def lrepFunctionalF7 (a b c: nat): nat = $ sfAll (lrepFunctionalF6 a b c) $;
+
+def lrepFunctionalG8 (a b c: nat): nat = $ (lrepFunctionalF7 a b c) : 0 $;
+
+def lrepFunctionalG9 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG8 a b c) $;
+
+def lrepFunctionalG10 (a b c: nat): nat = $ (sfDomainAt sfLDomain 0) : (lrepFunctionalG9 a b c) $;
+
+def lrepFunctionalG11 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG10 a b c) $;
+
+def lrepFunctionalG12 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG9 a b c) $;
+
+def lrepFunctionalG13 (a b c: nat): nat = $ (sfDomainAt sfLDomain 1) : (lrepFunctionalG12 a b c) $;
+
+def lrepFunctionalG14 (a b c: nat): nat = $ (sfDomainAt sfLDomain 0) : (lrepFunctionalG13 a b c) $;
+
+def lrepFunctionalG15 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG14 a b c) $;
+
+def lrepFunctionalG16 (a b c: nat): nat = $ sfContextShift (lrepFunctionalG12 a b c) $;
+
+def lrepFunctionalG17 (a b c: nat): nat = $ (sfDomainAt sfLDomain 2) : (lrepFunctionalG16 a b c) $;
+
+def lrepFunctionalG18 (a b c: nat): nat = $ (sfDomainAt sfLDomain 1) : (lrepFunctionalG17 a b c) $;
+
+def lrepFunctionalG19 (a b c: nat): nat = $ (sfDomainAt sfLDomain 0) : (lrepFunctionalG18 a b c) $;
+
+def lrepFunctionalF20 (a b c: nat): nat = $ sfAnd (sfDomainAt sfLDomain 2) (sfDomainAt sfLDomain 0) $;
+
+def lrepFunctionalF21 (a b c: nat): nat = $ sfAnd (lrepFunctionalF20 a b c) b $;
+
+def lrepFunctionalF22 (a b c: nat): nat = $ sfAnd (sfDomainAt sfLDomain 2) (sfDomainAt sfLDomain 1) $;
+
+def lrepFunctionalF23 (a b c: nat): nat = $ sfAnd (lrepFunctionalF22 a b c) a $;
+
+def lrepFunctionalG24 (a b c: nat): nat = $ (lrepFunctionalF23 a b c) : (lrepFunctionalG16 a b c) $;
+
+def lrepFunctionalG25 (a b c: nat): nat = $ (lrepFunctionalF21 a b c) : (lrepFunctionalG24 a b c) $;
+
+def lrepFunctionalF26 (a b c: nat): nat = $ sfImp (lrepFunctionalF21 a b c) (sfEq 1 0) $;
+
+def lrepFunctionalF27 (a b c: nat): nat = $ sfImp (lrepFunctionalF23 a b c) (lrepFunctionalF26 a b c) $;
+
+def lrepFunctionalF28 (a b c: nat): nat = $ sfAll (lrepFunctionalF27 a b c) $;
+
+def lrepFunctionalF29 (a b c: nat): nat = $ sfAll (lrepFunctionalF28 a b c) $;
+
+def lrepFunctionalF30 (a b c: nat): nat = $ sfAll (lrepFunctionalF29 a b c) $;
+
+def lrepFunctionalF31 (a b c: nat): nat = $ sfImp (lrepFunctionalF7 a b c) (lrepFunctionalF30 a b c) $;
+
+def sfLReplacementGuardedFunctional (a b c: nat): nat = $ (lrepFunctionalF7 a b c) $;
+
+def sfLReplacementRawFunctional (a b c: nat): nat = $ (lrepFunctionalF30 a b c) $;
+
+theorem sfLReplacement_functionality_local (a b c: nat)
+ (ha: $ sfWf a $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+ $ nsLocal 0 (sfImp (sfLReplacementGuardedFunctional a b c) (sfLReplacementRawFunctional a b c)) $;

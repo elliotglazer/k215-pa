@@ -1,0 +1,145 @@
+import "source_syntax.mm1";
+
+@_ def sfShiftIndex (d i: nat): nat = $ if (i < d) i (suc i) $;
+@_ def sfHistoryLength (h .x .y .k: nat): nat =
+$ the {x | x e. {k | Dom h C_ upto k} /\
+    A. y (y e. {k | Dom h C_ upto k} -> x <= y)} $;
+@_ def sfShiftBody (d c h: nat): nat =
+$ if (c = 0) 0
+  (if (sfTag c = 1) (sfMem (sfShiftIndex d (sfLeft c)) (sfShiftIndex d (sfRight c)))
+  (if (sfTag c = 2) (sfEq (sfShiftIndex d (sfLeft c)) (sfShiftIndex d (sfRight c)))
+  (if (sfTag c = 3) (sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (sfAll (h @ (suc d, sfLeft c)))
+  (if (sfTag c = 7 /\ sfRight c = 0) (sfEx (h @ (suc d, sfLeft c))) 0))))))) $;
+@_ abstract def sfShiftStep (.h: nat): set =
+$ \ h, sfShiftBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+@_ abstract def sfShift (d c: nat): nat = $ srec sfShiftStep (d, c) $;
+@_ abstract def sfShiftHistory (d c .i: nat): nat =
+$ \. i e. upto (d, c), srec sfShiftStep i $;
+
+pub theorem sfShiftIndex_bound (d i: nat): $ i < d -> sfShiftIndex d i = i $ = 'ifpos;
+pub theorem sfShiftIndex_free (d i: nat): $ ~i < d -> sfShiftIndex d i = suc i $ = 'ifneg;
+
+theorem sfPair_skew (d a: nat): $ (d, suc a) = suc (suc d, a) $ =
+'(eqtr addS @ suceq @ addeq1 @ diveq1 @ muleq (eqcom addSass) (suceq (eqcom addSass)));
+pub theorem sfKey_lt (d a c: nat): $ a < c -> (d, a) < (d, c) $ = '(bi1 ltpr2);
+pub theorem sfKey_underBinder_lt (d a c: nat): $ a < c -> (suc d, a) < (d, c) $ =
+'(syl (ltletr (mpbir (lteq2 sfPair_skew) ltsucid)) (bi1 lepr2));
+
+pub theorem sfShiftStep_apply (h: nat):
+  $ sfShiftStep @ h = sfShiftBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $ =
+(named '(!! applame j ,eqtac));
+pub theorem sfShiftHistory_size (d c: nat): $ sfHistoryLength (sfShiftHistory d c) = (d, c) $ =
+(named '(sreclem eqid));
+pub theorem sfShiftHistory_lookup (d c e a: nat):
+  $ (e, a) < (d, c) -> sfShiftHistory d c @ (e, a) = sfShift e a $ =
+(named '(syl (apprlame sreceq2) (bi2 elupto)));
+pub theorem sfShift_unfold (d c: nat):
+  $ sfShift d c = sfShiftBody d c (sfShiftHistory d c) $ =
+(named '(eqtr srecval @ eqtr sfShiftStep_apply @
+  sfShiftBodyeq (eqtr (fsteq sfShiftHistory_size) fstpr)
+    (eqtr (sndeq sfShiftHistory_size) sndpr) eqid));
+
+theorem sfShiftBody_sfMem (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $):
+  $ sfShiftBody d c h = sfMem (sfShiftIndex d (sfLeft c)) (sfShiftIndex d (sfRight c)) $ =
+'(eqtr (ifneg h0) (ifpos ht));
+
+theorem sfShiftBody_sfEq (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $):
+  $ sfShiftBody d c h = sfEq (sfShiftIndex d (sfLeft c)) (sfShiftIndex d (sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifpos ht)));
+
+theorem sfShiftBody_sfAnd (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $):
+  $ sfShiftBody d c h = sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (ifpos ht))));
+
+theorem sfShiftBody_sfOr (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $):
+  $ sfShiftBody d c h = sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (ifpos ht)))));
+
+theorem sfShiftBody_sfImp (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $):
+  $ sfShiftBody d c h = sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (ifpos ht))))));
+
+theorem sfShiftBody_sfAll (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $):
+  $ sfShiftBody d c h = sfAll (h @ (suc d, sfLeft c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (ifpos (ian ht hz))))))));
+
+theorem sfShiftBody_sfEx (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $):
+  $ sfShiftBody d c h = sfEx (h @ (suc d, sfLeft c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr (ifneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ifpos (ian ht hz)))))))));
+
+theorem sfShiftHistory_child (d c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $):
+  $ sfShiftHistory d c @ (d, sfLeft c) = sfShift d a $ =
+'(eqtr (appeq2 (preq2 hl)) (sfShiftHistory_lookup (sfKey_lt ha)));
+theorem sfShiftHistory_right (d c a: nat) (hr: $ sfRight c = a $) (ha: $ a < c $):
+  $ sfShiftHistory d c @ (d, sfRight c) = sfShift d a $ =
+'(eqtr (appeq2 (preq2 hr)) (sfShiftHistory_lookup (sfKey_lt ha)));
+theorem sfShiftHistory_underBinder (d c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $):
+  $ sfShiftHistory d c @ (suc d, sfLeft c) = sfShift (suc d) a $ =
+'(eqtr (appeq2 (preq2 hl)) (sfShiftHistory_lookup (sfKey_underBinder_lt ha)));
+
+pub theorem sfShift_bot (d: nat):
+  $ sfShift d sfBot = sfBot $ =
+'(eqtr sfShift_unfold (ifpos eqid));
+
+pub theorem sfShift_sfMem (d a b: nat):
+  $ sfShift d (sfMem a b) = sfMem (sfShiftIndex d a) (sfShiftIndex d b) $ =
+'(eqtr sfShift_unfold @ eqtr (sfShiftBody_sfMem sfMem_ne_sfBot sfMem_tag) (eqtr (sfMem_eq_left (sfShiftIndexeq2 sfMem_left)) (sfMem_eq_right (sfShiftIndexeq2 sfMem_right))));
+
+pub theorem sfShift_sfEq (d a b: nat):
+  $ sfShift d (sfEq a b) = sfEq (sfShiftIndex d a) (sfShiftIndex d b) $ =
+'(eqtr sfShift_unfold @ eqtr (sfShiftBody_sfEq sfEq_ne_sfBot sfEq_tag) (eqtr (sfEq_eq_left (sfShiftIndexeq2 sfEq_left)) (sfEq_eq_right (sfShiftIndexeq2 sfEq_right))));
+
+pub theorem sfShift_sfAnd (d a b: nat):
+  $ sfShift d (sfAnd a b) = sfAnd (sfShift d a) (sfShift d b) $ =
+'(eqtr sfShift_unfold @ eqtr (sfShiftBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (eqtr (sfAnd_eq_left (sfShiftHistory_child sfAnd_left sfAnd_left_lt)) (sfAnd_eq_right (sfShiftHistory_right sfAnd_right sfAnd_right_lt))));
+
+pub theorem sfShift_sfOr (d a b: nat):
+  $ sfShift d (sfOr a b) = sfOr (sfShift d a) (sfShift d b) $ =
+'(eqtr sfShift_unfold @ eqtr (sfShiftBody_sfOr sfOr_ne_sfBot sfOr_tag) (eqtr (sfOr_eq_left (sfShiftHistory_child sfOr_left sfOr_left_lt)) (sfOr_eq_right (sfShiftHistory_right sfOr_right sfOr_right_lt))));
+
+pub theorem sfShift_sfImp (d a b: nat):
+  $ sfShift d (sfImp a b) = sfImp (sfShift d a) (sfShift d b) $ =
+'(eqtr sfShift_unfold @ eqtr (sfShiftBody_sfImp sfImp_ne_sfBot sfImp_tag) (eqtr (sfImp_eq_left (sfShiftHistory_child sfImp_left sfImp_left_lt)) (sfImp_eq_right (sfShiftHistory_right sfImp_right sfImp_right_lt))));
+
+pub theorem sfShift_sfAll (d a: nat):
+  $ sfShift d (sfAll a) = sfAll (sfShift (suc d) a) $ =
+'(eqtr sfShift_unfold @ eqtr (sfShiftBody_sfAll sfAll_ne_sfBot sfAll_tag sfAll_right) (sfAll_eq (sfShiftHistory_underBinder sfAll_left sfAll_body_lt)));
+
+pub theorem sfShift_sfEx (d a: nat):
+  $ sfShift d (sfEx a) = sfEx (sfShift (suc d) a) $ =
+'(eqtr sfShift_unfold @ eqtr (sfShiftBody_sfEx sfEx_ne_sfBot sfEx_tag sfEx_right) (sfEx_eq (sfShiftHistory_underBinder sfEx_left sfEx_body_lt)));
+
+theorem sfShiftBody_bad0 (G: wff) (d c h: nat) (ht: $ G -> sfTag c = 0 $):
+  $ G -> sfShiftBody d c h = 0 $ =
+'(syl6eq ifid (ifeq3d (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))) (eqtrd (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S))))) (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei lt01S)))))))))))));
+
+theorem sfShiftBody_bad6 (G: wff) (d c h: nat) (ht: $ G -> sfTag c = 6 $) (hr: $ G -> sfRight c != 0 $):
+  $ G -> sfShiftBody d c h = 0 $ =
+'(syl6eq ifid (ifeq3d (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc lt01S))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (eqtrd (syl ifneg (syl (con3 anr) hr)) (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))))));
+
+theorem sfShiftBody_bad7 (G: wff) (d c h: nat) (ht: $ G -> sfTag c = 7 $) (hr: $ G -> sfRight c != 0 $):
+  $ G -> sfShiftBody d c h = 0 $ =
+'(syl6eq ifid (ifeq3d (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc lt01S))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtrd (syl ifneg (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (eqtrd (syl ifneg (syl (con3 anl) (mpbird (noteqd (eqeq1d ht)) (a1i (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))) (syl ifneg (syl (con3 anr) hr))))))))));
+
+
+
+pub theorem sfShift_tag0 (d c: nat):
+  $ sfTag c = 0 -> sfShift d c = 0 $ =
+'(eqtrd (a1i sfShift_unfold) (sfShiftBody_bad0 id));
+
+pub theorem sfShift_bad_all (d c: nat):
+  $ sfTag c = 6 -> sfRight c != 0 -> sfShift d c = 0 $ =
+'(exp @ eqtrd (a1i sfShift_unfold) (sfShiftBody_bad6 anl anr));
+
+pub theorem sfShift_bad_ex (d c: nat):
+  $ sfTag c = 7 -> sfRight c != 0 -> sfShift d c = 0 $ =
+'(exp @ eqtrd (a1i sfShift_unfold) (sfShiftBody_bad7 anl anr));
+
+pub theorem sfShiftIndex_zero (i: nat):
+  $ sfShiftIndex 0 i = suc i $ =
+'(sfShiftIndex_free lt02);
+
+

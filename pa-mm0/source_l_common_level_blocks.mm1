@@ -1,0 +1,155 @@
+import "source_local_extra.mm1";
+import "zfc_schemas.mm1";
+
+@_ def sfCLTrue: nat = $ sfImp sfBot sfBot $;
+@_ def sfCLFoldStep (F: set) (.z: nat): set =
+ $ \ z, (suc (fst z), sfAnd (snd z) (F @ (fst z))) $;
+@_ def sfCLFoldRaw (F: set) (n: nat): nat = $ rec (0, sfCLTrue) (sfCLFoldStep F) n $;
+@_ def sfCLFold (F: set) (n: nat): nat = $ snd (sfCLFoldRaw F n) $;
+@_ def sfCLMemberRows (start y: nat) (.i: nat): set = $ \ i, sfMem (i + start) y $;
+@_ def sfCLMembership (start y n: nat): nat = $ sfCLFold (sfCLMemberRows start y) n $;
+@_ def sfCLPredicateRows (D start: nat) (.i: nat): set = $ \ i, sfSubst 0 (i + start) D $;
+@_ def sfCLPredicates (D start n: nat): nat = $ sfCLFold (sfCLPredicateRows D start) n $;
+
+do (apply (register-eqd 'sfCLFold) '(sfCLFoldeqd));
+do (apply (register-eqd 'sfCLMembership) '(sfCLMembershipeqd));
+do (apply (register-eqd 'sfCLPredicates) '(sfCLPredicateseqd));
+
+theorem sfCLFoldStep_value (F: set) (z: nat):
+ $ sfCLFoldStep F @ z = (suc (fst z), sfAnd (snd z) (F @ (fst z))) $ =
+ (named '(applame ,eqtac));
+
+pub theorem sfCLFoldRaw_zero (F: set): $ sfCLFoldRaw F 0 = (0, sfCLTrue) $ = 'rec0;
+pub theorem sfCLFoldRaw_suc (F: set) (n: nat):
+ $ sfCLFoldRaw F (suc n) = (suc (fst (sfCLFoldRaw F n)), sfAnd (sfCLFold F n) (F @ (fst (sfCLFoldRaw F n)))) $ =
+ '(eqtr recS sfCLFoldStep_value);
+pub theorem sfCLFoldRaw_count (F: set) (n: nat): $ fst (sfCLFoldRaw F n) = n $ =
+ (named @ induct '(ind) 'n
+  '(eqtr (fsteq sfCLFoldRaw_zero) fstpr)
+  '(eqtrd (a1i (eqtr (fsteq sfCLFoldRaw_suc) fstpr)) (suceqd id)));
+pub theorem sfCLFold_zero (F: set): $ sfCLFold F 0 = sfCLTrue $ =
+ '(eqtr (sndeq sfCLFoldRaw_zero) sndpr);
+pub theorem sfCLFold_suc (F: set) (n: nat):
+ $ sfCLFold F (suc n) = sfAnd (sfCLFold F n) (F @ n) $ =
+ '(eqtr (sndeq sfCLFoldRaw_suc) (eqtr sndpr (nsAnd_eq eqid (appeq2 sfCLFoldRaw_count))));
+pub theorem sfCLMemberRows_value (start y i: nat):
+ $ sfCLMemberRows start y @ i = sfMem (i + start) y $ =
+ (named '(applame ,eqtac));
+pub theorem sfCLPredicateRows_value (D start i: nat):
+ $ sfCLPredicateRows D start @ i = sfSubst 0 (i + start) D $ =
+ (named '(applame ,eqtac));
+pub theorem sfCLMembership_zero (start y: nat): $ sfCLMembership start y 0 = sfCLTrue $ = 'sfCLFold_zero;
+pub theorem sfCLMembership_suc (start y n: nat):
+ $ sfCLMembership start y (suc n) = sfAnd (sfCLMembership start y n) (sfMem (n + start) y) $ =
+ '(eqtr sfCLFold_suc (nsAnd_eq eqid sfCLMemberRows_value));
+pub theorem sfCLPredicates_zero (D start: nat): $ sfCLPredicates D start 0 = sfCLTrue $ = 'sfCLFold_zero;
+pub theorem sfCLPredicates_suc (D start n: nat):
+ $ sfCLPredicates D start (suc n) = sfAnd (sfCLPredicates D start n) (sfSubst 0 (n + start) D) $ =
+ '(eqtr sfCLFold_suc (nsAnd_eq eqid sfCLPredicateRows_value));
+
+theorem sfCLTrue_wf: $ sfWf sfCLTrue $ = '(ax_mp (ax_mp sfWf_imp sfWf_bot) sfWf_bot);
+pub theorem sfCLMembership_wf (start y n: nat): $ sfWf (sfCLMembership start y n) $ =
+ (named @ induct '(ind) 'n
+  '(mpbir (sfSchema_wf_eq sfCLMembership_zero) sfCLTrue_wf)
+  '(mpbird (a1i (sfSchema_wf_eq sfCLMembership_suc)) (syl (bi2 sfWf_and_iff) (iand id (a1i sfWf_mem)))));
+pub theorem sfCLPredicates_wf (D start n: nat): $ sfWf (sfCLPredicates D start n) $ =
+ (named @ induct '(ind) 'n
+  '(mpbir (sfSchema_wf_eq sfCLPredicates_zero) sfCLTrue_wf)
+  '(mpbird (a1i (sfSchema_wf_eq sfCLPredicates_suc)) (syl (bi2 sfWf_and_iff) (iand id (a1i sfSubst_wf)))));
+
+pub theorem sfCLFold_bound_suc (F: set) (n k: nat):
+ $ sfBound k (sfCLFold F (suc n)) <-> sfBound k (sfCLFold F n) /\ sfBound k (F @ n) $ =
+ '(bitr (sfSchema_bound_eq sfCLFold_suc) sfBound_sfAnd);
+pub theorem sfCLMembership_bound_suc (start y n k: nat):
+ $ sfBound k (sfCLMembership start y (suc n)) <-> sfBound k (sfCLMembership start y n) /\ ((n + start) < k /\ y < k) $ =
+ '(bitr (sfSchema_bound_eq sfCLMembership_suc) (bitr sfBound_sfAnd (sfSchema_aneq biid sfBound_sfMem)));
+pub theorem sfCLPredicates_bound_suc (D start n k: nat):
+ $ sfBound k (sfCLPredicates D start (suc n)) <-> sfBound k (sfCLPredicates D start n) /\ sfBound k (sfSubst 0 (n + start) D) $ =
+ '(bitr (sfSchema_bound_eq sfCLPredicates_suc) sfBound_sfAnd);
+
+theorem sfCLTrue_shift (d: nat): $ sfShift d sfCLTrue = sfCLTrue $ =
+ '(eqtr sfShift_sfImp (nsImp_eq sfShift_bot sfShift_bot));
+pub theorem sfCLMembership_shift (start y n: nat):
+ $ sfShift 0 (sfCLMembership start y n) = sfCLMembership (suc start) (suc y) n $ =
+ (named @ induct '(ind) 'n
+  '(eqtr (sfShifteq2 sfCLMembership_zero) (eqtr sfCLTrue_shift (eqcom sfCLMembership_zero)))
+  '(eqtrd (a1i (sfShifteq2 sfCLMembership_suc))
+    (eqtrd (a1i sfShift_sfAnd)
+      (eqtrd (sfAndeqd id
+        (a1i (eqtr sfShift_sfMem (nsMem_eq (eqtr sfShiftIndex_zero (eqcom addS2)) sfShiftIndex_zero))))
+        (a1i (eqcom sfCLMembership_suc))))));
+
+pub theorem sfCLFold_prefix_proof (F: set) (G n: nat):
+ $ nsLocal G (sfCLFold F (suc n)) -> nsLocal G (sfCLFold F n) $ =
+ '(syl nsLocal_CE1 (bi1 (nsLocal_formula_eq sfCLFold_suc)));
+pub theorem sfCLFold_last_proof (F: set) (G n: nat):
+ $ nsLocal G (sfCLFold F (suc n)) -> nsLocal G (F @ n) $ =
+ '(syl nsLocal_CE2 (bi1 (nsLocal_formula_eq sfCLFold_suc)));
+pub theorem sfCLFold_append_proof (F: set) (G n: nat):
+ $ nsLocal G (sfCLFold F n) -> nsLocal G (F @ n) -> nsLocal G (sfCLFold F (suc n)) $ =
+ '(syl6 (bi2 (nsLocal_formula_eq sfCLFold_suc)) sfLocal_and);
+
+@_ def sfCLRowProofs (F: set) (G n: nat) (.i: nat): wff =
+ $ A. i (i < n -> nsLocal G (F @ i)) $;
+pub theorem sfCLRowProofs_at (F: set) (G n i: nat):
+ $ sfCLRowProofs F G n -> i < n -> nsLocal G (F @ i) $ =
+ (named '(!! eale j ,eqtac));
+pub theorem sfCLRowProofs_prefix (F: set) (G n: nat):
+ $ sfCLRowProofs F G (suc n) -> sfCLRowProofs F G n $ =
+ (named '(alimi (imim1i (ax_mp (com12 ltletr) lesucid))));
+pub theorem sfCLRowProofs_last (F: set) (G n: nat):
+ $ sfCLRowProofs F G (suc n) -> nsLocal G (F @ n) $ =
+ '(mpd (a1i ltsucid) sfCLRowProofs_at);
+
+theorem sfCLTrue_proof (G: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G sfCLTrue $ =
+ '(ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_hyp
+    (mpbir sfContextWf_cons (ian sfWf_bot hg))) sfContext_member_head));
+theorem sfCLFold_proof_step (F: set) (G n: nat):
+ $ (sfCLRowProofs F G n -> nsLocal G (sfCLFold F n)) ->
+    sfCLRowProofs F G (suc n) -> nsLocal G (sfCLFold F (suc n)) $ =
+ '(exp @ sylc sfCLFold_append_proof
+    (mpd (syl sfCLRowProofs_prefix anr) anl)
+    (syl sfCLRowProofs_last anr));
+pub theorem sfCLFold_proof (F: set) (G n: nat) (hg: $ sfContextWf G $):
+ $ sfCLRowProofs F G n -> nsLocal G (sfCLFold F n) $ =
+ (named @ induct '(ind) 'n
+    '(a1i (sfRQ_rewrite (eqcom sfCLFold_zero) (sfCLTrue_proof hg)))
+    'sfCLFold_proof_step);
+
+@_ def sfCLRowBounds (F: set) (k n: nat) (.i: nat): wff =
+ $ A. i (i < n -> sfBound k (F @ i)) $;
+@_ def sfCLNamesBound (start n k: nat) (.i: nat): wff =
+ $ A. i (i < n -> (i + start) < k) $;
+pub theorem sfCLRowBounds_at (F: set) (k n i: nat):
+ $ sfCLRowBounds F k n -> i < n -> sfBound k (F @ i) $ =
+ (named '(!! eale j ,eqtac));
+pub theorem sfCLRowBounds_prefix (F: set) (k n: nat):
+ $ sfCLRowBounds F k (suc n) -> sfCLRowBounds F k n $ =
+ (named '(alimi (imim1i (ax_mp (com12 ltletr) lesucid))));
+pub theorem sfCLRowBounds_last (F: set) (k n: nat):
+ $ sfCLRowBounds F k (suc n) -> sfBound k (F @ n) $ =
+ '(mpd (a1i ltsucid) sfCLRowBounds_at);
+
+theorem sfCLTrue_bound (k: nat): $ sfBound k sfCLTrue $ =
+ '(mpbir sfBound_sfImp (ian sfBound_bot sfBound_bot));
+theorem sfCLFold_bound_step (F: set) (k n: nat):
+ $ (sfCLRowBounds F k n -> sfBound k (sfCLFold F n)) ->
+    sfCLRowBounds F k (suc n) -> sfBound k (sfCLFold F (suc n)) $ =
+ '(exp @ syl (bi2 sfCLFold_bound_suc) @ iand
+    (mpd (syl sfCLRowBounds_prefix anr) anl)
+    (syl sfCLRowBounds_last anr));
+pub theorem sfCLFold_bound (F: set) (k n: nat):
+ $ sfCLRowBounds F k n -> sfBound k (sfCLFold F n) $ =
+ (named @ induct '(ind) 'n
+    '(a1i (mpbir (sfSchema_bound_eq sfCLFold_zero) sfCLTrue_bound))
+    'sfCLFold_bound_step);
+
+theorem sfCLMemberRows_bounds (start y n k: nat) (hy: $ y < k $):
+ $ sfCLNamesBound start n k -> sfCLRowBounds (sfCLMemberRows start y) k n $ =
+ (named '(alimi (imim2i
+    (syl (bi2 (sfSchema_bound_eq sfCLMemberRows_value))
+      (syl (bi2 sfBound_sfMem) (iand id (a1i hy)))))));
+pub theorem sfCLMembership_bound (start y n k: nat) (hy: $ y < k $):
+ $ sfCLNamesBound start n k -> sfBound k (sfCLMembership start y n) $ =
+ '(syl sfCLFold_bound (sfCLMemberRows_bounds hy));

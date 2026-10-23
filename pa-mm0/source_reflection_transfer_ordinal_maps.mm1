@@ -1,0 +1,47 @@
+import "source_reflection_transfer_witness_geometry.mm1";
+
+def sfReflectionOrdinalAt(d:nat):nat = $ sfSubst 0 d sfLeastOrdinalPredicate $;
+
+def sfReflectionOrdinalCode(d:nat):nat = $ sfAnd (sfAll (sfImp (sfMem (0) (suc (d))) (sfAll (sfImp (sfMem (0) (1)) (sfMem (0) (suc (suc (d)))))))) (sfAll (sfImp (sfMem (0) (suc (d))) (sfAll (sfImp (sfMem (0) (1)) (sfAll (sfImp (sfMem (0) (1)) (sfMem (0) (2)))))))) $;
+
+pub theorem sfReflectionOrdinalAt_expanded(d:nat): $ sfReflectionOrdinalAt d = sfReflectionOrdinalCode d $ = (named '(eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_hit add12))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_hit (eqtr addS2 (suceq add12))))))))))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_hit add12))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))));
+
+pub theorem sfReflectionOrdinalAt_wf(d:nat): $ sfWf (sfReflectionOrdinalAt d) $ = (named 'sfSubst_wf);
+
+pub theorem sfReflectionOrdinalAt_rename(R:set)(d:nat): $ sfRename R 0 (sfReflectionOrdinalAt d) = sfReflectionOrdinalAt (R @ d) $ = (named '(eqtr (ax_mp sfRename_subst (ax_mp sfBound_wf sfLeastOrdinalPredicate_bound)) (trud (sfSubst_congr eqidd eqidd (a1i (ax_mp sfRename_bound_identity sfLeastOrdinalPredicate_bound))))));
+
+pub theorem sfReflectionOrdinalAt_shift(d:nat): $ sfShift 0 (sfReflectionOrdinalAt d) = sfReflectionOrdinalAt (suc d) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfSubst_wf)) (eqtr sfReflectionOrdinalAt_rename (trud (sfSubst_congr eqidd (a1i sfSuccessorMap_value) eqidd)))));
+
+pub theorem sfReflectionOrdinalAt_zero: $ sfReflectionOrdinalAt 0 = sfLeastOrdinalPredicate $ = (named '(eqtr sfReflectionOrdinalAt_expanded eqid));
+
+def sfReflectionOrdinalTransBody(d x:nat):nat = $ sfImp (sfMem x d) (sfCLSubset x d) $;
+
+theorem rfom_trans_wf(d x:nat): $ sfWf (sfReflectionOrdinalTransBody d x) $ = (named '(ax_mp (ax_mp sfWf_imp sfWf_mem) rfc_subset_wf));
+
+theorem rfom_trans_rename(R:set)(d x:nat): $ sfRename R 0 (sfReflectionOrdinalTransBody d x) = sfReflectionOrdinalTransBody (R @ d) (R @ x) $ = (named '(eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) rfcl_subset_rename)));
+
+theorem rfom_trans_congr(d dp x xp:nat)(hd:$ d = dp $)(hx:$ x = xp $): $ sfReflectionOrdinalTransBody d x = sfReflectionOrdinalTransBody dp xp $ = (named '(nsImp_eq (nsMem_eq hx hd) (sfCLSubseteq hx hd)));
+
+theorem rfom_ord_trans(G d:nat)(hO:$ nsLocal G (sfReflectionOrdinalAt d) $): $ nsLocal G (sfAll (sfReflectionOrdinalTransBody (suc d) 0)) $ = (named '(ax_mp nsLocal_CE1 (mpbi (nsLocal_formula_eq sfReflectionOrdinalAt_expanded) hO)));
+
+pub theorem sfReflectionOrdinal_member_subset(G d x:nat)(hO:$ nsLocal G (sfReflectionOrdinalAt d) $)(hx:$ nsLocal G (sfMem x d) $): $ nsLocal G (sfCLSubset x d) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr rfom_trans_rename (rfom_trans_congr rfcc_cons_suc rfcc_cons_zero))) (ax_mp (rfcl_all_cons rfom_trans_wf) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all rfom_trans_wf))) (rfom_ord_trans hO))))) hx));
+
+def sfReflectionOrdinalCompareBody(x y:nat):nat = $ sfImp (sfReflectionOrdinalAt x) (sfImp (sfReflectionOrdinalAt y) (sfOr (sfOr (sfMem x y) (sfEq x y)) (sfMem y x))) $;
+
+def sfReflectionOrdinalCompare:nat = $ sfAll (sfAll (sfReflectionOrdinalCompareBody 1 0)) $;
+
+pub theorem sfReflectionOrdinalCompare_eq: $ sfReflectionOrdinalCompare = sfReflectionOrdinalTrichotomy $ = (named '(nsAll_eq (nsAll_eq (nsImp_eq sfReflectionOrdinalAt_expanded (nsImp_eq sfReflectionOrdinalAt_expanded eqid)))));
+
+theorem rfom_compare_wf(x y:nat): $ sfWf (sfReflectionOrdinalCompareBody x y) $ = (named '(ax_mp (ax_mp sfWf_imp sfSubst_wf) (ax_mp (ax_mp sfWf_imp sfSubst_wf) (ax_mp (ax_mp sfWf_or (ax_mp (ax_mp sfWf_or sfWf_mem) sfWf_eq)) sfWf_mem))));
+
+theorem rfom_compare_rename(R:set)(x y:nat): $ sfRename R 0 (sfReflectionOrdinalCompareBody x y) = sfReflectionOrdinalCompareBody (R @ x) (R @ y) $ = (named '(eqtr sfRename_sfImp (nsImp_eq sfReflectionOrdinalAt_rename (eqtr sfRename_sfImp (nsImp_eq sfReflectionOrdinalAt_rename (eqtr sfRename_sfOr (nsOr_eq (eqtr sfRename_sfOr (nsOr_eq (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)) (eqtr sfRename_sfEq (nsEq_eq sfRenameIndex_zero sfRenameIndex_zero)))) (eqtr sfRename_sfMem (nsMem_eq sfRenameIndex_zero sfRenameIndex_zero)))))))));
+
+theorem rfom_compare_congr(x xp y yp:nat)(hx:$ x = xp $)(hy:$ y = yp $): $ sfReflectionOrdinalCompareBody x y = sfReflectionOrdinalCompareBody xp yp $ = (named '(nsImp_eq (trud (sfSubst_congr eqidd (a1i hx) eqidd)) (nsImp_eq (trud (sfSubst_congr eqidd (a1i hy) eqidd)) (nsOr_eq (nsOr_eq (nsMem_eq hx hy) (nsEq_eq hx hy)) (nsMem_eq hy hx)))));
+
+def sfReflectionOrdinalPair(x y:nat):set = $ sqEnvCons y (sqEnvCons x sfIdentityMap) $;
+
+theorem rfom_pair0(x y:nat): $ sfReflectionOrdinalPair x y @ 0 = y $ = (named 'sqEnvCons_zero);
+
+theorem rfom_pair1(x y:nat): $ sfReflectionOrdinalPair x y @ 1 = x $ = (named '(eqtr sqEnvCons_suc sqEnvCons_zero));
+
+pub theorem sfReflectionOrdinalCompare_use(G x y:nat)(hC:$ nsLocal G sfReflectionOrdinalTrichotomy $)(hX:$ nsLocal G (sfReflectionOrdinalAt x) $)(hY:$ nsLocal G (sfReflectionOrdinalAt y) $): $ nsLocal G (sfOr (sfOr (sfMem x y) (sfEq x y)) (sfMem y x)) $ = (named '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr rfom_compare_rename (rfom_compare_congr rfom_pair1 rfom_pair0))) (ax_mp (rfcl_all_cons rfom_compare_wf) (ax_mp (rfcl_all_cons (ax_mp sfWf_all rfom_compare_wf)) (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all (ax_mp sfWf_all rfom_compare_wf)))) (mpbir (nsLocal_formula_eq sfReflectionOrdinalCompare_eq) hC)))))) hX)) hY));

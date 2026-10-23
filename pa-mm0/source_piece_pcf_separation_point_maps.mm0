@@ -1,0 +1,22 @@
+import "source_piece_pcf_definable_membership.mm0";
+
+import "source_piece_pcf_separation_maps.mm0";
+
+theorem sfPieceSeparationPredicate_setrel_at(T:set)(phi Y x z:nat)(hf:$ sfWf phi $):
+ $ sfCLSetRel Y (sfRename (sqEnvCons z (sqEnvCons x T)) 0 (sfPieceSeparationPredicate phi)) =
+   sfAnd (sfMem z x) (sfCLSetRel Y (sfRename (sqEnvCons z T) 0 phi)) $;
+
+theorem sfPieceDefinableSeparation_member(T:set)(G phi Y X x z:nat)(hf:$ sfWf phi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile (sqEnvCons x T) (sfPieceSeparationPredicate phi) Y X) $):
+ $ nsLocal G (sfIff (sfMem z X)
+   (sfAnd (sfMem z Y) (sfAnd (sfMem z x) (sfCLSetRel Y (sfRename (sqEnvCons z T) 0 phi))))) $;
+
+def sfPieceSeparationLocalBody(T:set)(D phi X x:nat):nat =
+ $ sfAll (sfImp D (sfIff (sfMem 0 (suc X))
+    (sfAnd (sfMem 0 (suc x)) (sfRelativize D (sfRename T 1 phi))))) $;
+
+theorem sfPieceSeparationLocalBody_open(T:set)(D phi X x z:nat)(hd:$ sfBound 1 D $)(hf:$ sfWf phi $):
+ $ sfSubst 0 z (sfImp D (sfIff (sfMem 0 (suc X))
+    (sfAnd (sfMem 0 (suc x)) (sfRelativize D (sfRename T 1 phi))))) =
+   sfImp (sfSubst 0 z D) (sfIff (sfMem z X)
+    (sfAnd (sfMem z x) (sfRelativize D (sfRename (sqEnvCons z T) 0 phi)))) $;

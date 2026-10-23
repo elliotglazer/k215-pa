@@ -1,0 +1,26 @@
+import "k215_literal_scans.mm0";
+
+theorem k215TmControl_reach_eq (s t: nat) (h: $ s = t $): $ k215TMReach s t $;
+
+theorem k215TmControl_reach_step (s t: nat) (h: $ k215TMStep s = t $): $ k215TMReach s t $;
+
+theorem k215TmControl_chain (s t u: nat) (h1: $ k215TMReach s t $) (h2: $ k215TMReach t u $):
+ $ k215TMReach s u $;
+
+theorem k215TmControl_left_empty (q r: nat):
+ $ k215TmLeftState q 0 r = k215TMState q 0 (k215TmPush 0 r) $;
+
+theorem k215TmControl_peel (b a n c r: nat):
+ $ k215TmRepeat b (a * n + suc c) r = k215TmPush b (k215TmRepeat b (a * n + c) r) $;
+
+theorem k215TmControl_peel_n (b n c r: nat):
+ $ k215TmRepeat b (n + suc c) r = k215TmPush b (k215TmRepeat b (n + c) r) $;
+
+def k215TmControlProgress (s t: nat) (.n: nat): wff =
+ $ E. n k215TMRun (suc n) s = t $;
+
+theorem k215TmControl_progress_intro (n s t: nat):
+ $ k215TMRun (suc n) s = t -> k215TmControlProgress s t $;
+
+theorem k215TmControl_progress_start (s u t: nat):
+ $ k215TMStep s = u -> k215TMReach u t -> k215TmControlProgress s t $;

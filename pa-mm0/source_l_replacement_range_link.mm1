@@ -1,0 +1,40 @@
+import "source_l_replacement_range_kernel.mm1";
+import "source_l_replacement_profile.mm1";
+import "source_l_replacement_matrix.mm1";
+import "source_relativization_laws.mm1";
+
+@_ def sfLReplacementRangeTail: set = $ sfComposeMap sfSuccessorMap sfSuccessorMap $;
+
+@_ def sfLReplacementRangeMatrix(phi:nat):nat =
+ $ sfRelativize sfLDomain (sfShift 2 (sfShift 2 (sfShift 2 phi))) $;
+
+theorem lrepRangeLink_psi_shift(phi:nat)(hf:$ sfWf phi $):
+ $ sfShift 1 (sfLReplacementPsi phi) = sfEx (sfAnd (sfMem 0 3) (sfShift 2 (sfShift 2 phi))) $ =
+ '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) (mt (bi2 ltsuc) lt02))))) eqid))));
+
+theorem lrepRangeLink_psi_shift_twice(phi:nat)(hf:$ sfWf phi $):
+ $ sfShift 1 (sfShift 1 (sfLReplacementPsi phi)) =
+ sfEx (sfAnd (sfMem 0 4) (sfShift 2 (sfShift 2 (sfShift 2 phi)))) $ =
+ '(eqtr (sfShifteq2 (lrepRangeLink_psi_shift hf)) (eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) (mt (bi2 ltsuc) lt02))))) eqid)))));
+
+theorem lrepRangeLink_rename(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename sfLReplacementRangeTail 1 (sfLReplacementPsi phi) =
+ sfEx (sfAnd (sfMem 0 4) (sfShift 2 (sfShift 2 (sfShift 2 phi)))) $ =
+ '(eqtr (eqcom (ax_mp sfRename_compose (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfShift_wf)))) (eqtr (sfRenameeq3 (ax_mp sfRename_successor (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfShift_wf)))) (eqtr (ax_mp sfRename_successor sfShift_wf) (lrepRangeLink_psi_shift_twice hf))));
+
+theorem lrepRangeLink_relative(phi:nat)(hf:$ sfWf phi $):
+ $ sfRelativize sfLDomain (sfRename sfLReplacementRangeTail 1 (sfLReplacementPsi phi)) =
+ sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 4) (sfLReplacementRangeMatrix phi))) $ =
+ '(eqtr (sfRelativizeeq2 (lrepRangeLink_rename hf)) (eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid))))));
+
+pub theorem sfLReplacementRangeCoverage_exact(phi:nat)(hf:$ sfWf phi $):
+ $ sfLReplacementRangeCoverage (sfLReplacementRangeMatrix phi) =
+ sfLReplacementImageCoverage sfLReplacementRangeTail sfLDomain (sfLReplacementPsi phi) 0 $ =
+ '(nsAll_eq (nsImp_eq (ax_mp sfDomainAt_zero sfLDomain_bound) (nsImp_eq (eqtr (nsEx_eq (nsAnd_eq (ax_mp sfDomainAt_zero sfLDomain_bound) eqid)) (eqcom (lrepRangeLink_relative hf))) eqid)));
+
+pub theorem sfLReplacement_range_coverage_from_image(phi:nat)(hf:$ sfWf phi $):
+ $ nsLocal 0 (sfImp (sfLReplacementAmbientProfile (sfLReplacementRangeMatrix phi))
+  (sfImp (sfLReplacementIntersectionBound (sfLReplacementRangeMatrix phi))
+   (sfLReplacementImageCoverage sfLReplacementRangeTail sfLDomain (sfLReplacementPsi phi) 0))) $ =
+ '(sfRQ_rewrite (nsImp_eq eqid (nsImp_eq eqid (sfLReplacementRangeCoverage_exact hf)))
+  (sfLReplacement_range_coverage_pure (ax_mp sfRelativize_wf sfLDomain_wf)));

@@ -1,0 +1,19 @@
+import "source_reflection_transfer_tv_context.mm0";
+
+import "source_reflection_transfer_function_ph_producers.mm0";
+
+theorem sfReflectionLimitProfile_bound(level P:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfBound 3 (sfReflectionLimitProfile level P) $;
+
+def sfTVRoleMap(n:nat)(.i:nat):set = $ \ i, if (i < 4) (n + i) (i - 4) $;
+
+theorem sfTVRoleMap_at(n i:nat): $ sfTVRoleMap n @ i = if (i < 4) (n + i) (i - 4) $;
+
+theorem sfTVRoleMap_low(n i:nat)(hi:$ i < 4 $): $ sfTVRoleMap n @ i = n + i $;
+
+theorem sfTVRoleMap_tail(n i:nat): $ sfTVRoleMap n @ (i + 4) = i $;
+
+theorem sfTVRoleMap_small(n c:nat)(hb:$ sfBound 4 c $): $ sfRename (sfTVRoleMap n) 0 c = sfTVLift n c $;
+
+theorem sfTVRoleMap_matrix(n matrix:nat)(hm:$ sfWf matrix $): $ sfRename (sfTVRoleMap n) 1 (sfRename (sfReflectionTupleMap sfIdentityMap 4) 1 matrix) = matrix $;
+
+theorem sfTVRoleMap_tuple(n m:nat): $ sfRename (sfTVRoleMap n) 0 (sfReflectionTuple sfIdentityMap 4 3 m) = sfReflectionTuple sfIdentityMap 0 (n + 3) m $;

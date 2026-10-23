@@ -1,0 +1,83 @@
+import "quotation_rebase_quote.mm0";
+import "quotation_contexts.mm0";
+
+def sqZeroEnvironment (.i: nat): set = $ \ i, 0 $;
+
+def sqNumericEnvironment (S: nat): set = $ sqStackEnv S sqZeroEnvironment $;
+
+theorem sqZeroEnvironment_value (i: nat): $ sqZeroEnvironment @ i = 0 $;
+
+theorem sqNumericEnvironment_nil (i: nat): $ sqNumericEnvironment 0 @ i = 0 $;
+
+theorem sqNumericEnvironment_cons_zero (a S: nat):
+ $ sqNumericEnvironment (a : S) @ 0 = a $;
+
+theorem sqNumericEnvironment_cons_suc (a S i: nat):
+ $ sqNumericEnvironment (a : S) @ suc i = sqNumericEnvironment S @ i $;
+
+theorem sqNumericEnvironment_cons_agree (a S n: nat):
+ $ sqEnvAgree (sqNumericEnvironment (a : S)) (sqEnvCons a (sqNumericEnvironment S)) n $;
+
+def sqEnvironmentBelow (S k .i: nat): wff =
+ $ A. i (i < len S -> sqNumericEnvironment S @ i < k) $;
+
+theorem sqEnvironmentBelow_at (S k i: nat):
+ $ sqEnvironmentBelow S k -> i < len S -> sqNumericEnvironment S @ i < k $;
+
+theorem sqEnvironmentBelow_nil (k: nat): $ sqEnvironmentBelow 0 k $;
+
+theorem sqEnvironmentBelow_cons (S k a: nat):
+ $ a < k -> sqEnvironmentBelow S k -> sqEnvironmentBelow (a : S) k $;
+
+theorem sqEnvironmentBelow_mono (S k l: nat):
+ $ k <= l -> sqEnvironmentBelow S k -> sqEnvironmentBelow S l $;
+
+def sqEnvironmentSafe (S n t k: nat): wff =
+ $ n <= len S /\ (0 < k /\ (t < k /\ sqEnvironmentBelow S k)) $;
+
+theorem sqEnvironmentSafe_length (S n t k: nat):
+ $ sqEnvironmentSafe S n t k -> n <= len S $;
+
+theorem sqEnvironmentSafe_positive (S n t k: nat):
+ $ sqEnvironmentSafe S n t k -> 0 < k $;
+
+theorem sqEnvironmentSafe_tag (S n t k: nat):
+ $ sqEnvironmentSafe S n t k -> t < k $;
+
+theorem sqEnvironmentSafe_below (S n t k: nat):
+ $ sqEnvironmentSafe S n t k -> sqEnvironmentBelow S k $;
+
+theorem sqEnvironmentSafe_index (S n t k i: nat):
+ $ sqEnvironmentSafe S n t k -> i < n -> sqNumericEnvironment S @ i < k $;
+
+theorem sqEnvironmentSafe_cutoff (S n m t k: nat):
+ $ n <= m -> sqEnvironmentSafe S m t k -> sqEnvironmentSafe S n t k $;
+
+theorem sqEnvironmentSafe_cons (S n t k a: nat):
+ $ a < k -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe (a : S) (suc n) t k $;
+
+def sqDomainSupport (H S t .i: nat): wff =
+ $ A. i (i < len S -> kHypProvable H (kMem t (sqNumericEnvironment S @ i))) $;
+
+theorem sqDomainSupport_at (H S t i: nat):
+ $ sqDomainSupport H S t -> i < len S -> kHypProvable H (kMem t (sqNumericEnvironment S @ i)) $;
+
+theorem sqDomainSupport_nil (H t: nat): $ sqDomainSupport H 0 t $;
+
+theorem sqDomainSupport_cons (H S t a: nat):
+ $ kHypProvable H (kMem t a) -> sqDomainSupport H S t -> sqDomainSupport H (a : S) t $;
+
+theorem sqDomainSupport_refine (H J S t: nat):
+ $ kContextSupports J H -> sqDomainSupport H S t -> sqDomainSupport J S t $;
+
+def sqSourceSupport (H S t k G: nat): wff =
+ $ kContextSupports H (sqContext (sqNumericEnvironment S) t k 0 G) $;
+
+theorem sqSourceSupport_member (H S t k G a: nat):
+ $ sqSourceSupport H S t k G -> a IN G -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) $;
+
+theorem sqSourceSupport_nil (H S t k: nat): $ sqSourceSupport H S t k 0 $;
+
+theorem sqSourceSupport_self (S t k G: nat):
+ $ sqSourceSupport (sqContext (sqNumericEnvironment S) t k 0 G) S t k G $;
+

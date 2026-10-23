@@ -1,0 +1,74 @@
+import "raw_source_image.mm0";
+import "source_structural_induction.mm0";
+
+-- Plain named syntax templates with sequential fresh binder names.
+-- A quotient interpretation and its proof transfer are separate obligations.
+def kDisj (a b: nat): nat = $ kImp (kNot a) b $;
+def sfNamedIndex (E: set) (k d i: nat): nat =
+$ if (i < d) (k + (d - suc i)) (E @ (i - d)) $;
+def sfNamedBody (E: set) (k d c h: nat): nat =
+$ if (c = 0) kF
+  (if (sfTag c = 1) (kMem (sfNamedIndex E k d (sfLeft c)) (sfNamedIndex E k d (sfRight c)))
+  (if (sfTag c = 2) (kEq (sfNamedIndex E k d (sfLeft c)) (sfNamedIndex E k d (sfRight c)))
+  (if (sfTag c = 3) (kAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (kDisj (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (kImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (kAll (k + d) (h @ (suc d, sfLeft c)))
+  (if (sfTag c = 7 /\ sfRight c = 0) (kExists (k + d) (h @ (suc d, sfLeft c))) kF))))))) $;
+def sfNamedStep (E: set) (k .h: nat): set =
+$ \ h, sfNamedBody E k (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+def sfNamedTemplate (E: set) (k d c: nat): nat = $ srec (sfNamedStep E k) (d, c) $;
+def sfNamedHistory (E: set) (k d c .i: nat): nat =
+$ \. i e. upto (d, c), srec (sfNamedStep E k) i $;
+
+theorem sfNamedIndex_bound (E: set) (k d i: nat):
+  $ i < d -> sfNamedIndex E k d i = k + (d - suc i) $;
+
+theorem sfNamedIndex_free (E: set) (k d i: nat):
+  $ ~i < d -> sfNamedIndex E k d i = E @ (i - d) $;
+
+theorem sfNamedIndex_zero (E: set) (k i: nat):
+  $ sfNamedIndex E k 0 i = E @ i $;
+
+theorem sfNamedIndex_new (E: set) (k d: nat):
+  $ sfNamedIndex E k (suc d) 0 = k + d $;
+
+theorem sfNamedIndex_lift (E: set) (k d i: nat):
+  $ sfNamedIndex E k (suc d) (suc i) = sfNamedIndex E k d i $;
+
+theorem sfNamedStep_apply (E: set) (k h: nat):
+  $ sfNamedStep E k @ h = sfNamedBody E k (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+theorem sfNamedHistory_size (E: set) (k d c: nat):
+  $ sfHistoryLength (sfNamedHistory E k d c) = (d, c) $;
+
+theorem sfNamedHistory_lookup (E: set) (k d c e a: nat):
+  $ (e, a) < (d, c) -> sfNamedHistory E k d c @ (e, a) = sfNamedTemplate E k e a $;
+
+theorem sfNamedTemplate_unfold (E: set) (k d c: nat):
+  $ sfNamedTemplate E k d c = sfNamedBody E k d c (sfNamedHistory E k d c) $;
+
+theorem sfNamedTemplate_bot (E: set) (k d: nat):
+  $ sfNamedTemplate E k d sfBot = kF $;
+
+theorem sfNamedTemplate_sfMem (E: set) (k d a b: nat):
+  $ sfNamedTemplate E k d (sfMem a b) = kMem (sfNamedIndex E k d a) (sfNamedIndex E k d b) $;
+
+theorem sfNamedTemplate_sfEq (E: set) (k d a b: nat):
+  $ sfNamedTemplate E k d (sfEq a b) = kEq (sfNamedIndex E k d a) (sfNamedIndex E k d b) $;
+
+theorem sfNamedTemplate_sfAnd (E: set) (k d a b: nat):
+  $ sfNamedTemplate E k d (sfAnd a b) = kAnd (sfNamedTemplate E k d a) (sfNamedTemplate E k d b) $;
+
+theorem sfNamedTemplate_sfOr (E: set) (k d a b: nat):
+  $ sfNamedTemplate E k d (sfOr a b) = kDisj (sfNamedTemplate E k d a) (sfNamedTemplate E k d b) $;
+
+theorem sfNamedTemplate_sfImp (E: set) (k d a b: nat):
+  $ sfNamedTemplate E k d (sfImp a b) = kImp (sfNamedTemplate E k d a) (sfNamedTemplate E k d b) $;
+
+theorem sfNamedTemplate_sfAll (E: set) (k d a: nat):
+  $ sfNamedTemplate E k d (sfAll a) = kAll (k + d) (sfNamedTemplate E k (suc d) a) $;
+
+theorem sfNamedTemplate_sfEx (E: set) (k d a: nat):
+  $ sfNamedTemplate E k d (sfEx a) = kExists (k + d) (sfNamedTemplate E k (suc d) a) $;
+

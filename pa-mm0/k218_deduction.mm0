@@ -1,0 +1,45 @@
+-- Contextual SeedG logic; every generalization/vacuity premise remains explicit.
+import "k218_derived.mm0";
+
+-- Contextual deduction uses only assumptions, already proved k218Provable
+-- seeds (k218Theorems), and earlier modus ponens. There is no GEN rule here.
+def k218HypRules (G: nat) (.c .l .b: nat): set =
+$ S\ c, {l | c IN G \/ (c e. k218Theorems \/
+    E. b (b IN l /\ kImp b c IN l))} $;
+def k218HypDerives (G p a: nat): wff = $ traceDerives (k218HypRules G) p a $;
+def k218HypProvable (G a: nat) (.p: nat): wff = $ E. p k218HypDerives G p a $;
+
+theorem k218HypRules_value {b: nat} (G c l: nat):
+  $ (c, l) e. k218HypRules G <-> c IN G \/
+    (c e. k218Theorems \/ E. b (b IN l /\ kImp b c IN l)) $;
+theorem k218HypRules_stable (G: nat): $ traceAppendStable (k218HypRules G) $;
+theorem k218HypProvable_intro (G p a: nat): $ k218HypDerives G p a -> k218HypProvable G a $;
+theorem k218HypProvable_assumption (G a: nat): $ a IN G -> k218HypProvable G a $;
+theorem k218HypProvable_seed (G a: nat): $ k218Provable a -> k218HypProvable G a $;
+theorem k218HypDerives_mp (G p q a b: nat):
+  $ k218HypDerives G p a -> k218HypDerives G q (kImp a b) ->
+    k218HypDerives G (b : (p ++ q)) b $;
+theorem k218HypProvable_mp (G a b: nat):
+  $ k218HypProvable G a -> k218HypProvable G (kImp a b) -> k218HypProvable G b $;
+
+theorem k218HypProvable_imp_weaken (G h a: nat):
+  $ k218HypProvable G a -> k218HypProvable G (kImp h a) $;
+theorem k218HypProvable_imp_mp (G h a b: nat):
+  $ k218HypProvable G (kImp h a) -> k218HypProvable G (kImp h (kImp a b)) ->
+    k218HypProvable G (kImp h b) $;
+def k218DeductionClass (G h: nat) (.a: nat): set =
+$ {a | k218HypProvable G (kImp h a)} $;
+theorem k218DeductionClass_value (G h a: nat):
+  $ a e. k218DeductionClass G h <-> k218HypProvable G (kImp h a) $;
+theorem k218HypRules_deduction_sound (G h: nat):
+  $ traceRuleSound (k218HypRules (h : G)) (k218DeductionClass G h) $;
+theorem k218HypDerives_deduction (G h p a: nat):
+  $ k218HypDerives (h : G) p a -> k218HypProvable G (kImp h a) $;
+theorem k218HypProvable_deduction (G h a: nat):
+  $ k218HypProvable (h : G) a -> k218HypProvable G (kImp h a) $;
+theorem k218HypRules_empty_sound: $ traceRuleSound (k218HypRules 0) k218Theorems $;
+theorem k218HypDerives_empty (p a: nat): $ k218HypDerives 0 p a -> k218Provable a $;
+theorem k218HypProvable_empty (a: nat): $ k218HypProvable 0 a -> k218Provable a $;
+theorem k218HypProvable_empty_iff (a: nat): $ k218HypProvable 0 a <-> k218Provable a $;
+theorem k218HypProvable_discharge (h a: nat):
+  $ k218HypProvable (h : 0) a -> k218Provable (kImp h a) $;

@@ -1,0 +1,73 @@
+import "quotient_quotation.mm1";
+import "zfc_schemas.mm1";
+import "k218q_propositional.mm1";
+
+theorem qsepPrefix_depth_eq (E: set) (t k a d e: nat)
+ (h: $ d = e $):
+ $ sqQuote E t k d a = sqQuote E t k e a $ =
+'(sreceq2 (preq1 h));
+
+theorem qsepPrefix_formula_eq (E: set) (t k d a b: nat)
+ (h: $ a = b $):
+ $ sqQuote E t k d a = sqQuote E t k d b $ =
+'(sreceq2 (preq2 h));
+
+@_ local def qsepPrefix (E: set) (t k n phi .d: nat): wff =
+ $ A. d (k218QProvable (sqQuote E t k (d + n) phi) ->
+   k218QProvable (sqQuote E t k d (sfAllPrefix n phi))) $;
+
+theorem qsepPrefix_use (E: set) (t k n phi d: nat):
+ $ qsepPrefix E t k n phi ->
+   k218QProvable (sqQuote E t k (d + n) phi) ->
+   k218QProvable (sqQuote E t k d (sfAllPrefix n phi)) $ =
+(named '(!! ealie r @ bi1d ,eqtac));
+
+theorem qsepPrefix_zero (E: set) (t k phi: nat):
+ $ qsepPrefix E t k 0 phi $ =
+(named '(ax_gen (syl
+ (bi2 (k218QProvableeq (qsepPrefix_formula_eq sfAllPrefix_zero)))
+ (bi1 (k218QProvableeq (qsepPrefix_depth_eq add0))))));
+
+theorem qsepPrefix_guard (p q: nat):
+ $ k218QProvable p -> k218QProvable (kImp q p) $ =
+'(mpi k218IPropK k218QProvable_mp);
+
+theorem qsepPrefix_suc_syntax (E: set) (t k d n phi: nat):
+ $ sqQuote E t k d (sfAllPrefix (suc n) phi) =
+   kAll (k + d) (kImp (kMem t (k + d))
+     (sqQuote E t k (suc d) (sfAllPrefix n phi))) $ =
+'(eqtr (qsepPrefix_formula_eq sfAllPrefix_suc) sqQuote_sfAll);
+
+theorem qsepPrefix_step_at (E: set) (t k n phi d: nat):
+ $ qsepPrefix E t k n phi ->
+   k218QProvable (sqQuote E t k (d + suc n) phi) ->
+   k218QProvable (sqQuote E t k d (sfAllPrefix (suc n) phi)) $ =
+(begin
+ (have 'aligned '(mpbird
+   (a1i (k218QProvableeq (qsepPrefix_depth_eq addSass))) anr))
+ (have 'body '(mpd aligned (syl qsepPrefix_use anl)))
+ (have 'guarded '(syl qsepPrefix_guard body))
+ (have 'generalized '(syl k218QProvable_gen guarded))
+ (refine '(exp (mpbird (a1i (k218QProvableeq qsepPrefix_suc_syntax)) generalized)))
+);
+
+theorem qsepPrefix_step (E: set) (t k n phi: nat):
+ $ qsepPrefix E t k n phi -> qsepPrefix E t k (suc n) phi $ =
+(named '(!! iald d @ qsepPrefix_step_at));
+
+theorem qsepPrefix_all (E: set) (t k n phi: nat):
+ $ qsepPrefix E t k n phi $ =
+(named @ induct '(ind) 'n 'qsepPrefix_zero 'qsepPrefix_step);
+
+pub theorem sfK0QSep_quote_prefix (E: set) (t k d n phi: nat)
+ (hf: $ sfWf phi $):
+ $ k218QProvable (sqQuote E t k (d + n) phi) ->
+   k218QProvable (sqQuote E t k d (sfAllPrefix n phi)) $ =
+'(ax_mp qsepPrefix_use qsepPrefix_all);
+
+pub theorem sfK0QSep_quote_prefix_closed (E: set) (t k n phi: nat)
+ (hf: $ sfWf phi $):
+ $ k218QProvable (sqQuote E t k n phi) ->
+   k218QProvable (sqQuote E t k 0 (sfAllPrefix n phi)) $ =
+'(syl (sfK0QSep_quote_prefix hf)
+ (bi2 (k218QProvableeq (qsepPrefix_depth_eq add01))));

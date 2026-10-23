@@ -1,0 +1,25 @@
+import "extracted_named_rebase.mm0";
+import "k230_fresh_allocation.mm0";
+
+theorem exNamed_rebase (E: set) (n k l a: nat)
+ (hk: $ 0 < k $) (hl: $ 0 < l $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n l $)
+ (ha: $ sfBound n a $):
+ $ kEquivalent (sfNamedTemplate E k 0 a) (sfNamedTemplate E l 0 a) $;
+
+theorem exNamed_allI (E: set) (H n k z a: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (ha: $ sfBound n (sfAll a) $) (hh: $ kContextFresh H z $):
+ $ kHypProvable H (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a) ->
+   kHypProvable H (sfNamedTemplate E k 0 (sfAll a)) $;
+
+theorem exNamed_exE (E: set) (H n k z a c: nat)
+ (hk: $ 0 < k $) (hz: $ 0 < z $)
+ (he: $ sqEnvBelow E n k $) (hf: $ sqEnvBelow E n z $)
+ (ha: $ sfBound n (sfEx a) $) (hc: $ sfBound n c $)
+ (hh: $ kContextFresh H z $) (hfresh: $ kFresh (sfNamedTemplate E k 0 c) z $):
+ $ kHypProvable H (sfNamedTemplate E k 0 (sfEx a)) ->
+   kHypProvable (sfNamedTemplate (sqEnvCons z E) (suc z) 0 a : H)
+    (sfNamedTemplate (sqEnvCons z E) (suc z) 0 (sfShift 0 c)) ->
+   kHypProvable H (sfNamedTemplate E k 0 c) $;

@@ -1,0 +1,256 @@
+import "k230_freshness.mm1";
+import "quotation_binders.mm1";
+
+-- Only live environment entries are required to avoid the tested name.
+@_ abstract def sqEnvAvoid (E: set) (n x .i: nat): wff =
+ $ A. i (i < n -> x != E @ i) $;
+pub theorem sqEnvAvoid_at (E: set) (n x i: nat):
+ $ sqEnvAvoid E n x -> i < n -> x != E @ i $ =
+(named '(!! eale j ,eqtac));
+pub theorem sqEnvAvoid_zero (E: set) (x: nat): $ sqEnvAvoid E 0 x $ =
+(named '(ax_gen @ absurd lt02));
+theorem sqFresh_index_below (E: set) (k d x i: nat) (hk: $ x < k $):
+ $ i < d -> x != sfNamedIndex E k d i $ =
+'(mpbiri (ltnei (ltletr hk leaddid1)) (noteqd (eqeq2d sfNamedIndex_bound)));
+theorem sqFresh_index_above (E: set) (k d n x i: nat):
+ $ ~i < d -> sqEnvAvoid E n x -> i < d + n -> x != sfNamedIndex E k d i $ =
+'(exp @ exp @ mpbird (noteqd (eqeq2d (syl sfNamedIndex_free anll))) @
+ mpd (mpbird (syl ltsubadd2 (syl (bi2 lenlt) anll)) anr)
+ (syl sqEnvAvoid_at anlr));
+pub theorem sfNamedIndex_avoid (E: set) (k d n x i: nat) (hk: $ x < k $):
+ $ sqEnvAvoid E n x -> i < d + n -> x != sfNamedIndex E k d i $ =
+'(exp @ casesda
+ (syl (sqFresh_index_below hk) anr)
+ (mpd (syl anr anl) (mpd (syl anl anl) (syl sqFresh_index_above anr))));
+
+
+@_ abstract def ntFreshClass (E: set) (k n x: nat) (.c .d: nat): set =
+$ {c | A. d (sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sfNamedTemplate E k d c) x)} $;
+pub theorem ntFresh_value {d: nat} (E: set) (k n x c: nat):
+ $ c e. ntFreshClass E k n x <->
+ A. d (sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sfNamedTemplate E k d c) x) $ =
+(named '(elabe ,eqtac));
+theorem ntFresh_depth (E: set) (k n x d c: nat):
+ $ (A. j (sfBound (j + n) c -> sqEnvAvoid E n x -> kFresh (sfNamedTemplate E k j c) x)) ->
+ sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sfNamedTemplate E k d c) x $ =
+(named '(!! eale j ,eqtac));
+theorem ntFresh_at (E: set) (k n x d c: nat):
+ $ c e. ntFreshClass E k n x -> sfBound (d + n) c -> sqEnvAvoid E n x ->
+ kFresh (sfNamedTemplate E k d c) x $ =
+(named '(syl ntFresh_depth (bi1 ntFresh_value)));
+theorem ntFresh_use (H: wff) (E: set) (k n x d c: nat)
+ (hc: $ H -> c e. ntFreshClass E k n x $)
+ (hb: $ H -> sfBound (d + n) c $) (he: $ H -> sqEnvAvoid E n x $):
+ $ H -> kFresh (sfNamedTemplate E k d c) x $ =
+'(mpd he (mpd hb (syl ntFresh_at hc)));
+theorem ntFresh_bot (E: set) (k n x: nat) (hz: $ x != 0 $):
+ $ sfBot e. ntFreshClass E k n x $ =
+(named '(mpbir ntFresh_value @ ax_gen @ a1i @ a1i @
+ mpbir (trud (kFresh_congr (a1i sfNamedTemplate_bot) eqidd)) (mpbir kFresh_kF hz)));
+theorem ntFresh_mem (E: set) (k n x a b: nat) (hk: $ x < k $):
+ $ sfMem a b e. ntFreshClass E k n x $ =
+(named '(mpbir ntFresh_value @ ax_gen @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sfNamedTemplate_sfMem) eqidd))) @
+ syl (bi2 kFresh_kMem) @ iand
+ (mpd (syl anl (syl (bi1 sfBound_sfMem) anl)) (syl (sfNamedIndex_avoid hk) anr))
+ (mpd (syl anr (syl (bi1 sfBound_sfMem) anl)) (syl (sfNamedIndex_avoid hk) anr))));
+theorem ntFresh_eq (E: set) (k n x a b: nat) (hk: $ x < k $):
+ $ sfEq a b e. ntFreshClass E k n x $ =
+(named '(mpbir ntFresh_value @ ax_gen @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sfNamedTemplate_sfEq) eqidd))) @
+ syl (bi2 kFresh_kEq) @ iand
+ (mpd (syl anl (syl (bi1 sfBound_sfEq) anl)) (syl (sfNamedIndex_avoid hk) anr))
+ (mpd (syl anr (syl (bi1 sfBound_sfEq) anl)) (syl (sfNamedIndex_avoid hk) anr))));
+theorem ntFresh_atomic (E: set) (k n x: nat) (hk: $ x < k $):
+ $ sfAtomicClosed (ntFreshClass E k n x) $ =
+(named '(ax_gen @ ax_gen @ ian (ntFresh_mem hk) (ntFresh_eq hk)));
+theorem ntFresh_and (E: set) (k n x a b: nat) (hz: $ x != 0 $):
+ $ a e. ntFreshClass E k n x /\ b e. ntFreshClass E k n x ->
+ sfAnd a b e. ntFreshClass E k n x $ =
+(named '(mpbird (a1i ntFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sfNamedTemplate_sfAnd) eqidd))) @
+ mpd (ntFresh_use (syl anlr anl) (syl anr (syl (bi1 sfBound_sfAnd) anlr)) anr) @
+ mpd (ntFresh_use (syl anll anl) (syl anl (syl (bi1 sfBound_sfAnd) anlr)) anr)
+ (a1i (ax_mp kFresh_and_intro hz))));
+theorem ntFresh_or (E: set) (k n x a b: nat) (hz: $ x != 0 $):
+ $ a e. ntFreshClass E k n x /\ b e. ntFreshClass E k n x ->
+ sfOr a b e. ntFreshClass E k n x $ =
+(named '(mpbird (a1i ntFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sfNamedTemplate_sfOr) eqidd))) @
+ mpd (ntFresh_use (syl anlr anl) (syl anr (syl (bi1 sfBound_sfOr) anlr)) anr) @
+ mpd (ntFresh_use (syl anll anl) (syl anl (syl (bi1 sfBound_sfOr) anlr)) anr)
+ (a1i (ax_mp kFresh_disj_intro hz))));
+theorem ntFresh_imp (E: set) (k n x a b: nat):
+ $ a e. ntFreshClass E k n x /\ b e. ntFreshClass E k n x ->
+ sfImp a b e. ntFreshClass E k n x $ =
+(named '(mpbird (a1i ntFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sfNamedTemplate_sfImp) eqidd))) @
+ mpd (ntFresh_use (syl anlr anl) (syl anr (syl (bi1 sfBound_sfImp) anlr)) anr) @
+ mpd (ntFresh_use (syl anll anl) (syl anl (syl (bi1 sfBound_sfImp) anlr)) anr)
+ (a1i kFresh_imp_intro)));
+theorem ntFresh_binary (E: set) (k n x: nat) (hz: $ x != 0 $):
+ $ sfBinaryClosed (ntFreshClass E k n x) $ =
+(named '(ax_gen @ ax_gen @ iand (iand (ntFresh_and hz) (ntFresh_or hz)) ntFresh_imp));
+theorem ntFresh_all (E: set) (k n x a: nat) (hk: $ x < k $):
+ $ a e. ntFreshClass E k n x -> sfAll a e. ntFreshClass E k n x $ =
+(named '(mpbird (a1i ntFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sfNamedTemplate_sfAll) eqidd))) @
+ syl (ax_mp kFresh_all_intro (ltnei (ltletr hk leaddid1))) @ ntFresh_use anll
+ (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfAll) anlr)) anr));
+theorem ntFresh_ex (E: set) (k n x a: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ a e. ntFreshClass E k n x -> sfEx a e. ntFreshClass E k n x $ =
+(named '(mpbird (a1i ntFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sfNamedTemplate_sfEx) eqidd))) @
+ syl (ax_mp (ax_mp kFresh_exists_intro hz) (ltnei (ltletr hk leaddid1))) @ ntFresh_use anll
+ (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfEx) anlr)) anr));
+theorem ntFresh_quantifier (E: set) (k n x: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfQuantifierClosed (ntFreshClass E k n x) $ =
+(named '(ax_gen @ iand (ntFresh_all hk) (ntFresh_ex hk hz)));
+theorem ntFresh_closed (E: set) (k n x: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfConstructionClosed (ntFreshClass E k n x) $ =
+'(ian (ian (ian (ntFresh_bot hz) (ntFresh_atomic hk)) (ntFresh_binary hz)) (ntFresh_quantifier hk hz));
+pub theorem sfNamedTemplate_fresh (E: set) (k n x d c: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sfNamedTemplate E k d c) x $ =
+'(mpd id @ syl ntFresh_at @ syl (ax_mp sfWf_induction (ntFresh_closed hk hz)) sfBound_wf);
+
+
+-- The finite quotient-atom templates mention only their three parameters,
+-- the raw falsity name 0, and internally introduced names at least k.
+theorem sqFresh_if (H P: wff) (x a b: nat)
+ (ha: $ H -> x != a $) (hb: $ H -> x != b $):
+ $ H -> x != if P a b $ =
+'(casesda
+ (mpbird (noteqd (eqeq2d (syl ifpos anr))) (syl ha anl))
+ (mpbird (noteqd (eqeq2d (syl ifneg anr))) (syl hb anl)));
+theorem sqAtomEnv_value (t a b i: nat):
+ $ sqAtomEnvironment t a b @ i = if (i = 0) t (if (i = 1) a b) $ =
+(named '(!! applame j ,eqtac));
+pub theorem sqAtomEnv_avoid (t a b x: nat):
+ $ x != t -> x != a -> x != b -> sqEnvAvoid (sqAtomEnvironment t a b) 3 x $ =
+(named '(exp @ exp @ iald @ a1d @
+ mpbird (a1i (noteq (eqeq2 sqAtomEnv_value))) @
+ sqFresh_if anll (sqFresh_if anlr anr)));
+pub theorem sqEqual_fresh (t a b k x: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ x != t -> x != a -> x != b -> kFresh (sqEqual t a b k) x $ =
+'(exp @ exp @ syl
+ (ax_mp (sfNamedTemplate_fresh hk hz)
+  (mpbir (srecpeq2 (preq1 add01)) sqEqualSource_bound))
+ (imp (imp sqAtomEnv_avoid)));
+pub theorem sqMember_fresh (t a b k x: nat) (hk: $ x < k $) (hz: $ x != 0 $):
+ $ x != t -> x != a -> x != b -> kFresh (sqMember t a b k) x $ =
+'(exp @ exp @ syl
+ (ax_mp (sfNamedTemplate_fresh hk hz)
+  (mpbir (srecpeq2 (preq1 add01)) sqMemberSource_bound))
+ (imp (imp sqAtomEnv_avoid)));
+
+@_ abstract def qqFreshClass (E: set) (t k n x: nat) (.c .d: nat): set =
+$ {c | A. d (sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sqQuote E t k d c) x)} $;
+pub theorem qqFresh_value {d: nat} (E: set) (t k n x c: nat):
+ $ c e. qqFreshClass E t k n x <->
+ A. d (sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sqQuote E t k d c) x) $ =
+(named '(elabe ,eqtac));
+theorem qqFresh_depth (E: set) (t k n x d c: nat):
+ $ (A. j (sfBound (j + n) c -> sqEnvAvoid E n x -> kFresh (sqQuote E t k j c) x)) ->
+ sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sqQuote E t k d c) x $ =
+(named '(!! eale j ,eqtac));
+theorem qqFresh_at (E: set) (t k n x d c: nat):
+ $ c e. qqFreshClass E t k n x -> sfBound (d + n) c -> sqEnvAvoid E n x ->
+ kFresh (sqQuote E t k d c) x $ =
+(named '(syl qqFresh_depth (bi1 qqFresh_value)));
+theorem qqFresh_use (H: wff) (E: set) (t k n x d c: nat)
+ (hc: $ H -> c e. qqFreshClass E t k n x $)
+ (hb: $ H -> sfBound (d + n) c $) (he: $ H -> sqEnvAvoid E n x $):
+ $ H -> kFresh (sqQuote E t k d c) x $ =
+'(mpd he (mpd hb (syl qqFresh_at hc)));
+theorem qqFresh_bot (E: set) (t k n x: nat) (hz: $ x != 0 $):
+ $ sfBot e. qqFreshClass E t k n x $ =
+(named '(mpbir qqFresh_value @ ax_gen @ a1i @ a1i @
+ mpbir (trud (kFresh_congr (a1i sqQuote_bot) eqidd)) (mpbir kFresh_kF hz)));
+theorem qqFresh_mem (E: set) (t k n x a b: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ sfMem a b e. qqFreshClass E t k n x $ =
+(named '(mpbir qqFresh_value @ ax_gen @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sqQuote_sfMem) eqidd))) @
+ mpd (mpd (syl anr (syl (bi1 sfBound_sfMem) anl)) (syl (sfNamedIndex_avoid hk) anr)) @
+ mpd (mpd (syl anl (syl (bi1 sfBound_sfMem) anl)) (syl (sfNamedIndex_avoid hk) anr))
+ (a1i (ax_mp (sqMember_fresh (ltletr hk leaddid1) hz) ht))));
+theorem qqFresh_eq (E: set) (t k n x a b: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ sfEq a b e. qqFreshClass E t k n x $ =
+(named '(mpbir qqFresh_value @ ax_gen @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sqQuote_sfEq) eqidd))) @
+ mpd (mpd (syl anr (syl (bi1 sfBound_sfEq) anl)) (syl (sfNamedIndex_avoid hk) anr)) @
+ mpd (mpd (syl anl (syl (bi1 sfBound_sfEq) anl)) (syl (sfNamedIndex_avoid hk) anr))
+ (a1i (ax_mp (sqEqual_fresh (ltletr hk leaddid1) hz) ht))));
+theorem qqFresh_atomic (E: set) (t k n x: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ sfAtomicClosed (qqFreshClass E t k n x) $ =
+(named '(ax_gen @ ax_gen @ ian (qqFresh_mem hk hz ht) (qqFresh_eq hk hz ht)));
+theorem qqFresh_and (E: set) (t k n x a b: nat) (hz: $ x != 0 $):
+ $ a e. qqFreshClass E t k n x /\ b e. qqFreshClass E t k n x ->
+ sfAnd a b e. qqFreshClass E t k n x $ =
+(named '(mpbird (a1i qqFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sqQuote_sfAnd) eqidd))) @
+ mpd (qqFresh_use (syl anlr anl) (syl anr (syl (bi1 sfBound_sfAnd) anlr)) anr) @
+ mpd (qqFresh_use (syl anll anl) (syl anl (syl (bi1 sfBound_sfAnd) anlr)) anr)
+ (a1i (ax_mp kFresh_and_intro hz))));
+theorem qqFresh_or (E: set) (t k n x a b: nat) (hz: $ x != 0 $):
+ $ a e. qqFreshClass E t k n x /\ b e. qqFreshClass E t k n x ->
+ sfOr a b e. qqFreshClass E t k n x $ =
+(named '(mpbird (a1i qqFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sqQuote_sfOr) eqidd))) @
+ mpd (qqFresh_use (syl anlr anl) (syl anr (syl (bi1 sfBound_sfOr) anlr)) anr) @
+ mpd (qqFresh_use (syl anll anl) (syl anl (syl (bi1 sfBound_sfOr) anlr)) anr)
+ (a1i (ax_mp kFresh_disj_intro hz))));
+theorem qqFresh_imp (E: set) (t k n x a b: nat):
+ $ a e. qqFreshClass E t k n x /\ b e. qqFreshClass E t k n x ->
+ sfImp a b e. qqFreshClass E t k n x $ =
+(named '(mpbird (a1i qqFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sqQuote_sfImp) eqidd))) @
+ mpd (qqFresh_use (syl anlr anl) (syl anr (syl (bi1 sfBound_sfImp) anlr)) anr) @
+ mpd (qqFresh_use (syl anll anl) (syl anl (syl (bi1 sfBound_sfImp) anlr)) anr)
+ (a1i kFresh_imp_intro)));
+theorem qqFresh_binary (E: set) (t k n x: nat) (hz: $ x != 0 $):
+ $ sfBinaryClosed (qqFreshClass E t k n x) $ =
+(named '(ax_gen @ ax_gen @ iand (iand (qqFresh_and hz) (qqFresh_or hz)) qqFresh_imp));
+theorem qqFresh_all (E: set) (t k n x a: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ a e. qqFreshClass E t k n x -> sfAll a e. qqFreshClass E t k n x $ =
+(named '(mpbird (a1i qqFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sqQuote_sfAll) eqidd))) @
+ syl (ax_mp kFresh_all_intro (ltnei (ltletr hk leaddid1))) @
+ syl (ax_mp kFresh_imp_intro (ax_mp (ax_mp kFresh_mem_intro ht) (ltnei (ltletr hk leaddid1)))) @ qqFresh_use anll
+ (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfAll) anlr)) anr));
+theorem qqFresh_ex (E: set) (t k n x a: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ a e. qqFreshClass E t k n x -> sfEx a e. qqFreshClass E t k n x $ =
+(named '(mpbird (a1i qqFresh_value) @ !! iald d @ exp @ exp @
+ mpbird (a1i (trud (kFresh_congr (a1i sqQuote_sfEx) eqidd))) @
+ syl (ax_mp (ax_mp kFresh_exists_intro hz) (ltnei (ltletr hk leaddid1))) @
+ syl (ax_mp (ax_mp kFresh_and_intro hz) (ax_mp (ax_mp kFresh_mem_intro ht) (ltnei (ltletr hk leaddid1)))) @ qqFresh_use anll
+ (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfEx) anlr)) anr));
+theorem qqFresh_quantifier (E: set) (t k n x: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ sfQuantifierClosed (qqFreshClass E t k n x) $ =
+(named '(ax_gen @ iand (qqFresh_all hk hz ht) (qqFresh_ex hk hz ht)));
+theorem qqFresh_closed (E: set) (t k n x: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ sfConstructionClosed (qqFreshClass E t k n x) $ =
+'(ian (ian (ian (qqFresh_bot hz) (qqFresh_atomic hk hz ht)) (qqFresh_binary hz)) (qqFresh_quantifier hk hz ht));
+pub theorem sqQuote_fresh (E: set) (t k n x d c: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ sfBound (d + n) c -> sqEnvAvoid E n x -> kFresh (sqQuote E t k d c) x $ =
+'(mpd id @ syl qqFresh_at @ syl (ax_mp sfWf_induction (qqFresh_closed hk hz ht)) sfBound_wf);
+
+
+pub theorem sfNamedTemplate_closed_fresh (E: set) (k x c: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $):
+ $ sfBound 0 c -> kFresh (sfNamedTemplate E k 0 c) x $ =
+'(mpi sqEnvAvoid_zero @ syl (sfNamedTemplate_fresh hk hz)
+ (bi2 (srecpeq2 (preq1 add01))));
+pub theorem sqQuote_closed_fresh (E: set) (t k x c: nat)
+ (hk: $ x < k $) (hz: $ x != 0 $) (ht: $ x != t $):
+ $ sfBound 0 c -> kFresh (sqQuote E t k 0 c) x $ =
+'(mpi sqEnvAvoid_zero @ syl (sqQuote_fresh hk hz ht)
+ (bi2 (srecpeq2 (preq1 add01))));

@@ -1,0 +1,48 @@
+import "source_theory.mm1";
+import "source_nd_renaming.mm1";
+
+pub theorem sfTheoryProvable_congr (H: wff) (A: set) (a b: nat)
+  (h: $ H -> a = b $): $ H -> (sfTheoryProvable A a <-> sfTheoryProvable A b) $ =
+(named '(exeqd @ exeqd @ aneq2d @ aneq2d @ lmemeqd
+  (sfNR_Sequent_congr eqidd h) eqidd));
+do (apply (register-eqd 'sfTheoryProvable) '(sfTheoryProvable_congr));
+
+theorem sfTheoryClosedContext_rename_identity (R: set) (G: nat):
+  $ all sfClosedFormulaClass G -> sfContextRename R 0 G = G $ =
+(named @ induct '(listind) 'G '(a1i sfContextRename_nil)
+  '(exp @ eqtrd (a1i sfContextRename_cons) @ conseqd
+    (syl sfRename_closed_identity @ syl (bi1 sfClosedFormulaClass_value) @
+      syl anl @ syl (bi1 allS) anr)
+    (mpd (syl anr (syl (bi1 allS) anr)) anl)));
+pub theorem sfTheoryContext_rename_identity (A R: set) (G: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G -> sfContextRename R 0 G = G $ =
+'(syl6 sfTheoryClosedContext_rename_identity ssall);
+
+theorem sfTheoryRename_row (A R: set) (G a: nat):
+  $ sfTheoryClosed A -> sfTheoryContext A G ->
+    sfRenameRow R 0 (sfSequent G a) = sfSequent G (sfRename R 0 a) $ =
+'(exp @ eqtrd (a1i sfRenameRow_sequent)
+  (sfNR_Sequent_congr (imp sfTheoryContext_rename_identity) eqidd));
+theorem sfTheoryRename_witness (A R: set) (G a q: nat):
+  $ (sfTheoryClosed A /\ sfTheoryContext A G) ->
+    sfNDFullDerives q (sfRenameRow R 0 (sfSequent G a)) ->
+    sfTheoryProvable A (sfRename R 0 a) $ =
+'(exp @ syl sfTheoryProvable_intro @ iand anlr
+  (mpbid (sfNR_Full_congr eqidd (syl (imp sfTheoryRename_row) anl)) anr));
+theorem sfTheoryRename_exists (A R: set) (G a: nat):
+  $ (sfTheoryClosed A /\ sfTheoryContext A G) ->
+    sfNDRenameExists R 0 (sfSequent G a) -> sfTheoryProvable A (sfRename R 0 a) $ =
+(named '(eexd sfTheoryRename_witness));
+theorem sfTheoryRename_source (A R: set) (G p a: nat):
+  $ sfTheoryClosed A ->
+    (sfTheoryContext A G /\ sfNDFullDerives p (sfSequent G a)) ->
+    sfTheoryProvable A (sfRename R 0 a) $ =
+'(exp @ sylc sfTheoryRename_exists (iand anl anrl) (syl sfNDFullDerives_rename anrr));
+pub theorem sfTheoryProvable_rename (A R: set) (a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A a -> sfTheoryProvable A (sfRename R 0 a) $ =
+(named '(eexd @ eexd sfTheoryRename_source));
+pub theorem sfTheoryProvable_raw_gen (A: set) (x a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A (rawDecode a) ->
+    sfTheoryProvable A (rawDecode (kAll x a)) $ =
+'(exp @ mpbird (a1i (trud (sfTheoryProvable_congr (a1i rawDecode_kAll)))) @
+  mpd (imp sfTheoryProvable_rename) (syl sfTheoryProvable_gen anl));

@@ -1,0 +1,21 @@
+import "source_l_replacement_range_kernel.mm0";
+
+import "source_l_replacement_profile.mm0";
+
+import "source_l_replacement_matrix.mm0";
+
+import "source_relativization_laws.mm0";
+
+def sfLReplacementRangeTail: set = $ sfComposeMap sfSuccessorMap sfSuccessorMap $;
+
+def sfLReplacementRangeMatrix(phi:nat):nat =
+ $ sfRelativize sfLDomain (sfShift 2 (sfShift 2 (sfShift 2 phi))) $;
+
+theorem sfLReplacementRangeCoverage_exact(phi:nat)(hf:$ sfWf phi $):
+ $ sfLReplacementRangeCoverage (sfLReplacementRangeMatrix phi) =
+ sfLReplacementImageCoverage sfLReplacementRangeTail sfLDomain (sfLReplacementPsi phi) 0 $;
+
+theorem sfLReplacement_range_coverage_from_image(phi:nat)(hf:$ sfWf phi $):
+ $ nsLocal 0 (sfImp (sfLReplacementAmbientProfile (sfLReplacementRangeMatrix phi))
+  (sfImp (sfLReplacementIntersectionBound (sfLReplacementRangeMatrix phi))
+   (sfLReplacementImageCoverage sfLReplacementRangeTail sfLDomain (sfLReplacementPsi phi) 0))) $;

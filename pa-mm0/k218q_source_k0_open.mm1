@@ -1,0 +1,49 @@
+import "k218q_quotient_mixed_arbitrary.mm1";
+
+import "source_theory_prefix.mm1";
+
+theorem k218QOpenFN_lookup (S i x: nat): $ nth i S = suc x -> sqNumericEnvironment S @ i = x $ = '(eqtrd (a1i sqStackEnv_value) (eqtrd (syl ifneg (syl (bi2 nthne0) nthSlt)) (eqtrd (subeq1d id) (a1i sucsub1))));
+
+theorem k218QOpenFN_at (E: set) (n i: nat): $ i < n -> sqNumericEnvironment (lfn E n) @ i = E @ i $ = '(syl k218QOpenFN_lookup nthlfn);
+
+theorem k218QOpenFN_agree (E: set) (n: nat): $ sqEnvAgree (sqNumericEnvironment (lfn E n)) E n $ = (named '(ax_gen k218QOpenFN_at));
+
+theorem k218QOpenFN_below_at (E: set) (n k i: nat): $ sqEnvBelow E n k -> i < n -> E @ i < k $ = (named '(!! eale j ,eqtac));
+
+theorem k218QOpenFN_below (G: wff) (E: set) (n k: nat) (he: $ G -> sqEnvBelow E n k $): $ G -> sqEnvironmentBelow (lfn E n) k $ = (named '(!! iald i @ exp @ mpbird (lteq1d (syl k218QOpenFN_at (mpbid (a1i (lteq2 lenlfn)) anr))) (mpd (mpbid (a1i (lteq2 lenlfn)) anr) (syl k218QOpenFN_below_at (syl he anl)))));
+
+theorem k218QOpenFN_safe (G: wff) (E: set) (n t k: nat) (hk: $ G -> 0 < k $) (ht: $ G -> t < k $) (he: $ G -> sqEnvBelow E n k $): $ G -> sqEnvironmentSafe (lfn E n) n t k $ = '(iand (a1i (mpbir (leeq2 lenlfn) leid)) (iand hk (iand ht (k218QOpenFN_below he))));
+
+
+
+@_ abstract def k218QOpenCutoff (E: set) (q .i: nat): set = $ \ i, if (i < q) (E @ i) 0 $;
+
+theorem k218QOpen_cutoff_value (E: set) (q i: nat): $ k218QOpenCutoff E q @ i = if (i < q) (E @ i) 0 $ = (named '(!! applame j ,eqtac));
+
+theorem k218QOpen_cutoff_live (E: set) (q i: nat): $ i < q -> k218QOpenCutoff E q @ i = E @ i $ = '(eqtrd (a1i k218QOpen_cutoff_value) ifpos);
+
+theorem k218QOpen_cutoff_dead (E: set) (q i: nat): $ ~i < q -> k218QOpenCutoff E q @ i = 0 $ = '(eqtrd (a1i k218QOpen_cutoff_value) ifneg);
+
+theorem k218QOpen_cutoff_point (J: wff) (E: set) (q k i: nat) (hk: $ J -> 0 < k $) (he: $ J -> sqEnvBelow E q k $): $ J -> k218QOpenCutoff E q @ i < k $ = '(casesda (mpbird (lteq1d (syl k218QOpen_cutoff_live anr)) (mpd anr (syl k218QOpenFN_below_at (syl he anl)))) (mpbird (lteq1d (syl k218QOpen_cutoff_dead anr)) (syl hk anl)));
+
+theorem k218QOpen_cutoff_below (J: wff) (E: set) (q N k: nat) (hk: $ J -> 0 < k $) (he: $ J -> sqEnvBelow E q k $): $ J -> sqEnvBelow (k218QOpenCutoff E q) N k $ = (named '(!! iald i @ a1d @ k218QOpen_cutoff_point hk he));
+
+theorem k218QOpen_pad_agree (E: set) (q N: nat) (h: $ q <= N $): $ sqEnvAgree (sqNumericEnvironment (lfn (k218QOpenCutoff E q) N)) E q $ = (named '(ax_gen (eqtrd (syl k218QOpenFN_at (mpi h ltletr)) k218QOpen_cutoff_live)));
+
+theorem k218QOpen_named_at (J: wff) (D p N S k a: nat) (hc: $ J -> sfTheoryContext sfK218K0Axioms D $) (hp: $ J -> k218INamedAt p D a $) (hn: $ J -> p <= N $) (hs: $ J -> sqEnvironmentSafe S N 0 k $): $ J -> k218QProvable (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $ = '(syl k218IHypProvable_empty (mpd (mpd (syl sqEnvironmentSafe_positive hs) (syl k218QClosedImage_support (syl (ax_mp sfTheoryContext_mono sfK218K0Axioms_subset_image) hc))) (mpd hs (mpd hn (syl k218INamedAt_use hp)))));
+
+theorem k218QOpen_named_core (J: wff) (E: set) (q k D p a: nat) (hb: $ J -> sfBound q a $) (hk: $ J -> 0 < k $) (he: $ J -> sqEnvBelow E q k $) (hc: $ J -> sfTheoryContext sfK218K0Axioms D $) (hp: $ J -> k218INamedAt p D a $): $ J -> k218QProvable (sfNamedTemplate E k 0 a) $ = '(mpbid (k218QProvableeqd (syl (sfNamedTemplate_environment (k218QOpen_pad_agree leaddid2)) (syl (bi2 (sfBoundeq1 add01)) hb))) (k218QOpen_named_at hc hp (a1i leaddid1) (k218QOpenFN_safe hk hk (k218QOpen_cutoff_below hk he))));
+
+pub theorem k218QOpen_named (E: set) (q k D p a: nat): $ sfBound q a -> 0 < k -> sqEnvBelow E q k -> sfTheoryContext sfK218K0Axioms D -> k218INamedAt p D a -> k218QProvable (sfNamedTemplate E k 0 a) $ = (named '(exp @ exp @ exp @ exp @ k218QOpen_named_core (syl (syl (syl (syl id anl) anl) anl) anl) (syl (syl (syl anr anl) anl) anl) (syl (syl anr anl) anl) (syl anr anl) anr));
+
+pub theorem k218QOpen_trace (E: set) (q k D p a: nat): $ sfBound q a -> 0 < k -> sqEnvBelow E q k -> sfTheoryContext sfK218K0Axioms D -> sfNDFullDerives p (sfSequent D a) -> k218QProvable (sfNamedTemplate E k 0 a) $ = (named '(exp @ exp @ exp @ syl5 k218QSourceND_named (eexd (imp (imp (imp k218QOpen_named))))));
+
+pub theorem sfK218K0_open_proof (E: set) (q k a: nat): $ sfBound q a -> 0 < k -> sqEnvBelow E q k -> sfTheoryProvable sfK218K0Axioms a -> k218QProvable (sfNamedTemplate E k 0 a) $ = (named '(exp @ exp @ eexd @ eexd @ impd (imp (imp k218QOpen_trace))));
+
+pub theorem sfK218Kp0_bound_internal (n f: nat): $ sfBound (suc (suc n)) f -> sfBound n (sfK218Kp0 f) $ = '(mpbid (sfBoundeq2d (sfK218Kp0eqd sfK218BoundGuard_valid)) (a1i (sfK218Kp0_bound sfK218BoundGuard_bound)));
+
+pub theorem sfK218Kp0_closed_internal (n f: nat): $ sfBound (suc (suc n)) f -> sfBound 0 (sfAllPrefix n (sfK218Kp0 f)) $ = '(mpbid (sfBoundeq2d (sfAllPrefixeq2d (sfK218Kp0eqd sfK218BoundGuard_valid))) (a1i (sfK218Kp0_closed sfK218BoundGuard_bound)));
+
+pub theorem sfK218Kp0_source_provable (n f: nat): $ sfBound (suc (suc n)) f -> sfTheoryProvable sfK218K0Axioms (sfK218Kp0 f) $ = '(mpd (syl (ax_mp sfTheoryAxiom_provable_closed sfK218K0Axioms_closed) (mpd sfK218Kp0_closed_internal (syl sfK218K0Instance_member sfBound_wf))) (a1i (ax_mp sfTheoryProvable_prefix_elim sfK218K0Axioms_closed)));
+
+pub theorem k218QSourceKp0_unrestricted (E: set) (n k f: nat): $ sfBound (suc (suc n)) f -> 0 < k -> sqEnvBelow E n k -> k218QProvable (sfNamedTemplate E k 0 (sfK218Kp0 f)) $ = (named '(exp @ exp @ mpd (syl sfK218Kp0_source_provable (syl anl anl)) (mpd anr (mpd anlr (syl sfK218K0_open_proof (syl sfK218Kp0_bound_internal (syl anl anl)))))));

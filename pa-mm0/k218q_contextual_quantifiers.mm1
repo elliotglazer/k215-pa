@@ -1,0 +1,78 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_deduction.mm1";
+import "k218q_quantifier_macros.mm1";
+
+def k218IContextVacuous (G x .a: nat): wff =
+$ A. a (a IN G -> k218QProvable (kImp a (kAll x a))) $;
+def k218IContextUniversalClass (G x .a: nat): set =
+$ {a | k218IHypProvable G (kAll x a)} $;
+
+pub theorem k218IContextVacuous_member (G x a: nat):
+  $ k218IContextVacuous G x -> a IN G -> k218QProvable (kImp a (kAll x a)) $ =
+(named '(!! eale b ,eqtac));
+pub theorem k218IContextVacuous_nil (x: nat): $ k218IContextVacuous 0 x $ =
+(named '(ax_gen @ absurd lmem0));
+pub theorem k218IContextVacuous_cons (G x a: nat):
+  $ k218IContextVacuous (a : G) x <-> k218QProvable (kImp a (kAll x a)) /\ k218IContextVacuous G x $ =
+(named '(ibii
+  (iand (mpi lmemconsid k218IContextVacuous_member)
+    (iald @ syl5 (syl (bi2 lmemS) orr) k218IContextVacuous_member))
+  (iald @ syl5bi lmemS @ eord
+    (exp @ mpbird (k218QProvableeqd (kImp_congr anr (kAll_congr_right anr))) anll)
+    (syl k218IContextVacuous_member anr))));
+pub theorem k218IContextUniversalClass_value (G x a: nat):
+  $ a e. k218IContextUniversalClass G x <-> k218IHypProvable G (kAll x a) $ =
+(named '(elabe ,eqtac));
+
+theorem k218ICQ_assumption (G x a: nat) (hv: $ k218IContextVacuous G x $):
+  $ a IN G -> a e. k218IContextUniversalClass G x $ =
+'(syl (bi2 k218IContextUniversalClass_value) @
+  sylc k218IHypProvable_mp k218IHypProvable_assumption
+    (syl k218IHypProvable_seed (ax_mp k218IContextVacuous_member hv)));
+theorem k218ICQ_seed (G x a: nat):
+  $ a e. k218QTheorems -> a e. k218IContextUniversalClass G x $ =
+'(syl (bi2 k218IContextUniversalClass_value) @ syl k218IHypProvable_seed @
+  syl k218QProvable_gen (bi1 k218QTheorems_value));
+theorem k218ICQ_trace_get (G x l a: nat):
+  $ traceClassAll (k218IContextUniversalClass G x) l -> a IN l ->
+    k218IHypProvable G (kAll x a) $ =
+'(syl6 (bi1 k218IContextUniversalClass_value) traceClassAll_get);
+theorem k218ICQ_distribute (G x a b: nat):
+  $ k218IHypProvable G (kAll x a) -> k218IHypProvable G (kAll x (kImp a b)) ->
+    k218IHypProvable G (kAll x b) $ =
+'(exp @ mpd (syl (mpi (ax_mp k218IHypProvable_seed (ax_mp k218QProvable_axiom k218QAxioms_rho2)) k218IHypProvable_mp) anr)
+  (syl k218IHypProvable_mp anl));
+theorem k218ICQ_mp_payload (G x l a b: nat):
+  $ traceClassAll (k218IContextUniversalClass G x) l ->
+    (b IN l /\ kImp b a IN l) -> a e. k218IContextUniversalClass G x $ =
+'(exp @ syl (bi2 k218IContextUniversalClass_value) @
+  sylc k218ICQ_distribute
+    (mpd (syl anl anr) (syl k218ICQ_trace_get anl))
+    (mpd (syl anr anr) (syl k218ICQ_trace_get anl)));
+theorem k218ICQ_mp_exists {b: nat} (G x l a: nat):
+  $ traceClassAll (k218IContextUniversalClass G x) l ->
+    E. b (b IN l /\ kImp b a IN l) -> a e. k218IContextUniversalClass G x $ =
+(named '(eexd k218ICQ_mp_payload));
+theorem k218ICQ_rule (G x l a: nat) (hv: $ k218IContextVacuous G x $):
+  $ traceClassAll (k218IContextUniversalClass G x) l ->
+    (a, l) e. k218IHypRules G -> a e. k218IContextUniversalClass G x $ =
+(named '(syl5bi k218IHypRules_value @ eord
+  (a1i (k218ICQ_assumption hv)) (eord (a1i k218ICQ_seed) k218ICQ_mp_exists)));
+pub theorem k218IHypRules_generalization_sound (G x: nat) (hv: $ k218IContextVacuous G x $):
+  $ traceRuleSound (k218IHypRules G) (k218IContextUniversalClass G x) $ =
+(named '(ax_gen @ ax_gen (k218ICQ_rule hv)));
+pub theorem k218IHypDerives_gen (G x p a: nat) (hv: $ k218IContextVacuous G x $):
+  $ k218IHypDerives G p a -> k218IHypProvable G (kAll x a) $ =
+'(syl (bi1 k218IContextUniversalClass_value) (ax_mp traceDerives_class (k218IHypRules_generalization_sound hv)));
+pub theorem k218IHypProvable_gen (G x a: nat) (hv: $ k218IContextVacuous G x $):
+  $ k218IHypProvable G a -> k218IHypProvable G (kAll x a) $ =
+(named '(eex (k218IHypDerives_gen hv)));
+pub theorem k218IHypProvable_exists_elim (G x p q: nat)
+  (hv: $ k218IContextVacuous G x $)
+  (hq: $ k218QProvable (kImp q (kAll x q)) $):
+  $ k218IHypProvable G (kExists x p) -> k218IHypProvable G (kImp p q) -> k218IHypProvable G q $ =
+'(exp @ mpd
+  (syl (mpi (ax_mp k218IHypProvable_seed (k218IExists_elimination hq)) k218IHypProvable_mp)
+    (syl (k218IHypProvable_gen hv) anr))
+  (syl k218IHypProvable_mp anl));

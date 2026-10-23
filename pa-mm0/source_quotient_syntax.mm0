@@ -1,0 +1,54 @@
+import "quotient_atom_templates.mm0";
+
+def sfQuotientMem (z a b: nat): nat = $ sfRename (sqAtomEnvironment z a b) 0 sqMemberSource $;
+
+def sfQuotientEq (z a b: nat): nat = $ sfRename (sqAtomEnvironment z a b) 0 sqEqualSource $;
+
+def sfQuotientBody (z c h: nat): nat = $ if (c = 0) 0
+  (if (sfTag c = 1) (sfQuotientMem z (sfLeft c) (sfRight c))
+  (if (sfTag c = 2) (sfQuotientEq z (sfLeft c) (sfRight c))
+  (if (sfTag c = 3) (sfAnd (h @ (z, sfLeft c)) (h @ (z, sfRight c)))
+  (if (sfTag c = 4) (sfOr (h @ (z, sfLeft c)) (h @ (z, sfRight c)))
+  (if (sfTag c = 5) (sfImp (h @ (z, sfLeft c)) (h @ (z, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0)
+    (sfAll (sfImp (sfMem (suc z) 0) (h @ (suc z, sfLeft c))))
+  (if (sfTag c = 7 /\ sfRight c = 0)
+    (sfEx (sfAnd (sfMem (suc z) 0) (h @ (suc z, sfLeft c)))) 0))))))) $;
+
+def sfQuotientStep (.h: nat): set = $ \ h, sfQuotientBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+def sfQuotient (z c: nat): nat = $ srec sfQuotientStep (z, c) $;
+
+def sfQuotientHistory (z c .i: nat): nat = $ \. i e. upto (z, c), srec sfQuotientStep i $;
+
+theorem sfQuotientStep_apply (h: nat): $ sfQuotientStep @ h = sfQuotientBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+theorem sfQuotientHistory_size (z c: nat): $ sfHistoryLength (sfQuotientHistory z c) = (z, c) $;
+
+theorem sfQuotientHistory_lookup (z c e a: nat): $ (e, a) < (z, c) -> sfQuotientHistory z c @ (e, a) = sfQuotient e a $;
+
+theorem sfQuotient_unfold (z c: nat): $ sfQuotient z c = sfQuotientBody z c (sfQuotientHistory z c) $;
+
+theorem sfQuotient_bot (z: nat): $ sfQuotient z sfBot = sfBot $;
+
+theorem sfQuotient_sfMem (z a b: nat): $ sfQuotient z (sfMem a b) = sfQuotientMem z a b $;
+
+theorem sfQuotient_sfEq (z a b: nat): $ sfQuotient z (sfEq a b) = sfQuotientEq z a b $;
+
+theorem sfQuotient_sfAnd (z a b: nat): $ sfQuotient z (sfAnd a b) = sfAnd (sfQuotient z a) (sfQuotient z b) $;
+
+theorem sfQuotient_sfOr (z a b: nat): $ sfQuotient z (sfOr a b) = sfOr (sfQuotient z a) (sfQuotient z b) $;
+
+theorem sfQuotient_sfImp (z a b: nat): $ sfQuotient z (sfImp a b) = sfImp (sfQuotient z a) (sfQuotient z b) $;
+
+theorem sfQuotient_sfAll (z a: nat): $ sfQuotient z (sfAll a) = sfAll (sfImp (sfMem (suc z) 0) (sfQuotient (suc z) a)) $;
+
+theorem sfQuotient_sfEx (z a: nat): $ sfQuotient z (sfEx a) = sfEx (sfAnd (sfMem (suc z) 0) (sfQuotient (suc z) a)) $;
+
+def sfQuotientWfClass (.c .z: nat): set = $ {c | A. z sfWf (sfQuotient z c)} $;
+
+theorem sfQWf_value {z: nat} (c: nat): $ c e. sfQuotientWfClass <-> A. z sfWf (sfQuotient z c) $;
+
+theorem sfQWf_closed: $ sfConstructionClosed sfQuotientWfClass $;
+
+theorem sfQuotient_wf (z c: nat): $ sfWf c -> sfWf (sfQuotient z c) $;

@@ -1,0 +1,119 @@
+import "extracted_named_at.mm1";
+
+@_ def exNE_name (H S k c: nat): nat =
+ $ kFreshAllocate H (sfNamedTemplate (sqNumericEnvironment S) k 0 c) 0 k $;
+pub theorem exNE_above (H S k c: nat): $ k < exNE_name H S k c $ = 'kFreshAllocate_above_reserved;
+pub theorem exNE_context (H S k c: nat): $ kContextFresh H (exNE_name H S k c) $ = 'kFreshAllocate_context;
+pub theorem exNE_formula (H S k c: nat):
+ $ kFresh (sfNamedTemplate (sqNumericEnvironment S) k 0 c) (exNE_name H S k c) $ = 'kFreshAllocate_left;
+pub theorem exNE_positive (H S k c: nat): $ 0 < exNE_name H S k c $ = '(mpbir lt01 kFreshAllocate_nonzero);
+pub theorem exNE_safe (H S n k c: nat):
+ $ sqEnvironmentSafe S n 0 k -> sqEnvironmentSafe S n 0 (exNE_name H S k c) $ =
+'(ax_mp sqEnvironmentSafe_raise exNE_above);
+pub theorem exNE_safe_body (H S n k c: nat):
+ $ sqEnvironmentSafe S n 0 k ->
+   sqEnvironmentSafe (exNE_name H S k c : S) (suc n) 0 (suc (exNE_name H S k c)) $ =
+'(syl (ax_mp sqEnvironmentSafe_cons ltsucid)
+ (ax_mp sqEnvironmentSafe_raise (ltletr exNE_above lesucid)));
+pub theorem exNE_source_bound_mono (p n G: nat):
+ $ p <= n -> sqSourceBound p G -> sqSourceBound n G $ =
+(named '(exp @ !! iald a @ exp @
+ mpd anll (syl sfBound_mono (mpd anr (syl sqSourceBound_at anlr)))));
+
+theorem exNE_source (F: wff) (H S n k G c: nat)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> exNamedSupport H S k G $):
+ $ F -> exNamedSupport H (exNE_name H S k c : S)
+   (suc (exNE_name H S k c)) (sfContextShift G) $ =
+'(mpd (mpd hg (mpd (syl (ax_mp sqEnvironmentSafe_raise (ltletr exNE_above lesucid)) hs)
+ (mpd hs (syl exNamedSupport_rebase hb)))) (syl exNamedSupport_shift hw));
+theorem exNE_AllI_point (F: wff) (H S n m k G a: nat)
+ (hp: $ F -> exNamedAt m (sfContextShift G) a $) (hm: $ F -> m <= suc n $)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (ha: $ F -> sfBound n (sfAll a) $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> exNamedSupport H S k G $):
+ $ F -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 (sfAll a)) $ =
+'(sqSQ_equiv_backward
+ (exND_rebase (syl sqEnvironmentSafe_positive hs) (a1i exNE_positive)
+  (syl sqEnvironmentSafe_live_below hs) (syl sqEnvironmentSafe_live_below (syl exNE_safe hs)) ha)
+ (mpbird (kHypProvableeq2d (syl sfNamedTemplate_all_cons
+    (syl sfBound_wf (syl (bi1 sfBound_sfAll) ha)))) @
+  syl (kHypProvable_gen_fresh exNE_context) @
+  mpbid (kHypProvableeq2d (syl exNamed_numeric_cons
+    (syl sfBound_wf (syl (bi1 sfBound_sfAll) ha)))) @
+  exNA_use hp hm (syl exNE_safe_body hs)
+   {(exNE_source hw hb hs hg) : $ F ->
+    exNamedSupport H (exNE_name H S k (sfAll a) : S)
+     (suc (exNE_name H S k (sfAll a))) (sfContextShift G) $}));
+pub theorem exNamedAt_AllI (p G a: nat)
+ (hw: $ sfContextWf G $) (hb: $ sqSourceBound p G $)
+ (ha: $ sfBound p (sfAll a) $)
+ (hp: $ exNamedAt (suc p) (sfContextShift G) a $):
+ $ exNamedAt p G (sfAll a) $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @
+ exNE_AllI_point (a1i hp) (syl (bi1 lesuc) anll) (a1i hw)
+ (mpd (a1i hb) (syl exNE_source_bound_mono anll))
+ (mpd anll (a1i (ax_mp sfBound_mono ha))) anlr anr));
+
+@_ def exNE_minor (H S k c a: nat): nat =
+ $ sfNamedTemplate (sqEnvCons (exNE_name H S k c) (sqNumericEnvironment S))
+    (suc (exNE_name H S k c)) 0 a : H $;
+theorem exNE_minor_support (F: wff) (H S n k G a c: nat)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (ha: $ F -> sfWf a $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> exNamedSupport H S k G $):
+ $ F -> exNamedSupport (exNE_minor H S k c a) (exNE_name H S k c : S)
+   (suc (exNE_name H S k c)) (a : sfContextShift G) $ =
+'(mpd (mpbird (kHypProvableeq2d (syl exNamed_numeric_cons ha))
+   (a1i (kHypProvable_assumption lmemconsid))) @
+ syl exNamedSupport_cons @ syl exNamedSupport_weaken @ exNE_source hw hb hs hg);
+theorem exNE_ExE_minor (F: wff) (H S n m k G a c: nat)
+ (hp: $ F -> exNamedAt m (a : sfContextShift G) (sfShift 0 c) $)
+ (hm: $ F -> m <= suc n $) (hw: $ F -> sfContextWf G $)
+ (hb: $ F -> sqSourceBound n G $) (ha: $ F -> sfWf a $) (hc: $ F -> sfBound n c $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> exNamedSupport H S k G $):
+ $ F -> kHypProvable (exNE_minor H S k c a)
+   (sfNamedTemplate (sqNumericEnvironment S) k 0 c) $ =
+'(sqSQ_equiv_backward
+ (exND_rebase (syl sqEnvironmentSafe_positive hs) (a1i lt01S)
+  (syl sqEnvironmentSafe_live_below hs)
+  (syl sqEnvironmentSafe_live_below (syl (ax_mp sqEnvironmentSafe_raise (ltletr exNE_above lesucid)) hs)) hc) @
+ mpbid (kHypProvableeq2d (syl exNamed_numeric_shift (syl sfBound_wf hc))) @
+ exNA_use hp hm (syl exNE_safe_body hs) (exNE_minor_support hw hb ha hs hg));
+theorem exNE_ExE_major (F: wff) (H S n m k G a c: nat)
+ (hp: $ F -> exNamedAt m G (sfEx a) $) (hm: $ F -> m <= n $)
+ (ha: $ F -> sfBound n (sfEx a) $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> exNamedSupport H S k G $):
+ $ F -> kHypProvable H (kExists (exNE_name H S k c)
+   (sfNamedTemplate (sqEnvCons (exNE_name H S k c) (sqNumericEnvironment S))
+    (suc (exNE_name H S k c)) 0 a)) $ =
+'(mpbid (kHypProvableeq2d (syl sfNamedTemplate_ex_cons
+   (syl sfBound_wf (syl (bi1 sfBound_sfEx) ha)))) @
+ sqSQ_equiv_forward
+ (exND_rebase (syl sqEnvironmentSafe_positive hs) (a1i exNE_positive)
+  (syl sqEnvironmentSafe_live_below hs) (syl sqEnvironmentSafe_live_below (syl exNE_safe hs)) ha)
+ (exNA_use hp hm hs hg));
+theorem exNE_ExE_point (F: wff) (H S n m j k G a c: nat)
+ (hp: $ F -> exNamedAt m G (sfEx a) $)
+ (hq: $ F -> exNamedAt j (a : sfContextShift G) (sfShift 0 c) $)
+ (hm: $ F -> m <= n $) (hj: $ F -> j <= suc n $)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (ha: $ F -> sfBound n (sfEx a) $) (hc: $ F -> sfBound n c $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> exNamedSupport H S k G $):
+ $ F -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 c) $ =
+'(sylc (kHypProvable_exists_elim (ax_mp kContextFresh_vacuous exNE_context)
+   (ax_mp kFresh_vacuity exNE_formula))
+ (exNE_ExE_major hp hm ha hs hg)
+ (syl kHypProvable_deduction @ exNE_ExE_minor hq hj hw hb
+  (syl sfBound_wf (syl (bi1 sfBound_sfEx) ha)) hc hs hg));
+pub theorem exNamedAt_ExE (p G a c: nat)
+ (hw: $ sfContextWf G $) (hb: $ sqSourceBound p G $)
+ (ha: $ sfBound p (sfEx a) $) (hc: $ sfBound p c $)
+ (hp: $ exNamedAt p G (sfEx a) $)
+ (hq: $ exNamedAt (suc p) (a : sfContextShift G) (sfShift 0 c) $):
+ $ exNamedAt p G c $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @
+ exNE_ExE_point (a1i hp) (a1i hq) anll (syl (bi1 lesuc) anll) (a1i hw)
+ (mpd (a1i hb) (syl exNE_source_bound_mono anll))
+ (mpd anll (a1i (ax_mp sfBound_mono ha)))
+ (mpd anll (a1i (ax_mp sfBound_mono hc))) anlr anr));

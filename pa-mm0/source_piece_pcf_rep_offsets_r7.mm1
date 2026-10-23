@@ -1,0 +1,52 @@
+import "source_piece_pcf_rep_environment.mm1";
+import "source_wf_separation_logic.mm1";
+
+-- T remains fixed throughout induction. Only the natural parameters r,d vary.
+@_ def sfPieceRepOffset(T:set)(r d .i:nat):set = $ \ i, d + (T @ (r + i)) $;
+pub theorem sfPieceRepOffset_at(T:set)(r d i:nat):
+ $ sfPieceRepOffset T r d @ i = d + (T @ (r + i)) $ = (named '(applame ,eqtac));
+pub theorem sfPieceRepOffset_origin(T:set)(i:nat):
+ $ sfPieceRepOffset T 0 0 @ i = T @ i $ =
+ '(eqtr sfPieceRepOffset_at (eqtr add01 (appeq2 add01)));
+pub theorem sfPieceRepOffset_head(T:set)(r d:nat):
+ $ sfPieceRepOffset T r d @ 0 = d + (T @ r) $ =
+ '(eqtr sfPieceRepOffset_at (addeq2 (appeq2 add02)));
+theorem pcro_input_suc(r i:nat): $ r + suc i = suc r + i $ =
+ '(eqtr addS2 (eqcom addS1));
+pub theorem sfPieceRepOffset_rest(T:set)(r d i:nat):
+ $ sfPieceRepRest (sfPieceRepOffset T r d) @ i = sfPieceRepOffset T (suc r) d @ i $ =
+ '(eqtr sfPieceRepRest_at (eqtr sfPieceRepOffset_at
+   (eqtr (addeq2 (appeq2 pcro_input_suc)) (eqcom sfPieceRepOffset_at))));
+pub theorem sfPieceRepOffset_lift_rest(T:set)(r d i:nat):
+ $ sfPieceRepLiftRest (sfPieceRepOffset T r d) @ i = sfPieceRepOffset T (suc r) (suc d) @ i $ =
+ '(eqtr sfPieceRepLiftRest_at
+   (eqtr (suceq (eqtr sfPieceRepOffset_at (addeq2 (appeq2 pcro_input_suc))))
+    (eqcom (eqtr sfPieceRepOffset_at addS1))));
+pub theorem sfPieceRepOffset_shift(T:set)(r d i:nat):
+ $ sfComposeMap sfSuccessorMap (sfPieceRepOffset T r d) @ i = sfPieceRepOffset T r (suc d) @ i $ =
+ '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value
+   (eqtr (suceq sfPieceRepOffset_at) (eqcom (eqtr sfPieceRepOffset_at addS1)))));
+pub theorem sfPieceEnv_offset_origin(T:set)(n e:nat):
+ $ sfPieceEnv (sfPieceRepOffset T 0 0) n e = sfPieceEnv T n e $ =
+ (named '(sfPieceEnv_eq eqid (ax_gen sfPieceRepOffset_origin)));
+pub theorem sfPieceEnv_offset_suc(T:set)(r d n e:nat):
+ $ sfPieceEnv (sfPieceRepOffset T r d) (suc n) e =
+   sfEx (sfAnd (sfPieceEnv (sfPieceRepOffset T (suc r) (suc d)) n 0)
+    (sfPieceRepExtension 0 (suc (d + (T @ r))) (suc e))) $ =
+ (named '(eqtr sfPieceEnv_suc (nsEx_eq (nsAnd_eq
+   (sfPieceEnv_eq eqid (ax_gen sfPieceRepOffset_lift_rest))
+   (sfPieceRepExtension_eq eqid (suceq sfPieceRepOffset_head) eqid)))));
+pub theorem sfPieceEnv_offset_shift(T:set)(r d n e:nat):
+ $ sfShift 0 (sfPieceEnv (sfPieceRepOffset T r d) n e) =
+   sfPieceEnv (sfPieceRepOffset T r (suc d)) n (suc e) $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceEnv_wf))
+   (eqtr sfPieceEnv_rename
+    (sfPieceEnv_eq sfSuccessorMap_value (ax_gen sfPieceRepOffset_shift)))));
+pub theorem sfPieceEnv_offset_suc_eliminate(T:set)(G r d n e out:nat)
+ (ho:$ sfWf out $)(he:$ nsLocal G (sfPieceEnv (sfPieceRepOffset T r d) (suc n) e) $)
+ (hc:$ nsLocal (sfAnd (sfPieceEnv (sfPieceRepOffset T (suc r) (suc d)) n 0)
+    (sfPieceRepExtension 0 (suc (d + (T @ r))) (suc e)) : sfContextShift G)
+   (sfShift 0 out) $):
+ $ nsLocal G out $ =
+ '(ax_mp (ax_mp (sfLocal_exE ho)
+    (mpbi (nsLocal_formula_eq sfPieceEnv_offset_suc) he)) hc);

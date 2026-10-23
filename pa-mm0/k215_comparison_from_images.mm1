@@ -1,0 +1,27 @@
+import "source_l_interpretation.mm1";
+
+import "k215_core_transfer.mm1";
+
+import "k215_source_transfer.mm1";
+
+def k215ComparisonImageObligations: wff = $ sfZFCImageFamilies zfrAxioms sfLDomain /\ (omegaReplacementImages /\ k215SourceBundleImages) $;
+
+pub theorem k215ZFC_refutation_from_images:
+ $ sfZFCImageFamilies zfrAxioms sfLDomain -> omegaReplacementImages -> zfcInconsistent -> k215Inconsistent $ =
+'(exp @ exp @ mpd (mpd anr (syl sfLZFC_refutation_from_images (syl anl anl))) (syl k215ZFRInconsistency_from_replacement (syl anr anl)));
+
+theorem k215Comparison_forward:
+ $ k215ComparisonImageObligations -> k215Inconsistent -> zfcInconsistent $ =
+'(syl k215Source_refutation_transfer (syl anr anr));
+
+theorem k215Comparison_reverse:
+ $ k215ComparisonImageObligations -> zfcInconsistent -> k215Inconsistent $ =
+'(mpd (syl anl anr) (syl k215ZFC_refutation_from_images anl));
+
+pub theorem k215Inconsistency_iff_ZFC_from_images:
+ $ k215ComparisonImageObligations -> (k215Inconsistent <-> zfcInconsistent) $ =
+'(ibid k215Comparison_forward k215Comparison_reverse);
+
+pub theorem k215Consistency_iff_ZFC_from_images:
+ $ k215ComparisonImageObligations -> (~k215Inconsistent <-> ~zfcInconsistent) $ =
+'(noteqd k215Inconsistency_iff_ZFC_from_images);

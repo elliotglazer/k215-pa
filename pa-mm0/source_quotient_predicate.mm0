@@ -1,0 +1,15 @@
+import "source_quotient_formula.mm0";
+
+theorem sfQuotient_quote (E: set) (n z k c: nat): $ sfBound n c -> z < n -> sfNamedTemplate E k 0 (sfQuotient z c) = sqQuote E (E @ z) k 0 c $;
+
+def sfQInsertMarker (.i: nat): set = $ \ i, if (i = 0) 0 (suc i) $;
+
+def sfQPredicate (c: nat): nat = $ sfQuotient 1 (sfRename sfQInsertMarker 0 c) $;
+
+theorem sfQInsertMarker_zero: $ sfQInsertMarker @ 0 = 0 $;
+
+theorem sfQInsertMarker_suc (i: nat): $ sfQInsertMarker @ suc i = suc (suc i) $;
+
+theorem sfQPredicate_bound (n c: nat): $ sfBound (suc n) c -> sfBound (suc (suc n)) (sfQPredicate c) $;
+
+theorem sfQPredicate_named (E: set) (n x t k c: nat): $ sfBound (suc n) c -> sfNamedTemplate (sqEnvCons x (sqEnvCons t E)) k 0 (sfQPredicate c) = sqQuote (sqEnvCons x E) t k 0 c $;

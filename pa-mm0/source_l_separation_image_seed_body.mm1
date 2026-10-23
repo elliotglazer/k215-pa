@@ -1,0 +1,19 @@
+import "source_l_separation_image_seed_logic.mm1";
+import "source_domain_discharge.mm1";
+
+@_ def sfLSeparationSeedPoint(O R i:nat):nat = $ sfAnd O (sfAnd (sfMem i 0) R) $;
+@_ def sfLSeparationSeedWitness(O R:nat):nat = $ sfEx (sfLSeparationSeedPoint O R 1) $;
+
+pub theorem slSeedPoint_wf(O R i:nat)(ho:$ sfWf O $)(hr:$ sfWf R $): $ sfWf (sfLSeparationSeedPoint O R i) $ = '(ax_mp (ax_mp sfWf_and ho) (ax_mp (ax_mp sfWf_and sfWf_mem) hr));
+pub theorem slSeedPoint_shift_one(O R:nat)(ho:$ sfBound 1 O $)(hr:$ sfBound 1 R $): $ sfShift 1 (sfLSeparationSeedPoint O R 1) = sfLSeparationSeedPoint O R 2 $ =
+ '(eqtr sfShift_sfAnd (nsAnd_eq (ax_mp sfShift_bound_identity ho) (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_free (mpbi lenlt leid)) (ax_mp sfShiftIndex_bound d0lt1))) (ax_mp sfShift_bound_identity hr)))));
+pub theorem slSeedPoint_shift_two(O R:nat)(ho:$ sfBound 1 O $)(hr:$ sfBound 1 R $): $ sfShift 1 (sfLSeparationSeedPoint O R 2) = sfLSeparationSeedPoint O R 3 $ =
+ '(eqtr sfShift_sfAnd (nsAnd_eq (ax_mp sfShift_bound_identity ho) (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_free (mpbi lenlt le11S)) (ax_mp sfShiftIndex_bound d0lt1))) (ax_mp sfShift_bound_identity hr)))));
+pub theorem slSeedPoint_subst_three(O R:nat)(ho:$ sfBound 1 O $)(hr:$ sfBound 1 R $): $ sfSubst 0 0 (sfLSeparationSeedPoint O R 3) = sfLSeparationSeedPoint O R 2 $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq (ax_mp sfSubst_bound_top_identity ho) (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_successor sfSubstIndex_zero)) (ax_mp sfSubst_bound_top_identity hr)))));
+pub theorem sfLSeparationSeedWitness_shift_two(O R:nat)(ho:$ sfBound 1 O $)(hr:$ sfBound 1 R $): $ sfShift 0 (sfShift 0 (sfLSeparationSeedWitness O R)) = sfEx (sfLSeparationSeedPoint O R 3) $ =
+ '(eqtr (trud (sfShift_formula_congr (a1i eqid) (a1i (eqtr sfShift_sfEx (nsEx_eq (slSeedPoint_shift_one ho hr)))))) (eqtr sfShift_sfEx (nsEx_eq (slSeedPoint_shift_two ho hr))));
+pub theorem sfLSeparationSeedWitness_intro(G O R:nat)(ho:$ sfBound 1 O $)(hr:$ sfBound 1 R $)(hO:$ nsLocal G O $)(hm:$ nsLocal G (sfMem 2 0) $)(hR:$ nsLocal G R $): $ nsLocal G (sfShift 0 (sfShift 0 (sfLSeparationSeedWitness O R))) $ =
+ '(mpbir (nsLocal_formula_eq (sfLSeparationSeedWitness_shift_two ho hr))
+   (ax_mp (ax_mp nsLocal_ExI (slSeedPoint_wf (ax_mp sfBound_wf ho) (ax_mp sfBound_wf hr)))
+    (mpbir (nsLocal_formula_eq (slSeedPoint_subst_three ho hr)) (ax_mp (ax_mp sfLocal_and hO) (ax_mp (ax_mp sfLocal_and hm) hR)))));

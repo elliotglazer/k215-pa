@@ -1,0 +1,81 @@
+import "k230_codes.mm0";
+import "source_renaming.mm0";
+
+-- Arithmetic decoder for K's four-tag named codes. Its graph is newly
+-- defined here; equality with the Rocq numerical trace graph is not assumed.
+def sfTruth: nat = $ sfImp sfBot sfBot $;
+def rawTag (c: nat): nat = $ c % 4 $;
+def rawLeft (c: nat): nat = $ fst (c // 4) $;
+def rawRight (c: nat): nat = $ snd (c // 4) $;
+def rawBinderIndex (x i: nat): nat = $ if (i = x) 0 (suc i) $;
+def rawBinderMap (x .i: nat): set = $ \ i, rawBinderIndex x i $;
+def rawDecodeBody (c h: nat): nat =
+$ if (rawTag c = 1) (sfMem (rawLeft c) (rawRight c))
+  (if (rawTag c = 3) (sfEq (rawLeft c) (rawRight c))
+  (if (rawTag c = 2) (sfAll (sfRename (rawBinderMap (rawLeft c)) 0 (h @ rawRight c)))
+  (if (0 < c) (sfImp (h @ rawLeft c) (h @ rawRight c)) sfTruth))) $;
+def rawDecodeStep (.h: nat): set = $ \ h, rawDecodeBody (sfHistoryLength h) h $;
+def rawDecode (c: nat): nat = $ srec rawDecodeStep c $;
+def rawDecodeHistory (c .i: nat): nat = $ \. i e. upto c, srec rawDecodeStep i $;
+def rawDecodeGraph (c s: nat): wff = $ s = rawDecode c $;
+
+theorem rawBinderMap_value (x i: nat): $ rawBinderMap x @ i = rawBinderIndex x i $;
+theorem rawBinderMap_same (x: nat): $ rawBinderMap x @ x = 0 $;
+theorem rawBinderMap_other (x i: nat): $ i != x -> rawBinderMap x @ i = suc i $;
+theorem rawQuot_lt (c: nat): $ 0 < c -> c // 4 < c $;
+theorem rawLeft_lt (c: nat): $ 0 < c -> rawLeft c < c $;
+theorem rawRight_lt (c: nat): $ 0 < c -> rawRight c < c $;
+theorem rawDecodeStep_apply (h: nat): $ rawDecodeStep @ h = rawDecodeBody (sfHistoryLength h) h $;
+theorem rawDecodeHistory_size (c: nat): $ sfHistoryLength (rawDecodeHistory c) = c $;
+theorem rawDecodeHistory_lookup (c a: nat): $ a < c -> rawDecodeHistory c @ a = rawDecode a $;
+theorem rawDecode_unfold (c: nat): $ rawDecode c = rawDecodeBody c (rawDecodeHistory c) $;
+
+theorem raw_kImp_left (a b: nat): $ rawLeft (kImp a b) = a $;
+
+theorem raw_kImp_right (a b: nat): $ rawRight (kImp a b) = b $;
+
+theorem raw_kMem_left (a b: nat): $ rawLeft (kMem a b) = a $;
+
+theorem raw_kMem_right (a b: nat): $ rawRight (kMem a b) = b $;
+
+theorem raw_kMem_positive (a b: nat): $ 0 < kMem a b $;
+
+theorem raw_kAll_left (a b: nat): $ rawLeft (kAll a b) = a $;
+
+theorem raw_kAll_right (a b: nat): $ rawRight (kAll a b) = b $;
+
+theorem raw_kAll_positive (a b: nat): $ 0 < kAll a b $;
+
+theorem raw_kEq_left (a b: nat): $ rawLeft (kEq a b) = a $;
+
+theorem raw_kEq_right (a b: nat): $ rawRight (kEq a b) = b $;
+
+theorem raw_kEq_positive (a b: nat): $ 0 < kEq a b $;
+
+theorem raw_kImp_zero: $ kImp 0 0 = 0 $;
+theorem raw_kImp_zero_iff (a b: nat): $ kImp a b = 0 <-> a = 0 /\ b = 0 $;
+theorem raw_kImp_left_lt (a b: nat): $ kImp a b != 0 -> a < kImp a b $;
+theorem raw_kImp_right_lt (a b: nat): $ kImp a b != 0 -> b < kImp a b $;
+theorem raw_kAll_body_lt (a b: nat): $ b < kAll a b $;
+
+theorem rawDecode_zero: $ rawDecode 0 = sfTruth $;
+theorem rawDecode_kMem (a b: nat): $ rawDecode (kMem a b) = sfMem a b $;
+theorem rawDecode_kEq (a b: nat): $ rawDecode (kEq a b) = sfEq a b $;
+theorem rawDecode_kImp (a b: nat):
+  $ kImp a b != 0 -> rawDecode (kImp a b) = sfImp (rawDecode a) (rawDecode b) $;
+theorem rawDecode_kAll (x a: nat):
+  $ rawDecode (kAll x a) = sfAll (sfRename (rawBinderMap x) 0 (rawDecode a)) $;
+theorem rawDecode_kF: $ rawDecode kF = sfMem 0 0 $;
+theorem rawDecode_kImp_zero: $ rawDecode (kImp 0 0) = sfTruth $;
+theorem sfTruth_ne_bot: $ sfTruth != sfBot $;
+theorem rawDecode_zero_collision:
+  $ rawDecode (kImp 0 0) != sfImp (rawDecode 0) (rawDecode 0) $;
+
+theorem sfTruth_wf: $ sfWf sfTruth $;
+theorem rawDecode_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> rawDecode a = rawDecode b $;
+theorem rawDecode_wf (c: nat): $ sfWf (rawDecode c) $;
+theorem rawDecodeGraph_total {s: nat} (c: nat): $ E. s rawDecodeGraph c s $;
+theorem rawDecodeGraph_functional (c s t: nat):
+  $ rawDecodeGraph c s -> rawDecodeGraph c t -> s = t $;
+theorem rawDecodeGraph_wf (c s: nat): $ rawDecodeGraph c s -> sfWf s $;

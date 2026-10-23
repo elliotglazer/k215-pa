@@ -1,0 +1,46 @@
+import "k215_literal_tm.mm0";
+
+def k215TmPush (b n: nat): nat = $ b + 2 * n $;
+
+def k215TmHead (n: nat): nat = $ n % 2 $;
+
+def k215TmTail (n: nat): nat = $ n // 2 $;
+
+theorem k215TmPush_head (b n: nat): $ b <= 1 -> k215TmHead (k215TmPush b n) = b $;
+
+theorem k215TmPush_tail (b n: nat): $ b <= 1 -> k215TmTail (k215TmPush b n) = n $;
+
+theorem k215TmHead_bound (n: nat): $ k215TmHead n <= 1 $;
+
+theorem k215TmTape_split (n: nat): $ k215TmPush (k215TmHead n) (k215TmTail n) = n $;
+
+theorem k215TmHead_zero: $ k215TmHead 0 = 0 $;
+
+theorem k215TmTail_zero: $ k215TmTail 0 = 0 $;
+
+theorem k215TmPush_blank: $ k215TmPush 0 0 = 0 $;
+
+theorem k215TmPush_twice (b w n: nat): $ k215TmPush b (k215TmPush w n) = b + 2 * w + 4 * n $;
+
+theorem k215TMMove_left (a l r: nat):
+ $ k215TMDir a = 0 -> k215TMMove a l r =
+   k215TMState (k215TMTarget a) (k215TmTail l) (k215TmPush (k215TmHead l) (k215TmPush (k215TMWrite a) (k215TmTail r))) $;
+
+theorem k215TMMove_left_new_head (a l r: nat):
+ $ k215TMDir a = 0 -> k215TmHead (k215TMR (k215TMMove a l r)) = k215TmHead l $;
+
+theorem k215TMMove_left_written (a l r: nat):
+ $ k215TMWrite a <= 1 -> k215TMDir a = 0 ->
+   k215TmHead (k215TmTail (k215TMR (k215TMMove a l r))) = k215TMWrite a $;
+
+theorem k215TMMove_right (a l r: nat):
+ $ k215TMDir a != 0 ->
+   k215TMMove a l r = k215TMState (k215TMTarget a) (k215TmPush (k215TMWrite a) l) (k215TmTail r) $;
+
+theorem k215TMMove_right_new_head (a l r: nat):
+ $ k215TMDir a != 0 ->
+   k215TmHead (k215TMR (k215TMMove a l r)) = k215TmHead (k215TmTail r) $;
+
+theorem k215TMMove_right_written (a l r: nat):
+ $ k215TMWrite a <= 1 -> k215TMDir a != 0 ->
+   k215TmHead (k215TML (k215TMMove a l r)) = k215TMWrite a $;

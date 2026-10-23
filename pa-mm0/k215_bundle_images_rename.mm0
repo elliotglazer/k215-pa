@@ -1,0 +1,23 @@
+import "k215_bundle_images_decode.mm0";
+import "source_renaming_depth.mm0";
+import "source_renaming_extensional.mm0";
+import "source_renaming_laws.mm0";
+
+-- The decoded bundle with the falsity label z as a parameter (z = 0 is the actual one).
+def k215DecSeedGz (a b k z Q: nat): nat =
+ $ (sfAll (sfRename (rawBinderMap k) 0 (sfImp (sfAll (sfRename (rawBinderMap b) 0 (sfImp (sfMem b k) (sfImp (sfAll (sfRename (rawBinderMap a) 0 (sfImp Q (sfImp (sfAll (sfRename (rawBinderMap a) 0 (sfImp (sfAll (sfRename (rawBinderMap k) 0 (sfImp (sfMem k a) (sfMem k b)))) (sfAll (sfRename (rawBinderMap b) 0 (sfImp Q (sfImp (sfAll (sfRename (rawBinderMap b) 0 (sfImp Q (sfImp (sfMem b k) (sfMem z z))))) (sfMem z z)))))))) (sfMem z z))))) (sfMem z z))))) (sfImp (sfAll (sfRename (rawBinderMap b) 0 (sfImp Q (sfImp (sfAll (sfRename (rawBinderMap b) 0 (sfImp Q (sfImp (sfMem b k) (sfMem z z))))) (sfMem z z))))) (sfMem z z))))) $;
+def k215DecBundleGz (a b k z Q: nat): nat =
+ $ (sfImp (sfImp (sfImp (sfMem a b) (sfAll (sfRename (rawBinderMap k) 0 (sfMem a b)))) (k215DecSeedGz a b k z Q)) (sfMem z z)) $;
+
+theorem k215DecBundleG_z (a b k Q: nat): $ k215DecBundleG a b k Q = k215DecBundleGz a b k 0 Q $;
+
+-- A renaming by an injective map commutes with a decoded named binder.
+theorem k215BR_comm (S: set) (x B: nat) {i: nat} (hinj: $ A. i (S @ i = S @ x -> i = x) $) (hB: $ sfWf B $):
+ $ sfRename S 1 (sfRename (rawBinderMap x) 0 B) =
+   sfRename (rawBinderMap (S @ x)) 0 (sfRename S 0 B) $;
+
+-- Renaming normal form of the decoded bundle.
+theorem k215DecBundleGz_rename (S: set) (a b k z Q: nat) {i: nat}
+ (ha: $ A. i (S @ i = S @ a -> i = a) $) (hb: $ A. i (S @ i = S @ b -> i = b) $) (hk: $ A. i (S @ i = S @ k -> i = k) $) (hQ: $ sfWf Q $):
+ $ sfRename S 0 (k215DecBundleGz a b k z Q) =
+   k215DecBundleGz (S @ a) (S @ b) (S @ k) (S @ z) (sfRename S 0 Q) $;

@@ -1,0 +1,21 @@
+import "source_k0_collection_profile.mm1";
+
+import "source_k0_qrep_selected.mm1";
+
+import "source_k0_qrep_transport.mm1";
+
+@_ def sfK0QRepRelation (E: set) (t R x y phi: nat): nat = $ sqQuote (sqEnvCons x (sqEnvCons y E)) t R 0 phi $;
+
+@_ def sfK0QRepRawProfile (E: set) (t a c u w y x R phi: nat): nat = $ kAnd (kMem t c) (kAnd (kAll u (kImp (kAnd (kMem t u) (kMem u a)) (kImp (kExists w (kAnd (kMem t w) (sfK0QRepRelation E t R u w phi))) (kExists y (kAnd (kMem t y) (kAnd (kMem y c) (sfK0QRepRelation E t R u y phi))))))) (kAll y (kImp (kAnd (kMem t y) (kMem y c)) (kExists x (kAnd (kAnd (kMem t x) (kMem x a)) (sfK0QRepRelation E t R x y phi)))))) $;
+
+@_ def sfK0QRepFunctional (E: set) (t a u v w M R phi: nat): nat = $ kAll u (kImp (kAnd (kMem t u) (sqMember t u a M)) (kAll v (kImp (kMem t v) (kAll w (kImp (kMem t w) (kImp (sfK0QRepRelation E t R u v phi) (kImp (sfK0QRepRelation E t R u w phi) (sqEqual t v w M)))))))) $;
+
+@_ def sfK0QRepImage (E: set) (t a c y x M R phi: nat): nat = $ kAnd (kMem t c) (kAll y (kImp (kMem t y) (kAnd (kImp (sqMember t y c M) (kExists x (kAnd (kAnd (kMem t x) (sqMember t x a M)) (sfK0QRepRelation E t R x y phi)))) (kImp (kExists x (kAnd (kAnd (kMem t x) (sqMember t x a M)) (sfK0QRepRelation E t R x y phi))) (sqMember t y c M))))) $;
+
+pub theorem sfK0QRepRelation_selected (E: set) (n t R x y phi: nat):
+ $ sfBound (suc (suc n)) phi -> sfK0CollectionRel (sqEnvCons t E) R y x (sfK0QRepSelectedPredicate phi) = sfK0QRepRelation E t R x y phi $ =
+'sfK0QRepSelected_named;
+
+pub theorem sfK0QRepRawProfile_selected (E: set) (n t a c u w y x R phi: nat):
+ $ sfBound (suc (suc n)) phi -> sfK0CollectionProfile (sqEnvCons t E) t a c u w y x R (sfK0QRepSelectedPredicate phi) = sfK0QRepRawProfile E t a c u w y x R phi $ =
+'(kAndeq2d (kAndeqd (kAlleq2d (kImpeq2d (kImpeqd (kExistseq2d (kAndeq2d sfK0QRepRelation_selected)) (kExistseq2d (kAndeq2d (kAndeq2d sfK0QRepRelation_selected)))))) (kAlleq2d (kImpeq2d (kExistseq2d (kAndeq2d sfK0QRepRelation_selected))))));

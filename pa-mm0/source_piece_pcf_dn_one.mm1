@@ -1,0 +1,63 @@
+import "source_piece_pcf_triple_maps.mm1";
+import "source_piece_pcf_dn_environment.mm1";
+
+do { (add-eqd-thm 'sfLCBinaryMap 'pcdnLCBinaryMapCong) };
+
+@_ def sfPieceDnOne(body:nat):nat =
+ $ sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 body)) $;
+@_ def sfPieceDnOneMap(x y z:nat):set =
+ $ sfComposeMap (sfRenameDepthMap (sfLCBinaryMap x y z) 1) sfPieceRotate $;
+
+theorem pcdn_depth_zero(R:set): $ sfRenameDepthMap R 1 @ 0 = 0 $ =
+'(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound d0lt1));
+theorem pcdn_depth_suc(R:set)(i:nat):
+ $ sfRenameDepthMap R 1 @ suc i = suc (R @ i) $ =
+'(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)));
+theorem pcdn_map_zero(x y z:nat):
+ $ sfPieceDnOneMap x y z @ 0 = sfPieceTripleMap (suc x) (suc y) 0 (suc z) @ 0 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_zero)
+ (eqtr pcdn_depth_suc (eqtr (suceq sfLCB_zero) (eqcom sfPCT_zero)))));
+theorem pcdn_map_one(x y z:nat):
+ $ sfPieceDnOneMap x y z @ 1 = sfPieceTripleMap (suc x) (suc y) 0 (suc z) @ 1 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_one)
+ (eqtr pcdn_depth_suc (eqtr (suceq sfLCB_one) (eqcom sfPCT_one)))));
+theorem pcdn_map_two(x y z:nat):
+ $ sfPieceDnOneMap x y z @ 2 = sfPieceTripleMap (suc x) (suc y) 0 (suc z) @ 2 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_two)
+ (eqtr pcdn_depth_zero (eqcom sfPCT_two))));
+theorem pcdn_map_tail(x y z i:nat):
+ $ sfPieceDnOneMap x y z @ suc (suc (suc i)) =
+  sfPieceTripleMap (suc x) (suc y) 0 (suc z) @ suc (suc (suc i)) $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_tail)
+ (eqtr pcdn_depth_suc (eqtr (suceq sfLCB_tail)
+ (eqtr (eqcom addS2) (eqcom sfPCT_tail))))));
+theorem pcdn_map_ss(x y z i:nat):
+ $ sfPieceDnOneMap x y z @ suc (suc i) =
+  sfPieceTripleMap (suc x) (suc y) 0 (suc z) @ suc (suc i) $ =
+(named @ induct '(ind) 'i 'pcdn_map_two '(a1i pcdn_map_tail));
+theorem pcdn_map_s(x y z i:nat):
+ $ sfPieceDnOneMap x y z @ suc i = sfPieceTripleMap (suc x) (suc y) 0 (suc z) @ suc i $ =
+(named @ induct '(ind) 'i 'pcdn_map_one '(a1i pcdn_map_ss));
+pub theorem sfPieceDnOneMap_at(x y z i:nat):
+ $ sfPieceDnOneMap x y z @ i = sfPieceTripleMap (suc x) (suc y) 0 (suc z) @ i $ =
+(named @ induct '(ind) 'i 'pcdn_map_zero '(a1i pcdn_map_s));
+theorem pcdn_body(body x y z:nat)(hf:$ sfWf body $):
+ $ sfRename (sfLCBinaryMap x y z) 1 (sfRename sfPieceRotate 0 body) =
+  sfPieceTriple body (suc x) (suc y) 0 (suc z) $ =
+(named '(eqtr (ax_mp sfRename_mixed_compose hf)
+ (ax_mp (sfRename_extensional (ax_gen sfPieceDnOneMap_at)) hf)));
+theorem pcdn_guard(x y z:nat):
+ $ sfRename (sfLCBinaryMap x y z) 1 (sfMem 0 2) = sfMem 0 (suc y) $ =
+'(eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound d0lt1)
+ (eqtr sfRenameIndex_lift (eqtr (suceq sfRenameIndex_zero) (suceq sfLCB_one)))));
+
+pub theorem sfPieceDnOne_open(body x y z:nat)(hf:$ sfWf body $):
+ $ sfLCBinary (sfPieceDnOne body) x y z =
+  sfAll (sfImp (sfMem 0 (suc y)) (sfPieceTriple body (suc x) (suc y) 0 (suc z))) $ =
+'(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq pcdn_guard (pcdn_body hf)))));
+
+pub theorem sfPieceDnOne_wf(body:nat): $ sfWf (sfPieceDnOne body) $ =
+'(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfRename_wf));
+pub theorem sfPieceDn_suc_one(count body:nat):
+ $ sfPieceDn (suc count) body = sfPieceDnOne (sfPieceDn count body) $ =
+'sfPieceDn_suc;

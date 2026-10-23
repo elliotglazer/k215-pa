@@ -1,0 +1,37 @@
+import "source_zfc_interpretation.mm1";
+
+import "source_l_nonempty.mm1";
+
+import "source_wf_consistency.mm1";
+
+pub theorem sfLZFC_transfer_from_images (a: nat):
+ $ sfZFCImageFamilies zfrAxioms sfLDomain -> sfBound 0 a -> zfcProvable a -> sfTheoryProvable zfrAxioms (sfRelativize sfLDomain a) $ =
+'(mpd (a1i sfLNonempty_zfr) (sfZFCImageFamilies_transfer zfrAxioms_closed sfLDomain_bound));
+
+pub theorem sfLZFC_refutation_from_images:
+ $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> sfTheoryProvable zfrAxioms sfBot $ =
+'(mpd (a1i sfLNonempty_zfr) (sfZFCImageFamilies_refutation zfrAxioms_closed sfLDomain_bound));
+
+pub theorem sfLZFR_refutation_into_ZFC:
+ $ sfTheoryProvable zfrAxioms sfBot -> zfcInconsistent $ =
+'(syl (bi1 sfTheoryProvable_zfc) (ax_mp sfTheoryProvable_mono zfrAxioms_subset_zfc));
+
+pub theorem sfLZFC_ZFR_equiconsistency_from_images:
+ $ sfZFCImageFamilies zfrAxioms sfLDomain -> (zfcInconsistent <-> sfTheoryProvable zfrAxioms sfBot) $ =
+'(ibid sfLZFC_refutation_from_images (a1i sfLZFR_refutation_into_ZFC));
+
+pub theorem sfLZFC_core_refutation_from_images:
+ $ sfZFCImageFamilies zfrAxioms sfLDomain -> zfcInconsistent -> sfTheoryProvable zfcCoreAxioms sfBot $ =
+'(syl6 sfWFZFR_refutation sfLZFC_refutation_from_images);
+
+pub theorem sfLCore_refutation_into_ZFC:
+ $ sfTheoryProvable zfcCoreAxioms sfBot -> zfcInconsistent $ =
+'(syl sfLZFR_refutation_into_ZFC sfWFCore_refutation);
+
+pub theorem sfLZFC_core_equiconsistency_from_images:
+ $ sfZFCImageFamilies zfrAxioms sfLDomain -> (zfcInconsistent <-> sfTheoryProvable zfcCoreAxioms sfBot) $ =
+'(ibid sfLZFC_core_refutation_from_images (a1i sfLCore_refutation_into_ZFC));
+
+pub theorem sfLZFC_core_consistency_from_images:
+ $ sfZFCImageFamilies zfrAxioms sfLDomain -> (~zfcInconsistent <-> ~sfTheoryProvable zfcCoreAxioms sfBot) $ =
+'(noteqd sfLZFC_core_equiconsistency_from_images);

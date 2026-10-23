@@ -1,0 +1,26 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_rebase_quote.mm0";
+import "k218q_bootstrap.mm0";
+import "k218q_quotation_rebase.mm0";
+import "quotation_quote_hygiene.mm0";
+import "k218q_quotation_quantifiers.mm0";
+
+def k218SQ_qqBaseClass (E: set) (.c .S .n .t .k .l: nat): set =
+ $ {c | A. S A. n A. t A. k A. l (sfBound n c ->
+ sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqQuoteHygiene (sqStackEnv S E) n t l c ->
+ k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+             (sqQuote (sqStackEnv S E) t l 0 c))} $;
+
+theorem k218SQ_sqQuote_bot_rebase (E: set) (t k l: nat):
+ $ k218IEquivalent (sqQuote E t k 0 sfBot) (sqQuote E t l 0 sfBot) $;
+
+theorem k218SQ_sqQuote_rebase_stack (E: set) (S n t k l c: nat):
+ $ sfBound n c -> sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqQuoteHygiene (sqStackEnv S E) n t l c ->
+ k218IEquivalent (sqQuote (sqStackEnv S E) t k 0 c)
+             (sqQuote (sqStackEnv S E) t l 0 c) $;
+
+theorem k218SQ_sqQuote_fresh_base_equivalent (E: set) (n t k l c: nat):
+ $ sfBound n c -> sqQuoteHygiene E n t k c -> sqQuoteHygiene E n t l c ->
+ k218IEquivalent (sqQuote E t k 0 c) (sqQuote E t l 0 c) $;

@@ -1,0 +1,21 @@
+import "bb215_arithmetic_formula_qf_sat.mm0";
+
+import "pa_formula_source_bound.mm0";
+
+def bb215ArithmeticFormulaPredecessorGraph (a p: nat): wff = $ (a = 0 /\ p = 0) \/ a = suc p $;
+
+def bb215ArithmeticFormulaPredecessorCode: nat = $ paFormulaOr (paFormulaAnd (paFormulaEqual (paTermVariable 0) (paTermZero)) (paFormulaEqual (paTermVariable 1) (paTermZero))) (paFormulaEqual (paTermVariable 0) (paTermSuccessor (paTermVariable 1))) $;
+
+def bb215ArithmeticFormulaPredecessorSource: nat = $ sfOr (sfAnd (paSourceFormulaEqual (paSourceTermVariable 0) (paSourceTermZero)) (paSourceFormulaEqual (paSourceTermVariable 1) (paSourceTermZero))) (paSourceFormulaEqual (paSourceTermVariable 0) (paSourceTermSuccessor (paSourceTermVariable 1))) $;
+
+theorem bb215ArithmeticFormulaPredecessorGraph_correct (a p: nat): $ bb215ArithmeticFormulaPredecessorGraph a p <-> a - 1 = p $;
+
+theorem bb215ArithmeticFormulaPredecessorCode_bound: $ paFormulaBound 2 bb215ArithmeticFormulaPredecessorCode $;
+
+theorem bb215ArithmeticFormulaPredecessorCode_satisfies (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaPredecessorCode <-> bb215ArithmeticFormulaPredecessorGraph (E @ 0) (E @ 1) $;
+
+theorem bb215ArithmeticFormulaPredecessorCode_represents (E: set): $ bb215ArithmeticFormulaQFSat E bb215ArithmeticFormulaPredecessorCode <-> (E @ 0) - 1 = E @ 1 $;
+
+theorem bb215ArithmeticFormulaPredecessorSource_exact: $ paFormulaSource bb215ArithmeticFormulaPredecessorCode = bb215ArithmeticFormulaPredecessorSource $;
+
+theorem bb215ArithmeticFormulaPredecessorSource_bound: $ sfBound 2 bb215ArithmeticFormulaPredecessorSource $;

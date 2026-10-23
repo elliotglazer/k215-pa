@@ -1,0 +1,19 @@
+import "source_l_separation_image_parameter_inputs.mm1";
+import "source_l_replacement_common_collect.mm1";
+
+@_ def sfLSeparationImageInputContext(G n:nat):nat =
+ $ sfLDomain : sfContextShift (sfLSeparationImageParameterContext sfLDomain n G) $;
+@_ def slSepCollectContext(G:nat):nat = $ sfLReplacementLevelExtension : G $;
+
+pub theorem slSepCollect_weaken(G a:nat)(he:$ nsLocal G sfLReplacementLevelExtension $)(hp:$ nsLocal G a $):
+ $ nsLocal (slSepCollectContext G) a $ = '(ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf sfLReplacementLevelExtension_bound) (ax_mp nsLocal_context_wf he)))) sfContextSub_cons hp);
+pub theorem sfLSeparationImage_collect_from_proof(G start count a seed:nat)
+ (he:$ nsLocal G sfLReplacementLevelExtension $)
+ (ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a seed) $)
+ (hi:$ nsLocal G (sfCLPredicates sfLDomain start count) $):
+ $ nsLocal G (sfLReplacementSeededRecipe start count seed) $ = '(ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_II (sfLReplacementSeededCollector_use sfContext_member_head (slSepCollect_weaken he ho) (slSepCollect_weaken he hl) (slSepCollect_weaken he hi)))) he);
+pub theorem sfLSeparationImage_collect_all_inputs(G n a seed:nat)(hg:$ sfContextWf G $)
+ (he:$ nsLocal (sfLSeparationImageInputContext G n) sfLReplacementLevelExtension $)
+ (ho:$ nsLocal (sfLSeparationImageInputContext G n) (sfCLOrdinalAt a) $)
+ (hl:$ nsLocal (sfLSeparationImageInputContext G n) (sfCLHierarchyAt a seed) $):
+ $ nsLocal (sfLSeparationImageInputContext G n) (sfLReplacementSeededRecipe 0 (suc n) seed) $ = '(sfLSeparationImage_collect_from_proof he ho hl (sfLSeparationImageAllInputPredicates sfLDomain_bound hg));

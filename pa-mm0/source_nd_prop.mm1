@@ -1,0 +1,268 @@
+import "source_contexts.mm1";
+
+-- Finite-list propositional natural deduction for the exact source formula code.
+-- This is the SourcePropositionalRules rule shape with Peano contexts in
+-- place of beta-coded environments. Wk is the structural rule proved in
+-- SourceProofWeakening.v, included explicitly here. No trace equivalence
+-- with that source representation, and no full first-order calculus, is claimed.
+
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+do (apply (register-eqd 'sfAnd) '(sfAnd_congr sfAnd_congr_left sfAnd_congr_right));
+do (apply (register-eqd 'sfOr) '(sfOr_congr sfOr_congr_left sfOr_congr_right));
+do (apply (register-eqd 'sfSequent) '(sfSequent_congr sfSequent_congr_context sfSequent_congr_formula));
+do (apply (register-eqd 'sfBranches) '(sfBranches_congr sfBranches_congr_context sfBranches_congr_left sfBranches_congr_right sfBranches_congr_formula));
+do (apply (register-eqd 'sfContextSub) '(sfContextSub_congr sfContextSub_congr_source sfContextSub_congr_target));
+do (apply (register-eqd 'sfRowWf) '(sfRowWf_congr));
+
+@_ abstract def sfNDCaseCtx (r: nat) (.g .a: nat): wff = $ E. g E. a (r = sfSequent g a /\ a IN g) $;
+
+@_ abstract def sfNDCasePc (r: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfImp (sfImp (sfImp a b) a) a)) $;
+
+@_ abstract def sfNDCaseII (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfImp a b) /\ p = sfSequent (a : g) b) $;
+
+@_ abstract def sfNDCaseExp (r p: nat) (.g .a: nat): wff = $ E. g E. a (r = sfSequent g a /\ p = sfSequent g sfBot) $;
+
+@_ abstract def sfNDCaseCE1 (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g a /\ p = sfSequent g (sfAnd a b)) $;
+
+@_ abstract def sfNDCaseCE2 (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g b /\ p = sfSequent g (sfAnd a b)) $;
+
+@_ abstract def sfNDCaseDI1 (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfOr a b) /\ p = sfSequent g a) $;
+
+@_ abstract def sfNDCaseDI2 (r p: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfOr a b) /\ p = sfSequent g b) $;
+
+@_ abstract def sfNDCaseIE (r p q: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g b /\ (p = sfSequent g (sfImp a b) /\ q = sfSequent g a)) $;
+
+@_ abstract def sfNDCaseCI (r p q: nat) (.g .a .b: nat): wff = $ E. g E. a E. b (r = sfSequent g (sfAnd a b) /\ (p = sfSequent g a /\ q = sfSequent g b)) $;
+
+@_ abstract def sfNDCaseBranchPair (r p q: nat) (.g .a .b .c: nat): wff = $ E. g E. a E. b E. c (r = sfBranches g a b c /\ (p = sfSequent (a : g) c /\ q = sfSequent (b : g) c)) $;
+
+@_ abstract def sfNDCaseDE (r p q: nat) (.g .a .b .c: nat): wff = $ E. g E. a E. b E. c (r = sfSequent g c /\ (p = sfSequent g (sfOr a b) /\ q = sfBranches g a b c)) $;
+
+@_ abstract def sfNDCaseWk (r p: nat) (.g .h .a: nat): wff = $ E. g E. h E. a (r = sfSequent h a /\ (p = sfSequent g a /\ sfContextSub g h)) $;
+
+pub theorem sfNDCaseCtx_intro (g a: nat): $ a IN g -> sfNDCaseCtx (sfSequent g a) $ =
+(named '(syl (syl (iexe ,eqtac) (iexe ,eqtac)) (iand (a1i eqid) id)));
+
+pub theorem sfNDCasePc_intro (g a b: nat): $ sfNDCasePc (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) eqid));
+
+pub theorem sfNDCaseII_intro (g a b: nat): $ sfNDCaseII (sfSequent g (sfImp a b)) (sfSequent (a : g) b) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid eqid)));
+
+pub theorem sfNDCaseExp_intro (g a: nat): $ sfNDCaseExp (sfSequent g a) (sfSequent g sfBot) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (iexe ,eqtac)) (iani eqid eqid)));
+
+pub theorem sfNDCaseCE1_intro (g a b: nat): $ sfNDCaseCE1 (sfSequent g a) (sfSequent g (sfAnd a b)) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid eqid)));
+
+pub theorem sfNDCaseCE2_intro (g a b: nat): $ sfNDCaseCE2 (sfSequent g b) (sfSequent g (sfAnd a b)) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid eqid)));
+
+pub theorem sfNDCaseDI1_intro (g a b: nat): $ sfNDCaseDI1 (sfSequent g (sfOr a b)) (sfSequent g a) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid eqid)));
+
+pub theorem sfNDCaseDI2_intro (g a b: nat): $ sfNDCaseDI2 (sfSequent g (sfOr a b)) (sfSequent g b) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid eqid)));
+
+pub theorem sfNDCaseIE_intro (g a b: nat): $ sfNDCaseIE (sfSequent g b) (sfSequent g (sfImp a b)) (sfSequent g a) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid (iani eqid eqid))));
+
+pub theorem sfNDCaseCI_intro (g a b: nat): $ sfNDCaseCI (sfSequent g (sfAnd a b)) (sfSequent g a) (sfSequent g b) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid (iani eqid eqid))));
+
+pub theorem sfNDCaseBranchPair_intro (g a b c: nat): $ sfNDCaseBranchPair (sfBranches g a b c) (sfSequent (a : g) c) (sfSequent (b : g) c) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac)))) (iani eqid (iani eqid eqid))));
+
+pub theorem sfNDCaseDE_intro (g a b c: nat): $ sfNDCaseDE (sfSequent g c) (sfSequent g (sfOr a b)) (sfBranches g a b c) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac)))) (iani eqid (iani eqid eqid))));
+
+pub theorem sfNDCaseWk_intro (g h a: nat): $ sfContextSub g h -> sfNDCaseWk (sfSequent h a) (sfSequent g a) $ =
+(named '(syl (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iand (a1i eqid) (iand (a1i eqid) id))));
+
+@_ def sfNDPropBase (r: nat): wff =
+$ sfRowWf r /\ (sfNDCaseCtx r \/ sfNDCasePc r) $;
+@_ def sfNDPropUnary (r p: nat): wff =
+$ sfRowWf r /\ (sfNDCaseII r p \/ (sfNDCaseExp r p \/
+  (sfNDCaseCE1 r p \/ (sfNDCaseCE2 r p \/
+  (sfNDCaseDI1 r p \/ (sfNDCaseDI2 r p \/ sfNDCaseWk r p)))))) $;
+@_ def sfNDPropBinary (r p q: nat): wff =
+$ sfRowWf r /\ (sfNDCaseIE r p q \/ (sfNDCaseCI r p q \/
+  (sfNDCaseBranchPair r p q \/ sfNDCaseDE r p q))) $;
+@_ abstract def sfNDPropRules (.r .l .p .q: nat): set =
+$ S\ r, {l | sfNDPropBase r \/
+  ((E. p (p IN l /\ sfNDPropUnary r p)) \/
+   E. p E. q (p IN l /\ (q IN l /\ sfNDPropBinary r p q)))} $;
+@_ abstract def sfNDRows (.r: nat): set = $ {r | sfRowWf r} $;
+@_ def sfNDPropDerives (p r: nat): wff = $ traceDerives sfNDPropRules p r $;
+
+
+pub theorem sfNDPropRules_value {p q: nat} (r l: nat):
+  $ (r, l) e. sfNDPropRules <-> sfNDPropBase r \/
+    ((E. p (p IN l /\ sfNDPropUnary r p)) \/
+     E. p E. q (p IN l /\ (q IN l /\ sfNDPropBinary r p q))) $ =
+(named '(elsabe @ elabed ,eqtac));
+pub theorem sfNDRows_value (r: nat): $ r e. sfNDRows <-> sfRowWf r $ =
+(named '(elabe ,eqtac));
+
+pub theorem sfNDPropRules_base (r l: nat): $ sfNDPropBase r -> (r, l) e. sfNDPropRules $ =
+(named '(syl (bi2 sfNDPropRules_value) orl));
+pub theorem sfNDPropRules_unary (r p l: nat):
+  $ p IN l /\ sfNDPropUnary r p -> (r, l) e. sfNDPropRules $ =
+(named '(syl (bi2 sfNDPropRules_value) @ syl orr @ syl orl (iexe ,eqtac)));
+pub theorem sfNDPropRules_binary (r p q l: nat):
+  $ p IN l /\ (q IN l /\ sfNDPropBinary r p q) -> (r, l) e. sfNDPropRules $ =
+(named '(syl (bi2 sfNDPropRules_value) @ syl orr @ syl orr @
+  syl (iexe ,eqtac) (iexe ,eqtac)));
+
+theorem sfNDMember_append_left (a p q: nat): $ a IN p -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orl);
+theorem sfNDMember_append_right (a p q: nat): $ a IN q -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orr);
+theorem sfNDPropRules_extend (r l k: nat):
+  $ (r, l) e. sfNDPropRules -> (r, l ++ k) e. sfNDPropRules $ =
+(named '(syl (bi2 sfNDPropRules_value) @ syl
+  (orim2 (orim
+    (eximi (iand (syl sfNDMember_append_left anl) anr))
+    (eximi (eximi (iand (syl sfNDMember_append_left anl)
+      (iand (syl sfNDMember_append_left anrl) anrr))))))
+  (bi1 sfNDPropRules_value)));
+pub theorem sfNDPropRules_stable: $ traceAppendStable sfNDPropRules $ =
+(named '(ax_gen @ ax_gen @ ax_gen sfNDPropRules_extend));
+pub theorem sfNDPropRules_guard (r l: nat): $ (r, l) e. sfNDPropRules -> sfRowWf r $ =
+(named '(syl (eori anl (eori (eex (syl anl anr)) (eex (eex (syl anl anrr)))))
+  (bi1 sfNDPropRules_value)));
+theorem sfNDPropRows_sound: $ traceRuleSound sfNDPropRules sfNDRows $ =
+(named '(ax_gen @ ax_gen @ a1i @ syl (bi2 sfNDRows_value) sfNDPropRules_guard));
+pub theorem sfNDPropDerives_wf (p r: nat): $ sfNDPropDerives p r -> sfRowWf r $ =
+'(syl (bi1 sfNDRows_value) (traceDerives_class sfNDPropRows_sound));
+
+pub theorem sfNDPropDerives_base (r: nat):
+  $ sfNDPropBase r -> sfNDPropDerives (r : 0) r $ =
+'(syl traceDerives_head @ iand (a1i traceValid_nil) sfNDPropRules_base);
+pub theorem sfNDPropDerives_unary (p r a: nat):
+  $ sfNDPropUnary r a -> sfNDPropDerives p a -> sfNDPropDerives (r : p) r $ =
+'(exp @ syl traceDerives_head @ iand (syl anl anr)
+  (syl sfNDPropRules_unary (iand (syl anr anr) anl)));
+pub theorem sfNDPropDerives_binary (p q r a b: nat):
+  $ sfNDPropBinary r a b -> sfNDPropDerives p a -> sfNDPropDerives q b ->
+    sfNDPropDerives (r : (p ++ q)) r $ =
+'(exp @ exp @ syl traceDerives_head @ iand
+  (sylc (traceValid_append sfNDPropRules_stable) (syl anl anlr) (syl anl anr))
+  (syl sfNDPropRules_binary @ iand
+    (syl sfNDMember_append_left (syl anr anlr))
+    (iand (syl sfNDMember_append_right (syl anr anr)) anll)));
+
+pub theorem sfNDPropBase_Ctx (g a: nat):
+  $ sfRowWf (sfSequent g a) -> a IN g -> sfNDPropBase (sfSequent g a) $ =
+'(exp @ iand anl (syl orl (syl sfNDCaseCtx_intro anr)));
+
+pub theorem sfNDPropDerives_Ctx (g a: nat):
+  $ sfRowWf (sfSequent g a) -> a IN g -> sfNDPropDerives ((sfSequent g a) : 0) (sfSequent g a) $ =
+'(syl6 sfNDPropDerives_base sfNDPropBase_Ctx);
+
+pub theorem sfNDPropBase_Pc (g a b: nat):
+  $ sfRowWf (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) -> sfNDPropBase (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) $ =
+'(iand id (a1i (ax_mp (syl orr id) sfNDCasePc_intro)));
+
+pub theorem sfNDPropDerives_Pc (g a b: nat):
+  $ sfRowWf (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) -> sfNDPropDerives ((sfSequent g (sfImp (sfImp (sfImp a b) a) a)) : 0) (sfSequent g (sfImp (sfImp (sfImp a b) a) a)) $ =
+'(syl sfNDPropDerives_base sfNDPropBase_Pc);
+
+pub theorem sfNDPropUnary_II (g a b: nat):
+  $ sfRowWf (sfSequent g (sfImp a b)) -> sfNDPropUnary (sfSequent g (sfImp a b)) (sfSequent (a : g) b) $ =
+'(iand id (a1i (ax_mp orl sfNDCaseII_intro)));
+
+pub theorem sfNDPropDerives_II (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g (sfImp a b)) -> sfNDPropDerives u (sfSequent (a : g) b) -> sfNDPropDerives ((sfSequent g (sfImp a b)) : u) (sfSequent g (sfImp a b)) $ =
+'(syl sfNDPropDerives_unary sfNDPropUnary_II);
+
+pub theorem sfNDPropUnary_Exp (g a: nat):
+  $ sfRowWf (sfSequent g a) -> sfNDPropUnary (sfSequent g a) (sfSequent g sfBot) $ =
+'(iand id (a1i (ax_mp (syl orr orl) sfNDCaseExp_intro)));
+
+pub theorem sfNDPropDerives_Exp (u: nat) (g a: nat):
+  $ sfRowWf (sfSequent g a) -> sfNDPropDerives u (sfSequent g sfBot) -> sfNDPropDerives ((sfSequent g a) : u) (sfSequent g a) $ =
+'(syl sfNDPropDerives_unary sfNDPropUnary_Exp);
+
+pub theorem sfNDPropUnary_CE1 (g a b: nat):
+  $ sfRowWf (sfSequent g a) -> sfNDPropUnary (sfSequent g a) (sfSequent g (sfAnd a b)) $ =
+'(iand id (a1i (ax_mp (syl orr (syl orr orl)) sfNDCaseCE1_intro)));
+
+pub theorem sfNDPropDerives_CE1 (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g a) -> sfNDPropDerives u (sfSequent g (sfAnd a b)) -> sfNDPropDerives ((sfSequent g a) : u) (sfSequent g a) $ =
+'(syl sfNDPropDerives_unary sfNDPropUnary_CE1);
+
+pub theorem sfNDPropUnary_CE2 (g a b: nat):
+  $ sfRowWf (sfSequent g b) -> sfNDPropUnary (sfSequent g b) (sfSequent g (sfAnd a b)) $ =
+'(iand id (a1i (ax_mp (syl orr (syl orr (syl orr orl))) sfNDCaseCE2_intro)));
+
+pub theorem sfNDPropDerives_CE2 (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g b) -> sfNDPropDerives u (sfSequent g (sfAnd a b)) -> sfNDPropDerives ((sfSequent g b) : u) (sfSequent g b) $ =
+'(syl sfNDPropDerives_unary sfNDPropUnary_CE2);
+
+pub theorem sfNDPropUnary_DI1 (g a b: nat):
+  $ sfRowWf (sfSequent g (sfOr a b)) -> sfNDPropUnary (sfSequent g (sfOr a b)) (sfSequent g a) $ =
+'(iand id (a1i (ax_mp (syl orr (syl orr (syl orr (syl orr orl)))) sfNDCaseDI1_intro)));
+
+pub theorem sfNDPropDerives_DI1 (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g (sfOr a b)) -> sfNDPropDerives u (sfSequent g a) -> sfNDPropDerives ((sfSequent g (sfOr a b)) : u) (sfSequent g (sfOr a b)) $ =
+'(syl sfNDPropDerives_unary sfNDPropUnary_DI1);
+
+pub theorem sfNDPropUnary_DI2 (g a b: nat):
+  $ sfRowWf (sfSequent g (sfOr a b)) -> sfNDPropUnary (sfSequent g (sfOr a b)) (sfSequent g b) $ =
+'(iand id (a1i (ax_mp (syl orr (syl orr (syl orr (syl orr (syl orr orl))))) sfNDCaseDI2_intro)));
+
+pub theorem sfNDPropDerives_DI2 (u: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g (sfOr a b)) -> sfNDPropDerives u (sfSequent g b) -> sfNDPropDerives ((sfSequent g (sfOr a b)) : u) (sfSequent g (sfOr a b)) $ =
+'(syl sfNDPropDerives_unary sfNDPropUnary_DI2);
+
+pub theorem sfNDPropBinary_IE (g a b: nat):
+  $ sfRowWf (sfSequent g b) -> sfNDPropBinary (sfSequent g b) (sfSequent g (sfImp a b)) (sfSequent g a) $ =
+'(iand id (a1i (ax_mp orl sfNDCaseIE_intro)));
+
+pub theorem sfNDPropDerives_IE (u v: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g b) -> sfNDPropDerives u (sfSequent g (sfImp a b)) -> sfNDPropDerives v (sfSequent g a) -> sfNDPropDerives ((sfSequent g b) : (u ++ v)) (sfSequent g b) $ =
+'(syl sfNDPropDerives_binary sfNDPropBinary_IE);
+
+pub theorem sfNDPropBinary_CI (g a b: nat):
+  $ sfRowWf (sfSequent g (sfAnd a b)) -> sfNDPropBinary (sfSequent g (sfAnd a b)) (sfSequent g a) (sfSequent g b) $ =
+'(iand id (a1i (ax_mp (syl orr orl) sfNDCaseCI_intro)));
+
+pub theorem sfNDPropDerives_CI (u v: nat) (g a b: nat):
+  $ sfRowWf (sfSequent g (sfAnd a b)) -> sfNDPropDerives u (sfSequent g a) -> sfNDPropDerives v (sfSequent g b) -> sfNDPropDerives ((sfSequent g (sfAnd a b)) : (u ++ v)) (sfSequent g (sfAnd a b)) $ =
+'(syl sfNDPropDerives_binary sfNDPropBinary_CI);
+
+pub theorem sfNDPropBinary_BranchPair (g a b c: nat):
+  $ sfRowWf (sfBranches g a b c) -> sfNDPropBinary (sfBranches g a b c) (sfSequent (a : g) c) (sfSequent (b : g) c) $ =
+'(iand id (a1i (ax_mp (syl orr (syl orr orl)) sfNDCaseBranchPair_intro)));
+
+pub theorem sfNDPropDerives_BranchPair (u v: nat) (g a b c: nat):
+  $ sfRowWf (sfBranches g a b c) -> sfNDPropDerives u (sfSequent (a : g) c) -> sfNDPropDerives v (sfSequent (b : g) c) -> sfNDPropDerives ((sfBranches g a b c) : (u ++ v)) (sfBranches g a b c) $ =
+'(syl sfNDPropDerives_binary sfNDPropBinary_BranchPair);
+
+pub theorem sfNDPropBinary_DE (g a b c: nat):
+  $ sfRowWf (sfSequent g c) -> sfNDPropBinary (sfSequent g c) (sfSequent g (sfOr a b)) (sfBranches g a b c) $ =
+'(iand id (a1i (ax_mp (syl orr (syl orr (syl orr id))) sfNDCaseDE_intro)));
+
+pub theorem sfNDPropDerives_DE (u v: nat) (g a b c: nat):
+  $ sfRowWf (sfSequent g c) -> sfNDPropDerives u (sfSequent g (sfOr a b)) -> sfNDPropDerives v (sfBranches g a b c) -> sfNDPropDerives ((sfSequent g c) : (u ++ v)) (sfSequent g c) $ =
+'(syl sfNDPropDerives_binary sfNDPropBinary_DE);
+
+pub theorem sfNDPropUnary_Wk (g h a: nat):
+  $ sfRowWf (sfSequent h a) -> sfContextSub g h -> sfNDPropUnary (sfSequent h a) (sfSequent g a) $ =
+'(exp @ iand anl (syl (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr id)))))) (syl sfNDCaseWk_intro anr)));
+
+pub theorem sfNDPropDerives_Wk (u: nat) (g h a: nat):
+  $ sfRowWf (sfSequent h a) -> sfContextSub g h -> sfNDPropDerives u (sfSequent g a) -> sfNDPropDerives ((sfSequent h a) : u) (sfSequent h a) $ =
+'(syld sfNDPropUnary_Wk (a1i sfNDPropDerives_unary));
+
+pub theorem sfNDProp_identity (a: nat):
+  $ sfWf a -> sfNDPropDerives
+      ((sfSequent 0 (sfImp a a)) : ((sfSequent (a : 0) a) : 0))
+      (sfSequent 0 (sfImp a a)) $ =
+'(mpd
+  (mpd (a1i sfContext_member_head) @ syl sfNDPropDerives_Ctx @
+    sylc sfRowWf_sequent_intro
+      (syl (bi2 sfContextWf_cons) (iand id (a1i sfContextWf_nil))) id)
+  (syl sfNDPropDerives_II @ sylc sfRowWf_sequent_intro
+    (a1i sfContextWf_nil) (sylc sfWf_imp id id)));

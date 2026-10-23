@@ -1,0 +1,53 @@
+import "source_piece_pcf_rep_offsets_r7.mm0";
+
+import "source_piece_pcf_rep_induction_r6.mm0";
+
+def sfPieceRepDomain(e d:nat):nat = $ (sfAnd (sfAll (sfImp (sfMem 0 (suc d)) (sfEx (sfAnd (sfMem 0 (suc (suc e))) (sfEx (sfAnd (sfMem 0 1) (sfEx (sfAnd (sfMem 0 1) (sfAnd (sfAnd (sfEx (sfAnd (sfMem 0 3) (sfAnd (sfMem 4 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 5)))))) (sfEx (sfAnd (sfMem 0 3) (sfAnd (sfAnd (sfMem 4 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 5) (sfEq 0 2)))))))) (sfAll (sfImp (sfMem 0 3) (sfOr (sfAnd (sfMem 4 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 5)))) (sfAnd (sfAnd (sfMem 4 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 5) (sfEq 0 2))))))))))))))))) (sfAll (sfImp (sfMem 0 (suc e)) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 3) (sfAll (sfImp (sfMem 0 1) (sfImp (sfAnd (sfAnd (sfEx (sfAnd (sfMem 0 5) (sfAnd (sfMem 3 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 4)))))) (sfEx (sfAnd (sfMem 0 5) (sfAnd (sfAnd (sfMem 3 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 4) (sfEq 0 2)))))))) (sfAll (sfImp (sfMem 0 5) (sfOr (sfAnd (sfMem 3 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 4)))) (sfAnd (sfAnd (sfMem 3 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 4) (sfEq 0 2))))))))) (sfMem 2 (suc (suc (suc (suc (suc d)))))))))))))))))) $;
+
+theorem sfPieceRepDomain_wf(e d:nat):
+ $ sfWf (sfPieceRepDomain e d) $;
+
+theorem sfPieceRepDomain_eq(e d f g:nat)(he:$ e = f $)(hd:$ d = g $):
+ $ sfPieceRepDomain e d = sfPieceRepDomain f g $;
+
+theorem sfPieceRepDomain_rename(R:set)(k e d:nat):
+ $ sfRename R k (sfPieceRepDomain e d) = sfPieceRepDomain (sfRenameIndex R k e) (sfRenameIndex R k d) $;
+
+theorem sfPieceRepDomain_subst(k t e d:nat):
+ $ sfSubst k t (sfPieceRepDomain e d) = sfPieceRepDomain (sfSubstIndex k t e) (sfSubstIndex k t d) $;
+
+def sfPieceRepDomainBaseLaw:nat = $ (sfAll (sfAll (sfImp (sfPieceRepEmpty 1) (sfImp (sfPieceRepEmpty 0) (sfPieceRepDomain 1 0))))) $;
+
+theorem pcrd_base_use(G e d:nat):
+ $ nsLocal G sfPieceRepDomainBaseLaw -> nsLocal G (sfPieceRepEmpty e) -> nsLocal G (sfPieceRepEmpty d) -> nsLocal G (sfPieceRepDomain e d) $;
+
+def sfPieceRepDomainStepLaw:nat = $ (sfAll (sfAll (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension 4 3 2) (sfImp (sfPieceRepDomain 4 1) (sfImp (sfPieceRepSuccessor 1 0) (sfPieceRepDomain 2 0))))))))) $;
+
+theorem pcrd_step_use(G e v z d u:nat):
+ $ nsLocal G sfPieceRepDomainStepLaw -> nsLocal G (sfPieceRepExtension e v z) -> nsLocal G (sfPieceRepDomain e d) -> nsLocal G (sfPieceRepSuccessor d u) -> nsLocal G (sfPieceRepDomain z u) $;
+
+def pcrdEnvBody(T:set)(r h n e:nat):nat = $ sfAnd (sfPieceEnv (sfPieceRepOffset T (suc r) (suc h)) n 0) (sfPieceRepExtension 0 (suc (h + (T @ r))) (suc e)) $;
+
+def pcrdNumBody(n z:nat):nat = $ sfAnd (sfPieceNumeral n 0) (sfPieceRepSuccessor 0 (suc (suc z))) $;
+
+def pcrdFirstContext(T:set)(G r h n e:nat):nat = $ pcrdEnvBody T r h n e : sfContextShift G $;
+
+def pcrdSecondContext(T:set)(G r h n e z:nat):nat = $ pcrdNumBody n z : sfContextShift (pcrdFirstContext T G r h n e) $;
+
+def sfPieceEnvDomainGood(T:set)(n .J .r .h .e .z:nat):wff = $ A. J A. r A. h A. e A. z (nsLocal J sfPieceRepDomainBaseLaw -> nsLocal J sfPieceRepDomainStepLaw -> nsLocal J (sfPieceEnv (sfPieceRepOffset T r h) n e) -> nsLocal J (sfPieceNumeral n z) -> nsLocal J (sfPieceRepDomain e z)) $;
+
+def pcrdGoodAt1(T:set)(n G .r .h .e .z:nat):wff = $ A. r A. h A. e A. z ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+def pcrdGoodAt2(T:set)(n G r .h .e .z:nat):wff = $ A. h A. e A. z ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+def pcrdGoodAt3(T:set)(n G r h .e .z:nat):wff = $ A. e A. z ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+def pcrdGoodAt4(T:set)(n G r h e .z:nat):wff = $ A. z ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+def pcrdGoodAt5(T:set)(n G r h e z:nat):wff = $ ((nsLocal G sfPieceRepDomainBaseLaw) -> (nsLocal G sfPieceRepDomainStepLaw) -> (nsLocal G (sfPieceEnv (sfPieceRepOffset T r h) n e)) -> (nsLocal G (sfPieceNumeral n z)) -> (nsLocal G (sfPieceRepDomain e z))) $;
+
+theorem sfPieceEnv_domain_induction(T:set)(n:nat):
+ $ sfPieceEnvDomainGood T n $;
+
+theorem sfPieceEnv_domain_from_laws(T:set)(G n e z:nat)(hb:$ nsLocal G sfPieceRepDomainBaseLaw $)(hs:$ nsLocal G sfPieceRepDomainStepLaw $)(he:$ nsLocal G (sfPieceEnv T n e) $)(hn:$ nsLocal G (sfPieceNumeral n z) $):
+ $ (nsLocal G (sfPieceRepDomain e z)) $;

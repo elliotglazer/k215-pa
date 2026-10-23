@@ -1,0 +1,79 @@
+import "k218q_source_theory.mm1";
+import "k218q_source_equality.mm1";
+
+@_ def sfK218K0Equality (a: nat): wff =
+ $ a = zfcRefl \/ (a = zfcSym \/ (a = zfcTrans \/ a = zfcEqElem)) $;
+@_ def sfK218K0Schema (a n f: nat): wff =
+ $ sfWf f /\ (a = sfAllPrefix n (sfK218Kp0 f) /\ sfBound 0 a) $;
+@_ abstract def sfK218K0Axioms (.a .n .f: nat): set =
+ $ {a | sfK218K0Equality a \/ E. n E. f sfK218K0Schema a n f} $;
+
+pub theorem sfK218K0Axioms_value {n f: nat} (a: nat):
+ $ a e. sfK218K0Axioms <-> sfK218K0Equality a \/ E. n E. f sfK218K0Schema a n f $ =
+(named '(elabe ,eqtac));
+
+pub theorem sfK218K0Equality_member (a: nat):
+ $ sfK218K0Equality a -> a e. sfK218K0Axioms $ =
+(named '(syl (bi2 sfK218K0Axioms_value) orl));
+
+pub theorem sfK218K0Schema_member (a n f: nat):
+ $ sfK218K0Schema a n f -> a e. sfK218K0Axioms $ =
+(named '(syl (bi2 sfK218K0Axioms_value) @ syl orr @ syl (iexe ,eqtac) (iexe ,eqtac)));
+
+pub theorem sfK218K0Instance_member (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218Kp0 f)) ->
+   sfAllPrefix n (sfK218Kp0 f) e. sfK218K0Axioms $ =
+'(exp @ syl sfK218K0Schema_member @ iand anl (iand (a1i eqid) anr));
+
+theorem k218K0_equality_fixed (a: nat): $ sfK218K0Equality a -> zfcFixed a $ =
+'(ax_mp orim2 (ax_mp orim2 (ax_mp orim2 orl)));
+
+theorem k218K0_refl (a: nat):
+ $ a = zfcRefl -> k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $ =
+'(mpbird (k218QProvableeqd (sfNamedTemplateeq4d id)) (a1i k218QSourceRefl));
+theorem k218K0_sym (a: nat):
+ $ a = zfcSym -> k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $ =
+'(mpbird (k218QProvableeqd (sfNamedTemplateeq4d id)) (a1i k218QSourceSym));
+theorem k218K0_trans (a: nat):
+ $ a = zfcTrans -> k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $ =
+'(mpbird (k218QProvableeqd (sfNamedTemplateeq4d id)) (a1i k218QSourceTrans));
+theorem k218K0_eqelem (a: nat):
+ $ a = zfcEqElem -> k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $ =
+'(mpbird (k218QProvableeqd (sfNamedTemplateeq4d id)) (a1i k218QSourceEqElem));
+
+pub theorem sfK218K0Equality_image (a: nat):
+ $ sfK218K0Equality a ->
+   (sfBound 0 a /\ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a)) $ =
+'(iand (syl zfcFixed_closed k218K0_equality_fixed)
+ (eori k218K0_refl (eori k218K0_sym (eori k218K0_trans k218K0_eqelem))));
+
+pub theorem sfK218K0Schema_image (a n f: nat):
+ $ sfK218K0Schema a n f ->
+   (sfBound 0 a /\ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a)) $ =
+'(iand anrr @ mpbird (k218QProvableeqd (sfNamedTemplateeq4d anrl)) @
+ mpd (mpbid (sfBoundeq2d anrl) anrr) (syl k218QClosedKp0_from_source anl));
+
+pub theorem sfK218K0Axioms_member_image (a: nat):
+ $ a e. sfK218K0Axioms -> a e. k218QClosedImageClass $ =
+(named '(syl (bi2 k218QClosedImageClass_value) @
+ syl (eori sfK218K0Equality_image (eex (eex sfK218K0Schema_image))) (bi1 sfK218K0Axioms_value)));
+
+pub theorem sfK218K0Axioms_subset_image:
+ $ sfK218K0Axioms C_ k218QClosedImageClass $ =
+(named '(ax_gen sfK218K0Axioms_member_image));
+
+pub theorem sfK218K0Axioms_closed: $ sfTheoryClosed sfK218K0Axioms $ =
+'(ax_mp (ax_mp sstr sfK218K0Axioms_subset_image) k218QClosedImageClass_closed);
+
+pub theorem sfK218K0_closed_proof (a: nat):
+ $ sfBound 0 a -> sfTheoryProvable sfK218K0Axioms a ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $ =
+'(syl5 (ax_mp sfTheoryProvable_mono sfK218K0Axioms_subset_image) k218QClosedImage_proof);
+
+pub theorem sfK218K0_refutation:
+ $ sfTheoryProvable sfK218K0Axioms sfBot -> k218QProvable kF $ =
+'(syl k218QClosedImage_refutation (ax_mp sfTheoryProvable_mono sfK218K0Axioms_subset_image));
+
+pub theorem sfK218K0_inconsistency_forward:
+ $ sfTheoryProvable sfK218K0Axioms sfBot -> k218Inconsistent $ =
+(named '(syl (bi1 (k218Provableeq k218Translate_kF)) sfK218K0_refutation));

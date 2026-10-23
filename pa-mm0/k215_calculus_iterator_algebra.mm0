@@ -1,0 +1,36 @@
+import "k215_calculus_iteration.mm0";
+
+def k215EnumOptionIter (n r: nat) (.u: nat): nat =
+  $ rec r (\ u, k215EnumAdvance u) n $;
+
+theorem k215EnumOptionIter_zero (r: nat): $ k215EnumOptionIter 0 r = r $;
+
+theorem k215EnumOptionIter_succ (n r: nat):
+  $ k215EnumOptionIter (suc n) r = k215EnumAdvance (k215EnumOptionIter n r) $;
+
+theorem k215EnumOptionIter_some (n s: nat): $ k215EnumOptionIter n (suc s) = k215EnumIter n s $;
+
+theorem k215EnumOptionIter_none (n: nat): $ k215EnumOptionIter n 0 = 0 $;
+
+theorem k215EnumOptionIter_add (m n r: nat):
+  $ k215EnumOptionIter (m + n) r = k215EnumOptionIter n (k215EnumOptionIter m r) $;
+
+theorem k215EnumIter_add (m n s: nat):
+  $ k215EnumIter (m + n) s = k215EnumOptionIter n (k215EnumIter m s) $;
+
+theorem k215EnumIter_splice (m n s t: nat):
+  $ k215EnumIter m s = suc t -> k215EnumIter (m + n) s = k215EnumIter n t $;
+
+theorem k215EnumIter_halted (m n s: nat):
+  $ k215EnumIter m s = 0 -> k215EnumIter (m + n) s = 0 $;
+
+def k215EnumRunsForever (s: nat) (.i: nat): wff = $ A. i k215EnumIter i s != 0 $;
+
+theorem k215EnumRunsForever_at (s n: nat):
+  $ k215EnumRunsForever s -> k215EnumIter n s != 0 $;
+
+theorem k215EnumRunsForever_reachable (s t m: nat):
+  $ k215EnumRunsForever s -> k215EnumIter m s = suc t -> k215EnumRunsForever t $;
+
+theorem k215EnumRunsForever_initial:
+  $ ~k215EnumHalts <-> k215EnumRunsForever k215EnumInitial $;

@@ -1,0 +1,37 @@
+import "k215_literal_tm.mm0";
+
+theorem k215TMRun_add (m n s: nat):
+  $ k215TMRun (m + n) s = k215TMRun n (k215TMRun m s) $;
+
+theorem k215TMRun_splice (m n s t: nat):
+  $ k215TMRun m s = t -> k215TMRun (m + n) s = k215TMRun n t $;
+
+theorem k215TMStep_stopped (s: nat):
+  $ k215TMQ s = k215Num215 -> k215TMStep s = s $;
+
+theorem k215TMRun_stopped (n s: nat):
+  $ k215TMQ s = k215Num215 -> k215TMRun n s = s $;
+
+def k215TMReach (s t: nat) (.n: nat): wff = $ E. n k215TMRun n s = t $;
+
+def k215TMHaltsFrom (s: nat) (.n: nat): wff =
+  $ E. n k215TMQ (k215TMRun n s) = k215Num215 $;
+
+theorem k215TMReach_intro (n s t: nat): $ k215TMRun n s = t -> k215TMReach s t $;
+
+theorem k215TMReach_refl (s: nat): $ k215TMReach s s $;
+
+theorem k215TMReach_trans (s t u: nat):
+  $ k215TMReach s t -> k215TMReach t u -> k215TMReach s u $;
+
+theorem k215TMHaltsFrom_intro (n s: nat):
+  $ k215TMQ (k215TMRun n s) = k215Num215 -> k215TMHaltsFrom s $;
+
+theorem k215TMHaltsFrom_stopped (s: nat):
+  $ k215TMQ s = k215Num215 -> k215TMHaltsFrom s $;
+
+theorem k215TMReach_halts (s t: nat):
+  $ k215TMReach s t -> k215TMHaltsFrom t -> k215TMHaltsFrom s $;
+
+theorem k215TMHaltsFrom_initial:
+  $ k215TMHaltsFrom k215TMInitial <-> k215LiteralHalts $;

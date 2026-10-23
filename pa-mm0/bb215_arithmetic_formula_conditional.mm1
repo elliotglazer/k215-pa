@@ -1,0 +1,15 @@
+import "bb215_arithmetic_formula_halving.mm1";
+
+@_ abstract def bb215ArithmeticFormulaConditional (p a b: wff): wff = $ (p -> a) /\ (p \/ b) $;
+
+theorem bb215ArithmeticFormulaConditional_positive (p a b: wff): $ p -> (bb215ArithmeticFormulaConditional p a b <-> a) $ = (named '(bitrd (syl bian2a (a1d orl)) biim1));
+
+theorem bb215ArithmeticFormulaConditional_negative (p a b: wff): $ ~p -> (bb215ArithmeticFormulaConditional p a b <-> b) $ = (named '(bitrd (syl bian1a (a1d absurd)) bior1));
+
+pub theorem bb215ArithmeticFormulaConditional_ifp (p a b: wff): $ bb215ArithmeticFormulaConditional p a b <-> ifp p a b $ = (named '(cases (bitrd bb215ArithmeticFormulaConditional_positive (bicomd ifppos)) (bitrd bb215ArithmeticFormulaConditional_negative (bicomd ifpneg))));
+
+pub theorem bb215ArithmeticFormulaConditional_numeric (p: wff) (a b v: nat): $ bb215ArithmeticFormulaConditional p (a = v) (b = v) <-> if p a b = v $ = (named '(bitr bb215ArithmeticFormulaConditional_ifp (cases (bitrd ifppos (eqeq1d (eqcomd ifpos))) (bitrd ifpneg (eqeq1d (eqcomd ifneg))))));
+
+@_ abstract def bb215ArithmeticFormulaDivisionTwoGraph (a q .r: nat): wff = $ E. r bb215ArithmeticFormulaHalvingGraph a q r $;
+
+pub theorem bb215ArithmeticFormulaDivisionTwoGraph_correct (a q: nat) {r: nat}: $ bb215ArithmeticFormulaDivisionTwoGraph a q <-> a // 2 = q $ = (named '(bitr (!! exeqi r bb215ArithmeticFormulaHalvingGraph_correct) (bitr exan1 (bian2 (!! iexie r (eqcomd id))))));

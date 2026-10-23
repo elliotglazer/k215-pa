@@ -1,0 +1,420 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+import "k215_calculus_derived_blocks.mm1";
+
+do (apply (register-eqd 'k218EnumState) '(k218EnumStateeqd));
+do (apply (register-eqd 'k215EnumIter) '(k215EnumItereqd));
+do (apply (register-eqd 'k215Rebase) '(k215Rebaseeqd));
+do (apply (register-eqd 'k215RunsTo) '(k215RunsToeqd));
+do (apply (register-eqd 'k215ProgramPrefix) '(k215ProgramPrefixeqd));
+do (apply (register-eqd 'k215InstructionPrefix) '(k215InstructionPrefixeqd));
+do (apply (register-eqd 'k215CmdMP) '(k215CmdMPeqd));
+do (apply (register-eqd 'k215CmdDROP) '(k215CmdDROPeqd));
+do (apply (register-eqd 'k215CmdNIP) '(k215CmdNIPeqd));
+do (apply (register-eqd 'k215CmdAX) '(k215CmdAXeqd));
+do (apply (register-eqd 'k215NipPrefix) '(k215NipPrefixeqd));
+do (apply (register-eqd 'k215DiscardPrefix) '(k215DiscardPrefixeqd));
+
+-- Each object below is one natural number encoding a finite command list.
+@_ def k215NipsProgram (n: nat): nat = $ repeat (k215CmdNIP 0) n $;
+@_ def k215DropProgram: nat = $ k215CmdDROP 0 : 0 $;
+@_ def k215DiscardProgram: nat =
+ $ k215CmdMP 1 0 : (k215CmdAX 1 0 0 0 : k215NipsProgram 10) $;
+@_ def k215LeafProgram (j a b c : nat): nat =
+ $ k215DiscardProgram ++ (k215CmdAX c b a 0 :
+   (k215NipsProgram j ++ (k215CmdDROP 0 : k215NipsProgram ((suc 10) - j)))) $;
+@_ def k215BundleProgram (a b c: nat): nat =
+ $ k215DiscardProgram ++ (k215CmdAX c b a 0 : k215NipsProgram 10) $;
+@_ def k215MPProgram (B: nat): nat =
+ $ k215CmdNIP 0 : (k215CmdDROP 0 : (k215CmdNIP 0 : (k215CmdMP B 0 : (k215CmdAX B 0 0 0 :
+   (k215NipsProgram 10 ++ (k215CmdDROP 0 : k215NipsProgram 2)))))) $;
+
+-- Canonical instruction cons cells agree exactly with the checked raw prefixes.
+theorem k215CompilePrefix_MP (x L r: nat):
+ $ k215ProgramPrefix (k215CmdMP x 0 : L) r = suc (k215CmdMP x (k215ProgramPrefix L r)) $ =
+ '(eqtr k215ProgramPrefix_cons (suceq k215InstructionPrefix_MP));
+theorem k215CompilePrefix_DROP (L r: nat):
+ $ k215ProgramPrefix (k215CmdDROP 0 : L) r = suc (k215CmdDROP (k215ProgramPrefix L r)) $ =
+ '(eqtr k215ProgramPrefix_cons (suceq k215InstructionPrefix_DROP));
+theorem k215CompilePrefix_NIP (L r: nat):
+ $ k215ProgramPrefix (k215CmdNIP 0 : L) r = suc (k215CmdNIP (k215ProgramPrefix L r)) $ =
+ '(eqtr k215ProgramPrefix_cons (suceq k215InstructionPrefix_NIP));
+theorem k215CompilePrefix_AX (c x y L r: nat):
+ $ k215ProgramPrefix (k215CmdAX c x y 0 : L) r = suc (k215CmdAX c x y (k215ProgramPrefix L r)) $ =
+ '(eqtr k215ProgramPrefix_cons (suceq k215InstructionPrefix_AX));
+
+pub theorem k215NipsProgram_prefix (n r: nat):
+ $ k215ProgramPrefix (k215NipsProgram n) r = k215NipPrefix n r $ =
+ (named @ induct '(ind) 'n
+  '(eqtr (k215ProgramPrefixeq1 repeat0) (eqtr k215ProgramPrefix_nil (eqcom k215NipPrefix_zero)))
+  '(eqtrd (a1i (k215ProgramPrefixeq1 repeatS))
+    (eqtrd (a1i k215CompilePrefix_NIP)
+      (eqtrd (suceqd (k215CmdNIPeqd id)) (a1i (eqcom k215NipPrefix_succ))))));
+pub theorem k215DropProgram_prefix (r: nat):
+ $ k215ProgramPrefix k215DropProgram r = suc (k215CmdDROP r) $ =
+ '(eqtr k215CompilePrefix_DROP (suceq (k215CmdDROPeq k215ProgramPrefix_nil)));
+pub theorem k215DiscardProgram_prefix (r: nat):
+ $ k215ProgramPrefix k215DiscardProgram r = suc (k215DiscardPrefix r) $ =
+ '(eqtr k215CompilePrefix_MP (suceq (k215CmdMPeq2
+    (eqtr k215CompilePrefix_AX (suceq (k215CmdAXeq4 k215NipsProgram_prefix))))));
+
+theorem k215LeafProgram_tail_prefix (j r: nat):
+ $ k215ProgramPrefix (k215NipsProgram j ++ (k215CmdDROP 0 : k215NipsProgram ((suc 10) - j))) r = k215LeafTail j r $ =
+ '(eqtr k215ProgramPrefix_append (eqtr (k215ProgramPrefixeq2
+    (eqtr k215CompilePrefix_DROP (suceq (k215CmdDROPeq k215NipsProgram_prefix)))) k215NipsProgram_prefix));
+pub theorem k215LeafProgram_prefix (j a b c r: nat):
+ $ k215ProgramPrefix (k215LeafProgram j a b c ) r = suc (k215LeafPrefix j a b c r) $ =
+ '(eqtr k215ProgramPrefix_append (eqtr k215DiscardProgram_prefix
+    (suceq (k215DiscardPrefixeq
+      (eqtr k215CompilePrefix_AX (suceq (k215CmdAXeq4 k215LeafProgram_tail_prefix)))))));
+pub theorem k215BundleProgram_prefix (a b c r: nat):
+ $ k215ProgramPrefix (k215BundleProgram a b c) r = suc (k215BundleLeafPrefix a b c r) $ =
+ '(eqtr k215ProgramPrefix_append (eqtr k215DiscardProgram_prefix
+    (suceq (k215DiscardPrefixeq
+      (eqtr k215CompilePrefix_AX (suceq (k215CmdAXeq4 k215NipsProgram_prefix)))))));
+
+theorem k215CompilePrefix_nips_drop (n m r: nat):
+ $ k215ProgramPrefix (k215NipsProgram n ++ (k215CmdDROP 0 : k215NipsProgram m)) r =
+   k215NipPrefix n (suc (k215CmdDROP (k215NipPrefix m r))) $ =
+ '(eqtr k215ProgramPrefix_append (eqtr (k215ProgramPrefixeq2
+   (eqtr k215CompilePrefix_DROP (suceq (k215CmdDROPeq k215NipsProgram_prefix)))) k215NipsProgram_prefix));
+pub theorem k215MPProgram_prefix (B r: nat):
+ $ k215ProgramPrefix (k215MPProgram B) r = suc (k215MPPrefix B r) $ =
+ '(eqtr k215CompilePrefix_NIP (suceq (k215CmdNIPeq
+   (eqtr k215CompilePrefix_DROP (suceq (k215CmdDROPeq
+     (eqtr k215CompilePrefix_NIP (suceq (k215CmdNIPeq
+       (eqtr k215CompilePrefix_MP (suceq (k215CmdMPeq2
+         (eqtr k215CompilePrefix_AX (suceq (k215CmdAXeq4 k215CompilePrefix_nips_drop)))))))))))))));
+
+pub theorem k215NipsProgram_len (n: nat): $ len (k215NipsProgram n) = n $ = 'repeatlen;
+pub theorem k215DropProgram_len: $ len k215DropProgram = 1 $ = 'len1;
+pub theorem k215DiscardProgram_len: $ len k215DiscardProgram = suc (suc 10) $ =
+ '(eqtr lenS (suceq (eqtr lenS (suceq k215NipsProgram_len))));
+theorem k215LeafProgram_len_raw (j a b c : nat):
+ $ len (k215LeafProgram j a b c ) = (suc (suc 10)) + suc (j + suc ((suc 10) - j)) $ =
+ '(eqtr appendlen (addeq k215DiscardProgram_len
+   (eqtr lenS (suceq (eqtr appendlen (addeq k215NipsProgram_len
+      (eqtr lenS (suceq k215NipsProgram_len))))))));
+pub theorem k215LeafProgram_len (j a b c : nat):
+ $ j <= suc 10 -> len (k215LeafProgram j a b c ) = k215LeafTime $ =
+ '(eqtrd (a1i k215LeafProgram_len_raw)
+   (eqtrd (addeq2d (suceqd (eqtrd (a1i addS2)
+      (suceqd (mpbid subadd (a1i eqid)))))) (a1i addcom)));
+pub theorem k215BundleProgram_len (a b c: nat): $ len (k215BundleProgram a b c) = k215BundleLeafTime $ =
+ '(eqtr appendlen (eqtr (addeq k215DiscardProgram_len
+   (eqtr lenS (suceq k215NipsProgram_len))) addcom));
+pub theorem k215MPProgram_len (B: nat): $ len (k215MPProgram B) = k215MPTime $ =
+ '(eqtr lenS (suceq (eqtr lenS (suceq (eqtr lenS (suceq (eqtr lenS (suceq
+   (eqtr lenS (suceq (eqtr appendlen (eqtr (addeq k215NipsProgram_len
+     (eqtr lenS (suceq k215NipsProgram_len)))
+       (eqtr addS2 (suceq (eqtr addS2 (suceq (eqtr addS2 (suceq add0))))))))))))))))));
+
+-- The checked execution blocks now run through numerical program lists.
+theorem k215Compile_runs_if (P: wff) (n s t: nat)
+ (h: $ k215EnumIter n s = if P 0 (suc t) $): $ k215RunsTo n s t $ =
+ '(cases (syl orl (eqtrd (a1i h) ifpos)) (syl orr (eqtrd (a1i h) ifneg)));
+
+theorem k215Realizes_true_at (t w r np: nat):
+ $ k215RunsTo (len k215DiscardProgram)
+    (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix k215DiscardProgram r) np)
+    (k215Rebase (k218EnumState 0 0 0 w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq k215DiscardProgram_len
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215DiscardProgram_prefix)) k215Rebase_state)
+   (ax_mp orr k215Discard_run));
+pub theorem k215Realizes_true: $ k215Realizes k215DiscardProgram 0 $ =
+ (named '(ax_gen @ ax_gen @ ax_gen @ ax_gen k215Realizes_true_at));
+
+theorem k215Realizes_leaf1_at (a b c t w r np: nat):
+ $ k215RunsTo (len (k215LeafProgram 1 a b c ))
+    (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix (k215LeafProgram 1 a b c ) r) np)
+    (k215Rebase (k218EnumState 0 0 (kRho1 a b) w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq (ax_mp k215LeafProgram_len (mpbi lesuc le01))
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215LeafProgram_prefix)) k215Rebase_state)
+   (ax_mp orr k215LeafR1_run));
+pub theorem k215Realizes_leaf1 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 1 a b c ) (kRho1 a b) $ =
+ (named '(ax_gen @ ax_gen @ ax_gen @ ax_gen k215Realizes_leaf1_at));
+
+theorem k215Realizes_leaf2_at (a b c t w r np: nat):
+ $ k215RunsTo (len (k215LeafProgram 2 a b c ))
+    (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix (k215LeafProgram 2 a b c ) r) np)
+    (k215Rebase (k218EnumState 0 0 (kRho2 a b c) w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq (ax_mp k215LeafProgram_len (mpbi lesuc (mpbi lesuc le01)))
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215LeafProgram_prefix)) k215Rebase_state)
+   (ax_mp orr k215LeafR2_run));
+pub theorem k215Realizes_leaf2 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 2 a b c ) (kRho2 a b c) $ =
+ (named '(ax_gen @ ax_gen @ ax_gen @ ax_gen k215Realizes_leaf2_at));
+
+theorem k215Realizes_leaf3_at (a b c t w r np: nat):
+ $ k215RunsTo (len (k215LeafProgram 3 a b c ))
+    (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix (k215LeafProgram 3 a b c ) r) np)
+    (k215Rebase (k218EnumState 0 0 (kRho3 a b c) w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq (ax_mp k215LeafProgram_len (mpbi lesuc (mpbi lesuc (mpbi lesuc le01))))
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215LeafProgram_prefix)) k215Rebase_state)
+   (ax_mp orr k215LeafR3_run));
+pub theorem k215Realizes_leaf3 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 3 a b c ) (kRho3 a b c) $ =
+ (named '(ax_gen @ ax_gen @ ax_gen @ ax_gen k215Realizes_leaf3_at));
+
+theorem k215Realizes_leaf4_at (a b c t w r np: nat):
+ $ k215RunsTo (len (k215LeafProgram 4 a b c ))
+    (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix (k215LeafProgram 4 a b c ) r) np)
+    (k215Rebase (k218EnumState 0 0 (kRho4 a b c) w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq (ax_mp k215LeafProgram_len (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc le01)))))
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215LeafProgram_prefix)) k215Rebase_state)
+   (ax_mp orr k215LeafR4_run));
+pub theorem k215Realizes_leaf4 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 4 a b c ) (kRho4 a b c) $ =
+ (named '(ax_gen @ ax_gen @ ax_gen @ ax_gen k215Realizes_leaf4_at));
+
+theorem k215Realizes_leaf5_at (a b c t w r np: nat):
+ $ k215RunsTo (len (k215LeafProgram 5 a b c ))
+    (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix (k215LeafProgram 5 a b c ) r) np)
+    (k215Rebase (k218EnumState 0 0 (kRho5 a b c) w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq (ax_mp k215LeafProgram_len (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc le01))))))
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215LeafProgram_prefix)) k215Rebase_state)
+   (ax_mp orr k215LeafR5_run));
+pub theorem k215Realizes_leaf5 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 5 a b c ) (kRho5 a b c) $ =
+ (named '(ax_gen @ ax_gen @ ax_gen @ ax_gen k215Realizes_leaf5_at));
+
+theorem k215Realizes_leaf6_at (a b c t w r np: nat):
+ $ k215RunsTo (len (k215LeafProgram 6 a b c ))
+    (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix (k215LeafProgram 6 a b c ) r) np)
+    (k215Rebase (k218EnumState 0 0 (kRho6 a c) w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq (ax_mp k215LeafProgram_len (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc le01)))))))
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215LeafProgram_prefix)) k215Rebase_state)
+   (ax_mp orr k215LeafR6_run));
+pub theorem k215Realizes_leaf6 (a b c : nat):
+ $ k215Realizes (k215LeafProgram 6 a b c ) (kRho6 a c) $ =
+ (named '(ax_gen @ ax_gen @ ax_gen @ ax_gen k215Realizes_leaf6_at));
+
+theorem k215Realizes_leaf7_at (a b c t w r np: nat):
+ $ k215RunsTo (len (k215LeafProgram 7 a b c ))
+    (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix (k215LeafProgram 7 a b c ) r) np)
+    (k215Rebase (k218EnumState 0 0 (k218RhoG a b c) w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq (ax_mp k215LeafProgram_len (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc (mpbi lesuc le01))))))))
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215LeafProgram_prefix)) k215Rebase_state)
+   (ax_mp orr k215LeafG_run));
+pub theorem k215Realizes_G (a b c : nat):
+ $ k215Realizes (k215LeafProgram 7 a b c ) (k218RhoG a b c) $ =
+ (named '(ax_gen @ ax_gen @ ax_gen @ ax_gen k215Realizes_leaf7_at));
+
+theorem k215Realizes_bundle_at (a b c t w r np: nat):
+ $ c != a /\ c != b ->
+   k215RunsTo (len (k215BundleProgram a b c))
+    (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix (k215BundleProgram a b c) r) np)
+    (k215Rebase (k218EnumState 0 0 (k218Bundle a b c) w 0 0) r np) $ =
+ '(mpbird (a1i (k215RunsToeq k215BundleProgram_len
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215BundleProgram_prefix)) k215Rebase_state))
+   (syl orr k215BundleLeaf_enabled_run));
+pub theorem k215Realizes_bundle (a b c: nat):
+ $ c != a /\ c != b -> k215Realizes (k215BundleProgram a b c) (k218Bundle a b c) $ =
+ (named '(iald @ iald @ iald @ iald k215Realizes_bundle_at));
+
+
+-- A zero counter needs no command; a positive one is set by a failed MP.
+@_ def k215CounterProgram (i: nat): nat = $ if (i = 0) 0 (k215CmdMP i 0 : 0) $;
+@_ def k215GenCoreProgram (i: nat): nat =
+ $ k215CmdNIP 0 : (k215CmdAX i 0 0 0 :
+   (k215NipsProgram 9 ++ (k215CmdDROP 0 : k215NipsProgram 2))) $;
+@_ def k215GenProgram (i: nat): nat =
+ $ k215CmdDROP 0 : (k215CounterProgram i ++ k215GenCoreProgram i) $;
+@_ def k215R8CoreProgram (a b c u: nat): nat =
+ $ k215CmdAX c b (a - u) 0 :
+   (k215NipsProgram 8 ++ (k215CmdDROP 0 : k215NipsProgram 3)) $;
+@_ def k215R8Program (a b c u: nat): nat =
+ $ k215DiscardProgram ++ (k215CounterProgram u ++ k215R8CoreProgram a b c u) $;
+
+do (apply (register-eqd 'k215CounterPrefix) '(k215CounterPrefixeqd));
+
+pub theorem k215CounterProgram_prefix (i r: nat):
+ $ k215ProgramPrefix (k215CounterProgram i) r = k215CounterPrefix i r $ =
+ '(cases
+   (eqtr4d (eqtrd (k215ProgramPrefixeq1d ifpos) (a1i k215ProgramPrefix_nil)) ifpos)
+   (eqtr4d (eqtrd (k215ProgramPrefixeq1d ifneg)
+     (a1i (eqtr k215CompilePrefix_MP (suceq (k215CmdMPeq2 k215ProgramPrefix_nil))))) ifneg));
+pub theorem k215CounterProgram_len (i: nat):
+ $ len (k215CounterProgram i) = k215CounterTime i $ =
+ '(cases
+   (eqtr4d (eqtrd (leneqd ifpos) (a1i len0)) ifpos)
+   (eqtr4d (eqtrd (leneqd ifneg) (a1i len1)) ifneg));
+
+pub theorem k215GenCoreProgram_prefix (i r: nat):
+ $ k215ProgramPrefix (k215GenCoreProgram i) r = k215GenTail i r $ =
+ '(eqtr k215CompilePrefix_NIP (suceq (k215CmdNIPeq
+   (eqtr k215CompilePrefix_AX (suceq (k215CmdAXeq4 k215CompilePrefix_nips_drop))))));
+pub theorem k215GenProgram_prefix (i r: nat):
+ $ k215ProgramPrefix (k215GenProgram i) r = suc (k215GenPrefix i r) $ =
+ '(eqtr k215CompilePrefix_DROP (suceq (k215CmdDROPeq
+   (eqtr k215ProgramPrefix_append (eqtr k215CounterProgram_prefix
+      (k215CounterPrefixeq2 k215GenCoreProgram_prefix))))));
+pub theorem k215GenCoreProgram_len (i: nat):
+ $ len (k215GenCoreProgram i) = suc (suc (suc (suc 10))) $ =
+ '(eqtr lenS (suceq (eqtr lenS (suceq
+    (eqtr appendlen (eqtr (addeq k215NipsProgram_len
+      (eqtr lenS (suceq k215NipsProgram_len)))
+       (eqtr addS2 (suceq (eqtr addS2 (suceq (eqtr addS2 (suceq add0))))))))))));
+pub theorem k215GenProgram_len (i: nat):
+ $ len (k215GenProgram i) = k215GenTime i $ =
+ '(eqtr lenS (suceq (eqtr appendlen
+   (eqtr (addeq k215CounterProgram_len k215GenCoreProgram_len) addcom))));
+
+pub theorem k215R8CoreProgram_prefix (a b c u r: nat):
+ $ k215ProgramPrefix (k215R8CoreProgram a b c u) r =
+   suc (k215CmdAX c b (a - u) (k215NipPrefix 8 (suc (k215CmdDROP (k215NipPrefix 3 r))))) $ =
+ '(eqtr k215CompilePrefix_AX (suceq (k215CmdAXeq4 k215CompilePrefix_nips_drop)));
+pub theorem k215R8Program_prefix (a b c u r: nat):
+ $ k215ProgramPrefix (k215R8Program a b c u) r = suc (k215R8Prefix a b c u r) $ =
+ '(eqtr k215ProgramPrefix_append (eqtr k215DiscardProgram_prefix
+   (suceq (k215DiscardPrefixeq
+     (eqtr k215ProgramPrefix_append (eqtr k215CounterProgram_prefix
+       (k215CounterPrefixeq2 k215R8CoreProgram_prefix)))))));
+pub theorem k215R8CoreProgram_len (a b c u: nat):
+ $ len (k215R8CoreProgram a b c u) = suc (suc (suc 10)) $ =
+ '(eqtr lenS (suceq
+   (eqtr appendlen (eqtr (addeq k215NipsProgram_len
+      (eqtr lenS (suceq k215NipsProgram_len)))
+       (eqtr addS2 (suceq (eqtr addS2 (suceq (eqtr addS2 (suceq (eqtr addS2 (suceq add0))))))))))));
+pub theorem k215R8Program_len (a b c u: nat):
+ $ len (k215R8Program a b c u) = k215R8Time u $ =
+ '(eqtr appendlen (eqtr (addeq k215DiscardProgram_len
+   (eqtr appendlen (addeq k215CounterProgram_len k215R8CoreProgram_len)))
+     (eqtr addcom (addeq1 addcom))));
+
+theorem k215Realizes_rho8_at (a b c u t w r np: nat):
+ $ u <= a -> k215RunsTo (len (k215R8Program a b c u))
+   (k215Rebase (k218EnumState 0 0 t w 0 0) (k215ProgramPrefix (k215R8Program a b c u) r) np)
+   (k215Rebase (k218EnumState 0 0 (kRho8 a b c u) w 0 0) r np) $ =
+ '(mpbird (a1i (k215RunsToeq k215R8Program_len
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215R8Program_prefix)) k215Rebase_state))
+   (syl orr k215R8_run));
+pub theorem k215Realizes_rho8 (a b c u: nat):
+ $ u <= a -> k215Realizes (k215R8Program a b c u) (kRho8 a b c u) $ =
+ (named '(iald @ iald @ iald @ iald k215Realizes_rho8_at));
+pub theorem k215Realizable_rho8 (a b c u: nat):
+ $ u <= a -> k215Realizable (kRho8 a b c u) $ =
+ '(syl k215Realizable_intro k215Realizes_rho8);
+theorem k215GenProgram_runs_at (i X w r np: nat):
+ $ k215RunsTo (len (k215GenProgram i))
+    (k215Rebase (k218EnumState 0 0 X w 0 0) (k215ProgramPrefix (k215GenProgram i) r) np)
+    (k215Rebase (k218EnumState 0 0 (kAll i X) w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq k215GenProgram_len
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215GenProgram_prefix)) k215Rebase_state)
+   (ax_mp orr k215Gen_run));
+pub theorem k215GenProgram_runs (i X w: nat):
+ $ k215ProgramRuns (k215GenProgram i)
+    (k218EnumState 0 0 X w 0 0) (k218EnumState 0 0 (kAll i X) w 0 0) $ =
+ (named '(ax_gen @ ax_gen k215GenProgram_runs_at));
+
+theorem k215DropProgram_runs_at (A w r np: nat):
+ $ k215RunsTo (len k215DropProgram)
+    (k215Rebase (k218EnumState 0 0 A w 0 0) (k215ProgramPrefix k215DropProgram r) np)
+    (k215Rebase (k218EnumState 0 0 0 (A, w) 0 0) r np) $ =
+ '(mpbir (k215RunsToeq k215DropProgram_len
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215DropProgram_prefix)) k215Rebase_state)
+   (ax_mp orr (eqtr (k215Iter_after_step k215StepDROP_continue) k215EnumIter_zero)));
+pub theorem k215DropProgram_runs (A w: nat):
+ $ k215ProgramRuns k215DropProgram
+    (k218EnumState 0 0 A w 0 0) (k218EnumState 0 0 0 (A, w) 0 0) $ =
+ (named '(ax_gen @ ax_gen k215DropProgram_runs_at));
+
+theorem k215MPProgram_runs_at (A B w r np: nat):
+ $ k215RunsTo (len (k215MPProgram B))
+    (k215Rebase (k218EnumState 0 0 (kImp A B) (A, w) 0 0) (k215ProgramPrefix (k215MPProgram B) r) np)
+    (k215Rebase (k218EnumState 0 0 B w 0 0) r np) $ =
+ '(mpbir (k215RunsToeq k215MPProgram_len
+   (eqtr k215Rebase_state (k218EnumStateeq1 k215MPProgram_prefix)) k215Rebase_state)
+   (k215Compile_runs_if k215MP_run));
+pub theorem k215MPProgram_runs (A B w: nat):
+ $ k215ProgramRuns (k215MPProgram B)
+    (k218EnumState 0 0 (kImp A B) (A, w) 0 0) (k218EnumState 0 0 B w 0 0) $ =
+ (named '(ax_gen @ ax_gen k215MPProgram_runs_at));
+
+-- Composition is over natural-number program codes, not host-language lists.
+theorem k215Realizes_gen_at (L i X t w: nat):
+ $ k215Realizes L X -> k215ProgramRuns (L ++ k215GenProgram i)
+   (k218EnumState 0 0 t w 0 0) (k218EnumState 0 0 (kAll i X) w 0 0) $ =
+ '(mpd (a1i k215GenProgram_runs) (syl k215ProgramRuns_append k215Realizes_at));
+pub theorem k215Realizes_gen (L i X: nat):
+ $ k215Realizes L X -> k215Realizes (L ++ k215GenProgram i) (kAll i X) $ =
+ (named '(iald @ iald k215Realizes_gen_at));
+pub theorem k215Realizable_gen (i X: nat): $ k215Realizable X -> k215Realizable (kAll i X) $ =
+ (named '(eex @ syl k215Realizable_intro k215Realizes_gen));
+
+@_ def k215MPCompile (B LA LI: nat): nat =
+ $ LA ++ (k215DropProgram ++ (LI ++ k215MPProgram B)) $;
+theorem k215Realizes_mp_tail (LI A B w: nat):
+ $ k215Realizes LI (kImp A B) ->
+   k215ProgramRuns (k215DropProgram ++ (LI ++ k215MPProgram B))
+    (k218EnumState 0 0 A w 0 0) (k218EnumState 0 0 B w 0 0) $ =
+ '(mpd (mpd (a1i k215MPProgram_runs) (syl k215ProgramRuns_append k215Realizes_at))
+   (a1i (ax_mp k215ProgramRuns_append k215DropProgram_runs)));
+theorem k215Realizes_mp_at (LA LI A B t w: nat):
+ $ k215Realizes LA A /\ k215Realizes LI (kImp A B) ->
+   k215ProgramRuns (k215MPCompile B LA LI)
+    (k218EnumState 0 0 t w 0 0) (k218EnumState 0 0 B w 0 0) $ =
+ '(mpd (syl k215Realizes_mp_tail anr) (syl k215ProgramRuns_append (syl k215Realizes_at anl)));
+pub theorem k215Realizes_mp (LA LI A B: nat):
+ $ k215Realizes LA A -> k215Realizes LI (kImp A B) -> k215Realizes (k215MPCompile B LA LI) B $ =
+ (named '(exp @ iald @ iald k215Realizes_mp_at));
+theorem k215Realizable_mp_witnesses (LA LI A B: nat):
+ $ k215Realizes LA A -> k215Realizes LI (kImp A B) -> k215Realizable B $ =
+ '(syl6 k215Realizable_intro k215Realizes_mp);
+pub theorem k215Realizable_mp (A B: nat):
+ $ k215Realizable A -> k215Realizable (kImp A B) -> k215Realizable B $ =
+ (named '(eex @ eexd k215Realizable_mp_witnesses));
+
+pub theorem k215Realizable_true: $ k215Realizable 0 $ = '(ax_mp k215Realizable_intro k215Realizes_true);
+
+pub theorem k215Realizable_rho1 (a b: nat): $ k215Realizable (kRho1 a b) $ =
+ '(ax_mp k215Realizable_intro {k215Realizes_leaf1 : $ k215Realizes (k215LeafProgram 1 a b 0) (kRho1 a b) $});
+
+pub theorem k215Realizable_rho2 (a b c: nat): $ k215Realizable (kRho2 a b c) $ =
+ '(ax_mp k215Realizable_intro {k215Realizes_leaf2 : $ k215Realizes (k215LeafProgram 2 a b c) (kRho2 a b c) $});
+
+pub theorem k215Realizable_rho3 (a b c: nat): $ k215Realizable (kRho3 a b c) $ =
+ '(ax_mp k215Realizable_intro {k215Realizes_leaf3 : $ k215Realizes (k215LeafProgram 3 a b c) (kRho3 a b c) $});
+
+pub theorem k215Realizable_rho4 (a b c: nat): $ k215Realizable (kRho4 a b c) $ =
+ '(ax_mp k215Realizable_intro {k215Realizes_leaf4 : $ k215Realizes (k215LeafProgram 4 a b c) (kRho4 a b c) $});
+
+pub theorem k215Realizable_rho5 (a b c: nat): $ k215Realizable (kRho5 a b c) $ =
+ '(ax_mp k215Realizable_intro {k215Realizes_leaf5 : $ k215Realizes (k215LeafProgram 5 a b c) (kRho5 a b c) $});
+
+pub theorem k215Realizable_rho6 (a b: nat): $ k215Realizable (kRho6 a b) $ =
+ '(ax_mp k215Realizable_intro {k215Realizes_leaf6 : $ k215Realizes (k215LeafProgram 6 a 0 b) (kRho6 a b) $});
+
+pub theorem k215Realizable_rho7 (a b c: nat): $ k215Realizable (k218RhoG a b c) $ =
+ '(ax_mp k215Realizable_intro {k215Realizes_G : $ k215Realizes (k215LeafProgram 7 a b c) (k218RhoG a b c) $});
+
+pub theorem k215Realizable_bundle (a b c: nat):
+ $ c != a /\ c != b -> k215Realizable (k218Bundle a b c) $ =
+ '(syl k215Realizable_intro k215Realizes_bundle);
+
+theorem k215Realizable_ax_zero (n: nat): $ n = 0 -> k215Realizable n $ =
+ '(mpbiri k215Realizable_true (k215Realizableeqd id));
+theorem k215Realizable_ax_bundle (n a b c: nat):
+ $ c != a /\ c != b /\ n = k218Bundle a b c -> k215Realizable n $ =
+ '(mpbird (k215Realizableeqd anr) (syl k215Realizable_bundle anl));
+theorem k215Realizable_ax_body (n a b c u: nat): $ k215AxBody n a b c u -> k215Realizable n $ =
+ '(eori (mpbiri k215Realizable_rho1 (k215Realizableeqd id)) (eori (mpbiri k215Realizable_rho2 (k215Realizableeqd id)) (eori (mpbiri k215Realizable_rho3 (k215Realizableeqd id)) (eori (mpbiri k215Realizable_rho4 (k215Realizableeqd id)) (eori (mpbiri k215Realizable_rho5 (k215Realizableeqd id)) (eori (mpbiri k215Realizable_rho6 (k215Realizableeqd id)) (eori (mpbiri k215Realizable_rho7 (k215Realizableeqd id)) (eori (mpbird (k215Realizableeqd anr) (syl k215Realizable_rho8 anl)) k215Realizable_ax_bundle))))))));
+
+pub theorem k215Realizable_axiom (n: nat): $ n e. k215Axioms -> k215Realizable n $ =
+ (named '(syl (eori k215Realizable_ax_zero (eex @ eex @ eex @ eex k215Realizable_ax_body)) (bi1 k215Axioms_value)));
+
+@_ abstract def k215Compilables (.a: nat): set = $ {a | k215Realizable a} $;
+pub theorem k215Compilables_value (a: nat): $ a e. k215Compilables <-> k215Realizable a $ =
+ (named '(elabe ,eqtac));
+pub theorem k215Compilables_closed: $ k215Closed k215Compilables $ =
+ (named '(ian
+  (ian (ax_gen @ syl (bi2 k215Compilables_value) k215Realizable_axiom)
+       (ax_gen @ ax_gen @ syl (bi2 k215Compilables_value) @
+         mpd (syl (bi1 k215Compilables_value) anr) @
+           syl k215Realizable_mp (syl (bi1 k215Compilables_value) anl)))
+  (ax_gen @ ax_gen @ syl (bi2 k215Compilables_value) @
+    syl k215Realizable_gen (bi1 k215Compilables_value))));
+pub theorem k215Provable_realizable (a: nat): $ k215Provable a -> k215Realizable a $ =
+ '(syl (bi1 k215Compilables_value) (ax_mp k215Provable_induction k215Compilables_closed));
+pub theorem k215Derives_realizable (p a: nat): $ k215Derives p a -> k215Realizable a $ =
+ '(syl k215Provable_realizable k215Provable_intro);

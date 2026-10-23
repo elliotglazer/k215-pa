@@ -1,0 +1,25 @@
+import "k218_equality_alpha.mm0";
+
+def k218SharedAux (x y z: nat): nat = $ suc (((x + y) + z) + k218EqAux x y) $;
+theorem k218SharedAux_above_x (x y z: nat): $ x < k218SharedAux x y z $;
+theorem k218SharedAux_above_y (x y z: nat): $ y < k218SharedAux x y z $;
+theorem k218SharedAux_above_z (x y z: nat): $ z < k218SharedAux x y z $;
+theorem k218SharedAux_above_aux (x y z: nat): $ k218EqAux x y < k218SharedAux x y z $;
+
+theorem k218EqInd_to_ev (v x y: nat) (hvx: $ v != x $) (hvy: $ v != y $):
+  $ k218Provable (kImp (k218EqInd x y) (k218EqEv v x y)) $;
+theorem k218EqEv_to_ind (v x y: nat) (hvx: $ v != x $) (hvy: $ v != y $):
+  $ k218Provable (kImp (k218EqEv v x y) (k218EqInd x y)) $;
+
+theorem k218EqEv_vacuity_general (z v x y: nat)
+  (hzv: $ z != v $) (hzx: $ z != x $) (hzy: $ z != y $):
+  $ k218Provable (kImp (k218EqEv v x y) (kAll z (k218EqEv v x y))) $;
+
+-- No condition on z versus the canonical auxiliary, and z may be zero.
+theorem k218EqInd_vacuity (z x y: nat) (hzx: $ z != x $) (hzy: $ z != y $):
+  $ k218Provable (kImp (k218EqInd x y) (kAll z (k218EqInd x y))) $;
+
+theorem k218Equality_implies_ind (x y: nat):
+  $ k218Provable (kImp (kEq x y) (k218EqInd x y)) $;
+theorem k218EqInd_exists (x y: nat):
+  $ k218Provable (kExists x (k218EqInd x y)) $;

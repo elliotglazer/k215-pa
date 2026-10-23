@@ -1,0 +1,186 @@
+import "k215_calculus_equivalence.mm1";
+import "k218_commands.mm1";
+
+-- The tuple and reload protocol are inherited, while the command wire is new.
+@_ def k215CmdNIP (r: nat): nat = $ (0, r) $;
+@_ def k215CmdDROP (r: nat): nat = $ (1, r) $;
+@_ def k215CmdMP (x r: nat): nat = $ (2, x, r) $;
+@_ def k215CmdAX (c y x r: nat): nat = $ (suc (suc (suc c)), y, x, r) $;
+
+-- U is the incoming D.  A=D+x guarantees U<=A.  GEN is Q_D(H).
+@_ def k215AxStack (a h b c u t w: nat): nat =
+ $ (kRho1 a b, kRho2 a b c, kRho3 a b c, kRho4 a b c,
+    kRho5 a b c, kRho6 a c, k218RhoG a b c, kRho8 a b c u,
+    kAll u h, t, w) $;
+
+@_ def k215AXResult (s r next c y x: nat): nat =
+ $ suc (k218EnumState r next
+    (k218Gate (k218EnumD s + x) (k218EnumH s + y) c)
+    (k215AxStack (k218EnumD s + x) (k218EnumH s)
+      (k218EnumH s + y) c (k218EnumD s)
+      (k218EnumTW s) (k218EnumWS s)) 0 0) $;
+
+@_ def k215AXFields (s c fields next: nat): nat =
+ $ k215AXResult s (snd (snd fields)) next c
+    (fst fields) (fst (snd fields)) $;
+
+-- fields is snd of the candidate command, before any command-local read.
+@_ def k215EnumCommand (s ac fields next: nat): nat =
+ $ if (ac = 0) (k218DoNIP s fields next)
+    (if (ac = 1) (k218DoDROP s fields next)
+      (if (ac = 2) (k218DoMP s (snd fields) next (fst fields))
+        (k215AXFields s (ac - 3) fields next))) $;
+
+@_ def k215EnumStep (s: nat): nat =
+ $ k215EnumCommand s (fst (k218EnumList s)) (snd (k218EnumList s))
+    (k218EnumNext s) $;
+
+do (apply (register-eqd 'k215EnumCommand) '(k215EnumCommandeqd));
+do (apply (register-eqd 'k215AxStack) '(k215AxStackeqd));
+do (apply (register-eqd 'k215AXResult) '(k215AXResulteqd));
+
+pub theorem k215EnumCommand_nip (s r next: nat):
+ $ k215EnumCommand s 0 r next = k218DoNIP s r next $ = '(ifpos eqid);
+
+pub theorem k215EnumCommand_drop (s r next: nat):
+ $ k215EnumCommand s 1 r next = k218DoDROP s r next $ =
+ '(eqtr (ifneg d1ne0) (ifpos eqid));
+
+pub theorem k215EnumCommand_mp (s fields next: nat):
+ $ k215EnumCommand s 2 fields next = k218DoMP s (snd fields) next (fst fields) $ =
+ '(eqtr (ifneg d2ne0) (eqtr (ifneg (ltneri (mpbi ltsuc lt01S))) (ifpos eqid)));
+
+theorem k215EC_suc3_ne1 (c: nat): $ suc (suc (suc c)) != 1 $ =
+ '(mpbir (noteq peano2) peano1);
+theorem k215EC_suc3_ne2 (c: nat): $ suc (suc (suc c)) != 2 $ =
+ '(mpbir (noteq peano2) (mpbir (noteq peano2) peano1));
+theorem k215EC_suc3_sub3 (c: nat): $ suc (suc (suc c)) - 3 = c $ =
+ '(eqtr subSS (eqtr subSS (eqtr subSS sub02)));
+
+pub theorem k215EnumCommand_ax (s c fields next: nat):
+ $ k215EnumCommand s (suc (suc (suc c))) fields next =
+    k215AXFields s c fields next $ =
+ '(eqtr (ifneg peano1) (eqtr (ifneg k215EC_suc3_ne1)
+   (eqtr (ifneg k215EC_suc3_ne2) (k215AXFieldseq2 k215EC_suc3_sub3))));
+
+pub theorem k215EnumStep_ready (s prefix next: nat):
+ $ k218CommandReady s prefix next ->
+   k215EnumStep s = k215EnumCommand s (fst prefix) (snd prefix) next $ =
+ '(k215EnumCommandeqd eqidd (fsteqd k218CommandReady_list)
+   (sndeqd k218CommandReady_list) k218CommandReady_next);
+
+theorem k215EC_nip_decode (s r next: nat):
+ $ k215EnumCommand s (fst (k215CmdNIP r)) (snd (k215CmdNIP r)) next =
+   k218DoNIP s r next $ =
+ '(eqtr (k215EnumCommandeq eqid fstpr sndpr eqid) k215EnumCommand_nip);
+
+theorem k215EC_drop_decode (s r next: nat):
+ $ k215EnumCommand s (fst (k215CmdDROP r)) (snd (k215CmdDROP r)) next =
+   k218DoDROP s r next $ =
+ '(eqtr (k215EnumCommandeq eqid fstpr sndpr eqid) k215EnumCommand_drop);
+
+theorem k215EC_mp_decode (s x r next: nat):
+ $ k215EnumCommand s (fst (k215CmdMP x r)) (snd (k215CmdMP x r)) next =
+   k218DoMP s r next x $ =
+ '(eqtr (k215EnumCommandeq eqid fstpr sndpr eqid)
+   (eqtr k215EnumCommand_mp (k218DoMPeq eqid sndpr eqid fstpr)));
+
+theorem k215EC_ax_decode (s c y x r next: nat):
+ $ k215EnumCommand s (fst (k215CmdAX c y x r)) (snd (k215CmdAX c y x r)) next =
+   k215AXResult s r next c y x $ =
+ '(eqtr (k215EnumCommandeq eqid fstpr sndpr eqid)
+   (eqtr k215EnumCommand_ax
+     (k215AXResulteq eqid (eqtr (sndeq sndpr) sndpr)
+       eqid eqid fstpr (eqtr (fsteq sndpr) fstpr))));
+
+pub theorem k215ReadNIP (s r next: nat):
+ $ k218CommandReady s (k215CmdNIP r) next ->
+   k215EnumStep s = k218DoNIP s r next $ =
+ '(eqtrd k215EnumStep_ready (a1i k215EC_nip_decode));
+
+pub theorem k215ReadDROP (s r next: nat):
+ $ k218CommandReady s (k215CmdDROP r) next ->
+   k215EnumStep s = k218DoDROP s r next $ =
+ '(eqtrd k215EnumStep_ready (a1i k215EC_drop_decode));
+
+pub theorem k215ReadMP (s x r next: nat):
+ $ k218CommandReady s (k215CmdMP x r) next ->
+   k215EnumStep s = k218DoMP s r next x $ =
+ '(eqtrd k215EnumStep_ready (a1i k215EC_mp_decode));
+
+pub theorem k215ReadAX (s c y x r next: nat):
+ $ k218CommandReady s (k215CmdAX c y x r) next ->
+   k215EnumStep s = k215AXResult s r next c y x $ =
+ '(eqtrd k215EnumStep_ready (a1i k215EC_ax_decode));
+
+pub theorem k215AX_dominated (s x: nat):
+ $ k218EnumD s <= k218EnumD s + x $ = 'leaddid1;
+
+theorem k215EC_push (G: wff) (x w: nat)
+ (h: $ G -> k218Provable x $) (g: $ G -> k218GoodStack w $):
+ $ G -> k218GoodStack (x, w) $ = '(mpd g (syl k218GoodStack_push h));
+
+theorem k215EC_stack_good (G: wff) (a h b c u t w: nat)
+ (ht: $ G -> k218Provable t $) (hh: $ G -> k218Provable h $)
+ (hw: $ G -> k218GoodStack w $):
+ $ G -> k218GoodStack (k215AxStack a h b c u t w) $ =
+ '(k215EC_push (a1i (k218Provable_axiom k218Axioms_rho1)) @
+   k215EC_push (a1i (k218Provable_axiom k218Axioms_rho2)) @
+   k215EC_push (a1i (k218Provable_axiom k218Axioms_rho3)) @
+   k215EC_push (a1i (k218Provable_axiom k218Axioms_rho4)) @
+   k215EC_push (a1i (k218Provable_axiom k218Axioms_rho5)) @
+   k215EC_push (a1i (k218Provable_axiom k218Axioms_rho6)) @
+   k215EC_push (a1i (k218Provable_axiom k218Axioms_G)) @
+   k215EC_push (a1i (k218Provable_axiom k218Axioms_rho8)) @
+   k215EC_push (syl k218Provable_gen hh) (k215EC_push ht hw));
+
+pub theorem k215AxStack_good (a h b c u t w: nat):
+ $ k218Provable t -> k218Provable h -> k218GoodStack w ->
+   k218GoodStack (k215AxStack a h b c u t w) $ =
+ '(exp @ exp @ k215EC_stack_good (syl anl anl) (syl anr anl) anr);
+
+theorem k215EC_old_nip (s r next: nat):
+ $ k218EnumCommand s 2 r next (k218EnumD s) = k218DoNIP s r next $ =
+ '(eqtr (ifneg d2ne0) (eqtr (ifneg (ltneri (mpbi ltsuc lt01S))) (ifpos eqid)));
+
+theorem k215EC_old_drop (s r next: nat):
+ $ k218EnumCommand s 1 r next (k218EnumD s) = k218DoDROP s r next $ =
+ 'k218EnumCommand_drop;
+
+theorem k215EC_old_mp (s x r next: nat):
+ $ k218EnumCommand s 0 r next (k218EnumD s + x) = k218DoMP s r next x $ =
+ '(ifpos eqid);
+
+theorem k215EC_nip_good (s r next: nat):
+ $ k218EnumStateGood s -> k218EnumOptionGood (k218DoNIP s r next) $ =
+ '(syl (bi1 (k218EnumOptionGoodeq k215EC_old_nip)) k218EnumCommand_good);
+
+theorem k215EC_drop_good (s r next: nat):
+ $ k218EnumStateGood s -> k218EnumOptionGood (k218DoDROP s r next) $ =
+ '(syl (bi1 (k218EnumOptionGoodeq k215EC_old_drop)) k218EnumCommand_good);
+
+theorem k215EC_mp_good (s x r next: nat):
+ $ k218EnumStateGood s -> k218EnumOptionGood (k218DoMP s r next x) $ =
+ '(syl (bi1 (k218EnumOptionGoodeq k215EC_old_mp)) k218EnumCommand_good);
+
+theorem k215EC_ax_good (s r next c y x: nat):
+ $ k218EnumStateGood s -> k218EnumOptionGood (k215AXResult s r next c y x) $ =
+ '(syl (bi2 k218EnumOption_some)
+   (k218EnumGood_intro (a1i k218Gate_provable) (a1i k218Provable_true)
+     (mpd k218EnumGood_stack (mpd k218EnumGood_h (syl k215AxStack_good k218EnumGood_tw)))));
+
+pub theorem k215EnumCommand_good (s ac fields next: nat):
+ $ k218EnumStateGood s -> k218EnumOptionGood (k215EnumCommand s ac fields next) $ =
+ '(k218EnumOption_if_both k215EC_nip_good
+   (k218EnumOption_if_both k215EC_drop_good
+     (k218EnumOption_if_both k215EC_mp_good k215EC_ax_good)));
+
+pub theorem k215EnumStep_good (s: nat):
+ $ k218EnumStateGood s -> k218EnumOptionGood (k215EnumStep s) $ =
+ 'k215EnumCommand_good;
+
+pub theorem k215EnumStep_halt_sound (s: nat):
+ $ k218EnumStateGood s -> k215EnumStep s = 0 -> k215Inconsistent $ =
+ (named '(syl6 k215Cal_Inconsistent_reverse
+   (exp @ syl (bi1 k218EnumOption_zero)
+     (mpbid (k218EnumOptionGoodeqd anr) (anwl k215EnumStep_good)))));

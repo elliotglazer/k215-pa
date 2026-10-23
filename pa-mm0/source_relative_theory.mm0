@@ -1,0 +1,25 @@
+import "source_relative_trace.mm0";
+import "source_theory_support.mm0";
+
+-- Explicit axiom-image and nonempty-domain premises for a generic
+-- interpretation theorem. Concrete K/ZFC images remain separate work.
+def sfRelativeAxiomClass (T: set) (D .a: nat): set =
+$ {a | sfTheoryProvable T (sfRelativize D a)} $;
+def sfRelativeAxiomImages (S T: set) (D: nat): wff =
+$ S C_ sfRelativeAxiomClass T D $;
+
+theorem sfRelativeAxiomClass_value (T: set) (D a: nat):
+  $ a e. sfRelativeAxiomClass T D <-> sfTheoryProvable T (sfRelativize D a) $;
+theorem sfRelativeTheory_images (S T: set) (D G: nat):
+  $ sfRelativeAxiomImages S T D -> sfTheoryContext S G ->
+    all (sfTheoryProofClass T) (sfContextRelativize D G) $;
+theorem sfRelativeTheory_transfer (S T: set) (D a: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $)
+  (hi: $ sfRelativeAxiomImages S T D $)
+  (he: $ sfTheoryProvable T (sfEx D) $):
+  $ sfBound 0 a -> sfTheoryProvable S a -> sfTheoryProvable T (sfRelativize D a) $;
+theorem sfRelativeTheory_refutation (S T: set) (D: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfBound 1 D $)
+  (hi: $ sfRelativeAxiomImages S T D $)
+  (he: $ sfTheoryProvable T (sfEx D) $):
+  $ sfTheoryProvable S sfBot -> sfTheoryProvable T sfBot $;

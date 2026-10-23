@@ -1,0 +1,60 @@
+import "source_named_template.mm1";
+
+theorem sfNP_imp_left (a b: nat): $ 0 < a -> 0 < kImp a b $ =
+'(syl (bi2 lt01) (syl (con3 (syl anl (bi1 raw_kImp_zero_iff))) (bi1 lt01)));
+theorem sfNP_imp_right (a b: nat): $ 0 < b -> 0 < kImp a b $ =
+'(syl (bi2 lt01) (syl (con3 (syl anr (bi1 raw_kImp_zero_iff))) (bi1 lt01)));
+theorem sfNP_not (a: nat): $ 0 < kNot a $ = '(ax_mp sfNP_imp_right lt01S);
+theorem sfNP_and (a b: nat): $ 0 < kAnd a b $ = 'sfNP_not;
+theorem sfNP_ex (x a: nat): $ 0 < kExists x a $ = 'sfNP_not;
+theorem sfNP_or (a b: nat): $ 0 < kDisj a b $ = '(ax_mp sfNP_imp_left sfNP_not);
+
+@_ abstract def sfNamedPositive (E: set) (k c .d: nat): wff =
+$ A. d 0 < sfNamedTemplate E k d c $;
+@_ abstract def sfNamedPositiveClass (E: set) (k .c: nat): set =
+$ {c | sfNamedPositive E k c} $;
+
+theorem sfNP_class_value (E: set) (k c: nat):
+  $ c e. sfNamedPositiveClass E k <-> sfNamedPositive E k c $ =
+(named '(elabe ,eqtac));
+theorem sfNP_at (E: set) (k c d: nat):
+  $ sfNamedPositive E k c -> 0 < sfNamedTemplate E k d c $ =
+(named '(!! eale i ,eqtac));
+theorem sfNP_class_at (E: set) (k c d: nat):
+  $ c e. sfNamedPositiveClass E k -> 0 < sfNamedTemplate E k d c $ =
+'(syl sfNP_at (bi1 sfNP_class_value));
+
+theorem sfNP_bot (E: set) (k: nat): $ sfBot e. sfNamedPositiveClass E k $ =
+(named '(mpbir sfNP_class_value @ ax_gen @ mpbir (lteq2 sfNamedTemplate_bot) lt01S));
+theorem sfNP_mem (E: set) (k a b: nat): $ sfMem a b e. sfNamedPositiveClass E k $ =
+(named '(mpbir sfNP_class_value @ ax_gen @ mpbir (lteq2 sfNamedTemplate_sfMem) raw_kMem_positive));
+theorem sfNP_eq (E: set) (k a b: nat): $ sfEq a b e. sfNamedPositiveClass E k $ =
+(named '(mpbir sfNP_class_value @ ax_gen @ mpbir (lteq2 sfNamedTemplate_sfEq) raw_kEq_positive));
+theorem sfNP_class_and (E: set) (k a b: nat):
+  $ sfAnd a b e. sfNamedPositiveClass E k $ =
+(named '(mpbir sfNP_class_value @ ax_gen @ mpbir (lteq2 sfNamedTemplate_sfAnd) sfNP_and));
+theorem sfNP_class_or (E: set) (k a b: nat):
+  $ sfOr a b e. sfNamedPositiveClass E k $ =
+(named '(mpbir sfNP_class_value @ ax_gen @ mpbir (lteq2 sfNamedTemplate_sfOr) sfNP_or));
+theorem sfNP_class_imp (E: set) (k a b: nat):
+  $ a e. sfNamedPositiveClass E k /\ b e. sfNamedPositiveClass E k ->
+    sfImp a b e. sfNamedPositiveClass E k $ =
+(named '(syl (bi2 sfNP_class_value) @ iald @
+  mpbird (a1i (lteq2 sfNamedTemplate_sfImp)) (syl sfNP_imp_left (syl sfNP_class_at anl))));
+theorem sfNP_all (E: set) (k a: nat): $ sfAll a e. sfNamedPositiveClass E k $ =
+(named '(mpbir sfNP_class_value @ ax_gen @ mpbir (lteq2 sfNamedTemplate_sfAll) raw_kAll_positive));
+theorem sfNP_class_ex (E: set) (k a: nat): $ sfEx a e. sfNamedPositiveClass E k $ =
+(named '(mpbir sfNP_class_value @ ax_gen @ mpbir (lteq2 sfNamedTemplate_sfEx) sfNP_ex));
+theorem sfNP_construction (E: set) (k: nat):
+  $ sfConstructionClosed (sfNamedPositiveClass E k) $ =
+(named '(ian
+  (ian (ian sfNP_bot (ax_gen @ ax_gen @ ian sfNP_mem sfNP_eq))
+    (ax_gen @ ax_gen @ iand (iand (a1i sfNP_class_and) (a1i sfNP_class_or)) sfNP_class_imp))
+  (ax_gen @ iand (a1i sfNP_all) (a1i sfNP_class_ex))));
+
+pub theorem sfNamedTemplate_positive (E: set) (k d c: nat):
+  $ sfWf c -> 0 < sfNamedTemplate E k d c $ =
+'(syl sfNP_class_at (ax_mp sfWf_induction sfNP_construction));
+pub theorem sfNamedTemplate_nonzero (E: set) (k d c: nat):
+  $ sfWf c -> sfNamedTemplate E k d c != 0 $ =
+'(syl (bi1 lt01) sfNamedTemplate_positive);

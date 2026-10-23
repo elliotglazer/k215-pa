@@ -1,0 +1,356 @@
+import "source_l_power_def_literal.mm1";
+
+@_ def sfLCoreDefinabilityBody(m psi:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 3 2 m)
+   (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0))))) $;
+
+@_ def sfLCoreDefinabilityLaw(m psi:nat):nat =
+ $ sfAllPrefix (suc m) (sfAll (sfAll (sfLCoreDefinabilityBody m psi))) $;
+
+-- Arithmetic.
+theorem lcd_n3(n:nat): $ n + 3 = suc (suc (suc n)) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add02))))));
+theorem lcd_n4(n:nat): $ n + 4 = suc (suc (suc (suc n))) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add02))))))));
+theorem lcd_n5(n:nat): $ n + 5 = suc (suc (suc (suc (suc n)))) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add02))))))))));
+theorem lcd_n2(n:nat): $ n + 2 = suc (suc n) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq add02))));
+
+-- Successor-map renaming indices.
+theorem lcd_RS22: $ sfRenameIndex sfSuccessorMap (suc (suc 0)) 2 = 3 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)))));
+theorem lcd_RS12: $ sfRenameIndex sfSuccessorMap (suc 0) 2 = 3 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)));
+theorem lcd_RS13: $ sfRenameIndex sfSuccessorMap (suc 0) 3 = 4 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)));
+theorem lcd_RS33: $ sfRenameIndex sfSuccessorMap (suc (suc (suc 0))) 3 = 4 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift
+   (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)))))));
+
+-- Shifts of the closure-law antecedents at cutoff 2.
+theorem lcd_succ_shift: $ sfShift (suc (suc 0)) (sfPieceRepSuccessor 2 1) = sfPieceRepSuccessor 3 1 $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepSuccessor_wf))
+   (eqtr sfPieceRepSuccessor_rename (sfPieceRepSuccessor_eq lcd_RS22
+    (eqtr sfRenameIndex_successor (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S))))));
+
+theorem lcd_cl_shift: $ sfShift (suc (suc 0)) (sfPieceRepClosure 1 0) = sfPieceRepClosure 1 0 $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepClosure_wf))
+   (eqtr sfPieceRepClosure_rename (sfPieceRepClosure_eq
+    (eqtr sfRenameIndex_successor (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S)))
+    (eqtr sfRenameIndex_successor (ax_mp sfShiftIndex_bound lt01S)))));
+
+theorem lcd_si_two: $ sfShiftIndex (suc (suc 0)) 2 = 3 $ =
+ '(eqtr (eqcom sfRenameIndex_successor) lcd_RS22);
+
+theorem lcd_si_tail(n:nat): $ sfShiftIndex (suc (suc 0)) (n + 3) = n + 4 $ =
+ '(eqtr (eqcom sfRenameIndex_successor)
+   (eqtr (trud (sfRenameIndex_congr_index (a1i lcd_n3)))
+    (eqtr sfRenameIndex_lift
+     (eqtr (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))))
+      (eqcom lcd_n4)))));
+
+theorem lcd_mem_atom(n:nat): $ sfShift (suc (suc 0)) (sfMem (n + 3) 2) = sfMem (n + 4) 3 $ =
+ '(eqtr sfShift_sfMem (nsMem_eq lcd_si_tail lcd_si_two));
+
+theorem lcd_mem_zero:
+ $ sfShift (suc (suc 0)) (sfCLMembership 3 2 0) = sfCLMembership 4 3 0 $ =
+ '(eqtr (sfShifteq2 sfCLMembership_zero)
+   (eqtr sfShift_sfImp (eqtr (nsImp_eq sfShift_bot sfShift_bot) (eqcom sfCLMembership_zero))));
+
+theorem lcd_mem_step(n:nat):
+ $ sfShift (suc (suc 0)) (sfCLMembership 3 2 n) = sfCLMembership 4 3 n ->
+   sfShift (suc (suc 0)) (sfCLMembership 3 2 (suc n)) = sfCLMembership 4 3 (suc n) $ =
+ '(eqtrd (a1i (sfShifteq2 sfCLMembership_suc))
+   (eqtrd (a1i sfShift_sfAnd)
+    (eqtrd (sfAndeqd id (a1i lcd_mem_atom)) (a1i (eqcom sfCLMembership_suc)))));
+
+theorem lcd_mem_shift(n:nat):
+ $ sfShift (suc (suc 0)) (sfCLMembership 3 2 n) = sfCLMembership 4 3 n $ =
+ (named @ induct '(ind) 'n 'lcd_mem_zero 'lcd_mem_step);
+
+-- The three profiles involved, all rewritten to the profile with map i -> i+5 at A = 4.
+theorem lcd_profile_wf(T:set)(psi Y X:nat):
+ $ sfWf (sfPieceDefinableProfile T psi Y X) $ =
+ '(ax_mp sfWf_all (mpbir sfWf_iff (ian sfWf_mem (ax_mp (ax_mp sfWf_and sfWf_mem) sfCLSetRel_wf))));
+
+theorem lcd_mapC_at(i:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc (suc (suc 0))))
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) @ i =
+   sfLReplacementStartMap 5 @ i $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i (eqtr sfComposeMap_value
+      (eqtr sfSuccessorMap_value (suceq (eqtr sfLReplacementStartMap_at lcd_n3)))))))
+    (eqtr sfRenameIndex_lift
+     (eqtr (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift
+        (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))))))
+      (eqcom (eqtr sfLReplacementStartMap_at lcd_n5)))))));
+
+theorem lcd_mapU_at(i:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0))
+     (sfComposeMap (sfRenameDepthMap sfSuccessorMap (suc 0))
+      (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2))) @ i =
+   sfLReplacementStartMap 5 @ i $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i
+      (eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+       (eqtr (trud (sfRenameIndex_congr_index (a1i (eqtr sfComposeMap_value
+          (eqtr sfSuccessorMap_value (suceq (eqtr sfLReplacementStartMap_at lcd_n2)))))))
+        (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)))))))))
+    (eqtr sfRenameIndex_lift
+     (eqtr (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))
+      (eqcom (eqtr sfLReplacementStartMap_at lcd_n5)))))));
+
+theorem lcd_PC(psi:nat)(hf:$ sfWf psi $):
+ $ sfShift (suc (suc (suc 0)))
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 3)) psi 3 0) =
+   sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0 $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor lcd_profile_wf))
+   (eqtr (sfLRepProfile_rename hf)
+    (nsAll_eq (sfIffeq (nsMem_eq eqid (suceq (ax_mp sfRenameIndex_bound lt01S)))
+     (nsAnd_eq (nsMem_eq eqid (suceq lcd_RS33))
+      (sfCLSetReleq (suceq lcd_RS33)
+       (ax_mp (sfRename_extensional (!! ax_gen i @ ! lcd_mapC_at i)) hf))))))));
+
+theorem lcd_PU2(psi:nat)(hf:$ sfWf psi $):
+ $ sfShift (suc 0) (sfShift (suc 0)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0)) =
+   sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0 $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfShift_wf))
+   (eqtr (sfRenameeq3 (eqcom (ax_mp sfRename_successor lcd_profile_wf)))
+    (eqtr (sfRenameeq3 (sfLRepProfile_rename hf))
+     (eqtr (sfLRepProfile_rename hf)
+      (nsAll_eq (sfIffeq
+       (nsMem_eq eqid (suceq (eqtr (trud (sfRenameIndex_congr_index
+         (a1i (ax_mp sfRenameIndex_bound lt01S)))) (ax_mp sfRenameIndex_bound lt01S))))
+       (nsAnd_eq
+        (nsMem_eq eqid (suceq (eqtr (trud (sfRenameIndex_congr_index (a1i lcd_RS12))) lcd_RS13)))
+        (sfCLSetReleq (suceq (eqtr (trud (sfRenameIndex_congr_index (a1i lcd_RS12))) lcd_RS13))
+         (ax_mp (sfRename_extensional (!! ax_gen i @ ! lcd_mapU_at i)) hf))))))))));
+
+-- The shifted closure-law body and the shifted goal.
+theorem lcd_B(m psi:nat)(hf:$ sfWf psi $):
+ $ sfShift (suc (suc 0)) (sfLCoreDefinabilityBody m psi) =
+   sfImp (sfPieceRepSuccessor 3 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 4 3 m)
+     (sfEx (sfAnd (sfMem 0 1) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0))))) $ =
+ '(eqtr sfShift_sfImp (nsImp_eq lcd_succ_shift
+   (eqtr sfShift_sfImp (nsImp_eq lcd_cl_shift
+    (eqtr sfShift_sfImp (nsImp_eq lcd_mem_shift
+     (eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq
+      (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S)
+       (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S))))
+      (lcd_PC hf)))))))))));
+
+theorem lcd_H(m psi:nat)(hf:$ sfWf psi $):
+ $ sfShift 0 (sfAll (sfAll (sfLCoreDefinabilityBody m psi))) =
+   sfAll (sfAll (sfImp (sfPieceRepSuccessor 3 1) (sfImp (sfPieceRepClosure 1 0)
+     (sfImp (sfCLMembership 4 3 m)
+      (sfEx (sfAnd (sfMem 0 1) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0))))))) $ =
+ '(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfAll (nsAll_eq (lcd_B hf)))));
+
+theorem lcd_GU1(psi:nat):
+ $ sfShift 0 (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0))) =
+   sfEx (sfAnd (sfMem 0 2) (sfShift (suc 0)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0))) $ =
+ '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq
+   (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free ltirr)))
+   eqid))));
+
+theorem lcd_GU(psi:nat)(hf:$ sfWf psi $):
+ $ sfShift 0 (sfShift 0 (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0)))) =
+   sfEx (sfAnd (sfMem 0 3) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0)) $ =
+ '(eqtr (sfShifteq2 lcd_GU1) (eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq
+   (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S)
+    (eqtr (eqcom sfRenameIndex_successor) lcd_RS12)))
+   (lcd_PU2 hf))))));
+
+-- Shifting the Reverse part of Def0.
+theorem lcd_subset_eq(A B C D:nat)(ha:$ A = C $)(hb:$ B = D $):
+ $ sfCLSubset A B = sfCLSubset C D $ =
+ '(nsAll_eq (nsImp_eq (nsMem_eq eqid (suceq ha)) (nsMem_eq eqid (suceq hb))));
+
+theorem lcd_subset_rename(R:set)(k a b:nat):
+ $ sfRename R k (sfCLSubset a b) = sfCLSubset (sfRenameIndex R k a) (sfRenameIndex R k b) $ =
+ '(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq
+   (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) sfRenameIndex_lift))
+   (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) sfRenameIndex_lift))))));
+
+theorem lcd_reverse_eq(A C D B E F:nat)(ha:$ A = B $)(hc:$ C = E $)(hd:$ D = F $):
+ $ sfLSeparationDef0Reverse A C D = sfLSeparationDef0Reverse B E F $ =
+ '(nsAll_eq (nsImp_eq (nsMem_eq eqid (suceq hc))
+   (nsImp_eq (lcd_subset_eq eqid (suceq ha)) (nsMem_eq eqid (suceq hd)))));
+
+theorem lcd_reverse_rename(R:set)(k A C D:nat):
+ $ sfRename R k (sfLSeparationDef0Reverse A C D) =
+   sfLSeparationDef0Reverse (sfRenameIndex R k A) (sfRenameIndex R k C) (sfRenameIndex R k D) $ =
+ '(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq
+   (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) sfRenameIndex_lift))
+   (eqtr sfRename_sfImp (nsImp_eq
+    (eqtr lcd_subset_rename (lcd_subset_eq (ax_mp sfRenameIndex_bound lt01S) sfRenameIndex_lift))
+    (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) sfRenameIndex_lift))))))));
+
+theorem lcd_reverse_wf(A C D:nat): $ sfWf (sfLSeparationDef0Reverse A C D) $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp
+   (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem))) sfWf_mem)));
+
+theorem lcd_succ0(i:nat): $ sfRenameIndex sfSuccessorMap 0 i = suc i $ =
+ '(eqtr sfRenameIndex_zero sfSuccessorMap_value);
+
+theorem lcd_rev_shift:
+ $ sfShift 0 (sfLSeparationDef0Reverse 3 0 2) = sfLSeparationDef0Reverse 4 1 3 $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor lcd_reverse_wf))
+   (eqtr lcd_reverse_rename (lcd_reverse_eq lcd_succ0 lcd_succ0 lcd_succ0)));
+
+-- Well-formedness.
+theorem lcd_Bx_wf(m psi:nat):
+ $ sfWf (sfImp (sfPieceRepSuccessor 3 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 4 3 m)
+     (sfEx (sfAnd (sfMem 0 1) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0)))))) $ =
+ '(ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepClosure_wf)
+   (ax_mp (ax_mp sfWf_imp sfCLMembership_wf)
+    (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) lcd_profile_wf)))));
+
+theorem lcd_GU3_wf(psi:nat):
+ $ sfWf (sfEx (sfAnd (sfMem 0 3) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0))) $ =
+ '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) lcd_profile_wf));
+
+theorem lcd_GU_wf(psi:nat):
+ $ sfWf (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0))) $ =
+ '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) lcd_profile_wf));
+
+-- Natural deduction. G3 (C = 0, S = 1, D = 2, A = 3): from the shifted closure law, the Def0
+-- witness and the shifted parameter membership, the goal of the Definability Lemma.
+theorem lcd_at_x(G psi:nat)(hg:$ sfContextWf G $)
+ (hR:$ nsLocal G (sfLSeparationDef0Reverse 3 0 2) $):
+ $ nsLocal (sfAnd (sfMem 0 1) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0) : sfContextShift G)
+   (sfShift 0 (sfEx (sfAnd (sfMem 0 3) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0)))) $ =
+ '(sfRQ_rewrite (eqcom sfShift_sfEx)
+   (ax_mp (ax_mp nsLocal_ExI sfShift_wf)
+    (mpbir (nsLocal_formula_eq (ax_mp sfSubst_shift_up_identity
+      (ax_mp (ax_mp sfWf_and sfWf_mem) lcd_profile_wf)))
+     (ax_mp (ax_mp sfLocal_and
+       (sfLSeparationDef0_profile_member
+        (sfRQ_rewrite lcd_rev_shift
+         (ax_mp (ax_mp (ax_mp nsLocal_weaken
+           (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfWf_mem) lcd_profile_wf)
+            (ax_mp sfContextShift_preserves_wf hg)))) sfContextSub_cons)
+          (ax_mp sfSepLocal_shift hR)))
+        (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp
+         (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfWf_mem) lcd_profile_wf)
+          (ax_mp sfContextShift_preserves_wf hg)))) sfContext_member_head))
+        (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp
+         (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfWf_mem) lcd_profile_wf)
+          (ax_mp sfContextShift_preserves_wf hg)))) sfContext_member_head))))
+      (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp
+       (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and sfWf_mem) lcd_profile_wf)
+        (ax_mp sfContextShift_preserves_wf hg)))) sfContext_member_head))))));
+
+theorem lcd_at_c(G m psi:nat)(hg:$ sfContextWf G $)
+ (hB:$ nsLocal G (sfImp (sfPieceRepSuccessor 3 1) (sfImp (sfPieceRepClosure 1 0)
+     (sfImp (sfCLMembership 4 3 m)
+      (sfEx (sfAnd (sfMem 0 1) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0)))))) $)
+ (hW:$ nsLocal G (sfLSeparationDef0Witness 1 0) $)
+ (hM:$ nsLocal G (sfCLMembership 4 3 m) $):
+ $ nsLocal G (sfEx (sfAnd (sfMem 0 3) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0))) $ =
+ '(ax_mp (ax_mp (sfLocal_exE lcd_GU3_wf)
+    (ax_mp (ax_mp nsLocal_mp
+      (ax_mp (ax_mp nsLocal_mp
+        (ax_mp (ax_mp nsLocal_mp hB) (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 hW)))))
+       (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 hW)))))
+     hM))
+   (lcd_at_x hg (ax_mp nsLocal_CE2 hW)));
+
+-- Opening the two existentials of Def0 1 0 and instantiating the closure law at S and C.
+theorem lcd_w_wf: $ sfWf (sfLSeparationDef0Witness 1 0) $ =
+ '(ax_mp (ax_mp sfWf_and
+   (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfPieceRepSuccessor_wf) sfPieceRepClosure_wf))
+    (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_and sfWf_mem)
+     (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)))))))
+   lcd_reverse_wf);
+
+theorem lcd_g2_wf(G:nat)(hg:$ sfContextWf G $):
+ $ sfContextWf (sfEx (sfLSeparationDef0Witness 1 0) : sfContextShift G) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp sfWf_ex lcd_w_wf) (ax_mp sfContextShift_preserves_wf hg)));
+
+theorem lcd_g3_wf(G:nat)(hg:$ sfContextWf G $):
+ $ sfContextWf (sfLSeparationDef0Witness 1 0 : sfContextShift G) $ =
+ '(mpbir sfContextWf_cons (ian lcd_w_wf (ax_mp sfContextShift_preserves_wf hg)));
+
+theorem lcd_lift_all(G a b:nat)(hb:$ sfWf b $)(hg:$ sfContextWf (a : sfContextShift G) $)
+ (h:$ nsLocal G (sfAll b) $): $ nsLocal (a : sfContextShift G) b $ =
+ '(sfRQ_rewrite (ax_mp sfSubst_shift_up_identity hb)
+   (ax_mp nsLocal_AllE
+    (sfRQ_rewrite sfShift_sfAll
+     (ax_mp (ax_mp (ax_mp nsLocal_weaken hg) sfContextSub_cons) (ax_mp sfSepLocal_shift h)))));
+
+theorem lcd_lift(G a b:nat)(hg:$ sfContextWf (a : sfContextShift G) $)
+ (h:$ nsLocal G b $): $ nsLocal (a : sfContextShift G) (sfShift 0 b) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken hg) sfContextSub_cons) (ax_mp sfSepLocal_shift h));
+
+-- G2 (S = 0, D = 1, A = 2): open C.
+theorem lcd_at_s(G m psi:nat)(hf:$ sfWf psi $)(hg:$ sfContextWf G $)
+ (hB:$ nsLocal G (sfAll (sfImp (sfPieceRepSuccessor 3 1) (sfImp (sfPieceRepClosure 1 0)
+     (sfImp (sfCLMembership 4 3 m)
+      (sfEx (sfAnd (sfMem 0 1) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0))))))) $)
+ (hE:$ nsLocal G (sfEx (sfLSeparationDef0Witness 1 0)) $)
+ (hM:$ nsLocal G (sfCLMembership 3 2 m) $):
+ $ nsLocal G (sfShift 0 (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0)))) $ =
+ '(ax_mp (ax_mp (sfLocal_exE sfShift_wf) hE)
+   (sfRQ_rewrite (eqcom (lcd_GU hf))
+    (lcd_at_c (lcd_g3_wf hg)
+     (lcd_lift_all lcd_Bx_wf (lcd_g3_wf hg) hB)
+     (ax_mp (ax_mp nsLocal_hyp (lcd_g3_wf hg)) sfContext_member_head)
+     (sfRQ_rewrite sfCLMembership_shift (lcd_lift (lcd_g3_wf hg) hM)))));
+
+-- G1 (D = 0, A = 1): open S.
+theorem lcd_at_y(G m psi:nat)(hf:$ sfWf psi $)(hg:$ sfContextWf G $)
+ (hB:$ nsLocal G (sfAll (sfAll (sfImp (sfPieceRepSuccessor 3 1) (sfImp (sfPieceRepClosure 1 0)
+     (sfImp (sfCLMembership 4 3 m)
+      (sfEx (sfAnd (sfMem 0 1) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0)))))))) $)
+ (hD:$ nsLocal G (sfLSeparationDef0 1 0) $)
+ (hM:$ nsLocal G (sfCLMembership 2 1 m) $):
+ $ nsLocal G (sfEx (sfAnd (sfMem 0 1)
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi 2 0))) $ =
+ '(ax_mp (ax_mp (sfLocal_exE lcd_GU_wf) hD)
+   (lcd_at_s hf (lcd_g2_wf hg)
+    (lcd_lift_all (ax_mp sfWf_all lcd_Bx_wf) (lcd_g2_wf hg) hB)
+    (ax_mp (ax_mp nsLocal_hyp (lcd_g2_wf hg)) sfContext_member_head)
+    (sfRQ_rewrite sfCLMembership_shift (lcd_lift (lcd_g2_wf hg) hM))));
+
+theorem lcd_g1_wf(m psi:nat):
+ $ sfContextWf (sfCLMembership 2 1 m : (sfLSeparationDef0 1 0 :
+   (sfAll (sfAll (sfImp (sfPieceRepSuccessor 3 1) (sfImp (sfPieceRepClosure 1 0)
+     (sfImp (sfCLMembership 4 3 m)
+      (sfEx (sfAnd (sfMem 0 1) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0))))))) : 0))) $ =
+ '(mpbir sfContextWf_cons (ian sfCLMembership_wf (mpbir sfContextWf_cons (ian sfLSeparationDef0_wf
+   (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp sfWf_all lcd_Bx_wf)) sfContextWf_nil))))));
+
+theorem lcd_local(m psi:nat)(hf:$ sfWf psi $):
+ $ nsLocal (sfAll (sfAll (sfImp (sfPieceRepSuccessor 3 1) (sfImp (sfPieceRepClosure 1 0)
+     (sfImp (sfCLMembership 4 3 m)
+      (sfEx (sfAnd (sfMem 0 1) (sfPieceDefinableProfile (sfLReplacementStartMap 5) psi 4 0))))))) : 0)
+   (sfLDefinabilityBody m psi) $ =
+ '(ax_mp nsLocal_II (ax_mp nsLocal_II
+   (lcd_at_y hf lcd_g1_wf
+    (ax_mp (ax_mp nsLocal_hyp lcd_g1_wf)
+     (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))
+    (ax_mp (ax_mp nsLocal_hyp lcd_g1_wf) (ax_mp sfContext_member_tail sfContext_member_head))
+    (ax_mp (ax_mp nsLocal_hyp lcd_g1_wf) sfContext_member_head))));
+
+pub theorem sfLDefinabilityLaw_from_core(m psi:nat)(hf:$ sfWf psi $)
+ (hC:$ sfTheoryProvable zfrAxioms (sfLCoreDefinabilityLaw m psi) $):
+ $ sfTheoryProvable zfrAxioms (sfLDefinabilityLaw m psi) $ =
+ '(ax_mp (ax_mp sfTheoryProvable_prefix_intro zfrAxioms_closed)
+   (ax_mp (ax_mp sfTheoryProvable_gen zfrAxioms_closed)
+    (ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed)
+      (mpbir sfTheoryContext_cons (ian
+       (mpbir sfTheoryProofClass_value
+        (mpbi (sfTheoryProvableeq2 (lcd_H hf))
+         (ax_mp (ax_mp sfTheoryProvable_shift zfrAxioms_closed)
+          (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) hC))))
+       sfTheoryContext_nil)))
+     (lcd_local hf))));

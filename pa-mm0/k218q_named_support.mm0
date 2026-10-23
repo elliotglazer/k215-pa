@@ -1,0 +1,43 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm0";
+import "k218q_rebase.mm0";
+import "k218q_named_eigen.mm0";
+import "quotation_supported_eigenvariables.mm0";
+
+def k218INamedSupport (H S k G .a: nat): wff =
+ $ A. a (a IN G -> k218IHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a)) $;
+
+theorem k218INamedSupport_member (H S k G a: nat):
+ $ k218INamedSupport H S k G -> a IN G ->
+   k218IHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $;
+theorem k218INamedSupport_nil (H S k: nat): $ k218INamedSupport H S k 0 $;
+theorem k218INamedSupport_cons (H S k G a: nat):
+ $ k218INamedSupport H S k G -> k218IHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) ->
+   k218INamedSupport H S k (a : G) $;
+theorem k218INamedSupport_weaken (H S k G a: nat):
+ $ k218INamedSupport H S k G -> k218INamedSupport (a : H) S k G $;
+theorem k218INamedSupport_under (H S k G a: nat):
+ $ k218INamedSupport H S k G ->
+   k218INamedSupport (sfNamedTemplate (sqNumericEnvironment S) k 0 a : H) S k (a : G) $;
+theorem k218INamedSupport_subset (H S k G J: nat):
+ $ sfContextSub G J -> k218INamedSupport H S k J -> k218INamedSupport H S k G $;
+
+theorem k218INamed_numeric_cons (S z k a: nat):
+ $ sfWf a -> sfNamedTemplate (sqNumericEnvironment (z : S)) k 0 a =
+   sfNamedTemplate (sqEnvCons z (sqNumericEnvironment S)) k 0 a $;
+theorem k218INamed_numeric_shift (S z k a: nat):
+ $ sfWf a -> sfNamedTemplate (sqNumericEnvironment (z : S)) k 0 (sfShift 0 a) =
+   sfNamedTemplate (sqNumericEnvironment S) k 0 a $;
+theorem k218INamedSupport_shift (H S z k G: nat):
+ $ sfContextWf G -> k218INamedSupport H S k G ->
+   k218INamedSupport H (z : S) k (sfContextShift G) $;
+theorem k218INamedSupport_rebase (H S n k l G: nat):
+ $ sqSourceBound n G -> sqEnvironmentSafe S n 0 k -> sqEnvironmentSafe S n 0 l ->
+   k218INamedSupport H S k G -> k218INamedSupport H S l G $;
+
+def k218INamedAt (p G a .n .S .k .H: nat): wff =
+ $ A. n A. S A. k A. H (p <= n -> sqEnvironmentSafe S n 0 k ->
+   k218INamedSupport H S k G -> k218IHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a)) $;
+theorem k218INamedAt_use (p G a n S k H: nat):
+ $ k218INamedAt p G a -> p <= n -> sqEnvironmentSafe S n 0 k ->
+   k218INamedSupport H S k G -> k218IHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $;

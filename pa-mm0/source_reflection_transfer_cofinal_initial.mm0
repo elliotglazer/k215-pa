@@ -1,0 +1,15 @@
+import "source_reflection_transfer_cofinal_induction.mm0";
+
+import "source_reflection_cond_kernel.mm0";
+
+def sfReflectionCofinalOrdinals(K:nat):nat = $ sfAll (sfImp (sfMem 0 (suc K)) sfLeastOrdinalPredicate) $;
+
+theorem sfReflectionCofinalOrdinals_use(G K a:nat)(hO:$ nsLocal G (sfReflectionCofinalOrdinals K) $)(ha:$ nsLocal G (sfMem a K) $): $ nsLocal G (sfSubst 0 a sfLeastOrdinalPredicate) $;
+
+theorem sfReflectionCofinalLevelExists_use(G level a:nat)(hl:$ sfBound 2 level $)(hE:$ nsLocal G (sfReflectionCondLevelExists level) $)(hO:$ nsLocal G (sfSubst 0 a sfLeastOrdinalPredicate) $): $ nsLocal G (sfEx (sfORBinary level (suc a) 0)) $;
+
+theorem sfReflectionCofinal_initial_level(T:set)(G start level K a:nat)(hl:$ sfBound 2 level $)(ha:$ nsLocal G (sfMem a K) $)(hE:$ nsLocal G (sfEx (sfORBinary level (suc a) 0)) $): $ nsLocal G (sfReflectionCofinalCommon T start 0 level K) $;
+
+theorem sfReflectionCofinal_build_initial(T:set)(G start level K Y n:nat)(hl:$ sfBound 2 level $)(hi:$ nsLocal G (sfReflectionCofinalCommon T start 0 level K) $)(hc:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(hm:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $): $ sfReflectionCofinalBuildLaw T G start level K Y n $;
+
+theorem sfReflectionCofinal_build_from_level(T:set)(G start level K Y a n:nat)(hl:$ sfBound 2 level $)(ha:$ nsLocal G (sfMem a K) $)(hO:$ nsLocal G (sfReflectionCofinalOrdinals K) $)(hE:$ nsLocal G (sfReflectionCondLevelExists level) $)(hC:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(hM:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $)(hT:$ nsLocal G (sfReflectionTuple T start Y n) $): $ nsLocal G (sfReflectionCofinalCommon T start n level K) $;

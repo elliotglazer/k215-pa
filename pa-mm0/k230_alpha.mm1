@@ -1,0 +1,115 @@
+import "k230_specialization.mm1";
+import "k230_substitution_inverse.mm1";
+
+theorem kA_syl (a b c: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp b c) -> kProvable (kImp a c) $ =
+'(exp @ mpd (syl (mpi kPropB kProvable_mp) anl) (syl kProvable_mp anr));
+theorem kA_all_mono (x a b: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp (kAll x a) (kAll x b)) $ =
+'(syl (mpi (kProvable_axiom kAxioms_rho2) kProvable_mp) kProvable_gen);
+theorem kA_not_mono (a b: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp (kNot b) (kNot a)) $ =
+'(mpi kPropContra kProvable_mp);
+theorem kA_exists_mono (x a b: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp (kExists x a) (kExists x b)) $ =
+'(syl kA_not_mono (syl kA_all_mono kA_not_mono));
+theorem kA_exists_collapse (x a: nat):
+ $ kProvable (kImp a (kAll x a)) -> kProvable (kImp (kExists x a) a) $ =
+'(syl (mpi (kProvable_axiom kAxioms_rho6) kA_syl) kA_exists_mono);
+
+theorem kA_all_forward (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $) (hx: $ G -> kBinderAbsent f x $) (hy: $ G -> kFresh f y $):
+ $ G -> kProvable (kImp (kAll x f) (kAll y (kSubst f x y))) $ =
+'(sylc kA_syl
+ (syl kFresh_vacuity (mpd hy (syl kFresh_all_intro (syl necom hxy))))
+ (syl kA_all_mono
+  (mpd (syl kFresh_binder_absent hy)
+   (mpd hx (syl kNamed_specialization hxy)))));
+pub theorem kAlpha_all_forward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kAll x f) (kAll y (kSubst f x y))) $ =
+'(exp @ exp @ kA_all_forward anll anlr anr);
+
+theorem kA_vac_not (x p: nat):
+ $ kProvable (kImp p (kAll x p)) ->
+   kProvable (kImp (kNot p) (kAll x (kNot p))) $ =
+'(syl (ax_mp kA_syl
+ (kProvable_syl (kNot_mono (kProvable_axiom kAxioms_rho6)) kPropDNE))
+ (syl kA_all_mono kA_not_mono));
+theorem kA_vac_all (x y p: nat):
+ $ kProvable (kImp p (kAll y p)) ->
+   kProvable (kImp (kAll x p) (kAll y (kAll x p))) $ =
+'(syl (mpi (kProvable_axiom kAxioms_rho4) kA_syl) kA_all_mono);
+theorem kA_vac_exists (x y p: nat):
+ $ kProvable (kImp p (kAll x p)) ->
+   kProvable (kImp (kExists y p) (kAll x (kExists y p))) $ =
+'(syl kA_vac_not (syl kA_vac_all kA_vac_not));
+theorem kA_exists_eliminate (G: wff) (x f c: nat)
+ (hc: $ G -> kProvable (kImp c (kAll x c)) $)
+ (hp: $ G -> kProvable (kImp f c) $):
+ $ G -> kProvable (kImp (kExists x f) c) $ =
+'(sylc kA_syl (syl kA_exists_mono hp) (syl kA_exists_collapse hc));
+theorem kA_exists_backward (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $) (hx: $ G -> kBinderAbsent f x $) (hy: $ G -> kFresh f y $):
+ $ G -> kProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $ =
+'(kA_exists_eliminate (syl kA_vac_exists (syl kFresh_vacuity hy))
+ (mpd (syl kFresh_binder_absent hy) (mpd hx (syl kNamed_exists_intro hxy))));
+pub theorem kAlpha_exists_backward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $ =
+'(exp @ exp @ kA_exists_backward anll anlr anr);
+
+theorem kA_prov_transport (G: wff) (a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> kProvable b $):
+ $ G -> kProvable a $ = '(mpbird (kProvableeqd he) hp);
+theorem kA_all_backward_from_inverse (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $)
+ (hb: $ G -> kBinderAbsent (kSubst f x y) y $)
+ (hf: $ G -> kFresh (kSubst f x y) x $)
+ (hu: $ G -> kSubst (kSubst f x y) y x = f $):
+ $ G -> kProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $ =
+'(kA_prov_transport (kImp_congr_right (kAll_congr_right (eqcomd hu)))
+ (kA_all_forward (syl necom hxy) hb hf));
+theorem kA_exists_forward_from_inverse (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $)
+ (hb: $ G -> kBinderAbsent (kSubst f x y) y $)
+ (hf: $ G -> kFresh (kSubst f x y) x $)
+ (hu: $ G -> kSubst (kSubst f x y) y x = f $):
+ $ G -> kProvable (kImp (kExists x f) (kExists y (kSubst f x y))) $ =
+'(kA_prov_transport (kImp_congr_left (kExistseqd eqidd (eqcomd hu)))
+ (kA_exists_backward (syl necom hxy) hb hf));
+
+theorem kA_all_backward (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $) (hx: $ G -> kBinderAbsent f x $) (hy: $ G -> kFresh f y $):
+ $ G -> kProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $ =
+'(kA_all_backward_from_inverse hxy
+ (syl kBinderAbsent_substitution (syl kFresh_binder_absent hy))
+ (syl kSubst_output_fresh (iand hxy hx))
+ (mpd hx (syl kSubst_undo hy)));
+theorem kA_exists_forward (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $) (hx: $ G -> kBinderAbsent f x $) (hy: $ G -> kFresh f y $):
+ $ G -> kProvable (kImp (kExists x f) (kExists y (kSubst f x y))) $ =
+'(kA_exists_forward_from_inverse hxy
+ (syl kBinderAbsent_substitution (syl kFresh_binder_absent hy))
+ (syl kSubst_output_fresh (iand hxy hx))
+ (mpd hx (syl kSubst_undo hy)));
+pub theorem kAlpha_all_backward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $ =
+'(exp @ exp @ kA_all_backward anll anlr anr);
+pub theorem kAlpha_exists_forward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kExists x f) (kExists y (kSubst f x y))) $ =
+'(exp @ exp @ kA_exists_forward anll anlr anr);
+pub theorem kAlpha_all (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kAll x f) (kAll y (kSubst f x y))) /\
+   kProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $ =
+'(exp @ exp @ iand
+ (kA_all_forward anll anlr anr) (kA_all_backward anll anlr anr));
+pub theorem kAlpha_exists (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   kProvable (kImp (kExists x f) (kExists y (kSubst f x y))) /\
+   kProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $ =
+'(exp @ exp @ iand
+ (kA_exists_forward anll anlr anr) (kA_exists_backward anll anlr anr));

@@ -1,0 +1,90 @@
+import "source_l_common_level_blocks.mm0";
+
+import "source_renaming_laws.mm0";
+
+def sfPieceBeta (sb sc i: nat): nat = $ sb % suc (suc i * sc) $;
+
+def sfPieceCount (sb sc i: nat): nat = $ fst (sfPieceBeta sb sc i) $;
+
+def sfPieceMatrix (sb sc i: nat): nat = $ snd (sfPieceBeta sb sc i) $;
+
+def sfPieceTableValid (sb sc n .i: nat): wff =
+ $ A. i (i < n -> sfBound (suc (sfPieceCount sb sc i)) (sfPieceMatrix sb sc i)) $;
+
+def sfPieceShift3 (phi: nat): nat = $ sfShift 1 (sfShift 1 (sfShift 1 phi)) $;
+
+def sfPieceEw (domain matrix: nat): nat =
+ $ sfImp (sfEx (sfAnd domain matrix)) (sfEx (sfAnd (sfMem 0 1) matrix)) $;
+
+def sfPieceD0 (domain level phi: nat): nat =
+ $ sfAll (sfImp level (sfPieceEw domain (sfPieceShift3 phi))) $;
+
+def sfPieceRotate (.i: nat): set =
+ $ \ i, if (i = 0) 1 (if (i = 1) 2 (if (i = 2) 0 i)) $;
+
+def sfPieceDnStep (.previous: nat): set =
+ $ \ previous, sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 previous)) $;
+
+def sfPieceDn (count body: nat): nat = $ rec body sfPieceDnStep count $;
+
+def sfPieceOpenMap (d X .i: nat): set =
+ $ \ i, if (i = 0) d (if (i = 1) X i) $;
+
+def sfPiecePC (domain level count phi d X: nat): nat =
+ $ sfRename (sfPieceOpenMap d X) 0 (sfPieceDn count (sfPieceD0 domain level phi)) $;
+
+def sfPieceRows (domain level sb sc d X .i: nat): set =
+ $ \ i, sfPiecePC domain level (sfPieceCount sb sc i) (sfPieceMatrix sb sc i) d X $;
+
+def sfPieceConjunction (domain level sb sc n d X: nat): nat =
+ $ sfCLFold (sfPieceRows domain level sb sc d X) n $;
+
+def sfPieceBinary (domain level sb sc n: nat): nat =
+ $ sfPieceConjunction domain level sb sc n 0 1 $;
+
+theorem sfPieceTableValid_at (sb sc n i: nat):
+ $ sfPieceTableValid sb sc n -> i < n ->
+   sfBound (suc (sfPieceCount sb sc i)) (sfPieceMatrix sb sc i) $;
+
+theorem sfPieceTableValid_prefix (sb sc n: nat):
+ $ sfPieceTableValid sb sc (suc n) -> sfPieceTableValid sb sc n $;
+
+theorem sfPieceTableValid_last (sb sc n: nat):
+ $ sfPieceTableValid sb sc (suc n) ->
+   sfBound (suc (sfPieceCount sb sc n)) (sfPieceMatrix sb sc n) $;
+
+theorem sfPieceRotate_value (i: nat):
+ $ sfPieceRotate @ i = if (i = 0) 1 (if (i = 1) 2 (if (i = 2) 0 i)) $;
+
+theorem sfPieceOpenMap_value (d X i: nat):
+ $ sfPieceOpenMap d X @ i = if (i = 0) d (if (i = 1) X i) $;
+
+theorem sfPieceDnStep_value (previous: nat):
+ $ sfPieceDnStep @ previous = sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 previous)) $;
+
+theorem sfPieceDn_zero (body: nat): $ sfPieceDn 0 body = body $;
+
+theorem sfPieceDn_suc (count body: nat):
+ $ sfPieceDn (suc count) body =
+   sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 (sfPieceDn count body))) $;
+
+theorem sfPieceRows_value (domain level sb sc d X i: nat):
+ $ sfPieceRows domain level sb sc d X @ i =
+   sfPiecePC domain level (sfPieceCount sb sc i) (sfPieceMatrix sb sc i) d X $;
+
+theorem sfPieceConjunction_zero (domain level sb sc d X: nat):
+ $ sfPieceConjunction domain level sb sc 0 d X = sfCLTrue $;
+
+theorem sfPieceConjunction_suc (domain level sb sc n d X: nat):
+ $ sfPieceConjunction domain level sb sc (suc n) d X =
+   sfAnd (sfPieceConjunction domain level sb sc n d X)
+    (sfPiecePC domain level (sfPieceCount sb sc n) (sfPieceMatrix sb sc n) d X) $;
+
+theorem sfPiecePC_wf (domain level count phi d X: nat):
+ $ sfWf (sfPiecePC domain level count phi d X) $;
+
+theorem sfPieceConjunction_wf (domain level sb sc n d X: nat):
+ $ sfWf (sfPieceConjunction domain level sb sc n d X) $;
+
+theorem sfPieceBinary_wf (domain level sb sc n: nat):
+ $ sfWf (sfPieceBinary domain level sb sc n) $;

@@ -1,0 +1,101 @@
+import "source_piece_pcf_rep_empty.mm1";
+import "source_piece_pcf_definable_witness_transport.mm1";
+import "source_piece_pcf_rep_cover_laws_r39.mm1";
+import "source_l_replacement_prefix_elimination.mm1";
+
+@_ abstract def sfPieceDefinableEmptyInClosure(C:nat):nat =
+ $ sfEx (sfAnd (sfPieceRepEmpty 0) (sfMem 0 (suc C))) $;
+
+@_ abstract def sfPieceDefinableEmptySourceBody:nat =
+ $ sfImp (sfPieceRepSuccessor 2 1)
+   (sfImp (sfPieceRepClosure 1 0) (sfPieceDefinableEmptyInClosure 0)) $;
+
+@_ abstract def sfPieceDefinableEmptySourceMap(A B C:nat):set =
+ $ sqEnvCons C (sqEnvCons B (sqEnvCons A sfIdentityMap)) $;
+
+pub theorem sfPieceDefinableEmptyInClosure_wf(C:nat):
+ $ sfWf (sfPieceDefinableEmptyInClosure C) $ =
+ '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfPieceRepEmpty_wf) sfWf_mem));
+
+pub theorem sfPieceDefinableEmptyInClosure_congr(C D:nat)(hc:$ C = D $):
+ $ sfPieceDefinableEmptyInClosure C = sfPieceDefinableEmptyInClosure D $ =
+ '(sfExeq (sfAndeq eqid (sfMemeq eqid (suceq hc))));
+
+pub theorem sfPieceDefinableEmptyInClosure_rename(T:set)(C:nat):
+ $ sfRename T 0 (sfPieceDefinableEmptyInClosure C) =
+   sfPieceDefinableEmptyInClosure (T @ C) $ =
+ '(eqtr sfRename_sfEx
+   (sfExeq (eqtr sfRename_sfAnd
+     (sfAndeq
+       (eqtr sfPieceRepEmpty_rename
+         (sfPieceRepEmpty_eq (ax_mp sfRenameIndex_bound lt01S)))
+       (eqtr sfRename_sfMem
+         (sfMemeq (ax_mp sfRenameIndex_bound lt01S)
+           (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))))))));
+
+pub theorem sfPieceDefinableEmptySource_exact:
+ $ sfPieceRepEmptyFormula =
+   sfAll (sfAll (sfAll sfPieceDefinableEmptySourceBody)) $ = 'eqid;
+
+pub theorem sfPieceDefinableEmptySource_prefix:
+ $ sfAllPrefix 3 sfPieceDefinableEmptySourceBody =
+   sfAll (sfAll (sfAll sfPieceDefinableEmptySourceBody)) $ =
+ '(eqtr sfAllPrefix_suc (sfAlleq
+   (eqtr sfAllPrefix_suc (sfAlleq
+     (eqtr sfAllPrefix_suc (sfAlleq sfAllPrefix_zero))))));
+
+pub theorem sfPieceDefinableEmptySourceMap_zero(A B C:nat):
+ $ sfCLBallEnv (sfPieceDefinableEmptySourceMap A B C) 3 @ 0 = C $ =
+ '(eqtr sfCLBallEnv_value (eqtr (ifpos lt01S) sqEnvCons_zero));
+
+pub theorem sfPieceDefinableEmptySourceMap_one(A B C:nat):
+ $ sfCLBallEnv (sfPieceDefinableEmptySourceMap A B C) 3 @ 1 = B $ =
+ '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc lt01S))
+   (eqtr sqEnvCons_suc sqEnvCons_zero)));
+
+pub theorem sfPieceDefinableEmptySourceMap_two(A B C:nat):
+ $ sfCLBallEnv (sfPieceDefinableEmptySourceMap A B C) 3 @ 2 = A $ =
+ '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc (mpbi ltsuc lt01S)))
+   (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))));
+
+pub theorem sfPieceDefinableEmptySource_open(A B C:nat):
+ $ sfRename (sfCLBallEnv (sfPieceDefinableEmptySourceMap A B C) 3) 0
+     sfPieceDefinableEmptySourceBody =
+   sfImp (sfPieceRepSuccessor A B)
+     (sfImp (sfPieceRepClosure B C) (sfPieceDefinableEmptyInClosure C)) $ =
+ '(eqtr sfRename_sfImp
+   (sfImpeq
+     (eqtr sfPieceRepSuccessor_rename
+       (sfPieceRepSuccessor_eq
+         (eqtr sfRenameIndex_zero sfPieceDefinableEmptySourceMap_two)
+         (eqtr sfRenameIndex_zero sfPieceDefinableEmptySourceMap_one)))
+     (eqtr sfRename_sfImp
+       (sfImpeq
+         (eqtr sfPieceRepClosure_rename
+           (sfPieceRepClosure_eq
+             (eqtr sfRenameIndex_zero sfPieceDefinableEmptySourceMap_one)
+             (eqtr sfRenameIndex_zero sfPieceDefinableEmptySourceMap_zero)))
+         (eqtr sfPieceDefinableEmptyInClosure_rename
+           (sfPieceDefinableEmptyInClosure_congr sfPieceDefinableEmptySourceMap_zero))))));
+
+pub theorem sfPieceDefinableEmptySource_produce(G A B C:nat)
+ (hg:$ sfContextWf G $)(hbg:$ sfContextSub sfLBackground G $)
+ (hs:$ nsLocal G (sfPieceRepSuccessor A B) $)
+ (hc:$ nsLocal G (sfPieceRepClosure B C) $):
+ $ nsLocal G (sfPieceDefinableEmptyInClosure C) $ =
+ '(ax_mp (ax_mp nsLocal_mp
+   (ax_mp (ax_mp nsLocal_mp
+     (sfRQ_rewrite sfPieceDefinableEmptySource_open
+       (sfLReplacementPrefix_eliminate
+         (sfRQ_rewrite (eqcom sfPieceDefinableEmptySource_prefix)
+           (sfRQ_rewrite sfPieceDefinableEmptySource_exact
+             (ax_mp (ax_mp (ax_mp nsLocal_weaken hg) hbg)
+               sfPieceRepEmpty_local)))))) hs)) hc);
+
+pub theorem sfPieceDefinableBot_witness(G A B C n:nat)
+ (hg:$ sfContextWf G $)(hbg:$ sfContextSub sfLBackground G $)
+ (hs:$ nsLocal G (sfPieceRepSuccessor A B) $)
+ (hc:$ nsLocal G (sfPieceRepClosure B C) $):
+ $ nsLocal G (sfPieceDefinableWitness A C n sfBot) $ =
+ '(sfPieceDefinableWitness_bot_exists
+   (sfPieceDefinableEmptySource_produce hg hbg hs hc));

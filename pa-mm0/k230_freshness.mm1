@@ -1,0 +1,116 @@
+import "raw_source_image.mm1";
+import "source_named_template.mm1";
+
+-- Structural all-occurrence freshness, matching FreshNames/FreshPropagation.
+-- Binder occurrences count. Raw code 0 is truth; kF=1 is Mem(0,0).
+@_ def kFreshAllowed (x c h: nat): wff =
+$ ifp (c = 0) (0 = 0)
+ (ifp (rawTag c = 1 \/ rawTag c = 3) (x != rawLeft c /\ x != rawRight c)
+  (ifp (rawTag c = 2) (x != rawLeft c /\ rawRight c e. h)
+    (rawLeft c e. h /\ rawRight c e. h))) $;
+@_ abstract def kFreshStep (x .c .h: nat): set = $ S\ c, {h | kFreshAllowed x c h} $;
+@_ abstract def kFresh (c x: nat): wff = $ srecp (kFreshStep x) c $;
+@_ abstract def kFreshPrevious (x c .a: nat): nat = $ sep (upto c) {a | kFresh a x} $;
+
+pub theorem kFreshStep_value (x c h: nat):
+ $ (c, h) e. kFreshStep x <-> kFreshAllowed x c h $ =
+(named '(elsabe @ elabed ,eqtac));
+pub theorem kFreshPrevious_value (x c a: nat):
+ $ a e. kFreshPrevious x c <-> a < c /\ kFresh a x $ =
+(named '(bitr elsep @ bitr (aneq1i elupto) (aneq2i (elabe ,eqtac))));
+pub theorem kFresh_unfold (c x: nat):
+ $ kFresh c x <-> kFreshAllowed x c (kFreshPrevious x c) $ =
+(named '(bitr srecpval kFreshStep_value));
+pub theorem kFresh_congr (H: wff) (a b x y: nat)
+ (ha: $ H -> a = b $) (hx: $ H -> x = y $):
+ $ H -> (kFresh a x <-> kFresh b y) $ =
+'(kFresheqd ha hx);
+do (apply (register-eqd 'kFresh) '(kFresh_congr));
+pub theorem kFresh_zero (x: nat): $ kFresh 0 x $ =
+'(mpbir kFresh_unfold (mpbir (ifppos eqid) eqid));
+
+theorem kFreshAllowed_atom (x c h: nat)
+ (hc: $ c != 0 $) (ht: $ rawTag c = 1 \/ rawTag c = 3 $):
+ $ kFreshAllowed x c h <-> x != rawLeft c /\ x != rawRight c $ =
+'(bitr (ifpneg hc) (ifppos ht));
+theorem kFreshAllowed_all (x c h: nat)
+ (hc: $ c != 0 $) (ht: $ rawTag c = 2 $):
+ $ kFreshAllowed x c h <-> x != rawLeft c /\ rawRight c e. h $ =
+'(bitr (ifpneg hc) @ bitr
+ (ifpneg (mpbir notor (ian
+  (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))
+  (mpbir (noteq (eqeq1 ht)) (ltnei ltsucid)))))
+ (ifppos ht));
+theorem kFreshAllowed_imp (x c h: nat) (ht: $ rawTag c = 0 $):
+ $ c != 0 -> (kFreshAllowed x c h <-> rawLeft c e. h /\ rawRight c e. h) $ =
+'(bitrd ifpneg (a1i (bitr
+ (ifpneg (mpbir notor (ian
+  (mpbir (noteq (eqeq1 ht)) (ltnei lt01S))
+  (mpbir (noteq (eqeq1 ht)) (ltnei lt01S)))))
+ (ifpneg (mpbir (noteq (eqeq1 ht)) (ltnei lt01S))))));
+pub theorem kFresh_kMem (a b x: nat):
+ $ kFresh (kMem a b) x <-> x != a /\ x != b $ =
+'(bitr kFresh_unfold @
+ bitr (kFreshAllowed_atom (mpbi lt01 raw_kMem_positive) (orl kMem_tag)) @
+ aneq (noteq (eqeq2 raw_kMem_left)) (noteq (eqeq2 raw_kMem_right)));
+pub theorem kFresh_kEq (a b x: nat):
+ $ kFresh (kEq a b) x <-> x != a /\ x != b $ =
+'(bitr kFresh_unfold @
+ bitr (kFreshAllowed_atom (mpbi lt01 raw_kEq_positive) (orr kEq_tag)) @
+ aneq (noteq (eqeq2 raw_kEq_left)) (noteq (eqeq2 raw_kEq_right)));
+pub theorem kFresh_kAll (a b x: nat):
+ $ kFresh (kAll a b) x <-> x != a /\ kFresh b x $ =
+'(bitr kFresh_unfold @
+ bitr (kFreshAllowed_all (mpbi lt01 raw_kAll_positive) kAll_tag) @
+ aneq (noteq (eqeq2 raw_kAll_left))
+ (bitr (eleq1 raw_kAll_right) (bitr kFreshPrevious_value (bian1 raw_kAll_body_lt))));
+theorem kFresh_imp_nonzero (a b x: nat):
+ $ kImp a b != 0 -> (kFresh (kImp a b) x <-> kFresh a x /\ kFresh b x) $ =
+'(bitrd (a1i kFresh_unfold) @ bitrd
+ (kFreshAllowed_imp kImp_tag) @
+ aneqd
+ (bitrd (a1i (eleq1 raw_kImp_left)) (bitrd (a1i kFreshPrevious_value) (syl bian1 raw_kImp_left_lt)))
+ (bitrd (a1i (eleq1 raw_kImp_right)) (bitrd (a1i kFreshPrevious_value) (syl bian1 raw_kImp_right_lt))));
+
+
+theorem kFresh_imp_zero (a b x: nat):
+ $ kImp a b = 0 -> (kFresh (kImp a b) x <-> kFresh a x /\ kFresh b x) $ =
+'(bithd (mpbiri kFresh_zero (kFresh_congr id eqidd))
+ (iand
+  (mpbiri kFresh_zero (kFresh_congr (syl anl (bi1 raw_kImp_zero_iff)) eqidd))
+  (mpbiri kFresh_zero (kFresh_congr (syl anr (bi1 raw_kImp_zero_iff)) eqidd))));
+pub theorem kFresh_kImp (a b x: nat):
+ $ kFresh (kImp a b) x <-> kFresh a x /\ kFresh b x $ =
+'(cases kFresh_imp_zero kFresh_imp_nonzero);
+pub theorem kFresh_kF (x: nat): $ kFresh kF x <-> x != 0 $ =
+'(bitr (trud (kFresh_congr (a1i (eqcom kMem_zero)) eqidd))
+ (bitr kFresh_kMem anidm));
+pub theorem kFresh_kNot (a x: nat):
+ $ kFresh (kNot a) x <-> kFresh a x /\ x != 0 $ =
+'(bitr kFresh_kImp (aneq2i kFresh_kF));
+pub theorem kFresh_imp_intro (a b x: nat):
+ $ kFresh a x -> kFresh b x -> kFresh (kImp a b) x $ =
+'(exp (bi2 kFresh_kImp));
+pub theorem kFresh_mem_intro (a b x: nat):
+ $ x != a -> x != b -> kFresh (kMem a b) x $ =
+'(exp (bi2 kFresh_kMem));
+pub theorem kFresh_eq_intro (a b x: nat):
+ $ x != a -> x != b -> kFresh (kEq a b) x $ =
+'(exp (bi2 kFresh_kEq));
+pub theorem kFresh_all_intro (a b x: nat):
+ $ x != a -> kFresh b x -> kFresh (kAll a b) x $ =
+'(exp (bi2 kFresh_kAll));
+pub theorem kFresh_not_intro (a x: nat):
+ $ kFresh a x -> x != 0 -> kFresh (kNot a) x $ =
+'(exp (bi2 kFresh_kNot));
+pub theorem kFresh_and_intro (a b x: nat):
+ $ x != 0 -> kFresh a x -> kFresh b x -> kFresh (kAnd a b) x $ =
+'(exp @ exp @ mpd anll @ syl kFresh_not_intro @
+ mpd (mpd anll (syl kFresh_not_intro anr)) (syl kFresh_imp_intro anlr));
+pub theorem kFresh_disj_intro (a b x: nat):
+ $ x != 0 -> kFresh a x -> kFresh b x -> kFresh (kDisj a b) x $ =
+'(exp @ exp @ mpd anr @ syl kFresh_imp_intro @ mpd anll (syl kFresh_not_intro anlr));
+pub theorem kFresh_exists_intro (a b x: nat):
+ $ x != 0 -> x != a -> kFresh b x -> kFresh (kExists a b) x $ =
+'(exp @ exp @ mpd anll @ syl kFresh_not_intro @
+ mpd (mpd anll (syl kFresh_not_intro anr)) (syl kFresh_all_intro anlr));

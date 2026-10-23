@@ -1,0 +1,207 @@
+import "quotation_binders_absent.mm1";
+
+-- Avoid every allocated name in a finite arithmetic interval.
+@_ abstract def sqAllocAvoid (k n x .i: nat): wff =
+ $ A. i (i < n -> x != k + i) $;
+pub theorem sqAllocAvoid_at (k n x i: nat):
+ $ sqAllocAvoid k n x -> i < n -> x != k + i $ =
+(named '(!! eale j ,eqtac));
+pub theorem sqAllocAvoid_zero (k x: nat): $ sqAllocAvoid k 0 x $ =
+(named '(ax_gen @ absurd lt02));
+pub theorem sqAllocAvoid_mono (k m n x: nat) (hm: $ m <= n $):
+ $ sqAllocAvoid k n x -> sqAllocAvoid k m x $ =
+(named '(!! iald i @ syl5 (ltletrd id (a1i hm)) sqAllocAvoid_at));
+pub theorem sqAllocAvoid_below (k n x: nat) (hx: $ x < k $):
+ $ sqAllocAvoid k n x $ =
+(named '(ax_gen @ a1i (ltnei (ltletr hx leaddid1))));
+pub theorem sqAllocAvoid_above (k n x: nat) (hx: $ k + n <= x $):
+ $ sqAllocAvoid k n x $ =
+(named '(ax_gen @ syl ltner @ ltletrd (bi1 ltadd2) (a1i hx)));
+pub theorem sqAllocAvoid_shift (k d n x: nat):
+ $ sqAllocAvoid k (d + n) x -> sqAllocAvoid (k + d) n x $ =
+(named '(!! iald i @ exp @
+ mpbird (a1i (noteq (eqeq2 addass))) @
+ mpd (syl (bi1 ltadd2) anr) (syl sqAllocAvoid_at anl)));
+theorem sqAlloc_cap_le (d a c m: nat) (ha: $ a <= c $):
+ $ d + suc (a + m) <= d + suc (c + m) $ =
+'(mpbi leadd2 (mpbi lesuc (mpbi leadd1 ha)));
+theorem sqAlloc_child_le (d a c m: nat) (ha: $ a < c $):
+ $ suc d + suc (a + m) <= d + suc (c + m) $ =
+'(mpbi (leeq1 sqBinder_base) @ mpbi leadd2 @ mpbi lesuc @
+ mpbi (leeq1 addS1) (mpbi leadd1 ha));
+pub theorem sqAllocAvoid_subformula (k d a c m x: nat) (ha: $ a <= c $):
+ $ sqAllocAvoid k (d + suc (c + m)) x -> sqAllocAvoid k (d + suc (a + m)) x $ =
+'(sqAllocAvoid_mono (sqAlloc_cap_le ha));
+pub theorem sqAllocAvoid_child (k d a c m x: nat) (ha: $ a < c $):
+ $ sqAllocAvoid k (d + suc (c + m)) x -> sqAllocAvoid k (suc d + suc (a + m)) x $ =
+'(sqAllocAvoid_mono (sqAlloc_child_le ha));
+pub theorem sqAllocAvoid_head (k d c m x: nat):
+ $ sqAllocAvoid k (d + suc (c + m)) x -> x != k + d $ =
+'(mpi (mpbi (lteq1 add0) (mpbi ltadd2 lt01S)) sqAllocAvoid_at);
+
+@_ abstract def ntAllocClass (E: set) (k x: nat) (.c .d: nat): set =
+ $ {c | A. d (sqAllocAvoid k (d + suc (c + 0)) x -> kBinderAbsent (sfNamedTemplate E k d c) x)} $;
+theorem ntAlloc_value {d: nat} (E: set) (k x c: nat):
+ $ c e. ntAllocClass E k x <->
+ A. d (sqAllocAvoid k (d + suc (c + 0)) x -> kBinderAbsent (sfNamedTemplate E k d c) x) $ =
+(named '(elabe ,eqtac));
+theorem ntAlloc_depth (E: set) (k x d c: nat):
+ $ (A. j (sqAllocAvoid k (j + suc (c + 0)) x -> kBinderAbsent (sfNamedTemplate E k j c) x)) ->
+ sqAllocAvoid k (d + suc (c + 0)) x -> kBinderAbsent (sfNamedTemplate E k d c) x $ =
+(named '(!! eale j ,eqtac));
+theorem ntAlloc_at (E: set) (k x d c: nat):
+ $ c e. ntAllocClass E k x -> sqAllocAvoid k (d + suc (c + 0)) x ->
+ kBinderAbsent (sfNamedTemplate E k d c) x $ =
+(named '(syl ntAlloc_depth (bi1 ntAlloc_value)));
+theorem ntAlloc_bot (E: set) (k x: nat): $ sfBot e. ntAllocClass E k x $ =
+(named '(mpbir ntAlloc_value @ ax_gen @ a1i @
+ mpbir (trud (kBinderAbsent_congr (a1i sfNamedTemplate_bot) eqidd)) kBinderAbsent_kF));
+theorem ntAlloc_mem (E: set) (k x a b: nat): $ sfMem a b e. ntAllocClass E k x $ =
+(named '(mpbir ntAlloc_value @ ax_gen @ a1i @
+ mpbir (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfMem) eqidd)) kBinderAbsent_kMem));
+theorem ntAlloc_eq (E: set) (k x a b: nat): $ sfEq a b e. ntAllocClass E k x $ =
+(named '(mpbir ntAlloc_value @ ax_gen @ a1i @
+ mpbir (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfEq) eqidd)) kBinderAbsent_kEq));
+theorem ntAlloc_atomic (E: set) (k x: nat): $ sfAtomicClosed (ntAllocClass E k x) $ =
+(named '(ax_gen @ ax_gen @ ian ntAlloc_mem ntAlloc_eq));
+theorem ntAlloc_and (E: set) (k x a b: nat):
+ $ a e. ntAllocClass E k x /\ b e. ntAllocClass E k x -> sfAnd a b e. ntAllocClass E k x $ =
+(named '(mpbird (a1i ntAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfAnd) eqidd))) @
+ mpd (mpd (syl (sqAllocAvoid_subformula (ltlei sfAnd_right_lt)) anr) (syl ntAlloc_at anlr)) @
+ syl kBinderAbsent_and_intro @
+ mpd (syl (sqAllocAvoid_subformula (ltlei sfAnd_left_lt)) anr) (syl ntAlloc_at anll)));
+theorem ntAlloc_or (E: set) (k x a b: nat):
+ $ a e. ntAllocClass E k x /\ b e. ntAllocClass E k x -> sfOr a b e. ntAllocClass E k x $ =
+(named '(mpbird (a1i ntAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfOr) eqidd))) @
+ mpd (mpd (syl (sqAllocAvoid_subformula (ltlei sfOr_right_lt)) anr) (syl ntAlloc_at anlr)) @
+ syl kBinderAbsent_disj_intro @
+ mpd (syl (sqAllocAvoid_subformula (ltlei sfOr_left_lt)) anr) (syl ntAlloc_at anll)));
+theorem ntAlloc_imp (E: set) (k x a b: nat):
+ $ a e. ntAllocClass E k x /\ b e. ntAllocClass E k x -> sfImp a b e. ntAllocClass E k x $ =
+(named '(mpbird (a1i ntAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfImp) eqidd))) @
+ mpd (mpd (syl (sqAllocAvoid_subformula (ltlei sfImp_right_lt)) anr) (syl ntAlloc_at anlr)) @
+ syl (exp (bi2 kBinderAbsent_kImp)) @
+ mpd (syl (sqAllocAvoid_subformula (ltlei sfImp_left_lt)) anr) (syl ntAlloc_at anll)));
+theorem ntAlloc_binary (E: set) (k x: nat): $ sfBinaryClosed (ntAllocClass E k x) $ =
+(named '(ax_gen @ ax_gen @ iand (iand ntAlloc_and ntAlloc_or) ntAlloc_imp));
+theorem ntAlloc_all (E: set) (k x a: nat):
+ $ a e. ntAllocClass E k x -> sfAll a e. ntAllocClass E k x $ =
+(named '(mpbird (a1i ntAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfAll) eqidd))) @
+ mpd (mpd (syl (sqAllocAvoid_child sfAll_body_lt) anr) (syl ntAlloc_at anl))
+ (syl kBinderAbsent_all_intro (syl sqAllocAvoid_head anr))));
+theorem ntAlloc_ex (E: set) (k x a: nat):
+ $ a e. ntAllocClass E k x -> sfEx a e. ntAllocClass E k x $ =
+(named '(mpbird (a1i ntAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sfNamedTemplate_sfEx) eqidd))) @
+ mpd (mpd (syl (sqAllocAvoid_child sfEx_body_lt) anr) (syl ntAlloc_at anl))
+ (syl kBinderAbsent_exists_intro (syl sqAllocAvoid_head anr))));
+theorem ntAlloc_quantifier (E: set) (k x: nat): $ sfQuantifierClosed (ntAllocClass E k x) $ =
+(named '(ax_gen @ iand ntAlloc_all ntAlloc_ex));
+theorem ntAlloc_closed (E: set) (k x: nat): $ sfConstructionClosed (ntAllocClass E k x) $ =
+'(ian (ian (ian ntAlloc_bot ntAlloc_atomic) ntAlloc_binary) ntAlloc_quantifier);
+pub theorem sfNamedTemplate_allocation_absent (E: set) (k d c x: nat):
+ $ sfWf c -> sqAllocAvoid k (d + suc (c + 0)) x ->
+ kBinderAbsent (sfNamedTemplate E k d c) x $ =
+'(syl ntAlloc_at (ax_mp sfWf_induction ntAlloc_closed));
+
+pub theorem sfNamedTemplate_allocation_absent_zero (E: set) (k c x: nat):
+ $ sfWf c -> sqAllocAvoid k (suc c) x -> kBinderAbsent (sfNamedTemplate E k 0 c) x $ =
+'(syl5 (bi2 (sqAllocAvoideq2 (eqtr (addeq2 (suceq add0)) add01))) sfNamedTemplate_allocation_absent);
+pub theorem sqEqual_allocation_absent (t a b k x: nat):
+ $ sqAllocAvoid k (suc sqEqualSource) x -> kBinderAbsent (sqEqual t a b k) x $ =
+'(ax_mp sfNamedTemplate_allocation_absent_zero sqEqualSource_wf);
+pub theorem sqMember_allocation_absent (t a b k x: nat):
+ $ sqAllocAvoid k (suc sqMemberSource) x -> kBinderAbsent (sqMember t a b k) x $ =
+'(ax_mp sfNamedTemplate_allocation_absent_zero sqMemberSource_wf);
+
+-- A fixed arithmetic margin covers the additional quotient atom templates.
+@_ def sqAllocationMargin: nat = $ sqEqualSource + sqMemberSource $;
+theorem sqAlloc_equal_cap (d c: nat):
+ $ d + suc sqEqualSource <= d + suc (c + sqAllocationMargin) $ =
+'(mpbi leadd2 (mpbi lesuc (letr leaddid1 leaddid2)));
+theorem sqAlloc_member_cap (d c: nat):
+ $ d + suc sqMemberSource <= d + suc (c + sqAllocationMargin) $ =
+'(mpbi leadd2 (mpbi lesuc (letr leaddid2 leaddid2)));
+@_ abstract def qqAllocClass (E: set) (t k x: nat) (.c .d: nat): set =
+ $ {c | A. d (sqAllocAvoid k (d + suc (c + sqAllocationMargin)) x -> kBinderAbsent (sqQuote E t k d c) x)} $;
+theorem qqAlloc_value {d: nat} (E: set) (t k x c: nat):
+ $ c e. qqAllocClass E t k x <->
+ A. d (sqAllocAvoid k (d + suc (c + sqAllocationMargin)) x -> kBinderAbsent (sqQuote E t k d c) x) $ =
+(named '(elabe ,eqtac));
+theorem qqAlloc_depth (E: set) (t k x d c: nat):
+ $ (A. j (sqAllocAvoid k (j + suc (c + sqAllocationMargin)) x -> kBinderAbsent (sqQuote E t k j c) x)) ->
+ sqAllocAvoid k (d + suc (c + sqAllocationMargin)) x -> kBinderAbsent (sqQuote E t k d c) x $ =
+(named '(!! eale j ,eqtac));
+theorem qqAlloc_at (E: set) (t k x d c: nat):
+ $ c e. qqAllocClass E t k x -> sqAllocAvoid k (d + suc (c + sqAllocationMargin)) x ->
+ kBinderAbsent (sqQuote E t k d c) x $ =
+(named '(syl qqAlloc_depth (bi1 qqAlloc_value)));
+theorem qqAlloc_bot (E: set) (t k x: nat): $ sfBot e. qqAllocClass E t k x $ =
+(named '(mpbir qqAlloc_value @ ax_gen @ a1i @
+ mpbir (trud (kBinderAbsent_congr (a1i sqQuote_bot) eqidd)) kBinderAbsent_kF));
+theorem qqAlloc_mem (E: set) (t k x a b: nat): $ sfMem a b e. qqAllocClass E t k x $ =
+(named '(mpbir qqAlloc_value @ ax_gen @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfMem) eqidd))) @
+ syl sqMember_allocation_absent @ syl sqAllocAvoid_shift (sqAllocAvoid_mono sqAlloc_member_cap)));
+theorem qqAlloc_eq (E: set) (t k x a b: nat): $ sfEq a b e. qqAllocClass E t k x $ =
+(named '(mpbir qqAlloc_value @ ax_gen @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfEq) eqidd))) @
+ syl sqEqual_allocation_absent @ syl sqAllocAvoid_shift (sqAllocAvoid_mono sqAlloc_equal_cap)));
+theorem qqAlloc_atomic (E: set) (t k x: nat): $ sfAtomicClosed (qqAllocClass E t k x) $ =
+(named '(ax_gen @ ax_gen @ ian qqAlloc_mem qqAlloc_eq));
+theorem qqAlloc_and (E: set) (t k x a b: nat):
+ $ a e. qqAllocClass E t k x /\ b e. qqAllocClass E t k x -> sfAnd a b e. qqAllocClass E t k x $ =
+(named '(mpbird (a1i qqAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfAnd) eqidd))) @
+ mpd (mpd (syl (sqAllocAvoid_subformula (ltlei sfAnd_right_lt)) anr) (syl qqAlloc_at anlr)) @
+ syl kBinderAbsent_and_intro @
+ mpd (syl (sqAllocAvoid_subformula (ltlei sfAnd_left_lt)) anr) (syl qqAlloc_at anll)));
+theorem qqAlloc_or (E: set) (t k x a b: nat):
+ $ a e. qqAllocClass E t k x /\ b e. qqAllocClass E t k x -> sfOr a b e. qqAllocClass E t k x $ =
+(named '(mpbird (a1i qqAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfOr) eqidd))) @
+ mpd (mpd (syl (sqAllocAvoid_subformula (ltlei sfOr_right_lt)) anr) (syl qqAlloc_at anlr)) @
+ syl kBinderAbsent_disj_intro @
+ mpd (syl (sqAllocAvoid_subformula (ltlei sfOr_left_lt)) anr) (syl qqAlloc_at anll)));
+theorem qqAlloc_imp (E: set) (t k x a b: nat):
+ $ a e. qqAllocClass E t k x /\ b e. qqAllocClass E t k x -> sfImp a b e. qqAllocClass E t k x $ =
+(named '(mpbird (a1i qqAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfImp) eqidd))) @
+ mpd (mpd (syl (sqAllocAvoid_subformula (ltlei sfImp_right_lt)) anr) (syl qqAlloc_at anlr)) @
+ syl (exp (bi2 kBinderAbsent_kImp)) @
+ mpd (syl (sqAllocAvoid_subformula (ltlei sfImp_left_lt)) anr) (syl qqAlloc_at anll)));
+theorem qqAlloc_binary (E: set) (t k x: nat): $ sfBinaryClosed (qqAllocClass E t k x) $ =
+(named '(ax_gen @ ax_gen @ iand (iand qqAlloc_and qqAlloc_or) qqAlloc_imp));
+theorem qqAlloc_all (E: set) (t k x a: nat):
+ $ a e. qqAllocClass E t k x -> sfAll a e. qqAllocClass E t k x $ =
+(named '(mpbird (a1i qqAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfAll) eqidd))) @
+ mpd (syl (ax_mp (exp (bi2 kBinderAbsent_kImp)) kBinderAbsent_kMem) (mpd (syl (sqAllocAvoid_child sfAll_body_lt) anr) (syl qqAlloc_at anl)))
+ (syl kBinderAbsent_all_intro (syl sqAllocAvoid_head anr))));
+theorem qqAlloc_ex (E: set) (t k x a: nat):
+ $ a e. qqAllocClass E t k x -> sfEx a e. qqAllocClass E t k x $ =
+(named '(mpbird (a1i qqAlloc_value) @ !! iald d @ exp @
+ mpbird (a1i (trud (kBinderAbsent_congr (a1i sqQuote_sfEx) eqidd))) @
+ mpd (syl (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) (mpd (syl (sqAllocAvoid_child sfEx_body_lt) anr) (syl qqAlloc_at anl)))
+ (syl kBinderAbsent_exists_intro (syl sqAllocAvoid_head anr))));
+theorem qqAlloc_quantifier (E: set) (t k x: nat): $ sfQuantifierClosed (qqAllocClass E t k x) $ =
+(named '(ax_gen @ iand qqAlloc_all qqAlloc_ex));
+theorem qqAlloc_closed (E: set) (t k x: nat): $ sfConstructionClosed (qqAllocClass E t k x) $ =
+'(ian (ian (ian qqAlloc_bot qqAlloc_atomic) qqAlloc_binary) qqAlloc_quantifier);
+pub theorem sqQuote_allocation_absent (E: set) (t k d c x: nat):
+ $ sfWf c -> sqAllocAvoid k (d + suc (c + sqAllocationMargin)) x ->
+ kBinderAbsent (sqQuote E t k d c) x $ =
+'(syl qqAlloc_at (ax_mp sfWf_induction qqAlloc_closed));
+pub theorem sqQuote_allocation_absent_zero (E: set) (t k c x: nat):
+ $ sfWf c -> sqAllocAvoid k (suc (c + sqAllocationMargin)) x ->
+ kBinderAbsent (sqQuote E t k 0 c) x $ =
+'(syl5 (bi2 (sqAllocAvoideq2 add01)) sqQuote_allocation_absent);
+
+pub theorem sqAllocAvoid_successor (k a c m x: nat) (ha: $ a < c $):
+ $ sqAllocAvoid k (suc (c + m)) x -> sqAllocAvoid (suc k) (suc (a + m)) x $ =
+'(syl (bi1 (sqAllocAvoideq1 add12)) @ syl sqAllocAvoid_shift @
+ syl (sqAllocAvoid_child ha) (bi2 (sqAllocAvoideq2 add01)));

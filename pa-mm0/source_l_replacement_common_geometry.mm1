@@ -1,0 +1,74 @@
+import "source_wf_separation_logic.mm1";
+import "source_l_replacement_common_extension.mm1";
+import "source_l_level_member_recipe_intro.mm1";
+import "source_l_common_level_recipe_transport.mm1";
+import "source_l_common_level_point_rules.mm1";
+
+@_ def sfLReplacementSeededPoint(start count seed beta y:nat):nat =
+ $ sfAnd (sfCLPoint start count beta y) (sfCLSubset seed y) $;
+@_ def sfLReplacementSeededRecipe(start count seed:nat):nat =
+ $ sfEx (sfEx (sfLReplacementSeededPoint (suc (suc start)) count (suc (suc seed)) 1 0)) $;
+
+pub theorem sfLReplacementSubset_wf(a b:nat): $ sfWf (sfCLSubset a b) $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem));
+pub theorem sfLReplacementSubset_refl(G a:nat)(hg:$ sfContextWf G $):
+ $ nsLocal G (sfCLSubset a a) $ = '(ax_mp (sfLocal_allI hg) (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfWf_mem (ax_mp sfContextShift_preserves_wf hg)))) sfContext_member_head)));
+pub theorem sfLReplacementSubset_trans(G a b c:nat)
+ (hab:$ nsLocal G (sfCLSubset a b) $)(hbc:$ nsLocal G (sfCLSubset b c) $):
+ $ nsLocal G (sfCLSubset a c) $ = '(ax_mp (sfLocal_allI (ax_mp nsLocal_context_wf hab)) (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf hab))))) sfContextSub_cons) (ax_mp sfSepLocal_open hbc))) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf hab))))) sfContextSub_cons) (ax_mp sfSepLocal_open hab))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfWf_mem (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf hab))))) sfContext_member_head)))));
+pub theorem sfLReplacementSubset_shift(a b:nat):
+ $ sfShift 0 (sfCLSubset a b) = sfCLSubset (suc a) (suc b) $ = '(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02)))) (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02))))))));
+theorem lrcGeometry_subset_cut(seed:nat):
+ $ sfShift 2 (sfCLSubset (suc (suc seed)) 0) = sfCLSubset (suc (suc (suc seed))) 0 $ = '(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) (mt (bi2 ltsuc) (mt (bi2 ltsuc) lt02)))))) (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S))))))));
+
+pub theorem sfLReplacementSeededPoint_wf(start count seed beta y:nat):
+ $ sfWf (sfLReplacementSeededPoint start count seed beta y) $ =
+ '(ax_mp (ax_mp sfWf_and sfCLPoint_wf) sfLReplacementSubset_wf);
+pub theorem sfLReplacementSeededRecipe_wf(start count seed:nat):
+ $ sfWf (sfLReplacementSeededRecipe start count seed) $ =
+ '(ax_mp sfWf_ex (ax_mp sfWf_ex sfLReplacementSeededPoint_wf));
+pub theorem sfLReplacementSeededPoint_shift(start count seed beta y:nat):
+ $ sfShift 0 (sfLReplacementSeededPoint start count seed beta y) =
+ sfLReplacementSeededPoint (suc start) count (suc seed) (suc beta) (suc y) $ =
+ '(eqtr sfShift_sfAnd (nsAnd_eq sfCLPoint_shift sfLReplacementSubset_shift));
+pub theorem sfLReplacementSeededRecipe_shift(start count seed:nat):
+ $ sfShift 0 (sfLReplacementSeededRecipe start count seed) =
+ sfLReplacementSeededRecipe (suc start) count (suc seed) $ =
+ '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfEx (nsEx_eq
+  (eqtr sfShift_sfAnd (nsAnd_eq
+   (sfCLPoint_shift_cutoff_fixed (mpbi lesuc (mpbi lesuc le01)) (mpbi ltsuc lt01S) lt01S)
+   lrcGeometry_subset_cut))))));
+
+theorem lrcGeometry_point_sub1(start n seed t:nat):
+ $ sfSubst 1 t (sfLReplacementSeededPoint (suc (suc start)) n (suc (suc seed)) 1 0) =
+ sfLReplacementSeededPoint (suc start) n (suc seed) (suc t) 0 $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq sfLPoint_subst1
+  (eqtr sfLSubset_subst (sfCLSubseteq (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor)) (ax_mp sfSubstIndex_bound lt01S)))));
+theorem lrcGeometry_point_sub0(start n seed beta y:nat):
+ $ sfSubst 0 y (sfLReplacementSeededPoint (suc start) n (suc seed) (suc beta) 0) =
+ sfLReplacementSeededPoint start n seed beta y $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq sfLPoint_subst0
+  (eqtr sfLSubset_subst (sfCLSubseteq sfSubstIndex_successor sfSubstIndex_zero))));
+theorem lrcGeometry_outer_sub(start n seed beta:nat):
+ $ sfSubst 0 beta (sfEx (sfLReplacementSeededPoint (suc (suc start)) n (suc (suc seed)) 1 0)) =
+ sfEx (sfLReplacementSeededPoint (suc start) n (suc seed) (suc beta) 0) $ =
+ '(eqtr sfSubst_sfEx (nsEx_eq lrcGeometry_point_sub1));
+pub theorem sfLReplacementSeededRecipe_intro(G start n seed beta y:nat)
+ (hp:$ nsLocal G (sfLReplacementSeededPoint start n seed beta y) $):
+ $ nsLocal G (sfLReplacementSeededRecipe start n seed) $ =
+ '(ax_mp (ax_mp nsLocal_ExI (ax_mp sfWf_ex sfLReplacementSeededPoint_wf))
+  (sfRQ_rewrite (eqcom lrcGeometry_outer_sub)
+   (ax_mp (ax_mp nsLocal_ExI sfLReplacementSeededPoint_wf)
+    (sfRQ_rewrite (eqcom lrcGeometry_point_sub0) hp))));
+pub theorem sfLReplacementSeededPoint_extend(G start n seed oldBeta oldY beta y:nat)
+ (hp:$ nsLocal G (sfLReplacementSeededPoint start n seed oldBeta oldY) $)
+ (hs:$ nsLocal G (sfCLSubset oldY y) $)
+ (ho:$ nsLocal G (sfCLOrdinalAt beta) $)(hl:$ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ nsLocal G (sfLReplacementSeededPoint start n seed beta y) $ =
+ '(ax_mp (ax_mp sfLocal_and (sfCLPoint_from_inclusion (ax_mp nsLocal_CE1 hp) hs ho hl))
+  (sfLReplacementSubset_trans (ax_mp nsLocal_CE2 hp) hs));
+pub theorem sfLReplacementSeededPoint_append(G start n seed beta y:nat)
+ (hp:$ nsLocal G (sfLReplacementSeededPoint start n seed beta y) $)
+ (hm:$ nsLocal G (sfMem (n + start) y) $):
+ $ nsLocal G (sfLReplacementSeededPoint start (suc n) seed beta y) $ =
+ '(ax_mp (ax_mp sfLocal_and (ax_mp (sfCLPoint_append (ax_mp nsLocal_CE1 hp)) hm)) (ax_mp nsLocal_CE2 hp));

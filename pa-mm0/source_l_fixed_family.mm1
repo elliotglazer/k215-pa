@@ -1,0 +1,21 @@
+import "source_zfc_interpretation.mm1";
+
+import "source_l_basic_images.mm1";
+
+import "source_l_foundation.mm1";
+
+import "source_l_extensionality.mm1";
+
+def sfLRemainingFixedImages: wff = $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcEmpty) /\ (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPair) /\ (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcUnion) /\ (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcPower) /\ (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcOmega) /\ (sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice)))))) $;
+
+theorem sfLF_transport (a b: nat) (P: wff) (h: $ P -> sfTheoryProvable zfrAxioms (sfRelativize sfLDomain b) $):
+ $ P -> a = b -> sfTheoryProvable zfrAxioms (sfRelativize sfLDomain a) $ =
+'(exp @ mpbird (sfTheoryProvable_congr (sfRelativizeeq2d anr)) (syl h anl));
+
+theorem sfLF_all_fixed (a: nat):
+ $ sfTheoryProvable zfrAxioms sfLTransitivity /\ sfLRemainingFixedImages -> zfcFixed a -> sfTheoryProvable zfrAxioms (sfRelativize sfLDomain a) $ =
+'(eord (sfLF_transport (a1i sfLRefl_zfr)) (eord (sfLF_transport (a1i sfLSym_zfr)) (eord (sfLF_transport (a1i sfLTrans_zfr)) (eord (sfLF_transport (a1i sfLEqElem_zfr)) (eord (sfLF_transport (syl sfLExt_zfr anl)) (eord (sfLF_transport (syl anl anr)) (eord (sfLF_transport (syl (syl anl anr) anr)) (eord (sfLF_transport (syl (syl (syl anl anr) anr) anr)) (eord (sfLF_transport (syl (syl (syl (syl anl anr) anr) anr) anr)) (eord (sfLF_transport (syl (syl (syl (syl (syl anl anr) anr) anr) anr) anr)) (eord (sfLF_transport (a1i sfLFoundation_zfr)) (sfLF_transport (syl (syl (syl (syl (syl (syl id anr) anr) anr) anr) anr) anr)))))))))))));
+
+pub theorem sfLFixedImages_from_remaining:
+ $ sfTheoryProvable zfrAxioms sfLTransitivity -> sfLRemainingFixedImages -> sfZFCFixedImages zfrAxioms sfLDomain $ =
+(named '(exp @ iald sfLF_all_fixed));

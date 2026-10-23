@@ -1,0 +1,46 @@
+import "source_k_upper_trace.mm0";
+
+import "source_renaming_depth.mm0";
+
+def sfUpperTraceBodyMap: set = $ sfComposeMap (sfRenameDepthMap sfSepMap 1) sfUpperTraceMap $;
+
+def sfUpperTraceBody (phi: nat): nat = $ sfEx (sfAnd (sfMem 0 4) (sfRename sfUpperTraceBodyMap 0 phi)) $;
+
+def sfUpperTraceProfile (phi: nat): nat = $ sfAll (sfIff (sfMem 0 1) (sfAnd (sfMem 0 2) (sfUpperTraceBody phi))) $;
+
+def sfUpperTraceExistence (phi: nat): nat = $ sfAll (sfEx (sfUpperTraceProfile phi)) $;
+
+def sfUpperTraceWitnessAt (phi b: nat): nat = $ sfSubst 0 b (sfEx (sfUpperTraceProfile phi)) $;
+
+theorem sfUpperTraceMap_zero:
+ $ sfUpperTraceMap @ 0 = 1 $;
+
+theorem sfUpperTraceMap_one:
+ $ sfUpperTraceMap @ 1 = 0 $;
+
+theorem sfUpperTraceMap_tail (i: nat):
+ $ sfUpperTraceMap @ suc (suc i) = suc (suc (suc i)) $;
+
+theorem sfUpperTraceBodyMap_value (i: nat):
+ $ sfUpperTraceBodyMap @ i = sfRenameIndex sfSepMap 1 (sfUpperTraceMap @ i) $;
+
+theorem sfUpperTraceBodyMap_zero:
+ $ sfUpperTraceBodyMap @ 0 = 1 $;
+
+theorem sfUpperTraceBodyMap_one:
+ $ sfUpperTraceBodyMap @ 1 = 0 $;
+
+theorem sfUpperTraceBodyMap_tail (i: nat):
+ $ sfUpperTraceBodyMap @ suc (suc i) = suc (suc i) + 3 $;
+
+theorem sfUpperTraceBody_normalize (phi: nat):
+ $ sfWf phi -> sfRename sfSepMap 0 (sfUpperTracePredicate phi) = sfUpperTraceBody phi $;
+
+theorem sfUpperTraceExistence_normalize (phi: nat):
+ $ sfWf phi -> sfUpperTraceSeparation phi = sfUpperTraceExistence phi $;
+
+theorem sfUpperTraceExistence_zfr (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (sfUpperTraceExistence phi) $;
+
+theorem sfUpperTraceWitnessAt_zfr (phi n b: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (sfUpperTraceWitnessAt phi b) $;

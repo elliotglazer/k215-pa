@@ -1,0 +1,35 @@
+import "bb215_arithmetic_formula_term_value.mm1";
+
+import "pa_source_interpretation_term_numerals.mm1";
+
+import "pa_source_interpretation_term_induction.mm1";
+
+import "pa_source_interpretation_term_renaming.mm1";
+
+@_ abstract def paNatTermRenameClass (E R: set) (.c: nat): set = $ {c | bb215ArithmeticFormulaTermValue E (paTermRename R c) = bb215ArithmeticFormulaTermValue (sfComposeMap E R) c} $;
+
+theorem paNTR_value (E R: set) (c: nat): $ c e. paNatTermRenameClass E R <-> bb215ArithmeticFormulaTermValue E (paTermRename R c) = bb215ArithmeticFormulaTermValue (sfComposeMap E R) c $ = (named '(elabe ,eqtac));
+
+theorem paNTR_zero (E R: set): $ paTermZero e. paNatTermRenameClass E R $ = (named '(mpbir paNTR_value (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermRename_zero) (eqtr bb215ArithmeticFormulaTermValue_zero (eqcom bb215ArithmeticFormulaTermValue_zero)))));
+
+theorem paNTR_variable (E R: set) (i: nat): $ paTermVariable i e. paNatTermRenameClass E R $ = (named '(mpbir paNTR_value (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermRename_variable) (eqtr bb215ArithmeticFormulaTermValue_variable (eqtr (eqcom sfComposeMap_value) (eqcom bb215ArithmeticFormulaTermValue_variable))))));
+
+theorem paNTR_successor (E R: set) (a: nat): $ a e. paNatTermRenameClass E R -> paTermSuccessor a e. paNatTermRenameClass E R $ = (named '(mpbird (a1i paNTR_value) (eqtrd (a1i (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermRename_successor) bb215ArithmeticFormulaTermValue_successor)) (eqtrd (suceqd (bi1 paNTR_value)) (a1i (eqcom bb215ArithmeticFormulaTermValue_successor))))));
+
+theorem paNTR_addition (E R: set) (a b: nat): $ a e. paNatTermRenameClass E R /\ b e. paNatTermRenameClass E R -> paTermAddition a b e. paNatTermRenameClass E R $ = (named '(mpbird (a1i paNTR_value) (eqtrd (a1i (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermRename_addition) bb215ArithmeticFormulaTermValue_addition)) (eqtrd (addeqd (syl (bi1 paNTR_value) anl) (syl (bi1 paNTR_value) anr)) (a1i (eqcom bb215ArithmeticFormulaTermValue_addition))))));
+
+theorem paNTR_multiplication (E R: set) (a b: nat): $ a e. paNatTermRenameClass E R /\ b e. paNatTermRenameClass E R -> paTermMultiplication a b e. paNatTermRenameClass E R $ = (named '(mpbird (a1i paNTR_value) (eqtrd (a1i (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermRename_multiplication) bb215ArithmeticFormulaTermValue_multiplication)) (eqtrd (muleqd (syl (bi1 paNTR_value) anl) (syl (bi1 paNTR_value) anr)) (a1i (eqcom bb215ArithmeticFormulaTermValue_multiplication))))));
+
+theorem paNTR_variables (E R: set) (n: nat): $ paTermVariableClosed (paNatTermRenameClass E R) n $ = (named '(ax_gen (a1i paNTR_variable)));
+
+theorem paNTR_successors (E R: set): $ paTermSuccessorClosed (paNatTermRenameClass E R) $ = (named '(ax_gen paNTR_successor));
+
+theorem paNTR_binaries (E R: set): $ paTermBinaryClosed (paNatTermRenameClass E R) $ = (named '(ax_gen @ ax_gen @ iand paNTR_addition paNTR_multiplication));
+
+theorem paNTR_closed (E R: set) (n: nat): $ paTermConstructionClosed (paNatTermRenameClass E R) n $ = (named '(ian paNTR_zero (ian paNTR_variables (ian paNTR_successors paNTR_binaries))));
+
+pub theorem paNatTermValue_rename (E R: set) (n c: nat): $ paTermBound n c -> bb215ArithmeticFormulaTermValue E (paTermRename R c) = bb215ArithmeticFormulaTermValue (sfComposeMap E R) c $ = (named '(syl (bi1 paNTR_value) (paTermBound_induction paNTR_closed)));
+
+pub theorem paNatTermValue_lift (E: set) (d n c: nat): $ paTermBound n c -> bb215ArithmeticFormulaTermValue E (paTermLift d c) = bb215ArithmeticFormulaTermValue (sfComposeMap E (paTermLiftMap d)) c $ = (named 'paNatTermValue_rename);
+
+pub theorem paNatTermValue_numeral (E: set) (n: nat): $ bb215ArithmeticFormulaTermValue E (paTermNumeral n) = n $ = (named @ induct '(ind) 'n '(eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermNumeral_zero) bb215ArithmeticFormulaTermValue_zero) '(eqtrd (a1i (eqtr (bb215ArithmeticFormulaTermValueeq eqsid paTermNumeral_succ) bb215ArithmeticFormulaTermValue_successor)) (suceqd id)));

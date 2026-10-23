@@ -1,0 +1,15 @@
+import "source_reflection_transfer_cofinal.mm1";
+
+theorem rfcstep_tuple_shift2(T:set)(start X n:nat): $ sfShift 0 (sfShift 0 (sfReflectionTuple T start X n)) = sfReflectionTuple T (suc (suc start)) (suc (suc X)) n $ = (named '(eqtr (sfShifteq2 sfReflectionTuple_zero_shift) sfReflectionTuple_zero_shift));
+
+theorem rfcstep_common_shift2(T:set)(start n level K:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfShift 0 (sfReflectionCofinalCommon T start n level K)) = sfReflectionCofinalCommon T (suc (suc start)) n level (suc (suc K)) $ = (named '(eqtr (sfShifteq2 (sfReflectionCofinalCommon_shift hl)) (sfReflectionCofinalCommon_shift hl)));
+
+theorem rfcstep_mem_shift(a b:nat): $ sfShift 0 (sfMem a b) = sfMem (suc a) (suc b) $ = (named '(eqtr sfShift_sfMem (nsMem_eq sfShiftIndex_zero sfShiftIndex_zero)));
+
+theorem rfcstep_mem_shift2(a b:nat): $ sfShift 0 (sfShift 0 (sfMem a b)) = sfMem (suc (suc a)) (suc (suc b)) $ = (named '(eqtr (sfShifteq2 rfcstep_mem_shift) rfcstep_mem_shift));
+
+theorem rfcstep_add2(a b:nat): $ a + suc (suc b) = suc (suc (a + b)) $ = (named '(eqtr addS2 (suceq addS2)));
+
+theorem rfcstep_merge_branch(T:set)(G start n level K X Y:nat)(hl:$ sfBound 2 level $)(hOld:$ nsLocal G (sfReflectionTuple T start X n) $)(hNew:$ nsLocal G (sfMem ((T @ n) + start) Y) $)(hMerge:$ nsLocal G (sfReflectionCofinalMergeAt level K X Y) $): $ nsLocal (sfReflectionCofinalContext G (sfReflectionCofinalMergePoint level (suc (suc K)) (suc (suc X)) (suc (suc Y)) 1 0)) (sfShift 0 (sfShift 0 (sfReflectionCofinalCommon T start (suc n) level K))) $ = (named '(mpbir (nsLocal_formula_eq (rfcstep_common_shift2 hl)) (sfReflectionCofinalCommon_intro hl (ax_mp (ax_mp sfLocal_and (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (rfc_context_wf (rfc_mergepoint_wf hl))) sfContext_member_head))) (ax_mp (ax_mp sfLocal_and (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (rfc_context_wf (rfc_mergepoint_wf hl))) sfContext_member_head)))) (ax_mp (ax_mp sfReflectionTuple_append (ax_mp (sfReflectionTuple_mono (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (rfc_context_wf (rfc_mergepoint_wf hl))) sfContext_member_head))))) (mpbi (nsLocal_formula_eq rfcstep_tuple_shift2) (sfReflectionCofinal_lift2 (rfc_mergepoint_wf hl) hOld)))) (ax_mp (sfCLSubset_use (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (rfc_context_wf (rfc_mergepoint_wf hl))) sfContext_member_head))))) (mpbi (nsLocal_formula_eq (eqtr rfcstep_mem_shift2 (nsMem_eq (eqcom rfcstep_add2) eqid))) (sfReflectionCofinal_lift2 (rfc_mergepoint_wf hl) hNew)))))))));
+
+pub theorem sfReflectionCofinal_merge_tuple(T:set)(G start n level K X Y:nat)(hl:$ sfBound 2 level $)(hOld:$ nsLocal G (sfReflectionTuple T start X n) $)(hNew:$ nsLocal G (sfMem ((T @ n) + start) Y) $)(hMerge:$ nsLocal G (sfReflectionCofinalMergeAt level K X Y) $): $ nsLocal G (sfReflectionCofinalCommon T start (suc n) level K) $ = (named '(ax_mp (sfReflectionCofinal_double_eliminate (rfc_mergepoint_wf hl) (sfReflectionCofinalCommon_wf hl) hMerge) (rfcstep_merge_branch hl hOld hNew hMerge)));

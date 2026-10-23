@@ -1,0 +1,112 @@
+import "k230_leibniz.mm1";
+
+theorem kNS_replace_hit (x y a: nat):
+ $ a = x -> x != y -> x != kReplace x y a $ =
+'(bi2d (noteqd (eqeq2d (eqtrd (kReplace_congr eqidd eqidd id) (a1i kReplace_hit)))));
+theorem kNS_replace_miss (x y a: nat):
+ $ a != x -> x != y -> x != kReplace x y a $ =
+'(a1d @ mpbird (noteqd (eqeq2d kReplace_miss)) necom);
+pub theorem kReplace_avoids_source (x y a: nat):
+ $ x != y -> x != kReplace x y a $ =
+'(cases kNS_replace_hit kNS_replace_miss);
+
+@_ abstract def kSubstOutputFreshClass (x y .f: nat): set =
+$ {f | x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x} $;
+pub theorem kSubstOutputFresh_value (x y f: nat):
+ $ f e. kSubstOutputFreshClass x y <->
+   (x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x) $ =
+(named '(elabe ,eqtac));
+theorem kNS_fresh_transport (G: wff) (a b x: nat)
+ (he: $ G -> a = b $) (hf: $ G -> kFresh b x $):
+ $ G -> kFresh a x $ = '(mpbird (kFresh_congr he eqidd) hf);
+theorem kNS_fresh_zero (x y: nat): $ 0 e. kSubstOutputFreshClass x y $ =
+'(mpbir kSubstOutputFresh_value @ kNS_fresh_transport (a1i kSubst_zero) (a1i kFresh_zero));
+theorem kNS_fresh_mem (x y a b: nat): $ kMem a b e. kSubstOutputFreshClass x y $ =
+'(mpbir kSubstOutputFresh_value @ kNS_fresh_transport (a1i kSubst_kMem) @
+ syl (bi2 kFresh_kMem) @ iand
+ (syl kReplace_avoids_source anl) (syl kReplace_avoids_source anl));
+theorem kNS_fresh_eq (x y a b: nat): $ kEq a b e. kSubstOutputFreshClass x y $ =
+'(mpbir kSubstOutputFresh_value @ kNS_fresh_transport (a1i kSubst_kEq) @
+ syl (bi2 kFresh_kEq) @ iand
+ (syl kReplace_avoids_source anl) (syl kReplace_avoids_source anl));
+theorem kNS_fresh_imp (x y a b: nat):
+ $ a e. kSubstOutputFreshClass x y /\ b e. kSubstOutputFreshClass x y ->
+   kImp a b e. kSubstOutputFreshClass x y $ =
+'(syl (bi2 kSubstOutputFresh_value) @ exp @
+ kNS_fresh_transport (a1i kSubst_kImp) @ syl (bi2 kFresh_kImp) @ iand
+ (mpd (iand (syl anl anr) (syl anl (syl (bi1 kBinderAbsent_kImp) (syl anr anr))))
+      (syl (bi1 kSubstOutputFresh_value) anll))
+ (mpd (iand (syl anl anr) (syl anr (syl (bi1 kBinderAbsent_kImp) (syl anr anr))))
+      (syl (bi1 kSubstOutputFresh_value) anlr)));
+theorem kNS_fresh_all (x y z a: nat):
+ $ a e. kSubstOutputFreshClass x y -> kAll z a e. kSubstOutputFreshClass x y $ =
+'(syl (bi2 kSubstOutputFresh_value) @ exp @
+ kNS_fresh_transport
+ (syl kSubst_kAll_open (syl necom (syl anl (syl (bi1 kBinderAbsent_kAll) (syl anr anr))))) @
+ syl (bi2 kFresh_kAll) @ iand
+ (syl anl (syl (bi1 kBinderAbsent_kAll) (syl anr anr)))
+ (mpd (iand (syl anl anr) (syl anr (syl (bi1 kBinderAbsent_kAll) (syl anr anr))))
+      (syl (bi1 kSubstOutputFresh_value) anl)));
+pub theorem kSubstOutputFresh_closed (x y: nat):
+ $ kRawConstructionClosed (kSubstOutputFreshClass x y) $ =
+(named '(ian (ian (ian kNS_fresh_zero (ax_gen @ ax_gen @ ian kNS_fresh_mem kNS_fresh_eq))
+ (ax_gen @ ax_gen kNS_fresh_imp)) (ax_gen @ ax_gen kNS_fresh_all)));
+pub theorem kSubst_output_fresh (f x y: nat):
+ $ x != y /\ kBinderAbsent f x -> kFresh (kSubst f x y) x $ =
+'(mpbi kSubstOutputFresh_value (ax_mp kRaw_induction kSubstOutputFresh_closed));
+pub theorem kSubst_output_vacuity (f x y: nat):
+ $ x != y /\ kBinderAbsent f x ->
+   kProvable (kImp (kSubst f x y) (kAll x (kSubst f x y))) $ =
+'(syl kFresh_vacuity kSubst_output_fresh);
+
+-- Arithmetic-premise versions of the existing finite quantifier macros.
+theorem kNS_syl (a b c: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp b c) -> kProvable (kImp a c) $ =
+'(exp @ mpd (syl (mpi kPropB kProvable_mp) anl) (syl kProvable_mp anr));
+theorem kNS_all (x a b: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp (kAll x a) (kAll x b)) $ =
+'(syl (mpi (kProvable_axiom kAxioms_rho2) kProvable_mp) kProvable_gen);
+theorem kNS_not (a b: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp (kNot b) (kNot a)) $ =
+'(mpi kPropContra kProvable_mp);
+theorem kNS_flip (h a b: nat):
+ $ kProvable (kImp h (kImp a b)) -> kProvable (kImp a (kImp h b)) $ =
+'(mpi kPropC kProvable_mp);
+theorem kNS_exists_mono (x a b: nat):
+ $ kProvable (kImp a b) -> kProvable (kImp (kExists x a) (kExists x b)) $ =
+'(syl kNS_not (syl kNS_all kNS_not));
+theorem kNS_exists_collapse (x a: nat):
+ $ kProvable (kImp a (kAll x a)) -> kProvable (kImp (kExists x a) a) $ =
+'(syl (mpi (kProvable_axiom kAxioms_rho6) kNS_syl) kNS_exists_mono);
+theorem kNS_apply_right (G: wff) (a b c: nat)
+ (hb: $ kProvable b $) (h: $ G -> kProvable (kImp a (kImp b c)) $):
+ $ G -> kProvable (kImp a c) $ =
+'(syl (ax_mp kProvable_mp hb) (syl kNS_flip h));
+pub theorem kNamed_specialization_macro (G: wff) (x y f v: nat)
+ (he: $ G -> kProvable (kImp (kEq x y) (kImp f v)) $)
+ (hv: $ G -> kProvable (kImp v (kAll x v)) $):
+ $ G -> kProvable (kImp (kAll x f) v) $ =
+'(sylc kNS_syl
+ (kNS_apply_right (kProvable_axiom kAxioms_rho1)
+  (syl (mpi kAll_exists kNS_syl) (syl kNS_all (syl kNS_flip he))))
+ (syl kNS_exists_collapse hv));
+pub theorem kNamed_exists_intro_macro (G: wff) (x y f v: nat)
+ (he: $ G -> kProvable (kImp (kEq x y) (kImp v f)) $)
+ (hv: $ G -> kProvable (kImp v (kAll x v)) $):
+ $ G -> kProvable (kImp v (kExists x f)) $ =
+'(kNS_apply_right (kProvable_axiom kAxioms_rho1)
+ (syl (mpi kAll_exists kNS_syl)
+  (sylc kNS_syl hv (syl kNS_all (syl kNS_flip he)))));
+
+pub theorem kNamed_specialization (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kBinderAbsent f y ->
+   kProvable (kImp (kAll x f) (kSubst f x y)) $ =
+'(exp @ exp @ kNamed_specialization_macro
+ (syl kLeibniz_forward (iand anlr anr))
+ (syl kSubst_output_vacuity anl));
+pub theorem kNamed_exists_intro (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kBinderAbsent f y ->
+   kProvable (kImp (kSubst f x y) (kExists x f)) $ =
+'(exp @ exp @ kNamed_exists_intro_macro
+ (syl kLeibniz_backward (iand anlr anr))
+ (syl kSubst_output_vacuity anl));

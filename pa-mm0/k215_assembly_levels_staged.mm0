@@ -1,0 +1,67 @@
+import "k215_bundle_images_bfinal.mm0";
+import "k215_assembly_rep_hierarchy_family.mm0";
+
+-- L10 split of L01's k215_bundle_images_bfinal_pc (~316k defs+terms): the same theorems
+-- (k215BAboveAll, k215BoundL_from_levels, k215_refutation_from_levels) with the closed ZFR
+-- facts that bfinal_pc imports from source_l_replacement_producer_closed,
+-- source_l_separation_image_transitive_producer (171k) and source_l_common_level_zero_lift (80k)
+-- replaced by rule hypotheses (statements copied verbatim):
+--   hE hU hS hL hM  the hierarchy facts, as in k215_assembly_rep_hierarchy_family
+--                   (the four producer-context facts are rederived from them there)
+--   hT sfLSeparationStageTrans_zfr   (source_l_separation_image_transitive_producer)
+--   hZ sfCLZero_zfr at start = 0      (source_l_common_level_zero_lift)
+-- Open premises are those of bfinal_pc: hz (G1), hn (sfLNonempty_zfr), hlv (k215BLvl).
+
+-- Weak deduction for the bound of the reflected formula.
+def k215ALc (c n: nat): nat = $ if (sfBound n c) c 0 $;
+
+theorem k215AssemblyLv_above_all
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $):
+ $ k215BAboveAll $;
+
+theorem k215AssemblyLv_boundL
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hlv: $ zfcProvable k215BLvl $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $)
+ (hT: $ sfTheoryProvable zfrAxioms sfLSeparationStageTransNormal $)
+ (hZ: $ sfTheoryProvable zfrAxioms (sfCLRecipe 0 0) $):
+ $ k215BoundL $;
+
+theorem k215AssemblyLv_refutation
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hlv: $ zfcProvable k215BLvl $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $)
+ (hT: $ sfTheoryProvable zfrAxioms sfLSeparationStageTransNormal $)
+ (hZ: $ sfTheoryProvable zfrAxioms (sfCLRecipe 0 0) $):
+ $ k215Inconsistent -> zfcInconsistent $;
+
+-- core^L, the premise hc of k215_final_staged.
+theorem k215AssemblyLv_coreL
+ (hz: $ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hlv: $ zfcProvable k215BLvl $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $)
+ (hT: $ sfTheoryProvable zfrAxioms sfLSeparationStageTransNormal $)
+ (hZ: $ sfTheoryProvable zfrAxioms (sfCLRecipe 0 0) $):
+ $ k215CoreImagesL $;
+
+-- Hypothesis-free last theorem (keeps check.py's false-final control well formed).
+theorem k215AssemblyLv_c_bound (c n: nat): $ sfBound n (k215ALc c n) $;

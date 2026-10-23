@@ -1,0 +1,42 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_supported_eigenvariables.mm0";
+import "k218q_bootstrap.mm0";
+import "k218q_quotation_supported_transport.mm0";
+import "k218q_quotation_supported_contexts.mm0";
+import "k230_fresh_allocation.mm0";
+import "k218q_quotation_exists_elimination.mm0";
+
+theorem k218SQ_sqEigen_domain (H S t k c: nat):
+ $ k218SQ_sqDomainSupport H S t ->
+ k218SQ_sqDomainSupport (sqEigenContext H S t k c) ((sqEigenName H S t k c) : S) t $;
+
+theorem k218SQ_sqEigen_source_support (H S n t k G c: nat):
+ $ sfContextWf G -> sqSourceBound n G -> sqEnvironmentSafe S n t k ->
+ k218SQ_sqSourceSupport H S t k G ->
+ k218SQ_sqSourceSupport (sqEigenContext H S t k c) ((sqEigenName H S t k c) : S) t
+ (suc (sqEigenName H S t k c)) (sfContextShift G) $;
+
+theorem k218SQ_sqSupported_AllI_core (F: wff) (H S n m t k G a: nat)
+ (hp: $ F -> k218SQ_sqSupportedAt m (sfSequent (sfContextShift G) a) $)
+ (hm: $ F -> m <= suc n $) (hw: $ F -> sfContextWf G $)
+ (hb: $ F -> sqSourceBound n G $) (ha: $ F -> sfBound n (sfAll a) $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> k218SQ_sqDomainSupport H S t $) (hg: $ F -> k218SQ_sqSourceSupport H S t k G $):
+ $ F -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfAll a)) $;
+
+theorem k218SQ_sqSupported_AllI_at (m G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> k218SQ_sqSupportedAt m (sfSequent (sfContextShift G) a) ->
+ k218SQ_sqSupportedAt (sfSequent G (sfAll a) + m) (sfSequent G (sfAll a)) $;
+
+theorem k218SQ_sqSupported_AllI (G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> k218SQ_sqSupportedGood (sfSequent (sfContextShift G) a) ->
+ k218SQ_sqSupportedGood (sfSequent G (sfAll a)) $;
+
+theorem k218SQ_sqSupported_ExE_core (F: wff) (H S n m j t k G a c: nat)
+ (hp: $ F -> k218SQ_sqSupportedAt m (sfSequent G (sfEx a)) $)
+ (hq: $ F -> k218SQ_sqSupportedAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) $)
+ (hm: $ F -> m <= n $) (hj: $ F -> j <= suc n $)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (hc: $ F -> sfBound n c $) (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> k218SQ_sqDomainSupport H S t $) (hg: $ F -> k218SQ_sqSourceSupport H S t k G $):
+ $ F -> k218IHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 c) $;

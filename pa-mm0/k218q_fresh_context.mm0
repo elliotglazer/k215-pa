@@ -1,0 +1,31 @@
+import "k218q_contextual_quantifiers.mm0";
+import "k218q_equivalence.mm0";
+import "k218q_contexts.mm0";
+import "k218q_disjunction.mm0";
+import "k230_fresh_allocation.mm0";
+
+theorem k218IContextFresh_vacuous (G x: nat):
+  $ kContextFresh G x -> k218IContextVacuous G x $;
+theorem k218IHypProvable_gen_fresh (G x a: nat) (hf: $ kContextFresh G x $):
+  $ k218IHypProvable G a -> k218IHypProvable G (kAll x a) $;
+theorem k218QEquivForward (G: wff) (H a b: nat)
+ (he: $ G -> k218IEquivalent a b $) (ha: $ G -> k218IHypProvable H a $):
+ $ G -> k218IHypProvable H b $;
+theorem k218QEquivBackward (G: wff) (H a b: nat)
+ (he: $ G -> k218IEquivalent a b $) (hb: $ G -> k218IHypProvable H b $):
+ $ G -> k218IHypProvable H a $;
+theorem k218QHypTransport (G: wff) (H a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> k218IHypProvable H b $):
+ $ G -> k218IHypProvable H a $;
+theorem k218QProvTransport (G: wff) (a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> k218QProvable b $):
+ $ G -> k218QProvable a $;
+theorem k218QHypMp (G: wff) (H a b: nat)
+ (ha: $ G -> k218IHypProvable H a $) (hi: $ G -> k218IHypProvable H (kImp a b) $):
+ $ G -> k218IHypProvable H b $;
+theorem k218IHyp_andI (H a b: nat):
+ $ k218IHypProvable H a -> k218IHypProvable H b -> k218IHypProvable H (kAnd a b) $;
+theorem k218IHyp_orE (H a b c: nat):
+ $ k218IHypProvable H (kImp (kNot a) b) ->
+   k218IHypProvable (a : H) c -> k218IHypProvable (b : H) c -> k218IHypProvable H c $;
+theorem k218IContextSupports_weaken (H a: nat): $ k218IContextSupports (a : H) H $;

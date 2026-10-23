@@ -1,0 +1,76 @@
+import "source_piece_pcf_rep_numerals.mm0";
+
+import "source_piece_pcf_rep_parameters.mm0";
+
+import "source_substitution_renaming.mm0";
+
+import "source_renaming_extensional.mm0";
+
+import "source_local_extra.mm0";
+
+def sfPieceRepExtension(e v z:nat):nat = $ (sfEx (sfAnd (sfMem 0 (suc z)) (sfEx (sfAnd (sfMem 0 1) (sfEx (sfAnd (sfMem 0 1) (sfAnd (sfAnd (sfAnd (sfAnd (sfAnd (sfEx (sfAnd (sfMem 0 3) (sfAnd (sfMem 1 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 2)))))) (sfEx (sfAnd (sfMem 0 3) (sfAnd (sfAnd (sfMem 1 0) (sfMem (suc (suc (suc (suc v)))) 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 (suc (suc (suc (suc (suc v))))))))))))) (sfAll (sfImp (sfMem 0 3) (sfOr (sfAnd (sfMem 1 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 2)))) (sfAnd (sfAnd (sfMem 1 0) (sfMem (suc (suc (suc (suc v)))) 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 2) (sfEq 0 (suc (suc (suc (suc (suc v)))))))))))))) (sfAnd (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfMem 0 (suc (suc (suc (suc (suc e)))))) (sfEx (sfAnd (sfMem 0 1) (sfEx (sfAnd (sfMem 0 1) (sfAnd (sfAnd (sfEx (sfAnd (sfMem 0 3) (sfAnd (sfMem 4 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 5)))))) (sfEx (sfAnd (sfMem 0 3) (sfAnd (sfAnd (sfMem 4 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 5) (sfEq 0 2)))))))) (sfAll (sfImp (sfMem 0 3) (sfOr (sfAnd (sfMem 4 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 5)))) (sfAnd (sfAnd (sfMem 4 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 5) (sfEq 0 2))))))))))))))))) (sfAll (sfImp (sfMem 0 (suc (suc (suc (suc e))))) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 3) (sfAll (sfImp (sfMem 0 1) (sfImp (sfAnd (sfAnd (sfEx (sfAnd (sfMem 0 5) (sfAnd (sfMem 3 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 4)))))) (sfEx (sfAnd (sfMem 0 5) (sfAnd (sfAnd (sfMem 3 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 4) (sfEq 0 2)))))))) (sfAll (sfImp (sfMem 0 5) (sfOr (sfAnd (sfMem 3 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 4)))) (sfAnd (sfAnd (sfMem 3 0) (sfMem 1 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 4) (sfEq 0 2))))))))) (sfMem 2 5)))))))))))))) (sfAll (sfImp (sfMem 0 (suc (suc (suc (suc z))))) (sfOr (sfMem 0 (suc (suc (suc (suc e))))) (sfEq 0 3))))) (sfAll (sfImp (sfMem 0 (suc (suc (suc (suc e))))) (sfMem 0 (suc (suc (suc (suc z)))))))))))))) $;
+
+theorem sfPieceRepEmpty_wf(x:nat): $ sfWf (sfPieceRepEmpty x) $;
+
+theorem sfPieceRepEmpty_rename(R:set)(d x:nat):
+ $ sfRename R d (sfPieceRepEmpty x) = sfPieceRepEmpty (sfRenameIndex R d x) $;
+
+theorem sfPieceRepEmpty_subst(d t x:nat):
+ $ sfSubst d t (sfPieceRepEmpty x) = sfPieceRepEmpty (sfSubstIndex d t x) $;
+
+theorem sfPieceRepEmpty_eq(x x1:nat)(hx:$ x = x1 $):
+ $ sfPieceRepEmpty x = sfPieceRepEmpty x1 $;
+
+theorem sfPieceRepSuccessor_wf(x y:nat): $ sfWf (sfPieceRepSuccessor x y) $;
+
+theorem sfPieceRepSuccessor_rename(R:set)(d x y:nat):
+ $ sfRename R d (sfPieceRepSuccessor x y) = sfPieceRepSuccessor (sfRenameIndex R d x) (sfRenameIndex R d y) $;
+
+theorem sfPieceRepSuccessor_subst(d t x y:nat):
+ $ sfSubst d t (sfPieceRepSuccessor x y) = sfPieceRepSuccessor (sfSubstIndex d t x) (sfSubstIndex d t y) $;
+
+theorem sfPieceRepSuccessor_eq(x y x1 y1:nat)(hx:$ x = x1 $)(hy:$ y = y1 $):
+ $ sfPieceRepSuccessor x y = sfPieceRepSuccessor x1 y1 $;
+
+theorem sfPieceRepExtension_wf(e v z:nat): $ sfWf (sfPieceRepExtension e v z) $;
+
+theorem sfPieceRepExtension_rename(R:set)(d e v z:nat):
+ $ sfRename R d (sfPieceRepExtension e v z) = sfPieceRepExtension (sfRenameIndex R d e) (sfRenameIndex R d v) (sfRenameIndex R d z) $;
+
+theorem sfPieceRepExtension_subst(d t e v z:nat):
+ $ sfSubst d t (sfPieceRepExtension e v z) = sfPieceRepExtension (sfSubstIndex d t e) (sfSubstIndex d t v) (sfSubstIndex d t z) $;
+
+theorem sfPieceRepExtension_eq(e v z e1 v1 z1:nat)(he:$ e = e1 $)(hv:$ v = v1 $)(hz:$ z = z1 $):
+ $ sfPieceRepExtension e v z = sfPieceRepExtension e1 v1 z1 $;
+
+theorem sfPieceNumeralCore_wf(k:nat): $ sfWf (sfPieceNumeralCore k) $;
+
+theorem sfPieceNumeral_rename(R:set)(k x:nat):
+ $ sfRename R 0 (sfPieceNumeral k x) = sfPieceNumeral k (R @ x) $;
+
+theorem sfPieceNumeral_rename_depth(R:set)(d k x:nat):
+ $ sfRename R d (sfPieceNumeral k x) = sfPieceNumeral k (sfRenameIndex R d x) $;
+
+theorem sfPieceNumeral_subst(d t k x:nat):
+ $ sfSubst d t (sfPieceNumeral k x) = sfPieceNumeral k (sfSubstIndex d t x) $;
+
+theorem sfPieceNumeral_suc_instance(k x y:nat):
+ $ sfSubst 0 x (sfAnd (sfPieceNumeralCore k) (sfPieceRepSuccessor 0 (suc y))) =
+   sfAnd (sfPieceNumeral k x) (sfPieceRepSuccessor x y) $;
+
+theorem sfPieceNumeral_suc_intro(G k x y:nat)
+ (hn:$ nsLocal G (sfPieceNumeral k x) $)
+ (hs:$ nsLocal G (sfPieceRepSuccessor x y) $):
+ $ nsLocal G (sfPieceNumeral (suc k) y) $;
+
+theorem sfPieceNumeral_at_zero(k:nat):
+ $ sfPieceNumeral k 0 = sfPieceNumeralCore k $;
+
+theorem sfPieceNumeral_suc_normal(k y:nat):
+ $ sfPieceNumeral (suc k) y =
+   sfEx (sfAnd (sfPieceNumeral k 0) (sfPieceRepSuccessor 0 (suc y))) $;
+
+theorem sfPieceNumeral_suc_eliminate(G k y out:nat)
+ (ho:$ sfWf out $)(hn:$ nsLocal G (sfPieceNumeral (suc k) y) $)
+ (hc:$ nsLocal (sfAnd (sfPieceNumeral k 0) (sfPieceRepSuccessor 0 (suc y)) : sfContextShift G) (sfShift 0 out) $):
+ $ nsLocal G out $;

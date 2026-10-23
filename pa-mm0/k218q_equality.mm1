@@ -1,0 +1,43 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_quantifier_derived.mm1";
+import "k218q_propositional_extra.mm1";
+
+pub theorem k218IImp_apply_right (a b c: nat)
+  (hb: $ k218QProvable b $) (h: $ k218QProvable (kImp a (kImp b c)) $):
+  $ k218QProvable (kImp a c) $ =
+'(k218QProvable_mp (k218QProvable_mp hb k218IPropK) (k218QProvable_mp h k218IPropS));
+
+pub theorem k218IEquality_symmetric (a b: nat):
+  $ k218QProvable (kImp (kEq a b) (kEq b a)) $ =
+'(k218IImp_apply_right k218IEquality_reflexive (k218QProvable_axiom k218QAxioms_rho7));
+
+pub theorem k218IEquality_transitive (a b c: nat):
+  $ k218QProvable (kImp (kEq a b) (kImp (kEq b c) (kEq a c))) $ =
+'(k218IProvable_syl k218IEquality_symmetric (k218QProvable_axiom k218QAxioms_rho7));
+
+pub theorem k218IEquality_member_left (a b c: nat):
+  $ k218QProvable (kImp (kEq a b) (kImp (kMem a c) (kMem b c))) $ =
+'(k218QProvable_axiom k218QAxioms_rho5);
+
+pub theorem k218IEquality_member_right (a b c: nat):
+  $ k218QProvable (kImp (kEq a b) (kImp (kMem c a) (kMem c b))) $ =
+'(k218QProvable_axiom k218QAxioms_rho3);
+
+pub theorem k218IEquality_equal_left (a b c: nat):
+  $ k218QProvable (kImp (kEq a b) (kImp (kEq a c) (kEq b c))) $ =
+'(k218QProvable_axiom k218QAxioms_rho7);
+
+-- Pull the equality-symmetry implication through the first premise.
+theorem k218IEquality_equal_right_aux (a b c: nat):
+  $ k218QProvable (kImp (kEq c a) (kImp (kEq a b) (kEq c b))) $ =
+'k218IEquality_transitive;
+
+theorem k218IEquality_exchange (a b c: nat)
+  (h: $ k218QProvable (kImp a (kImp b c)) $):
+  $ k218QProvable (kImp b (kImp a c)) $ =
+'(k218QProvable_mp h k218IPropC);
+
+pub theorem k218IEquality_equal_right (a b c: nat):
+  $ k218QProvable (kImp (kEq a b) (kImp (kEq c a) (kEq c b))) $ =
+'(k218IEquality_exchange k218IEquality_equal_right_aux);

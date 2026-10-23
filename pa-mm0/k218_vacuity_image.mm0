@@ -1,0 +1,20 @@
+import "k218_translation_vacuity.mm0";
+import "k218_bundle_transfer.mm0";
+
+theorem k218Translate_kVacuity (a b c: nat):
+  $ k218Translate (kVacuity a b c) =
+    kAnd (kImp (kMem a b) (kAll c (kMem a b)))
+      (kImp (k218EqInd a b) (kAll c (k218EqInd a b))) $;
+theorem k218Translated_vacuity (a b c: nat):
+  $ c != a /\ c != b -> k218Provable (k218Translate (kVacuity a b c)) $;
+theorem k218Translate_kBundle (a b c: nat):
+  $ k218Translate (kBundle a b c) =
+    kAnd (k218Translate (k230 a b c)) (k218Translate (kVacuity a b c)) $;
+
+def k218OldCoreImages (.a .b .c: nat): wff =
+  $ A. a A. b A. c
+    (c != a /\ c != b -> k218Provable (k218Translate (k230 a b c))) $;
+theorem k218OldCoreImages_bundle:
+  $ k218OldCoreImages -> k218OldBundleImages $;
+theorem k218OldCoreImages_transfer (a: nat):
+  $ k218OldCoreImages -> kProvable a -> k218Provable (k218Translate a) $;

@@ -1,0 +1,49 @@
+import "source_local_extra.mm0";
+
+def pcslF0(a b c d e:nat):nat = $ sfAnd c d $;
+
+def pcslF1(a b c d e:nat):nat = $ sfAnd b (pcslF0 a b c d e) $;
+
+def pcslF2(a b c d e:nat):nat = $ sfImp a (pcslF1 a b c d e) $;
+
+def pcslF3(a b c d e:nat):nat = $ sfImp (pcslF1 a b c d e) a $;
+
+def pcslF4(a b c d e:nat):nat = $ sfAnd (pcslF2 a b c d e) (pcslF3 a b c d e) $;
+
+def pcslF5(a b c d e:nat):nat = $ sfImp c b $;
+
+def pcslF6(a b c d e:nat):nat = $ sfImp e d $;
+
+def pcslF7(a b c d e:nat):nat = $ sfImp d e $;
+
+def pcslF8(a b c d e:nat):nat = $ sfAnd (pcslF6 a b c d e) (pcslF7 a b c d e) $;
+
+def pcslF9(a b c d e:nat):nat = $ sfImp b (pcslF8 a b c d e) $;
+
+def pcslF10(a b c d e:nat):nat = $ sfAnd c e $;
+
+def pcslF11(a b c d e:nat):nat = $ sfImp a (pcslF10 a b c d e) $;
+
+def pcslF12(a b c d e:nat):nat = $ sfImp (pcslF10 a b c d e) a $;
+
+def pcslF13(a b c d e:nat):nat = $ sfAnd (pcslF11 a b c d e) (pcslF12 a b c d e) $;
+
+def pcslF14(a b c d e:nat):nat = $ sfImp (pcslF9 a b c d e) (pcslF13 a b c d e) $;
+
+def pcslF15(a b c d e:nat):nat = $ sfImp (pcslF5 a b c d e) (pcslF14 a b c d e) $;
+
+def pcslF16(a b c d e:nat):nat = $ sfImp (pcslF4 a b c d e) (pcslF15 a b c d e) $;
+
+def pcslG17(a b c d e:nat):nat = $ (pcslF4 a b c d e) : 0 $;
+
+def pcslG18(a b c d e:nat):nat = $ (pcslF5 a b c d e) : (pcslG17 a b c d e) $;
+
+def pcslG19(a b c d e:nat):nat = $ (pcslF9 a b c d e) : (pcslG18 a b c d e) $;
+
+def pcslG20(a b c d e:nat):nat = $ a : (pcslG19 a b c d e) $;
+
+def pcslG21(a b c d e:nat):nat = $ (pcslF10 a b c d e) : (pcslG19 a b c d e) $;
+
+theorem sfPieceSeparationPoint_pure(a b c d e:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hc:$ sfWf c $)(hd:$ sfWf d $)(he:$ sfWf e $): $ nsLocal 0 (sfImp (sfIff a (sfAnd b (sfAnd c d))) (sfImp (sfImp c b) (sfImp (sfImp b (sfIff e d)) (sfIff a (sfAnd c e))))) $;
+
+theorem sfPieceSeparationPoint_local(G a b c d e:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hc:$ sfWf c $)(hd:$ sfWf d $)(he:$ sfWf e $)(hp:$ nsLocal G (sfIff a (sfAnd b (sfAnd c d))) $)(hs:$ nsLocal G (sfImp c b) $)(hr:$ nsLocal G (sfImp b (sfIff e d)) $): $ nsLocal G (sfIff a (sfAnd c e)) $;

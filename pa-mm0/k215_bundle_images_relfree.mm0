@@ -1,0 +1,34 @@
+import "k215_bundle_images.mm0";
+
+-- Closed ZFC theorems relativize to L, given G1 (ZFC axioms in L over ZFR) and L nonempty.
+theorem k215BI_relativize_closed (a: nat)
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+ $ sfBound 0 a -> zfcProvable a -> zfcProvable (sfRelativize sfLDomain a) $;
+
+-- Relativized modus ponens along a closed ZFC implication.
+theorem k215BI_relativize_mp (a b: nat)
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+ $ sfBound 0 a -> sfBound 0 b -> zfcProvable (sfImp a b) ->
+   zfcProvable (sfRelativize sfLDomain a) -> zfcProvable (sfRelativize sfLDomain b) $;
+
+-- Closed f implied in ZFC by a closed g whose L-relativization ZFC proves.
+def k215BoundGlueClass (.f .g: nat): set =
+$ {f | E. g ((sfBound 0 g /\ zfcProvable (sfRelativize sfLDomain g)) /\
+             (sfBound 0 f /\ zfcProvable (sfImp g f)))} $;
+theorem k215BoundGlueClass_value {g: nat} (f: nat):
+ $ f e. k215BoundGlueClass <-> E. g ((sfBound 0 g /\ zfcProvable (sfRelativize sfLDomain g)) /\
+             (sfBound 0 f /\ zfcProvable (sfImp g f))) $;
+
+theorem k215BoundGlueClass_images
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+ $ k215BoundGlueClass C_ sfRelativeAxiomClass zfcAxioms sfLDomain $;
+
+-- core^L from bound^L plus a ZFC glue implication, for every closed core instance.
+theorem k215CoreImagesL_from_bound_glue
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hg:$ k215CoreAxioms C_ k215BoundGlueClass $):
+ $ k215CoreImagesL $;

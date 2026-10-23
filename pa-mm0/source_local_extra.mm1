@@ -1,0 +1,27 @@
+import "source_relative_quantifiers.mm1";
+
+theorem sfLocal_falseE_general (G a: nat):
+  $ sfWf a -> nsLocal G sfBot -> nsLocal G a $ =
+(named '(eexd @ exp @ syl nsLocal_intro @ mpd anr @
+  syl sfNDFullDerives_prop_unary @ syl sfNDPropUnary_Exp @
+  sylc sfRowWf_sequent_intro
+    (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anr))) anl));
+
+pub theorem sfLocal_falseE (G a: nat) (ha: $ sfWf a $):
+  $ nsLocal G sfBot -> nsLocal G a $ = '(ax_mp sfLocal_falseE_general ha);
+
+theorem sfLocal_orR_general (G a b: nat):
+  $ sfWf a -> nsLocal G b -> nsLocal G (sfOr a b) $ =
+(named '(eexd @ exp @ syl nsLocal_intro @ mpd anr @
+  syl sfNDFullDerives_prop_unary @ syl sfNDPropUnary_DI2 @
+  sylc sfRowWf_sequent_intro
+    (syl anl (syl (bi1 sfRowWf_sequent) (syl sfNDFullDerives_wf anr)))
+    (sylc sfWf_or anl (syl zfcProof_formula_wf anr))));
+
+pub theorem sfLocal_orR (G a b: nat) (ha: $ sfWf a $):
+  $ nsLocal G b -> nsLocal G (sfOr a b) $ = '(ax_mp sfLocal_orR_general ha);
+
+pub theorem sfLocal_peirce (G a b: nat)
+  (hg: $ sfContextWf G $) (ha: $ sfWf a $) (hb: $ sfWf b $):
+  $ nsLocal G (sfImp (sfImp (sfImp a b) a) a) $ =
+'(ax_mp nsLocal_intro (ax_mp (ax_mp (ax_mp zfcNDPeirce_derives hg) ha) hb));

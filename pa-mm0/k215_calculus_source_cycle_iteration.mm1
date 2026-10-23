@@ -1,0 +1,93 @@
+import "k215_calculus_source_cycle_result.mm1";
+
+
+
+@_ abstract def k215PCycleLaw (.s: nat): wff =
+ $ A. s k215PProgressResult (k215PEnumConfig s) (k215EnumStep s) $;
+@_ abstract def k215PBudget (n: nat) (.s: nat): wff =
+ $ A. s (k215PStatus (k215PIter n (k215PEnumConfig s)) = 4 -> k215EnumIter n s = 0) $;
+@_ abstract def k215EnumHaltsFrom (s: nat) (.n: nat): wff =
+ $ E. n k215EnumIter n s = 0 $;
+pub theorem k215PCycleLaw_at (s: nat):
+ $ k215PCycleLaw -> k215PProgressResult (k215PEnumConfig s) (k215EnumStep s) $ =
+ (named '(!! eale i ,eqtac));
+pub theorem k215PCycleLaw_some (s t: nat):
+ $ k215PCycleLaw -> k215EnumStep s = suc t -> k215PProgress (k215PEnumConfig s) (k215PEnumConfig t) $ =
+ '(syl6 (bi1 k215PProgressResult_some)
+   (exp @ mpbid (k215PProgressResulteq2d anr) (syl k215PCycleLaw_at anl)));
+pub theorem k215PBudget_at (n s: nat):
+ $ k215PBudget n -> k215PStatus (k215PIter n (k215PEnumConfig s)) = 4 -> k215EnumIter n s = 0 $ =
+ (named '(!! eale i ,eqtac));
+theorem k215POne_ne_four: $ 1 != 4 $ = '(mpbir (noteq peano2) (mpbir (noteq eqcomb) peano1));
+theorem k215PBoundaryNotHalted (s: nat):
+ $ k215PStatus (k215PIter 0 (k215PEnumConfig s)) != 4 $ =
+ '(mpbir (noteq (eqeq1 (eqtr (k215PStatuseq k215PIter_zero) k215PEnumConfig_status))) k215POne_ne_four);
+theorem k215PBudget_zero: $ k215PBudget 0 $ =
+ (named '(ax_gen (ax_mp absurd k215PBoundaryNotHalted)));
+theorem k215PBudget_step_zero (n s: nat):
+ $ k215PCycleLaw /\ k215PBudget n -> k215EnumStep s = 0 ->
+   k215PStatus (k215PIter (suc n) (k215PEnumConfig s)) = 4 -> k215EnumIter (suc n) s = 0 $ =
+ '(a1i (syl ax_1 k215EnumIter_step_zero));
+theorem k215PBudget_step_some (n s t: nat):
+ $ k215PCycleLaw /\ k215PBudget n -> k215EnumStep s = suc t ->
+   k215PStatus (k215PIter (suc n) (k215PEnumConfig s)) = 4 -> k215EnumIter (suc n) s = 0 $ =
+ '(expd @ exp @ eqtrd (syl k215EnumIter_step_some (syl anl anr))
+   (mpd
+     (mpd (syl anr anr)
+       (syl k215PProgress_budget
+         (mpd (syl anl anr) (syl k215PCycleLaw_some (syl anl anl)))))
+     (syl k215PBudget_at (syl anr anl))));
+theorem k215PBudget_step_cases (r n s: nat):
+ $ k215PCycleLaw /\ k215PBudget n -> k215EnumStep s = r ->
+   k215PStatus (k215PIter (suc n) (k215PEnumConfig s)) = 4 -> k215EnumIter (suc n) s = 0 $ =
+ (named @ induct '(ind) 'r 'k215PBudget_step_zero '(a1i k215PBudget_step_some));
+theorem k215PBudget_step (n: nat):
+ $ k215PCycleLaw /\ k215PBudget n -> k215PBudget (suc n) $ =
+ (named '(iald (mpi eqid k215PBudget_step_cases)));
+pub theorem k215PBudget_all (n: nat): $ k215PCycleLaw -> k215PBudget n $ =
+ (named @ induct '(indd) 'n '(a1i k215PBudget_zero) 'k215PBudget_step);
+pub theorem k215EnumHaltsFrom_intro (n s: nat):
+ $ k215EnumIter n s = 0 -> k215EnumHaltsFrom s $ = (named '(iexe ,eqtac));
+theorem k215PSource_halts_enum_at (n s: nat):
+ $ k215PCycleLaw -> k215PStatus (k215PIter n (k215PEnumConfig s)) = 4 -> k215EnumHaltsFrom s $ =
+ '(syl6 k215EnumHaltsFrom_intro (syl k215PBudget_at k215PBudget_all));
+pub theorem k215PSource_halts_enum (s: nat):
+ $ k215PCycleLaw -> k215PHaltsFrom (k215PEnumConfig s) -> k215EnumHaltsFrom s $ =
+ (named '(eexd k215PSource_halts_enum_at));
+pub theorem k215PCycleLaw_halts (s: nat):
+ $ k215PCycleLaw -> k215POptionHalts (k215EnumStep s) -> k215PHaltsFrom (k215PEnumConfig s) $ =
+ '(syl k215PProgressResult_halts k215PCycleLaw_at);
+theorem k215POptionHalts_advance_zero:
+ $ k215PCycleLaw -> k215POptionHalts (k215EnumAdvance 0) -> k215POptionHalts 0 $ =
+ '(a1i (a1i k215POptionHalts_none));
+theorem k215POptionHalts_advance_some (s: nat):
+ $ k215PCycleLaw -> k215POptionHalts (k215EnumAdvance (suc s)) -> k215POptionHalts (suc s) $ =
+ '(syl6 (bi2 k215POptionHalts_some)
+   (syl5 (bi1 (k215POptionHaltseq k215EnumAdvance_some)) k215PCycleLaw_halts));
+pub theorem k215POptionHalts_advance (r: nat):
+ $ k215PCycleLaw -> k215POptionHalts (k215EnumAdvance r) -> k215POptionHalts r $ =
+ (named @ induct '(ind) 'r 'k215POptionHalts_advance_zero '(a1i k215POptionHalts_advance_some));
+theorem k215POptionHalts_iter_zero (r: nat):
+ $ k215PCycleLaw -> k215POptionHalts (k215EnumOptionIter 0 r) -> k215POptionHalts r $ =
+ '(a1i (bi1 (k215POptionHaltseq k215EnumOptionIter_zero)));
+theorem k215POptionHalts_iter_step (n r: nat):
+ $ k215PCycleLaw /\ (k215POptionHalts (k215EnumOptionIter n r) -> k215POptionHalts r) ->
+   k215POptionHalts (k215EnumOptionIter (suc n) r) -> k215POptionHalts r $ =
+ '(syld
+   (syl5 (bi1 (k215POptionHaltseq k215EnumOptionIter_succ)) (syl k215POptionHalts_advance anl)) anr);
+pub theorem k215POptionHalts_iter (n r: nat):
+ $ k215PCycleLaw -> k215POptionHalts (k215EnumOptionIter n r) -> k215POptionHalts r $ =
+ (named @ induct '(indd) 'n 'k215POptionHalts_iter_zero 'k215POptionHalts_iter_step);
+theorem k215PEnum_halts_source_at (n s: nat):
+ $ k215PCycleLaw -> k215EnumIter n s = 0 -> k215PHaltsFrom (k215PEnumConfig s) $ =
+ '(syl6 (bi1 k215POptionHalts_some)
+   (syl5
+     (mpbiri k215POptionHalts_none
+       (k215POptionHaltseqd (eqtrd (a1i k215EnumOptionIter_some) id)))
+     k215POptionHalts_iter));
+pub theorem k215PEnum_halts_source (s: nat):
+ $ k215PCycleLaw -> k215EnumHaltsFrom s -> k215PHaltsFrom (k215PEnumConfig s) $ =
+ (named '(eexd k215PEnum_halts_source_at));
+pub theorem k215PSource_enum_equivalence (s: nat):
+ $ k215PCycleLaw -> (k215PHaltsFrom (k215PEnumConfig s) <-> k215EnumHaltsFrom s) $ =
+ '(ibid k215PSource_halts_enum k215PEnum_halts_source);

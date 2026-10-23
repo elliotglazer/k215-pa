@@ -1,0 +1,39 @@
+-- Contextual SeedG logic; every generalization/vacuity premise remains explicit.
+import "k218_deduction.mm0";
+
+-- Replacement of all hypotheses by actual contextual proofs.
+def k218ContextProofClass (G .a: nat): set = $ {a | k218HypProvable G a} $;
+def k218ContextSupports (G H: nat): wff = $ traceClassAll (k218ContextProofClass G) H $;
+
+theorem k218ContextProofClass_value (G a: nat):
+ $ a e. k218ContextProofClass G <-> k218HypProvable G a $;
+
+theorem k218ContextSupports_member (G H a: nat):
+ $ k218ContextSupports G H -> a IN H -> k218HypProvable G a $;
+
+theorem k218ContextSupports_self (G: nat): $ k218ContextSupports G G $;
+
+theorem k218ContextSupports_nil (G: nat): $ k218ContextSupports G 0 $;
+
+theorem k218ContextSupports_cons (G H a: nat):
+ $ k218ContextSupports G H -> k218HypProvable G a -> k218ContextSupports G (a : H) $;
+
+theorem k218HypRules_refine_sound (G H: nat) (hs: $ k218ContextSupports G H $):
+ $ traceRuleSound (k218HypRules H) (k218ContextProofClass G) $;
+
+theorem k218HypDerives_refine (G H p a: nat) (hs: $ k218ContextSupports G H $):
+ $ k218HypDerives H p a -> k218HypProvable G a $;
+
+theorem k218HypProvable_refine (G H a: nat) (hs: $ k218ContextSupports G H $):
+ $ k218HypProvable H a -> k218HypProvable G a $;
+
+theorem k218HypProvable_refine_d (G H a: nat):
+ $ k218ContextSupports G H -> k218HypProvable H a -> k218HypProvable G a $;
+
+theorem k218ContextSupports_inclusion {c: nat} (G H: nat)
+ (hi: $ A. c (c IN H -> c IN G) $):
+ $ k218ContextSupports G H $;
+
+theorem k218HypProvable_monotone {c: nat} (G H a: nat)
+ (hi: $ A. c (c IN H -> c IN G) $):
+ $ k218HypProvable H a -> k218HypProvable G a $;

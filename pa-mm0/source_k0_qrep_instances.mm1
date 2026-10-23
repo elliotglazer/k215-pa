@@ -1,0 +1,97 @@
+import "zfc_schema_maps.mm1";
+
+import "k218_source_core_bounds.mm1";
+
+import "k218q_source_k0_open.mm1";
+
+import "source_theory_prefix.mm1";
+
+@_ def sfK0QRepSwapIndex (i: nat): nat = $ if (i = 0) 1 (if (i = 1) 0 i) $;
+
+@_ abstract def sfK0QRepSwapMap (.i: nat): set = $ \ i, sfK0QRepSwapIndex i $;
+
+@_ def sfK0QRepSwap (phi: nat): nat = $ sfRename sfK0QRepSwapMap 0 phi $;
+
+@_ def sfK0QRepCollectionIndex (i: nat): nat = $ if (i = 0) 1 (if (i = 1) 0 (i + 5)) $;
+
+@_ abstract def sfK0QRepCollectionMap (.i: nat): set = $ \ i, sfK0QRepCollectionIndex i $;
+
+@_ def sfK0QRepCollectionMatrix (psi: nat): nat = $ (sfOr (sfAnd (sfEq 1 4) (sfEq 0 2)) (sfOr (sfAnd (sfEq 1 3) (sfEq 0 3)) (sfEx (sfAnd (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 3) (sfEq 0 1)))) (sfAnd (sfAnd (sfMem 4 0) (sfMem 0 6)) (sfAnd (sfMem 4 1) (sfRename sfK0QRepCollectionMap 0 psi))))))) $;
+
+@_ def sfK0QRepCollectionAxiom (n psi: nat): nat = $ sfAllPrefix (suc (suc (suc (suc n)))) (sfK218Kp0 (sfK0QRepCollectionMatrix psi)) $;
+
+pub theorem sfK0QRepSwapMap_value (i: nat):
+ $ sfK0QRepSwapMap @ i = sfK0QRepSwapIndex i $ =
+(named '(!! applame j ,eqtac));
+
+pub theorem sfK0QRepSwapMap_zero:
+ $ sfK0QRepSwapMap @ 0 = 1 $ =
+'(eqtr sfK0QRepSwapMap_value (ifpos eqid));
+
+pub theorem sfK0QRepSwapMap_one:
+ $ sfK0QRepSwapMap @ 1 = 0 $ =
+'(eqtr sfK0QRepSwapMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+
+pub theorem sfK0QRepCollectionMap_value (i: nat):
+ $ sfK0QRepCollectionMap @ i = sfK0QRepCollectionIndex i $ =
+(named '(!! applame j ,eqtac));
+
+pub theorem sfK0QRepCollectionMap_zero:
+ $ sfK0QRepCollectionMap @ 0 = 1 $ =
+'(eqtr sfK0QRepCollectionMap_value (ifpos eqid));
+
+pub theorem sfK0QRepCollectionMap_one:
+ $ sfK0QRepCollectionMap @ 1 = 0 $ =
+'(eqtr sfK0QRepCollectionMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+
+pub theorem sfK0QRepSwapMap_bound (n i: nat):
+ $ i < (suc (suc n)) -> sfK0QRepSwapMap @ i < (suc (suc n)) $ =
+'(sylibr (lteq1 sfK0QRepSwapMap_value) (sfSchema_if_lt (a1i (mpbi ltsuc lt01S)) (sfSchema_if_lt (a1i lt01S) id)));
+
+theorem qrepSwapRange (n: nat):
+ $ A. i (i < (suc (suc n)) -> sfK0QRepSwapMap @ i < (suc (suc n))) $ =
+(named '(ax_gen {sfK0QRepSwapMap_bound : $ i < (suc (suc n)) -> sfK0QRepSwapMap @ i < (suc (suc n)) $}));
+
+pub theorem sfK0QRepSwap_bound (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $):
+ $ sfBound (suc (suc n)) (sfK0QRepSwap phi) $ =
+(named '(sfK218Rename_zero_bound qrepSwapRange hf));
+
+theorem qrepPlus5 (i: nat):
+ $ i + 5 = (suc (suc (suc (suc (suc i))))) $ =
+'(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))))))));
+
+theorem qrepShift5 (n i: nat):
+ $ i < (suc (suc n)) -> i + 5 < (suc (suc (suc (suc (suc (suc (suc n))))))) $ =
+'(sylibr (lteq1 qrepPlus5) (syl (bi1 ltsuc) (syl (bi1 ltsuc) (syl (bi1 ltsuc) (syl (bi1 ltsuc) (bi1 ltsuc))))));
+
+pub theorem sfK0QRepCollectionMap_bound (n i: nat):
+ $ i < (suc (suc n)) -> sfK0QRepCollectionMap @ i < (suc (suc (suc (suc (suc (suc (suc n))))))) $ =
+'(sylibr (lteq1 sfK0QRepCollectionMap_value) (sfSchema_if_lt (a1i (mpbi ltsuc lt01S)) (sfSchema_if_lt (a1i lt01S) qrepShift5)));
+
+theorem qrepCollectionRange (n: nat):
+ $ A. i (i < (suc (suc n)) -> sfK0QRepCollectionMap @ i < (suc (suc (suc (suc (suc (suc (suc n)))))))) $ =
+(named '(ax_gen {sfK0QRepCollectionMap_bound : $ i < (suc (suc n)) -> sfK0QRepCollectionMap @ i < (suc (suc (suc (suc (suc (suc (suc n))))))) $}));
+
+pub theorem sfK0QRepCollectionMatrix_bound (n psi: nat) (hf: $ sfBound (suc (suc n)) psi $):
+ $ sfBound (suc (suc (suc (suc (suc (suc n)))))) (sfK0QRepCollectionMatrix psi) $ =
+(named '(mpbir sfBound_sfOr (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc lt01S)))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) lt01S)) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbi ltsuc lt01S))) (sfK218Rename_zero_bound qrepCollectionRange hf)))))))))))));
+
+pub theorem sfK0QRepCollectionAxiom_closed (n psi: nat) (hf: $ sfBound (suc (suc n)) psi $):
+ $ sfBound 0 (sfK0QRepCollectionAxiom n psi) $ =
+'(sfK218Kp0_closed (sfK0QRepCollectionMatrix_bound hf));
+
+pub theorem sfK0QRepCollectionAxiom_member (n psi: nat) (hf: $ sfBound (suc (suc n)) psi $):
+ $ sfK0QRepCollectionAxiom n psi e. sfK218K0Axioms $ =
+'(ax_mp (ax_mp sfK218K0Instance_member (ax_mp sfBound_wf (sfK0QRepCollectionMatrix_bound hf))) (sfK0QRepCollectionAxiom_closed hf));
+
+pub theorem sfK0QRepCollectionAxiom_proved (n psi: nat) (hf: $ sfBound (suc (suc n)) psi $):
+ $ sfTheoryProvable sfK218K0Axioms (sfK0QRepCollectionAxiom n psi) $ =
+'(ax_mp (ax_mp sfTheoryAxiom_provable_closed sfK218K0Axioms_closed) (sfK0QRepCollectionAxiom_member hf));
+
+pub theorem sfK0QRepCollection_open_proved (n psi: nat) (hf: $ sfBound (suc (suc n)) psi $):
+ $ sfTheoryProvable sfK218K0Axioms (sfK218Kp0 (sfK0QRepCollectionMatrix psi)) $ =
+'(ax_mp (ax_mp sfTheoryProvable_prefix_elim sfK218K0Axioms_closed) (sfK0QRepCollectionAxiom_proved hf));
+
+pub theorem sfK0QRepCollection_open_Q (E: set) (n k psi: nat) (hf: $ sfBound (suc (suc n)) psi $) (hk: $ 0 < k $) (he: $ sqEnvBelow E (suc (suc (suc (suc n)))) k $):
+ $ k218QProvable (sfNamedTemplate E k 0 (sfK218Kp0 (sfK0QRepCollectionMatrix psi))) $ =
+'(ax_mp (ax_mp (ax_mp k218QSourceKp0_unrestricted (sfK0QRepCollectionMatrix_bound hf)) hk) he);

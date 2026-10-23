@@ -1,0 +1,30 @@
+import "k218q_closed_core.mm0";
+import "k218_source_core_bound_reflection.mm0";
+
+-- Totalize the matrix argument.  On every valid schema instance this is
+-- literally the original matrix, and otherwise it is the false formula.
+def sfK218BoundGuard (n f: nat): nat =
+ $ if (sfBound (suc (suc n)) f) f sfBot $;
+
+theorem sfK218BoundGuard_valid (n f: nat):
+ $ sfBound (suc (suc n)) f -> sfK218BoundGuard n f = f $;
+theorem sfK218BoundGuard_bound (n f: nat):
+ $ sfBound (suc (suc n)) (sfK218BoundGuard n f) $;
+
+theorem k218QClosedSeededCore_uniform (n f: nat):
+ $ sfBound (suc (suc n)) f ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218SeededCore f))) $;
+theorem k218QClosedKp0_uniform (n f: nat):
+ $ sfBound (suc (suc n)) f ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218Kp0 f))) $;
+
+theorem k218QClosedSeededCore_from_source (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218SeededCore f)) ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218SeededCore f))) $;
+theorem k218QClosedKp0_from_source (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218Kp0 f)) ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0
+     (sfAllPrefix n (sfK218Kp0 f))) $;

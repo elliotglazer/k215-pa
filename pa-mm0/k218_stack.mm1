@@ -1,0 +1,95 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+import "k218_induction.mm1";
+
+do (apply (register-eqd 'kImp) '(k218Imp_congr k218Imp_congr_left k218Imp_congr_right));
+do (apply (register-eqd 'kAll) '(k218All_congr k218All_congr_left k218All_congr_right));
+do (apply (register-eqd 'k218Derives)
+  '(k218Derives_congr k218Derives_congr_left k218Derives_congr_right));
+do (apply (register-eqd 'kRho1) '(kRho1eqd));
+do (apply (register-eqd 'kRho2) '(kRho2eqd));
+do (apply (register-eqd 'kRho3) '(kRho3eqd));
+do (apply (register-eqd 'kRho4) '(kRho4eqd));
+do (apply (register-eqd 'kRho5) '(kRho5eqd));
+do (apply (register-eqd 'kRho6) '(kRho6eqd));
+do (apply (register-eqd 'k218RhoG) '(k218RhoGeqd));
+do (apply (register-eqd 'kRho8) '(kRho8eqd));
+
+theorem k218Provable_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> (k218Provable a <-> k218Provable b) $ = (named '(exeqd (k218Derives_congr_right h)));
+do (apply (register-eqd 'k218Provable) '(k218Provable_congr));
+theorem k218Provable_eq (a b: nat) (h: $ a = b $):
+  $ k218Provable a <-> k218Provable b $ =
+(named '(exeqi (ax_mp (k218Derives_congr_right id) h)));
+
+@_ abstract def k218PopStep (.x: nat): set = $ \ x, snd x $;
+@_ abstract def k218Pop (n w: nat): nat = $ rec w k218PopStep n $;
+@_ abstract def k218GoodStack (w: nat) (.n: nat): wff =
+  $ A. n k218Provable (fst (k218Pop n w)) $;
+@_ def k218AxStack (a h b c u t w: nat): nat =
+  $ (kRho1 a b, kRho2 a b c, kRho3 a b c, kRho4 a b c,
+     kRho5 a b c, kRho6 a c, k218RhoG a b c, kRho8 a b c u,
+     kAll a h, t, w) $;
+
+theorem k218PopStep_value (w: nat): $ k218PopStep @ w = snd w $ =
+(named '(applame sndeq));
+pub theorem k218Pop_zero (w: nat): $ k218Pop 0 w = w $ = 'rec0;
+pub theorem k218Pop_succ (n w: nat): $ k218Pop (suc n) w = snd (k218Pop n w) $ =
+'(eqtr recS k218PopStep_value);
+pub theorem k218Pop_commute (n w: nat): $ k218Pop (suc n) w = k218Pop n (snd w) $ =
+(named @ induct '(ind) 'n
+  '(eqtr k218Pop_succ (eqtr (sndeq k218Pop_zero) (eqcom k218Pop_zero)))
+  '(eqtrd (a1i k218Pop_succ) @ eqtrd (sndeqd id) (a1i (eqcom k218Pop_succ))));
+pub theorem k218Pop_zero_stream (n: nat): $ k218Pop n 0 = 0 $ =
+(named @ induct '(ind) 'n 'k218Pop_zero
+  '(eqtrd (a1i k218Pop_succ) (eqtrd (sndeqd id) (a1i snd0))));
+pub theorem k218GoodStack_get (n w: nat):
+  $ k218GoodStack w -> k218Provable (fst (k218Pop n w)) $ =
+(named '(!! ealie x @ bi1d ,eqtac));
+
+theorem k218Provable_true: $ k218Provable 0 $ = '(k218Provable_intro k218Derives_true);
+pub theorem k218GoodStack_zero: $ k218GoodStack 0 $ =
+(named '(ax_gen @ mpbir (k218Provable_eq (eqtr (fsteq k218Pop_zero_stream) fst0)) k218Provable_true));
+
+theorem k218GoodStack_push_zero (x w: nat):
+  $ k218Provable x /\ k218GoodStack w -> k218Provable (fst (k218Pop 0 (x, w))) $ =
+'(mpd anl (bi2d (k218Provable_congr (a1i (eqtr (fsteq k218Pop_zero) fstpr)))));
+theorem k218GoodStack_push_succ (n x w: nat):
+  $ k218Provable x /\ k218GoodStack w -> k218Provable (fst (k218Pop (suc n) (x, w))) $ =
+'(mpd (syl k218GoodStack_get anr) @ bi2d @ k218Provable_congr @
+  a1i @ fsteq @ eqtr k218Pop_commute (k218Popeq2 sndpr));
+theorem k218GoodStack_push_each (n x w: nat):
+  $ k218Provable x /\ k218GoodStack w -> k218Provable (fst (k218Pop n (x, w))) $ =
+(named @ induct '(indd) 'n 'k218GoodStack_push_zero '(syl k218GoodStack_push_succ anl));
+pub theorem k218GoodStack_push (x w: nat):
+  $ k218Provable x -> k218GoodStack w -> k218GoodStack (x, w) $ =
+(named '(exp @ iald k218GoodStack_push_each));
+pub theorem k218GoodStack_head (w: nat): $ k218GoodStack w -> k218Provable (fst w) $ =
+'(mpd k218GoodStack_get @ bi1d @ k218Provable_congr @ a1i @ fsteq k218Pop_zero);
+pub theorem k218GoodStack_pop (w: nat): $ k218GoodStack w -> k218GoodStack (snd w) $ =
+(named '(iald @ mpd k218GoodStack_get @ bi1d @ k218Provable_congr @ a1i @ fsteq k218Pop_commute));
+
+theorem k218GoodStack_push_d (G: wff) (x w: nat)
+  (h: $ G -> k218Provable x $) (g: $ G -> k218GoodStack w $):
+  $ G -> k218GoodStack (x, w) $ = '(mpd g (syl k218GoodStack_push h));
+theorem k218AxStack_good_d (G: wff) (a h b c u t w: nat)
+  (ht: $ G -> k218Provable t $) (hh: $ G -> k218Provable h $)
+  (hw: $ G -> k218GoodStack w $): $ G -> k218GoodStack (k218AxStack a h b c u t w) $ =
+'(k218GoodStack_push_d (a1i (k218Provable_axiom k218Axioms_rho1)) @
+  k218GoodStack_push_d (a1i (k218Provable_axiom k218Axioms_rho2)) @
+  k218GoodStack_push_d (a1i (k218Provable_axiom k218Axioms_rho3)) @
+  k218GoodStack_push_d (a1i (k218Provable_axiom k218Axioms_rho4)) @
+  k218GoodStack_push_d (a1i (k218Provable_axiom k218Axioms_rho5)) @
+  k218GoodStack_push_d (a1i (k218Provable_axiom k218Axioms_rho6)) @
+  k218GoodStack_push_d (a1i (k218Provable_axiom k218Axioms_G)) @
+  k218GoodStack_push_d (a1i (k218Provable_axiom k218Axioms_rho8)) @
+  k218GoodStack_push_d (syl k218Provable_gen hh) (k218GoodStack_push_d ht hw));
+pub theorem k218AxStack_good (a h b c u t w: nat):
+  $ k218Provable t -> k218Provable h -> k218GoodStack w ->
+    k218GoodStack (k218AxStack a h b c u t w) $ =
+'(exp @ exp @ k218AxStack_good_d (syl anl anl) (syl anr anl) anr);
+
+pub theorem k218Gate_provable (a b c: nat): $ k218Provable (k218Gate a b c) $ =
+'(cases
+  (mpd (a1i k218Provable_true) (bi2d (k218Provable_congr ifpos)))
+  (mpd (syl (syl k218Provable_axiom k218Axioms_bundle) (bi1 notor))
+       (bi2d (k218Provable_congr ifneg))));

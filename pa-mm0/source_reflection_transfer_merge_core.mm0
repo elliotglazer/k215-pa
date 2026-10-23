@@ -1,0 +1,15 @@
+import "source_reflection_transfer_ordinal_comparison.mm0";
+
+def sfReflectionHierarchySubsetBody(level b a Y X:nat):nat = $ sfImp (sfReflectionOrdinalAt b) (sfImp (sfReflectionOrdinalAt a) (sfImp (sfCLSubset a b) (sfImp (sfORBinary level b Y) (sfImp (sfORBinary level a X) (sfCLSubset X Y))))) $;
+
+def sfReflectionHierarchySubsetNormal(level:nat):nat = $ sfAll (sfAll (sfAll (sfAll (sfReflectionHierarchySubsetBody level 3 2 1 0)))) $;
+
+theorem sfReflectionHierarchySubset_use(G level b a Y X:nat)(hl:$ sfBound 2 level $)(hS:$ nsLocal G (sfReflectionHierarchySubsetNormal level) $)(hB:$ nsLocal G (sfReflectionOrdinalAt b) $)(hA:$ nsLocal G (sfReflectionOrdinalAt a) $)(hAB:$ nsLocal G (sfCLSubset a b) $)(hBY:$ nsLocal G (sfORBinary level b Y) $)(hAX:$ nsLocal G (sfORBinary level a X) $): $ nsLocal G (sfCLSubset X Y) $;
+
+theorem sfReflectionOrdinalSubset_use(G x y:nat)(hC:$ nsLocal G sfReflectionOrdinalSubsetCompare $)(hX:$ nsLocal G (sfReflectionOrdinalAt x) $)(hY:$ nsLocal G (sfReflectionOrdinalAt y) $): $ nsLocal G (sfOr (sfCLSubset x y) (sfCLSubset y x)) $;
+
+theorem sfReflectionSubset_refl(G x:nat)(hg:$ sfContextWf G $): $ nsLocal G (sfCLSubset x x) $;
+
+theorem sfReflectionCofinalMerge_intro(G level K X Y d Z:nat)(hl:$ sfBound 2 level $)(hK:$ nsLocal G (sfMem d K) $)(hL:$ nsLocal G (sfORBinary level d Z) $)(hX:$ nsLocal G (sfCLSubset X Z) $)(hY:$ nsLocal G (sfCLSubset Y Z) $): $ nsLocal G (sfReflectionCofinalMergeAt level K X Y) $;
+
+theorem sfReflectionCofinalMerge_from_subset(G level K k X l Y:nat)(hl:$ sfBound 2 level $)(hO:$ nsLocal G (sfReflectionCofinalOrdinals K) $)(hC:$ nsLocal G sfReflectionOrdinalSubsetCompare $)(hS:$ nsLocal G (sfReflectionHierarchySubsetNormal level) $)(hk:$ nsLocal G (sfMem k K) $)(hX:$ nsLocal G (sfORBinary level k X) $)(hlK:$ nsLocal G (sfMem l K) $)(hY:$ nsLocal G (sfORBinary level l Y) $): $ nsLocal G (sfReflectionCofinalMergeAt level K X Y) $;

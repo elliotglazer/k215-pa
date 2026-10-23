@@ -1,0 +1,21 @@
+import "source_piece_pcf_definable_bot_closure.mm0";
+
+def sfPieceDefinableWitnessBody(A C n phi:nat):nat =
+ $ sfAnd (sfMem 0 (suc C))
+   (sfRename (sfPieceOpenMap 0 (suc A)) 0 (sfPieceDefinableRecipe n phi)) $;
+
+def sfPieceDefinableWitness(A C n phi:nat):nat =
+ $ sfEx (sfPieceDefinableWitnessBody A C n phi) $;
+
+theorem sfPieceDefinableWitnessBody_wf(A C n phi:nat):
+ $ sfWf (sfPieceDefinableWitnessBody A C n phi) $;
+
+theorem sfPieceDefinableWitness_wf(A C n phi:nat):
+ $ sfWf (sfPieceDefinableWitness A C n phi) $;
+
+theorem sfPieceDefinableWitness_bot(A C n:nat):
+ $ sfPieceDefinableWitness A C n sfBot = sfPieceDefinableBotClosureWitness A C n $;
+
+theorem sfPieceDefinableWitness_bot_exists(G A C n:nat)
+ (he:$ nsLocal G (sfEx (sfAnd (sfPieceRepEmpty 0) (sfMem 0 (suc C)))) $):
+ $ nsLocal G (sfPieceDefinableWitness A C n sfBot) $;

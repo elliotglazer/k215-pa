@@ -1,0 +1,40 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_supported_theory.mm0";
+import "k218q_bootstrap.mm0";
+import "k218q_quotation_supported_transport.mm0";
+import "k218q_quotation_supported_contexts.mm0";
+import "k218q_quotation_bootstrap.mm0";
+import "source_theory.mm0";
+import "k218q_quotation_supported_trace.mm0";
+
+def k218SQ_sqTheoryImageClass (.a: nat): set =
+ $ {a | k218IHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a)} $;
+
+def k218SQ_sqTheoryImages (A: set): wff = $ A C_ k218SQ_sqTheoryImageClass $;
+
+theorem k218SQ_sqTheoryImageClass_value (a: nat):
+ $ a e. k218SQ_sqTheoryImageClass <->
+   k218IHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $;
+
+theorem k218SQ_sqTheoryImages_member (A: set) (a: nat):
+ $ k218SQ_sqTheoryImages A -> a e. A ->
+   k218IHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $;
+
+theorem k218SQ_sqTheoryImages_source_support (A: set) (G S: nat):
+ $ k218SQ_sqTheoryImages A -> sfTheoryClosed A -> sfTheoryContext A G ->
+   k218SQ_sqSourceSupport kQuotientContext S 1 4 G $;
+
+theorem k218SQ_sqTheoryImages_refutation_at (A: set) (G n: nat):
+ $ k218SQ_sqTheoryImages A -> sfTheoryClosed A -> sfTheoryContext A G ->
+   k218SQ_sqSupportedAt n (sfSequent G sfBot) -> k218QProvable kF $;
+
+theorem k218SQ_sqTheoryImages_refutation_good (A: set) (G: nat):
+ $ k218SQ_sqTheoryImages A -> sfTheoryClosed A -> sfTheoryContext A G ->
+   k218SQ_sqSupportedGood (sfSequent G sfBot) -> k218QProvable kF $;
+
+theorem k218SQ_sqTheoryImages_refutation_trace (A: set) (G p: nat):
+ $ k218SQ_sqTheoryImages A -> sfTheoryClosed A -> sfTheoryContext A G ->
+   sfNDFullDerives p (sfSequent G sfBot) -> k218QProvable kF $;
+
+theorem k218SQ_sqTheoryImages_refutation (A: set):
+ $ k218SQ_sqTheoryImages A -> sfTheoryClosed A -> sfTheoryProvable A sfBot -> k218QProvable kF $;

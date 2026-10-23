@@ -1,0 +1,52 @@
+import "k215_bundle_images_rel_transfer.mm1";
+import "k215_bundle_images_decode.mm1";
+
+@_ def k215CoreClosed (f .a .b .k .q .n: nat): wff =
+$ E. a E. b E. k E. q E. n
+  (((k != a /\ k != b) /\ q <= k) /\
+   (sfBound n (rawDecode (k215BundleG a b k q)) /\
+    f = sfAllPrefix n (rawDecode (k215BundleG a b k q)))) $;
+@_ def k215CoreAxioms (.f: nat): set = $ {f | k215CoreClosed f} $;
+
+def k215CoreImagesL: wff = $ k215CoreAxioms C_ sfRelativeAxiomClass zfcAxioms sfLDomain $;
+
+pub theorem k215CoreAxioms_value (f: nat): $ f e. k215CoreAxioms <-> k215CoreClosed f $ =
+(named '(elabe ,eqtac));
+
+-- Rewriting the decoded code inside a closed-instance matrix.
+theorem k215BI_matrix_congr (P: wff) (f n X Y: nat):
+ $ X = Y -> (P /\ (sfBound n X /\ f = sfAllPrefix n X) <-> P /\ (sfBound n Y /\ f = sfAllPrefix n Y)) $ =
+'{,eqtac : $ X = Y -> (P /\ (sfBound n X /\ f = sfAllPrefix n X) <-> P /\ (sfBound n Y /\ f = sfAllPrefix n Y)) $};
+
+theorem k215BI_bundle_decode (a b c: nat):
+ $ rawDecode (k218Bundle a b c) = rawDecode (k215BundleG a b c c) $ =
+'(trud (rawDecode_congr (a1i k215Bundle_general)));
+
+-- Existential introduction with witnesses named like the bound variables (as in raw_k_source).
+theorem k215BI_core_intro (f a b k q n: nat):
+ $ ((k != a /\ k != b) /\ q <= k) /\
+   (sfBound n (rawDecode (k215BundleG a b k q)) /\
+    f = sfAllPrefix n (rawDecode (k215BundleG a b k q))) -> k215CoreClosed f $ =
+(named '(syl (iexe ,eqtac) @ syl (iexe ,eqtac) @ syl (iexe ,eqtac) @ syl (iexe ,eqtac) (iexe ,eqtac)));
+
+theorem k215BI_core_at (f a b c n: nat):
+ $ (c != a /\ c != b) /\
+   (sfBound n (rawDecode (k218Bundle a b c)) /\
+    f = sfAllPrefix n (rawDecode (k218Bundle a b c))) -> k215CoreClosed f $ =
+'(syl k215BI_core_intro (syl (ax_mp anim1 (mpi leid ian)) (bi1 (ax_mp k215BI_matrix_congr k215BI_bundle_decode))));
+
+theorem k215BI_core_closed (f: nat): $ k215BundleClosed f -> k215CoreClosed f $ =
+(named '(eex @ eex @ eex @ eex k215BI_core_at));
+
+pub theorem k215BundleAxioms_core: $ k215BundleAxioms C_ k215CoreAxioms $ =
+(named '(ax_gen @ syl (bi2 k215CoreAxioms_value) @ syl k215BI_core_closed (bi1 k215BundleAxioms_value)));
+
+pub theorem k215BundleImagesL_from_core: $ k215CoreImagesL -> k215BundleImagesL $ =
+'(ax_mp sstr k215BundleAxioms_core);
+
+pub theorem k215_refutation_from_core
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hc:$ k215CoreImagesL $):
+ $ k215Inconsistent -> zfcInconsistent $ =
+'(k215BundleImagesL_refutation_transfer hz hn (ax_mp k215BundleImagesL_from_core hc));

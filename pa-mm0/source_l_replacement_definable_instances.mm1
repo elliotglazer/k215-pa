@@ -1,0 +1,31 @@
+import "source_l_replacement_definable_use.mm1";
+import "source_l_replacement_matrix.mm1";
+import "source_l_separation_image_witness.mm1";
+
+pub theorem sfLReplacementCandidate_exact(T:set)(D phi Y x:nat):
+ $ sfLSeparationImageCandidate T D phi Y x =
+   sfLReplacementImageDefinable (sqEnvCons x T) D (sfPieceSeparationPredicate phi) Y $ =
+ 'eqid;
+
+pub theorem sfLReplacementDefinableLaw_separation(T:set)(G n phi beta Y x:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hD:$ nsLocal G (sfLReplacementDefinableLaw (suc n) (sfPieceSeparationPredicate phi)) $)
+ (ho:$ nsLocal G (sfCLOrdinalAt beta) $)
+ (hl:$ nsLocal G (sfCLHierarchyAt beta Y) $)
+ (hx:$ nsLocal G (sfMem x Y) $)
+ (hr:$ sfCLRowProofs (sfCLBallMemberRows T Y) G n $):
+ $ nsLocal G (sfLSeparationImageCandidate T sfLDomain phi Y x) $ =
+ '(sfRQ_rewrite (eqcom sfLReplacementCandidate_exact)
+   (sfLReplacementDefinableLaw_use (ax_mp sfPieceSeparationPredicate_bound hb)
+     hD ho hl (sfLSeparationImage_rows_cons hx hr)));
+
+pub theorem sfLReplacementDefinableLaw_replacement(G start n phi beta Y:nat)
+ (hb:$ sfBound (suc (suc n)) phi $)
+ (hD:$ nsLocal G (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) $)
+ (hp:$ nsLocal G (sfCLPoint start (suc n) beta Y) $):
+ $ nsLocal G (sfLReplacementImageDefinable (sfLReplacementStartMap start)
+     sfLDomain (sfLReplacementPsi phi) Y) $ =
+ '(sfLReplacementDefinableLaw_use (ax_mp sfLReplacementPsi_bound hb) hD
+   (ax_mp nsLocal_CE1 (ax_mp sfCLPoint_pair hp))
+   (ax_mp nsLocal_CE2 (ax_mp sfCLPoint_pair hp))
+   (sfLReplacementRows_from_point hp));

@@ -1,0 +1,61 @@
+import "source_piece_pcf_rep_prefix_r29.mm1";
+
+import "source_piece_pcf_triple_maps.mm1";
+
+theorem pcr30_rotate_value(i:nat): $ sfPieceRepRotate3 @ i = if (i = 0) 1 (if (i = 1) 2 (if (i = 2) 3 (if (i = 3) 0 i))) $ = (named '(applame ,eqtac));
+
+pub theorem pcr30_rotate0: $ sfPieceRepRotate3 @ 0 = 1 $ = (named '(eqtr pcr30_rotate_value (ax_mp ifpos eqid)));
+
+pub theorem pcr30_rotate1: $ sfPieceRepRotate3 @ 1 = 2 $ = (named '(eqtr pcr30_rotate_value (eqtr (ax_mp ifneg peano1) (ax_mp ifpos eqid))));
+
+pub theorem pcr30_rotate2: $ sfPieceRepRotate3 @ 2 = 3 $ = (named '(eqtr pcr30_rotate_value (eqtr (ax_mp ifneg peano1) (eqtr (ax_mp ifneg (mt (bi1 peano2) peano1)) (ax_mp ifpos eqid)))));
+
+pub theorem pcr30_rotate3: $ sfPieceRepRotate3 @ 3 = 0 $ = (named '(eqtr pcr30_rotate_value (eqtr (ax_mp ifneg peano1) (eqtr (ax_mp ifneg (mt (bi1 peano2) peano1)) (eqtr (ax_mp ifneg (mt (syl (bi1 peano2) (bi1 peano2)) peano1)) (ax_mp ifpos eqid))))));
+
+pub theorem pcr30_rotate_tail(i:nat): $ sfPieceRepRotate3 @ (suc (suc (suc (suc i)))) = suc (suc (suc (suc i))) $ = (named '(eqtr pcr30_rotate_value (eqtr (ax_mp ifneg peano1) (eqtr (ax_mp ifneg (mt (bi1 peano2) peano1)) (eqtr (ax_mp ifneg (mt (syl (bi1 peano2) (bi1 peano2)) peano1)) (ax_mp ifneg (mt (syl (syl (bi1 peano2) (bi1 peano2)) (bi1 peano2)) peano1)))))));
+
+theorem pcr30_plus3(i:nat): $ i + 3 = suc (suc (suc i)) $ = (named '(eqtr addS (suceq (eqtr addS (suceq add12)))));
+
+theorem pcr30_map_tail(r i:nat): $ (sfLCBinaryMap r 1 3) @ suc (suc i) = suc (suc (suc i)) $ = (named '(eqtr sfLCB_tail pcr30_plus3));
+
+theorem pcr30_depth_zero(T:set): $ sfRenameDepthMap T 1 @ 0 = 0 $ = (named '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S)));
+
+theorem pcr30_depth_suc(T:set)(i:nat): $ sfRenameDepthMap T 1 @ suc i = suc (T @ i) $ = (named '(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))));
+
+theorem pcr30_commute_0(r:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $): $ (sfComposeMap (sfRenameDepthMap (sfLCBinaryMap r 1 3) 1) sfPieceRotate) @ (0) = (sfComposeMap sfPieceRepRotate3 (sfLCBinaryMap r 1 3)) @ (0) $ = (named '(eqtr (eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_zero) (eqtr pcr30_depth_suc (suceq sfLCB_zero)))) (eqcom (eqtr sfComposeMap_value (eqtr (appeq2 sfLCB_zero) hr)))));
+
+theorem pcr30_commute_1(r:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $): $ (sfComposeMap (sfRenameDepthMap (sfLCBinaryMap r 1 3) 1) sfPieceRotate) @ (1) = (sfComposeMap sfPieceRepRotate3 (sfLCBinaryMap r 1 3)) @ (1) $ = (named '(eqtr (eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_one) (eqtr pcr30_depth_suc (suceq sfLCB_one)))) (eqcom (eqtr sfComposeMap_value (eqtr (appeq2 sfLCB_one) pcr30_rotate1)))));
+
+theorem pcr30_commute_2(r:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $): $ (sfComposeMap (sfRenameDepthMap (sfLCBinaryMap r 1 3) 1) sfPieceRotate) @ (2) = (sfComposeMap sfPieceRepRotate3 (sfLCBinaryMap r 1 3)) @ (2) $ = (named '(eqtr (eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_two) pcr30_depth_zero)) (eqcom (eqtr sfComposeMap_value (eqtr (appeq2 pcr30_map_tail) pcr30_rotate3)))));
+
+theorem pcr30_commute_tail(r:nat)(i:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $): $ (sfComposeMap (sfRenameDepthMap (sfLCBinaryMap r 1 3) 1) sfPieceRotate) @ (suc (suc (suc i))) = (sfComposeMap sfPieceRepRotate3 (sfLCBinaryMap r 1 3)) @ (suc (suc (suc i))) $ = (named '(eqtr (eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRotate_tail) (eqtr pcr30_depth_suc (suceq pcr30_map_tail)))) (eqcom (eqtr sfComposeMap_value (eqtr (appeq2 pcr30_map_tail) pcr30_rotate_tail)))));
+
+theorem pcr30_commute_two(r:nat)(i:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $): $ (sfComposeMap (sfRenameDepthMap (sfLCBinaryMap r 1 3) 1) sfPieceRotate) @ (suc (suc i)) = (sfComposeMap sfPieceRepRotate3 (sfLCBinaryMap r 1 3)) @ (suc (suc i)) $ = (named @ induct '(ind) 'i '(pcr30_commute_2 hr) '(a1i (pcr30_commute_tail hr)));
+
+theorem pcr30_commute_one(r:nat)(i:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $): $ (sfComposeMap (sfRenameDepthMap (sfLCBinaryMap r 1 3) 1) sfPieceRotate) @ (suc i) = (sfComposeMap sfPieceRepRotate3 (sfLCBinaryMap r 1 3)) @ (suc i) $ = (named @ induct '(ind) 'i '(pcr30_commute_1 hr) '(a1i (pcr30_commute_two hr)));
+
+theorem pcr30_commute_at(r:nat)(i:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $): $ (sfComposeMap (sfRenameDepthMap (sfLCBinaryMap r 1 3) 1) sfPieceRotate) @ (i) = (sfComposeMap sfPieceRepRotate3 (sfLCBinaryMap r 1 3)) @ (i) $ = (named @ induct '(ind) 'i '(pcr30_commute_0 hr) '(a1i (pcr30_commute_one hr)));
+
+pub theorem sfPieceRepPrefix_insert_rotate(r a:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $)(hf:$ sfWf a $): $ sfRename (sfLCBinaryMap r 1 3) 1 (sfRename sfPieceRotate 0 a) = sfRename sfPieceRepRotate3 0 (sfRename (sfLCBinaryMap r 1 3) 0 a) $ = (named '(eqtr (ax_mp sfRename_mixed_compose hf) (eqtr (ax_mp (sfRename_extensional (ax_gen (pcr30_commute_at hr))) hf) (eqcom (ax_mp sfRename_compose hf)))));
+
+theorem pcr30_old_wf0(a:nat)(hf:$ sfWf a $): $ sfWf (sfPieceDn 0 a) $ = (named '(mpbir (ax_mp srecpeq2 sfPieceDn_zero) hf));
+
+theorem pcr30_old_wfstep(n a:nat): $ sfWf (sfPieceDn n a) -> sfWf (sfPieceDn (suc n) a) $ = (named '(a1i (mpbir (ax_mp srecpeq2 sfPieceDn_suc) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfRename_wf)))));
+
+pub theorem sfPieceRepPrefix_old_wf(n a:nat)(hf:$ sfWf a $): $ sfWf (sfPieceDn n a) $ = (named @ induct '(ind) 'n '(pcr30_old_wf0 hf) 'pcr30_old_wfstep);
+
+theorem pcr30_new_wf0(a:nat)(hf:$ sfWf a $): $ sfWf (sfPieceRepDn3Core 0 a) $ = (named '(mpbir (ax_mp srecpeq2 sfPieceRepDn3Core_zero) hf));
+
+theorem pcr30_new_wfstep(n a:nat): $ sfWf (sfPieceRepDn3Core n a) -> sfWf (sfPieceRepDn3Core (suc n) a) $ = (named '(a1i (mpbir (ax_mp srecpeq2 sfPieceRepDn3Core_suc) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfRename_wf)))));
+
+pub theorem sfPieceRepPrefix_new_wf(n a:nat)(hf:$ sfWf a $): $ sfWf (sfPieceRepDn3Core n a) $ = (named @ induct '(ind) 'n '(pcr30_new_wf0 hf) 'pcr30_new_wfstep);
+
+theorem pcr30_guard(r:nat): $ sfRename (sfLCBinaryMap r 1 3) 1 (sfMem 0 2) = sfMem 0 2 $ = (named '(eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (eqtr (suceq sfRenameIndex_zero) (suceq sfLCB_one))))));
+
+theorem pcr30_normal(r n a:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $)(hf:$ sfWf a $): $ sfRename (sfLCBinaryMap r 1 3) 0 (sfPieceDn (suc n) a) = sfPieceRepDn3Box (sfRename (sfLCBinaryMap r 1 3) 0 (sfPieceDn n a)) $ = (named '(eqtr (trud (sfRename_congr_formula (a1i sfPieceDn_suc))) (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq pcr30_guard (sfPieceRepPrefix_insert_rotate hr (sfPieceRepPrefix_old_wf hf))))))));
+
+theorem pcr30_insert_zero(r a:nat): $ sfRename (sfLCBinaryMap r 1 3) 0 (sfPieceDn 0 a) = sfPieceRepDn3Core 0 (sfRename (sfLCBinaryMap r 1 3) 0 a) $ = (named '(eqtr (trud (sfRename_congr_formula (a1i sfPieceDn_zero))) (eqcom sfPieceRepDn3Core_zero)));
+
+theorem pcr30_insert_step(r n a:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $)(hf:$ sfWf a $): $ sfRename (sfLCBinaryMap r 1 3) 0 (sfPieceDn n a) = sfPieceRepDn3Core n (sfRename (sfLCBinaryMap r 1 3) 0 a) -> sfRename (sfLCBinaryMap r 1 3) 0 (sfPieceDn (suc n) a) = sfPieceRepDn3Core (suc n) (sfRename (sfLCBinaryMap r 1 3) 0 a) $ = (named '(eqtrd (eqtrd (a1i (pcr30_normal hr hf)) (sfPieceRepDn3Boxeqd id)) (a1i (eqcom sfPieceRepDn3Core_suc))));
+
+pub theorem sfPieceRepPrefix_insert(r n a:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $)(hf:$ sfWf a $): $ sfRename (sfLCBinaryMap r 1 3) 0 (sfPieceDn n a) = sfPieceRepDn3Core n (sfRename (sfLCBinaryMap r 1 3) 0 a) $ = (named @ induct '(ind) 'n 'pcr30_insert_zero '(pcr30_insert_step hr hf));

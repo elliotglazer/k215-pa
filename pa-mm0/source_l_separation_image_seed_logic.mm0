@@ -1,0 +1,15 @@
+import "source_reflection_transfer_tv_existential.mm0";
+
+def slSeedOuter(G A:nat):nat = $ sfEx (sfEx A) : G $;
+def slSeedMiddle(G A:nat):nat = $ sfEx A : sfContextShift (slSeedOuter G A) $;
+def slSeedInner(G A:nat):nat = $ A : sfContextShift (slSeedMiddle G A) $;
+
+theorem slSeedOuter_wf(G A:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $)(ha:$ sfWf A $): $ sfContextWf (slSeedOuter G A) $;
+theorem slSeedMiddle_wf(G A:nat)(ha:$ sfWf A $): $ sfContextWf (slSeedMiddle G A) $;
+theorem slSeedInner_wf(G A:nat)(ha:$ sfWf A $): $ sfContextWf (slSeedInner G A) $;
+theorem slSeedInner_sub(G A:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $)(ha:$ sfWf A $): $ sfContextSub (A : G) (slSeedInner G A) $;
+
+theorem sfLSeparationEx2_project_shifted(G A Q:nat)
+ (hG:$ sfTheoryContext sfClosedFormulaClass G $)(ha:$ sfWf A $)(hq:$ sfWf Q $)
+ (hp:$ nsLocal (A : G) (sfShift 0 (sfShift 0 Q)) $):
+ $ nsLocal G (sfImp (sfEx (sfEx A)) Q) $;

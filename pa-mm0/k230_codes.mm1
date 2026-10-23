@@ -1,0 +1,47 @@
+import "proof_sequence.mm1";
+
+@_ def kImp (a b: nat): nat = $ 4 * (a, b) $;
+@_ def kMem (a b: nat): nat = $ 4 * (a, b) + 1 $;
+@_ def kAll (a b: nat): nat = $ 4 * (a, b) + 2 $;
+@_ def kEq (a b: nat): nat = $ 4 * (a, b) + 3 $;
+@_ def kF: nat = $ 1 $;
+@_ def kNot (a: nat): nat = $ kImp a kF $;
+@_ def kAnd (a b: nat): nat = $ kNot (kImp a (kNot b)) $;
+@_ def kExists (x a: nat): nat = $ kNot (kAll x (kNot a)) $;
+
+@_ def kSubset (a b k: nat): nat = $ kAll k (kImp (kMem k a) (kMem k b)) $;
+@_ def kRequest (b k m: nat): nat =
+  $ kAll b (kImp m (kExists b (kAnd m (kMem b k)))) $;
+@_ def kCore (a b k m: nat): nat =
+  $ kExists k (kAnd (kImp m (kMem b k))
+      (kAll b (kImp (kMem b k)
+        (kExists a (kAnd m (kAll a (kImp (kSubset a b k) (kRequest b k m)))))))) $;
+@_ def k230 (a b c: nat): nat = $ kCore a b c c $;
+@_ def kVacuity (a b c: nat): nat =
+  $ kAnd (kImp (kMem a b) (kAll c (kMem a b)))
+         (kImp (kEq a b) (kAll c (kEq a b))) $;
+@_ def kBundle (a b c: nat): nat = $ kAnd (k230 a b c) (kVacuity a b c) $;
+@_ def kGate (a b c: nat): nat = $ if (c = a \/ c = b) 0 (kBundle a b c) $;
+
+@_ def kRho1 (a b: nat): nat = $ kExists a (kEq a b) $;
+@_ def kRho2 (a b c: nat): nat =
+  $ kImp (kAll a (kImp b c)) (kImp (kAll a b) (kAll a c)) $;
+@_ def kRho3 (a b c: nat): nat = $ kImp (kEq a b) (kImp (kMem c a) (kMem c b)) $;
+@_ def kRho4 (a b c: nat): nat = $ kImp (kAll a (kAll b c)) (kAll b (kAll a c)) $;
+@_ def kRho5 (a b c: nat): nat = $ kImp (kEq c a) (kImp (kMem c b) (kMem a b)) $;
+@_ def kRho6 (a b: nat): nat = $ kImp (kExists a (kAll a b)) b $;
+@_ def kRho7 (a b c: nat): nat = $ kImp (kEq c a) (kImp (kEq c b) (kEq a b)) $;
+@_ def kRho8 (a b c u: nat): nat =
+  $ kImp (kImp (kImp c u) a) (kImp (kImp a c) (kImp b c)) $;
+
+pub theorem kMem_zero: $ kMem 0 0 = kF $ = '(eqtr (addeq1 (eqtr (muleq2 pr0) mul0)) add01);
+pub theorem kImp_tag (a b: nat): $ kImp a b % 4 = 0 $ = 'mulmod1;
+pub theorem kMem_tag (a b: nat): $ kMem a b % 4 = 1 $ =
+'(muladdmod2lt (ian peano1 (mpbi ltsuc lt01S)));
+pub theorem kAll_tag (a b: nat): $ kAll a b % 4 = 2 $ =
+'(muladdmod2lt (ian peano1 (mpbi ltsuc (mpbi ltsuc lt01S))));
+pub theorem kEq_tag (a b: nat): $ kEq a b % 4 = 3 $ =
+'(muladdmod2lt (ian peano1 (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))));
+pub theorem kGate_disabled (a b c: nat): $ c = a \/ c = b -> kGate a b c = 0 $ = 'ifpos;
+pub theorem kGate_enabled (a b c: nat):
+  $ c != a /\ c != b -> kGate a b c = kBundle a b c $ = '(syl ifneg (bi2 notor));

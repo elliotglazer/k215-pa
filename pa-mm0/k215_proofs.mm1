@@ -1,0 +1,87 @@
+-- Dominated-rho8 K215 calculus. Shared arithmetic codes only; no K218 provability import.
+import "k215_axioms.mm1";
+
+theorem k215Imp_congr (G: wff) (a b c d: nat)
+  (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> kImp a c = kImp b d $ = '(muleq2d (preqd h1 h2));
+theorem k215Imp_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> kImp a c = kImp b c $ = '(k215Imp_congr h eqidd);
+theorem k215Imp_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> kImp a b = kImp a c $ = '(k215Imp_congr eqidd h);
+theorem k215All_congr (G: wff) (a b c d: nat)
+  (h1: $ G -> a = b $) (h2: $ G -> c = d $):
+  $ G -> kAll a c = kAll b d $ = '(addeq1d (muleq2d (preqd h1 h2)));
+theorem k215All_congr_left (G: wff) (a b c: nat) (h: $ G -> a = b $):
+  $ G -> kAll a c = kAll b c $ = '(k215All_congr h eqidd);
+theorem k215All_congr_right (G: wff) (a b c: nat) (h: $ G -> b = c $):
+  $ G -> kAll a b = kAll a c $ = '(k215All_congr eqidd h);
+do (apply (register-eqd 'kImp) '(k215Imp_congr k215Imp_congr_left k215Imp_congr_right));
+do (apply (register-eqd 'kAll) '(k215All_congr k215All_congr_left k215All_congr_right));
+
+@_ abstract def k215MpRules (.c .l .b: nat): set =
+$ S\ c, {l | c e. k215Axioms \/ E. b (b IN l /\ kImp b c IN l)} $;
+@_ abstract def k215GenRules (.c .l .a .b: nat): set =
+$ S\ c, {l | E. a E. b (b IN l /\ c = kAll a b)} $;
+@_ def k215Rules: set = $ k215MpRules u. k215GenRules $;
+@_ def k215Derives (p a: nat): wff = $ traceDerives k215Rules p a $;
+@_ def k215Inconsistent (.p: nat): wff = $ E. p k215Derives p kF $;
+
+pub theorem k215MpRules_value {b: nat} (c l: nat):
+  $ (c, l) e. k215MpRules <-> c e. k215Axioms \/ E. b (b IN l /\ kImp b c IN l) $ =
+(named '(elsabe @ elabed ,eqtac));
+pub theorem k215GenRules_value {a b: nat} (c l: nat):
+  $ (c, l) e. k215GenRules <-> E. a E. b (b IN l /\ c = kAll a b) $ =
+(named '(elsabe @ elabed ,eqtac));
+
+theorem k215List_append_left (a p q: nat): $ a IN p -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orl);
+theorem k215List_append_right (a p q: nat): $ a IN q -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orr);
+
+theorem k215MpRules_extend (c l r: nat):
+  $ (c, l) e. k215MpRules -> (c, l ++ r) e. k215MpRules $ =
+(named '(syl (bi2 k215MpRules_value) @ syl
+  (orim2 @ eximi @ iand (syl k215List_append_left anl) (syl k215List_append_left anr))
+  (bi1 k215MpRules_value)));
+theorem k215GenRules_extend (c l r: nat):
+  $ (c, l) e. k215GenRules -> (c, l ++ r) e. k215GenRules $ =
+(named '(syl (bi2 k215GenRules_value) @ syl
+  (eximi @ eximi @ iand (syl k215List_append_left anl) anr)
+  (bi1 k215GenRules_value)));
+theorem k215Rules_extend (c l r: nat):
+  $ (c, l) e. k215Rules -> (c, l ++ r) e. k215Rules $ =
+'(syl (bi2 elun) @ syl (orim k215MpRules_extend k215GenRules_extend) (bi1 elun));
+pub theorem k215Rules_stable: $ traceAppendStable k215Rules $ =
+(named '(ax_gen @ ax_gen @ ax_gen k215Rules_extend));
+
+theorem k215Rules_axiom (a l: nat): $ a e. k215Axioms -> (a, l) e. k215Rules $ =
+(named '(syl elun1 @ syl (bi2 k215MpRules_value) orl));
+pub theorem k215Derives_axiom (a: nat): $ a e. k215Axioms -> k215Derives (a : 0) a $ =
+'(syl traceDerives_head @ iand (a1i traceValid_nil) k215Rules_axiom);
+pub theorem k215Derives_true: $ k215Derives (0 : 0) 0 $ = '(k215Derives_axiom k215Axioms_true);
+
+theorem k215Rules_mp (a b l: nat):
+  $ a IN l /\ kImp a b IN l -> (b, l) e. k215Rules $ =
+(named '(syl elun1 @ syl (bi2 k215MpRules_value) @ syl orr (iexe ,eqtac)));
+theorem k215Valid_append (p q: nat):
+  $ traceValid k215Rules p -> traceValid k215Rules q -> traceValid k215Rules (p ++ q) $ =
+'(traceValid_append k215Rules_stable);
+pub theorem k215Derives_mp (p q a b: nat):
+  $ k215Derives p a -> k215Derives q (kImp a b) -> k215Derives (b : (p ++ q)) b $ =
+'(exp @ syl traceDerives_head @ iand
+  (mpd (syl anl anr) (syl k215Valid_append (syl anl anl)))
+  (syl k215Rules_mp @ iand
+    (syl k215List_append_left (syl anr anl))
+    (syl k215List_append_right (syl anr anr))));
+
+theorem k215GenRules_intro (a b p: nat):
+  $ b IN p -> (kAll a b, p) e. k215GenRules $ =
+(named '(syl (bi2 k215GenRules_value) @ syl (iexe ,eqtac) @ syl (iexe ,eqtac)
+  (iand id (a1i eqid))));
+pub theorem k215Derives_gen (p a b: nat):
+  $ k215Derives p b -> k215Derives (kAll a b : p) (kAll a b) $ =
+'(syl traceDerives_head @ iand anl (syl (syl elun2 k215GenRules_intro) anr));
+
+pub theorem k215Derives_bundle (a b c: nat):
+  $ c != a /\ c != b -> k215Derives (k218Bundle a b c : 0) (k218Bundle a b c) $ =
+'(syl k215Derives_axiom k215Axioms_bundle);

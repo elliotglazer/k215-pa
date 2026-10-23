@@ -1,0 +1,61 @@
+import "source_k0_collection_domain.mm1";
+
+@_ abstract def kcdSafeEnvironment (P: wff) (E: set) (.i: nat): set = $ {i | ifp P (i e. E) (i e. sqZeroEnvironment)} $;
+
+@_ abstract def kcdResult (E: set) (t a k theta: nat): nat = $ kImp (kAll (suc (suc (suc (suc (suc (suc (suc k))))))) (kNot (kMem (suc (suc (suc (suc (suc (suc (suc k))))))) t))) (kImp (kMem t a) (kExists (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))))))))))) (sfK0CollectionProfile E t a (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))))))))))) (suc (suc (suc (suc (suc (suc (suc (suc k)))))))) (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))) (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))))))))))))) (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k)))))))))))))))))))) (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc k))))))))))))))))))))) theta))) $;
+
+theorem kcdEnvironment_positive (P: wff) (E: set):
+ $ P -> kcdSafeEnvironment P E == E $ =
+(named '(!! eqab1d i ifppos));
+
+theorem kcdEnvironment_negative (P: wff) (E: set):
+ $ ~P -> kcdSafeEnvironment P E == sqZeroEnvironment $ =
+(named '(!! eqab1d i ifpneg));
+
+theorem kcdSafe_positive (P: wff) (k: nat) (hp: $ P -> 0 < k $):
+ $ 0 < if P k 1 $ =
+'(cases (mpbird (lteq2d ifpos) hp) (mpbird (lteq2d ifneg) (a1i lt01S)));
+
+theorem kcdSafe_less (P: wff) (t k: nat) (hp: $ P -> t < k $):
+ $ if P t 0 < if P k 1 $ =
+'(cases (mpbird (lteqd ifpos ifpos) hp) (mpbird (lteqd ifneg ifneg) (a1i lt01S)));
+
+theorem kcdSafe_bound (P: wff) (n theta: nat) (hp: $ P -> sfBound n theta $):
+ $ sfBound n (if P theta sfBot) $ =
+'(cases (mpbird (srecpeq2d (preq2d ifpos)) hp) (mpbird (srecpeq2d (preq2d ifneg)) (a1i sfBound_bot)));
+
+theorem kcdZeroEnvironment_below (n: nat):
+ $ sqEnvBelow sqZeroEnvironment n 1 $ =
+(named '(ax_gen (a1i (mpbir (lteq1 sqZeroEnvironment_value) lt01S))));
+
+theorem kcdEnvironment_below_positive (P: wff) (E: set) (n k: nat):
+ $ P -> (sqEnvBelow (kcdSafeEnvironment P E) n (if P k 1) <-> sqEnvBelow E n k) $ =
+(named '(!! aleqd i @ imeq2d (lteqd (appeq1d kcdEnvironment_positive) ifpos)));
+
+theorem kcdEnvironment_below_negative (P: wff) (E: set) (n k: nat):
+ $ ~P -> (sqEnvBelow (kcdSafeEnvironment P E) n (if P k 1) <-> sqEnvBelow sqZeroEnvironment n 1) $ =
+(named '(!! aleqd i @ imeq2d (lteqd (appeq1d kcdEnvironment_negative) ifneg)));
+
+theorem kcdSafe_environment (P: wff) (E: set) (n k: nat) (hp: $ P -> sqEnvBelow E n k $):
+ $ sqEnvBelow (kcdSafeEnvironment P E) n (if P k 1) $ =
+'(cases (mpbird kcdEnvironment_below_positive hp) (mpbird kcdEnvironment_below_negative (a1i kcdZeroEnvironment_below)));
+
+theorem kcdResult_recover (P: wff) (E: set) (t a k theta: nat):
+ $ P -> kcdResult (kcdSafeEnvironment P E) (if P t 0) (if P a 0) (if P k 1) (if P theta sfBot) = kcdResult E t a k theta $ =
+'(kcdResulteqd kcdEnvironment_positive ifpos ifpos ifpos ifpos);
+
+theorem kcdSafe_raw (P: wff) (E: set) (n t a k theta: nat)
+ (hf: $ P -> sfBound (suc (suc n)) theta $) (hk: $ P -> 0 < k $)
+ (ht: $ P -> t < k $) (ha: $ P -> a < k $) (he: $ P -> sqEnvBelow E n k $):
+ $ k218QProvable (kcdResult (kcdSafeEnvironment P E) (if P t 0) (if P a 0) (if P k 1) (if P theta sfBot)) $ =
+'(sfK0Collection_domain (kcdSafe_bound hf) (kcdSafe_positive hk) (kcdSafe_less ht) (kcdSafe_less ha) (kcdSafe_environment he));
+
+pub theorem sfK0Collection_domain_d (G: wff) (E: set) (n t a k theta: nat)
+ (hf: $ G -> sfBound (suc (suc n)) theta $) (hk: $ G -> 0 < k $)
+ (ht: $ G -> t < k $) (ha: $ G -> a < k $) (he: $ G -> sqEnvBelow E n k $):
+ $ G -> k218QProvable (kcdResult E t a k theta) $ =
+'(mpbid (k218QProvableeqd kcdResult_recover) (a1i (kcdSafe_raw hf hk ht ha he)));
+
+pub theorem sfK0Collection_domain_curried (E: set) (n t a k theta: nat):
+ $ sfBound (suc (suc n)) theta -> 0 < k -> t < k -> a < k -> sqEnvBelow E n k -> k218QProvable (kcdResult E t a k theta) $ =
+'(exp (exp (exp (exp (sfK0Collection_domain_d (syl anl (syl anl (syl anl anl))) (syl anr (syl anl (syl anl anl))) (syl anr (syl anl anl)) (syl anr anl) anr)))));

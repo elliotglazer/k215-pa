@@ -1,0 +1,52 @@
+import "source_piece_pcf_definable_witness_transport.mm1";
+
+import "source_l_background.mm1";
+
+import "source_piece_pcf_definable_calibration.mm1";
+
+import "source_piece_pcf_definable_existential_syntax.mm1";
+
+import "source_reflection_transfer_tv_existential.mm1";
+
+import "extracted_rename_prefix.mm1";
+
+-- Shared bookkeeping for the case lemmas (same proofs as in source_piece_pcf_rep_case_or).
+
+theorem pcrc_open01 (i: nat): $ sfPieceOpenMap 0 1 @ i = sfIdentityMap @ i $ =
+'(eqtr sfPieceOpenMap_value
+  (eqtr4 (trud (ifbothd eqeq1 eqeq1 (syl eqcom anr)
+                 (ifbothd eqeq1 eqeq1 (syl eqcom anr) (a1i eqid))))
+    sfIdentityMap_value));
+
+pub theorem sfPieceRepCase_named01 (n phi: nat) (hb: $ sfBound n phi $):
+  $ sfPieceDefinableNamed n phi 0 1 = sfPieceDefinableRecipe n phi $ =
+(named '(eqtr (sfPieceDefinableNamed_open hb)
+  (eqtr (exRenamePrefix_bounded (ax_gen (a1i pcrc_open01))
+          (mpbir (sfBoundeq1 add01) (ax_mp sfPieceDefinableRecipe_bound hb)))
+    (ax_mp sfRename_identity (sfPieceDefinableNamed_recipe_wf hb)))));
+
+pub theorem sfPieceRepCase_wshift (A C n phi: nat) (hb: $ sfBound n phi $):
+  $ sfShift 0 (sfPieceDefinableWitness A C n phi) =
+    sfPieceDefinableWitness (suc A) (suc C) n phi $ =
+'(eqtr (eqcom (ax_mp sfRename_successor sfPieceDefinableWitness_wf))
+  (eqtr (sfPieceDefinableWitness_rename hb)
+    (sfPieceDefinableWitnesseq (eqtr sfRenameIndex_zero sfSuccessorMap_value)
+      (eqtr sfRenameIndex_zero sfSuccessorMap_value) eqid eqid)));
+
+pub theorem sfPieceRepCase_mshift (a b: nat): $ sfShift 0 (sfMem a b) = sfMem (suc a) (suc b) $ =
+'(eqtr sfShift_sfMem (sfMemeq sfShiftIndex_zero sfShiftIndex_zero));
+
+theorem pcrc_bg_closed: $ sfTheoryContext sfClosedFormulaClass sfLBackground $ =
+'(ax_mp (ax_mp sfTheoryContext_mono zfrAxioms_closed) sfLBackground_zfr);
+
+pub theorem sfPieceRepCase_bg_under (G h: nat) (hg: $ sfContextWf G $)
+  (hb: $ sfContextSub sfLBackground G $):
+  $ sfContextSub sfLBackground (h : sfContextShift G) $ =
+'(ax_mp (ax_mp sfContextSub_trans (sfTVClosedContext_sub_shift pcrc_bg_closed hg hb))
+  sfContextSub_cons);
+
+pub theorem sfPieceRepCase_ctx (G h: nat) (hh: $ sfWf h $): $ sfContextWf (h : sfContextShift G) $ =
+'(mpbir sfContextWf_cons (ian hh sfContextShift_wf));
+
+pub theorem sfPieceRepCase_head (G h: nat) (hh: $ sfWf h $): $ nsLocal (h : sfContextShift G) h $ =
+'(ax_mp (ax_mp nsLocal_hyp (sfPieceRepCase_ctx hh)) (mpbir lmemS (orl eqid)));

@@ -1,0 +1,442 @@
+import "quotation_supported_invariant.mm1";
+import "quotation_supported_contexts.mm1";
+
+theorem sqSP_property_intro (F: wff) (n r: nat) {S t k H: nat}
+ (h: $ F -> sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd r)) -> sqSupportedRowGoal r S t k H $):
+ $ F -> sqSupportedProperty n r $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H h));
+
+theorem sqSP_property_use (F: wff) (n r S t k H: nat)
+ (hp: $ F -> sqSupportedProperty n r $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> sqDomainSupport H S t $)
+ (hg: $ F -> sqSourceSupport H S t k (fst (snd r)) $):
+ $ F -> sqSupportedRowGoal r S t k H $ =
+'(mpd hg (mpd hd (mpd hs (syl sqSupportedProperty_at hp))));
+
+theorem sqSP_mono_at (n m r S t k H: nat):
+ $ (n <= m /\ sqSupportedProperty n r) -> sqEnvironmentSafe S m t k ->
+   sqDomainSupport H S t -> sqSourceSupport H S t k (fst (snd r)) ->
+   sqSupportedRowGoal r S t k H $ =
+'(exp @ exp @ exp @ sqSP_property_use
+  (syl anr (syl anl (syl anl anl)))
+  (mpd (syl anr (syl anl anl)) (syl sqEnvironmentSafe_cutoff (syl anl (syl anl (syl anl anl)))))
+  anlr anr);
+
+pub theorem sqSupportedProperty_mono (n m r: nat):
+ $ n <= m -> sqSupportedProperty n r -> sqSupportedProperty m r $ =
+(named '(exp @ !! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_mono_at));
+
+pub theorem sqSupportedAt_mono (n m r: nat):
+ $ n <= m -> sqSupportedAt n r -> sqSupportedAt m r $ =
+'(exp @ iand (syl sqSupportedAt_wf anr)
+ (iand (letrd (syl sqSupportedAt_bound anr) anl)
+   (mpd (syl sqSupportedAt_property anr) (syl sqSupportedProperty_mono anl))));
+
+theorem sqSP_Ctx_goal (G a S t k H: nat):
+ $ a IN G -> sqEnvironmentSafe S (sfSequent G a) t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G a))) ->
+   sqSupportedRowGoal (sfSequent G a) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) @
+  mpd (syl anl (syl anl anl))
+   (syl sqSourceSupport_member (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr)));
+
+theorem sqSP_Ctx_property (G a: nat):
+ $ a IN G -> sqSupportedProperty (sfSequent G a) (sfSequent G a) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_Ctx_goal));
+
+pub theorem sqSupported_Ctx_at (G a: nat):
+ $ sfRowWf (sfSequent G a) -> a IN G ->
+   sqSupportedAt (sfSequent G a) (sfSequent G a) $ =
+'(exp @ iand anl (iand (a1i leid) (syl sqSP_Ctx_property anr)));
+
+theorem sqSP_Pc_goal (G a b S t k H n: nat):
+ $ sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G (sfImp (sfImp (sfImp a b) a) a)))) ->
+   sqSupportedRowGoal (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) S t k H $ =
+'(a1i @ a1i @ a1i @ mpbir sqSupportedRowGoal_sequent sqLocal_peirce);
+
+theorem sqSP_Pc_property (G a b n: nat):
+ $ sqSupportedProperty n (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) $ =
+(named '(ax_gen @ ax_gen @ ax_gen @ ax_gen sqSP_Pc_goal));
+
+pub theorem sqSupported_Pc_at (G a b: nat):
+ $ sfRowWf (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) ->
+   sqSupportedAt (sfSequent G (sfImp (sfImp (sfImp a b) a) a))
+     (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) $ =
+'(iand id (iand (a1i leid) (a1i sqSP_Pc_property)));
+
+-- Generated sequent-level supported logical closures.
+
+theorem sqSP_sequent_use (F: wff) (n G a S t k H: nat)
+ (hp: $ F -> sqSupportedProperty n (sfSequent G a) $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> sqDomainSupport H S t $)
+ (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) $ =
+'(syl (bi1 sqSupportedRowGoal_sequent) @ sqSP_property_use hp hs hd
+  (mpbird (a1i (sqSourceSupporteq5 sfSequent_context)) hg));
+
+theorem sqSP_unary_at (n r p: nat)
+ (h: $ sqSupportedProperty n p -> sqSupportedProperty n r $):
+ $ sfRowWf r -> sqSupportedAt n p -> sqSupportedAt (r + n) r $ =
+'(exp @ iand anl (iand (a1i leaddid1)
+  (syl (ax_mp sqSupportedProperty_mono leaddid2)
+    (syl h (syl sqSupportedAt_property anr)))));
+
+theorem sqSP_II_point (n G a b S t k H: nat):
+ $ sqSupportedProperty n (sfSequent (a : G) b) -> sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G (sfImp a b)))) -> sqSupportedRowGoal (sfSequent G (sfImp a b)) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) @ syl sqLocal_impI @
+  sqSP_sequent_use (syl anl (syl anl anl)) (syl anr (syl anl anl)) (syl sqDomainSupport_weaken anlr) (syl sqSourceSupport_under (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr)));
+
+theorem sqSP_II_property (n G a b: nat):
+ $ sqSupportedProperty n (sfSequent (a : G) b) -> sqSupportedProperty n (sfSequent G (sfImp a b)) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_II_point));
+
+pub theorem sqSupported_II (G a b: nat):
+ $ sfRowWf (sfSequent G (sfImp a b)) -> sqSupportedGood (sfSequent (a : G) b) -> sqSupportedGood (sfSequent G (sfImp a b)) $ =
+(named '(eexd (syl6 sqSupportedGood_intro (sqSP_unary_at sqSP_II_property))));
+
+theorem sqSP_Exp_point (n G a S t k H: nat):
+ $ sqSupportedProperty n (sfSequent G sfBot) -> sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G a))) -> sqSupportedRowGoal (sfSequent G a) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) @ syl sqLocal_botE @
+  sqSP_sequent_use (syl anl (syl anl anl)) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr));
+
+theorem sqSP_Exp_property (n G a: nat):
+ $ sqSupportedProperty n (sfSequent G sfBot) -> sqSupportedProperty n (sfSequent G a) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_Exp_point));
+
+pub theorem sqSupported_Exp (G a: nat):
+ $ sfRowWf (sfSequent G a) -> sqSupportedGood (sfSequent G sfBot) -> sqSupportedGood (sfSequent G a) $ =
+(named '(eexd (syl6 sqSupportedGood_intro (sqSP_unary_at sqSP_Exp_property))));
+
+theorem sqSP_CE1_point (n G a b S t k H: nat):
+ $ sqSupportedProperty n (sfSequent G (sfAnd a b)) -> sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G a))) -> sqSupportedRowGoal (sfSequent G a) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) @ syl sqLocal_andE1 @
+  sqSP_sequent_use (syl anl (syl anl anl)) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr));
+
+theorem sqSP_CE1_property (n G a b: nat):
+ $ sqSupportedProperty n (sfSequent G (sfAnd a b)) -> sqSupportedProperty n (sfSequent G a) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_CE1_point));
+
+pub theorem sqSupported_CE1 (G a b: nat):
+ $ sfRowWf (sfSequent G a) -> sqSupportedGood (sfSequent G (sfAnd a b)) -> sqSupportedGood (sfSequent G a) $ =
+(named '(eexd (syl6 sqSupportedGood_intro (sqSP_unary_at sqSP_CE1_property))));
+
+theorem sqSP_CE2_point (n G a b S t k H: nat):
+ $ sqSupportedProperty n (sfSequent G (sfAnd a b)) -> sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G b))) -> sqSupportedRowGoal (sfSequent G b) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) @ syl sqLocal_andE2 @
+  sqSP_sequent_use (syl anl (syl anl anl)) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr));
+
+theorem sqSP_CE2_property (n G a b: nat):
+ $ sqSupportedProperty n (sfSequent G (sfAnd a b)) -> sqSupportedProperty n (sfSequent G b) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_CE2_point));
+
+pub theorem sqSupported_CE2 (G a b: nat):
+ $ sfRowWf (sfSequent G b) -> sqSupportedGood (sfSequent G (sfAnd a b)) -> sqSupportedGood (sfSequent G b) $ =
+(named '(eexd (syl6 sqSupportedGood_intro (sqSP_unary_at sqSP_CE2_property))));
+
+theorem sqSP_DI1_point (n G a b S t k H: nat):
+ $ sqSupportedProperty n (sfSequent G a) -> sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G (sfOr a b)))) -> sqSupportedRowGoal (sfSequent G (sfOr a b)) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) @ syl sqLocal_orI1 @
+  sqSP_sequent_use (syl anl (syl anl anl)) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr));
+
+theorem sqSP_DI1_property (n G a b: nat):
+ $ sqSupportedProperty n (sfSequent G a) -> sqSupportedProperty n (sfSequent G (sfOr a b)) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_DI1_point));
+
+pub theorem sqSupported_DI1 (G a b: nat):
+ $ sfRowWf (sfSequent G (sfOr a b)) -> sqSupportedGood (sfSequent G a) -> sqSupportedGood (sfSequent G (sfOr a b)) $ =
+(named '(eexd (syl6 sqSupportedGood_intro (sqSP_unary_at sqSP_DI1_property))));
+
+theorem sqSP_DI2_point (n G a b S t k H: nat):
+ $ sqSupportedProperty n (sfSequent G b) -> sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G (sfOr a b)))) -> sqSupportedRowGoal (sfSequent G (sfOr a b)) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) @ syl sqLocal_orI2 @
+  sqSP_sequent_use (syl anl (syl anl anl)) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr));
+
+theorem sqSP_DI2_property (n G a b: nat):
+ $ sqSupportedProperty n (sfSequent G b) -> sqSupportedProperty n (sfSequent G (sfOr a b)) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_DI2_point));
+
+pub theorem sqSupported_DI2 (G a b: nat):
+ $ sfRowWf (sfSequent G (sfOr a b)) -> sqSupportedGood (sfSequent G b) -> sqSupportedGood (sfSequent G (sfOr a b)) $ =
+(named '(eexd (syl6 sqSupportedGood_intro (sqSP_unary_at sqSP_DI2_property))));
+
+theorem sqSP_common_at (n m p q: nat):
+ $ sqSupportedAt n p -> sqSupportedAt m q ->
+   sqSupportedAt (n + m) p /\ sqSupportedAt (n + m) q $ =
+'(exp @ iand (syl (ax_mp sqSupportedAt_mono leaddid1) anl)
+  (syl (ax_mp sqSupportedAt_mono leaddid2) anr));
+
+theorem sqSP_common_exists {j: nat} (n m p q: nat):
+ $ sqSupportedAt n p -> sqSupportedAt m q ->
+   E. j (sqSupportedAt j p /\ sqSupportedAt j q) $ =
+(named '(syl6 (iexe ,eqtac) sqSP_common_at));
+
+theorem sqSP_common {j: nat} (p q: nat):
+ $ sqSupportedGood p -> sqSupportedGood q ->
+   E. j (sqSupportedAt j p /\ sqSupportedAt j q) $ =
+(named '(eexd (com12 (eexd (com12 sqSP_common_exists)))));
+
+theorem sqSP_binary_at (n r p q: nat)
+ (h: $ sqSupportedProperty n p -> sqSupportedProperty n q -> sqSupportedProperty n r $):
+ $ sfRowWf r -> (sqSupportedAt n p /\ sqSupportedAt n q) ->
+   sqSupportedGood r $ =
+'(exp @ syl sqSupportedGood_intro @
+ iand anl (iand (a1i leaddid1)
+ (syl (ax_mp sqSupportedProperty_mono leaddid2) @
+  mpd (syl sqSupportedAt_property anrr)
+    (syl h (syl sqSupportedAt_property anrl)))));
+
+theorem sqSP_IE_point (n G a b S t k H: nat):
+ $ (sqSupportedProperty n (sfSequent G (sfImp a b)) /\ sqSupportedProperty n (sfSequent G a)) ->
+   sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G b))) -> sqSupportedRowGoal (sfSequent G b) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) (mpd (sqSP_sequent_use (syl anl (syl anl (syl anl anl))) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr)) (syl sqLocal_impE (sqSP_sequent_use (syl anr (syl anl (syl anl anl))) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr)))));
+
+theorem sqSP_IE_property (n G a b: nat):
+ $ sqSupportedProperty n (sfSequent G (sfImp a b)) -> sqSupportedProperty n (sfSequent G a) -> sqSupportedProperty n (sfSequent G b) $ =
+(named '(exp @ !! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_IE_point));
+
+pub theorem sqSupported_IE (G a b: nat):
+ $ sfRowWf (sfSequent G b) -> sqSupportedGood (sfSequent G (sfImp a b)) -> sqSupportedGood (sfSequent G a) -> sqSupportedGood (sfSequent G b) $ =
+(named '(expd @ syl5 (imp sqSP_common) (eexd (sqSP_binary_at sqSP_IE_property))));
+
+theorem sqSP_CI_point (n G a b S t k H: nat):
+ $ (sqSupportedProperty n (sfSequent G a) /\ sqSupportedProperty n (sfSequent G b)) ->
+   sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G (sfAnd a b)))) -> sqSupportedRowGoal (sfSequent G (sfAnd a b)) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) (mpd (sqSP_sequent_use (syl anr (syl anl (syl anl anl))) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr)) (syl sqLocal_andI (sqSP_sequent_use (syl anl (syl anl (syl anl anl))) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr)))));
+
+theorem sqSP_CI_property (n G a b: nat):
+ $ sqSupportedProperty n (sfSequent G a) -> sqSupportedProperty n (sfSequent G b) -> sqSupportedProperty n (sfSequent G (sfAnd a b)) $ =
+(named '(exp @ !! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_CI_point));
+
+pub theorem sqSupported_CI (G a b: nat):
+ $ sfRowWf (sfSequent G (sfAnd a b)) -> sqSupportedGood (sfSequent G a) -> sqSupportedGood (sfSequent G b) -> sqSupportedGood (sfSequent G (sfAnd a b)) $ =
+(named '(expd @ syl5 (imp sqSP_common) (eexd (sqSP_binary_at sqSP_CI_property))));
+
+theorem sqSP_BranchPair_point (n G a b c S t k H: nat):
+ $ (sqSupportedProperty n (sfSequent (a : G) c) /\ sqSupportedProperty n (sfSequent (b : G) c)) ->
+   sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfBranches G a b c))) -> sqSupportedRowGoal (sfBranches G a b c) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_branches) (iand (sqSP_sequent_use (syl anl (syl anl (syl anl anl))) (syl anr (syl anl anl)) (syl sqDomainSupport_weaken anlr) (syl sqSourceSupport_under (syl (bi1 (sqSourceSupporteq5 sfBranches_context)) anr))) (sqSP_sequent_use (syl anr (syl anl (syl anl anl))) (syl anr (syl anl anl)) (syl sqDomainSupport_weaken anlr) (syl sqSourceSupport_under (syl (bi1 (sqSourceSupporteq5 sfBranches_context)) anr)))));
+
+theorem sqSP_BranchPair_property (n G a b c: nat):
+ $ sqSupportedProperty n (sfSequent (a : G) c) -> sqSupportedProperty n (sfSequent (b : G) c) -> sqSupportedProperty n (sfBranches G a b c) $ =
+(named '(exp @ !! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_BranchPair_point));
+
+pub theorem sqSupported_BranchPair (G a b c: nat):
+ $ sfRowWf (sfBranches G a b c) -> sqSupportedGood (sfSequent (a : G) c) -> sqSupportedGood (sfSequent (b : G) c) -> sqSupportedGood (sfBranches G a b c) $ =
+(named '(expd @ syl5 (imp sqSP_common) (eexd (sqSP_binary_at sqSP_BranchPair_property))));
+
+theorem sqSP_DE_point (n G a b c S t k H: nat):
+ $ (sqSupportedProperty n (sfSequent G (sfOr a b)) /\ sqSupportedProperty n (sfBranches G a b c)) ->
+   sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent G c))) -> sqSupportedRowGoal (sfSequent G c) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) (mpd (syl anr (syl (bi1 sqSupportedRowGoal_branches) (sqSP_property_use (syl anr (syl anl (syl anl anl))) (syl anr (syl anl anl)) anlr (mpbird (a1i (sqSourceSupporteq5 sfBranches_context)) (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr))))) (mpd (syl anl (syl (bi1 sqSupportedRowGoal_branches) (sqSP_property_use (syl anr (syl anl (syl anl anl))) (syl anr (syl anl anl)) anlr (mpbird (a1i (sqSourceSupporteq5 sfBranches_context)) (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr))))) (syl sqLocal_orE (sqSP_sequent_use (syl anl (syl anl (syl anl anl))) (syl anr (syl anl anl)) anlr (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr))))));
+
+theorem sqSP_DE_property (n G a b c: nat):
+ $ sqSupportedProperty n (sfSequent G (sfOr a b)) -> sqSupportedProperty n (sfBranches G a b c) -> sqSupportedProperty n (sfSequent G c) $ =
+(named '(exp @ !! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_DE_point));
+
+pub theorem sqSupported_DE (G a b c: nat):
+ $ sfRowWf (sfSequent G c) -> sqSupportedGood (sfSequent G (sfOr a b)) -> sqSupportedGood (sfBranches G a b c) -> sqSupportedGood (sfSequent G c) $ =
+(named '(expd @ syl5 (imp sqSP_common) (eexd (sqSP_binary_at sqSP_DE_property))));
+
+theorem sqSP_support_sub (G D H S t k: nat):
+ $ sfContextSub G D -> sqSourceSupport H S t k D -> sqSourceSupport H S t k G $ =
+'(exp @ mpd (syl sqContext_support anl) (syl sqContextSupports_trans anr));
+
+theorem sqSP_Wk_point (n G D a S t k H: nat):
+ $ (sfContextSub G D /\ sqSupportedProperty n (sfSequent G a)) ->
+   sqEnvironmentSafe S n t k -> sqDomainSupport H S t ->
+   sqSourceSupport H S t k (fst (snd (sfSequent D a))) ->
+   sqSupportedRowGoal (sfSequent D a) S t k H $ =
+'(exp @ exp @ exp @ syl (bi2 sqSupportedRowGoal_sequent) @
+  sqSP_sequent_use (syl anr (syl anl (syl anl anl)))
+  (syl anr (syl anl anl)) anlr
+  (mpd (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr)
+   (syl sqSP_support_sub (syl anl (syl anl (syl anl anl))))));
+
+theorem sqSP_Wk_property (n G D a: nat):
+ $ sfContextSub G D -> sqSupportedProperty n (sfSequent G a) ->
+   sqSupportedProperty n (sfSequent D a) $ =
+(named '(exp @ !! iald S @ !! iald t @ !! iald k @ !! iald H sqSP_Wk_point));
+
+theorem sqSP_Wk_at (n G D a: nat):
+ $ sfRowWf (sfSequent D a) -> sfContextSub G D -> sqSupportedAt n (sfSequent G a) ->
+   sqSupportedGood (sfSequent D a) $ =
+'(exp @ exp @ syl sqSupportedGood_intro @
+ iand anll (iand (a1i leaddid1)
+ (syl (ax_mp sqSupportedProperty_mono leaddid2) @
+  mpd (syl sqSupportedAt_property anr) (syl sqSP_Wk_property anlr))));
+
+pub theorem sqSupported_Wk (G D a: nat):
+ $ sfRowWf (sfSequent D a) -> sfContextSub G D -> sqSupportedGood (sfSequent G a) ->
+   sqSupportedGood (sfSequent D a) $ =
+(named '(com23 (eexd (com23 sqSP_Wk_at))));
+
+theorem sqSP_Ctx (G a: nat):
+ $ sfRowWf (sfSequent G a) -> a IN G -> sqSupportedGood (sfSequent G a) $ =
+'(syl6 sqSupportedGood_intro sqSupported_Ctx_at);
+
+theorem sqSP_Pc (G a b: nat):
+ $ sfRowWf (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) ->
+   sqSupportedGood (sfSequent G (sfImp (sfImp (sfImp a b) a) a)) $ =
+'(syl sqSupportedGood_intro sqSupported_Pc_at);
+
+theorem sqSP_good_congr (F: wff) (r s: nat) (h: $ F -> r = s $):
+ $ F -> (sqSupportedGood r <-> sqSupportedGood s) $ = '(sqSupportedGoodeqd h);
+
+theorem sqSP_unary_transport (r p R P: nat)
+ (h: $ sfRowWf R -> sqSupportedGood P -> sqSupportedGood R $):
+ $ sfRowWf r -> (r = R /\ p = P) -> sqSupportedGood p -> sqSupportedGood r $ =
+'(exp @ exp @ mpbird (sqSP_good_congr (syl anl anlr)) @
+ mpd (mpbid (sqSP_good_congr (syl anr anlr)) anr)
+ (syl h (mpbid (sfRowWf_congr (syl anl anlr)) anll)));
+
+theorem sqSP_binary_transport (r p q R P Q: nat)
+ (h: $ sfRowWf R -> sqSupportedGood P -> sqSupportedGood Q -> sqSupportedGood R $):
+ $ sfRowWf r -> (r = R /\ (p = P /\ q = Q)) ->
+   sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+'(exp @ exp @ exp @ mpbird (sqSP_good_congr (syl anl (syl anlr anl))) @
+ mpd (mpbid (sqSP_good_congr (syl anr (syl anr (syl anlr anl)))) anr) @
+ mpd (mpbid (sqSP_good_congr (syl anl (syl anr (syl anlr anl)))) anlr) @
+ syl h (mpbid (sfRowWf_congr (syl anl (syl anlr anl))) (syl anll anl)));
+
+theorem sqSP_Ctx_payload (r G a: nat):
+ $ sfRowWf r -> (r = sfSequent G a /\ a IN G) -> sqSupportedGood r $ =
+'(exp @ mpbird (sqSP_good_congr anrl) @
+ mpd anrr (syl sqSP_Ctx (mpbid (sfRowWf_congr anrl) anl)));
+
+pub theorem sqSupportedCase_Ctx (r: nat):
+ $ sfRowWf r -> sfNDCaseCtx r -> sqSupportedGood r $ =
+(named '(eexd @ eexd sqSP_Ctx_payload));
+
+theorem sqSP_Pc_payload (r G a b: nat):
+ $ sfRowWf r -> r = sfSequent G (sfImp (sfImp (sfImp a b) a) a) -> sqSupportedGood r $ =
+'(exp @ mpbird (sqSP_good_congr anr) @ syl sqSP_Pc (mpbid (sfRowWf_congr anr) anl));
+
+pub theorem sqSupportedCase_Pc (r: nat):
+ $ sfRowWf r -> sfNDCasePc r -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd sqSP_Pc_payload));
+
+theorem sqSP_II_payload (r p G a b: nat):
+ $ sfRowWf r -> (r = (sfSequent G (sfImp a b)) /\ p = (sfSequent (a : G) b)) -> sqSupportedGood p -> sqSupportedGood r $ =
+'(sqSP_unary_transport sqSupported_II);
+
+pub theorem sqSupportedCase_II (r p: nat):
+ $ sfRowWf r -> sfNDCaseII r p -> sqSupportedGood p -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ sqSP_II_payload));
+
+theorem sqSP_Exp_payload (r p G a: nat):
+ $ sfRowWf r -> (r = (sfSequent G a) /\ p = (sfSequent G sfBot)) -> sqSupportedGood p -> sqSupportedGood r $ =
+'(sqSP_unary_transport sqSupported_Exp);
+
+pub theorem sqSupportedCase_Exp (r p: nat):
+ $ sfRowWf r -> sfNDCaseExp r p -> sqSupportedGood p -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ sqSP_Exp_payload));
+
+theorem sqSP_CE1_payload (r p G a b: nat):
+ $ sfRowWf r -> (r = (sfSequent G a) /\ p = (sfSequent G (sfAnd a b))) -> sqSupportedGood p -> sqSupportedGood r $ =
+'(sqSP_unary_transport sqSupported_CE1);
+
+pub theorem sqSupportedCase_CE1 (r p: nat):
+ $ sfRowWf r -> sfNDCaseCE1 r p -> sqSupportedGood p -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ sqSP_CE1_payload));
+
+theorem sqSP_CE2_payload (r p G a b: nat):
+ $ sfRowWf r -> (r = (sfSequent G b) /\ p = (sfSequent G (sfAnd a b))) -> sqSupportedGood p -> sqSupportedGood r $ =
+'(sqSP_unary_transport sqSupported_CE2);
+
+pub theorem sqSupportedCase_CE2 (r p: nat):
+ $ sfRowWf r -> sfNDCaseCE2 r p -> sqSupportedGood p -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ sqSP_CE2_payload));
+
+theorem sqSP_DI1_payload (r p G a b: nat):
+ $ sfRowWf r -> (r = (sfSequent G (sfOr a b)) /\ p = (sfSequent G a)) -> sqSupportedGood p -> sqSupportedGood r $ =
+'(sqSP_unary_transport sqSupported_DI1);
+
+pub theorem sqSupportedCase_DI1 (r p: nat):
+ $ sfRowWf r -> sfNDCaseDI1 r p -> sqSupportedGood p -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ sqSP_DI1_payload));
+
+theorem sqSP_DI2_payload (r p G a b: nat):
+ $ sfRowWf r -> (r = (sfSequent G (sfOr a b)) /\ p = (sfSequent G b)) -> sqSupportedGood p -> sqSupportedGood r $ =
+'(sqSP_unary_transport sqSupported_DI2);
+
+pub theorem sqSupportedCase_DI2 (r p: nat):
+ $ sfRowWf r -> sfNDCaseDI2 r p -> sqSupportedGood p -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ sqSP_DI2_payload));
+
+theorem sqSP_Wk_payload (r p G D a: nat):
+ $ sfRowWf r -> (r = sfSequent D a /\ (p = sfSequent G a /\ sfContextSub G D)) ->
+   sqSupportedGood p -> sqSupportedGood r $ =
+'(exp @ exp @ mpbird (sqSP_good_congr (syl anl anlr)) @
+ mpd (mpbid (sqSP_good_congr (syl anl (syl anr anlr))) anr) @
+ mpd (syl anr (syl anr anlr)) @ syl sqSupported_Wk
+ (mpbid (sfRowWf_congr (syl anl anlr)) anll));
+
+pub theorem sqSupportedCase_Wk (r p: nat):
+ $ sfRowWf r -> sfNDCaseWk r p -> sqSupportedGood p -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd sqSP_Wk_payload));
+
+pub theorem sqSupported_prop_base (r: nat):
+ $ sfNDPropBase r -> sqSupportedGood r $ =
+'(mpd anr (syl (eord sqSupportedCase_Ctx sqSupportedCase_Pc) anl));
+
+pub theorem sqSupported_prop_unary (r p: nat):
+ $ sfNDPropUnary r p -> sqSupportedGood p -> sqSupportedGood r $ =
+'(mpd anr @ syl
+ (eord sqSupportedCase_II (eord sqSupportedCase_Exp (eord sqSupportedCase_CE1
+ (eord sqSupportedCase_CE2 (eord sqSupportedCase_DI1 (eord sqSupportedCase_DI2 sqSupportedCase_Wk)))))) anl);
+
+theorem sqSP_IE_payload (r p q G a b: nat):
+ $ sfRowWf r -> (r = (sfSequent G b) /\ (p = (sfSequent G (sfImp a b)) /\ q = (sfSequent G a))) ->
+   sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+'(sqSP_binary_transport sqSupported_IE);
+
+pub theorem sqSupportedCase_IE (r p q: nat):
+ $ sfRowWf r -> sfNDCaseIE r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ sqSP_IE_payload));
+
+theorem sqSP_CI_payload (r p q G a b: nat):
+ $ sfRowWf r -> (r = (sfSequent G (sfAnd a b)) /\ (p = (sfSequent G a) /\ q = (sfSequent G b))) ->
+   sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+'(sqSP_binary_transport sqSupported_CI);
+
+pub theorem sqSupportedCase_CI (r p q: nat):
+ $ sfRowWf r -> sfNDCaseCI r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ sqSP_CI_payload));
+
+theorem sqSP_BranchPair_payload (r p q G a b c: nat):
+ $ sfRowWf r -> (r = (sfBranches G a b c) /\ (p = (sfSequent (a : G) c) /\ q = (sfSequent (b : G) c))) ->
+   sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+'(sqSP_binary_transport sqSupported_BranchPair);
+
+pub theorem sqSupportedCase_BranchPair (r p q: nat):
+ $ sfRowWf r -> sfNDCaseBranchPair r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ eexd @ sqSP_BranchPair_payload));
+
+theorem sqSP_DE_payload (r p q G a b c: nat):
+ $ sfRowWf r -> (r = (sfSequent G c) /\ (p = (sfSequent G (sfOr a b)) /\ q = (sfBranches G a b c))) ->
+   sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+'(sqSP_binary_transport sqSupported_DE);
+
+pub theorem sqSupportedCase_DE (r p q: nat):
+ $ sfRowWf r -> sfNDCaseDE r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+(named '(eexd @ eexd @ eexd @ eexd @ sqSP_DE_payload));
+
+pub theorem sqSupported_prop_binary (r p q: nat):
+ $ sfNDPropBinary r p q -> sqSupportedGood p -> sqSupportedGood q -> sqSupportedGood r $ =
+'(mpd anr @ syl
+ (eord sqSupportedCase_IE (eord sqSupportedCase_CI
+ (eord sqSupportedCase_BranchPair sqSupportedCase_DE))) anl);

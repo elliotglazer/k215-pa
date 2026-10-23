@@ -1,0 +1,35 @@
+import "source_l_replacement_definable_context.mm0";
+import "source_l_replacement_producer_schema.mm0";
+
+-- L10 assembly for the Replacement^L family (coordinator request; see lanes/L10.md).
+-- source_l_replacement_closed_definable proves Replacement^L for one (n, phi) with the
+-- definable law and the bound as rule hypotheses. Here the law and the provability of
+-- the five producer-context formulas become internal implications; only the bound
+-- and the well-formedness of the context stay rule hypotheses. No law is assumed.
+
+theorem k215AssemblyRep_local_in_context (n phi: nat)
+ (hb: $ sfBound (suc (suc n)) phi $)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ nsLocal (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+     sfLReplacementProducerContext n phi)
+   (sfRelativize sfLDomain (zfcReplacementCode phi n)) $;
+
+theorem k215AssemblyRep_local (n phi: nat)
+ (hb: $ sfBound (suc (suc n)) phi $)
+ (hg: $ sfContextWf (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi) :
+         sfLReplacementProducerContext n phi) $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) ->
+   all (sfTheoryProofClass zfrAxioms) (sfLReplacementProducerContext n phi) ->
+   sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $;
+
+-- Weak deduction helpers for the bound.
+theorem k215AssemblyRep_if_bound (n phi: nat):
+ $ sfBound (suc (suc n)) (if (sfBound (suc (suc n)) phi) phi sfBot) $;
+
+theorem k215AssemblyRep_transport (x phi n: nat):
+ $ x = phi ->
+   ((sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi x)) ->
+     sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode x n))) <->
+    (sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)) ->
+     sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)))) $;

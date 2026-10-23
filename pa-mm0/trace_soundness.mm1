@@ -1,0 +1,52 @@
+import "proof_sequence.mm1";
+
+@_ abstract def traceClassAll (P: set) (p: nat) (.a: nat): wff =
+$ A. a (a IN p -> a e. P) $;
+
+@_ abstract def traceRuleSound (R P: set) (.a .l: nat): wff =
+$ A. a A. l (traceClassAll P l -> (a, l) e. R -> a e. P) $;
+
+pub theorem traceClassAll_nil (P: set): $ traceClassAll P 0 $ =
+(named '(ax_gen @ absurd lmem0));
+pub theorem traceClassAll_get (P: set) (p a: nat):
+  $ traceClassAll P p -> a IN p -> a e. P $ =
+(named '(!! ealie x @ bi1d ,eqtac));
+
+theorem traceClassAll_cons_element (P: set) (a l x: nat):
+  $ a e. P /\ traceClassAll P l -> x IN (a : l) -> x e. P $ =
+'(syl5bi lmemS @ eord
+  (syl (com12 (bi2d eleq1)) anl)
+  (syl traceClassAll_get anr));
+pub theorem traceClassAll_cons (P: set) (a l: nat):
+  $ a e. P -> traceClassAll P l -> traceClassAll P (a : l) $ =
+(named '(exp @ iald traceClassAll_cons_element));
+
+pub theorem traceRuleSound_apply (R P: set) (a l: nat):
+  $ traceRuleSound R P -> traceClassAll P l -> (a, l) e. R -> a e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+theorem traceClassAll_step (R P: set) (a l: nat):
+  $ traceRuleSound R P /\ traceClassAll P l -> traceValid R (a : l) ->
+    traceClassAll P (a : l) $ =
+'(exp @ mpd (syl anr anl) @ syl traceClassAll_cons @
+  mpd (syl anr (syl (bi1 traceValid_cons) anr))
+    (mpd (syl anr anl) (syl traceRuleSound_apply (syl anl anl))));
+
+theorem traceValid_classAll_step (R P: set) (a l: nat):
+  $ (traceRuleSound R P -> traceValid R l -> traceClassAll P l) ->
+    traceRuleSound R P -> traceValid R (a : l) -> traceClassAll P (a : l) $ =
+'(exp @ exp @ mpd anr @ syl traceClassAll_step @ iand
+  (syl anr anl)
+  (mpd (syl anl (syl (bi1 traceValid_cons) anr))
+    (mpd (syl anr anl) (syl anl anl))));
+
+pub theorem traceValid_classAll (R P: set) (p: nat):
+  $ traceRuleSound R P -> traceValid R p -> traceClassAll P p $ =
+(named @ induct '(listind) 'p
+  '(a1i @ a1i traceClassAll_nil)
+  'traceValid_classAll_step);
+
+pub theorem traceDerives_class (R P: set) (p a: nat):
+  $ traceRuleSound R P -> traceDerives R p a -> a e. P $ =
+'(exp @ mpd (syl anr anr) @ syl traceClassAll_get @
+  mpd (syl anl anr) (syl traceValid_classAll anl));

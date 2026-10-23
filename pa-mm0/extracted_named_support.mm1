@@ -1,0 +1,84 @@
+import "extracted_named_eigen.mm1";
+import "quotation_supported_eigenvariables.mm1";
+
+@_ abstract def exNamedSupport (H S k G .a: nat): wff =
+ $ A. a (a IN G -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a)) $;
+pub theorem exNamedSupport_member (H S k G a: nat):
+ $ exNamedSupport H S k G -> a IN G ->
+   kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $ =
+(named '(!! eale b ,eqtac));
+pub theorem exNamedSupport_nil (H S k: nat): $ exNamedSupport H S k 0 $ =
+(named '(ax_gen (absurd lmem0)));
+theorem exNS_cons_member (H S k G a b: nat):
+ $ exNamedSupport H S k G -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) ->
+   b IN (a : G) -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 b) $ =
+'(exp @ syl5bi lmemS (eord
+ (exp @ mpbird (kHypProvableeq2d (sfNamedTemplateeq4d anr)) anlr)
+ (syl exNamedSupport_member anl)));
+pub theorem exNamedSupport_cons (H S k G a: nat):
+ $ exNamedSupport H S k G -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) ->
+   exNamedSupport H S k (a : G) $ =
+(named '(exp @ !! iald b @ mpd anr (syl exNS_cons_member anl)));
+pub theorem exNamedSupport_weaken (H S k G a: nat):
+ $ exNamedSupport H S k G -> exNamedSupport (a : H) S k G $ =
+(named '(!! iald b @ syl6 (kHypProvable_refine sqContextSupports_weaken) exNamedSupport_member));
+pub theorem exNamedSupport_under (H S k G a: nat):
+ $ exNamedSupport H S k G ->
+   exNamedSupport (sfNamedTemplate (sqNumericEnvironment S) k 0 a : H) S k (a : G) $ =
+'(mpi (kHypProvable_assumption lmemconsid) (syl exNamedSupport_cons exNamedSupport_weaken));
+pub theorem exNamedSupport_subset (H S k G J: nat):
+ $ sfContextSub G J -> exNamedSupport H S k J -> exNamedSupport H S k G $ =
+(named '(exp @ !! iald b @ exp @
+ mpd (mpd anr (syl sfContextSub_member anll)) (syl exNamedSupport_member anlr)));
+
+pub theorem exNamed_numeric_cons (S z k a: nat):
+ $ sfWf a -> sfNamedTemplate (sqNumericEnvironment (z : S)) k 0 a =
+   sfNamedTemplate (sqEnvCons z (sqNumericEnvironment S)) k 0 a $ =
+'(syl (sfNamedTemplate_environment sqNumericEnvironment_cons_agree) @
+ syl (bi2 (srecpeq2 (preq1 add01))) sfWf_code_bound);
+pub theorem exNamed_numeric_shift (S z k a: nat):
+ $ sfWf a -> sfNamedTemplate (sqNumericEnvironment (z : S)) k 0 (sfShift 0 a) =
+   sfNamedTemplate (sqNumericEnvironment S) k 0 a $ =
+'(eqtrd (syl exNamed_numeric_cons (a1i sfShift_wf)) sfNamedTemplate_source_shift);
+theorem exNS_shift_member (H S z k G a b: nat):
+ $ sfContextWf G -> exNamedSupport H S k G ->
+   (b IN G /\ a = sfShift 0 b) ->
+   kHypProvable H (sfNamedTemplate (sqNumericEnvironment (z : S)) k 0 a) $ =
+'(exp @ exp @ mpbird (kHypProvableeq2d (sfNamedTemplateeq4d anrr)) @
+ mpbird (kHypProvableeq2d (syl exNamed_numeric_shift
+   (mpd anrl (syl sfContextWf_member anll)))) @
+ mpd anrl (syl exNamedSupport_member anlr));
+theorem exNS_shift_at (H S z k G a: nat):
+ $ sfContextWf G -> exNamedSupport H S k G -> a IN sfContextShift G ->
+   kHypProvable H (sfNamedTemplate (sqNumericEnvironment (z : S)) k 0 a) $ =
+(named '(exp @ syl5bi sqShift_member_iff @ eexd @ imp exNS_shift_member));
+pub theorem exNamedSupport_shift (H S z k G: nat):
+ $ sfContextWf G -> exNamedSupport H S k G ->
+   exNamedSupport H (z : S) k (sfContextShift G) $ =
+(named '(exp @ !! iald a @ mpd anr (syl exNS_shift_at anl)));
+theorem exNS_base_member (F: wff) (H S n k l G a: nat)
+ (hb: $ F -> sqSourceBound n G $)
+ (hk: $ F -> sqEnvironmentSafe S n 0 k $) (hl: $ F -> sqEnvironmentSafe S n 0 l $)
+ (hs: $ F -> exNamedSupport H S k G $) (ha: $ F -> a IN G $):
+ $ F -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) l 0 a) $ =
+'(sylc kHypProvable_mp (mpd ha (syl exNamedSupport_member hs))
+ (syl kHypProvable_seed @ syl anl @
+ mpd (iand (syl sqSQ_alloc_below (syl sqEnvironmentSafe_positive hl))
+   (syl sqSQ_range_below (syl sqEnvironmentSafe_live_below hl))) @
+ mpd (iand (syl sqSQ_alloc_below (syl sqEnvironmentSafe_positive hk))
+   (syl sqSQ_range_below (syl sqEnvironmentSafe_live_below hk))) @
+ syl sfNamedTemplate_fresh_base_equivalent (mpd ha (syl sqSourceBound_at hb))));
+pub theorem exNamedSupport_rebase (H S n k l G: nat):
+ $ sqSourceBound n G -> sqEnvironmentSafe S n 0 k -> sqEnvironmentSafe S n 0 l ->
+   exNamedSupport H S k G -> exNamedSupport H S l G $ =
+(named '(exp @ exp @ exp @ !! iald a @ exp @
+ exNS_base_member (syl anl (syl anl (syl anl anl)))
+ (syl anr (syl anl (syl anl anl))) (syl anr (syl anl anl)) (syl anr anl) anr));
+
+@_ abstract def exNamedAt (p G a .n .S .k .H: nat): wff =
+ $ A. n A. S A. k A. H (p <= n -> sqEnvironmentSafe S n 0 k ->
+   exNamedSupport H S k G -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a)) $;
+pub theorem exNamedAt_use (p G a n S k H: nat):
+ $ exNamedAt p G a -> p <= n -> sqEnvironmentSafe S n 0 k ->
+   exNamedSupport H S k G -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $ =
+(named '(!! ealie v @ !! ealde w @ !! ealde x @ !! ealde y @ bi1d ,eqtac));

@@ -1,0 +1,75 @@
+import "source_relative_prefix.mm1";
+
+import "source_core_theory.mm1";
+
+@_ def sfDFF0: nat = $ sfEq 0 0 $;
+
+@_ def sfDFF1: nat = $ sfEq 1 0 $;
+
+@_ def sfDFF2: nat = $ sfEq 0 1 $;
+
+@_ def sfDFF3: nat = $ sfImp sfDFF1 sfDFF2 $;
+
+@_ def sfDFF4: nat = $ sfEq 2 1 $;
+
+@_ def sfDFF5: nat = $ sfEq 2 0 $;
+
+@_ def sfDFF6: nat = $ sfImp sfDFF1 sfDFF5 $;
+
+@_ def sfDFF7: nat = $ sfImp sfDFF4 sfDFF6 $;
+
+@_ def sfDFF8: nat = $ sfEq 3 1 $;
+
+@_ def sfDFF9: nat = $ sfMem 3 2 $;
+
+@_ def sfDFF10: nat = $ sfMem 1 0 $;
+
+@_ def sfDFF11: nat = $ sfImp sfDFF9 sfDFF10 $;
+
+@_ def sfDFF12: nat = $ sfImp sfDFF5 sfDFF11 $;
+
+@_ def sfDFF13: nat = $ sfImp sfDFF8 sfDFF12 $;
+
+@_ def sfDomainEqualityFixed (z: nat): wff = $ z = zfcRefl \/ (z = zfcSym \/ (z = zfcTrans \/ z = zfcEqElem)) $;
+
+theorem sfDFReflPrefix: $ sfAllPrefix 1 sfDFF0 = zfcRefl $ = '(eqtr sfAllPrefix_suc (nsAll_eq sfAllPrefix_zero));
+
+theorem sfDFReflMatrix (D: nat): $ sfRelativize D sfDFF0 = sfDFF0 $ = 'sfRelativize_sfEq;
+
+pub theorem sfDomainRefl_core (D: nat) (hd: $ sfWf D $): $ sfTheoryProvable zfcCoreAxioms (sfRelativize D zfcRefl) $ = '(mpbi (trud (sfTheoryProvable_congr (a1i (trud (sfRelativizeeq2d (a1i sfDFReflPrefix)))))) (ax_mp (sfTheory_relative_prefix zfcCoreAxioms_closed hd) (mpbir (trud (sfTheoryProvable_congr (a1i sfDFReflMatrix))) (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfcCoreAxioms_closed) (mpbir (trud (sfTheoryProvable_congr (a1i sfDFReflPrefix))) (ax_mp (ax_mp sfTheoryAxiom_provable_closed zfcCoreAxioms_closed) zfcCoreRefl_member))))));
+
+theorem sfDFSymPrefix: $ sfAllPrefix 2 sfDFF3 = zfcSym $ = '(eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq sfAllPrefix_zero))));
+
+theorem sfDFSymMatrix (D: nat): $ sfRelativize D sfDFF3 = sfDFF3 $ = '(eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfEq sfRelativize_sfEq));
+
+pub theorem sfDomainSym_core (D: nat) (hd: $ sfWf D $): $ sfTheoryProvable zfcCoreAxioms (sfRelativize D zfcSym) $ = '(mpbi (trud (sfTheoryProvable_congr (a1i (trud (sfRelativizeeq2d (a1i sfDFSymPrefix)))))) (ax_mp (sfTheory_relative_prefix zfcCoreAxioms_closed hd) (mpbir (trud (sfTheoryProvable_congr (a1i sfDFSymMatrix))) (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfcCoreAxioms_closed) (mpbir (trud (sfTheoryProvable_congr (a1i sfDFSymPrefix))) (ax_mp (ax_mp sfTheoryAxiom_provable_closed zfcCoreAxioms_closed) zfcCoreSym_member))))));
+
+theorem sfDFTransPrefix: $ sfAllPrefix 3 sfDFF7 = zfcTrans $ = '(eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq sfAllPrefix_zero))))));
+
+theorem sfDFTransMatrix (D: nat): $ sfRelativize D sfDFF7 = sfDFF7 $ = '(eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfEq (eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfEq sfRelativize_sfEq))));
+
+pub theorem sfDomainTrans_core (D: nat) (hd: $ sfWf D $): $ sfTheoryProvable zfcCoreAxioms (sfRelativize D zfcTrans) $ = '(mpbi (trud (sfTheoryProvable_congr (a1i (trud (sfRelativizeeq2d (a1i sfDFTransPrefix)))))) (ax_mp (sfTheory_relative_prefix zfcCoreAxioms_closed hd) (mpbir (trud (sfTheoryProvable_congr (a1i sfDFTransMatrix))) (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfcCoreAxioms_closed) (mpbir (trud (sfTheoryProvable_congr (a1i sfDFTransPrefix))) (ax_mp (ax_mp sfTheoryAxiom_provable_closed zfcCoreAxioms_closed) zfcCoreTrans_member))))));
+
+theorem sfDFEqElemPrefix: $ sfAllPrefix 4 sfDFF13 = zfcEqElem $ = '(eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq sfAllPrefix_zero))))))));
+
+theorem sfDFEqElemMatrix (D: nat): $ sfRelativize D sfDFF13 = sfDFF13 $ = '(eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfEq (eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfEq (eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfMem sfRelativize_sfMem))))));
+
+pub theorem sfDomainEqElem_core (D: nat) (hd: $ sfWf D $): $ sfTheoryProvable zfcCoreAxioms (sfRelativize D zfcEqElem) $ = '(mpbi (trud (sfTheoryProvable_congr (a1i (trud (sfRelativizeeq2d (a1i sfDFEqElemPrefix)))))) (ax_mp (sfTheory_relative_prefix zfcCoreAxioms_closed hd) (mpbir (trud (sfTheoryProvable_congr (a1i sfDFEqElemMatrix))) (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfcCoreAxioms_closed) (mpbir (trud (sfTheoryProvable_congr (a1i sfDFEqElemPrefix))) (ax_mp (ax_mp sfTheoryAxiom_provable_closed zfcCoreAxioms_closed) zfcCoreEqElem_member))))));
+
+theorem sfDFReflEqual (D a: nat) (hd: $ sfWf D $):
+ $ a = zfcRefl -> sfTheoryProvable zfcCoreAxioms (sfRelativize D a) $ =
+'(mpbird (sfTheoryProvable_congr (sfRelativizeeq2d id)) (a1i (sfDomainRefl_core hd)));
+
+theorem sfDFSymEqual (D a: nat) (hd: $ sfWf D $):
+ $ a = zfcSym -> sfTheoryProvable zfcCoreAxioms (sfRelativize D a) $ =
+'(mpbird (sfTheoryProvable_congr (sfRelativizeeq2d id)) (a1i (sfDomainSym_core hd)));
+
+theorem sfDFTransEqual (D a: nat) (hd: $ sfWf D $):
+ $ a = zfcTrans -> sfTheoryProvable zfcCoreAxioms (sfRelativize D a) $ =
+'(mpbird (sfTheoryProvable_congr (sfRelativizeeq2d id)) (a1i (sfDomainTrans_core hd)));
+
+theorem sfDFEqElemEqual (D a: nat) (hd: $ sfWf D $):
+ $ a = zfcEqElem -> sfTheoryProvable zfcCoreAxioms (sfRelativize D a) $ =
+'(mpbird (sfTheoryProvable_congr (sfRelativizeeq2d id)) (a1i (sfDomainEqElem_core hd)));
+
+pub theorem sfDomainEqualityFixed_image (D a: nat) (hd: $ sfWf D $): $ sfDomainEqualityFixed a -> sfTheoryProvable zfcCoreAxioms (sfRelativize D a) $ = '(eori (sfDFReflEqual hd) (eori (sfDFSymEqual hd) (eori (sfDFTransEqual hd) (sfDFEqElemEqual hd))));

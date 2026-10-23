@@ -1,0 +1,55 @@
+import "quotient_atom_templates.mm0";
+
+-- Arithmetic guarded quotient quotation into the exact K language.
+-- It is not yet a theorem of logical or axiom-image preservation.
+def sqQuoteBody (E: set) (t k d c h: nat): nat =
+$ if (c = 0) kF
+  (if (sfTag c = 1) (sqMember t (sfNamedIndex E k d (sfLeft c)) (sfNamedIndex E k d (sfRight c)) (k + d))
+  (if (sfTag c = 2) (sqEqual t (sfNamedIndex E k d (sfLeft c)) (sfNamedIndex E k d (sfRight c)) (k + d))
+  (if (sfTag c = 3) (kAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (kDisj (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (kImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (kAll (k + d) (kImp (kMem t (k + d)) (h @ (suc d, sfLeft c))))
+  (if (sfTag c = 7 /\ sfRight c = 0) (kExists (k + d) (kAnd (kMem t (k + d)) (h @ (suc d, sfLeft c)))) kF))))))) $;
+def sqQuoteStep (E: set) (t k .h: nat): set =
+$ \ h, sqQuoteBody E t k (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+def sqQuote (E: set) (t k d c: nat): nat = $ srec (sqQuoteStep E t k) (d, c) $;
+def sqQuoteHistory (E: set) (t k d c .i: nat): nat =
+$ \. i e. upto (d, c), srec (sqQuoteStep E t k) i $;
+
+theorem sqQuoteStep_apply (E: set) (t k h: nat):
+  $ sqQuoteStep E t k @ h = sqQuoteBody E t k (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+theorem sqQuoteHistory_size (E: set) (t k d c: nat):
+  $ sfHistoryLength (sqQuoteHistory E t k d c) = (d, c) $;
+
+theorem sqQuoteHistory_lookup (E: set) (t k d c e a: nat):
+  $ (e, a) < (d, c) -> sqQuoteHistory E t k d c @ (e, a) = sqQuote E t k e a $;
+
+theorem sqQuote_unfold (E: set) (t k d c: nat):
+  $ sqQuote E t k d c = sqQuoteBody E t k d c (sqQuoteHistory E t k d c) $;
+
+theorem sqQuote_bot (E: set) (t k d: nat):
+  $ sqQuote E t k d sfBot = kF $;
+
+theorem sqQuote_sfMem (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfMem a b) = sqMember t (sfNamedIndex E k d a) (sfNamedIndex E k d b) (k + d) $;
+
+theorem sqQuote_sfEq (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfEq a b) = sqEqual t (sfNamedIndex E k d a) (sfNamedIndex E k d b) (k + d) $;
+
+theorem sqQuote_sfAnd (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfAnd a b) = kAnd (sqQuote E t k d a) (sqQuote E t k d b) $;
+
+theorem sqQuote_sfOr (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfOr a b) = kDisj (sqQuote E t k d a) (sqQuote E t k d b) $;
+
+theorem sqQuote_sfImp (E: set) (t k d a b: nat):
+  $ sqQuote E t k d (sfImp a b) = kImp (sqQuote E t k d a) (sqQuote E t k d b) $;
+
+theorem sqQuote_sfAll (E: set) (t k d a: nat):
+  $ sqQuote E t k d (sfAll a) = kAll (k + d) (kImp (kMem t (k + d)) (sqQuote E t k (suc d) a)) $;
+
+theorem sqQuote_sfEx (E: set) (t k d a: nat):
+  $ sqQuote E t k d (sfEx a) = kExists (k + d) (kAnd (kMem t (k + d)) (sqQuote E t k (suc d) a)) $;
+

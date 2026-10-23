@@ -1,0 +1,23 @@
+import "bb215_table_arithmetic_action.mm1";
+
+import "bb215_arithmetic_formula_list_graph.mm1";
+
+import "bb215_arithmetic_formula_predecessor.mm1";
+
+@_ abstract def bb215TableArithmeticLookupGraph (T q b a .i .v: nat): wff = $ E. i E. v (bb215ArithmeticFormulaPairGraph q b i /\ bb215ArithmeticFormulaListNthGraph i T v /\ bb215ArithmeticFormulaPredecessorGraph v a) $;
+
+theorem bbTALG_value (T q b a i: nat) {v: nat}: $ (E. v (bb215ArithmeticFormulaPairGraph q b i /\ bb215ArithmeticFormulaListNthGraph i T v /\ bb215ArithmeticFormulaPredecessorGraph v a)) <-> i = (q, b) /\ nth i T - 1 = a $ = (named '(bitr (!! exeqi v (bitr (aneq (aneq bb215ArithmeticFormulaPairGraph_correct bb215ArithmeticFormulaListNthGraph_correct) bb215ArithmeticFormulaPredecessorGraph_correct) anass)) (bitr exan1 (aneq2i (bitr (!! exeqi v (aneq1i eqcomb)) (!! exeqe v (eqeq1d (subeq1d id))))))));
+
+pub theorem bb215TableArithmeticLookupGraph_correct (T q b a: nat) {i v: nat}: $ bb215TableArithmeticLookupGraph T q b a <-> bb215Action T q b = a $ = (named '(bitr (!! exeqi i bbTALG_value) (!! exeqe i (eqeq1d (subeq1d (ntheq1d id))))));
+
+@_ abstract def bb215TableArithmeticEntryGraph (T q b .a: nat): wff = $ E. a (bb215TableArithmeticLookupGraph T q b a /\ bb215TableArithmeticActionGraph a) $;
+
+pub theorem bb215TableArithmeticEntryGraph_correct (T q b: nat) {a i v r t k: nat}: $ bb215TableArithmeticEntryGraph T q b <-> k215TMValidAction (bb215Action T q b) $ = (named '(bitr (!! exeqi a (bitr (aneq bb215TableArithmeticLookupGraph_correct bb215TableArithmeticActionGraph_correct) (aneq1i eqcomb))) (!! exeqe a (k215TMValidActioneqd id))));
+
+@_ abstract def bb215TableArithmeticValidGraph (T .q .b: nat): wff = $ A. q A. b (q < k215Num215 -> b < 2 -> bb215TableArithmeticEntryGraph T q b) $;
+
+pub theorem bb215TableArithmeticValidGraph_correct (T: nat) {q b a i v r t k: nat}: $ bb215TableArithmeticValidGraph T <-> bb215Valid T $ = (named '(!! aleqi q @ !! aleqi b @ imeq2i @ imeq2i bb215TableArithmeticEntryGraph_correct));
+
+pub theorem bb215TableArithmeticAction_missing (T q b: nat): $ nth (q, b) T = 0 -> bb215Action T q b = 0 $ = (named '(eqtrd (subeq1d id) (a1i sub01)));
+
+pub theorem bb215TableArithmeticDefault_valid: $ k215TMValidAction 0 $ = (named '(ian (ian (mpbir (leeq1 fst0) le01) (mpbir (leeq1 (eqtr (fsteq snd0) fst0)) le01)) (mpbir (leeq1 (eqtr (sndeq snd0) snd0)) le01)));

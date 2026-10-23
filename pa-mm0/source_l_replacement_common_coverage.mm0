@@ -1,0 +1,34 @@
+import "source_l_replacement_common_collect.mm0";
+
+import "source_l_replacement_range_transport.mm0";
+
+def sfLReplacementShift2Map(T:set):set =
+ $ sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap T) $;
+
+def sfLReplacementCollectedRecipe(T:set)(D psi start count:nat):nat =
+ $ sfEx (sfEx (sfAnd (sfCLPoint (suc (suc start)) count 1 0)
+  (sfLReplacementImageCoverage (sfLReplacementShift2Map T) D psi 0))) $;
+
+theorem sfLReplacementCoverage_shift(T:set)(D psi Y:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $):
+ $ sfShift 0 (sfLReplacementImageCoverage T D psi Y) =
+ sfLReplacementImageCoverage (sfComposeMap sfSuccessorMap T) D psi (suc Y) $;
+
+theorem sfLReplacementEx_mono(G a b:nat)(hb:$ sfWf b $)
+ (hp:$ nsLocal G (sfEx a) $)
+ (hq:$ nsLocal (a : sfContextShift G) b $):
+ $ nsLocal G (sfEx b) $;
+
+theorem sfLReplacementDoubleEx_mono(G a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)
+ (hp:$ nsLocal G (sfEx (sfEx a)) $)
+ (hq:$ nsLocal (sfCLWitnessContext G a) b $):
+ $ nsLocal G (sfEx (sfEx b)) $;
+
+def lrcCoverageContext(G start count seed:nat):nat =
+ $ sfCLWitnessContext G (sfLReplacementSeededPoint (suc (suc start)) count (suc (suc seed)) 1 0) $;
+
+theorem sfLReplacementCollectedCoverage(T:set)(G D psi start count seed:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $)
+ (hp:$ nsLocal G (sfLReplacementImageCoverage T D psi seed) $)
+ (hc:$ nsLocal G (sfLReplacementSeededRecipe start count seed) $):
+ $ nsLocal G (sfLReplacementCollectedRecipe T D psi start count) $;

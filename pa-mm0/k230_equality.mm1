@@ -1,0 +1,41 @@
+import "k230_bootstrap.mm1";
+import "k230_propositional_extra.mm1";
+
+pub theorem kImp_apply_right (a b c: nat)
+  (hb: $ kProvable b $) (h: $ kProvable (kImp a (kImp b c)) $):
+  $ kProvable (kImp a c) $ =
+'(kProvable_mp (kProvable_mp hb kPropK) (kProvable_mp h kPropS));
+
+pub theorem kEquality_symmetric (a b: nat):
+  $ kProvable (kImp (kEq a b) (kEq b a)) $ =
+'(kImp_apply_right kEquality_reflexive (kProvable_axiom kAxioms_rho7));
+
+pub theorem kEquality_transitive (a b c: nat):
+  $ kProvable (kImp (kEq a b) (kImp (kEq b c) (kEq a c))) $ =
+'(kProvable_syl kEquality_symmetric (kProvable_axiom kAxioms_rho7));
+
+pub theorem kEquality_member_left (a b c: nat):
+  $ kProvable (kImp (kEq a b) (kImp (kMem a c) (kMem b c))) $ =
+'(kProvable_axiom kAxioms_rho5);
+
+pub theorem kEquality_member_right (a b c: nat):
+  $ kProvable (kImp (kEq a b) (kImp (kMem c a) (kMem c b))) $ =
+'(kProvable_axiom kAxioms_rho3);
+
+pub theorem kEquality_equal_left (a b c: nat):
+  $ kProvable (kImp (kEq a b) (kImp (kEq a c) (kEq b c))) $ =
+'(kProvable_axiom kAxioms_rho7);
+
+-- Pull the equality-symmetry implication through the first premise.
+theorem kEquality_equal_right_aux (a b c: nat):
+  $ kProvable (kImp (kEq c a) (kImp (kEq a b) (kEq c b))) $ =
+'kEquality_transitive;
+
+theorem kEquality_exchange (a b c: nat)
+  (h: $ kProvable (kImp a (kImp b c)) $):
+  $ kProvable (kImp b (kImp a c)) $ =
+'(kProvable_mp h kPropC);
+
+pub theorem kEquality_equal_right (a b c: nat):
+  $ kProvable (kImp (kEq a b) (kImp (kEq c a) (kEq c b))) $ =
+'(kEquality_exchange kEquality_equal_right_aux);

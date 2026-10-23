@@ -1,0 +1,45 @@
+import "source_reflection_transfer_cofinal_initial.mm1";
+
+import "source_piece_pcf_opening.mm1";
+
+@_ def sfReflectionTupleMap(T:set)(start .i:nat):set = $ \ i, (T @ i) + start $;
+
+pub theorem sfReflectionTupleMap_at(T:set)(start i:nat): $ sfReflectionTupleMap T start @ i = (T @ i) + start $ = (named '(!! applame j ,eqtac));
+
+pub theorem sfReflectionTuple_member(T:set)(G start X n i:nat)(hT:$ nsLocal G (sfReflectionTuple T start X n) $)(hi:$ i < n $): $ nsLocal G (sfMem ((T @ i) + start) X) $ = (named '(mpbi (nsLocal_formula_eq sfReflectionTupleRows_at) (ax_mp (ax_mp sfCLRowProofs_at (ax_mp sfPieceFold_project hT)) hi)));
+
+theorem rftw_tuple_member(T:set)(G start X n i:nat)(hT:$ nsLocal G (sfReflectionTuple T start X n) $): $ i < n -> nsLocal G (sfMem (sfReflectionTupleMap T start @ i) X) $ = (named '(syl (bi2 (nsLocal_formula_eq (nsMem_eq sfReflectionTupleMap_at eqid))) (syl (bi1 (nsLocal_formula_eq sfReflectionTupleRows_at)) (ax_mp sfCLRowProofs_at (ax_mp sfPieceFold_project hT)))));
+
+pub theorem sfReflectionTuple_members(T:set)(G start X n:nat)(hT:$ nsLocal G (sfReflectionTuple T start X n) $): $ sfReflectionDnMembers (sfReflectionTupleMap T start) G X n $ = (named '(ax_gen (rftw_tuple_member hT)));
+
+def sfReflectionTupleEw(T:set)(start domain phi z:nat):nat = $ sfReflectionEwAt domain (sfRename (sfReflectionTupleMap T start) 1 phi) z $;
+
+theorem rftw_ew_wf(domain matrix z:nat)(hd:$ sfBound 1 domain $)(hm:$ sfWf matrix $): $ sfWf (sfReflectionEwAt domain matrix z) $ = (named '(ax_mp (ax_mp sfWf_imp (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) hm))) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) hm))));
+
+pub theorem sfReflectionTupleEw_wf(T:set)(start domain phi z:nat)(hd:$ sfBound 1 domain $): $ sfWf (sfReflectionTupleEw T start domain phi z) $ = (named '(rftw_ew_wf hd sfRename_wf));
+
+theorem rftw_guard_rename(R:set)(z:nat): $ sfRename R 1 (sfMem 0 (suc z)) = sfMem 0 (suc (R @ z)) $ = (named '(eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound d0lt1) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)))));
+
+pub theorem sfReflectionEwAt_rename(R:set)(domain matrix z:nat)(hd:$ sfBound 1 domain $): $ sfRename R 0 (sfReflectionEwAt domain matrix z) = sfReflectionEwAt domain (sfRename R 1 matrix) (R @ z) $ = (named '(eqtr sfRename_sfImp (nsImp_eq (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq (ax_mp sfRename_bound_identity hd) eqid)))) (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq rftw_guard_rename eqid)))))));
+
+theorem rftw_tuplemap_shift(T:set)(start i:nat): $ sfComposeMap sfSuccessorMap (sfReflectionTupleMap T start) @ i = sfReflectionTupleMap T (suc start) @ i $ = (named '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value (eqtr (suceq sfReflectionTupleMap_at) (eqtr (eqcom addS2) (eqcom sfReflectionTupleMap_at))))));
+
+theorem rftw_matrix_shift(T:set)(start phi:nat)(hp:$ sfWf phi $): $ sfRename sfSuccessorMap 1 (sfRename (sfReflectionTupleMap T start) 1 phi) = sfRename (sfReflectionTupleMap T (suc start)) 1 phi $ = (named '(eqtr (ax_mp sfRename_compose hp) (ax_mp (sfRename_extensional (ax_gen rftw_tuplemap_shift)) hp)));
+
+theorem rftw_ew_congr(domain m mp z zp:nat)(hm:$ m = mp $)(hz:$ z = zp $): $ sfReflectionEwAt domain m z = sfReflectionEwAt domain mp zp $ = (named '(nsImp_eq (nsEx_eq (nsAnd_eq eqid hm)) (nsEx_eq (nsAnd_eq (nsMem_eq eqid (suceq hz)) hm))));
+
+pub theorem sfReflectionTupleEw_shift(T:set)(start domain phi z:nat)(hd:$ sfBound 1 domain $)(hp:$ sfWf phi $): $ sfShift 0 (sfReflectionTupleEw T start domain phi z) = sfReflectionTupleEw T (suc start) domain phi (suc z) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor (sfReflectionTupleEw_wf hd))) (eqtr (sfReflectionEwAt_rename hd) (rftw_ew_congr (rftw_matrix_shift hp) sfSuccessorMap_value))));
+
+pub theorem sfReflectionTupleEw_shift2(T:set)(start domain phi z:nat)(hd:$ sfBound 1 domain $)(hp:$ sfWf phi $): $ sfShift 0 (sfShift 0 (sfReflectionTupleEw T start domain phi z)) = sfReflectionTupleEw T (suc (suc start)) domain phi (suc (suc z)) $ = (named '(eqtr (sfShifteq2 (sfReflectionTupleEw_shift hd hp)) (sfReflectionTupleEw_shift hd hp)));
+
+def sfReflectionPCLevel(level:nat):nat = $ sfORBinary level 1 0 $;
+
+pub theorem sfReflectionPCLevel_bound(level:nat)(hl:$ sfBound 2 level $): $ sfBound 2 (sfReflectionPCLevel level) $ = (named '(sfORBinary_bound hl (mpbi ltsuc d0lt1) lt01S));
+
+theorem rftw_binary_one(x y:nat): $ sfORBinaryMap x y @ 1 = y $ = (named '(eqtr sfORBinaryMap_value (ifpos eqid)));
+
+theorem rftw_binary_zero(x y:nat): $ sfORBinaryMap x y @ 0 = x $ = (named '(eqtr sfORBinaryMap_value (ifneg (ltnei d0lt1))));
+
+pub theorem sfReflectionPCLevel_at(level d y:nat)(hl:$ sfBound 2 level $): $ sfORBinary (sfReflectionPCLevel level) y d = sfORBinary level d y $ = (named '(eqtr (sfORBinary_rename (ax_mp sfBound_wf hl)) (sfORBinary_congr (ax_mp sfBound_wf hl) rftw_binary_one rftw_binary_zero)));
+
+pub theorem sfReflectionPH_tuple_local(T F:set)(G start domain level sb sc n i d X y z:nat)(hd:$ sfBound 1 domain $)(hl:$ sfBound 2 level $)(hv:$ sfPieceTableValid sb sc n $)(hi:$ i < n $)(hT:$ nsLocal G (sfReflectionTuple T start X (sfPieceCount sb sc i)) $)(hL:$ nsLocal G (sfORBinary level d y) $)(hP:$ nsLocal G (sfORBinary (sfPieceBinary domain (sfReflectionPCLevel level) sb sc n) d X) $)(hS:$ nsLocal G (sfCLSubset y z) $): $ nsLocal G (sfReflectionTupleEw T start domain (sfPieceMatrix sb sc i) z) $ = (named '(! sfReflectionPH_conjunction_local $ sfReflectionTupleMap T start $ $ F $ $ G $ $ domain $ $ sfReflectionPCLevel level $ $ sb $ $ sc $ $ n $ $ i $ $ d $ $ X $ $ y $ $ z $ hd (sfReflectionPCLevel_bound hl) hv hi (sfReflectionTuple_members hT) (mpbir (nsLocal_formula_eq (sfReflectionPCLevel_at hl)) hL) (mpbi (nsLocal_formula_eq (ax_mp (sfPieceBinary_open hd (sfReflectionPCLevel_bound hl)) hv)) hP) hS));

@@ -1,0 +1,67 @@
+import "source_quotient_atoms.mm1";
+
+import "quotation_supported_environment.mm1";
+
+@_ abstract def sfQuotientQuoteClass (.c .S .n .z .k: nat): set = $ {c | A. S A. n A. z A. k (sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c)} $;
+
+pub theorem sqq_value {S n z k: nat} (c: nat): $ c e. sfQuotientQuoteClass <-> A. S A. n A. z A. k (sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c) $ = (named '(elabe ,eqtac));
+
+theorem sqq_take_S (S c: nat): $ (A. j A. n A. z A. k (sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment j) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment j) ((sqNumericEnvironment j) @ z) k 0 c)) -> A. n A. z A. k (sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c) $ = (named '(!! eale j ,eqtac));
+
+theorem sqq_take_n (S n c: nat): $ (A. j A. z A. k (sfBound j c -> z < j -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c)) -> A. z A. k (sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c) $ = (named '(!! eale j ,eqtac));
+
+theorem sqq_take_z (S n z c: nat): $ (A. j A. k (sfBound n c -> j < n -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient j c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ j) k 0 c)) -> A. k (sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c) $ = (named '(!! eale j ,eqtac));
+
+theorem sqq_take_k (S n z k c: nat): $ (A. j (sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment S) j 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) j 0 c)) -> (sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c) $ = (named '(!! eale j ,eqtac));
+
+theorem sqq_at (S n z k c: nat): $ c e. sfQuotientQuoteClass -> sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c $ = (named '(syl (syl sqq_take_k (syl sqq_take_z (syl sqq_take_n sqq_take_S))) {(bi1 sqq_value) : $ c e. sfQuotientQuoteClass -> A. U A. m A. w A. l (sfBound m c -> w < m -> sfNamedTemplate (sqNumericEnvironment U) l 0 (sfQuotient w c) = sqQuote (sqNumericEnvironment U) ((sqNumericEnvironment U) @ w) l 0 c) $}));
+
+theorem sqq_use (G: wff) (S n z k c: nat) (hc: $ G -> c e. sfQuotientQuoteClass $) (hb: $ G -> sfBound n c $) (hz: $ G -> z < n $): $ G -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c $ = '(mpd hz (mpd hb (syl sqq_at hc)));
+
+theorem sqq_sfNamedTemplate_cons (S n x k a: nat): $ sfBound n a -> sfNamedTemplate (sqNumericEnvironment (x : S)) k 0 a = sfNamedTemplate (sqEnvCons x (sqNumericEnvironment S)) k 0 a $ = '(syl (sfNamedTemplate_environment sqNumericEnvironment_cons_agree) (bi2 (sfBoundeq1 add01)));
+
+theorem sqq_sqQuote_cons (S n x t k a: nat): $ sfBound n a -> sqQuote (sqNumericEnvironment (x : S)) t k 0 a = sqQuote (sqEnvCons x (sqNumericEnvironment S)) t k 0 a $ = '(syl (sqQuote_environment sqNumericEnvironment_cons_agree) (bi2 (sfBoundeq1 add01)));
+
+theorem sqq_named_all (S n k a: nat): $ sfBound n a -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfAll a) = kAll k (sfNamedTemplate (sqNumericEnvironment (k : S)) (suc k) 0 a) $ = '(eqtrd (syl sfNamedTemplate_all_cons sfBound_wf) (kAlleq2d (eqcomd sqq_sfNamedTemplate_cons)));
+
+theorem sqq_quote_all (S n t k a: nat): $ sfBound n a -> sqQuote (sqNumericEnvironment S) t k 0 (sfAll a) = kAll k (kImp (kMem t k) (sqQuote (sqNumericEnvironment (k : S)) t (suc k) 0 a)) $ = '(eqtrd (syl sqQuote_all_cons sfBound_wf) (kAlleq2d (kImpeq2d (eqcomd sqq_sqQuote_cons))));
+
+theorem sqq_named_ex (S n k a: nat): $ sfBound n a -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfEx a) = kExists k (sfNamedTemplate (sqNumericEnvironment (k : S)) (suc k) 0 a) $ = '(eqtrd (syl sfNamedTemplate_ex_cons sfBound_wf) (kExistseq2d (eqcomd sqq_sfNamedTemplate_cons)));
+
+theorem sqq_quote_ex (S n t k a: nat): $ sfBound n a -> sqQuote (sqNumericEnvironment S) t k 0 (sfEx a) = kExists k (kAnd (kMem t k) (sqQuote (sqNumericEnvironment (k : S)) t (suc k) 0 a)) $ = '(eqtrd (syl sqQuote_ex_cons sfBound_wf) (kExistseq2d (kAndeq2d (eqcomd sqq_sqQuote_cons))));
+
+theorem sqq_named_guard (S z k: nat): $ sfNamedTemplate (sqNumericEnvironment (k : S)) (suc k) 0 (sfMem (suc z) 0) = kMem ((sqNumericEnvironment S) @ z) k $ = '(eqtr sfNamedTemplate_sfMem (kMemeq (eqtr sfNamedIndex_zero sqNumericEnvironment_cons_suc) (eqtr sfNamedIndex_zero sqNumericEnvironment_cons_zero)));
+
+theorem sqq_body_all (G: wff) (n z a: nat) (hb: $ G -> sfBound (suc n) a $) (hz: $ G -> z < n $): $ G -> sfBound (suc n) (sfImp (sfMem (suc z) 0) (sfQuotient (suc z) a)) $ = '(syl (bi2 sfBound_sfImp) (iand (syl (bi2 sfBound_sfMem) (iand (syl (bi1 ltsuc) hz) (a1i lt01S))) (mpd (syl (bi1 ltsuc) hz) (syl sfQuotient_bound hb))));
+
+theorem sqq_step_all (G: wff) (S n z k a: nat) (hb: $ G -> sfBound (suc n) a $) (hz: $ G -> z < n $) (he: $ G -> sfNamedTemplate (sqNumericEnvironment (k : S)) (suc k) 0 (sfQuotient (suc z) a) = sqQuote (sqNumericEnvironment (k : S)) ((sqNumericEnvironment (k : S)) @ suc z) (suc k) 0 a $): $ G -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z (sfAll a)) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 (sfAll a) $ = '(eqtrd (a1i (sfNamedTemplateeq4 sfQuotient_sfAll)) (eqtrd (syl sqq_named_all (sqq_body_all hb hz)) (eqtrd (kAlleq2d (eqtrd (a1i sfNamedTemplate_sfImp) (kImpeqd (a1i sqq_named_guard) (eqtrd he (a1i (sqQuoteeq2 sqNumericEnvironment_cons_suc)))))) (eqcomd (syl sqq_quote_all hb)))));
+
+theorem sqq_body_ex (G: wff) (n z a: nat) (hb: $ G -> sfBound (suc n) a $) (hz: $ G -> z < n $): $ G -> sfBound (suc n) (sfAnd (sfMem (suc z) 0) (sfQuotient (suc z) a)) $ = '(syl (bi2 sfBound_sfAnd) (iand (syl (bi2 sfBound_sfMem) (iand (syl (bi1 ltsuc) hz) (a1i lt01S))) (mpd (syl (bi1 ltsuc) hz) (syl sfQuotient_bound hb))));
+
+theorem sqq_step_ex (G: wff) (S n z k a: nat) (hb: $ G -> sfBound (suc n) a $) (hz: $ G -> z < n $) (he: $ G -> sfNamedTemplate (sqNumericEnvironment (k : S)) (suc k) 0 (sfQuotient (suc z) a) = sqQuote (sqNumericEnvironment (k : S)) ((sqNumericEnvironment (k : S)) @ suc z) (suc k) 0 a $): $ G -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z (sfEx a)) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 (sfEx a) $ = '(eqtrd (a1i (sfNamedTemplateeq4 sfQuotient_sfEx)) (eqtrd (syl sqq_named_ex (sqq_body_ex hb hz)) (eqtrd (kExistseq2d (eqtrd (a1i sfNamedTemplate_sfAnd) (kAndeqd (a1i sqq_named_guard) (eqtrd he (a1i (sqQuoteeq2 sqNumericEnvironment_cons_suc)))))) (eqcomd (syl sqq_quote_ex hb)))));
+
+theorem sqq_bot: $ sfBot e. sfQuotientQuoteClass $ = (named '(mpbir sqq_value @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ a1i @ a1i @ eqtr (sfNamedTemplateeq4 sfQuotient_bot) (eqtr sfNamedTemplate_bot (eqcom sqQuote_bot))));
+
+theorem sqq_mem (a b: nat): $ sfMem a b e. sfQuotientQuoteClass $ = (named '(mpbir sqq_value @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ a1i @ a1i @ sfQuotient_mem_quote));
+
+theorem sqq_eq (a b: nat): $ sfEq a b e. sfQuotientQuoteClass $ = (named '(mpbir sqq_value @ ax_gen @ ax_gen @ ax_gen @ ax_gen @ a1i @ a1i @ sfQuotient_eq_quote));
+
+theorem sqq_atomic: $ sfAtomicClosed sfQuotientQuoteClass $ = (named '(ax_gen @ ax_gen @ ian sqq_mem sqq_eq));
+
+theorem sqq_and (a b: nat): $ a e. sfQuotientQuoteClass /\ b e. sfQuotientQuoteClass -> sfAnd a b e. sfQuotientQuoteClass $ = (named '(mpbird (a1i sqq_value) @ !! iald S @ !! iald n @ !! iald z @ !! iald k @ exp @ exp @ eqtrd (a1i (sfNamedTemplateeq4 sfQuotient_sfAnd)) (eqtrd (a1i sfNamedTemplate_sfAnd) (eqtrd (kAndeqd (sqq_use (syl anl anll) (syl anl (syl (bi1 sfBound_sfAnd) anlr)) anr) (sqq_use (syl anr anll) (syl anr (syl (bi1 sfBound_sfAnd) anlr)) anr)) (a1i (eqcom sqQuote_sfAnd))))));
+
+theorem sqq_or (a b: nat): $ a e. sfQuotientQuoteClass /\ b e. sfQuotientQuoteClass -> sfOr a b e. sfQuotientQuoteClass $ = (named '(mpbird (a1i sqq_value) @ !! iald S @ !! iald n @ !! iald z @ !! iald k @ exp @ exp @ eqtrd (a1i (sfNamedTemplateeq4 sfQuotient_sfOr)) (eqtrd (a1i sfNamedTemplate_sfOr) (eqtrd (kDisjeqd (sqq_use (syl anl anll) (syl anl (syl (bi1 sfBound_sfOr) anlr)) anr) (sqq_use (syl anr anll) (syl anr (syl (bi1 sfBound_sfOr) anlr)) anr)) (a1i (eqcom sqQuote_sfOr))))));
+
+theorem sqq_imp (a b: nat): $ a e. sfQuotientQuoteClass /\ b e. sfQuotientQuoteClass -> sfImp a b e. sfQuotientQuoteClass $ = (named '(mpbird (a1i sqq_value) @ !! iald S @ !! iald n @ !! iald z @ !! iald k @ exp @ exp @ eqtrd (a1i (sfNamedTemplateeq4 sfQuotient_sfImp)) (eqtrd (a1i sfNamedTemplate_sfImp) (eqtrd (kImpeqd (sqq_use (syl anl anll) (syl anl (syl (bi1 sfBound_sfImp) anlr)) anr) (sqq_use (syl anr anll) (syl anr (syl (bi1 sfBound_sfImp) anlr)) anr)) (a1i (eqcom sqQuote_sfImp))))));
+
+theorem sqq_binary: $ sfBinaryClosed sfQuotientQuoteClass $ = (named '(ax_gen @ ax_gen @ iand (iand sqq_and sqq_or) sqq_imp));
+
+theorem sqq_all (a: nat): $ a e. sfQuotientQuoteClass -> sfAll a e. sfQuotientQuoteClass $ = (named '(mpbird (a1i sqq_value) @ !! iald S @ !! iald n @ !! iald z @ !! iald k @ exp @ exp @ sqq_step_all (syl (bi1 sfBound_sfAll) anlr) anr (sqq_use anll (syl (bi1 sfBound_sfAll) anlr) (syl (bi1 ltsuc) anr))));
+
+theorem sqq_ex (a: nat): $ a e. sfQuotientQuoteClass -> sfEx a e. sfQuotientQuoteClass $ = (named '(mpbird (a1i sqq_value) @ !! iald S @ !! iald n @ !! iald z @ !! iald k @ exp @ exp @ sqq_step_ex (syl (bi1 sfBound_sfEx) anlr) anr (sqq_use anll (syl (bi1 sfBound_sfEx) anlr) (syl (bi1 ltsuc) anr))));
+
+theorem sqq_quantifier: $ sfQuantifierClosed sfQuotientQuoteClass $ = (named '(ax_gen @ iand sqq_all sqq_ex));
+
+pub theorem sfQuotientQuote_closed: $ sfConstructionClosed sfQuotientQuoteClass $ = '(ian (ian (ian sqq_bot sqq_atomic) sqq_binary) sqq_quantifier);
+
+pub theorem sfQuotient_quote_numeric (S n z k c: nat): $ sfBound n c -> z < n -> sfNamedTemplate (sqNumericEnvironment S) k 0 (sfQuotient z c) = sqQuote (sqNumericEnvironment S) ((sqNumericEnvironment S) @ z) k 0 c $ = '(exp (sqq_use (syl (ax_mp sfWf_induction sfQuotientQuote_closed) (syl sfBound_wf anl)) anl anr));

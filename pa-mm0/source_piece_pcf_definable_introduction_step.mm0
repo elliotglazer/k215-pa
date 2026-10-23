@@ -1,0 +1,19 @@
+import "source_piece_pcf_definable_realization.mm0";
+
+def sfPieceDefinableDnIntroductionMap(R:set): set = $ sfComposeMap (sfRenameDepthMap R 1) sfPieceRotate $;
+
+def sfPieceDefinableDnIntroductionGuard(R:set): nat = $ sfMem 0 (suc (R @ 1)) $;
+
+def sfPieceDefinableDnIntroductionContext(R:set)(G:nat): nat = $ sfPieceDefinableDnIntroductionGuard R : sfContextShift G $;
+
+theorem sfPieceDefinableDnIntroductionMap_zero(R:set): $ sfPieceDefinableDnIntroductionMap R @ 0 = suc (R @ 0) $;
+
+theorem sfPieceDefinableDnIntroductionMap_one(R:set): $ sfPieceDefinableDnIntroductionMap R @ 1 = suc (R @ 1) $;
+
+theorem sfPieceDefinableDnIntroductionMap_two(R:set): $ sfPieceDefinableDnIntroductionMap R @ 2 = 0 $;
+
+theorem sfPieceDefinableDnIntroduction_unfold(R:set)(n body:nat)(hf:$ sfWf (sfPieceDn n body) $): $ sfRename R 0 (sfPieceDn (suc n) body) = sfAll (sfImp (sfPieceDefinableDnIntroductionGuard R) (sfRename (sfPieceDefinableDnIntroductionMap R) 0 (sfPieceDn n body))) $;
+
+theorem sfPieceDefinableDnIntroduction_close(R:set)(G n body:nat)(hg:$ sfContextWf G $)(hf:$ sfWf (sfPieceDn n body) $)(hp:$ nsLocal (sfPieceDefinableDnIntroductionContext R G) (sfRename (sfPieceDefinableDnIntroductionMap R) 0 (sfPieceDn n body)) $): $ nsLocal G (sfRename R 0 (sfPieceDn (suc n) body)) $;
+
+theorem sfPieceDefinableDnIntroduction_open(R:set)(G n body:nat)(hf:$ sfWf (sfPieceDn n body) $)(hp:$ nsLocal G (sfRename R 0 (sfPieceDn (suc n) body)) $): $ nsLocal (sfPieceDefinableDnIntroductionContext R G) (sfRename (sfPieceDefinableDnIntroductionMap R) 0 (sfPieceDn n body)) $;

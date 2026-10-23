@@ -1,0 +1,59 @@
+import "k218q_seed_instance.mm1";
+
+theorem k218GR_quad (n: nat): $ n <= 4 * n $ =
+'(mpbi (leeq1 mul11) (ax_mp lemul1a (letr lesucid (letr lesucid lesucid))));
+theorem k218GR_imp_left (a b: nat): $ a <= kImp a b $ = '(letr leprid1 k218GR_quad);
+theorem k218GR_imp_right (a b: nat): $ b <= kImp a b $ = '(letr leprid2 k218GR_quad);
+theorem k218GR_all_body (a b: nat): $ b <= kAll a b $ =
+'(letr (letr leprid2 k218GR_quad) leaddid1);
+theorem k218GR_not (a: nat): $ a <= kNot a $ = 'k218GR_imp_left;
+theorem k218GR_and_left (a b: nat): $ a <= kAnd a b $ =
+'(letr k218GR_imp_left k218GR_not);
+theorem k218GR_and_right (a b: nat): $ b <= kAnd a b $ =
+'(letr k218GR_not (letr k218GR_imp_right k218GR_not));
+theorem k218GR_iff_right (a b: nat): $ b <= k218Iff a b $ =
+'(letr k218GR_imp_right k218GR_and_left);
+theorem k218GR_ind_member (a b: nat):
+  $ kMem (k218EqAux a b) b <= k218EqInd a b $ =
+'(letr k218GR_iff_right (letr k218GR_all_body k218GR_and_left));
+
+theorem k218GR_eq_member (a b: nat):
+  $ kEq a b < kMem (k218EqAux a b) b $ =
+'(ltletr
+  (mpbir (lteq2 mulS) (mpbi ltadd2 ltsucid))
+  (letr (ax_mp lemul2a (mpbi ltpr1 k218EqAux_gt_left)) leaddid1));
+pub theorem k218EqInd_larger (a b: nat): $ kEq a b < k218EqInd a b $ =
+'(ltletr k218GR_eq_member k218GR_ind_member);
+
+@_ abstract def k218GrowthClass (.c: nat): set = $ {c | c <= k218Translate c} $;
+theorem k218GR_value (c: nat):
+  $ c e. k218GrowthClass <-> c <= k218Translate c $ = (named '(elabe ,eqtac));
+theorem k218GR_zero: $ 0 e. k218GrowthClass $ =
+'(mpbir k218GR_value (mpbir (leeq2 k218Translate_zero) leid));
+theorem k218GR_mem (a b: nat): $ kMem a b e. k218GrowthClass $ =
+'(mpbir k218GR_value (mpbir (leeq2 k218Translate_kMem) leid));
+theorem k218GR_eq (a b: nat): $ kEq a b e. k218GrowthClass $ =
+'(mpbir k218GR_value (mpbir (leeq2 k218Translate_kEq) (ltle k218EqInd_larger)));
+theorem k218GR_imp (a b: nat):
+  $ a e. k218GrowthClass /\ b e. k218GrowthClass -> kImp a b e. k218GrowthClass $ =
+'(syl (bi2 k218GR_value) @ mpbird (a1i (leeq2 k218Translate_kImp)) @ syl lemul2a @
+  letrd (sylib lepr1 (syl (bi1 k218GR_value) anl))
+    (sylib lepr2 (syl (bi1 k218GR_value) anr)));
+theorem k218GR_all (a b: nat):
+  $ b e. k218GrowthClass -> kAll a b e. k218GrowthClass $ =
+'(syl (bi2 k218GR_value) @ mpbird (a1i (leeq2 k218Translate_kAll)) @
+  sylib leadd1 @ syl lemul2a @ sylib lepr2 (bi1 k218GR_value));
+theorem k218GR_closed: $ kRawConstructionClosed k218GrowthClass $ =
+(named '(ian (ian (ian k218GR_zero (ax_gen @ ax_gen @ ian k218GR_mem k218GR_eq))
+  (ax_gen @ ax_gen k218GR_imp)) (ax_gen @ ax_gen k218GR_all)));
+pub theorem k218Translate_nondecreasing (c: nat): $ c <= k218Translate c $ =
+'(mpbi k218GR_value (ax_mp kRaw_induction k218GR_closed));
+
+theorem k218GR_not_strict (a: nat): $ a < kNot a $ =
+'(ax_mp raw_kImp_left_lt (ltneri (lttr lt01S k218QS_not_gt3)));
+pub theorem k218QSeedCode_above_source (d: nat): $ d < k218QSeedCode d $ =
+'(ltletr (lttr k218GR_not_strict k218GR_not_strict) k218Translate_nondecreasing);
+pub theorem k218QSeedCode_source_fresh (d: nat): $ kFresh d (k218QSeedCode d) $ =
+'(ax_mp kRaw_bound_fresh (ltle k218QSeedCode_above_source));
+pub theorem k218QSeedCode_matrix_fresh (d: nat): $ kFresh (kNot (kNot d)) (k218QSeedCode d) $ =
+'(ax_mp kRaw_bound_fresh k218Translate_nondecreasing);

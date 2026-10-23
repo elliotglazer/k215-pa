@@ -1,0 +1,187 @@
+import "source_l_common_level_ball_renaming.mm1";
+import "source_substitution_renaming.mm1";
+
+@_ def sfCLBallEnv (R: set) (n .i: nat): set =
+ $ \ i, if (i < n) (R @ i) (i - n) $;
+@_ def sfCLBallMemberRows (R: set) (y .i: nat): set =
+ $ \ i, sfMem (R @ i) y $;
+
+pub theorem sfCLBallEnv_value (R: set) (n i: nat):
+ $ sfCLBallEnv R n @ i = if (i < n) (R @ i) (i - n) $ =
+(named '(applame ,eqtac));
+
+pub theorem sfCLBallMemberRows_value (R: set) (y i: nat):
+ $ sfCLBallMemberRows R y @ i = sfMem (R @ i) y $ =
+(named '(applame ,eqtac));
+
+theorem clbe_env_lt (R: set) (n i: nat):
+ $ i < n -> sfCLBallEnv R n @ i = R @ i $ =
+'(eqtrd (a1i sfCLBallEnv_value) ifpos);
+
+theorem clbe_env_ge (R: set) (n i: nat):
+ $ ~i < n -> sfCLBallEnv R n @ i = i - n $ =
+'(eqtrd (a1i sfCLBallEnv_value) ifneg);
+
+theorem clbe_lt_next (n i: nat): $ i < n -> i < suc n $ =
+'(ax_mp (com12 ltletr) lesucid);
+
+theorem clbe_sub1_le (n i: nat): $ n < i -> n <= i - 1 $ =
+'(syl leaddsubi (mpbird (a1i (leeq1 add12)) id));
+
+theorem clbe_subst_index_eq (H: wff) (n t i j: nat) (h: $ H -> i = j $):
+ $ H -> sfSubstIndex n t i = sfSubstIndex n t j $ =
+'(ifeqd (lteq1d h) h (ifeqd (eqeq1d h) eqidd (subeq1d h)));
+
+theorem clbe_step_below (R: set) (n i: nat):
+ $ i < n -> sfCLBallEnv R n @ (sfSubstIndex n (R @ n) i) = sfCLBallEnv R (suc n) @ i $ =
+'(eqtrd (appeq2d sfSubstIndex_bound)
+ (eqtrd clbe_env_lt (eqcomd (syl clbe_env_lt clbe_lt_next))));
+
+theorem clbe_step_hit (R: set) (n: nat):
+ $ sfCLBallEnv R n @ (sfSubstIndex n (R @ n) n) = sfCLBallEnv R (suc n) @ n $ =
+'(eqtr (appeq2 sfSubstIndex_hit)
+ (eqtr (ax_mp clbe_env_ge (mpbi lenlt leaddid2))
+  (eqtr pncan (eqcom (ax_mp clbe_env_lt ltsucid)))));
+
+theorem clbe_step_above (R: set) (n i: nat):
+ $ n < i -> sfCLBallEnv R n @ (sfSubstIndex n (R @ n) i) = sfCLBallEnv R (suc n) @ i $ =
+'(eqtrd (appeq2d sfSubstIndex_above)
+ (eqtrd (syl clbe_env_ge (syl (bi1 lenlt) clbe_sub1_le))
+  (eqtrd (a1i (eqtr subsub (subeq2 add11)))
+   (eqcomd (syl clbe_env_ge (bi1 lenlt))))));
+
+theorem clbe_step_equal (R: set) (n i: nat):
+ $ i = n -> sfCLBallEnv R n @ (sfSubstIndex n (R @ n) i) = sfCLBallEnv R (suc n) @ i $ =
+'(eqtrd (appeq2d (clbe_subst_index_eq id))
+ (eqtrd (a1i clbe_step_hit) (eqcomd (appeq2d id))));
+
+pub theorem sfCLBallEnv_step (R: set) (n i: nat):
+ $ sfCLBallEnv R n @ (sfSubstIndex n (R @ n) i) = sfCLBallEnv R (suc n) @ i $ =
+'(cases clbe_step_equal (syl (eor clbe_step_below clbe_step_above) (bi1 neltlt)));
+
+theorem clbe_compose_at (R: set) (n i: nat):
+ $ sfComposeMap (sfCLBallEnv R n) (sfSubstDepthMap n (R @ n)) @ i =
+   sfCLBallEnv R (suc n) @ i $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 sfSubstDepthMap_value) sfCLBallEnv_step));
+
+pub theorem sfCLBallEnv_compose (R: set) (n: nat):
+ $ sfComposeMap (sfCLBallEnv R n) (sfSubstDepthMap n (R @ n)) == sfCLBallEnv R (suc n) $ =
+(named '(lameq @ ax_gen @ eqtr (eqcom sfComposeMap_value)
+ (eqtr clbe_compose_at sfCLBallEnv_value)));
+
+pub theorem sfCLBallEnv_zero (R: set): $ sfCLBallEnv R 0 == sfIdentityMap $ =
+(named '(lameq @ ax_gen @ eqtr (ax_mp ifneg lt02) sub02));
+
+theorem clbe_zero_rename (R: set) (body: nat):
+ $ sfWf body -> sfRename (sfCLBallEnv R 0) 0 body = body $ =
+'(eqtrd (a1i (trud (sfRename_congr_graph (a1i sfCLBallEnv_zero)))) sfRename_identity);
+
+pub theorem sfCLBallEnv_subst (R: set) (n body: nat):
+ $ sfWf body -> sfRename (sfCLBallEnv R n) 0 (sfSubst n (R @ n) body) =
+   sfRename (sfCLBallEnv R (suc n)) 0 body $ =
+'(eqtrd (sfRename_congr_formula sfSubst_as_map)
+ (eqtrd sfRename_compose (a1i (trud (sfRename_congr_graph (a1i sfCLBallEnv_compose))))));
+
+@_ def sfCLBallWfLaw (n body .y: nat): wff =
+ $ A. y (sfWf (sfCLBall n y body) -> sfWf body) $;
+
+theorem clbw_at (n body y: nat):
+ $ sfCLBallWfLaw n body -> sfWf (sfCLBall n y body) -> sfWf body $ =
+(named '(!! eale z ,eqtac));
+
+theorem clbw_base (body: nat): $ sfCLBallWfLaw 0 body $ =
+(named '(ax_gen @ bi1 (sfSchema_wf_eq sfCLBall_zero)));
+
+theorem clbw_step_each (n body y: nat):
+ $ sfCLBallWfLaw n body -> sfWf (sfCLBall (suc n) y body) -> sfWf body $ =
+(named '(exp @ mpd
+ (syl anr (syl (bi1 sfWf_imp_iff) (syl (bi1 sfWf_all_iff)
+  (syl (bi1 (sfSchema_wf_eq sfCLBall_suc)) anr))))
+ (syl clbw_at anl)));
+
+theorem clbw_step (n body: nat): $ sfCLBallWfLaw n body -> sfCLBallWfLaw (suc n) body $ =
+(named '(!! iald y @ clbw_step_each));
+
+theorem clbw_all (n body: nat): $ sfCLBallWfLaw n body $ =
+(named @ induct '(ind) 'n 'clbw_base 'clbw_step);
+
+pub theorem sfCLBall_body_wf (n y body: nat): $ sfWf (sfCLBall n y body) -> sfWf body $ =
+'(ax_mp clbw_at clbw_all);
+
+theorem clbe_subst_guard (y t: nat):
+ $ sfSubst 0 t (sfMem 0 (suc y)) = sfMem t y $ =
+'(eqtr sfSubst_sfMem (trud (sfMemeqd (a1i sfSubstIndex_zero) (a1i sfSubstIndex_successor))));
+
+theorem clbe_unroll (n y body t: nat):
+ $ sfSubst 0 t (sfImp (sfMem 0 (suc y)) (sfCLBall n (suc y) body)) =
+   sfImp (sfMem t y) (sfCLBall n y (sfSubst n t body)) $ =
+'(eqtr sfSubst_sfImp (trud (sfImpeqd (a1i clbe_subst_guard)
+ (a1i (eqtr sfCLBall_subst (sfCLBalleq eqid sfSubstIndex_successor (sfSubsteq1 add02)))))));
+
+theorem clbe_rows_last (R: set) (G y n: nat):
+ $ sfCLRowProofs (sfCLBallMemberRows R y) G (suc n) -> nsLocal G (sfMem (R @ n) y) $ =
+'(syl (bi1 (nsLocal_formula_eq sfCLBallMemberRows_value)) sfCLRowProofs_last);
+
+@_ def sfCLBallElimLaw (R: set) (n .G .y .body: nat): wff =
+ $ A. G A. y A. body
+   (sfCLRowProofs (sfCLBallMemberRows R y) G n -> nsLocal G (sfCLBall n y body) ->
+    nsLocal G (sfRename (sfCLBallEnv R n) 0 body)) $;
+
+theorem clbe_at (R: set) (n G y body: nat):
+ $ sfCLBallElimLaw R n -> sfCLRowProofs (sfCLBallMemberRows R y) G n ->
+   nsLocal G (sfCLBall n y body) -> nsLocal G (sfRename (sfCLBallEnv R n) 0 body) $ =
+(named '(!! ealie g @ !! ealde z @ !! ealde c @ bi1d ,eqtac));
+
+theorem clbe_base_cond (R: set) (H: wff) (G y body: nat)
+ (hp: $ H -> nsLocal G (sfCLBall 0 y body) $):
+ $ H -> nsLocal G (sfRename (sfCLBallEnv R 0) 0 body) $ =
+'(mpbird
+ (nsLocaleq2d (syl clbe_zero_rename (syl nsLocal_wf
+  (syl (bi1 (nsLocal_formula_eq sfCLBall_zero)) hp))))
+ (syl (bi1 (nsLocal_formula_eq sfCLBall_zero)) hp));
+
+theorem clbe_base_each (R: set) (G y body: nat):
+ $ sfCLRowProofs (sfCLBallMemberRows R y) G 0 -> nsLocal G (sfCLBall 0 y body) ->
+   nsLocal G (sfRename (sfCLBallEnv R 0) 0 body) $ =
+'(a1i (clbe_base_cond id));
+
+theorem clbe_base (R: set): $ sfCLBallElimLaw R 0 $ =
+(named '(ax_gen @ ax_gen @ ax_gen clbe_base_each));
+
+theorem clbe_outer (R: set) (H: wff) (n G y body: nat)
+ (hp: $ H -> nsLocal G (sfCLBall (suc n) y body) $):
+ $ H -> nsLocal G (sfImp (sfMem (R @ n) y) (sfCLBall n y (sfSubst n (R @ n) body))) $ =
+'(syl (bi1 (nsLocal_formula_eq clbe_unroll))
+ (syl nsLocal_AllE (syl (bi1 (nsLocal_formula_eq sfCLBall_suc)) hp)));
+
+theorem clbe_inner (R: set) (H: wff) (n G y body: nat)
+ (hr: $ H -> sfCLRowProofs (sfCLBallMemberRows R y) G (suc n) $)
+ (hp: $ H -> nsLocal G (sfCLBall (suc n) y body) $):
+ $ H -> nsLocal G (sfCLBall n y (sfSubst n (R @ n) body)) $ =
+'(sylc nsLocal_mp (clbe_outer hp) (syl clbe_rows_last hr));
+
+theorem clbe_step_cond (R: set) (H: wff) (n G y body: nat)
+ (hi: $ H -> sfCLBallElimLaw R n $)
+ (hr: $ H -> sfCLRowProofs (sfCLBallMemberRows R y) G (suc n) $)
+ (hp: $ H -> nsLocal G (sfCLBall (suc n) y body) $):
+ $ H -> nsLocal G (sfRename (sfCLBallEnv R (suc n)) 0 body) $ =
+'(mpbid
+ (nsLocaleq2d (syl sfCLBallEnv_subst (syl sfCLBall_body_wf (syl nsLocal_wf hp))))
+ (mpd (clbe_inner hr hp) (mpd (syl sfCLRowProofs_prefix hr) (syl clbe_at hi))));
+
+theorem clbe_step_each (R: set) (n G y body: nat):
+ $ sfCLBallElimLaw R n -> sfCLRowProofs (sfCLBallMemberRows R y) G (suc n) ->
+   nsLocal G (sfCLBall (suc n) y body) ->
+   nsLocal G (sfRename (sfCLBallEnv R (suc n)) 0 body) $ =
+(named '(exp @ exp @ clbe_step_cond anll anlr anr));
+
+theorem clbe_step (R: set) (n: nat): $ sfCLBallElimLaw R n -> sfCLBallElimLaw R (suc n) $ =
+(named '(!! iald G @ !! iald y @ !! iald body @ clbe_step_each));
+
+theorem clbe_all (R: set) (n: nat): $ sfCLBallElimLaw R n $ =
+(named @ induct '(ind) 'n 'clbe_base 'clbe_step);
+
+pub theorem sfCLBall_eliminate (R: set) (n G y body: nat):
+ $ sfCLRowProofs (sfCLBallMemberRows R y) G n -> nsLocal G (sfCLBall n y body) ->
+   nsLocal G (sfRename (sfCLBallEnv R n) 0 body) $ =
+'(ax_mp clbe_at clbe_all);

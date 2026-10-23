@@ -1,0 +1,73 @@
+import "pa_source_interpretation_operations.mm1";
+
+@_ abstract def paSITermSuccMap (.i: nat): set = $ \ i, if (i = 0) 0 (suc (i)) $;
+
+theorem paSITermSuccMap_value (i: nat): $ paSITermSuccMap @ i = if (i = 0) 0 (suc (i)) $ = (named '(!! applame j ,eqtac));
+
+theorem paSITermSuccMap_point_bound (i n: nat): $ i < suc n -> paSITermSuccMap @ i < suc (suc n) $ = (named '(mpbird (a1i (lteq1 paSITermSuccMap_value)) (ifbothd lteq1 lteq1 (a1i lt01S) (syl (syl (bi1 ltsuc) id) anl))));
+
+theorem paSITermSuccMap_bound (n: nat) {i: nat}: $ A. i (i < suc n -> paSITermSuccMap @ i < suc (suc n)) $ = (named '(ax_gen paSITermSuccMap_point_bound));
+
+@_ abstract def paSITermLeftMap (.i: nat): set = $ \ i, if (i = 0) 1 (suc (suc (i))) $;
+
+theorem paSITermLeftMap_value (i: nat): $ paSITermLeftMap @ i = if (i = 0) 1 (suc (suc (i))) $ = (named '(!! applame j ,eqtac));
+
+theorem paSITermLeftMap_point_bound (i n: nat): $ i < suc n -> paSITermLeftMap @ i < suc (suc (suc n)) $ = (named '(mpbird (a1i (lteq1 paSITermLeftMap_value)) (ifbothd lteq1 lteq1 (a1i (mpbi ltsuc lt01S)) (syl (syl (bi1 ltsuc) (syl (bi1 ltsuc) id)) anl))));
+
+theorem paSITermLeftMap_bound (n: nat) {i: nat}: $ A. i (i < suc n -> paSITermLeftMap @ i < suc (suc (suc n))) $ = (named '(ax_gen paSITermLeftMap_point_bound));
+
+@_ abstract def paSITermRightMap (.i: nat): set = $ \ i, if (i = 0) 0 (suc (suc (i))) $;
+
+theorem paSITermRightMap_value (i: nat): $ paSITermRightMap @ i = if (i = 0) 0 (suc (suc (i))) $ = (named '(!! applame j ,eqtac));
+
+theorem paSITermRightMap_point_bound (i n: nat): $ i < suc n -> paSITermRightMap @ i < suc (suc (suc n)) $ = (named '(mpbird (a1i (lteq1 paSITermRightMap_value)) (ifbothd lteq1 lteq1 (a1i lt01S) (syl (syl (bi1 ltsuc) (syl (bi1 ltsuc) id)) anl))));
+
+theorem paSITermRightMap_bound (n: nat) {i: nat}: $ A. i (i < suc n -> paSITermRightMap @ i < suc (suc (suc n))) $ = (named '(ax_gen paSITermRightMap_point_bound));
+
+@_ abstract def paSIFormulaLeftMap (.i: nat): set = $ \ i, if (i = 0) 1 (suc (i)) $;
+
+theorem paSIFormulaLeftMap_value (i: nat): $ paSIFormulaLeftMap @ i = if (i = 0) 1 (suc (i)) $ = (named '(!! applame j ,eqtac));
+
+theorem paSIFormulaLeftMap_point_bound (i n: nat): $ i < suc n -> paSIFormulaLeftMap @ i < suc (suc n) $ = (named '(mpbird (a1i (lteq1 paSIFormulaLeftMap_value)) (ifbothd lteq1 lteq1 (a1i (mpbi ltsuc lt01S)) (syl (syl (bi1 ltsuc) id) anl))));
+
+theorem paSIFormulaLeftMap_bound (n: nat) {i: nat}: $ A. i (i < suc n -> paSIFormulaLeftMap @ i < suc (suc n)) $ = (named '(ax_gen paSIFormulaLeftMap_point_bound));
+
+theorem paSI_rename_bound_zero (R: set) (n m c: nat) (hr: $ A. i (i < n -> R @ i < m) $): $ sfBound n c -> sfBound m (sfRename R 0 c) $ = (named '(mpbid (a1i (sfBoundeq1 add01)) (syl (sfRename_bound hr) (bi2 (sfBoundeq1 add01)))));
+
+@_ abstract def paSourceTermVariable (i: nat): nat = $ sfEq 0 (suc i) $;
+
+@_ abstract def paSourceTermZero: nat = $ paSourceZero $;
+
+@_ abstract def paSourceTermNumeral (v: nat): nat = $ bb215SFNumeral v $;
+
+@_ abstract def paSourceTermSuccessor (a: nat): nat = $ sfEx (sfAnd (sfRename paSITermSuccMap 0 a) paSourceSuccessor) $;
+
+@_ abstract def paSourceTermAddition (a b: nat): nat = $ sfEx (sfEx (sfAnd (sfRename paSITermLeftMap 0 a) (sfAnd (sfRename paSITermRightMap 0 b) paSourceAddition102))) $;
+
+@_ abstract def paSourceTermMultiplication (a b: nat): nat = $ sfEx (sfEx (sfAnd (sfRename paSITermLeftMap 0 a) (sfAnd (sfRename paSITermRightMap 0 b) paSourceMultiplication102))) $;
+
+@_ abstract def paSourceFormulaEqual (a b: nat): nat = $ sfEx (sfEx (sfAnd (sfRename paSIFormulaLeftMap 0 a) (sfAnd (sfRename paSITermSuccMap 0 b) (sfEq 1 0)))) $;
+
+@_ abstract def paSourceFormulaAll (a: nat): nat = $ sfAll (sfImp paSourceNatural a) $;
+
+@_ abstract def paSourceFormulaEx (a: nat): nat = $ sfEx (sfAnd paSourceNatural a) $;
+
+pub theorem paSourceTermVariable_bound (i n: nat): $ i < n -> sfBound (suc n) (paSourceTermVariable i) $ = (named '(syl (bi2 sfBound_sfEq) (iand (a1i lt01S) (bi1 ltsuc))));
+
+pub theorem paSourceTermZero_bound (n: nat): $ sfBound (suc n) paSourceTermZero $ = (named '(sfBound_mono_le (mpbi lesuc le01) paSourceZero_bound));
+
+pub theorem paSourceTermNumeral_bound (v n: nat): $ sfBound (suc n) (paSourceTermNumeral v) $ = (named '(sfBound_mono_le (mpbi lesuc le01) bb215SFNumeral_bound));
+
+pub theorem paSourceTermNumeral_instance (v a: nat): $ sfEx (sfAnd (paSourceTermNumeral v) a) = bb215SFNumeralInstance v a $ = (named 'eqid);
+
+pub theorem paSourceTermSuccessor_bound (a n: nat): $ sfBound (suc n) a -> sfBound (suc n) (paSourceTermSuccessor a) $ = (named '(syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd) (iand (paSI_rename_bound_zero paSITermSuccMap_bound) (a1i (sfBound_mono_le (mpbi lesuc (mpbi lesuc le01)) paSourceSuccessor_bound))))));
+
+pub theorem paSourceTermAddition_bound (a b n: nat): $ sfBound (suc n) a -> sfBound (suc n) b -> sfBound (suc n) (paSourceTermAddition a b) $ = (named '(exp @ syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd) (iand (syl (paSI_rename_bound_zero paSITermLeftMap_bound) anl) (syl (bi2 sfBound_sfAnd) (iand (syl (paSI_rename_bound_zero paSITermRightMap_bound) anr) (a1i (sfBound_mono_le (mpbi lesuc (mpbi lesuc (mpbi lesuc le01))) paSourceAddition102_bound)))))))));
+
+pub theorem paSourceTermMultiplication_bound (a b n: nat): $ sfBound (suc n) a -> sfBound (suc n) b -> sfBound (suc n) (paSourceTermMultiplication a b) $ = (named '(exp @ syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd) (iand (syl (paSI_rename_bound_zero paSITermLeftMap_bound) anl) (syl (bi2 sfBound_sfAnd) (iand (syl (paSI_rename_bound_zero paSITermRightMap_bound) anr) (a1i (sfBound_mono_le (mpbi lesuc (mpbi lesuc (mpbi lesuc le01))) paSourceMultiplication102_bound)))))))));
+
+pub theorem paSourceFormulaEqual_bound (a b n: nat): $ sfBound (suc n) a -> sfBound (suc n) b -> sfBound n (paSourceFormulaEqual a b) $ = (named '(exp @ syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd) (iand (syl (paSI_rename_bound_zero paSIFormulaLeftMap_bound) anl) (syl (bi2 sfBound_sfAnd) (iand (syl (paSI_rename_bound_zero paSITermSuccMap_bound) anr) (a1i (mpbir sfBound_sfEq (iani (mpbi ltsuc lt01S) lt01S))))))))));
+
+pub theorem paSourceFormulaAll_bound (a n: nat): $ sfBound (suc n) a -> sfBound n (paSourceFormulaAll a) $ = (named '(syl (bi2 sfBound_sfAll) (syl (bi2 sfBound_sfImp) (iand (a1i (sfBound_mono_le (mpbi lesuc le01) paSourceNatural_bound)) id))));
+
+pub theorem paSourceFormulaEx_bound (a n: nat): $ sfBound (suc n) a -> sfBound n (paSourceFormulaEx a) $ = (named '(syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd) (iand (a1i (sfBound_mono_le (mpbi lesuc le01) paSourceNatural_bound)) id))));

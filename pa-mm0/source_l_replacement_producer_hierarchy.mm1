@@ -1,0 +1,83 @@
+import "source_l_replacement_producer_schema.mm1";
+import "source_l_replacement_common_source.mm1";
+import "source_l_replacement_common_extension_source.mm1";
+import "source_l_replacement_common_producers.mm1";
+import "source_piece_pcf_level_interfaces.mm1";
+import "source_reflection_transfer_tv_producers.mm1";
+import "source_reflection_transfer_ph_hierarchy.mm1";
+import "source_l_power_collection_kernel.mm1";
+
+pub theorem sfLReplacementExtension_from_hierarchy
+ (hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $):
+ $ sfTheoryProvable zfrAxioms sfLReplacementLevelExtension $ =
+ '(ax_mp (ax_mp sfTheoryProvable_mp
+  (ax_mp (ax_mp sfTheoryProvable_mp (ax_mp sfTheory_pure sfLReplacementLevelExtension_direct))
+   (sfPieceAbove_from_hierarchy hE hS))) (sfPieceLevelSubset_from_hierarchy hS));
+
+pub theorem sfLReplacementAbove_from_hierarchy(count phi:nat)(hb:$ sfBound count phi $)
+ (hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL:$ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM:$ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementAboveLaw count phi) $ =
+ '(sfLReplacementAboveLaw_from_producers hb
+  (sfTVCanonicalPiece_cond_producers_from_hierarchy hE hU hS)
+  (sfReflectionPH_subset_from_hierarchy hS)
+  (sfReflectionPH_coverage_from_hierarchy hE hL hM));
+
+pub theorem sfLReplacementLevelExists_from_hierarchy
+ (hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $):
+ $ sfTheoryProvable zfrAxioms sfLReplacementLevelExistsLaw $ =
+ '(mpbir (sfTheoryProvableeq2 sfLReplacementLevelExistsLaw_source)
+  (sfReflectionPH_exists_from_hierarchy hE));
+
+pub theorem sfLReplacementSubset_from_hierarchy
+ (hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $):
+ $ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $ =
+ '(sfReflectionPH_subset_from_hierarchy hS);
+
+pub theorem sfLReplacementPowerBound_from_hierarchy
+ (hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $):
+ $ sfTheoryProvable zfrAxioms sfLPowerLevelBound $ =
+ '(ax_mp (ax_mp sfTheoryProvable_mp
+  (ax_mp (ax_mp sfTheoryProvable_mp sfLPowerLevelBound_from_hierarchy_zfr) hE)) hS);
+
+pub theorem sfLReplacementSeed_from_hierarchy(n phi:nat)(hb:$ sfBound (suc (suc n)) phi $)
+ (hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementSeedProducerFormula phi) $ =
+ '(sfLReplacement_seed_producer hb (sfLReplacementPowerBound_from_hierarchy hE hS));
+
+pub theorem sfLReplacementCommonReflected_from_hierarchy(params count phi:nat)
+ (hb:$ sfBound count phi $)
+ (hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL:$ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM:$ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $):
+ $ sfTheoryProvable zfrAxioms (sfCLCommonReflectedLaw 0 params count phi) $ =
+ '(sfLReplacementCommonReflected_from_source_proofs hb
+  (sfLReplacementExtension_from_hierarchy hE hS)
+  (sfLReplacementAbove_from_hierarchy hb hE hU hS hL hM)
+  (sfLReplacementLevelExists_from_hierarchy hE)
+  (sfLReplacementSubset_from_hierarchy hS));
+
+pub theorem sfLReplacement_schema_from_hierarchy(n phi:nat)
+ (hb:$ sfBound (suc (suc n)) phi $)
+ (hE:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU:$ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS:$ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL:$ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM:$ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $)
+ (hd:$ nsLocal (sfLReplacementProducerDefinableContext n phi)
+  (sfLReplacementImageDefinable (sfLReplacementStartMap 7) sfLDomain (sfLReplacementPsi phi) 0) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $ =
+ '(sfLReplacement_schema_from_source_proofs hb
+  (sfLReplacementExtension_from_hierarchy hE hS)
+  (sfLReplacementAbove_from_hierarchy (ax_mp sfLReplacementPsi_bound hb) hE hU hS hL hM)
+  (sfLReplacementLevelExists_from_hierarchy hE)
+  (sfLReplacementSubset_from_hierarchy hS)
+  (sfLReplacementSeed_from_hierarchy hb hE hS) hd);

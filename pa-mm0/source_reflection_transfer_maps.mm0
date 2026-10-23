@@ -1,0 +1,23 @@
+import "source_reflection_limit_dn_maps.mm0";
+
+import "source_theory_prefix.mm0";
+
+import "source_omega_recursion_binary.mm0";
+
+def sfReflectionTransferOpenMap(R:set)(y:nat):set = $ sfComposeMap (sfSubstDepthMap 0 y) (sfRenameDepthMap R 1) $;
+
+theorem sfReflectionTransferOpenMap_at(R:set)(y i:nat): $ sfReflectionTransferOpenMap R y @ i = sqEnvCons y R @ i $;
+
+theorem sfReflectionTransfer_open(R:set)(y c:nat)(hc:$ sfWf c $): $ sfSubst 0 y (sfRename R 1 c) = sfRename (sqEnvCons y R) 0 c $;
+
+def sfReflectionTransferShiftMap:set = $ sfRenameDepthMap sfSuccessorMap 1 $;
+
+def sfReflectionTransferShift3Map:set = $ sfComposeMap sfReflectionTransferShiftMap (sfComposeMap sfReflectionTransferShiftMap sfReflectionTransferShiftMap) $;
+
+theorem sfReflectionTransferShift3_map(phi:nat)(hf:$ sfWf phi $): $ sfPieceShift3 phi = sfRename sfReflectionTransferShift3Map 0 phi $;
+
+def sfReflectionTransferMatrixMap(P:set)(d X y:nat):set = $ sfComposeMap (sfRenameDepthMap (sqEnvCons y (sfPieceEnvironment P d X)) 1) sfReflectionTransferShift3Map $;
+
+theorem sfReflectionTransferMatrixMap_at(P:set)(d X y i:nat): $ sfReflectionTransferMatrixMap P d X y @ i = sfRenameDepthMap P 1 @ i $;
+
+theorem sfReflectionTransfer_matrix(P:set)(d X y phi:nat)(hf:$ sfWf phi $): $ sfRename (sqEnvCons y (sfPieceEnvironment P d X)) 1 (sfPieceShift3 phi) = sfRename P 1 phi $;

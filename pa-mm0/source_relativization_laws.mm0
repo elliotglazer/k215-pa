@@ -1,0 +1,34 @@
+import "source_relativization_bounds.mm0";
+import "source_structural_induction.mm0";
+
+-- Exact code equalities. No source-theory interpretation is assumed.
+theorem sfSubst_bound_identity (n t c: nat):
+  $ sfBound n c -> sfSubst n t c = c $;
+
+def sfRRClass (R: set) (D: nat) (.c .n: nat): set =
+$ {c | A. n (sfRename R n (sfRelativize D c) = sfRelativize D (sfRename R n c))} $;
+
+theorem sfRRClass_value {n: nat} (R: set) (D: nat) (c: nat):
+  $ c e. sfRRClass R D <-> A. n (sfRename R n (sfRelativize D c) = sfRelativize D (sfRename R n c)) $;
+
+theorem sfRelativize_rename (R: set) (D: nat) (n c: nat):
+  $ sfBound 1 D -> sfWf c -> sfRename R n (sfRelativize D c) = sfRelativize D (sfRename R n c) $;
+
+def sfRSClass (D: nat) (.c .n: nat): set =
+$ {c | A. n (sfShift n (sfRelativize D c) = sfRelativize D (sfShift n c))} $;
+
+theorem sfRSClass_value {n: nat} (D: nat) (c: nat):
+  $ c e. sfRSClass D <-> A. n (sfShift n (sfRelativize D c) = sfRelativize D (sfShift n c)) $;
+
+theorem sfRelativize_shift (D: nat) (n c: nat):
+  $ sfBound 1 D -> sfWf c -> sfShift n (sfRelativize D c) = sfRelativize D (sfShift n c) $;
+
+def sfRTClass (D t: nat) (.c .n: nat): set =
+$ {c | A. n (sfSubst n t (sfRelativize D c) = sfRelativize D (sfSubst n t c))} $;
+
+theorem sfRTClass_value {n: nat} (D t: nat) (c: nat):
+  $ c e. sfRTClass D t <-> A. n (sfSubst n t (sfRelativize D c) = sfRelativize D (sfSubst n t c)) $;
+
+theorem sfRelativize_subst (D t: nat) (n c: nat):
+  $ sfBound 1 D -> sfWf c -> sfSubst n t (sfRelativize D c) = sfRelativize D (sfSubst n t c) $;
+

@@ -1,0 +1,51 @@
+import "k218q_alpha.mm1";
+import "k218q_equivalence.mm1";
+import "k230_fresh_allocation.mm1";
+
+@_ def k218QBoundName (f x: nat): nat = $ kFreshAllocate 0 f 0 x $;
+
+pub theorem k218QBinderAbsent_false (x: nat): $ kBinderAbsent kF x $ =
+'(mpbi (kBinderAbsenteq1 kMem_zero) kBinderAbsent_kMem);
+
+pub theorem k218QBinderAbsent_not (f x: nat) (hf: $ kBinderAbsent f x $):
+ $ kBinderAbsent (kNot f) x $ =
+'(mpbir kBinderAbsent_kImp (ian hf k218QBinderAbsent_false));
+
+pub theorem k218QBinderAbsent_and (f g x: nat)
+ (hf: $ kBinderAbsent f x $) (hg: $ kBinderAbsent g x $):
+ $ kBinderAbsent (kAnd f g) x $ =
+'(k218QBinderAbsent_not
+  (mpbir kBinderAbsent_kImp (ian hf (k218QBinderAbsent_not hg))));
+
+theorem k218QBV_ne (f x: nat): $ x != k218QBoundName f x $ =
+'(ltne kFreshAllocate_above_reserved);
+theorem k218QBV_fresh (f x: nat): $ kFresh f (k218QBoundName f x) $ =
+'kFreshAllocate_left;
+theorem k218QBV_subst_fresh (f x: nat) (hf: $ kBinderAbsent f x $):
+ $ kFresh (kSubst f x (k218QBoundName f x)) x $ =
+'(ax_mp k218ISubst_output_fresh (ian k218QBV_ne hf));
+
+theorem k218QBV_transfer (p q x: nat)
+ (hpq: $ k218QProvable (kImp p q) $)
+ (hqp: $ k218QProvable (kImp q p) $)
+ (hq: $ k218QProvable (kImp q (kAll x q)) $):
+ $ k218QProvable (kImp p (kAll x p)) $ =
+'(k218IProvable_syl hpq (k218IProvable_syl hq (k218IAll_mono hqp)));
+
+pub theorem k218QBound_all_vacuity (f x: nat) (hf: $ kBinderAbsent f x $):
+ $ k218QProvable (kImp (kAll x f) (kAll x (kAll x f))) $ =
+'(k218QBV_transfer
+  (ax_mp (ax_mp (ax_mp k218IAlpha_all_forward k218QBV_ne) hf) k218QBV_fresh)
+  (ax_mp (ax_mp (ax_mp k218IAlpha_all_backward k218QBV_ne) hf) k218QBV_fresh)
+  (ax_mp k218QFresh_vacuity
+    (ax_mp (ax_mp kFresh_all_intro k218QBV_ne) (k218QBV_subst_fresh hf))));
+
+pub theorem k218QBound_exists_vacuity (f x: nat)
+ (hx: $ x != 0 $) (hf: $ kBinderAbsent f x $):
+ $ k218QProvable (kImp (kExists x f) (kAll x (kExists x f))) $ =
+'(k218QBV_transfer
+  (ax_mp (ax_mp (ax_mp k218IAlpha_exists_forward k218QBV_ne) hf) k218QBV_fresh)
+  (ax_mp (ax_mp (ax_mp k218IAlpha_exists_backward k218QBV_ne) hf) k218QBV_fresh)
+  (ax_mp k218QFresh_vacuity
+    (ax_mp (ax_mp (ax_mp kFresh_exists_intro hx) k218QBV_ne)
+      (k218QBV_subst_fresh hf))));

@@ -1,0 +1,16 @@
+import "k215_calculus_source_cycle_bridge.mm1";
+import "k215_assembly_bb_explosion.mm1";
+
+-- syl5 (h1: b -> c) (h2: a -> c -> d): a -> b -> d, with h2 = id.
+pub theorem k215AssemblyProgram_halts_ZFC_given_transfer:
+ $ (k215Inconsistent -> zfcInconsistent) -> k215PInitialHalts -> zfcInconsistent $ =
+ '(syl5 (bi1i k215PInitialHalts_iff_kInconsistent) id);
+
+pub theorem k215AssemblyProgram_consistent_nonhalting_given_transfer:
+ $ (k215Inconsistent -> zfcInconsistent) -> ~zfcInconsistent -> ~k215PInitialHalts $ =
+ '(con3d k215AssemblyProgram_halts_ZFC_given_transfer);
+
+pub theorem k215AssemblyProgram_BB_nonhalting_given_transfer {b: nat}:
+ $ (k215Inconsistent -> zfcInconsistent) ->
+   (A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) -> ~k215PInitialHalts $ =
+ '(syl5 k215AssemblyBB_none_implies_consistent k215AssemblyProgram_consistent_nonhalting_given_transfer);

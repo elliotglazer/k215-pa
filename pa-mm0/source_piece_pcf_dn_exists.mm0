@@ -1,0 +1,24 @@
+import "source_piece_pcf_mono_collection.mm0";
+
+import "source_reflection_least_cond_ord_collect.mm0";
+
+def sfPieceDnExistenceCode(count body:nat):nat =
+ $ sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceDn count body)) $;
+
+def sfPieceDnExistenceHyp(body:nat):wff =
+ $ sfTheoryProvable zfrAxioms (sfEx (sfAnd sfLeastOrdinalPredicate body)) /\
+   sfTheoryProvable zfrAxioms (sfPieceMonoCode body) $;
+
+def sfPieceDnExistenceLaw(count body:nat):wff =
+ $ sfPieceDnExistenceHyp body -> sfTheoryProvable zfrAxioms (sfPieceDnExistenceCode count body) $;
+
+theorem sfPieceCollection_zfr(phi:nat)(hf:$ sfWf phi $):
+ $ sfTheoryProvable zfrAxioms (sfOrdinalCollectionLaw phi) $;
+
+theorem sfPieceDn_existence_rule(count body:nat)(hf:$ sfWf body $):
+ $ sfPieceDnExistenceLaw count body $;
+
+theorem sfPieceDn_exists(count body:nat)(hf:$ sfWf body $)
+ (hb:$ sfTheoryProvable zfrAxioms (sfEx (sfAnd sfLeastOrdinalPredicate body)) $)
+ (hm:$ sfTheoryProvable zfrAxioms (sfPieceMonoCode body) $):
+ $ sfTheoryProvable zfrAxioms (sfPieceDnExistenceCode count body) $;

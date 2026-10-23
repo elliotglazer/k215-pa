@@ -1,0 +1,57 @@
+import "quotation_supported_invariant.mm1";
+import "source_syntax_laws.mm1";
+
+theorem sqSC_trans_at (H J K a: nat):
+ $ kContextSupports H J -> kContextSupports J K -> a IN K -> a e. kContextProofClass H $ =
+'(exp @ exp @ syl (bi2 kContextProofClass_value) @
+  mpd (mpd anr (syl kContextSupports_member anlr)) (syl kHypProvable_refine_d anll));
+
+pub theorem sqContextSupports_trans (H J K: nat):
+ $ kContextSupports H J -> kContextSupports J K -> kContextSupports H K $ =
+(named '(exp @ !! iald a @ imp sqSC_trans_at));
+
+pub theorem sqContextSupports_weaken (H a: nat): $ kContextSupports (a : H) H $ =
+(named '(kContextSupports_inclusion (ax_gen sfContext_member_tail)));
+
+pub theorem sqDomainSupport_weaken (H S t a: nat):
+ $ sqDomainSupport H S t -> sqDomainSupport (a : H) S t $ =
+'(ax_mp sqDomainSupport_refine sqContextSupports_weaken);
+
+pub theorem sqSourceSupport_weaken (H S t k G a: nat):
+ $ sqSourceSupport H S t k G -> sqSourceSupport (a : H) S t k G $ =
+'(ax_mp sqContextSupports_trans sqContextSupports_weaken);
+
+pub theorem sqSourceSupport_cons (H S t k G a: nat):
+ $ sqSourceSupport H S t k G ->
+   kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) ->
+   sqSourceSupport H S t k (a : G) $ =
+'(syl6 (bi2 (kContextSupportseq2 sqContext_cons)) kContextSupports_cons);
+
+pub theorem sqSourceSupport_under (H S t k G a: nat):
+ $ sqSourceSupport H S t k G ->
+   sqSourceSupport (sqQuote (sqNumericEnvironment S) t k 0 a : H) S t k (a : G) $ =
+'(mpi (ax_mp kHypProvable_assumption sfContext_member_head)
+  (syl sqSourceSupport_cons sqSourceSupport_weaken));
+
+theorem sqSC_formula_le (G a: nat): $ a <= sfSequent G a $ =
+'(mpbi (leeq1 sfSequent_formula) (letr sndleid sndleid));
+theorem sqSC_context_le (G a: nat): $ G <= sfSequent G a $ =
+'(mpbi (leeq1 sfSequent_context) (letr fstleid sndleid));
+
+pub theorem sqSupportedAt_formula_bound (n G a: nat):
+ $ sqSupportedAt n (sfSequent G a) -> sfBound n a $ =
+'(sylc sfBound_mono
+  (syl sfWf_code_bound (syl anr (syl (bi1 sfRowWf_sequent) sqSupportedAt_wf)))
+  (letrd (a1i sqSC_formula_le) sqSupportedAt_bound));
+
+pub theorem sqSupportedAt_context_member_bound (n G a b: nat):
+ $ sqSupportedAt n (sfSequent G a) -> b IN G -> sfBound n b $ =
+'(exp @ sylc sfBound_mono
+  (syl sfWf_code_bound (mpd anr (syl sfContextWf_member
+    (syl anl (syl (bi1 sfRowWf_sequent) (syl sqSupportedAt_wf anl))))))
+  (letrd (letrd (syl ltle (syl lmemlt anr)) (a1i sqSC_context_le))
+    (syl sqSupportedAt_bound anl)));
+
+pub theorem sqSupportedAt_context_bound {b: nat} (n G a: nat):
+ $ sqSupportedAt n (sfSequent G a) -> A. b (b IN G -> sfBound n b) $ =
+(named '(iald sqSupportedAt_context_member_bound));

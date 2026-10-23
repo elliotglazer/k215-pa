@@ -1,0 +1,160 @@
+import "source_l_replacement_uniform_definability.mm1";
+
+@_ def sfLPowerSubsetFormula: nat = $ sfAll (sfImp (sfMem 0 1) (sfMem 0 2)) $;
+
+@_ def sfLDefPowerLiteralBody: nat =
+ $ sfImp (sfLSeparationDef0 2 1) (sfImp (sfMem 0 2)
+   (sfEx (sfAnd (sfMem 0 2) (sfAll (sfIff (sfMem 0 1)
+     (sfAnd (sfMem 0 4) (sfAll (sfImp (sfMem 0 5) (sfImp (sfMem 0 1) (sfMem 0 3)))))))))) $;
+
+@_ def sfLDefPowerLiteral: nat = $ sfAll (sfAll (sfAll sfLDefPowerLiteralBody)) $;
+
+-- The renaming D -> 1, A -> 2, x -> 0 turns the uniform body (D = 0, A = 1, x = 2) into the
+-- layout of sfLDefPower (x = 0, D = 1, A = 2).
+theorem lpd_R0: $ sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap)) @ 0 = 1 $ =
+ 'sqEnvCons_zero;
+theorem lpd_R1: $ sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap)) @ 1 = 2 $ =
+ '(eqtr sqEnvCons_suc sqEnvCons_zero);
+theorem lpd_R2: $ sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap)) @ 2 = 0 $ =
+ '(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero));
+
+theorem lpd_subset_wf: $ sfWf sfLPowerSubsetFormula $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem));
+
+theorem lpd_def0:
+ $ sfRename (sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap))) 0 (sfLSeparationDef0 1 0) =
+   sfLSeparationDef0 2 1 $ =
+ '(eqtr sfLRepDef0_rename (sfLSeparationDef0_eq (eqtr sfRenameIndex_zero lpd_R1)
+   (eqtr sfRenameIndex_zero lpd_R0)));
+
+theorem lpd_mem:
+ $ sfRename (sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap))) 0 (sfCLMembership 2 1 1) =
+   sfAnd sfCLTrue (sfMem 0 2) $ =
+ '(eqtr (sfRenameeq3 (eqtr sfCLMembership_suc (nsAnd_eq sfCLMembership_zero eqid)))
+   (eqtr sfRename_sfAnd (nsAnd_eq
+    (eqtr sfRename_sfImp (nsImp_eq sfRename_bot sfRename_bot))
+    (eqtr sfRename_sfMem (nsMem_eq (eqtr sfRenameIndex_zero (eqtr (appeq2 add01) lpd_R2))
+     (eqtr sfRenameIndex_zero lpd_R1))))));
+
+theorem lpd_M0:
+ $ sfComposeMap (sfRenameDepthMap (sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap))) 1)
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) @ 0 = 1 $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i (eqtr sfComposeMap_value
+      (eqtr sfSuccessorMap_value (suceq (eqtr sfLReplacementStartMap_at add01)))))))
+    (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero lpd_R2))))));
+
+theorem lpd_idx3:
+ $ sfRenameIndex (sfComposeMap (sfRenameDepthMap (sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap))) 1)
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2))) (suc 1) 2 = 3 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero lpd_M0)))));
+
+theorem lpd_sub:
+ $ sfRename (sfComposeMap (sfRenameDepthMap (sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap))) 1)
+     (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2))) 1 sfLPowerSubsetFormula =
+   sfAll (sfImp (sfMem 0 1) (sfMem 0 3)) $ =
+ '(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq
+   (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S)
+    (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S))))
+   (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) lpd_idx3))))));
+
+theorem lpd_setrel:
+ $ sfCLSetRel 4 (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) =
+   sfAll (sfImp (sfMem 0 5) (sfImp (sfMem 0 1) (sfMem 0 3))) $ =
+ '(eqtr sfCLSetRel_sfAll (nsAll_eq (nsImp_eq eqid
+   (eqtr sfCLSetRel_sfImp (nsImp_eq sfCLSetRel_sfMem sfCLSetRel_sfMem)))));
+
+theorem lpd_RI12:
+ $ sfRenameIndex (sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap))) 1 2 = 3 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero lpd_R1)));
+
+theorem lpd_RI11:
+ $ sfRenameIndex (sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap))) 1 1 = 2 $ =
+ '(eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero lpd_R0)));
+
+theorem lpd_profile:
+ $ sfRename (sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap))) 1
+     (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2))
+       sfLPowerSubsetFormula 2 0) =
+   sfAll (sfIff (sfMem 0 1)
+     (sfAnd (sfMem 0 4) (sfAll (sfImp (sfMem 0 5) (sfImp (sfMem 0 1) (sfMem 0 3)))))) $ =
+ '(eqtr (sfLRepProfile_rename lpd_subset_wf)
+   (nsAll_eq (sfIffeq (nsMem_eq eqid (suceq (ax_mp sfRenameIndex_bound lt01S)))
+    (nsAnd_eq (nsMem_eq eqid (suceq lpd_RI12))
+     (eqtr (sfCLSetReleq (suceq lpd_RI12) lpd_sub) lpd_setrel)))));
+
+theorem lpd_B:
+ $ sfRename (sqEnvCons 1 (sqEnvCons 2 (sqEnvCons 0 sfIdentityMap))) 0
+     (sfLDefinabilityBody 1 sfLPowerSubsetFormula) =
+   sfImp (sfLSeparationDef0 2 1) (sfImp (sfAnd sfCLTrue (sfMem 0 2))
+     (sfEx (sfAnd (sfMem 0 2) (sfAll (sfIff (sfMem 0 1)
+       (sfAnd (sfMem 0 4) (sfAll (sfImp (sfMem 0 5) (sfImp (sfMem 0 1) (sfMem 0 3)))))))))) $ =
+ '(eqtr sfRename_sfImp (nsImp_eq lpd_def0
+   (eqtr sfRename_sfImp (nsImp_eq lpd_mem
+    (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq
+     (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) lpd_RI11))
+     lpd_profile))))))));
+
+theorem lpd_prefix(c:nat): $ sfAllPrefix (suc 1) (sfAll c) = sfAllPrefix 3 c $ =
+ '(eqtr (eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq sfAllPrefix_zero))))
+   (eqcom (eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc
+    (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq sfAllPrefix_zero))))))));
+
+theorem lpd_lit_prefix: $ sfAllPrefix 3 sfLDefPowerLiteralBody = sfLDefPowerLiteral $ =
+ '(eqtr sfAllPrefix_suc (nsAll_eq (eqtr sfAllPrefix_suc
+   (nsAll_eq (eqtr sfAllPrefix_suc (nsAll_eq sfAllPrefix_zero))))));
+
+theorem lpd_profile_wf:
+ $ sfWf (sfAll (sfIff (sfMem 0 1)
+     (sfAnd (sfMem 0 4) (sfAll (sfImp (sfMem 0 5) (sfImp (sfMem 0 1) (sfMem 0 3))))))) $ =
+ '(ax_mp sfWf_all (mpbir sfWf_iff (ian sfWf_mem (ax_mp (ax_mp sfWf_and sfWf_mem)
+   (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)))))));
+
+theorem lpd_Bpp_wf:
+ $ sfWf (sfImp (sfLSeparationDef0 2 1) (sfImp (sfAnd sfCLTrue (sfMem 0 2))
+     (sfEx (sfAnd (sfMem 0 2) (sfAll (sfIff (sfMem 0 1)
+       (sfAnd (sfMem 0 4) (sfAll (sfImp (sfMem 0 5) (sfImp (sfMem 0 1) (sfMem 0 3))))))))))) $ =
+ '(ax_mp (ax_mp sfWf_imp sfLSeparationDef0_wf)
+   (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_bot) sfWf_bot)) sfWf_mem))
+    (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) lpd_profile_wf))));
+
+theorem lpd_g_wf:
+ $ sfContextWf (sfMem 0 2 : (sfLSeparationDef0 2 1 :
+   (sfImp (sfLSeparationDef0 2 1) (sfImp (sfAnd sfCLTrue (sfMem 0 2))
+     (sfEx (sfAnd (sfMem 0 2) (sfAll (sfIff (sfMem 0 1)
+       (sfAnd (sfMem 0 4) (sfAll (sfImp (sfMem 0 5) (sfImp (sfMem 0 1) (sfMem 0 3))))))))))) : 0)) $ =
+ '(mpbir sfContextWf_cons (ian sfWf_mem (mpbir sfContextWf_cons (ian sfLSeparationDef0_wf
+   (mpbir sfContextWf_cons (ian lpd_Bpp_wf sfContextWf_nil))))));
+
+theorem lpd_true(G:nat)(hg:$ sfContextWf G $): $ nsLocal G sfCLTrue $ =
+ '(ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfWf_bot hg)))
+   sfContext_member_head));
+
+theorem lpd_local:
+ $ nsLocal ((sfImp (sfLSeparationDef0 2 1) (sfImp (sfAnd sfCLTrue (sfMem 0 2))
+     (sfEx (sfAnd (sfMem 0 2) (sfAll (sfIff (sfMem 0 1)
+       (sfAnd (sfMem 0 4) (sfAll (sfImp (sfMem 0 5) (sfImp (sfMem 0 1) (sfMem 0 3))))))))))) : 0)
+   sfLDefPowerLiteralBody $ =
+ '(ax_mp nsLocal_II (ax_mp nsLocal_II
+   (ax_mp (ax_mp nsLocal_mp
+     (ax_mp (ax_mp nsLocal_mp
+       (ax_mp (ax_mp nsLocal_hyp lpd_g_wf)
+        (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))
+      (ax_mp (ax_mp nsLocal_hyp lpd_g_wf) (ax_mp sfContext_member_tail sfContext_member_head))))
+    (ax_mp (ax_mp sfLocal_and (lpd_true lpd_g_wf))
+     (ax_mp (ax_mp nsLocal_hyp lpd_g_wf) sfContext_member_head)))));
+
+pub theorem sfLDefPowerLiteral_from_definability
+ (hU:$ sfTheoryProvable zfrAxioms (sfLDefinabilityLaw 1 sfLPowerSubsetFormula) $):
+ $ sfTheoryProvable zfrAxioms sfLDefPowerLiteral $ =
+ '(mpbi (sfTheoryProvableeq2 lpd_lit_prefix)
+   (ax_mp (ax_mp sfTheoryProvable_prefix_intro zfrAxioms_closed)
+    (ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed)
+      (mpbir sfTheoryContext_cons (ian
+       (mpbir sfTheoryProofClass_value
+        (mpbi (sfTheoryProvableeq2 lpd_B)
+         (ax_mp (ax_mp sfTheoryProvable_rename zfrAxioms_closed)
+          (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed)
+           (mpbi (sfTheoryProvableeq2 lpd_prefix) hU)))))
+       sfTheoryContext_nil)))
+     lpd_local)));

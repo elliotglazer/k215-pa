@@ -1,0 +1,59 @@
+import "k215_bundle_images_glue.mm1";
+import "k215_bundle_images_tmpl_wp.mm1";
+import "k215_bundle_images_tmpl_wa.mm1";
+import "k215_bundle_images_tmpl_wb.mm1";
+import "k215_bundle_images_tmpl_wk.mm1";
+import "k215_bundle_images_tmpl_dp.mm1";
+import "k215_bundle_images_tmpl_da.mm1";
+import "k215_bundle_images_tmpl_dk.mm1";
+
+-- (lane L01, glue step 3) Case split on the equality type of the labels a, b, k, z = 0.
+
+-- Values of S at b and at 0.
+theorem k215GA_b_eq (G: wff) (a b k: nat) (h: $ G -> a = b $): $ G -> k215GS a b k @ b = 0 $ =
+'(eqtrd (a1i k215GS_value) (syl ifpos (syl eqcom h)));
+theorem k215GA_b_ne (G: wff) (a b k: nat) (h: $ G -> ~ a = b $): $ G -> k215GS a b k @ b = 1 $ =
+'(eqtrd (a1i k215GS_value) (eqtrd (syl ifneg (syl necom h)) (a1i (ifpos eqid))));
+theorem k215GA_z0 (G: wff) (a b k: nat) (h0a: $ G -> 0 = a $): $ G -> k215GS a b k @ 0 = 0 $ =
+'(eqtrd (a1i k215GS_value) (syl ifpos h0a));
+theorem k215GA_z1 (G: wff) (a b k: nat) (h0a: $ G -> ~ 0 = a $) (h0b: $ G -> 0 = b $):
+  $ G -> k215GS a b k @ 0 = 1 $ =
+'(eqtrd (a1i k215GS_value) (eqtrd (syl ifneg h0a) (syl ifpos h0b)));
+theorem k215GA_z2 (G: wff) (a b k: nat) (h0a: $ G -> ~ 0 = a $) (h0b: $ G -> ~ 0 = b $) (h0k: $ G -> 0 = k $):
+  $ G -> k215GS a b k @ 0 = 2 $ =
+'(eqtrd (a1i k215GS_value) (eqtrd (syl ifneg h0a) (eqtrd (syl ifneg h0b) (syl ifpos h0k))));
+theorem k215GA_z3 (G: wff) (a b k: nat) (h0a: $ G -> ~ 0 = a $) (h0b: $ G -> ~ 0 = b $) (h0k: $ G -> ~ 0 = k $):
+  $ G -> k215GS a b k @ 0 = 3 $ =
+'(eqtrd (a1i k215GS_value) (eqtrd (syl ifneg h0a) (eqtrd (syl ifneg h0b) (eqtrd (syl ifneg h0k) (a1i add01)))));
+
+-- One leaf: a template with the labels B, Z gives the symbolic instance.
+theorem k215GA_leaf (G: wff) (a b k q B Z: nat)
+  (hB: $ G -> k215GS a b k @ b = B $) (hZ: $ G -> k215GS a b k @ 0 = Z $)
+  (ht: $ sfTheoryProvable zfrAxioms (k215GX (k215GPhi a b q) B Z) $):
+  $ G -> sfTheoryProvable zfrAxioms (k215GX (k215GPhi a b q) (k215GS a b k @ b) (k215GS a b k @ 0)) $ =
+'(mpbird (sfTheoryProvable_congr (eqtrd (syl k215GX_congrB hB) (syl k215GX_congrZ hZ))) (a1i ht));
+
+pub theorem k215Glue_X (a b k q: nat):
+  $ sfTheoryProvable zfrAxioms (k215GX (k215GPhi a b q) (k215GS a b k @ b) (k215GS a b k @ 0)) $ =
+'(cases
+   (casesda
+     (k215GA_leaf (k215GA_b_eq anl) (k215GA_z0 anr) (k215TmplDa_zfr k215GPhi_wf k215GPhi_bound))
+     (casesda
+       (k215GA_leaf (k215GA_b_eq anll) (k215GA_z2 anlr (mtbid (eqeq2d anll) anlr) anr)
+         (k215TmplDk_zfr k215GPhi_wf k215GPhi_bound))
+       (k215GA_leaf (k215GA_b_eq anll) (k215GA_z3 anlr (mtbid (eqeq2d anll) anlr) anr)
+         (k215TmplDp_zfr k215GPhi_wf k215GPhi_bound))))
+   (casesda
+     (k215GA_leaf (k215GA_b_ne anl) (k215GA_z0 anr) (k215TmplWa_zfr k215GPhi_wf k215GPhi_bound))
+     (casesda
+       (k215GA_leaf (k215GA_b_ne anll) (k215GA_z1 anlr anr) (k215TmplWb_zfr k215GPhi_wf k215GPhi_bound))
+       (casesda
+         (k215GA_leaf (k215GA_b_ne (anwll anl)) (k215GA_z2 anllr anlr anr)
+           (k215TmplWk_zfr k215GPhi_wf k215GPhi_bound))
+         (k215GA_leaf (k215GA_b_ne (anwll anl)) (k215GA_z3 anllr anlr anr)
+           (k215TmplWp_zfr k215GPhi_wf k215GPhi_bound))))));
+
+-- The glue: ZFC proves (bound principle for the normalised matrix) -> (decoded core).
+pub theorem k215Glue (a b k q: nat) (hka: $ k != a $) (hkb: $ k != b $) (hqk: $ q <= k $):
+  $ zfcProvable (sfImp (k215BoundF (k215GPhi a b q)) (k215DecBundleGz a b k 0 (rawDecode q))) $ =
+'(ax_mp (k215Glue_generic hka hkb hqk) k215Glue_X);

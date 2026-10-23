@@ -1,0 +1,31 @@
+import "source_piece_pcf_definable_membership.mm0";
+
+import "source_l_separation_image_profile.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def sfLReplacementImageCoverage(T:set)(D psi Y:nat):nat =
+ $ sfAll (sfImp D (sfImp (sfRelativize D (sfRename T 1 psi)) (sfMem 0 (suc Y)))) $;
+
+def sfLReplacementImageBody(T:set)(D psi X:nat):nat =
+ $ sfAll (sfImp D (sfIff (sfMem 0 (suc X)) (sfRelativize D (sfRename T 1 psi)))) $;
+
+def sfLReplacementImageDefinable(T:set)(D psi Y:nat):nat =
+ $ sfEx (sfAnd D (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap T) psi (suc Y) 0)) $;
+
+def sfLReplacementImageWitness(T:set)(D psi:nat):nat =
+ $ sfEx (sfAnd D (sfLReplacementImageBody (sfComposeMap sfSuccessorMap T) D psi 0)) $;
+
+theorem sfLReplacementImagePoint_local(G a b c d e:nat)
+ (ha:$ sfWf a $)(he:$ sfWf e $)
+ (hp:$ nsLocal G (sfIff a (sfAnd b c)) $)
+ (hs:$ nsLocal G (sfImp d (sfImp e b)) $)
+ (hr:$ nsLocal G (sfImp b (sfIff e c)) $)
+ (hd:$ nsLocal G d $): $ nsLocal G (sfIff a e) $;
+
+theorem sfLReplacementImage_profile(T:set)(G D psi Y X:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile T psi Y X) $)
+ (hs:$ nsLocal G (sfLReplacementImageCoverage T D psi Y) $)
+ (hr:$ nsLocal G (sfLSeparationImageComparison T D psi Y) $):
+ $ nsLocal G (sfLReplacementImageBody T D psi X) $;

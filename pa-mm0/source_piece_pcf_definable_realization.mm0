@@ -1,0 +1,33 @@
+import "source_piece_pcf_definable_witness_transport.mm0";
+
+import "source_piece_pcf_rep_parameters.mm0";
+
+import "source_reflection_transfer_maps.mm0";
+
+def sfPieceDefinableRealizationMap(T:set)(e r A:nat): set = $ sqEnvCons e (sfPieceEnvironment T r A) $;
+
+def sfPieceDefinableRealizationBody(n phi:nat): nat = $ sfImp (sfPieceDefinableRecipeEnvironment n) (sfIff (sfMem 0 1) (sfCLSetRel 2 (sfRename sfPieceDefinableRecipeMap 0 phi))) $;
+
+theorem sfPieceDefinableRealizationMap_zero(T:set)(e r A:nat): $ sfPieceDefinableRealizationMap T e r A @ 0 = e $;
+
+theorem sfPieceDefinableRealizationMap_one(T:set)(e r A:nat): $ sfPieceDefinableRealizationMap T e r A @ 1 = r $;
+
+theorem sfPieceDefinableRealizationMap_two(T:set)(e r A:nat): $ sfPieceDefinableRealizationMap T e r A @ 2 = A $;
+
+theorem sfPieceDefinableRealizationMap_tail(T:set)(e r A i:nat): $ sfPieceDefinableRealizationMap T e r A @ (3 + i) = T @ i $;
+
+theorem sfPieceDefinableRealizationMap_compose(T:set)(e r A i:nat): $ sfComposeMap (sfPieceDefinableRealizationMap T e r A) sfPieceDefinableRecipeMap @ i = T @ i $;
+
+theorem sfPieceDefinableRealization_environment(T:set)(e r A n:nat): $ sfRename (sfPieceDefinableRealizationMap T e r A) 0 (sfPieceDefinableRecipeEnvironment n) = sfPieceEnv T n e $;
+
+theorem sfPieceDefinableRealization_matrix(T:set)(e r A phi:nat)(hf:$ sfWf phi $): $ sfRename (sfPieceDefinableRealizationMap T e r A) 0 (sfCLSetRel 2 (sfRename sfPieceDefinableRecipeMap 0 phi)) = sfCLSetRel A (sfRename T 0 phi) $;
+
+theorem sfPieceDefinableRealization_member(T:set)(e r A:nat): $ sfRename (sfPieceDefinableRealizationMap T e r A) 0 (sfMem 0 1) = sfMem e r $;
+
+theorem sfPieceDefinableRealizationBody_wf(n phi:nat): $ sfWf (sfPieceDefinableRealizationBody n phi) $;
+
+theorem sfPieceDefinableRealization_open(T:set)(n phi e r A:nat)(hf:$ sfWf phi $): $ sfSubst 0 e (sfRename (sfPieceEnvironment T r A) 1 (sfPieceDefinableRealizationBody n phi)) = sfImp (sfPieceEnv T n e) (sfIff (sfMem e r) (sfCLSetRel A (sfRename T 0 phi))) $;
+
+theorem sfPieceDefinableRealization_local(T:set)(G n phi r A e:nat)(hb:$ sfBound n phi $)(hr:$ nsLocal G (sfPieceDefinableNamed n phi r A) $)(hm:$ sfReflectionDnMembers T G A n $)(he:$ nsLocal G (sfPieceEnv T n e) $): $ nsLocal G (sfIff (sfMem e r) (sfCLSetRel A (sfRename T 0 phi))) $;
+
+theorem sfPieceDefinableRealization_included_context(T:set)(G H n phi r A e:nat)(hb:$ sfBound n phi $)(hw:$ sfContextWf H $)(hs:$ sfContextSub G H $)(hr:$ nsLocal G (sfPieceDefinableNamed n phi r A) $)(hm:$ sfReflectionDnMembers T H A n $)(he:$ nsLocal H (sfPieceEnv T n e) $): $ nsLocal H (sfIff (sfMem e r) (sfCLSetRel A (sfRename T 0 phi))) $;

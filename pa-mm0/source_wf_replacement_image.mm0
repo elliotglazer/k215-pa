@@ -1,0 +1,64 @@
+import "source_wf_replacement.mm0";
+
+def wfRImageF0: nat = $ sfMem 0 1 $;
+
+def wfRImageF1: nat = $ sfMem 0 2 $;
+
+def wfRImageF2: nat = $ sfImp wfRImageF0 wfRImageF1 $;
+
+def wfRImageF3: nat = $ sfAll wfRImageF2 $;
+
+def wfRImageF4: nat = $ sfImp wfRImageF0 wfRImageF3 $;
+
+def wfRImageF5: nat = $ sfAll wfRImageF4 $;
+
+def wfRImageF6: nat = $ sfEx wfRImageF0 $;
+
+def wfRImageF7: nat = $ sfBot $;
+
+def wfRImageF8: nat = $ sfImp wfRImageF1 wfRImageF7 $;
+
+def wfRImageF9: nat = $ sfImp wfRImageF0 wfRImageF8 $;
+
+def wfRImageF10: nat = $ sfAll wfRImageF9 $;
+
+def wfRImageF11: nat = $ sfAnd wfRImageF0 wfRImageF10 $;
+
+def wfRImageF12: nat = $ sfEx wfRImageF11 $;
+
+def wfRImageF13: nat = $ sfImp wfRImageF6 wfRImageF12 $;
+
+def wfRImageF14: nat = $ sfImp wfRImageF3 wfRImageF13 $;
+
+def wfRImageF15: nat = $ sfAll wfRImageF14 $;
+
+def wfRImageF16: nat = $ sfAnd wfRImageF5 wfRImageF15 $;
+
+def wfRImageF17: nat = $ sfMem 2 0 $;
+
+def wfRImageF18: nat = $ sfAnd wfRImageF16 wfRImageF17 $;
+
+def wfRImageF19: nat = $ sfEx wfRImageF18 $;
+
+def wfRImageF20: nat = $ sfMem 1 0 $;
+
+def wfRImageF21: nat = $ sfAnd wfRImageF16 wfRImageF20 $;
+
+def wfRImageF22: nat = $ sfEx wfRImageF21 $;
+
+def wfRImageF23: nat = $ sfMem 3 0 $;
+
+def wfRImageF24: nat = $ sfAnd wfRImageF16 wfRImageF23 $;
+
+def wfRImageF25: nat = $ sfEx wfRImageF24 $;
+
+def sfWFReplacementDomainOne: nat = $ wfRImageF19 $;
+
+def sfWFReplacementMatrix (phi: nat): nat = $ sfAnd (sfAnd sfWFDomain sfWFReplacementDomainOne) (sfRelativize sfWFDomain phi) $;
+
+theorem sfWFReplacement_relativize_eq (a b c: nat):
+ $ sfRelativize sfWFDomain (sfReplacement a b c) =
+   sfWFReplacementGuarded (sfRelativize sfWFDomain a)
+    (sfRelativize sfWFDomain b) (sfRelativize sfWFDomain c) $;
+
+theorem sfWFReplacement_schema (phi n: nat): $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain (zfcReplacementCode phi n)) $;

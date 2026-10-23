@@ -1,0 +1,69 @@
+import "k215_calculus_forward.mm1";
+import "k215_rho8_recovery.mm1";
+
+theorem k215CE_transport (n q: nat) (hq: $ k215Provable q $):
+  $ n = q -> k215Provable n $ =
+'(mpbiri hq (k215Provableeqd id));
+
+theorem k215CE_bundle (n a b c: nat):
+  $ c != a /\ c != b /\ n = k218Bundle a b c -> k215Provable n $ =
+'(mpbird (k215Provableeqd anr)
+  (syl (syl k215Provable_axiom k215Axioms_bundle) anl));
+
+theorem k215CE_rows (n a b c u: nat):
+  $ k218AxBody n a b c u -> k215Provable n $ =
+'(eori (k215CE_transport (k215Provable_axiom k215Axioms_rho1)) (eori (k215CE_transport (k215Provable_axiom k215Axioms_rho2)) (eori (k215CE_transport (k215Provable_axiom k215Axioms_rho3)) (eori (k215CE_transport (k215Provable_axiom k215Axioms_rho4)) (eori (k215CE_transport (k215Provable_axiom k215Axioms_rho5)) (eori (k215CE_transport (k215Provable_axiom k215Axioms_rho6)) (eori (k215CE_transport (k215Provable_axiom k215Axioms_G)) (eori (k215CE_transport k215Provable_rho8) k215CE_bundle))))))));
+
+theorem k215CE_family {a b c u: nat} (n: nat):
+  $ E. a E. b E. c E. u k218AxBody n a b c u -> k215Provable n $ =
+(named '(eex @ eex @ eex @ eex k215CE_rows));
+
+theorem k215CE_axiom (n: nat):
+  $ n e. k218Axioms -> k215Provable n $ =
+(named '(syl (eori
+  (k215CE_transport (k215Provable_axiom k215Axioms_true))
+  k215CE_family) (bi1 k218Axioms_value)));
+
+theorem k215CE_axiom_class (n: nat):
+  $ n e. k218Axioms -> n e. k215Theorems $ =
+'(syl (bi2 k215Theorems_value) k215CE_axiom);
+
+theorem k215CE_mp_closed: $ k218MPClosed k215Theorems $ =
+(named '(ax_gen @ ax_gen @ syl (bi2 k215Theorems_value) @
+  mpd (syl (bi1 k215Theorems_value) anr)
+    (syl k215Provable_mp (syl (bi1 k215Theorems_value) anl))));
+
+theorem k215CE_gen_closed: $ k218GenClosed k215Theorems $ =
+(named '(ax_gen @ ax_gen @ syl (bi2 k215Theorems_value) @
+  syl k215Provable_gen (bi1 k215Theorems_value)));
+
+pub theorem k215Cal_replacement_closed: $ k218Closed k215Theorems $ =
+(named '(ian (ian (ax_gen k215CE_axiom_class) k215CE_mp_closed)
+  k215CE_gen_closed));
+
+pub theorem k215Cal_Derives_reverse (p a: nat):
+  $ k218Derives p a -> k215Provable a $ =
+'(syl (bi1 k215Theorems_value)
+  (k218Derives_induction k215Cal_replacement_closed));
+
+pub theorem k215Cal_Provable_reverse (a: nat):
+  $ k218Provable a -> k215Provable a $ =
+(named '(eex k215Cal_Derives_reverse));
+
+pub theorem k215Cal_Provable_iff (a: nat):
+  $ k215Provable a <-> k218Provable a $ =
+'(ibii k215Cal_Provable_forward k215Cal_Provable_reverse);
+
+theorem k215CE_bad: $ k215Provable kF -> k215Inconsistent $ = (named 'id);
+
+theorem k215CE_inconsistent_witness (p: nat):
+  $ k218Derives p kF -> k215Inconsistent $ =
+'(syl k215CE_bad (! k215Cal_Derives_reverse $ p $ $ kF $));
+
+pub theorem k215Cal_Inconsistent_reverse:
+  $ k218Inconsistent -> k215Inconsistent $ =
+(named '(eex k215CE_inconsistent_witness));
+
+pub theorem k215Cal_Inconsistent_iff:
+  $ k215Inconsistent <-> k218Inconsistent $ =
+'(ibii k215Cal_Inconsistent_forward k215Cal_Inconsistent_reverse);

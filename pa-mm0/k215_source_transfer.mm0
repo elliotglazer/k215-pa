@@ -1,0 +1,33 @@
+import "raw_seed_logic.mm0";
+
+import "source_theory_renaming.mm0";
+
+import "k215_induction.mm0";
+
+def k215SourceBundleImages (.a .b .c: nat): wff = $ A. a A. b A. c (c != a /\ c != b -> zfcProvable (rawDecode (k218Bundle a b c))) $;
+
+def k215SourceImage (.a: nat): set = $ {a | zfcProvable (rawDecode a)} $;
+
+theorem k215SourceImage_value (a: nat):
+ $ a e. k215SourceImage <-> zfcProvable (rawDecode a) $;
+
+theorem k215SourceBundleImages_at (a b c: nat):
+ $ k215SourceBundleImages -> c != a /\ c != b -> zfcProvable (rawDecode (k218Bundle a b c)) $;
+
+theorem k215SourceBundleImages_axioms:
+ $ k215SourceBundleImages -> k215Axioms C_ k215SourceImage $;
+
+theorem k215SourceImage_mp:
+ $ k215MPClosed k215SourceImage $;
+
+theorem k215SourceImage_gen:
+ $ k215GenClosed k215SourceImage $;
+
+theorem k215SourceBundleImages_closed:
+ $ k215SourceBundleImages -> k215Closed k215SourceImage $;
+
+theorem k215Source_proof_transfer (a: nat):
+ $ k215SourceBundleImages -> k215Provable a -> zfcProvable (rawDecode a) $;
+
+theorem k215Source_refutation_transfer:
+ $ k215SourceBundleImages -> k215Inconsistent -> zfcInconsistent $;

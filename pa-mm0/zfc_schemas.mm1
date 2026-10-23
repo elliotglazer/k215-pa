@@ -1,0 +1,162 @@
+import "source_syntax_elim.mm1";
+import "source_bounds.mm1";
+
+do (apply (register-eqd 'sfAll) '(sfAll_congr));
+theorem sfSchema_wf_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> (sfWf a <-> sfWf b) $ = '(syl srecpeq2 h);
+do (apply (register-eqd 'sfWf) '(sfSchema_wf_congr));
+
+theorem sfSchema_wf_eq (a b: nat) (h: $ a = b $):
+  $ sfWf a <-> sfWf b $ = '(ax_mp srecpeq2 h);
+theorem sfSchema_aneq (a b c d: wff)
+  (h1: $ a <-> b $) (h2: $ c <-> d $): $ a /\ c <-> b /\ d $ =
+'(ax_mp (ax_mp aneq h1) h2);
+theorem sfSchema_symm_pair (a b: wff):
+  $ (a /\ b) /\ (b /\ a) <-> a /\ b $ =
+'(ibii anl (iand id (bi1 ancomb)));
+
+@_ def sfIff (a b: nat): nat = $ sfAnd (sfImp a b) (sfImp b a) $;
+@_ def sfSeparation (body: nat): nat =
+$ sfAll (sfEx (sfAll (sfIff (sfMem 0 1) (sfAnd (sfMem 0 2) body)))) $;
+@_ def sfFunctionality (bodyA bodyB: nat): nat =
+$ sfAll (sfAll (sfAll (sfImp bodyA (sfImp bodyB (sfEq 1 0))))) $;
+@_ def sfReplacement (bodyA bodyB bodyC: nat): nat =
+$ sfImp (sfFunctionality bodyA bodyB)
+    (sfAll (sfEx (sfAll
+      (sfIff (sfMem 0 1) (sfEx (sfAnd (sfMem 0 3) bodyC)))))) $;
+@_ abstract def sfAllPrefix (n c .a: nat): nat = $ rec c (\ a, sfAll a) n $;
+
+pub theorem sfSeparation_congr (G: wff) (a b: nat) (h: $ G -> a = b $):
+  $ G -> sfSeparation a = sfSeparation b $ = '(sfSeparationeqd h);
+pub theorem sfReplacement_congr (G: wff) (a b c d e f: nat)
+  (h1: $ G -> a = b $) (h2: $ G -> c = d $) (h3: $ G -> e = f $):
+  $ G -> sfReplacement a c e = sfReplacement b d f $ =
+'(sfReplacementeqd h1 h2 h3);
+pub theorem sfAllPrefix_congr (G: wff) (n m a b: nat)
+  (h1: $ G -> n = m $) (h2: $ G -> a = b $):
+  $ G -> sfAllPrefix n a = sfAllPrefix m b $ = '(sfAllPrefixeqd h1 h2);
+
+pub theorem sfAllPrefix_zero (c: nat): $ sfAllPrefix 0 c = c $ = (named 'rec0);
+pub theorem sfAllPrefix_suc (n c: nat):
+  $ sfAllPrefix (suc n) c = sfAll (sfAllPrefix n c) $ =
+'(eqtr recS @ ! applame $ sfAllPrefix n c $ _ a _ sfAll_eq);
+
+pub theorem sfWf_iff (a b: nat):
+  $ sfWf (sfIff a b) <-> sfWf a /\ sfWf b $ =
+'(bitr sfWf_and_iff @ bitr
+  (sfSchema_aneq sfWf_imp_iff sfWf_imp_iff) sfSchema_symm_pair);
+
+pub theorem sfWf_separation (body: nat):
+  $ sfWf (sfSeparation body) <-> sfWf body $ =
+'(bitr sfWf_all_iff @ bitr sfWf_ex_iff @ bitr sfWf_all_iff @
+  bitr sfWf_iff @ bitr (ax_mp bian1 sfWf_mem) @
+  bitr sfWf_and_iff (ax_mp bian1 sfWf_mem));
+
+pub theorem sfWf_functionality (a b: nat):
+  $ sfWf (sfFunctionality a b) <-> sfWf a /\ sfWf b $ =
+'(bitr sfWf_all_iff @ bitr sfWf_all_iff @ bitr sfWf_all_iff @
+  bitr sfWf_imp_iff @ sfSchema_aneq biid @
+  bitr sfWf_imp_iff (ax_mp bian2 sfWf_eq));
+
+pub theorem sfWf_replacement (a b c: nat):
+  $ sfWf (sfReplacement a b c) <-> sfWf a /\ sfWf b /\ sfWf c $ =
+'(bitr sfWf_imp_iff @ sfSchema_aneq sfWf_functionality @
+  bitr sfWf_all_iff @ bitr sfWf_ex_iff @ bitr sfWf_all_iff @
+  bitr sfWf_iff @ bitr (ax_mp bian1 sfWf_mem) @
+  bitr sfWf_ex_iff @ bitr sfWf_and_iff (ax_mp bian1 sfWf_mem));
+
+pub theorem sfWf_allPrefix (n c: nat):
+  $ sfWf (sfAllPrefix n c) <-> sfWf c $ =
+(named @ induct '(ind) 'n
+  '(sfSchema_wf_eq sfAllPrefix_zero)
+  '(syl5bb (sfSchema_wf_eq sfAllPrefix_suc) @ syl5bb sfWf_all_iff id));
+
+theorem sfSchema_bound_congr (G: wff) (n m a b: nat)
+  (h1: $ G -> n = m $) (h2: $ G -> a = b $):
+  $ G -> (sfBound n a <-> sfBound m b) $ =
+'(syl srecpeq2 (preqd h1 h2));
+theorem sfSchema_bound_congr_left (G: wff) (n m a: nat)
+  (h: $ G -> n = m $): $ G -> (sfBound n a <-> sfBound m a) $ =
+'(sfSchema_bound_congr h (a1i eqid));
+theorem sfSchema_bound_congr_right (G: wff) (n a b: nat)
+  (h: $ G -> a = b $): $ G -> (sfBound n a <-> sfBound n b) $ =
+'(sfSchema_bound_congr (a1i eqid) h);
+do (apply (register-eqd 'sfBound)
+  '(sfSchema_bound_congr sfSchema_bound_congr_left sfSchema_bound_congr_right));
+theorem sfSchema_bound_eq (n a b: nat) (h: $ a = b $):
+  $ sfBound n a <-> sfBound n b $ = '(ax_mp srecpeq2 (preq2 h));
+theorem sfSchema_bound_index_eq (n m a: nat) (h: $ n = m $):
+  $ sfBound n a <-> sfBound m a $ = '(ax_mp srecpeq2 (preq1 h));
+
+pub theorem sfBound_iff (n a b: nat):
+  $ sfBound n (sfIff a b) <-> sfBound n a /\ sfBound n b $ =
+'(bitr sfBound_sfAnd @ bitr
+  (sfSchema_aneq sfBound_sfImp sfBound_sfImp) sfSchema_symm_pair);
+
+theorem sfSchema_bound_mem01 (n: nat):
+  $ sfBound (suc (suc (suc n))) (sfMem 0 1) $ =
+'(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+theorem sfSchema_bound_mem02 (n: nat):
+  $ sfBound (suc (suc (suc n))) (sfMem 0 2) $ =
+'(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+theorem sfSchema_bound_eq10 (n: nat):
+  $ sfBound (suc (suc (suc n))) (sfEq 1 0) $ =
+'(mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) lt01S));
+theorem sfSchema_bound_mem03 (n: nat):
+  $ sfBound (suc (suc (suc (suc n)))) (sfMem 0 3) $ =
+'(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))));
+
+pub theorem sfBound_separation (n body: nat):
+  $ sfBound n (sfSeparation body) <-> sfBound (suc (suc (suc n))) body $ =
+'(bitr sfBound_sfAll @ bitr sfBound_sfEx @ bitr sfBound_sfAll @
+  bitr sfBound_iff @ bitr (ax_mp bian1 sfSchema_bound_mem01) @
+  bitr sfBound_sfAnd (ax_mp bian1 sfSchema_bound_mem02));
+
+pub theorem sfBound_functionality (n a b: nat):
+  $ sfBound n (sfFunctionality a b) <->
+    sfBound (suc (suc (suc n))) a /\ sfBound (suc (suc (suc n))) b $ =
+'(bitr sfBound_sfAll @ bitr sfBound_sfAll @ bitr sfBound_sfAll @
+  bitr sfBound_sfImp @ sfSchema_aneq biid @
+  bitr sfBound_sfImp (ax_mp bian2 sfSchema_bound_eq10));
+
+pub theorem sfBound_replacement (n a b c: nat):
+  $ sfBound n (sfReplacement a b c) <->
+    sfBound (suc (suc (suc n))) a /\ sfBound (suc (suc (suc n))) b /\
+    sfBound (suc (suc (suc (suc n)))) c $ =
+'(bitr sfBound_sfImp @ sfSchema_aneq sfBound_functionality @
+  bitr sfBound_sfAll @ bitr sfBound_sfEx @ bitr sfBound_sfAll @
+  bitr sfBound_iff @ bitr (ax_mp bian1 sfSchema_bound_mem01) @
+  bitr sfBound_sfEx @ bitr sfBound_sfAnd (ax_mp bian1 sfSchema_bound_mem03));
+
+theorem sfSchema_bound_prefix_at (n c m: nat):
+  $ A. j (sfBound j (sfAllPrefix n c) <-> sfBound (j + n) c) ->
+    (sfBound (suc m) (sfAllPrefix n c) <-> sfBound (suc m + n) c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem sfSchema_bound_prefix_rename (n c: nat):
+  $ (A. j (sfBound j (sfAllPrefix n c) <-> sfBound (j + n) c)) <->
+    (A. q (sfBound q (sfAllPrefix n c) <-> sfBound (q + n) c)) $ =
+(named '(cbval ,eqtac));
+
+theorem sfSchema_bound_prefix_all (n c: nat):
+  $ A. j (sfBound j (sfAllPrefix n c) <-> sfBound (j + n) c) $ =
+(named @ induct '(ind) 'n
+  '(ax_gen @ bitr (sfSchema_bound_eq sfAllPrefix_zero)
+      (bicom (sfSchema_bound_index_eq add0)))
+  '(sylibr sfSchema_bound_prefix_rename @ !! iald q @
+      syl6bb (sfSchema_bound_index_eq addSass) @
+      syl5bb (sfSchema_bound_eq sfAllPrefix_suc) @
+      syl5bb sfBound_sfAll sfSchema_bound_prefix_at));
+
+theorem sfSchema_bound_prefix_get (m n c: nat):
+  $ A. j (sfBound j (sfAllPrefix n c) <-> sfBound (j + n) c) ->
+    (sfBound m (sfAllPrefix n c) <-> sfBound (m + n) c) $ =
+(named '(!! eale j ,eqtac));
+
+pub theorem sfBound_allPrefix (m n c: nat):
+  $ sfBound m (sfAllPrefix n c) <-> sfBound (m + n) c $ =
+(named '(ax_mp sfSchema_bound_prefix_get sfSchema_bound_prefix_all));
+
+pub theorem sfBound_allPrefix_closed (n c: nat):
+  $ sfBound 0 (sfAllPrefix n c) <-> sfBound n c $ =
+'(bitr sfBound_allPrefix (sfSchema_bound_index_eq add01));

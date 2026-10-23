@@ -1,0 +1,25 @@
+import "bb215_arithmetic_formula_depth_one_sat.mm0";
+
+import "bb215_arithmetic_formula_pair.mm0";
+
+import "bb215_tables.mm0";
+
+def bb215ArithmeticFormulaStateGraph (q l r s .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph l r p /\ bb215ArithmeticFormulaPairGraph q p s) $;
+
+theorem bb215ArithmeticFormulaStateGraph_correct (q l r s: nat) {p: nat}: $ bb215ArithmeticFormulaStateGraph q l r s <-> s = k215TMState q l r $;
+
+theorem bb215ArithmeticFormulaStateGraph_components (q l r s: nat): $ bb215ArithmeticFormulaStateGraph q l r s <-> k215TMQ s = q /\ (k215TML s = l /\ k215TMR s = r) $;
+
+def bb215ArithmeticFormulaStateCode: nat = $ paFormulaEx (paFormulaAnd (paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 0)) (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable 2) (paTermVariable 3)) (paTermSuccessor (paTermAddition (paTermVariable 2) (paTermVariable 3)))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 3)))) (paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 4)) (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable 1) (paTermVariable 0)) (paTermSuccessor (paTermAddition (paTermVariable 1) (paTermVariable 0)))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable 0))))) $;
+
+def bb215ArithmeticFormulaStateSource: nat = $ paSourceFormulaEx (sfAnd (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 0)) (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable 2) (paSourceTermVariable 3)) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable 2) (paSourceTermVariable 3)))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 3)))) (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 4)) (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable 1) (paSourceTermVariable 0)) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable 1) (paSourceTermVariable 0)))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable 0))))) $;
+
+theorem bb215ArithmeticFormulaStateCode_bound: $ paFormulaBound 4 bb215ArithmeticFormulaStateCode $;
+
+theorem bb215ArithmeticFormulaStateCode_satisfies (E: set): $ bb215ArithmeticFormulaDepthOneSat E bb215ArithmeticFormulaStateCode <-> bb215ArithmeticFormulaStateGraph (E @ 0) (E @ 1) (E @ 2) (E @ 3) $;
+
+theorem bb215ArithmeticFormulaStateCode_represents (E: set): $ bb215ArithmeticFormulaDepthOneSat E bb215ArithmeticFormulaStateCode <-> E @ 3 = k215TMState (E @ 0) (E @ 1) (E @ 2) $;
+
+theorem bb215ArithmeticFormulaStateSource_exact: $ paFormulaSource bb215ArithmeticFormulaStateCode = bb215ArithmeticFormulaStateSource $;
+
+theorem bb215ArithmeticFormulaStateSource_bound: $ sfBound 4 bb215ArithmeticFormulaStateSource $;

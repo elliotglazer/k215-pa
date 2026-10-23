@@ -1,0 +1,113 @@
+import "source_l_replacement_witness.mm1";
+import "source_l_replacement_matrix.mm1";
+import "source_renaming_extensional.mm1";
+import "source_relative_prefix.mm1";
+
+@_ def sfLReplacementFunctional(phi:nat):nat =
+ $ sfRelativize sfLDomain (sfFunctionality (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi)) $;
+
+@_ def sfLReplacementInputContext(phi:nat):nat =
+ $ sfLDomain : sfContextShift (sfLReplacementFunctional phi : 0) $;
+
+theorem lrepSchema_plus4(i:nat): $ i + 4 = suc (suc (suc (suc i))) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))))));
+
+theorem lrepSchema_C_zero:
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ 0 = sfRepCMap @ 0 $ =
+ '(eqtr sfRenameDepthMap_value (eqtr (ax_mp sfRenameIndex_bound lt01S) (eqcom sfRepCMap_zero)));
+
+theorem lrepSchema_C_one:
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ 1 = sfRepCMap @ 1 $ =
+ '(eqtr sfRenameDepthMap_value (eqtr (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S)) (eqcom sfRepCMap_one)));
+
+theorem lrepSchema_C_tail(i:nat):
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ suc (suc i) = sfRepCMap @ suc (suc i) $ =
+ '(eqtr sfRenameDepthMap_value (eqtr (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero (eqtr sfComposeMap_value (eqtr (appeq2 sfSuccessorMap_value) sfSuccessorMap_value))))))) (eqtr (eqcom lrepSchema_plus4) (eqcom sfRepCMap_tail))));
+
+theorem lrepSchema_C_suc(i:nat):
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ suc i = sfRepCMap @ suc i $ =
+ (named @ induct '(ind) 'i 'lrepSchema_C_one '(a1i lrepSchema_C_tail));
+
+theorem lrepSchema_C_at(i:nat):
+ $ sfRenameDepthMap (sfComposeMap sfSuccessorMap sfSuccessorMap) 2 @ i = sfRepCMap @ i $ =
+ (named @ induct '(ind) 'i 'lrepSchema_C_zero '(a1i lrepSchema_C_suc));
+
+theorem lrepSchema_C_shift(phi:nat)(hf:$ sfWf phi $):
+ $ sfShift 2 (sfShift 2 phi) = sfRename sfRepCMap 0 phi $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfShift_wf)) (eqtr (sfRenameeq3 (eqcom (ax_mp sfRename_successor hf))) (eqtr (ax_mp sfRename_compose hf) (eqtr (ax_mp sfRename_as_map hf) (ax_mp (sfRename_extensional (!! ax_gen i @ ! lrepSchema_C_at i)) hf))))));
+
+theorem lrepSchema_identity_at(i:nat):
+ $ sfComposeMap sfSuccessorMap sfIdentityMap @ i = sfSuccessorMap @ i $ =
+ '(eqtr sfComposeMap_value (appeq2 sfIdentityMap_value));
+
+theorem lrepSchema_identity_rename(psi:nat)(hf:$ sfWf psi $):
+ $ sfRename (sfComposeMap sfSuccessorMap sfIdentityMap) 1 psi = sfShift 1 psi $ =
+ (named '(eqtr (ax_mp (sfRename_extensional (!! ax_gen i @ ! lrepSchema_identity_at i)) hf)
+  (ax_mp sfRename_successor hf)));
+
+theorem lrepSchema_psi_shift(phi:nat)(hf:$ sfWf phi $):
+ $ sfShift 1 (sfLReplacementPsi phi) = sfEx (sfAnd (sfMem 0 3) (sfRename sfRepCMap 0 phi)) $ =
+ '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) (mt (bi2 ltsuc) lt02))))) (lrepSchema_C_shift hf)))));
+
+theorem lrepSchema_range(phi:nat)(hf:$ sfWf phi $):
+ $ sfRelativize sfLDomain (sfRename (sfComposeMap sfSuccessorMap sfIdentityMap) 1 (sfLReplacementPsi phi)) =
+ sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 3) (sfRelativize sfLDomain (sfRename sfRepCMap 0 phi)))) $ =
+ '(eqtr (sfRelativizeeq2 (lrepSchema_identity_rename (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfShift_wf)))) (eqtr (sfRelativizeeq2 (lrepSchema_psi_shift hf)) (eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid)))))));
+
+pub theorem sfLReplacementImageWitness_literal(phi:nat)(hf:$ sfWf phi $):
+ $ sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi) =
+ sfEx (sfAnd sfLDomain (sfAll (sfImp sfLDomain (sfIff (sfMem 0 1)
+  (sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 3) (sfRelativize sfLDomain (sfRename sfRepCMap 0 phi))))))))) $ =
+ '(nsEx_eq (nsAnd_eq eqid (nsAll_eq (nsImp_eq eqid (sfIffeq eqid (lrepSchema_range hf))))));
+
+theorem lrepSchema_rel_iff(D a b:nat):
+ $ sfRelativize D (sfIff a b) = sfIff (sfRelativize D a) (sfRelativize D b) $ =
+ '(eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfImp sfRelativize_sfImp));
+
+pub theorem sfLReplacement_relative_literal(phi:nat)(hf:$ sfWf phi $):
+ $ sfRelativize sfLDomain (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi)) =
+ sfImp (sfLReplacementFunctional phi) (sfAll (sfImp sfLDomain (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)))) $ =
+ '(eqtr sfRelativize_sfImp (nsImp_eq eqid (eqtr (eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid (eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid (eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid (eqtr lrepSchema_rel_iff (sfIffeq sfRelativize_sfMem (eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid)))))))))))))))) (nsAll_eq (nsImp_eq eqid (eqcom (sfLReplacementImageWitness_literal hf)))))));
+
+pub theorem sfLReplacement_open_from_witness(phi:nat)(hf:$ sfWf phi $)
+ (hw:$ nsLocal (sfLReplacementInputContext phi) (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)) $):
+ $ nsLocal 0 (sfRelativize sfLDomain (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi))) $ =
+ '(sfRQ_rewrite (eqcom (sfLReplacement_relative_literal hf))
+  (ax_mp nsLocal_II (ax_mp (sfLocal_allI (mpbir sfContextWf_cons (ian
+   (ax_mp sfRelativize_wf sfLDomain_wf) sfContextWf_nil))) (ax_mp nsLocal_II hw))));
+
+pub theorem sfLReplacement_schema_from_witness(phi n:nat)(hb:$ sfBound (suc (suc n)) phi $)
+ (hw:$ nsLocal (sfLReplacementInputContext phi) (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $ =
+ '(ax_mp (sfTheory_relative_prefix zfrAxioms_closed sfLDomain_wf)
+  (ax_mp sfTheory_pure (sfLReplacement_open_from_witness (ax_mp sfBound_wf hb) hw)));
+
+pub theorem sfLReplacement_schema_from_definable(phi n Y:nat)(hb:$ sfBound (suc (suc n)) phi $)
+ (he:$ nsLocal (sfLReplacementInputContext phi) (sfLReplacementImageDefinable sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $)
+ (hs:$ nsLocal (sfLReplacementInputContext phi) (sfLReplacementImageCoverage sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $)
+ (hr:$ nsLocal (sfLReplacementInputContext phi) (sfLSeparationImageComparison sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $ =
+ '(sfLReplacement_schema_from_witness hb (sfLReplacementImage_witness sfLDomain_bound
+  (ax_mp sfBound_wf (ax_mp sfLReplacementPsi_bound hb)) he hs hr));
+
+@_ def sfLReplacementInputOverContext(G phi:nat):nat =
+ $ sfLDomain : sfContextShift (sfLReplacementFunctional phi : G) $;
+
+pub theorem sfLReplacement_open_in_context(G phi:nat)(hg:$ sfContextWf G $)(hf:$ sfWf phi $)
+ (hw:$ nsLocal (sfLReplacementInputOverContext G phi) (sfLReplacementImageWitness sfIdentityMap sfLDomain (sfLReplacementPsi phi)) $):
+ $ nsLocal G (sfRelativize sfLDomain (sfReplacement (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi) (sfRename sfRepCMap 0 phi))) $ =
+ '(sfRQ_rewrite (eqcom (sfLReplacement_relative_literal hf))
+  (ax_mp nsLocal_II (ax_mp (sfLocal_allI (mpbir sfContextWf_cons (ian
+   (ax_mp sfRelativize_wf sfLDomain_wf) hg))) (ax_mp nsLocal_II hw))));
+
+pub theorem sfLReplacement_schema_in_context(G phi n Y:nat)(hg:$ sfContextWf G $)
+ (hbase:$ all (sfTheoryProofClass zfrAxioms) G $)(hb:$ sfBound (suc (suc n)) phi $)
+ (he:$ nsLocal (sfLReplacementInputOverContext G phi) (sfLReplacementImageDefinable sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $)
+ (hs:$ nsLocal (sfLReplacementInputOverContext G phi) (sfLReplacementImageCoverage sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $)
+ (hr:$ nsLocal (sfLReplacementInputOverContext G phi) (sfLSeparationImageComparison sfIdentityMap sfLDomain (sfLReplacementPsi phi) Y) $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain (zfcReplacementCode phi n)) $ =
+ '(ax_mp (sfTheory_relative_prefix zfrAxioms_closed sfLDomain_wf)
+  (ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed) hbase)
+   (sfLReplacement_open_in_context hg (ax_mp sfBound_wf hb)
+    (sfLReplacementImage_witness sfLDomain_bound
+     (ax_mp sfBound_wf (ax_mp sfLReplacementPsi_bound hb)) he hs hr))));

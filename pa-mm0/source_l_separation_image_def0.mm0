@@ -1,0 +1,62 @@
+import "source_l_separation_image_op5_profile.mm0";
+
+import "source_piece_pcf_rep_cover_laws_r39.mm0";
+
+import "source_l_level_member_names.mm0";
+
+import "source_relative_contexts.mm0";
+
+def sfLSeparationDef0Forward(A C D:nat):nat =
+ $ sfAll (sfImp (sfMem 0 (suc D)) (sfAnd (sfMem 0 (suc C)) (sfCLSubset 0 (suc A)))) $;
+
+def sfLSeparationDef0Reverse(A C D:nat):nat =
+ $ sfAll (sfImp (sfMem 0 (suc C)) (sfImp (sfCLSubset 0 (suc A)) (sfMem 0 (suc D)))) $;
+
+def sfLSeparationDef0Witness(A D:nat):nat =
+ $ sfAnd (sfAnd (sfAnd (sfPieceRepSuccessor (suc (suc A)) 1) (sfPieceRepClosure 1 0))
+   (sfLSeparationDef0Forward (suc (suc A)) 0 (suc (suc D))))
+   (sfLSeparationDef0Reverse (suc (suc A)) 0 (suc (suc D))) $;
+
+def sfLSeparationDef0(A D:nat):nat = $ sfEx (sfEx (sfLSeparationDef0Witness A D)) $;
+
+def sfLSeparationDefClosureAt(a A D y:nat):nat =
+ $ sfImp (sfCLOrdinalAt a) (sfImp (sfCLHierarchyAt a A)
+    (sfImp (sfLSeparationDef0 A D) (sfImp (sfMem y D) (sfDomainAt sfLDomain y)))) $;
+
+def sfLSeparationDefClosureLaw:nat =
+ $ sfAll (sfAll (sfAll (sfAll (sfLSeparationDefClosureAt 3 2 1 0)))) $;
+
+theorem sfLSeparationDef0_wf(A D:nat): $ sfWf (sfLSeparationDef0 A D) $;
+
+theorem sfLSeparationDef0_eq(A D B E:nat)(ha:$ A = B $)(hd:$ D = E $):
+ $ sfLSeparationDef0 A D = sfLSeparationDef0 B E $;
+
+theorem sfLSeparationDef0_subst(k t A D:nat):
+ $ sfSubst k t (sfLSeparationDef0 A D) = sfLSeparationDef0 (sfSubstIndex k t A) (sfSubstIndex k t D) $;
+
+theorem sfLSeparationDef0Reverse_member(G A C D y:nat)
+ (hr:$ nsLocal G (sfLSeparationDef0Reverse A C D) $)
+ (hy:$ nsLocal G (sfMem y C) $)(hs:$ nsLocal G (sfCLSubset y A) $):
+ $ nsLocal G (sfMem y D) $;
+
+theorem sfLSeparationDefinableProfile_subset(T:set)(G phi A Y:nat)
+ (hp:$ nsLocal G (sfPieceDefinableProfile T phi A Y) $):
+ $ nsLocal G (sfCLSubset Y A) $;
+
+theorem sfLSeparationDef0_profile_member(T:set)(G phi A C D y:nat)
+ (hr:$ nsLocal G (sfLSeparationDef0Reverse A C D) $)
+ (hy:$ nsLocal G (sfMem y C) $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile T phi A y) $):
+ $ nsLocal G (sfMem y D) $;
+
+theorem sfLSeparationDefClosureAt_apply(G a A D y:nat)
+ (hc:$ nsLocal G (sfLSeparationDefClosureAt a A D y) $)
+ (ha:$ nsLocal G (sfCLOrdinalAt a) $)(hA:$ nsLocal G (sfCLHierarchyAt a A) $)
+ (hd:$ nsLocal G (sfLSeparationDef0 A D) $)(hy:$ nsLocal G (sfMem y D) $):
+ $ nsLocal G (sfDomainAt sfLDomain y) $;
+
+theorem sfLSeparationDefClosure_use(G a A D y:nat)
+ (hp:$ nsLocal G sfLSeparationDefClosureLaw $)
+ (ha:$ nsLocal G (sfCLOrdinalAt a) $)(hA:$ nsLocal G (sfCLHierarchyAt a A) $)
+ (hd:$ nsLocal G (sfLSeparationDef0 A D) $)(hy:$ nsLocal G (sfMem y D) $):
+ $ nsLocal G (sfDomainAt sfLDomain y) $;

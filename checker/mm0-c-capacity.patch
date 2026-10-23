@@ -1,0 +1,71 @@
+--- a/mm0-c/main.c
++++ b/mm0-c/main.c
+@@ -35,8 +35,14 @@
+ 
+   char* fname = argv[1];
+   int fd = open(fname, O_RDONLY);
++#ifdef WIN32
++  // 64-bit file size: plain fstat's st_size is 32-bit on Windows (files over 2 GiB).
++  struct _stat64 buf;
++  if (fd < 0 || _fstat64(fd, &buf) < 0) {
++#else
+   struct stat buf;
+   if (fd < 0 || fstat(fd, &buf) < 0) {
++#endif
+     fprintf(stderr, "Error: Unable to read file %s\n", fname);
+     return ERR_READ;
+   }
+--- a/mm0-c/parser.c
++++ b/mm0-c/parser.c
+@@ -867,7 +867,25 @@
+   }
+ }
+ 
++// Zero-filled trie storage, equivalent to a static array of `size` nodes.
++// On Windows, VirtualAlloc pages are zero and only become resident when touched.
++trie alloc_trie(u32 size) {
++#ifdef WIN32
++  trie t = (trie)VirtualAlloc(NULL, (size_t)size * sizeof(trie_node),
++    MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
++#else
++  trie t = (trie)calloc(size, sizeof(trie_node));
++#endif
++  if (!t) {
++    fprintf(stderr, "Error: unable to allocate parser tries\n");
++    exit(5);
++  }
++  return t;
++}
++
+ void init_parser() {
++  gt_thms = alloc_trie(THM_TRIE_SIZE); gt_thms_end = gt_thms + 2;
++  gt_terms = alloc_trie(TERM_TRIE_SIZE); gt_terms_end = gt_terms + 2;
+   g_delims[' '] = DELIM_SPACE | DELIM_RIGHT;
+   g_delims['\n'] = DELIM_SPACE | DELIM_RIGHT;
+   g_delims['$'] = DELIM_RIGHT;
+--- a/mm0-c/verifier_types.c
++++ b/mm0-c/verifier_types.c
+@@ -110,13 +110,17 @@
+ trie_node gt_sorts[SORT_TRIE_SIZE];
+ trie_node* gt_sorts_end = gt_sorts + 2;
+ 
+-#define THM_TRIE_SIZE (1 << 20)
+-trie_node gt_thms[THM_TRIE_SIZE];
+-trie_node* gt_thms_end = gt_thms + 2;
++// Capacity patch (K215 lane L11): the theorem and term tries, which grow with
++// the size of the joined specification, are allocated zero-filled by
++// init_parser() instead of living in static storage. Only their capacity
++// changes; every trie operation is unchanged.
++#define THM_TRIE_SIZE (1 << 23)
++trie_node* gt_thms;
++trie_node* gt_thms_end;
+ 
+-#define TERM_TRIE_SIZE (1 << 16)
+-trie_node gt_terms[TERM_TRIE_SIZE];
+-trie_node* gt_terms_end = gt_terms + 2;
++#define TERM_TRIE_SIZE (1 << 24)
++trie_node* gt_terms;
++trie_node* gt_terms_end;
+ 
+ #define TOKEN_TRIE_SIZE (1 << 16)
+ trie_node gt_tokens[TOKEN_TRIE_SIZE];

@@ -1,0 +1,72 @@
+import "source_reflection_least_cond_parameters.mm1";
+
+@_ def lopBF0: nat = $ sfMem 0 1 $;
+
+@_ def lopBF1: nat = $ sfMem 0 2 $;
+
+@_ def lopBF2: nat = $ sfImp lopBF0 lopBF1 $;
+
+@_ def lopBF3: nat = $ sfAll lopBF2 $;
+
+@_ def lopBF4: nat = $ sfImp lopBF0 lopBF3 $;
+
+@_ def lopBF5: nat = $ sfAll lopBF4 $;
+
+@_ def lopBF6: nat = $ sfImp lopBF0 lopBF5 $;
+
+@_ def lopBF7: nat = $ sfAll lopBF6 $;
+
+@_ def lopBF8: nat = $ sfAnd lopBF5 lopBF7 $;
+
+theorem lopBBound0: $ sfBound 2 lopBF0 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem lopBBound1: $ sfBound 3 lopBF0 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem lopBBound2: $ sfBound 3 lopBF1 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+theorem lopBBound3: $ sfBound 3 lopBF2 $ = '(mpbir sfBound_sfImp (ian lopBBound1 lopBBound2));
+
+theorem lopBBound4: $ sfBound 2 lopBF3 $ = '(mpbir sfBound_sfAll lopBBound3);
+
+theorem lopBBound5: $ sfBound 2 lopBF4 $ = '(mpbir sfBound_sfImp (ian lopBBound0 lopBBound4));
+
+theorem lopBBound6: $ sfBound 1 lopBF5 $ = '(mpbir sfBound_sfAll lopBBound5);
+
+theorem lopBBound7: $ sfBound 4 lopBF0 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem lopBBound8: $ sfBound 4 lopBF1 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+theorem lopBBound9: $ sfBound 4 lopBF2 $ = '(mpbir sfBound_sfImp (ian lopBBound7 lopBBound8));
+
+theorem lopBBound10: $ sfBound 3 lopBF3 $ = '(mpbir sfBound_sfAll lopBBound9);
+
+theorem lopBBound11: $ sfBound 3 lopBF4 $ = '(mpbir sfBound_sfImp (ian lopBBound1 lopBBound10));
+
+theorem lopBBound12: $ sfBound 2 lopBF5 $ = '(mpbir sfBound_sfAll lopBBound11);
+
+theorem lopBBound13: $ sfBound 2 lopBF6 $ = '(mpbir sfBound_sfImp (ian lopBBound0 lopBBound12));
+
+theorem lopBBound14: $ sfBound 1 lopBF7 $ = '(mpbir sfBound_sfAll lopBBound13);
+
+theorem lopBBound15: $ sfBound 1 lopBF8 $ = '(mpbir sfBound_sfAnd (ian lopBBound6 lopBBound14));
+
+
+pub theorem sfLeastOrdinalPredicate_bound: $ sfBound 1 sfLeastOrdinalPredicate $ = (named 'lopBBound15);
+
+theorem lopB_map_zero(n x y:nat)(hx:$ x < n + y $): $ 0 < suc n -> sfLeastParamMap x y @ 0 < n + y $ = (named '(a1i (mpbir (lteq1 sfLPM_zero) hx)));
+
+theorem lopB_map_suc(n x y i:nat)(hx:$ x < n + y $): $ suc i < suc n -> sfLeastParamMap x y @ suc i < n + y $ = (named '(sylibr (lteq1 sfLPM_suc) (sylib ltadd1 (bi2 ltsuc))));
+
+theorem lopB_map_each(n x y i:nat)(hx:$ x < n + y $): $ i < suc n -> sfLeastParamMap x y @ i < n + y $ = (named @ induct '(ind) 'i '(lopB_map_zero hx) '(a1i (lopB_map_suc hx)));
+
+pub theorem sfLeastParam_bound(n phi x y:nat)(hb:$ sfBound (suc n) phi $)(hx:$ x < n + y $): $ sfBound (n + y) (sfLeastParam phi x y) $ = (named '(mpbi (sfBoundeq add01 eqid) (ax_mp (ax_mp sfRename_bound (ax_gen (lopB_map_each hx))) (mpbir (sfBoundeq add01 eqid) hb))));
+
+theorem lopB_shift(n phi:nat)(hb:$ sfBound (suc n) phi $): $ sfBound (suc (suc n)) (sfShift 1 phi) $ = (named '(mpbi (sfBoundeq (eqtr addS2 (suceq add12)) (sfLeastParam_shift_one (ax_mp sfBound_wf hb))) (sfLeastParam_bound hb (ax_mp (ax_mp ltletr d0lt2) leaddid2))));
+
+pub theorem sfLeastOrdinalParametersLaw_bound_meta(n phi:nat)(hb:$ sfBound (suc n) phi $): $ sfBound n (sfLeastOrdinalLaw phi) $ = (named '(mpbir sfBound_sfImp (ian (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (ax_mp (ax_mp sfBound_mono_le le11S) sfLeastOrdinalPredicate_bound) hb))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (ax_mp (ax_mp sfBound_mono_le le11S) sfLeastOrdinalPredicate_bound) hb)) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfImp (ian (lopB_shift hb) sfBound_bot)))))))))));
+
+do { (add-eqd-thm 'sfLeastOrdinalLaw 'lopBLawCong) };
+
+theorem lopB_safe(n phi:nat): $ sfBound n (sfLeastOrdinalLaw (if (sfBound (suc n) phi) phi sfBot)) $ = (named '(sfLeastOrdinalParametersLaw_bound_meta (lopSafe_bound id)));
+
+pub theorem sfLeastOrdinalParametersLaw_bound(n phi:nat): $ sfBound (suc n) phi -> sfBound n (sfLeastOrdinalLaw phi) $ = (named '(mpbid (sfBoundeqd eqidd (lopBLawCongeqd ifpos)) (a1i lopB_safe)));

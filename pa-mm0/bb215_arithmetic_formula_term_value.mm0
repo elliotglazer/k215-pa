@@ -1,0 +1,31 @@
+import "pa_source_interpretation_terms.mm0";
+
+def bb215ArithmeticFormulaTermValueBody (E: set) (c h: nat): nat = $ if (c = 0) 0
+ (if (sfTag c = 1) (E @ (sfLeft c))
+ (if (sfTag c = 2) (suc (h @ (sfLeft c)))
+ (if (sfTag c = 3) (h @ (sfLeft c) + h @ (sfRight c))
+ (if (sfTag c = 4) (h @ (sfLeft c) * h @ (sfRight c)) 0)))) $;
+
+def bb215ArithmeticFormulaTermValueStep (E: set) (.h: nat): set = $ \ h, bb215ArithmeticFormulaTermValueBody E (sfHistoryLength h) h $;
+
+def bb215ArithmeticFormulaTermValue (E: set) (c: nat): nat = $ srec (bb215ArithmeticFormulaTermValueStep E) c $;
+
+def bb215ArithmeticFormulaTermValueHistory (E: set) (c .i: nat): nat = $ \. i e. upto c, srec (bb215ArithmeticFormulaTermValueStep E) i $;
+
+theorem bb215ArithmeticFormulaTermValueStep_apply (E: set) (h: nat): $ bb215ArithmeticFormulaTermValueStep E @ h = bb215ArithmeticFormulaTermValueBody E (sfHistoryLength h) h $;
+
+theorem bb215ArithmeticFormulaTermValueHistory_size (E: set) (c: nat): $ sfHistoryLength (bb215ArithmeticFormulaTermValueHistory E c) = c $;
+
+theorem bb215ArithmeticFormulaTermValueHistory_lookup (E: set) (c a: nat): $ a < c -> bb215ArithmeticFormulaTermValueHistory E c @ a = bb215ArithmeticFormulaTermValue E a $;
+
+theorem bb215ArithmeticFormulaTermValue_unfold (E: set) (c: nat): $ bb215ArithmeticFormulaTermValue E c = bb215ArithmeticFormulaTermValueBody E c (bb215ArithmeticFormulaTermValueHistory E c) $;
+
+theorem bb215ArithmeticFormulaTermValue_zero (E: set): $ bb215ArithmeticFormulaTermValue E paTermZero = 0 $;
+
+theorem bb215ArithmeticFormulaTermValue_variable (E: set) (i: nat): $ bb215ArithmeticFormulaTermValue E (paTermVariable i) = E @ i $;
+
+theorem bb215ArithmeticFormulaTermValue_successor (E: set) (a: nat): $ bb215ArithmeticFormulaTermValue E (paTermSuccessor a) = suc (bb215ArithmeticFormulaTermValue E a) $;
+
+theorem bb215ArithmeticFormulaTermValue_addition (E: set) (a b: nat): $ bb215ArithmeticFormulaTermValue E (paTermAddition a b) = bb215ArithmeticFormulaTermValue E a + bb215ArithmeticFormulaTermValue E b $;
+
+theorem bb215ArithmeticFormulaTermValue_multiplication (E: set) (a b: nat): $ bb215ArithmeticFormulaTermValue E (paTermMultiplication a b) = bb215ArithmeticFormulaTermValue E a * bb215ArithmeticFormulaTermValue E b $;

@@ -1,0 +1,41 @@
+
+import "source_l_common_level_setrel_renaming.mm1";
+import "source_reflection_transfer_maps.mm1";
+
+@_ def sfPieceDefinableProfile(T:set)(phi Y X:nat):nat =
+ $ sfAll (sfIff (sfMem 0 (suc X))
+   (sfAnd (sfMem 0 (suc Y)) (sfCLSetRel (suc Y) (sfRename T 1 phi)))) $;
+
+pub theorem sfPieceSetRel_subst(phi k t Y:nat)(hf:$ sfWf phi $):
+ $ sfSubst k t (sfCLSetRel Y phi) = sfCLSetRel (sfSubstIndex k t Y) (sfSubst k t phi) $ =
+'(eqtr (ax_mp sfSubst_as_map sfCLSetRel_wf)
+ (eqtr (ax_mp sfCLSetRel_rename hf)
+ (trud (sfCLSetRel_formula_congr
+  (a1i (eqtr sfRenameIndex_zero sfSubstDepthMap_value))
+  (a1i (eqcom (ax_mp sfSubst_as_map hf)))))));
+
+theorem pcdm_iff_subst(a b k t:nat):
+ $ sfSubst k t (sfIff a b) = sfIff (sfSubst k t a) (sfSubst k t b) $ =
+'(eqtr sfSubst_sfAnd (nsAnd_eq sfSubst_sfImp sfSubst_sfImp));
+theorem pcdm_mem_open(x z:nat):
+ $ sfSubst 0 z (sfMem 0 (suc x)) = sfMem z x $ =
+'(eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor));
+theorem pcdm_setrel_open(T:set)(phi Y z:nat)(hf:$ sfWf phi $):
+ $ sfSubst 0 z (sfCLSetRel (suc Y) (sfRename T 1 phi)) =
+   sfCLSetRel Y (sfRename (sqEnvCons z T) 0 phi) $ =
+'(eqtr (sfPieceSetRel_subst sfRename_wf)
+ (trud (sfCLSetRel_formula_congr (a1i sfSubstIndex_successor)
+  (a1i (sfReflectionTransfer_open hf)))));
+
+pub theorem sfPieceDefinableProfile_open(T:set)(phi Y X z:nat)(hf:$ sfWf phi $):
+ $ sfSubst 0 z (sfIff (sfMem 0 (suc X))
+   (sfAnd (sfMem 0 (suc Y)) (sfCLSetRel (suc Y) (sfRename T 1 phi)))) =
+   sfIff (sfMem z X) (sfAnd (sfMem z Y) (sfCLSetRel Y (sfRename (sqEnvCons z T) 0 phi))) $ =
+'(eqtr pcdm_iff_subst (nsAnd_eq
+ (nsImp_eq pcdm_mem_open (eqtr sfSubst_sfAnd (nsAnd_eq pcdm_mem_open (pcdm_setrel_open hf))))
+ (nsImp_eq (eqtr sfSubst_sfAnd (nsAnd_eq pcdm_mem_open (pcdm_setrel_open hf))) pcdm_mem_open)));
+
+pub theorem sfPieceDefinableProfile_member(T:set)(G phi Y X z:nat)(hf:$ sfWf phi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile T phi Y X) $):
+ $ nsLocal G (sfIff (sfMem z X) (sfAnd (sfMem z Y) (sfCLSetRel Y (sfRename (sqEnvCons z T) 0 phi)))) $ =
+'(sfRQ_rewrite (sfPieceDefinableProfile_open hf) (ax_mp nsLocal_AllE hp));

@@ -1,0 +1,9 @@
+import "source_reflection_cond_kernel.mm1";
+
+def sfReflectionCondProducers(level P:nat):wff = $ sfTheoryProvable zfrAxioms (sfReflectionCondLevelExists level) /\ (sfTheoryProvable zfrAxioms (sfReflectionCondLevelUnique level) /\ sfTheoryProvable zfrAxioms (sfReflectionCondPiecesBound level P)) $;
+
+pub theorem sfReflectionCondExistence_from_producers(level P:nat): $ (sfReflectionCondGuard level P /\ sfReflectionCondProducers level P) -> sfTheoryProvable zfrAxioms (sfReflectionLeastExistence (sfReflectionCondCandidate level P)) $ = (named '(mpd (syl (syl anr anr) anr) (syl sfTheoryProvable_mp (mpd (syl (syl anl anr) anr) (syl sfTheoryProvable_mp (mpd (syl anl anr) (syl sfTheoryProvable_mp (syl sfReflectionCondSufficient_zfr anl))))))));
+
+pub theorem sfReflectionCondGTot_from_producers(level P:nat): $ (sfReflectionCondGuard level P /\ sfReflectionCondProducers level P) -> sfTheoryProvable zfrAxioms (sfReflectionLeastGTot (sfReflectionCondCandidate level P)) $ = (named '(mpd sfReflectionCondExistence_from_producers (syl sfTheoryProvable_mp (syl sfReflectionCond_total_if anl))));
+
+pub theorem sfReflectionCondGFun_from_guard(level P:nat): $ sfReflectionCondGuard level P -> sfTheoryProvable zfrAxioms (sfReflectionLeastGFun (sfReflectionCondCandidate level P)) $ = (named 'sfReflectionCond_functional);

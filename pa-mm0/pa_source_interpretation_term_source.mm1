@@ -1,0 +1,45 @@
+import "pa_source_interpretation_terms.mm1";
+
+import "pa_source_interpretation_builders.mm1";
+
+@_ abstract def paTermSourceBody (c h: nat): nat = $ if (c = 0) paSourceTermZero
+ (if (sfTag c = 1) (paSourceTermVariable (sfLeft c))
+ (if (sfTag c = 2) (paSourceTermSuccessor (h @ (sfLeft c)))
+ (if (sfTag c = 3) (paSourceTermAddition (h @ (sfLeft c)) (h @ (sfRight c)))
+ (if (sfTag c = 4) (paSourceTermMultiplication (h @ (sfLeft c)) (h @ (sfRight c))) paSourceTermZero)))) $;
+
+@_ abstract def paTermSourceStep (.h: nat): set = $ \ h, paTermSourceBody (sfHistoryLength h) h $;
+
+@_ abstract def paTermSource (c: nat): nat = $ srec paTermSourceStep c $;
+
+@_ abstract def paTermSourceHistory (c .i: nat): nat = $ \. i e. upto c, srec paTermSourceStep i $;
+
+pub theorem paTermSourceStep_apply (h: nat): $ paTermSourceStep @ h = paTermSourceBody (sfHistoryLength h) h $ = (named '(!! applame j ,eqtac));
+
+pub theorem paTermSourceHistory_size (c: nat): $ sfHistoryLength (paTermSourceHistory c) = c $ = (named '(sreclem eqid));
+
+pub theorem paTermSourceHistory_lookup (c a: nat): $ a < c -> paTermSourceHistory c @ a = paTermSource a $ = (named '(syl (apprlame sreceq2) (bi2 elupto)));
+
+pub theorem paTermSource_unfold (c: nat): $ paTermSource c = paTermSourceBody c (paTermSourceHistory c) $ = (named '(eqtr srecval (eqtr paTermSourceStep_apply (paTermSourceBodyeq paTermSourceHistory_size eqid))));
+
+theorem paTermSourceHistory_child (c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $): $ paTermSourceHistory c @ (sfLeft c) = paTermSource a $ = (named '(eqtr (appeq2 hl) (paTermSourceHistory_lookup ha)));
+
+theorem paTermSourceHistory_right (c a: nat) (hr: $ sfRight c = a $) (ha: $ a < c $): $ paTermSourceHistory c @ (sfRight c) = paTermSource a $ = (named '(eqtr (appeq2 hr) (paTermSourceHistory_lookup ha)));
+
+theorem paTermSourceBody_sfMem (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ paTermSourceBody c h = paSourceTermVariable (sfLeft c) $ = (named '(eqtr (ifneg h0) (ifpos ht)));
+
+theorem paTermSourceBody_sfEq (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $): $ paTermSourceBody c h = paSourceTermSuccessor (h @ (sfLeft c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))));
+
+theorem paTermSourceBody_sfAnd (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ paTermSourceBody c h = paSourceTermAddition (h @ (sfLeft c)) (h @ (sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht)))));
+
+theorem paTermSourceBody_sfOr (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ paTermSourceBody c h = paSourceTermMultiplication (h @ (sfLeft c)) (h @ (sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))))));
+
+pub theorem paTermSource_zero: $ paTermSource paTermZero = paSourceTermZero $ = (named '(eqtr paTermSource_unfold (ifpos eqid)));
+
+pub theorem paTermSource_variable (i: nat): $ paTermSource (paTermVariable i) = paSourceTermVariable i $ = (named '(eqtr paTermSource_unfold (eqtr (paTermSourceBody_sfMem sfMem_ne_sfBot sfMem_tag) (paSourceTermVariableeq sfMem_left))));
+
+pub theorem paTermSource_successor (a: nat): $ paTermSource (paTermSuccessor a) = paSourceTermSuccessor (paTermSource a) $ = (named '(eqtr paTermSource_unfold (eqtr (paTermSourceBody_sfEq sfEq_ne_sfBot sfEq_tag) (paSourceTermSuccessoreq (paTermSourceHistory_child sfEq_left sfEq_left_lt)))));
+
+pub theorem paTermSource_addition (a b: nat): $ paTermSource (paTermAddition a b) = paSourceTermAddition (paTermSource a) (paTermSource b) $ = (named '(eqtr paTermSource_unfold (eqtr (paTermSourceBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (paSourceTermAdditioneq (paTermSourceHistory_child sfAnd_left sfAnd_left_lt) (paTermSourceHistory_right sfAnd_right sfAnd_right_lt)))));
+
+pub theorem paTermSource_multiplication (a b: nat): $ paTermSource (paTermMultiplication a b) = paSourceTermMultiplication (paTermSource a) (paTermSource b) $ = (named '(eqtr paTermSource_unfold (eqtr (paTermSourceBody_sfOr sfOr_ne_sfBot sfOr_tag) (paSourceTermMultiplicationeq (paTermSourceHistory_child sfOr_left sfOr_left_lt) (paTermSourceHistory_right sfOr_right sfOr_right_lt)))));

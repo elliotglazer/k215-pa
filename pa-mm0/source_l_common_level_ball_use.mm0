@@ -1,0 +1,41 @@
+import "source_l_common_level_ball_renaming.mm0";
+
+import "source_substitution_renaming.mm0";
+
+def sfCLBallEnv (R: set) (n .i: nat): set =
+ $ \ i, if (i < n) (R @ i) (i - n) $;
+
+def sfCLBallMemberRows (R: set) (y .i: nat): set =
+ $ \ i, sfMem (R @ i) y $;
+
+theorem sfCLBallEnv_value (R: set) (n i: nat):
+ $ sfCLBallEnv R n @ i = if (i < n) (R @ i) (i - n) $;
+
+theorem sfCLBallMemberRows_value (R: set) (y i: nat):
+ $ sfCLBallMemberRows R y @ i = sfMem (R @ i) y $;
+
+theorem sfCLBallEnv_step (R: set) (n i: nat):
+ $ sfCLBallEnv R n @ (sfSubstIndex n (R @ n) i) = sfCLBallEnv R (suc n) @ i $;
+
+theorem sfCLBallEnv_compose (R: set) (n: nat):
+ $ sfComposeMap (sfCLBallEnv R n) (sfSubstDepthMap n (R @ n)) == sfCLBallEnv R (suc n) $;
+
+theorem sfCLBallEnv_zero (R: set): $ sfCLBallEnv R 0 == sfIdentityMap $;
+
+theorem sfCLBallEnv_subst (R: set) (n body: nat):
+ $ sfWf body -> sfRename (sfCLBallEnv R n) 0 (sfSubst n (R @ n) body) =
+   sfRename (sfCLBallEnv R (suc n)) 0 body $;
+
+def sfCLBallWfLaw (n body .y: nat): wff =
+ $ A. y (sfWf (sfCLBall n y body) -> sfWf body) $;
+
+theorem sfCLBall_body_wf (n y body: nat): $ sfWf (sfCLBall n y body) -> sfWf body $;
+
+def sfCLBallElimLaw (R: set) (n .G .y .body: nat): wff =
+ $ A. G A. y A. body
+   (sfCLRowProofs (sfCLBallMemberRows R y) G n -> nsLocal G (sfCLBall n y body) ->
+    nsLocal G (sfRename (sfCLBallEnv R n) 0 body)) $;
+
+theorem sfCLBall_eliminate (R: set) (n G y body: nat):
+ $ sfCLRowProofs (sfCLBallMemberRows R y) G n -> nsLocal G (sfCLBall n y body) ->
+   nsLocal G (sfRename (sfCLBallEnv R n) 0 body) $;

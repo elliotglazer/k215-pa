@@ -1,0 +1,42 @@
+import "quotation_binders.mm1";
+
+@_ def sqStackIndex (S: nat) (E: set) (i: nat): nat =
+ $ if (nth i S = 0) (E @ (i - len S)) (nth i S - 1) $;
+@_ def sqStackEnv (S: nat) (E: set) (.i: nat): set = $ \ i, sqStackIndex S E i $;
+
+pub theorem sqStackEnv_value (S: nat) (E: set) (i: nat):
+ $ sqStackEnv S E @ i = sqStackIndex S E i $ =
+(named '(!! applame j ,eqtac));
+
+pub theorem sqStackIndex_nil (E: set) (i: nat): $ sqStackIndex 0 E i = E @ i $ =
+'(eqtr (ifpos nth0) (appeq2 (eqtr (subeq2 len0) sub02)));
+
+pub theorem sqStackIndex_cons_zero (a S: nat) (E: set): $ sqStackIndex (a : S) E 0 = a $ =
+'(eqtr (ifeq (eqeq1 nthZ) eqid (subeq1 nthZ)) (eqtr (ifneg peano1) sucsub1));
+
+pub theorem sqStackIndex_cons_suc (a S: nat) (E: set) (i: nat):
+ $ sqStackIndex (a : S) E (suc i) = sqStackIndex S E i $ =
+'(ifeq (eqeq1 nthS) (appeq2 (eqtr (subeq2 lenS) subSS)) (subeq1 nthS));
+
+pub theorem sqStackEnv_nil (E: set) (i: nat): $ sqStackEnv 0 E @ i = E @ i $ =
+'(eqtr sqStackEnv_value sqStackIndex_nil);
+
+pub theorem sqStackEnv_cons_zero (a S: nat) (E: set): $ sqStackEnv (a : S) E @ 0 = a $ =
+'(eqtr sqStackEnv_value sqStackIndex_cons_zero);
+
+pub theorem sqStackEnv_cons_suc (a S: nat) (E: set) (i: nat):
+ $ sqStackEnv (a : S) E @ suc i = sqStackEnv S E @ i $ =
+'(eqtr sqStackEnv_value (eqtr sqStackIndex_cons_suc (eqcom sqStackEnv_value)));
+
+pub theorem sqStackEnv_cons (a S: nat) (E: set) (i: nat):
+ $ sqStackEnv (a : S) E @ i = sqEnvCons a (sqStackEnv S E) @ i $ =
+(named @ induct '(ind) 'i
+ '(eqtr sqStackEnv_cons_zero (eqcom sqEnvCons_zero))
+ '(a1i (eqtr sqStackEnv_cons_suc (eqcom sqEnvCons_suc))));
+
+pub theorem sqStackEnv_cons_agree (a S: nat) (E: set) (n: nat):
+ $ sqEnvAgree (sqStackEnv (a : S) E) (sqEnvCons a (sqStackEnv S E)) n $ =
+(named '(ax_gen @ a1i sqStackEnv_cons));
+
+pub theorem sqStackEnv_nil_agree (E: set) (n: nat): $ sqEnvAgree (sqStackEnv 0 E) E n $ =
+(named '(ax_gen @ a1i sqStackEnv_nil));

@@ -1,0 +1,99 @@
+import "source_relative_contexts.mm1";
+import "source_relative_propositional.mm1";
+
+pub theorem sfRI_Local_congr (F: wff) (G H a b: nat)
+  (hg: $ F -> G = H $) (ha: $ F -> a = b $):
+  $ F -> (nsLocal G a <-> nsLocal H b) $ =
+(named '(exeqd @ sfNR_Full_congr eqidd (sfNR_Sequent_congr hg ha)));
+do (apply (register-eqd 'nsLocal) '(sfRI_Local_congr));
+
+@_ def sfRelativeAt (D k r: nat): wff =
+$ ifp (fst r = 0)
+  (nsLocal (sfRelativeContext D (fst (snd r)) k)
+    (sfRelativize D (snd (snd r))))
+  (fst r = 1 /\
+    (nsLocal (sfRelativize D (fst (snd (snd r))) : sfRelativeContext D (fst (snd r)) k)
+      (sfRelativize D (snd (snd (snd (snd r))))) /\
+     nsLocal (sfRelativize D (fst (snd (snd (snd r)))) : sfRelativeContext D (fst (snd r)) k)
+      (sfRelativize D (snd (snd (snd (snd r))))))) $;
+@_ def sfRelativeGood (D r .k: nat): wff = $ sfRowWf r /\ E. k sfRelativeAt D k r $;
+@_ def sfRelativeClass (D .r: nat): set = $ {r | sfRelativeGood D r} $;
+
+pub theorem sfRelativeAt_sequent (D k G a: nat):
+  $ sfRelativeAt D k (sfSequent G a) <->
+    nsLocal (sfRelativeContext D G k) (sfRelativize D a) $ =
+'(bitr (ifpeq (eqeq1 sfSequent_tag)
+  (trud (sfRI_Local_congr
+    (sfRelativeContexteqd eqidd (a1i sfSequent_context) eqidd)
+    (sfRelativizeeq2d (a1i sfSequent_formula)))) biid) (ifppos eqid));
+pub theorem sfRelativeAt_branches (D k G a b c: nat):
+  $ sfRelativeAt D k (sfBranches G a b c) <->
+    nsLocal (sfRelativize D a : sfRelativeContext D G k) (sfRelativize D c) /\
+    nsLocal (sfRelativize D b : sfRelativeContext D G k) (sfRelativize D c) $ =
+'(bitr (ifpeq (eqeq1 sfBranches_tag) biid
+  (aneq (eqeq1 sfBranches_tag)
+    (trud (aneqd
+      (sfRI_Local_congr
+        (conseqd (sfRelativizeeq2d (a1i sfBranches_left))
+          (sfRelativeContexteqd eqidd (a1i sfBranches_context) eqidd))
+        (sfRelativizeeq2d (a1i sfBranches_formula)))
+      (sfRI_Local_congr
+        (conseqd (sfRelativizeeq2d (a1i sfBranches_right))
+          (sfRelativeContexteqd eqidd (a1i sfBranches_context) eqidd))
+        (sfRelativizeeq2d (a1i sfBranches_formula)))))))
+  (bitr (ifpneg (ltneri lt01S)) (bian1 eqid)));
+pub theorem sfRelativeGood_wf (D r: nat): $ sfRelativeGood D r -> sfRowWf r $ = (named 'anl);
+pub theorem sfRelativeGood_intro (D k r: nat):
+  $ sfRowWf r -> sfRelativeAt D k r -> sfRelativeGood D r $ =
+(named '(exp @ iand anl (syl (iexe ,eqtac) anr)));
+pub theorem sfRelativeClass_value (D r: nat):
+  $ r e. sfRelativeClass D <-> sfRelativeGood D r $ =
+(named '(elabe ,eqtac));
+pub theorem sfRelativeAt_congr (F: wff) (D k r s: nat) (h: $ F -> r = s $):
+  $ F -> (sfRelativeAt D k r <-> sfRelativeAt D k s) $ = '(sfRelativeAteq3d h);
+pub theorem sfRelativeGood_congr (F: wff) (D r s: nat) (h: $ F -> r = s $):
+  $ F -> (sfRelativeGood D r <-> sfRelativeGood D s) $ =
+(named '(aneqd (sfRowWf_congr h) (exeqd (sfRelativeAt_congr h))));
+
+pub theorem sfRelativeLocal_mono (D G a k m: nat):
+  $ sfWf D -> k <= m ->
+    nsLocal (sfRelativeContext D G k) (sfRelativize D a) ->
+    nsLocal (sfRelativeContext D G m) (sfRelativize D a) $ =
+'(syl5 sfRelativeContext_mono (syl nsLocal_weaken sfRelativeContext_wf));
+theorem sfRI_cons_sub (a G H: nat):
+  $ sfContextSub G H -> sfContextSub (a : G) (a : H) $ =
+(named '(iald @ syl5bi lmemS @ eord
+  (a1i (syl (bi2 lmemS) orl))
+  (syl6 (syl (bi2 lmemS) orr) sfContextSub_member)));
+pub theorem sfRelativeBranch_mono (D G a c k m: nat):
+  $ sfWf D -> k <= m ->
+    nsLocal (sfRelativize D a : sfRelativeContext D G k) (sfRelativize D c) ->
+    nsLocal (sfRelativize D a : sfRelativeContext D G m) (sfRelativize D c) $ =
+'(syl5 (syl sfRI_cons_sub sfRelativeContext_mono) @
+  syl nsLocal_weaken @ syl (bi2 sfContextWf_cons) @ iand sfRelativize_wf sfRelativeContext_wf);
+
+theorem sfRI_if_mono (P A B C E Q: wff)
+  (ha: $ P -> A -> C $) (hb: $ P -> B -> E $):
+  $ P -> ifp Q A B -> ifp Q C E $ =
+'(eord
+  (exp @ syl orl @ iand (syl anl anr) (mpd (syl anr anr) (syl ha anl)))
+  (exp @ syl orr @ iand (syl anl anr) (mpd (syl anr anr) (syl hb anl))));
+pub theorem sfRelativeAt_mono (D r k m: nat):
+  $ sfWf D -> k <= m -> sfRelativeAt D k r -> sfRelativeAt D m r $ =
+'(exp @ sfRI_if_mono (imp sfRelativeLocal_mono)
+  (exp @ iand (syl anl anr) @ iand
+    (mpd (syl anl (syl anr anr)) (syl (imp sfRelativeBranch_mono) anl))
+    (mpd (syl anr (syl anr anr)) (syl (imp sfRelativeBranch_mono) anl))));
+pub theorem sfRelativeGood_sequent_intro (D k G a: nat):
+  $ sfContextWf G -> sfWf a ->
+    nsLocal (sfRelativeContext D G k) (sfRelativize D a) ->
+    sfRelativeGood D (sfSequent G a) $ =
+'(exp @ exp @ mpd (syl (bi2 sfRelativeAt_sequent) anr)
+  (syl sfRelativeGood_intro (syl (bi2 sfRowWf_sequent) anl)));
+pub theorem sfRelativeGood_branches_intro (D k G a b c: nat):
+  $ sfRowWf (sfBranches G a b c) ->
+    nsLocal (sfRelativize D a : sfRelativeContext D G k) (sfRelativize D c) ->
+    nsLocal (sfRelativize D b : sfRelativeContext D G k) (sfRelativize D c) ->
+    sfRelativeGood D (sfBranches G a b c) $ =
+'(exp @ exp @ mpd (syl (bi2 sfRelativeAt_branches) (iand anlr anr))
+  (syl sfRelativeGood_intro anll));

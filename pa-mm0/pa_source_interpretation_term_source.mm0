@@ -1,0 +1,33 @@
+import "pa_source_interpretation_terms.mm0";
+
+import "pa_source_interpretation_builders.mm0";
+
+def paTermSourceBody (c h: nat): nat = $ if (c = 0) paSourceTermZero
+ (if (sfTag c = 1) (paSourceTermVariable (sfLeft c))
+ (if (sfTag c = 2) (paSourceTermSuccessor (h @ (sfLeft c)))
+ (if (sfTag c = 3) (paSourceTermAddition (h @ (sfLeft c)) (h @ (sfRight c)))
+ (if (sfTag c = 4) (paSourceTermMultiplication (h @ (sfLeft c)) (h @ (sfRight c))) paSourceTermZero)))) $;
+
+def paTermSourceStep (.h: nat): set = $ \ h, paTermSourceBody (sfHistoryLength h) h $;
+
+def paTermSource (c: nat): nat = $ srec paTermSourceStep c $;
+
+def paTermSourceHistory (c .i: nat): nat = $ \. i e. upto c, srec paTermSourceStep i $;
+
+theorem paTermSourceStep_apply (h: nat): $ paTermSourceStep @ h = paTermSourceBody (sfHistoryLength h) h $;
+
+theorem paTermSourceHistory_size (c: nat): $ sfHistoryLength (paTermSourceHistory c) = c $;
+
+theorem paTermSourceHistory_lookup (c a: nat): $ a < c -> paTermSourceHistory c @ a = paTermSource a $;
+
+theorem paTermSource_unfold (c: nat): $ paTermSource c = paTermSourceBody c (paTermSourceHistory c) $;
+
+theorem paTermSource_zero: $ paTermSource paTermZero = paSourceTermZero $;
+
+theorem paTermSource_variable (i: nat): $ paTermSource (paTermVariable i) = paSourceTermVariable i $;
+
+theorem paTermSource_successor (a: nat): $ paTermSource (paTermSuccessor a) = paSourceTermSuccessor (paTermSource a) $;
+
+theorem paTermSource_addition (a b: nat): $ paTermSource (paTermAddition a b) = paSourceTermAddition (paTermSource a) (paTermSource b) $;
+
+theorem paTermSource_multiplication (a b: nat): $ paTermSource (paTermMultiplication a b) = paSourceTermMultiplication (paTermSource a) (paTermSource b) $;

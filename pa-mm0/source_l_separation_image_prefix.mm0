@@ -1,0 +1,59 @@
+import "source_l_separation_image_witness.mm0";
+
+def sfLSeparationImageParameterStep(D:nat)(.G:nat):set =
+ $ \ G, D : sfContextShift G $;
+
+def sfLSeparationImageParameterContext(D n G:nat):nat =
+ $ rec G (sfLSeparationImageParameterStep D) n $;
+
+theorem sfLSeparationImageParameterContext_zero(D G:nat):
+ $ sfLSeparationImageParameterContext D 0 G = G $;
+
+theorem sfLSeparationImageParameterContext_suc(D n G:nat):
+ $ sfLSeparationImageParameterContext D (suc n) G =
+   D : sfContextShift (sfLSeparationImageParameterContext D n G) $;
+
+theorem sfLSeparationImageParameterContext_commute(D n G:nat):
+ $ sfLSeparationImageParameterContext D n (D : sfContextShift G) =
+   D : sfContextShift (sfLSeparationImageParameterContext D n G) $;
+
+def sfLSeparationImageCloseLaw(D n .G .a:nat):wff =
+ $ A. G A. a (sfContextWf G ->
+    nsLocal (sfLSeparationImageParameterContext D n G) a ->
+    nsLocal G (sfGuardPrefix D n a)) $;
+
+theorem sfLSeparationImage_guard_prefix(D n G a:nat)
+ (hd:$ sfWf D $)(hg:$ sfContextWf G $)
+ (hp:$ nsLocal (sfLSeparationImageParameterContext D n G) a $):
+ $ nsLocal G (sfGuardPrefix D n a) $;
+
+theorem sfLSeparationImageCanonical_body(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename (sfLSeparationImageShiftEnv sfSuccessorMap) 1 phi =
+   sfRename sfSepMap 0 phi $;
+
+theorem sfLSeparationImageCanonical_witness(D phi:nat)(hf:$ sfWf phi $):
+ $ sfLSeparationImageWitness sfSuccessorMap D phi 0 =
+   sfEx (sfAnd D (sfAll (sfImp D
+    (sfIff (sfMem 0 1) (sfAnd (sfMem 0 2)
+      (sfRelativize D (sfRename sfSepMap 0 phi))))))) $;
+
+theorem sfLSeparationImage_guarded(D G phi:nat)
+ (hg:$ sfContextWf G $)(hf:$ sfWf phi $)
+ (hp:$ nsLocal (D : sfContextShift G) (sfLSeparationImageWitness sfSuccessorMap D phi 0) $):
+ $ nsLocal G (sfRelativize D (sfSeparation (sfRename sfSepMap 0 phi))) $;
+
+theorem sfLSeparationImage_schema_close(D G n phi:nat)
+ (hd:$ sfWf D $)(hg:$ sfContextWf G $)
+ (hp:$ nsLocal (sfLSeparationImageParameterContext D n G)
+    (sfRelativize D (sfSeparation (sfRename sfSepMap 0 phi))) $):
+ $ nsLocal G (sfRelativize D (zfcSeparationCode phi n)) $;
+
+theorem sfLSeparationImageParameterContext_wf(D n G:nat)
+ (hd:$ sfWf D $)(hg:$ sfContextWf G $):
+ $ sfContextWf (sfLSeparationImageParameterContext D n G) $;
+
+theorem sfLSeparationImage_schema_from_witness(D G n phi:nat)
+ (hd:$ sfBound 1 D $)(hb:$ sfBound (suc n) phi $)(hg:$ sfContextWf G $)
+ (hp:$ nsLocal (D : sfContextShift (sfLSeparationImageParameterContext D n G))
+    (sfLSeparationImageWitness sfSuccessorMap D phi 0) $):
+ $ nsLocal G (sfRelativize D (zfcSeparationCode phi n)) $;

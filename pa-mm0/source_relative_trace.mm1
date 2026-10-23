@@ -1,0 +1,60 @@
+import "source_relative_prop_closure.mm1";
+import "source_relative_quantifier_closure.mm1";
+
+theorem sfRT_history (D l p: nat):
+  $ traceClassAll (sfRelativeClass D) l -> p IN l -> sfRelativeGood D p $ =
+'(syl6 (bi1 sfRelativeClass_value) traceClassAll_get);
+theorem sfRT_prop_unary (D r p l: nat) (hd: $ sfBound 1 D $):
+  $ traceClassAll (sfRelativeClass D) l ->
+    p IN l /\ sfNDPropUnary r p -> sfRelativeGood D r $ =
+'(exp @ mpd (mpd anrl (syl sfRT_history anl))
+  (syl (sfRelative_prop_unary (ax_mp sfBound_wf hd)) anrr));
+theorem sfRT_prop_binary (D r p q l: nat) (hd: $ sfBound 1 D $):
+  $ traceClassAll (sfRelativeClass D) l ->
+    p IN l /\ (q IN l /\ sfNDPropBinary r p q) -> sfRelativeGood D r $ =
+'(exp @ mpd (mpd (syl anl anrr) (syl sfRT_history anl)) @
+  mpd (mpd anrl (syl sfRT_history anl)) @
+  syl (sfRelative_prop_binary (ax_mp sfBound_wf hd)) (syl anr anrr));
+theorem sfRT_prop_rule (D r l: nat) (hd: $ sfBound 1 D $):
+  $ traceClassAll (sfRelativeClass D) l -> (r, l) e. sfNDPropRules -> sfRelativeGood D r $ =
+(named '(syl5bi sfNDPropRules_value @
+  eord (a1i (sfRelative_prop_base (ax_mp sfBound_wf hd)))
+    (eord (eexd (sfRT_prop_unary hd)) (eexd (eexd (sfRT_prop_binary hd))))));
+theorem sfRT_quant_unary (D r p l: nat) (hd: $ sfBound 1 D $):
+  $ traceClassAll (sfRelativeClass D) l ->
+    p IN l /\ sfNDQuantUnary r p -> sfRelativeGood D r $ =
+'(exp @ mpd (mpd anrl (syl sfRT_history anl)) (syl (sfRelative_quant_unary hd) anrr));
+theorem sfRT_quant_binary (D r p q l: nat) (hd: $ sfBound 1 D $):
+  $ traceClassAll (sfRelativeClass D) l ->
+    p IN l /\ (q IN l /\ sfNDQuantBinary r p q) -> sfRelativeGood D r $ =
+'(exp @ mpd (mpd (syl anl anrr) (syl sfRT_history anl)) @
+  mpd (mpd anrl (syl sfRT_history anl)) @
+  syl (sfRelative_quant_binary hd) (syl anr anrr));
+theorem sfRT_quant_rule (D r l: nat) (hd: $ sfBound 1 D $):
+  $ traceClassAll (sfRelativeClass D) l -> (r, l) e. sfNDQuantRules -> sfRelativeGood D r $ =
+(named '(syl5bi sfNDQuantRules_value @
+  eord (eexd (sfRT_quant_unary hd)) (eexd (eexd (sfRT_quant_binary hd)))));
+theorem sfRT_full_rule (D r l: nat) (hd: $ sfBound 1 D $):
+  $ traceClassAll (sfRelativeClass D) l -> (r, l) e. sfNDFullRules -> sfRelativeGood D r $ =
+'(syl5bi elun (eord (sfRT_prop_rule hd) (sfRT_quant_rule hd)));
+pub theorem sfRelative_rules_sound (D: nat) (hd: $ sfBound 1 D $):
+  $ traceRuleSound sfNDFullRules (sfRelativeClass D) $ =
+(named '(ax_gen @ ax_gen @ syl6 (bi2 sfRelativeClass_value) (sfRT_full_rule hd)));
+pub theorem sfRelative_trace (D p: nat) (hd: $ sfBound 1 D $):
+  $ traceValid sfNDFullRules p -> traceClassAll (sfRelativeClass D) p $ =
+'(ax_mp traceValid_classAll (sfRelative_rules_sound hd));
+pub theorem sfRelative_derives (D p r: nat) (hd: $ sfBound 1 D $):
+  $ sfNDFullDerives p r -> sfRelativeGood D r $ =
+'(syl (bi1 sfRelativeClass_value) (ax_mp traceDerives_class (sfRelative_rules_sound hd)));
+pub theorem sfRelative_sequent {k: nat} (D p G a: nat) (hd: $ sfBound 1 D $):
+  $ sfNDFullDerives p (sfSequent G a) ->
+    E. k nsLocal (sfRelativeContext D G k) (sfRelativize D a) $ =
+'(syl (bi1 (exeqi sfRelativeAt_sequent)) (syl anr (sfRelative_derives hd)));
+pub theorem sfRelative_local {k: nat} (D G a: nat) (hd: $ sfBound 1 D $):
+  $ nsLocal G a -> E. k nsLocal (sfRelativeContext D G k) (sfRelativize D a) $ =
+(named '(eex (sfRelative_sequent hd)));
+pub theorem sfRelative_branches {k: nat} (D p G a b c: nat) (hd: $ sfBound 1 D $):
+  $ sfNDFullDerives p (sfBranches G a b c) ->
+    E. k (nsLocal (sfRelativize D a : sfRelativeContext D G k) (sfRelativize D c) /\
+      nsLocal (sfRelativize D b : sfRelativeContext D G k) (sfRelativize D c)) $ =
+'(syl (bi1 (exeqi sfRelativeAt_branches)) (syl anr (sfRelative_derives hd)));

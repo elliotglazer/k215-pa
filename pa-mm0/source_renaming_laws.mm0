@@ -1,0 +1,34 @@
+import "source_renaming.mm0";
+import "source_substitution.mm0";
+
+-- Map terms are arithmetic formula abstractions; no second-order
+-- comprehension or external source equality is assumed.
+def sfIdentityMap (.i: nat): set = $ \ i, i $;
+def sfComposeMap (R S: set) (.i: nat): set = $ \ i, R @ (S @ i) $;
+theorem sfIdentityMap_value (i: nat): $ sfIdentityMap @ i = i $;
+theorem sfComposeMap_value (R S: set) (i: nat):
+  $ sfComposeMap R S @ i = R @ (S @ i) $;
+theorem sfRenameIndex_identity (d i: nat):
+  $ sfRenameIndex sfIdentityMap d i = i $;
+theorem sfRenameIndex_compose (R S: set) (d i: nat):
+  $ sfRenameIndex R d (sfRenameIndex S d i) = sfRenameIndex (sfComposeMap R S) d i $;
+theorem sfRenameIndex_shift (R: set) (d i: nat):
+  $ sfRenameIndex R (suc d) (sfShiftIndex d i) = sfShiftIndex d (sfRenameIndex R d i) $;
+
+theorem sfRenameIndex_subst (R: set) (d t i: nat):
+  $ sfRenameIndex R d (sfSubstIndex d t i) =
+    sfSubstIndex d (R @ t) (sfRenameIndex R (suc d) i) $;
+-- Formula laws by numerical strong induction over exact source constructors.
+theorem sfRename_identity (d c: nat):
+  $ sfWf c -> sfRename sfIdentityMap d c = c $;
+theorem sfRename_compose (R S: set) (d c: nat):
+  $ sfWf c -> sfRename R d (sfRename S d c) = sfRename (sfComposeMap R S) d c $;
+theorem sfRename_shift (R: set) (d c: nat):
+  $ sfWf c -> sfRename R (suc d) (sfShift d c) = sfShift d (sfRename R d c) $;
+theorem sfRename_subst (R: set) (d t c: nat):
+  $ sfWf c -> sfRename R d (sfSubst d t c) = sfSubst d (R @ t) (sfRename R (suc d) c) $;
+
+theorem sfRename_bound_identity (R: set) (d c: nat):
+  $ sfBound d c -> sfRename R d c = c $;
+theorem sfRename_closed_identity (R: set) (c: nat):
+  $ sfBound 0 c -> sfRename R 0 c = c $;

@@ -1,0 +1,29 @@
+import "source_syntax_laws.mm1";
+
+@_ abstract def bb215SFZero: nat = $ sfAll (sfImp (sfMem 0 1) sfBot) $;
+
+@_ abstract def bb215SFSuccGraph: nat = $ sfAll (sfAnd (sfImp (sfMem 0 2) (sfOr (sfMem 0 1) (sfEq 0 1))) (sfImp (sfOr (sfMem 0 1) (sfEq 0 1)) (sfMem 0 2))) $;
+
+@_ abstract def bb215SFNumeralStep (c: nat): nat = $ sfEx (sfAnd c bb215SFSuccGraph) $;
+
+@_ abstract def bb215SFNumeral (n .c: nat): nat = $ rec bb215SFZero (\ c, bb215SFNumeralStep c) n $;
+
+@_ abstract def bb215SFNumeralInstance (n a: nat): nat = $ sfEx (sfAnd (bb215SFNumeral n) a) $;
+
+pub theorem bb215SFNumeral_zero: $ bb215SFNumeral 0 = bb215SFZero $ = (named 'rec0);
+
+pub theorem bb215SFNumeral_succ (n: nat): $ bb215SFNumeral (suc n) = bb215SFNumeralStep (bb215SFNumeral n) $ = (named '(eqtr recS @ ! applame $ bb215SFNumeral n $ _ c _ bb215SFNumeralStepeq));
+
+pub theorem bb215SFZero_bound: $ sfBound 1 bb215SFZero $ = (named '(mpbir sfBound_sfAll (mpbir sfBound_sfImp (iani (mpbir sfBound_sfMem (iani d0lt2 d1lt2)) sfBound_bot))));
+
+pub theorem bb215SFSuccGraph_bound: $ sfBound 2 bb215SFSuccGraph $ = (named '(mpbir sfBound_sfAll (mpbir sfBound_sfAnd (iani (mpbir sfBound_sfImp (iani (mpbir sfBound_sfMem (iani lt01S ltsucid)) (mpbir sfBound_sfOr (iani (mpbir sfBound_sfMem (iani lt01S (ltletr d1lt2 lesucid))) (mpbir sfBound_sfEq (iani lt01S (ltletr d1lt2 lesucid))))))) (mpbir sfBound_sfImp (iani (mpbir sfBound_sfOr (iani (mpbir sfBound_sfMem (iani lt01S (ltletr d1lt2 lesucid))) (mpbir sfBound_sfEq (iani lt01S (ltletr d1lt2 lesucid))))) (mpbir sfBound_sfMem (iani lt01S ltsucid))))))));
+
+pub theorem bb215SFNumeralStep_bound (c: nat): $ sfBound 1 c -> sfBound 1 (bb215SFNumeralStep c) $ = (named '(syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd) (iand (sfBound_mono_le lesucid) (a1i bb215SFSuccGraph_bound)))));
+
+pub theorem bb215SFNumeral_bound (n: nat): $ sfBound 1 (bb215SFNumeral n) $ = (named @ induct '(ind) 'n '(mpbir (sfBoundeq2 bb215SFNumeral_zero) bb215SFZero_bound) '(mpbird (sfBoundeq2d (a1i bb215SFNumeral_succ)) (syl bb215SFNumeralStep_bound id)));
+
+pub theorem bb215SFNumeral_wf (n: nat): $ sfWf (bb215SFNumeral n) $ = (named '(sfBound_wf bb215SFNumeral_bound));
+
+pub theorem bb215SFNumeralInstance_closed (n a: nat): $ sfBound 1 a -> sfBound 0 (bb215SFNumeralInstance n a) $ = (named '(syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd) (iand (a1i bb215SFNumeral_bound) id))));
+
+pub theorem bb215SFNumeralInstance_wf (n a: nat): $ sfBound 1 a -> sfWf (bb215SFNumeralInstance n a) $ = (named '(syl sfBound_wf bb215SFNumeralInstance_closed));

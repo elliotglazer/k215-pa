@@ -1,0 +1,626 @@
+import "raw_source_equality.mm1";
+import "raw_source_falsity.mm1";
+import "source_renaming_cutoffs.mm1";
+
+
+theorem rqProvable_congr (H: wff) (a b: nat) (h: $ H -> a = b $):
+  $ H -> (zfcProvable a <-> zfcProvable b) $ =
+(named '(exeqd @ exeqd @ aneq2d @ aneq2d @ lmemeqd
+  (sfSequent_congr (a1i eqid) h) (a1i eqid)));
+theorem rqSubstIndex_congr (H: wff) (d t a b: nat) (ha: $ H -> a = b $):
+  $ H -> sfSubstIndex d t a = sfSubstIndex d t b $ =
+'(ifeqd (lteq1d ha) ha (ifeqd (eqeq1d ha) eqidd (subeq1d ha)));
+do (apply (register-eqd 'sfImp) '(sfImp_congr sfImp_congr_left sfImp_congr_right));
+do (apply (register-eqd 'sfEq) '(sfEq_congr sfEq_congr_left sfEq_congr_right));
+do (apply (register-eqd 'sfMem) '(sfMem_congr sfMem_congr_left sfMem_congr_right));
+do (apply (register-eqd 'sfAll) '(sfAll_congr));
+do (apply (register-eqd 'sfRename) '(sfRename_congr sfRename_congr_graph sfRename_congr_depth sfRename_congr_formula));
+do (apply (register-eqd 'sfSubst) '(sfSubst_congr));
+
+theorem rqMem_congr (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfMem a c = sfMem b d $ =
+'(trud @ sfMem_congr (a1i h1) (a1i h2));
+
+theorem rqEq_congr (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfEq a c = sfEq b d $ =
+'(trud @ sfEq_congr (a1i h1) (a1i h2));
+
+theorem rqImp_congr (a b c d: nat) (h1: $ a = b $) (h2: $ c = d $):
+  $ sfImp a c = sfImp b d $ =
+'(trud @ sfImp_congr (a1i h1) (a1i h2));
+
+theorem rqAll_congr (a b: nat) (h: $ a = b $):
+  $ sfAll a = sfAll b $ =
+'(trud @ sfAll_congr (a1i h));
+
+theorem rqRename_eq (R: set) (d a b: nat) (h: $ a = b $):
+  $ sfRename R d a = sfRename R d b $ =
+'(trud (sfRename_congr_formula (a1i h)));
+
+theorem rqSubst_eq (d t a b: nat) (h: $ a = b $):
+  $ sfSubst d t a = sfSubst d t b $ =
+'(trud (sfSubst_congr eqidd eqidd (a1i h)));
+
+theorem rqImp_right_nonzero (a b: nat):
+  $ b != 0 -> kImp a b != 0 $ =
+'(con3 (syl anr (bi1 raw_kImp_zero_iff)));
+
+pub theorem rqNot_decode (a: nat):
+  $ rawDecode (kNot a) = sfImp (rawDecode a) (sfMem 0 0) $ =
+'(eqtr (ax_mp rawDecode_kImp (ax_mp rqImp_right_nonzero peano1)) (trud (sfImp_congr_right (a1i rawDecode_kF))));
+
+pub theorem rqExists_decode (x a: nat):
+  $ rawDecode (kExists x a) = sfImp (sfAll (sfRename (rawBinderMap x) 0 (sfImp (rawDecode a) (sfMem 0 0)))) (sfMem 0 0) $ =
+'(eqtr rqNot_decode (rqImp_congr (eqtr rawDecode_kAll (rqAll_congr (rqRename_eq rqNot_decode))) eqid));
+
+theorem rqLocal_explosion (G a: nat):
+  $ sfWf a -> nsLocal G sfBot -> nsLocal G a $ =
+(named '(eexd @ exp @ syl nsLocal_intro (imp zfcProof_explosion)));
+
+pub theorem rqAllE_provable (a t: nat) (ha: $ sfWf a $):
+  $ zfcProvable (sfImp (sfAll a) (sfSubst 0 t a)) $ =
+'(ax_mp (ax_mp nsLocal_to_ZFC zfcContext_nil) (ax_mp nsLocal_II (ax_mp nsLocal_AllE (ax_mp (ax_mp nsLocal_hyp (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp sfWf_all ha) sfContextWf_nil))) sfContext_member_head))));
+
+@_ abstract def rqRefuteContext (a p q: nat): nat = $ a : (sfImp q sfBot : (p : (sfImp a (sfImp p q) : 0))) $;
+
+theorem rqRefute_bot (a p q: nat):
+  $ sfContextWf (rqRefuteContext a p q) -> nsLocal (rqRefuteContext a p q) sfBot $ =
+'(sylc nsLocal_mp (mpi (ax_mp sfContext_member_tail sfContext_member_head) nsLocal_hyp) (sylc nsLocal_mp (sylc nsLocal_mp (mpi (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))) nsLocal_hyp) (mpi sfContext_member_head nsLocal_hyp)) (mpi (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)) nsLocal_hyp)));
+
+pub theorem rqRefute_provable (a p q b: nat) (ha: $ sfWf a $) (hp: $ sfWf p $) (hq: $ sfWf q $) (hb: $ sfWf b $):
+  $ zfcProvable (sfImp (sfImp a (sfImp p q)) (sfImp p (sfImp (sfImp q sfBot) (sfImp a b)))) $ =
+'(ax_mp (ax_mp nsLocal_to_ZFC zfcContext_nil) (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp (ax_mp rqLocal_explosion hb) (ax_mp rqRefute_bot (ax_mp (bi2 sfContextWf_cons) (iani ha (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hq) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani hp (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp ha) (ax_mp (ax_mp sfWf_imp hp) hq)) sfContextWf_nil)))))))))))))));
+
+theorem rqNoSelf_subst (v: nat):
+  $ sfSubst 0 v (sfImp (sfMem 0 0) sfBot) = sfImp (sfMem v v) sfBot $ =
+'(eqtr sfSubst_sfImp (rqImp_congr (eqtr sfSubst_sfMem (rqMem_congr sfSubstIndex_zero sfSubstIndex_zero)) sfSubst_bot));
+
+pub theorem zfcProvable_no_self_at (v: nat):
+  $ zfcProvable (sfImp (sfMem v v) sfBot) $ =
+'(mpbi (trud (rqProvable_congr (a1i rqNoSelf_subst))) (ax_mp zfcProvable_allE zfcProvable_all_no_self));
+
+theorem rqBinder_value (a i: nat):
+  $ sfRenameIndex (rawBinderMap a) 0 i = rawBinderIndex a i $ =
+'(eqtr sfRenameIndex_zero rawBinderMap_value);
+
+theorem rqBinder_same (a: nat):
+  $ sfRenameIndex (rawBinderMap a) 0 a = 0 $ =
+'(eqtr sfRenameIndex_zero rawBinderMap_same);
+
+theorem rqWitness_same (a b: nat):
+  $ sfSubstIndex 0 b (rawBinderIndex a b) = b $ =
+'(cases (eqtrd (rqSubstIndex_congr ifpos) (a1i sfSubstIndex_zero)) (eqtrd (rqSubstIndex_congr ifneg) (a1i sfSubstIndex_successor)));
+
+@_ abstract def rqEqMatrix (a b: nat): nat = $ sfRename (rawBinderMap a) 0 (sfImp (sfEq a b) (sfMem 0 0)) $;
+
+@_ abstract def rqWitnessBad (a b: nat): nat = $ sfSubstIndex 0 b (rawBinderIndex a 0) $;
+
+theorem rqEqMatrix_value (a b: nat):
+  $ rqEqMatrix a b = sfImp (sfEq 0 (rawBinderIndex a b)) (sfMem (rawBinderIndex a 0) (rawBinderIndex a 0)) $ =
+'(eqtr sfRename_sfImp (rqImp_congr (eqtr sfRename_sfEq (rqEq_congr rqBinder_same rqBinder_value)) (eqtr sfRename_sfMem (rqMem_congr rqBinder_value rqBinder_value))));
+
+theorem rqEqMatrix_instance (a b: nat):
+  $ sfSubst 0 b (rqEqMatrix a b) = sfImp (sfEq b b) (sfMem (rqWitnessBad a b) (rqWitnessBad a b)) $ =
+'(eqtr (rqSubst_eq rqEqMatrix_value) (eqtr sfSubst_sfImp (rqImp_congr (eqtr sfSubst_sfEq (rqEq_congr sfSubstIndex_zero rqWitness_same)) sfSubst_sfMem)));
+
+theorem rqRow1_decode (a b: nat):
+  $ rawDecode (kRho1 a b) = sfImp (sfAll (rqEqMatrix a b)) (sfMem 0 0) $ =
+'(eqtr rqExists_decode (rqImp_congr (rqAll_congr (rqRename_eq (rqImp_congr rawDecode_kEq eqid))) eqid));
+
+theorem rqRow1_instantiation (a b: nat):
+  $ zfcProvable (sfImp (sfAll (rqEqMatrix a b)) (sfImp (sfEq b b) (sfMem (rqWitnessBad a b) (rqWitnessBad a b)))) $ =
+'(mpbi (trud (rqProvable_congr (sfImp_congr_right (a1i rqEqMatrix_instance)))) (rqAllE_provable sfRename_wf));
+
+theorem rqRow1_source (a b: nat):
+  $ zfcProvable (sfImp (sfAll (rqEqMatrix a b)) (sfMem 0 0)) $ =
+'(ax_mp (ax_mp zfcProvable_mp (ax_mp (ax_mp zfcProvable_mp (ax_mp (ax_mp zfcProvable_mp (rqRefute_provable (ax_mp sfWf_all sfRename_wf) sfWf_eq sfWf_mem sfWf_mem)) rqRow1_instantiation)) zfcEquality_refl)) zfcProvable_no_self_at);
+
+pub theorem rawSource_rho1 (a b: nat):
+  $ zfcProvable (rawDecode (kRho1 a b)) $ =
+'(mpbir (trud (rqProvable_congr (a1i rqRow1_decode))) rqRow1_source);
+
+
+theorem rqSubstIndex_full_congr (H: wff) (d e t u a b: nat)
+  (hd: $ H -> d = e $) (ht: $ H -> t = u $) (ha: $ H -> a = b $):
+  $ H -> sfSubstIndex d t a = sfSubstIndex e u b $ =
+'(ifeqd (lteqd ha hd) ha (ifeqd (eqeqd ha hd) (addeqd ht hd) (subeq1d ha)));
+do (apply (register-eqd 'sfSubstIndex) '(rqSubstIndex_full_congr));
+theorem rqShiftIndex_congr (H: wff) (d a b: nat) (ha: $ H -> a = b $):
+  $ H -> sfShiftIndex d a = sfShiftIndex d b $ =
+'(ifeqd (lteq1d ha) ha (suceqd ha));
+theorem rqShift_formula (H: wff) (d a b: nat) (ha: $ H -> a = b $):
+  $ H -> sfShift d a = sfShift d b $ = '(sreceq2d (preq2d ha));
+
+theorem rqBinder_free (a d i: nat):
+  $ sfRenameIndex (rawBinderMap a) d (d + i) = d + rawBinderIndex a i $ =
+'(eqtr (ax_mp sfRenameIndex_free (mpbi lenlt leaddid1)) (addeq2 (eqtr (appeq2 pncan2) rawBinderMap_value)));
+
+theorem rqBinder_free_same (a d: nat):
+  $ sfRenameIndex (rawBinderMap a) d (d + a) = d $ =
+'(eqtr rqBinder_free (eqtr (addeq2 (ifpos eqid)) add0));
+
+theorem rqBinder_free_other (a d i: nat):
+  $ i != a -> sfRenameIndex (rawBinderMap a) d (d + i) = suc (d + i) $ =
+'(eqtrd (a1i rqBinder_free) (eqtrd (addeq2d ifneg) (a1i addS)));
+
+theorem rqSubst_free_suc (d a i: nat):
+  $ sfSubstIndex d a (suc (d + i)) = d + i $ =
+'(eqtr (ax_mp sfSubstIndex_above (ax_mp (ax_mp lelttr leaddid1) ltsucid)) sucsub1);
+
+theorem rqCancelIndex_free_same (a d: nat):
+  $ sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d (d + a)) = d + a $ =
+'(eqtr (trud (rqSubstIndex_congr (a1i rqBinder_free_same))) (eqtr sfSubstIndex_hit addcom));
+
+theorem rqCancelIndex_free_equal (a d i: nat):
+  $ i = a -> sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d (d + i)) = d + i $ =
+'(mpbiri rqCancelIndex_free_same ,eqtac);
+
+theorem rqCancelIndex_free_other (a d i: nat):
+  $ i != a -> sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d (d + i)) = d + i $ =
+'(eqtrd (rqSubstIndex_congr rqBinder_free_other) (a1i rqSubst_free_suc));
+
+theorem rqCancelIndex_free (a d i: nat):
+  $ sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d (d + i)) = d + i $ =
+'(cases rqCancelIndex_free_equal rqCancelIndex_free_other);
+
+theorem rqCancelIndex_below (a d i: nat):
+  $ i < d -> sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d i) = i $ =
+'(eqtrd (rqSubstIndex_congr sfRenameIndex_bound) sfSubstIndex_bound);
+
+theorem rqCancelIndex_free_transport (a d i j: nat):
+  $ i = j -> (sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d i) = i <-> sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d j) = j) $ =
+,eqtac;
+
+theorem rqCancelIndex_above (a d i: nat):
+  $ ~i < d -> sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d i) = i $ =
+'(mpbiri rqCancelIndex_free (syl rqCancelIndex_free_transport (eqcomd (syl pncan3 (bi2 lenlt)))));
+
+pub theorem rqBinder_cancel_index (a d i: nat):
+  $ sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d i) = i $ =
+'(cases rqCancelIndex_below rqCancelIndex_above);
+
+theorem rqShadowIndex_free_same (a d: nat):
+  $ sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d (d + a)) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d (d + a)) $ =
+'(eqtr (trud (sfRenameIndex_congr_index (a1i rqBinder_free_same))) (eqtr (ax_mp sfRenameIndex_bound ltsucid) (eqcom (eqtr (trud (rqShiftIndex_congr (a1i rqBinder_free_same))) (ax_mp sfShiftIndex_bound ltsucid)))));
+
+theorem rqShadowIndex_free_equal (a d i: nat):
+  $ i = a -> sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d (d + i)) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d (d + i)) $ =
+'(mpbiri rqShadowIndex_free_same ,eqtac);
+
+theorem rqShadowIndex_free_other (a d i: nat):
+  $ i != a -> sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d (d + i)) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d (d + i)) $ =
+'(eqtrd (sfRenameIndex_congr_index rqBinder_free_other) @ eqtrd (a1i sfRenameIndex_lift) @ eqtrd (suceqd rqBinder_free_other) @ eqcomd @ eqtrd (rqShiftIndex_congr rqBinder_free_other) (a1i (ax_mp sfShiftIndex_free (mpbi lenlt (mpbi lesuc leaddid1)))));
+
+theorem rqShadowIndex_free (a d i: nat):
+  $ sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d (d + i)) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d (d + i)) $ =
+'(cases rqShadowIndex_free_equal rqShadowIndex_free_other);
+
+theorem rqShadowIndex_below (a d i: nat):
+  $ i < d -> sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d i) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d i) $ =
+'(eqtrd (sfRenameIndex_congr_index sfRenameIndex_bound) @ eqtrd (syl sfRenameIndex_bound (syl (bi1 leltsuc) ltle)) @ eqcomd @ eqtrd (rqShiftIndex_congr sfRenameIndex_bound) (syl sfShiftIndex_bound (syl (bi1 leltsuc) ltle)));
+
+theorem rqShadowIndex_transport (a d i j: nat):
+  $ i = j -> (sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d i) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d i) <-> sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d j) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d j)) $ =
+,eqtac;
+
+theorem rqShadowIndex_above (a d i: nat):
+  $ ~i < d -> sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d i) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d i) $ =
+'(mpbiri rqShadowIndex_free (syl rqShadowIndex_transport (eqcomd (syl pncan3 (bi2 lenlt)))));
+
+pub theorem rqBinder_shadow_index (a d i: nat):
+  $ sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d i) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d i) $ =
+'(cases rqShadowIndex_below rqShadowIndex_above);
+
+
+theorem rqShift_congr (H: wff) (d e a b: nat)
+  (hd: $ H -> d = e $) (ha: $ H -> a = b $):
+  $ H -> sfShift d a = sfShift e b $ = '(sreceq2d (preqd hd ha));
+theorem rqShift_depth (H: wff) (d e a: nat) (hd: $ H -> d = e $):
+  $ H -> sfShift d a = sfShift e a $ = '(rqShift_congr hd eqidd);
+theorem rqShift_eq (d a b: nat) (h: $ a = b $):
+  $ sfShift d a = sfShift d b $ = '(sreceq2 (preq2 h));
+theorem rqBinderMap_congr (H: wff) (a b: nat) (h: $ H -> a = b $):
+  $ H -> rawBinderMap a == rawBinderMap b $ =
+(named '(lameqd @ ifeqd (eqeq2d h) eqidd eqidd));
+do (apply (register-eqd 'rawBinderMap) '(rqBinderMap_congr));
+do (apply (register-eqd 'sfShift) '(rqShift_congr rqShift_depth rqShift_formula));
+
+theorem rqBC_bot (d t: nat): $ sfSubst d t (sfRename (rawBinderMap t) d sfBot) = sfBot $ =
+'(eqtr (rqSubst_eq sfRename_bot) sfSubst_bot);
+
+theorem rqBC_mem (d t a b: nat):
+  $ sfSubst d t (sfRename (rawBinderMap t) d (sfMem a b)) = sfMem a b $ =
+'(eqtr (rqSubst_eq sfRename_sfMem) @ eqtr sfSubst_sfMem @
+  eqtr (sfMem_eq_left rqBinder_cancel_index) (sfMem_eq_right rqBinder_cancel_index));
+
+theorem rqBC_eq (d t a b: nat):
+  $ sfSubst d t (sfRename (rawBinderMap t) d (sfEq a b)) = sfEq a b $ =
+'(eqtr (rqSubst_eq sfRename_sfEq) @ eqtr sfSubst_sfEq @
+  eqtr (sfEq_eq_left rqBinder_cancel_index) (sfEq_eq_right rqBinder_cancel_index));
+
+theorem rqBC_and (G: wff) (d t a b: nat)
+  (ha: $ G -> sfSubst d t (sfRename (rawBinderMap t) d a) = a $)
+  (hb: $ G -> sfSubst d t (sfRename (rawBinderMap t) d b) = b $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfAnd a b)) = sfAnd a b $ =
+'(eqtrd (a1i (rqSubst_eq sfRename_sfAnd)) @
+  eqtrd (a1i sfSubst_sfAnd) (sfAnd_congr ha hb));
+
+theorem rqBC_or (G: wff) (d t a b: nat)
+  (ha: $ G -> sfSubst d t (sfRename (rawBinderMap t) d a) = a $)
+  (hb: $ G -> sfSubst d t (sfRename (rawBinderMap t) d b) = b $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfOr a b)) = sfOr a b $ =
+'(eqtrd (a1i (rqSubst_eq sfRename_sfOr)) @
+  eqtrd (a1i sfSubst_sfOr) (sfOr_congr ha hb));
+
+theorem rqBC_imp (G: wff) (d t a b: nat)
+  (ha: $ G -> sfSubst d t (sfRename (rawBinderMap t) d a) = a $)
+  (hb: $ G -> sfSubst d t (sfRename (rawBinderMap t) d b) = b $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfImp a b)) = sfImp a b $ =
+'(eqtrd (a1i (rqSubst_eq sfRename_sfImp)) @
+  eqtrd (a1i sfSubst_sfImp) (sfImp_congr ha hb));
+
+theorem rqBC_all (G: wff) (d t a: nat)
+  (ha: $ G -> sfSubst (suc d) t (sfRename (rawBinderMap t) (suc d) a) = a $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfAll a)) = sfAll a $ =
+'(eqtrd (a1i (rqSubst_eq sfRename_sfAll)) @
+  eqtrd (a1i sfSubst_sfAll) (sfAll_congr ha));
+
+theorem rqBC_ex (G: wff) (d t a: nat)
+  (ha: $ G -> sfSubst (suc d) t (sfRename (rawBinderMap t) (suc d) a) = a $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfEx a)) = sfEx a $ =
+'(eqtrd (a1i (rqSubst_eq sfRename_sfEx)) @
+  eqtrd (a1i sfSubst_sfEx) (sfEx_congr ha));
+
+theorem rqBC_transport (G: wff) (d t a b: nat)
+  (h: $ G -> a = b $) (hc: $ G -> sfSubst d t (sfRename (rawBinderMap t) d b) = b $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d a) = a $ =
+'(eqtrd (sfSubst_congr eqidd eqidd (sfRename_congr_formula h)) (eqtrd hc (eqcomd h)));
+theorem rqBC_rebuild (G: wff) (c k: nat) (ht: $ G -> sfTag c = k $):
+  $ G -> c = sfNode k (sfLeft c) (sfRight c) $ =
+'(eqcomd (eqtrd (addeq2d (eqcomd ht)) (a1i sf_reconstruct)));
+theorem rqBC_rebuild_quantifier (G: wff) (c k: nat)
+  (ht: $ G -> sfTag c = k $) (hr: $ G -> sfRight c = 0 $):
+  $ G -> c = sfNode k (sfLeft c) 0 $ =
+'(eqtrd (rqBC_rebuild ht) (addeq1d (muleq2d (preq2d hr))));
+
+theorem rqBC_ind_at (c a: nat):
+  $ A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfRename (rawBinderMap r) m j) = j)) ->
+      a < c -> A. m A. r (sfWf a -> sfSubst m r (sfRename (rawBinderMap r) m a) = a) $ =
+(named '(!! eale j ,eqtac));
+theorem rqBC_ind_depth (d a: nat):
+  $ A. m A. r (sfWf a -> sfSubst m r (sfRename (rawBinderMap r) m a) = a) ->
+      A. r (sfWf a -> sfSubst d r (sfRename (rawBinderMap r) d a) = a) $ =
+(named '(!! eale m ,eqtac));
+theorem rqBC_ind_replacement (d t a: nat):
+  $ A. r (sfWf a -> sfSubst d r (sfRename (rawBinderMap r) d a) = a) ->
+      sfWf a -> sfSubst d t (sfRename (rawBinderMap t) d a) = a $ =
+(named '(!! eale r ,eqtac));
+theorem rqBC_ind_use {j m r: nat} (G: wff j m r) (d t c a: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfRename (rawBinderMap r) m j) = j)) $)
+  (ha: $ G -> a e. sfPrevious c $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d a) = a $ =
+'(mpd (syl anr (syl (bi1 sfPrevious_value) ha)) @
+  syl rqBC_ind_replacement @ syl rqBC_ind_depth @
+  mpd (syl anl (syl (bi1 sfPrevious_value) ha)) (syl rqBC_ind_at hi));
+
+theorem rqBC_tag1 (G: wff) (d t c: nat) (ht: $ G -> sfTag c = 1 $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(rqBC_transport (rqBC_rebuild ht) (a1i rqBC_mem));
+
+theorem rqBC_tag2 (G: wff) (d t c: nat) (ht: $ G -> sfTag c = 2 $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(rqBC_transport (rqBC_rebuild ht) (a1i rqBC_eq));
+
+theorem rqBC_tag3 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 3 $)
+  (hl: $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfLeft c)) = sfLeft c $)
+  (hr: $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfRight c)) = sfRight c $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(rqBC_transport (rqBC_rebuild ht) (rqBC_and hl hr));
+
+theorem rqBC_tag4 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 4 $)
+  (hl: $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfLeft c)) = sfLeft c $)
+  (hr: $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfRight c)) = sfRight c $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(rqBC_transport (rqBC_rebuild ht) (rqBC_or hl hr));
+
+theorem rqBC_tag5 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 5 $)
+  (hl: $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfLeft c)) = sfLeft c $)
+  (hr: $ G -> sfSubst d t (sfRename (rawBinderMap t) d (sfRight c)) = sfRight c $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(rqBC_transport (rqBC_rebuild ht) (rqBC_imp hl hr));
+
+theorem rqBC_tag6 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 6 $) (hz: $ G -> sfRight c = 0 $)
+  (hl: $ G -> sfSubst (suc d) t (sfRename (rawBinderMap t) (suc d) (sfLeft c)) = sfLeft c $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(rqBC_transport (rqBC_rebuild_quantifier ht hz) (rqBC_all hl));
+
+theorem rqBC_tag7 (G: wff) (d t c: nat)
+  (ht: $ G -> sfTag c = 7 $) (hz: $ G -> sfRight c = 0 $)
+  (hl: $ G -> sfSubst (suc d) t (sfRename (rawBinderMap t) (suc d) (sfLeft c)) = sfLeft c $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(rqBC_transport (rqBC_rebuild_quantifier ht hz) (rqBC_ex hl));
+
+theorem rqBC_binary {j m r: nat} (G: wff j m r) (d t c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfRename (rawBinderMap r) m j) = j)) $)
+  (ht: $ G -> (sfTag c = 3 \/ sfTag c = 4 \/ sfTag c = 5) $)
+  (hl: $ G -> sfLeft c e. sfPrevious c $)
+  (hr: $ G -> sfRight c e. sfPrevious c $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(mpd ht (eord (eord (exp @ rqBC_tag3 anr (rqBC_ind_use (syl hi anl) (syl hl anl)) (rqBC_ind_use (syl hi anl) (syl hr anl))) (exp @ rqBC_tag4 anr (rqBC_ind_use (syl hi anl) (syl hl anl)) (rqBC_ind_use (syl hi anl) (syl hr anl)))) (exp @ rqBC_tag5 anr (rqBC_ind_use (syl hi anl) (syl hl anl)) (rqBC_ind_use (syl hi anl) (syl hr anl)))));
+
+theorem rqBC_quantifier {j m r: nat} (G: wff j m r) (d t c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfRename (rawBinderMap r) m j) = j)) $)
+  (ht: $ G -> (sfTag c = 6 \/ sfTag c = 7) $)
+  (hz: $ G -> sfRight c = 0 $) (hl: $ G -> sfLeft c e. sfPrevious c $):
+  $ G -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(mpd ht (eord (exp @ rqBC_tag6 anr (syl hz anl) (rqBC_ind_use (syl hi anl) (syl hl anl))) (exp @ rqBC_tag7 anr (syl hz anl) (rqBC_ind_use (syl hi anl) (syl hl anl)))));
+
+theorem rqBC_allowed {j m r: nat} (G: wff j m r) (d t c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfRename (rawBinderMap r) m j) = j)) $):
+  $ G -> sfAllowed c (sfPrevious c) -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+'(eord (exp @ rqBC_transport anr (a1i rqBC_bot))
+  (eord (eord (exp @ rqBC_tag1 anr) (exp @ rqBC_tag2 anr))
+    (eord
+      (exp @ rqBC_binary (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr))
+      (exp @ rqBC_quantifier (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr)))));
+
+theorem rqBC_replace_rename (d c: nat):
+  $ A. s (sfWf c -> sfSubst d s (sfRename (rawBinderMap s) d c) = c) <->
+    A. r (sfWf c -> sfSubst d r (sfRename (rawBinderMap r) d c) = c) $ =
+(named '(cbval ,eqtac));
+theorem rqBC_depth_rename (c: nat):
+  $ A. q A. r (sfWf c -> sfSubst q r (sfRename (rawBinderMap r) q c) = c) <->
+    A. m A. r (sfWf c -> sfSubst m r (sfRename (rawBinderMap r) m c) = c) $ =
+(named '(cbval ,eqtac));
+theorem rqBC_alpha (c: nat):
+  $ A. q A. s (sfWf c -> sfSubst q s (sfRename (rawBinderMap s) q c) = c) <->
+    A. m A. r (sfWf c -> sfSubst m r (sfRename (rawBinderMap r) m c) = c) $ =
+'(bitr (aleqi rqBC_replace_rename) rqBC_depth_rename);
+theorem rqBC_wf_step {j m r: nat} (G: wff j m r) (c: nat)
+  (hi: $ G -> A. j (j < c -> A. m A. r (sfWf j -> sfSubst m r (sfRename (rawBinderMap r) m j) = j)) $):
+  $ G -> A. m A. r (sfWf c -> sfSubst m r (sfRename (rawBinderMap r) m c) = c) $ =
+'(sylib rqBC_alpha @ !! iald q @ !! iald s @
+  syl5bi sfWf_unfold (rqBC_allowed hi));
+theorem rqBC_uniform (c: nat):
+  $ A. m A. r (sfWf c -> sfSubst m r (sfRename (rawBinderMap r) m c) = c) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (A. m A. r (sfWf j -> sfSubst m r (sfRename (rawBinderMap r) m j) = j) <-> A. m A. r (sfWf c -> sfSubst m r (sfRename (rawBinderMap r) m c) = c)) $}
+  ,eqtac (rqBC_wf_step anr)));
+pub theorem rqBinder_cancel (d t c: nat):
+  $ sfWf c -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $ =
+(named '(ax_mp (syl rqBC_ind_replacement rqBC_ind_depth)
+  {rqBC_uniform : $ A. m A. r (sfWf c -> sfSubst m r (sfRename (rawBinderMap r) m c) = c) $}));
+
+
+theorem rqBS_bot (x: nat) (d: nat):
+  $ sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d sfBot) = sfShift (suc d) (sfRename (rawBinderMap x) d sfBot) $ =
+'(eqtr (eqtr (rqRename_eq sfRename_bot) sfRename_bot) (eqcom (eqtr (rqShift_eq sfRename_bot) sfShift_bot)));
+
+theorem rqBS_mem (x: nat) (d a b: nat):
+  $ sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfMem a b)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfMem a b)) $ =
+'(eqtr (eqtr (rqRename_eq sfRename_sfMem) sfRename_sfMem) (eqtr (eqtr (sfMem_eq_left rqBinder_shadow_index) (sfMem_eq_right rqBinder_shadow_index)) (eqcom (eqtr (rqShift_eq sfRename_sfMem) sfShift_sfMem))));
+
+theorem rqBS_eq (x: nat) (d a b: nat):
+  $ sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfEq a b)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfEq a b)) $ =
+'(eqtr (eqtr (rqRename_eq sfRename_sfEq) sfRename_sfEq) (eqtr (eqtr (sfEq_eq_left rqBinder_shadow_index) (sfEq_eq_right rqBinder_shadow_index)) (eqcom (eqtr (rqShift_eq sfRename_sfEq) sfShift_sfEq))));
+
+theorem rqBS_and (G: wff) (x: nat) (d a b: nat)
+  (ha: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d a) = sfShift (suc d) (sfRename (rawBinderMap x) d a) $) (hb: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d b) = sfShift (suc d) (sfRename (rawBinderMap x) d b) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfAnd a b)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfAnd a b)) $ =
+'(eqtrd (a1i (eqtr (rqRename_eq sfRename_sfAnd) sfRename_sfAnd)) (eqtrd (sfAnd_congr ha hb) (a1i (eqcom (eqtr (rqShift_eq sfRename_sfAnd) sfShift_sfAnd)))));
+
+theorem rqBS_or (G: wff) (x: nat) (d a b: nat)
+  (ha: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d a) = sfShift (suc d) (sfRename (rawBinderMap x) d a) $) (hb: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d b) = sfShift (suc d) (sfRename (rawBinderMap x) d b) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfOr a b)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfOr a b)) $ =
+'(eqtrd (a1i (eqtr (rqRename_eq sfRename_sfOr) sfRename_sfOr)) (eqtrd (sfOr_congr ha hb) (a1i (eqcom (eqtr (rqShift_eq sfRename_sfOr) sfShift_sfOr)))));
+
+theorem rqBS_imp (G: wff) (x: nat) (d a b: nat)
+  (ha: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d a) = sfShift (suc d) (sfRename (rawBinderMap x) d a) $) (hb: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d b) = sfShift (suc d) (sfRename (rawBinderMap x) d b) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfImp a b)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfImp a b)) $ =
+'(eqtrd (a1i (eqtr (rqRename_eq sfRename_sfImp) sfRename_sfImp)) (eqtrd (sfImp_congr ha hb) (a1i (eqcom (eqtr (rqShift_eq sfRename_sfImp) sfShift_sfImp)))));
+
+theorem rqBS_all (G: wff) (x: nat) (d a: nat)
+  (ha: $ G -> sfRename (rawBinderMap x) (suc (suc d)) (sfRename (rawBinderMap x) (suc d) a) = sfShift (suc (suc d)) (sfRename (rawBinderMap x) (suc d) a) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfAll a)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfAll a)) $ =
+'(eqtrd (a1i (eqtr (rqRename_eq sfRename_sfAll) sfRename_sfAll)) (eqtrd (sfAll_congr ha) (a1i (eqcom (eqtr (rqShift_eq sfRename_sfAll) sfShift_sfAll)))));
+
+theorem rqBS_ex (G: wff) (x: nat) (d a: nat)
+  (ha: $ G -> sfRename (rawBinderMap x) (suc (suc d)) (sfRename (rawBinderMap x) (suc d) a) = sfShift (suc (suc d)) (sfRename (rawBinderMap x) (suc d) a) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfEx a)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfEx a)) $ =
+'(eqtrd (a1i (eqtr (rqRename_eq sfRename_sfEx) sfRename_sfEx)) (eqtrd (sfEx_congr ha) (a1i (eqcom (eqtr (rqShift_eq sfRename_sfEx) sfShift_sfEx)))));
+
+theorem rqBS_transport (x: nat) (G: wff) (d a b: nat)
+  (h: $ G -> a = b $) (hc: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d b) = sfShift (suc d) (sfRename (rawBinderMap x) d b) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d a) = sfShift (suc d) (sfRename (rawBinderMap x) d a) $ =
+'(eqtrd (sfRename_congr_formula (sfRename_congr_formula h)) (eqtrd hc (eqcomd (rqShift_formula (sfRename_congr_formula h)))));
+theorem rqBS_ind_at (x: nat) (c a: nat):
+  $ A. j (j < c -> A. m (sfWf j -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m j) = sfShift (suc m) (sfRename (rawBinderMap x) m j))) ->
+      a < c -> A. m (sfWf a -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m a) = sfShift (suc m) (sfRename (rawBinderMap x) m a)) $ =
+(named '(!! eale j ,eqtac));
+theorem rqBS_ind_depth (x: nat) (d a: nat):
+  $ A. m (sfWf a -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m a) = sfShift (suc m) (sfRename (rawBinderMap x) m a)) ->
+      (sfWf a -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d a) = sfShift (suc d) (sfRename (rawBinderMap x) d a)) $ =
+(named '(!! eale m ,eqtac));
+theorem rqBS_ind_use {j m: nat} (x: nat) (G: wff j m) (d c a: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfWf j -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m j) = sfShift (suc m) (sfRename (rawBinderMap x) m j))) $)
+  (ha: $ G -> a e. sfPrevious c $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d a) = sfShift (suc d) (sfRename (rawBinderMap x) d a) $ =
+'(mpd (syl anr (syl (bi1 sfPrevious_value) ha)) @
+  syl rqBS_ind_depth @
+  mpd (syl anl (syl (bi1 sfPrevious_value) ha)) (syl rqBS_ind_at hi));
+
+theorem rqBS_tag1 (x: nat) (G: wff) (d c: nat) (ht: $ G -> sfTag c = 1 $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(rqBS_transport (rqBC_rebuild ht) (a1i rqBS_mem));
+
+theorem rqBS_tag2 (x: nat) (G: wff) (d c: nat) (ht: $ G -> sfTag c = 2 $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(rqBS_transport (rqBC_rebuild ht) (a1i rqBS_eq));
+
+theorem rqBS_tag3 (x: nat) (G: wff) (d c: nat)
+  (ht: $ G -> sfTag c = 3 $)
+  (hl: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfLeft c)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfLeft c)) $)
+  (hr: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfRight c)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfRight c)) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(rqBS_transport (rqBC_rebuild ht) (rqBS_and hl hr));
+
+theorem rqBS_tag4 (x: nat) (G: wff) (d c: nat)
+  (ht: $ G -> sfTag c = 4 $)
+  (hl: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfLeft c)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfLeft c)) $)
+  (hr: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfRight c)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfRight c)) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(rqBS_transport (rqBC_rebuild ht) (rqBS_or hl hr));
+
+theorem rqBS_tag5 (x: nat) (G: wff) (d c: nat)
+  (ht: $ G -> sfTag c = 5 $)
+  (hl: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfLeft c)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfLeft c)) $)
+  (hr: $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d (sfRight c)) = sfShift (suc d) (sfRename (rawBinderMap x) d (sfRight c)) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(rqBS_transport (rqBC_rebuild ht) (rqBS_imp hl hr));
+
+theorem rqBS_tag6 (x: nat) (G: wff) (d c: nat)
+  (ht: $ G -> sfTag c = 6 $) (hz: $ G -> sfRight c = 0 $)
+  (hl: $ G -> sfRename (rawBinderMap x) (suc (suc d)) (sfRename (rawBinderMap x) (suc d) (sfLeft c)) = sfShift (suc (suc d)) (sfRename (rawBinderMap x) (suc d) (sfLeft c)) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(rqBS_transport (rqBC_rebuild_quantifier ht hz) (rqBS_all hl));
+
+theorem rqBS_tag7 (x: nat) (G: wff) (d c: nat)
+  (ht: $ G -> sfTag c = 7 $) (hz: $ G -> sfRight c = 0 $)
+  (hl: $ G -> sfRename (rawBinderMap x) (suc (suc d)) (sfRename (rawBinderMap x) (suc d) (sfLeft c)) = sfShift (suc (suc d)) (sfRename (rawBinderMap x) (suc d) (sfLeft c)) $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(rqBS_transport (rqBC_rebuild_quantifier ht hz) (rqBS_ex hl));
+
+theorem rqBS_binary {j m: nat} (x: nat) (G: wff j m) (d c: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfWf j -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m j) = sfShift (suc m) (sfRename (rawBinderMap x) m j))) $)
+  (ht: $ G -> (sfTag c = 3 \/ sfTag c = 4 \/ sfTag c = 5) $)
+  (hl: $ G -> sfLeft c e. sfPrevious c $)
+  (hr: $ G -> sfRight c e. sfPrevious c $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(mpd ht (eord (eord (exp @ rqBS_tag3 anr (rqBS_ind_use (syl hi anl) (syl hl anl)) (rqBS_ind_use (syl hi anl) (syl hr anl))) (exp @ rqBS_tag4 anr (rqBS_ind_use (syl hi anl) (syl hl anl)) (rqBS_ind_use (syl hi anl) (syl hr anl)))) (exp @ rqBS_tag5 anr (rqBS_ind_use (syl hi anl) (syl hl anl)) (rqBS_ind_use (syl hi anl) (syl hr anl)))));
+
+theorem rqBS_quantifier {j m: nat} (x: nat) (G: wff j m) (d c: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfWf j -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m j) = sfShift (suc m) (sfRename (rawBinderMap x) m j))) $)
+  (ht: $ G -> (sfTag c = 6 \/ sfTag c = 7) $)
+  (hz: $ G -> sfRight c = 0 $) (hl: $ G -> sfLeft c e. sfPrevious c $):
+  $ G -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(mpd ht (eord (exp @ rqBS_tag6 anr (syl hz anl) (rqBS_ind_use (syl hi anl) (syl hl anl))) (exp @ rqBS_tag7 anr (syl hz anl) (rqBS_ind_use (syl hi anl) (syl hl anl)))));
+
+theorem rqBS_allowed {j m: nat} (x: nat) (G: wff j m) (d c: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfWf j -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m j) = sfShift (suc m) (sfRename (rawBinderMap x) m j))) $):
+  $ G -> sfAllowed c (sfPrevious c) -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+'(eord (exp @ rqBS_transport anr (a1i rqBS_bot))
+  (eord (eord (exp @ rqBS_tag1 anr) (exp @ rqBS_tag2 anr))
+    (eord
+      (exp @ rqBS_binary (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr))
+      (exp @ rqBS_quantifier (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr)))));
+
+theorem rqBS_depth_rename (x: nat) (c: nat):
+  $ A. q (sfWf c -> sfRename (rawBinderMap x) (suc q) (sfRename (rawBinderMap x) q c) = sfShift (suc q) (sfRename (rawBinderMap x) q c)) <->
+    A. m (sfWf c -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m c) = sfShift (suc m) (sfRename (rawBinderMap x) m c)) $ =
+(named '(cbval ,eqtac));
+theorem rqBS_alpha (x: nat) (c: nat):
+  $ A. q (sfWf c -> sfRename (rawBinderMap x) (suc q) (sfRename (rawBinderMap x) q c) = sfShift (suc q) (sfRename (rawBinderMap x) q c)) <->
+    A. m (sfWf c -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m c) = sfShift (suc m) (sfRename (rawBinderMap x) m c)) $ =
+'rqBS_depth_rename;
+theorem rqBS_wf_step {j m: nat} (x: nat) (G: wff j m) (c: nat)
+  (hi: $ G -> A. j (j < c -> A. m (sfWf j -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m j) = sfShift (suc m) (sfRename (rawBinderMap x) m j))) $):
+  $ G -> A. m (sfWf c -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m c) = sfShift (suc m) (sfRename (rawBinderMap x) m c)) $ =
+'(sylib rqBS_alpha @ !! iald q @
+  syl5bi sfWf_unfold (rqBS_allowed hi));
+theorem rqBS_uniform (x: nat) (c: nat):
+  $ A. m (sfWf c -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m c) = sfShift (suc m) (sfRename (rawBinderMap x) m c)) $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = c -> (A. m (sfWf j -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m j) = sfShift (suc m) (sfRename (rawBinderMap x) m j)) <-> A. m (sfWf c -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m c) = sfShift (suc m) (sfRename (rawBinderMap x) m c))) $}
+  ,eqtac (rqBS_wf_step anr)));
+pub theorem rqBinder_shadow (x: nat) (d c: nat):
+  $ sfWf c -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $ =
+(named '(ax_mp rqBS_ind_depth
+  {rqBS_uniform : $ A. m (sfWf c -> sfRename (rawBinderMap x) (suc m) (sfRename (rawBinderMap x) m c) = sfShift (suc m) (sfRename (rawBinderMap x) m c)) $}));
+
+
+
+theorem rqLocal_congr (H: wff) (G D a b: nat) (hg: $ H -> G = D $) (ha: $ H -> a = b $):
+  $ H -> (nsLocal G a <-> nsLocal D b) $ =
+(named '(exeqd @ aneq2d @ lmemeqd (sfSequent_congr hg ha) eqidd));
+
+theorem rqLocal_AllI (G a: nat) (hg: $ sfContextWf G $) (ha: $ sfWf a $):
+  $ nsLocal (sfContextShift G) a -> nsLocal G (sfAll a) $ =
+(named '(eex @ syl nsLocal_intro @ ax_mp sfNDFullDerives_AllI (ax_mp (ax_mp sfRowWf_sequent_intro hg) (ax_mp sfWf_all ha))));
+
+@_ abstract def rqVacContext (q: nat): nat = $ sfImp q sfBot : 0 $;
+
+@_ abstract def rqVacShiftContext (q: nat): nat = $ sfImp (sfShift 0 q) sfBot : 0 $;
+
+@_ abstract def rqVacDeepContext (q: nat): nat = $ sfShift 0 q : rqVacShiftContext q $;
+
+theorem rqVac_shift (q: nat):
+  $ sfContextShift (rqVacContext q) = rqVacShiftContext q $ =
+'(eqtr sfContextShift_cons (conseq (eqtr sfShift_sfImp (rqImp_congr eqid sfShift_bot)) sfContextShift_nil));
+
+theorem rqVac_deep_wf (q: nat):
+  $ sfContextWf (rqVacDeepContext q) $ =
+'(ax_mp (bi2 sfContextWf_cons) (iani sfShift_wf (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp sfShift_wf) sfWf_bot) sfContextWf_nil))));
+
+theorem rqVac_bot (q: nat):
+  $ nsLocal (rqVacDeepContext q) sfBot $ =
+'(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp rqVac_deep_wf) (ax_mp sfContext_member_tail sfContext_member_head))) (ax_mp (ax_mp nsLocal_hyp rqVac_deep_wf) sfContext_member_head));
+
+pub theorem rqVacuous_provable (q a: nat) (hq: $ sfWf q $) (ha: $ sfWf a $):
+  $ zfcProvable (sfImp (sfImp q sfBot) (sfAll (sfImp (sfShift 0 q) a))) $ =
+'(ax_mp (ax_mp nsLocal_to_ZFC zfcContext_nil) (ax_mp nsLocal_II (ax_mp (rqLocal_AllI (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hq) sfWf_bot) sfContextWf_nil)) (ax_mp (ax_mp sfWf_imp sfShift_wf) ha)) (mpbir (trud (rqLocal_congr (a1i rqVac_shift) eqidd)) (ax_mp nsLocal_II (ax_mp (ax_mp rqLocal_explosion ha) rqVac_bot))))));
+
+@_ abstract def rqCLBase (q u b c: nat): nat = $ ((sfImp u b) : ((sfImp q c) : ((sfImp b sfBot) : ((sfImp (sfImp q sfBot) u) : 0)))) $;
+
+@_ abstract def rqCLDeep (q u b c: nat): nat = $ ((sfImp c sfBot) : ((sfImp u b) : ((sfImp q c) : ((sfImp b sfBot) : ((sfImp (sfImp q sfBot) u) : 0))))) $;
+
+@_ abstract def rqCLSuper (q u b c: nat): nat = $ (q : ((sfImp c sfBot) : ((sfImp u b) : ((sfImp q c) : ((sfImp b sfBot) : ((sfImp (sfImp q sfBot) u) : 0)))))) $;
+
+pub theorem rqClassical_provable (q u b c: nat) (hq: $ sfWf q $) (hu: $ sfWf u $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+  $ zfcProvable (sfImp (sfImp (sfImp q sfBot) u) (sfImp (sfImp b sfBot) (sfImp (sfImp q c) (sfImp (sfImp u b) c)))) $ =
+'(ax_mp (ax_mp nsLocal_to_ZFC zfcContext_nil) (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp nsLocal_intro (ax_mp (ax_mp (ax_mp zfcNDPeirce_derives (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hu) hb) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hq) hc) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hb) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_imp hq) sfWf_bot)) hu) sfContextWf_nil))))))))) hc) sfWf_bot))) (ax_mp nsLocal_II (ax_mp (ax_mp rqLocal_explosion hc) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hc) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hu) hb) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hq) hc) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hb) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_imp hq) sfWf_bot)) hu) sfContextWf_nil))))))))))) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hc) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hu) hb) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hq) hc) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hb) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_imp hq) sfWf_bot)) hu) sfContextWf_nil))))))))))) (ax_mp sfContext_member_tail sfContext_member_head))) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hc) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hu) hb) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hq) hc) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hb) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_imp hq) sfWf_bot)) hu) sfContextWf_nil))))))))))) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))))) (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp (ax_mp (bi2 sfContextWf_cons) (iani hq (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hc) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hu) hb) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hq) hc) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hb) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_imp hq) sfWf_bot)) hu) sfContextWf_nil))))))))))))) (ax_mp sfContext_member_tail sfContext_member_head))) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp (ax_mp (bi2 sfContextWf_cons) (iani hq (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hc) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hu) hb) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hq) hc) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hb) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_imp hq) sfWf_bot)) hu) sfContextWf_nil))))))))))))) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))) (ax_mp (ax_mp nsLocal_hyp (ax_mp (bi2 sfContextWf_cons) (iani hq (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hc) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hu) hb) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hq) hc) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp hb) sfWf_bot) (ax_mp (bi2 sfContextWf_cons) (iani (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_imp hq) sfWf_bot)) hu) sfContextWf_nil))))))))))))) sfContext_member_head)))))))))))))));
+
+@_ abstract def rqQuantified (a b: nat): nat = $ sfAll (sfRename (rawBinderMap a) 0 (rawDecode b)) $;
+
+@_ abstract def rqBad (a: nat): nat = $ sfRename (rawBinderMap a) 0 (sfMem 0 0) $;
+
+@_ abstract def rqUniversalNegation (a b: nat): nat = $ sfAll (sfImp (sfShift 0 (rqQuantified a b)) (rqBad a)) $;
+
+theorem rqQuantified_shadow (a b: nat):
+  $ sfRename (rawBinderMap a) 0 (rqQuantified a b) = sfShift 0 (rqQuantified a b) $ =
+'(eqtr sfRename_sfAll (eqtr (rqAll_congr (ax_mp rqBinder_shadow rawDecode_wf)) (eqcom sfShift_sfAll)));
+
+theorem rqExistsAll_decode (a b: nat):
+  $ rawDecode (kExists a (kAll a b)) = sfImp (rqUniversalNegation a b) (sfMem 0 0) $ =
+'(eqtr rqExists_decode (rqImp_congr (rqAll_congr (eqtr (rqRename_eq (rqImp_congr rawDecode_kAll eqid)) (eqtr sfRename_sfImp (rqImp_congr rqQuantified_shadow eqid)))) eqid));
+
+theorem rqQuantified_instance (a b: nat):
+  $ zfcProvable (sfImp (rqQuantified a b) (rawDecode b)) $ =
+'(mpbi (trud (rqProvable_congr (sfImp_congr_right (a1i (ax_mp rqBinder_cancel rawDecode_wf))))) (rqAllE_provable sfRename_wf));
+
+theorem rqUniversalNegation_provable (a b: nat):
+  $ zfcProvable (sfImp (sfImp (rqQuantified a b) sfBot) (rqUniversalNegation a b)) $ =
+'(rqVacuous_provable (ax_mp sfWf_all sfRename_wf) sfRename_wf);
+
+theorem rqRow6_source (a b: nat):
+  $ zfcProvable (sfImp (sfImp (rqUniversalNegation a b) (sfMem 0 0)) (rawDecode b)) $ =
+'(ax_mp (ax_mp zfcProvable_mp (ax_mp (ax_mp zfcProvable_mp (ax_mp (ax_mp zfcProvable_mp (rqClassical_provable (ax_mp sfWf_all sfRename_wf) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfShift_wf) sfRename_wf)) sfWf_mem rawDecode_wf)) rqUniversalNegation_provable)) zfcProvable_no_self)) rqQuantified_instance);
+
+theorem rqImp_left_nonzero (a b: nat):
+  $ a != 0 -> kImp a b != 0 $ =
+'(con3 (syl anl (bi1 raw_kImp_zero_iff)));
+
+theorem rqRow6_decode (a b: nat):
+  $ rawDecode (kRho6 a b) = sfImp (sfImp (rqUniversalNegation a b) (sfMem 0 0)) (rawDecode b) $ =
+'(eqtr (ax_mp rawDecode_kImp (ax_mp rqImp_left_nonzero (ax_mp rqImp_right_nonzero peano1))) (rqImp_congr rqExistsAll_decode eqid));
+
+pub theorem rawSource_rho6 (a b: nat):
+  $ zfcProvable (rawDecode (kRho6 a b)) $ =
+'(mpbir (trud (rqProvable_congr (a1i rqRow6_decode))) rqRow6_source);

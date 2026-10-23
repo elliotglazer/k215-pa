@@ -1,0 +1,71 @@
+import "k230_vacuity.mm1";
+
+@_ abstract def kRawBoundFreshClass (x .c: nat): set = $ {c | c <= x -> kFresh c x} $;
+
+pub theorem kRawBoundFreshClass_value (c x: nat):
+  $ c e. kRawBoundFreshClass x <-> (c <= x -> kFresh c x) $ =
+(named '(elabe ,eqtac));
+
+theorem kRFB_mem_left (a b: nat): $ a < kMem a b $ =
+'(mpbi (lteq1 raw_kMem_left) (ax_mp rawLeft_lt raw_kMem_positive));
+theorem kRFB_mem_right (a b: nat): $ b < kMem a b $ =
+'(mpbi (lteq1 raw_kMem_right) (ax_mp rawRight_lt raw_kMem_positive));
+theorem kRFB_eq_left (a b: nat): $ a < kEq a b $ =
+'(mpbi (lteq1 raw_kEq_left) (ax_mp rawLeft_lt raw_kEq_positive));
+theorem kRFB_eq_right (a b: nat): $ b < kEq a b $ =
+'(mpbi (lteq1 raw_kEq_right) (ax_mp rawRight_lt raw_kEq_positive));
+theorem kRFB_all_left (a b: nat): $ a < kAll a b $ =
+'(mpbi (lteq1 raw_kAll_left) (ax_mp rawLeft_lt raw_kAll_positive));
+
+theorem kRFB_imp_left_zero (a b: nat):
+  $ kImp a b = 0 -> a <= kImp a b $ =
+'(syl eqle (eqtrd (syl anl (bi1 raw_kImp_zero_iff)) (eqcomd id)));
+theorem kRFB_imp_right_zero (a b: nat):
+  $ kImp a b = 0 -> b <= kImp a b $ =
+'(syl eqle (eqtrd (syl anr (bi1 raw_kImp_zero_iff)) (eqcomd id)));
+theorem kRFB_imp_left (a b: nat): $ a <= kImp a b $ =
+'(cases kRFB_imp_left_zero (syl ltle raw_kImp_left_lt));
+theorem kRFB_imp_right (a b: nat): $ b <= kImp a b $ =
+'(cases kRFB_imp_right_zero (syl ltle raw_kImp_right_lt));
+
+theorem kRFB_zero (x: nat): $ 0 e. kRawBoundFreshClass x $ =
+'(mpbir kRawBoundFreshClass_value (a1i kFresh_zero));
+
+theorem kRFB_mem (a b x: nat): $ kMem a b e. kRawBoundFreshClass x $ =
+'(mpbir kRawBoundFreshClass_value @ syl (bi2 kFresh_kMem) @
+  iand (syl ltner (ax_mp ltletr kRFB_mem_left))
+       (syl ltner (ax_mp ltletr kRFB_mem_right)));
+theorem kRFB_eq (a b x: nat): $ kEq a b e. kRawBoundFreshClass x $ =
+'(mpbir kRawBoundFreshClass_value @ syl (bi2 kFresh_kEq) @
+  iand (syl ltner (ax_mp ltletr kRFB_eq_left))
+       (syl ltner (ax_mp ltletr kRFB_eq_right)));
+
+theorem kRFB_imp (a b x: nat):
+  $ a e. kRawBoundFreshClass x /\ b e. kRawBoundFreshClass x ->
+    kImp a b e. kRawBoundFreshClass x $ =
+'(syl (bi2 kRawBoundFreshClass_value) @ exp @
+  mpbird (a1i kFresh_kImp) @ iand
+   (mpd (sylc letr (a1i kRFB_imp_left) anr)
+        (syl (bi1 kRawBoundFreshClass_value) (syl anl anl)))
+   (mpd (sylc letr (a1i kRFB_imp_right) anr)
+        (syl (bi1 kRawBoundFreshClass_value) (syl anr anl))));
+
+theorem kRFB_all (a b x: nat):
+  $ b e. kRawBoundFreshClass x -> kAll a b e. kRawBoundFreshClass x $ =
+'(syl (bi2 kRawBoundFreshClass_value) @ exp @
+  mpbird (a1i kFresh_kAll) @ iand
+   (syl (syl ltner (ax_mp ltletr kRFB_all_left)) anr)
+   (mpd (sylc letr (a1i (ltlei raw_kAll_body_lt)) anr)
+        (syl (bi1 kRawBoundFreshClass_value) anl)));
+
+pub theorem kRawBoundFreshClass_closed (x: nat):
+  $ kRawConstructionClosed (kRawBoundFreshClass x) $ =
+(named '(ian (ian (ian kRFB_zero (ax_gen @ ax_gen @ ian kRFB_mem kRFB_eq))
+  (ax_gen @ ax_gen kRFB_imp)) (ax_gen @ ax_gen kRFB_all)));
+
+pub theorem kRaw_bound_fresh (c x: nat): $ c <= x -> kFresh c x $ =
+'(mpbi kRawBoundFreshClass_value
+  (ax_mp kRaw_induction kRawBoundFreshClass_closed));
+
+pub theorem kRaw_self_fresh (c: nat): $ kFresh c c $ =
+'(ax_mp kRaw_bound_fresh leid);

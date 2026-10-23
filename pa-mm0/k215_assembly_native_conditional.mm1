@@ -1,0 +1,18 @@
+-- HOST-ONLY: see k215_assembly_native_conditional.mm0.
+import "k215_literal_runtime_conditional.mm1";
+import "k215_assembly_program_source.mm1";
+
+-- syl6bb (h1: c <-> d) (h2: a -> (b <-> c)): a -> (b <-> d)
+pub theorem k215AssemblyNative_literal_iff_kInconsistent:
+ $ k215PNativeLaw -> (k215LiteralHalts <-> k215Inconsistent) $ =
+ '(syl6bb k215PInitialHalts_iff_kInconsistent k215LiteralHalts_iff_program_given_native_law);
+
+pub theorem k215AssemblyNative_literal_iff_k218Inconsistent:
+ $ k215PNativeLaw -> (k215LiteralHalts <-> k218Inconsistent) $ =
+ '(syl6bb k215PInitialHalts_iff_k218Inconsistent k215LiteralHalts_iff_program_given_native_law);
+
+-- syld (h1: a -> b -> c) (h2: a -> c -> d): a -> b -> d, in context law /\ transfer.
+pub theorem k215AssemblyNative_halts_ZFC_given_transfer:
+ $ k215PNativeLaw -> (k215Inconsistent -> zfcInconsistent) -> k215LiteralHalts -> zfcInconsistent $ =
+ '(exp (syld (anwl (bi1d k215LiteralHalts_iff_program_given_native_law))
+   (anwr k215AssemblyProgram_halts_ZFC_given_transfer)));

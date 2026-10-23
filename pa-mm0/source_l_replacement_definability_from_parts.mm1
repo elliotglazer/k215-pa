@@ -1,0 +1,25 @@
+import "source_l_replacement_core_assembly.mm1";
+
+pub theorem sfLReplacementDefinableLaw_from_parts(m psi:nat)(hb:$ sfBound (suc m) psi $)
+ (hR:$ sfTheoryProvable zfrAxioms (sfLRepLaw m psi) $)
+ (hE:$ sfTheoryProvable zfrAxioms (sfLEnvLaw m) $)
+ (hO:$ sfTheoryProvable zfrAxioms sfLOp5Law $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLNextLevelLaw $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m psi) $ =
+ '(sfLReplacementDefinableLaw_from_definability (ax_mp sfBound_wf hb)
+   (sfLDefinabilityLaw_from_core (ax_mp sfBound_wf hb) (sfLCoreDefinabilityLaw_from_parts hb hR hE hO))
+   hL);
+
+pub theorem sfLPowerSubsetFormula_bound: $ sfBound (suc 1) sfLPowerSubsetFormula $ =
+ '(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian
+   (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))
+   (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))));
+
+pub theorem sfLDefPowerLiteral_from_parts
+ (hR:$ sfTheoryProvable zfrAxioms (sfLRepLaw 1 sfLPowerSubsetFormula) $)
+ (hE:$ sfTheoryProvable zfrAxioms (sfLEnvLaw 1) $)
+ (hO:$ sfTheoryProvable zfrAxioms sfLOp5Law $):
+ $ sfTheoryProvable zfrAxioms sfLDefPowerLiteral $ =
+ '(sfLDefPowerLiteral_from_definability
+   (sfLDefinabilityLaw_from_core (ax_mp sfBound_wf sfLPowerSubsetFormula_bound)
+    (sfLCoreDefinabilityLaw_from_parts sfLPowerSubsetFormula_bound hR hE hO)));

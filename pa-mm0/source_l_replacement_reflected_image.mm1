@@ -1,0 +1,47 @@
+import "source_l_replacement_witness.mm1";
+import "source_l_separation_image_reflection.mm1";
+import "source_l_common_level_point_rules.mm1";
+import "source_piece_conjunction_proofs.mm1";
+
+@_ def sfLReplacementStartMap(start:nat)(.i:nat):set = $ \ i, i + start $;
+
+pub theorem sfLReplacementStartMap_at(start i:nat):
+ $ sfLReplacementStartMap start @ i = i + start $ = (named '(applame ,eqtac));
+
+theorem lrri_row(start Y i:nat):
+ $ sfCLBallMemberRows (sfLReplacementStartMap start) Y @ i = sfCLMemberRows start Y @ i $ =
+ '(eqtr sfCLBallMemberRows_value
+  (eqtr (nsMem_eq sfLReplacementStartMap_at eqid) (eqcom sfCLMemberRows_value)));
+
+theorem lrri_row_at(G start Y n i:nat)
+ (hr:$ sfCLRowProofs (sfCLMemberRows start Y) G n $):
+ $ i < n -> nsLocal G (sfCLBallMemberRows (sfLReplacementStartMap start) Y @ i) $ =
+ '(syl (bi2 (nsLocal_formula_eq lrri_row)) (ax_mp sfCLRowProofs_at hr));
+
+pub theorem sfLReplacementRows_from_membership(G start Y n:nat)
+ (hm:$ nsLocal G (sfCLMembership start Y n) $):
+ $ sfCLRowProofs (sfCLBallMemberRows (sfLReplacementStartMap start) Y) G n $ =
+ (named '(!! ax_gen i @ ! lrri_row_at G start Y n i (ax_mp sfPieceFold_project hm)));
+
+pub theorem sfLReplacementRows_from_point(G start n beta Y:nat)
+ (hp:$ nsLocal G (sfCLPoint start n beta Y) $):
+ $ sfCLRowProofs (sfCLBallMemberRows (sfLReplacementStartMap start) Y) G n $ =
+ '(sfLReplacementRows_from_membership (ax_mp sfCLPoint_members hp));
+
+pub theorem sfLReplacementComparison_from_reflected_point(G start n psi beta Y:nat)
+ (hb:$ sfBound (suc n) psi $)
+ (hp:$ nsLocal G (sfCLReflectedPoint start n (suc n) psi beta Y) $):
+ $ nsLocal G (sfLSeparationImageComparison (sfLReplacementStartMap start) sfLDomain psi Y) $ =
+ '(sfLSeparationImage_comparison_from_reflection sfLDomain_bound hb
+  (ax_mp sfCLReflectedPoint_reflection hp)
+  (ax_mp nsLocal_CE2 (ax_mp sfCLPoint_pair (ax_mp sfCLReflectedPoint_forget hp)))
+  (sfLReplacementRows_from_point (ax_mp sfCLReflectedPoint_forget hp)));
+
+pub theorem sfLReplacementWitness_from_reflected_point(G start n psi beta Y:nat)
+ (hb:$ sfBound (suc n) psi $)
+ (hp:$ nsLocal G (sfCLReflectedPoint start n (suc n) psi beta Y) $)
+ (he:$ nsLocal G (sfLReplacementImageDefinable (sfLReplacementStartMap start) sfLDomain psi Y) $)
+ (hc:$ nsLocal G (sfLReplacementImageCoverage (sfLReplacementStartMap start) sfLDomain psi Y) $):
+ $ nsLocal G (sfLReplacementImageWitness (sfLReplacementStartMap start) sfLDomain psi) $ =
+ '(sfLReplacementImage_witness sfLDomain_bound (ax_mp sfBound_wf hb) he hc
+  (sfLReplacementComparison_from_reflected_point hb hp));

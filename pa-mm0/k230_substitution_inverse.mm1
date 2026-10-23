@@ -1,0 +1,128 @@
+import "k230_specialization.mm1";
+
+theorem kSI_subst_eq (a b x y: nat) (h: $ a = b $):
+ $ kSubst a x y = kSubst b x y $ =
+'(trud (kSubst_congr (a1i h) eqidd eqidd));
+
+-- Raw all-occurrence freshness is guaranteed above the complete numeric code.
+theorem kSI_left_le (c: nat): $ rawLeft c <= c $ = '(letr fstleid divleid);
+theorem kSI_right_le (c: nat): $ rawRight c <= c $ = '(letr sndleid divleid);
+@_ abstract def kFreshAboveClass (x .c: nat): set = $ {c | c <= x -> kFresh c x} $;
+theorem kSI_above_value (x c: nat):
+ $ c e. kFreshAboveClass x <-> (c <= x -> kFresh c x) $ =
+(named '(elabe ,eqtac));
+theorem kSI_above_zero (x: nat): $ 0 e. kFreshAboveClass x $ =
+'(mpbir kSI_above_value (a1i kFresh_zero));
+theorem kSI_above_mem (x a b: nat): $ kMem a b e. kFreshAboveClass x $ =
+'(mpbir kSI_above_value @ syl (bi2 kFresh_kMem) @ iand
+ (syl ltner (ltletr (mpbi (lteq1 raw_kMem_left) (rawLeft_lt raw_kMem_positive))))
+ (syl ltner (ltletr (mpbi (lteq1 raw_kMem_right) (rawRight_lt raw_kMem_positive)))));
+theorem kSI_above_eq (x a b: nat): $ kEq a b e. kFreshAboveClass x $ =
+'(mpbir kSI_above_value @ syl (bi2 kFresh_kEq) @ iand
+ (syl ltner (ltletr (mpbi (lteq1 raw_kEq_left) (rawLeft_lt raw_kEq_positive))))
+ (syl ltner (ltletr (mpbi (lteq1 raw_kEq_right) (rawRight_lt raw_kEq_positive)))));
+theorem kSI_above_imp (x a b: nat):
+ $ a e. kFreshAboveClass x /\ b e. kFreshAboveClass x -> kImp a b e. kFreshAboveClass x $ =
+'(syl (bi2 kSI_above_value) @ exp @ syl (bi2 kFresh_kImp) @ iand
+ (mpd (syl (letr (mpbi (leeq1 raw_kImp_left) kSI_left_le)) anr) (syl (bi1 kSI_above_value) anll))
+ (mpd (syl (letr (mpbi (leeq1 raw_kImp_right) kSI_right_le)) anr) (syl (bi1 kSI_above_value) anlr)));
+theorem kSI_above_all (x a b: nat):
+ $ b e. kFreshAboveClass x -> kAll a b e. kFreshAboveClass x $ =
+'(syl (bi2 kSI_above_value) @ exp @ syl (bi2 kFresh_kAll) @ iand
+ (syl ltner (syl (ltletr (mpbi (lteq1 raw_kAll_left) (rawLeft_lt raw_kAll_positive))) anr))
+ (mpd (syl (letr (ltlei raw_kAll_body_lt)) anr) (syl (bi1 kSI_above_value) anl)));
+theorem kSI_above_closed (x: nat): $ kRawConstructionClosed (kFreshAboveClass x) $ =
+(named '(ian (ian (ian kSI_above_zero (ax_gen @ ax_gen @ ian kSI_above_mem kSI_above_eq))
+ (ax_gen @ ax_gen kSI_above_imp)) (ax_gen @ ax_gen kSI_above_all)));
+pub theorem kFresh_above (c x: nat): $ c <= x -> kFresh c x $ =
+'(mpbi kSI_above_value (ax_mp kRaw_induction kSI_above_closed));
+
+-- Reversing an atomic replacement requires that the target name was absent.
+theorem kSI_replace_hit (x y a: nat):
+ $ a = x -> a != y -> kReplace y x (kReplace x y a) = a $ =
+'(a1d @ eqtrd
+ (eqtrd (kReplace_congr eqidd eqidd (eqtrd (kReplace_congr eqidd eqidd id) (a1i kReplace_hit)))
+ (a1i kReplace_hit)) (eqcomd id));
+theorem kSI_replace_miss (x y a: nat):
+ $ a != x -> a != y -> kReplace y x (kReplace x y a) = a $ =
+'(exp @ eqtrd (kReplace_congr eqidd eqidd (syl kReplace_miss anl)) (syl kReplace_miss anr));
+pub theorem kReplace_undo (x y a: nat):
+ $ a != y -> kReplace y x (kReplace x y a) = a $ =
+'(cases kSI_replace_hit kSI_replace_miss);
+
+@_ abstract def kSubstUndoClass (x y .c: nat): set =
+ $ {c | kFresh c y /\ kBinderAbsent c x -> kSubst (kSubst c x y) y x = c} $;
+theorem kSI_undo_value (x y c: nat):
+ $ c e. kSubstUndoClass x y <->
+ (kFresh c y /\ kBinderAbsent c x -> kSubst (kSubst c x y) y x = c) $ =
+(named '(elabe ,eqtac));
+theorem kSI_undo_zero (x y: nat): $ 0 e. kSubstUndoClass x y $ =
+'(mpbir kSI_undo_value (a1i (eqtr (kSI_subst_eq kSubst_zero) kSubst_zero)));
+theorem kSI_undo_mem (x y a b: nat): $ kMem a b e. kSubstUndoClass x y $ =
+'(mpbir kSI_undo_value @ eqtrd (a1i (eqtr (kSI_subst_eq kSubst_kMem) kSubst_kMem)) @
+ kMemeqd (syl kReplace_undo (syl necom (syl anl (syl (bi1 kFresh_kMem) anl))))
+ (syl kReplace_undo (syl necom (syl anr (syl (bi1 kFresh_kMem) anl)))));
+theorem kSI_undo_eq (x y a b: nat): $ kEq a b e. kSubstUndoClass x y $ =
+'(mpbir kSI_undo_value @ eqtrd (a1i (eqtr (kSI_subst_eq kSubst_kEq) kSubst_kEq)) @
+ kEqeqd (syl kReplace_undo (syl necom (syl anl (syl (bi1 kFresh_kEq) anl))))
+ (syl kReplace_undo (syl necom (syl anr (syl (bi1 kFresh_kEq) anl)))));
+theorem kSI_undo_imp (x y a b: nat):
+ $ a e. kSubstUndoClass x y /\ b e. kSubstUndoClass x y -> kImp a b e. kSubstUndoClass x y $ =
+'(syl (bi2 kSI_undo_value) @ exp @
+ eqtrd (a1i (eqtr (kSI_subst_eq kSubst_kImp) kSubst_kImp)) @ kImpeqd
+ (mpd (iand (syl anl (syl (bi1 kFresh_kImp) (syl anl anr)))
+ (syl anl (syl (bi1 kBinderAbsent_kImp) (syl anr anr)))) (syl (bi1 kSI_undo_value) anll))
+ (mpd (iand (syl anr (syl (bi1 kFresh_kImp) (syl anl anr)))
+ (syl anr (syl (bi1 kBinderAbsent_kImp) (syl anr anr)))) (syl (bi1 kSI_undo_value) anlr)));
+theorem kSI_undo_all (x y z a: nat):
+ $ a e. kSubstUndoClass x y -> kAll z a e. kSubstUndoClass x y $ =
+'(syl (bi2 kSI_undo_value) @ exp @
+ eqtrd (kSubst_congr
+ (syl kSubst_kAll_open (syl necom (syl anl (syl (bi1 kBinderAbsent_kAll) (syl anr anr))))) eqidd eqidd) @
+ eqtrd (syl kSubst_kAll_open (syl necom (syl anl (syl (bi1 kFresh_kAll) (syl anl anr))))) @
+ kAlleq2d (mpd (iand (syl anr (syl (bi1 kFresh_kAll) (syl anl anr)))
+ (syl anr (syl (bi1 kBinderAbsent_kAll) (syl anr anr)))) (syl (bi1 kSI_undo_value) anl)));
+theorem kSI_undo_closed (x y: nat): $ kRawConstructionClosed (kSubstUndoClass x y) $ =
+(named '(ian (ian (ian kSI_undo_zero (ax_gen @ ax_gen @ ian kSI_undo_mem kSI_undo_eq))
+ (ax_gen @ ax_gen kSI_undo_imp)) (ax_gen @ ax_gen kSI_undo_all)));
+pub theorem kSubst_undo (c x y: nat):
+ $ kFresh c y -> kBinderAbsent c x -> kSubst (kSubst c x y) y x = c $ =
+'(exp (mpbi kSI_undo_value (ax_mp kRaw_induction kSI_undo_closed)));
+
+-- Substitution changes atom names, never the names on surviving binders.
+@_ abstract def kSubstBinderClass (x y z .c: nat): set =
+ $ {c | kBinderAbsent c z -> kBinderAbsent (kSubst c x y) z} $;
+theorem kSI_binder_value (x y z c: nat):
+ $ c e. kSubstBinderClass x y z <-> (kBinderAbsent c z -> kBinderAbsent (kSubst c x y) z) $ =
+(named '(elabe ,eqtac));
+theorem kSI_binder_zero (x y z: nat): $ 0 e. kSubstBinderClass x y z $ =
+'(mpbir kSI_binder_value (a1i (mpbir (trud (kBinderAbsent_congr (a1i kSubst_zero) eqidd)) kBinderAbsent_zero)));
+theorem kSI_binder_mem (x y z a b: nat): $ kMem a b e. kSubstBinderClass x y z $ =
+'(mpbir kSI_binder_value (a1i (mpbir (trud (kBinderAbsent_congr (a1i kSubst_kMem) eqidd)) kBinderAbsent_kMem)));
+theorem kSI_binder_eq (x y z a b: nat): $ kEq a b e. kSubstBinderClass x y z $ =
+'(mpbir kSI_binder_value (a1i (mpbir (trud (kBinderAbsent_congr (a1i kSubst_kEq) eqidd)) kBinderAbsent_kEq)));
+theorem kSI_binder_imp (x y z a b: nat):
+ $ a e. kSubstBinderClass x y z /\ b e. kSubstBinderClass x y z -> kImp a b e. kSubstBinderClass x y z $ =
+'(syl (bi2 kSI_binder_value) @ exp @
+ mpbird (kBinderAbsent_congr (a1i kSubst_kImp) eqidd) @ syl (bi2 kBinderAbsent_kImp) @ iand
+ (mpd (syl anl (syl (bi1 kBinderAbsent_kImp) anr)) (syl (bi1 kSI_binder_value) anll))
+ (mpd (syl anr (syl (bi1 kBinderAbsent_kImp) anr)) (syl (bi1 kSI_binder_value) anlr)));
+theorem kSI_binder_all_stop (x y z a b: nat):
+ $ a = x -> b e. kSubstBinderClass x y z -> kAll a b e. kSubstBinderClass x y z $ =
+'(exp @ syl (bi2 kSI_binder_value) @ exp @
+ mpbird (kBinderAbsent_congr (syl kSubst_kAll_stop anll) eqidd) anr);
+theorem kSI_binder_all_open (x y z a b: nat):
+ $ a != x -> b e. kSubstBinderClass x y z -> kAll a b e. kSubstBinderClass x y z $ =
+'(exp @ syl (bi2 kSI_binder_value) @ exp @
+ mpbird (kBinderAbsent_congr (syl kSubst_kAll_open anll) eqidd) @ syl (bi2 kBinderAbsent_kAll) @ iand
+ (syl anl (syl (bi1 kBinderAbsent_kAll) anr))
+ (mpd (syl anr (syl (bi1 kBinderAbsent_kAll) anr)) (syl (bi1 kSI_binder_value) anlr)));
+theorem kSI_binder_all (x y z a b: nat):
+ $ b e. kSubstBinderClass x y z -> kAll a b e. kSubstBinderClass x y z $ =
+'(cases kSI_binder_all_stop kSI_binder_all_open);
+theorem kSI_binder_closed (x y z: nat): $ kRawConstructionClosed (kSubstBinderClass x y z) $ =
+(named '(ian (ian (ian kSI_binder_zero (ax_gen @ ax_gen @ ian kSI_binder_mem kSI_binder_eq))
+ (ax_gen @ ax_gen kSI_binder_imp)) (ax_gen @ ax_gen kSI_binder_all)));
+pub theorem kBinderAbsent_substitution (c x y z: nat):
+ $ kBinderAbsent c z -> kBinderAbsent (kSubst c x y) z $ =
+'(mpbi kSI_binder_value (ax_mp kRaw_induction kSI_binder_closed));

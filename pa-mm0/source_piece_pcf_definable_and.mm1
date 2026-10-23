@@ -1,0 +1,315 @@
+import "source_piece_pcf_definable_bot.mm1";
+
+@_ def pcdfAF0(a b n r u v:nat):nat = $ sfBot $;
+
+@_ def pcdfAF1(a b n r u v:nat):nat = $ sfImp b (pcdfAF0 a b n r u v) $;
+
+@_ def pcdfAF2(a b n r u v:nat):nat = $ sfAnd a (pcdfAF1 a b n r u v) $;
+
+@_ def pcdfAF3(a b n r u v:nat):nat = $ sfImp n (pcdfAF2 a b n r u v) $;
+
+@_ def pcdfAF4(a b n r u v:nat):nat = $ sfImp (pcdfAF2 a b n r u v) n $;
+
+@_ def pcdfAF5(a b n r u v:nat):nat = $ sfAnd (pcdfAF3 a b n r u v) (pcdfAF4 a b n r u v) $;
+
+@_ def pcdfAF6(a b n r u v:nat):nat = $ sfImp n (pcdfAF0 a b n r u v) $;
+
+@_ def pcdfAF7(a b n r u v:nat):nat = $ sfAnd a (pcdfAF6 a b n r u v) $;
+
+@_ def pcdfAF8(a b n r u v:nat):nat = $ sfImp r (pcdfAF7 a b n r u v) $;
+
+@_ def pcdfAF9(a b n r u v:nat):nat = $ sfImp (pcdfAF7 a b n r u v) r $;
+
+@_ def pcdfAF10(a b n r u v:nat):nat = $ sfAnd (pcdfAF8 a b n r u v) (pcdfAF9 a b n r u v) $;
+
+@_ def pcdfAF11(a b n r u v:nat):nat = $ sfImp a u $;
+
+@_ def pcdfAF12(a b n r u v:nat):nat = $ sfImp u a $;
+
+@_ def pcdfAF13(a b n r u v:nat):nat = $ sfAnd (pcdfAF11 a b n r u v) (pcdfAF12 a b n r u v) $;
+
+@_ def pcdfAF14(a b n r u v:nat):nat = $ sfImp b v $;
+
+@_ def pcdfAF15(a b n r u v:nat):nat = $ sfImp v b $;
+
+@_ def pcdfAF16(a b n r u v:nat):nat = $ sfAnd (pcdfAF14 a b n r u v) (pcdfAF15 a b n r u v) $;
+
+@_ def pcdfAF17(a b n r u v:nat):nat = $ sfAnd u v $;
+
+@_ def pcdfAF18(a b n r u v:nat):nat = $ sfImp r (pcdfAF17 a b n r u v) $;
+
+@_ def pcdfAF19(a b n r u v:nat):nat = $ sfImp (pcdfAF17 a b n r u v) r $;
+
+@_ def pcdfAF20(a b n r u v:nat):nat = $ sfAnd (pcdfAF18 a b n r u v) (pcdfAF19 a b n r u v) $;
+
+@_ def pcdfAF21(a b n r u v:nat):nat = $ sfImp (pcdfAF16 a b n r u v) (pcdfAF20 a b n r u v) $;
+
+@_ def pcdfAF22(a b n r u v:nat):nat = $ sfImp (pcdfAF13 a b n r u v) (pcdfAF21 a b n r u v) $;
+
+@_ def pcdfAF23(a b n r u v:nat):nat = $ sfImp (pcdfAF10 a b n r u v) (pcdfAF22 a b n r u v) $;
+
+@_ def pcdfAF24(a b n r u v:nat):nat = $ sfImp (pcdfAF5 a b n r u v) (pcdfAF23 a b n r u v) $;
+
+@_ def pcdfAG25(a b n r u v:nat):nat = $ (pcdfAF5 a b n r u v) : 0 $;
+
+@_ def pcdfAG26(a b n r u v:nat):nat = $ (pcdfAF10 a b n r u v) : (pcdfAG25 a b n r u v) $;
+
+@_ def pcdfAG27(a b n r u v:nat):nat = $ (pcdfAF13 a b n r u v) : (pcdfAG26 a b n r u v) $;
+
+@_ def pcdfAG28(a b n r u v:nat):nat = $ (pcdfAF16 a b n r u v) : (pcdfAG27 a b n r u v) $;
+
+@_ def pcdfAG29(a b n r u v:nat):nat = $ r : (pcdfAG28 a b n r u v) $;
+
+@_ def pcdfAF30(a b n r u v:nat):nat = $ sfImp (pcdfAF1 a b n r u v) b $;
+
+@_ def pcdfAF31(a b n r u v:nat):nat = $ sfImp (pcdfAF30 a b n r u v) b $;
+
+@_ def pcdfAG32(a b n r u v:nat):nat = $ (pcdfAF1 a b n r u v) : (pcdfAG29 a b n r u v) $;
+
+@_ def pcdfAG33(a b n r u v:nat):nat = $ (pcdfAF17 a b n r u v) : (pcdfAG28 a b n r u v) $;
+
+@_ def pcdfAG34(a b n r u v:nat):nat = $ n : (pcdfAG33 a b n r u v) $;
+
+theorem pcdfAWf0(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF14 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hb) hv));
+
+theorem pcdfAWf1(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF15 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hv) hb));
+
+theorem pcdfAWf2(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF16 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_and (pcdfAWf0 ha hb hn hr hu hv)) (pcdfAWf1 ha hb hn hr hu hv)));
+
+theorem pcdfAWf3(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF11 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp ha) hu));
+
+theorem pcdfAWf4(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF12 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hu) ha));
+
+theorem pcdfAWf5(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF13 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_and (pcdfAWf3 ha hb hn hr hu hv)) (pcdfAWf4 ha hb hn hr hu hv)));
+
+theorem pcdfAWf6(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF0 a b n r u v) $ = (named 'sfWf_bot);
+
+theorem pcdfAWf7(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF6 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hn) (pcdfAWf6 ha hb hn hr hu hv)));
+
+theorem pcdfAWf8(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF7 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_and ha) (pcdfAWf7 ha hb hn hr hu hv)));
+
+theorem pcdfAWf9(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF8 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hr) (pcdfAWf8 ha hb hn hr hu hv)));
+
+theorem pcdfAWf10(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF9 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp (pcdfAWf8 ha hb hn hr hu hv)) hr));
+
+theorem pcdfAWf11(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF10 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_and (pcdfAWf9 ha hb hn hr hu hv)) (pcdfAWf10 ha hb hn hr hu hv)));
+
+theorem pcdfAWf12(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF1 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hb) (pcdfAWf6 ha hb hn hr hu hv)));
+
+theorem pcdfAWf13(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF2 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_and ha) (pcdfAWf12 ha hb hn hr hu hv)));
+
+theorem pcdfAWf14(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF3 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hn) (pcdfAWf13 ha hb hn hr hu hv)));
+
+theorem pcdfAWf15(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF4 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_imp (pcdfAWf13 ha hb hn hr hu hv)) hn));
+
+theorem pcdfAWf16(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF5 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_and (pcdfAWf14 ha hb hn hr hu hv)) (pcdfAWf15 ha hb hn hr hu hv)));
+
+theorem pcdfAGWf17(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf 0 $ = (named 'sfContextWf_nil);
+
+theorem pcdfAGWf18(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfAG25 a b n r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfAWf16 ha hb hn hr hu hv) (pcdfAGWf17 ha hb hn hr hu hv))));
+
+theorem pcdfAGWf19(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfAG26 a b n r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfAWf11 ha hb hn hr hu hv) (pcdfAGWf18 ha hb hn hr hu hv))));
+
+theorem pcdfAGWf20(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfAG27 a b n r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfAWf5 ha hb hn hr hu hv) (pcdfAGWf19 ha hb hn hr hu hv))));
+
+theorem pcdfAGWf21(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfAG28 a b n r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfAWf2 ha hb hn hr hu hv) (pcdfAGWf20 ha hb hn hr hu hv))));
+
+theorem pcdfAGWf22(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfAG29 a b n r u v) $ = (named '(mpbir sfContextWf_cons (ian hr (pcdfAGWf21 ha hb hn hr hu hv))));
+
+theorem pcdfAMem23(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF13 a b n r u v) IN (pcdfAG29 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem pcdfAP24(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF13 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf22 ha hb hn hr hu hv)) (pcdfAMem23 ha hb hn hr hu hv)));
+
+theorem pcdfAP25(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF11 a b n r u v) $ = (named '(ax_mp nsLocal_CE1 (pcdfAP24 ha hb hn hr hu hv)));
+
+theorem pcdfAMem26(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF10 a b n r u v) IN (pcdfAG29 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem pcdfAP27(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF10 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf22 ha hb hn hr hu hv)) (pcdfAMem26 ha hb hn hr hu hv)));
+
+theorem pcdfAP28(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF8 a b n r u v) $ = (named '(ax_mp nsLocal_CE1 (pcdfAP27 ha hb hn hr hu hv)));
+
+theorem pcdfAMem29(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ r IN (pcdfAG29 a b n r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfAP30(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) r $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf22 ha hb hn hr hu hv)) (pcdfAMem29 ha hb hn hr hu hv)));
+
+theorem pcdfAP31(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF7 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP28 ha hb hn hr hu hv)) (pcdfAP30 ha hb hn hr hu hv)));
+
+theorem pcdfAP32(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) a $ = (named '(ax_mp nsLocal_CE1 (pcdfAP31 ha hb hn hr hu hv)));
+
+theorem pcdfAP33(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) u $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP25 ha hb hn hr hu hv)) (pcdfAP32 ha hb hn hr hu hv)));
+
+theorem pcdfAMem34(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF16 a b n r u v) IN (pcdfAG29 a b n r u v) $ = (named '(ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem pcdfAP35(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF16 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf22 ha hb hn hr hu hv)) (pcdfAMem34 ha hb hn hr hu hv)));
+
+theorem pcdfAP36(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF14 a b n r u v) $ = (named '(ax_mp nsLocal_CE1 (pcdfAP35 ha hb hn hr hu hv)));
+
+theorem pcdfAPc37(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF31 a b n r u v) $ = (named '(sfLocal_peirce (pcdfAGWf22 ha hb hn hr hu hv) hb (pcdfAWf6 ha hb hn hr hu hv)));
+
+theorem pcdfAGWf38(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfAG32 a b n r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfAWf12 ha hb hn hr hu hv) (pcdfAGWf22 ha hb hn hr hu hv))));
+
+theorem pcdfAMem39(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF10 a b n r u v) IN (pcdfAG32 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem pcdfAP40(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) (pcdfAF10 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf38 ha hb hn hr hu hv)) (pcdfAMem39 ha hb hn hr hu hv)));
+
+theorem pcdfAP41(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) (pcdfAF8 a b n r u v) $ = (named '(ax_mp nsLocal_CE1 (pcdfAP40 ha hb hn hr hu hv)));
+
+theorem pcdfAMem42(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ r IN (pcdfAG32 a b n r u v) $ = (named '(ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem pcdfAP43(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) r $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf38 ha hb hn hr hu hv)) (pcdfAMem42 ha hb hn hr hu hv)));
+
+theorem pcdfAP44(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) (pcdfAF7 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP41 ha hb hn hr hu hv)) (pcdfAP43 ha hb hn hr hu hv)));
+
+theorem pcdfAP45(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) (pcdfAF6 a b n r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfAP44 ha hb hn hr hu hv)));
+
+theorem pcdfAMem46(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF5 a b n r u v) IN (pcdfAG32 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))));
+
+theorem pcdfAP47(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) (pcdfAF5 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf38 ha hb hn hr hu hv)) (pcdfAMem46 ha hb hn hr hu hv)));
+
+theorem pcdfAP48(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) (pcdfAF4 a b n r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfAP47 ha hb hn hr hu hv)));
+
+theorem pcdfAMem49(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ r IN (pcdfAG32 a b n r u v) $ = (named '(ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem pcdfAMem50(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF16 a b n r u v) IN (pcdfAG32 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem pcdfAMem51(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF13 a b n r u v) IN (pcdfAG32 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem pcdfAMem52(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF10 a b n r u v) IN (pcdfAG32 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem pcdfAMem53(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF5 a b n r u v) IN (pcdfAG32 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))));
+
+theorem pcdfASub54(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub 0 (pcdfAG32 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmems0)) ss01));
+
+theorem pcdfASub55(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG25 a b n r u v) (pcdfAG32 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem53 ha hb hn hr hu hv) (pcdfASub54 ha hb hn hr hu hv)))));
+
+theorem pcdfASub56(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG26 a b n r u v) (pcdfAG32 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem52 ha hb hn hr hu hv) (pcdfASub55 ha hb hn hr hu hv)))));
+
+theorem pcdfASub57(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG27 a b n r u v) (pcdfAG32 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem51 ha hb hn hr hu hv) (pcdfASub56 ha hb hn hr hu hv)))));
+
+theorem pcdfASub58(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG28 a b n r u v) (pcdfAG32 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem50 ha hb hn hr hu hv) (pcdfASub57 ha hb hn hr hu hv)))));
+
+theorem pcdfASub59(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG29 a b n r u v) (pcdfAG32 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem49 ha hb hn hr hu hv) (pcdfASub58 ha hb hn hr hu hv)))));
+
+theorem pcdfAP60(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) a $ = (named '(ax_mp (ax_mp (ax_mp nsLocal_weaken (pcdfAGWf38 ha hb hn hr hu hv)) (pcdfASub59 ha hb hn hr hu hv)) (pcdfAP32 ha hb hn hr hu hv)));
+
+theorem pcdfAMem61(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF1 a b n r u v) IN (pcdfAG32 a b n r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfAP62(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) (pcdfAF1 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf38 ha hb hn hr hu hv)) (pcdfAMem61 ha hb hn hr hu hv)));
+
+theorem pcdfAP63(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) (pcdfAF2 a b n r u v) $ = (named '(ax_mp (ax_mp sfLocal_and (pcdfAP60 ha hb hn hr hu hv)) (pcdfAP62 ha hb hn hr hu hv)));
+
+theorem pcdfAP64(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) n $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP48 ha hb hn hr hu hv)) (pcdfAP63 ha hb hn hr hu hv)));
+
+theorem pcdfAP65(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) (pcdfAF0 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP45 ha hb hn hr hu hv)) (pcdfAP64 ha hb hn hr hu hv)));
+
+theorem pcdfAP66(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG32 a b n r u v) b $ = (named '(ax_mp (sfLocal_falseE hb) (pcdfAP65 ha hb hn hr hu hv)));
+
+theorem pcdfAP67(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF30 a b n r u v) $ = (named '(ax_mp nsLocal_II (pcdfAP66 ha hb hn hr hu hv)));
+
+theorem pcdfAP68(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) b $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAPc37 ha hb hn hr hu hv)) (pcdfAP67 ha hb hn hr hu hv)));
+
+theorem pcdfAP69(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) v $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP36 ha hb hn hr hu hv)) (pcdfAP68 ha hb hn hr hu hv)));
+
+theorem pcdfAP70(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG29 a b n r u v) (pcdfAF17 a b n r u v) $ = (named '(ax_mp (ax_mp sfLocal_and (pcdfAP33 ha hb hn hr hu hv)) (pcdfAP69 ha hb hn hr hu hv)));
+
+theorem pcdfAP71(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG28 a b n r u v) (pcdfAF18 a b n r u v) $ = (named '(ax_mp nsLocal_II (pcdfAP70 ha hb hn hr hu hv)));
+
+theorem pcdfAWf72(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfAF17 a b n r u v) $ = (named '(ax_mp (ax_mp sfWf_and hu) hv));
+
+theorem pcdfAGWf73(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfAG33 a b n r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfAWf72 ha hb hn hr hu hv) (pcdfAGWf21 ha hb hn hr hu hv))));
+
+theorem pcdfAMem74(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF10 a b n r u v) IN (pcdfAG33 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem pcdfAP75(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) (pcdfAF10 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf73 ha hb hn hr hu hv)) (pcdfAMem74 ha hb hn hr hu hv)));
+
+theorem pcdfAP76(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) (pcdfAF9 a b n r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfAP75 ha hb hn hr hu hv)));
+
+theorem pcdfAMem77(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF13 a b n r u v) IN (pcdfAG33 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem pcdfAP78(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) (pcdfAF13 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf73 ha hb hn hr hu hv)) (pcdfAMem77 ha hb hn hr hu hv)));
+
+theorem pcdfAP79(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) (pcdfAF12 a b n r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfAP78 ha hb hn hr hu hv)));
+
+theorem pcdfAMem80(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF17 a b n r u v) IN (pcdfAG33 a b n r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfAP81(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) (pcdfAF17 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf73 ha hb hn hr hu hv)) (pcdfAMem80 ha hb hn hr hu hv)));
+
+theorem pcdfAP82(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) u $ = (named '(ax_mp nsLocal_CE1 (pcdfAP81 ha hb hn hr hu hv)));
+
+theorem pcdfAP83(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) a $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP79 ha hb hn hr hu hv)) (pcdfAP82 ha hb hn hr hu hv)));
+
+theorem pcdfAGWf84(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfAG34 a b n r u v) $ = (named '(mpbir sfContextWf_cons (ian hn (pcdfAGWf73 ha hb hn hr hu hv))));
+
+theorem pcdfAMem85(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF5 a b n r u v) IN (pcdfAG34 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))));
+
+theorem pcdfAP86(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG34 a b n r u v) (pcdfAF5 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf84 ha hb hn hr hu hv)) (pcdfAMem85 ha hb hn hr hu hv)));
+
+theorem pcdfAP87(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG34 a b n r u v) (pcdfAF3 a b n r u v) $ = (named '(ax_mp nsLocal_CE1 (pcdfAP86 ha hb hn hr hu hv)));
+
+theorem pcdfAMem88(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ n IN (pcdfAG34 a b n r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfAP89(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG34 a b n r u v) n $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf84 ha hb hn hr hu hv)) (pcdfAMem88 ha hb hn hr hu hv)));
+
+theorem pcdfAP90(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG34 a b n r u v) (pcdfAF2 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP87 ha hb hn hr hu hv)) (pcdfAP89 ha hb hn hr hu hv)));
+
+theorem pcdfAP91(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG34 a b n r u v) (pcdfAF1 a b n r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfAP90 ha hb hn hr hu hv)));
+
+theorem pcdfAMem92(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF17 a b n r u v) IN (pcdfAG34 a b n r u v) $ = (named '(ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem pcdfAMem93(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF16 a b n r u v) IN (pcdfAG34 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem pcdfAMem94(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF13 a b n r u v) IN (pcdfAG34 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem pcdfAMem95(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF10 a b n r u v) IN (pcdfAG34 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem pcdfAMem96(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF5 a b n r u v) IN (pcdfAG34 a b n r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))));
+
+theorem pcdfASub97(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub 0 (pcdfAG34 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmems0)) ss01));
+
+theorem pcdfASub98(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG25 a b n r u v) (pcdfAG34 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem96 ha hb hn hr hu hv) (pcdfASub97 ha hb hn hr hu hv)))));
+
+theorem pcdfASub99(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG26 a b n r u v) (pcdfAG34 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem95 ha hb hn hr hu hv) (pcdfASub98 ha hb hn hr hu hv)))));
+
+theorem pcdfASub100(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG27 a b n r u v) (pcdfAG34 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem94 ha hb hn hr hu hv) (pcdfASub99 ha hb hn hr hu hv)))));
+
+theorem pcdfASub101(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG28 a b n r u v) (pcdfAG34 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem93 ha hb hn hr hu hv) (pcdfASub100 ha hb hn hr hu hv)))));
+
+theorem pcdfASub102(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextSub (pcdfAG33 a b n r u v) (pcdfAG34 a b n r u v) $ = (named '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcdfAMem92 ha hb hn hr hu hv) (pcdfASub101 ha hb hn hr hu hv)))));
+
+theorem pcdfAMem103(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfAF16 a b n r u v) IN (pcdfAG33 a b n r u v) $ = (named '(ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem pcdfAP104(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) (pcdfAF16 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfAGWf73 ha hb hn hr hu hv)) (pcdfAMem103 ha hb hn hr hu hv)));
+
+theorem pcdfAP105(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) (pcdfAF15 a b n r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfAP104 ha hb hn hr hu hv)));
+
+theorem pcdfAP106(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) v $ = (named '(ax_mp nsLocal_CE2 (pcdfAP81 ha hb hn hr hu hv)));
+
+theorem pcdfAP107(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) b $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP105 ha hb hn hr hu hv)) (pcdfAP106 ha hb hn hr hu hv)));
+
+theorem pcdfAP108(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG34 a b n r u v) b $ = (named '(ax_mp (ax_mp (ax_mp nsLocal_weaken (pcdfAGWf84 ha hb hn hr hu hv)) (pcdfASub102 ha hb hn hr hu hv)) (pcdfAP107 ha hb hn hr hu hv)));
+
+theorem pcdfAP109(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG34 a b n r u v) (pcdfAF0 a b n r u v) $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP91 ha hb hn hr hu hv)) (pcdfAP108 ha hb hn hr hu hv)));
+
+theorem pcdfAP110(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) (pcdfAF6 a b n r u v) $ = (named '(ax_mp nsLocal_II (pcdfAP109 ha hb hn hr hu hv)));
+
+theorem pcdfAP111(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) (pcdfAF7 a b n r u v) $ = (named '(ax_mp (ax_mp sfLocal_and (pcdfAP83 ha hb hn hr hu hv)) (pcdfAP110 ha hb hn hr hu hv)));
+
+theorem pcdfAP112(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG33 a b n r u v) r $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfAP76 ha hb hn hr hu hv)) (pcdfAP111 ha hb hn hr hu hv)));
+
+theorem pcdfAP113(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG28 a b n r u v) (pcdfAF19 a b n r u v) $ = (named '(ax_mp nsLocal_II (pcdfAP112 ha hb hn hr hu hv)));
+
+theorem pcdfAP114(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG28 a b n r u v) (pcdfAF20 a b n r u v) $ = (named '(ax_mp (ax_mp sfLocal_and (pcdfAP71 ha hb hn hr hu hv)) (pcdfAP113 ha hb hn hr hu hv)));
+
+theorem pcdfAP115(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG27 a b n r u v) (pcdfAF21 a b n r u v) $ = (named '(ax_mp nsLocal_II (pcdfAP114 ha hb hn hr hu hv)));
+
+theorem pcdfAP116(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG26 a b n r u v) (pcdfAF22 a b n r u v) $ = (named '(ax_mp nsLocal_II (pcdfAP115 ha hb hn hr hu hv)));
+
+theorem pcdfAP117(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfAG25 a b n r u v) (pcdfAF23 a b n r u v) $ = (named '(ax_mp nsLocal_II (pcdfAP116 ha hb hn hr hu hv)));
+
+theorem pcdfAP118(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal 0 (pcdfAF24 a b n r u v) $ = (named '(ax_mp nsLocal_II (pcdfAP117 ha hb hn hr hu hv)));
+
+pub theorem sfPieceDefinableAnd_pure(a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal 0 (sfImp (sfIff n (sfAnd a (sfImp b sfBot))) (sfImp (sfIff r (sfAnd a (sfImp n sfBot))) (sfImp (sfIff a u) (sfImp (sfIff b v) (sfIff r (sfAnd u v)))))) $ = (named '(pcdfAP118 ha hb hn hr hu hv));
+
+pub theorem sfPieceDefinableAnd_local(G a b n r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hn:$ sfWf n $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(hN:$ nsLocal G (sfIff n (sfAnd a (sfImp b sfBot))) $)(hR:$ nsLocal G (sfIff r (sfAnd a (sfImp n sfBot))) $)(hA:$ nsLocal G (sfIff a u) $)(hB:$ nsLocal G (sfIff b v) $): $ nsLocal G (sfIff r (sfAnd u v)) $ = (named '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (ax_mp nsLocal_context_wf hN)) all0) (sfPieceDefinableAnd_pure ha hb hn hr hu hv))) hN)) hR)) hA)) hB));
+
+pub theorem sfPieceDefinableAnd_represents(T:set)(G A R1 R2 N R phi psi e:nat)(hN:$ nsLocal G (sfIff (sfMem e N) (sfAnd (sfMem e R1) (sfImp (sfMem e R2) sfBot))) $)(hR:$ nsLocal G (sfIff (sfMem e R) (sfAnd (sfMem e R1) (sfImp (sfMem e N) sfBot))) $)(hA:$ sfPieceRepresentationAt T G A R1 phi e $)(hB:$ sfPieceRepresentationAt T G A R2 psi e $): $ sfPieceRepresentationAt T G A R (sfAnd phi psi) e $ = (named '(sfRQ_rewrite (nsAnd_eq (nsImp_eq eqid (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfAnd))) sfCLSetRel_sfAnd))) (nsImp_eq (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfAnd))) sfCLSetRel_sfAnd)) eqid)) (sfPieceDefinableAnd_local sfWf_mem sfWf_mem sfWf_mem sfWf_mem sfCLSetRel_wf sfCLSetRel_wf hN hR hA hB)));

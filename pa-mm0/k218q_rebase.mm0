@@ -1,0 +1,37 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm0";
+import "quotation_rebase_hygiene.mm0";
+import "k218q_equivalence.mm0";
+import "k218q_alpha.mm0";
+import "quotation_substitution.mm0";
+import "quotation_substitution_conditional.mm0";
+
+def k218IntBaseClass (E: set) (.c .S .n .k .l: nat): set =
+ $ {c | A. S A. n A. k A. l (sfBound n c ->
+ sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ k218IEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c))} $;
+
+theorem k218IsfNamedTemplate_mem_rebase (E: set) (k l a b: nat):
+ $ k218IEquivalent (sfNamedTemplate E k 0 (sfMem a b)) (sfNamedTemplate E l 0 (sfMem a b)) $;
+
+theorem k218IsfNamedTemplate_eq_rebase (E: set) (k l a b: nat):
+ $ k218IEquivalent (sfNamedTemplate E k 0 (sfEq a b)) (sfNamedTemplate E l 0 (sfEq a b)) $;
+
+def k218IntBaseBody (E: set) (S k c: nat): nat =
+ $ sfNamedTemplate (sqEnvCons k (sqStackEnv S E)) (suc k) 0 c $;
+
+def k218IntBaseCommon (E: set) (S k l c p: nat): nat =
+ $ sqCommonName (k218IntBaseBody E S k c) (k218IntBaseBody E S l c) k l (suc (p + 0)) $;
+
+theorem k218IsfNamedTemplate_rebase_stack (E: set) (S n k l c: nat):
+ $ sfBound n c -> sqRebaseHygiene (sqStackEnv S E) n k c 0 ->
+ sqRebaseHygiene (sqStackEnv S E) n l c 0 ->
+ k218IEquivalent (sfNamedTemplate (sqStackEnv S E) k 0 c)
+             (sfNamedTemplate (sqStackEnv S E) l 0 c) $;
+
+theorem k218IsfNamedTemplate_fresh_base_equivalent (E: set) (n k l c: nat):
+ $ sfBound n c -> sqRebaseHygiene E n k c 0 -> sqRebaseHygiene E n l c 0 ->
+ k218IEquivalent (sfNamedTemplate E k 0 c) (sfNamedTemplate E l 0 c) $;
+

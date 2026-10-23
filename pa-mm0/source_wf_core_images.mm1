@@ -1,0 +1,88 @@
+import "source_wf_basic_images.mm1";
+import "source_wf_empty_image.mm1";
+import "source_wf_foundation.mm1";
+import "source_theory_local.mm1";
+import "source_wf_pair_image.mm1";
+import "source_wf_union_image.mm1";
+import "source_wf_power_image.mm1";
+import "source_wf_omega_image.mm1";
+import "source_wf_separation_image.mm1";
+import "source_wf_replacement_image.mm1";
+
+pub theorem sfWFNonempty_core:
+  $ sfTheoryProvable zfcCoreAxioms (sfEx sfWFDomain) $ =
+'(ax_mp (sfTheory_local zfcCoreSmallContext_core) sfWFNonempty_local);
+
+theorem sfWF_core_singleton (a: nat) (ha: $ a e. zfcCoreAxioms $):
+  $ sfTheoryContext zfcCoreAxioms (a : 0) $ =
+'(mpbir sfTheoryContext_cons (ian ha sfTheoryContext_nil));
+
+pub theorem sfWFRefl_core:
+  $ sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain zfcRefl) $ =
+'(ax_mp (sfTheory_local (sfWF_core_singleton zfcCoreRefl_member)) sfWFRefl_local);
+pub theorem sfWFSym_core:
+  $ sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain zfcSym) $ =
+'(ax_mp (sfTheory_local (sfWF_core_singleton zfcCoreSym_member)) sfWFSym_local);
+pub theorem sfWFTrans_core:
+  $ sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain zfcTrans) $ =
+'(ax_mp (sfTheory_local (sfWF_core_singleton zfcCoreTrans_member)) sfWFTrans_local);
+pub theorem sfWFEqElem_core:
+  $ sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain zfcEqElem) $ =
+'(ax_mp (sfTheory_local (sfWF_core_singleton zfcCoreEqElem_member)) sfWFEqElem_local);
+pub theorem sfWFExt_core:
+  $ sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain zfcExt) $ =
+'(ax_mp (sfTheory_local (sfWF_core_singleton zfcCoreExt_member)) sfWFExt_local);
+pub theorem sfWFEmpty_core:
+  $ sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain zfcEmpty) $ =
+'(ax_mp (sfTheory_local zfcCoreSmallContext_core) sfWFEmpty_local);
+pub theorem sfWFFoundation_core:
+  $ sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain zfcFoundation) $ =
+'(ax_mp sfTheory_pure sfWFFoundation_pure);
+
+theorem sfWFImage_transport (a b: nat)
+  (hb: $ sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain b) $):
+  $ a = b -> sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $ =
+'(mpbird (sfTheoryProvable_congr (sfRelativizeeq2d id)) (a1i hb));
+
+pub theorem sfWFCoreFixed_image (a: nat):
+  $ zfcCoreFixed a -> sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $ =
+'(eori (sfWFImage_transport sfWFRefl_core)
+  (eori (sfWFImage_transport sfWFSym_core)
+  (eori (sfWFImage_transport sfWFTrans_core)
+  (eori (sfWFImage_transport sfWFEqElem_core)
+  (eori (sfWFImage_transport sfWFExt_core)
+  (eori (sfWFImage_transport sfWFEmpty_core)
+  (eori (sfWFImage_transport sfWFPair_core)
+  (eori (sfWFImage_transport sfWFUnion_core)
+  (eori (sfWFImage_transport sfWFPower_core)
+        (sfWFImage_transport sfWFOmega_core))))))))));
+
+theorem sfWFSeparation_witness_image (a phi n: nat):
+  $ (sfBound (suc n) phi /\ a = zfcSeparationCode phi n) ->
+    sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $ =
+'(mpbird (sfTheoryProvable_congr (sfRelativizeeq2d anr))
+  (syl sfWFSeparation_schema anl));
+
+pub theorem sfWFClosedSeparation_image (a: nat):
+  $ zfcClosedSeparation a -> sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $ =
+(named '(syl (eex @ eex sfWFSeparation_witness_image) anr));
+
+theorem sfWFReplacement_witness_image (a phi n: nat):
+  $ (sfBound (suc (suc n)) phi /\ a = zfcReplacementCode phi n) ->
+    sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $ =
+'(mpbird (sfTheoryProvable_congr (sfRelativizeeq2d anr))
+  (syl sfWFReplacement_schema anl));
+
+pub theorem sfWFClosedReplacement_image (a: nat):
+  $ zfcClosedReplacement a -> sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $ =
+(named '(syl (eex @ eex sfWFReplacement_witness_image) anr));
+
+pub theorem sfWFCoreAxiom_image (a: nat):
+  $ a e. zfcCoreAxioms -> sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $ =
+'(syl (eori sfWFCoreFixed_image (eori sfWFClosedSeparation_image sfWFClosedReplacement_image))
+  (bi1 zfcCoreAxioms_value));
+
+pub theorem sfWFZFRAxiom_image (a: nat):
+  $ a e. zfrAxioms -> sfTheoryProvable zfcCoreAxioms (sfRelativize sfWFDomain a) $ =
+'(syl (eori sfWFCoreAxiom_image (sfWFImage_transport sfWFFoundation_core))
+  (bi1 zfrAxioms_value));

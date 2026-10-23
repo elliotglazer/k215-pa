@@ -1,0 +1,174 @@
+import "source_l_replacement_definable_law.mm1";
+import "source_l_separation_image_def0.mm1";
+
+-- Next level (Rocq Z_L: L_{a+1} = Def(L_a)). Free variables: Y = 0, a = 1.
+@_ def sfLNextDefBody: nat =
+ $ sfImp (sfCLOrdinalAt 1) (sfImp (sfCLHierarchyAt 1 0)
+   (sfEx (sfAnd (sfLSeparationDef0 1 0) (sfAll (sfImp (sfMem 0 1) sfLDomain))))) $;
+
+@_ def sfLNextDefLaw: nat = $ sfAllPrefix 2 sfLNextDefBody $;
+
+@_ def sfLLevelDefinableProfile(psi:nat):nat =
+ $ sfShift (suc 0)
+   (sfPieceDefinableProfile (sfComposeMap sfSuccessorMap (sfLReplacementStartMap 2)) psi (suc 0) 0) $;
+
+@_ def sfLLevelDefinableBody(m psi:nat):nat =
+ $ sfImp (sfLReplacementDefinableAntecedent m)
+   (sfAll (sfImp (sfLSeparationDef0 1 0)
+     (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi))))) $;
+
+@_ def sfLLevelDefinableLaw(m psi:nat):nat =
+ $ sfAllPrefix (m + 2) (sfLLevelDefinableBody m psi) $;
+
+-- Well-formedness of the formulas used below.
+theorem lrdr_profile_wf(T:set)(psi Y X:nat):
+ $ sfWf (sfPieceDefinableProfile T psi Y X) $ =
+ '(ax_mp sfWf_all (mpbir sfWf_iff (ian sfWf_mem (ax_mp (ax_mp sfWf_and sfWf_mem) sfCLSetRel_wf))));
+
+theorem lrdr_image_wf(psi:nat):
+ $ sfWf (sfLReplacementImageDefinable (sfLReplacementStartMap 2) sfLDomain psi 0) $ =
+ '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfLDomain_wf) lrdr_profile_wf));
+
+theorem lrdr_inner_wf(psi:nat):
+ $ sfWf (sfAnd sfLDomain (sfLLevelDefinableProfile psi)) $ =
+ '(ax_mp (ax_mp sfWf_and sfLDomain_wf) sfShift_wf);
+
+theorem lrdr_image2_wf(psi:nat):
+ $ sfWf (sfEx (sfAnd sfLDomain (sfLLevelDefinableProfile psi))) $ =
+ '(ax_mp sfWf_ex lrdr_inner_wf);
+
+theorem lrdr_witness_wf(psi:nat):
+ $ sfWf (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi)) $ =
+ '(ax_mp (ax_mp sfWf_and sfWf_mem) sfShift_wf);
+
+theorem lrdr_kernel_wf(psi:nat):
+ $ sfWf (sfImp (sfLSeparationDef0 1 0) (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi)))) $ =
+ '(ax_mp (ax_mp sfWf_imp sfLSeparationDef0_wf) (ax_mp sfWf_ex lrdr_witness_wf));
+
+theorem lrdr_antecedent_wf(m:nat): $ sfWf (sfLReplacementDefinableAntecedent m) $ =
+ '(ax_mp (ax_mp sfWf_and sfCLOrdinalAt_wf)
+   (ax_mp (ax_mp sfWf_and sfCLHierarchyAt_wf) sfCLMembership_wf));
+
+theorem lrdr_body_wf(m psi:nat): $ sfWf (sfLLevelDefinableBody m psi) $ =
+ '(ax_mp (ax_mp sfWf_imp lrdr_antecedent_wf) (ax_mp sfWf_all lrdr_kernel_wf));
+
+theorem lrdr_cover_wf: $ sfWf (sfImp (sfMem 0 1) sfLDomain) $ =
+ '(ax_mp (ax_mp sfWf_imp sfWf_mem) sfLDomain_wf);
+
+theorem lrdr_next_pair_wf:
+ $ sfWf (sfAnd (sfLSeparationDef0 1 0) (sfAll (sfImp (sfMem 0 1) sfLDomain))) $ =
+ '(ax_mp (ax_mp sfWf_and sfLSeparationDef0_wf) (ax_mp sfWf_all lrdr_cover_wf));
+
+theorem lrdr_next_wf: $ sfWf sfLNextDefBody $ =
+ '(ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf)
+   (ax_mp (ax_mp sfWf_imp sfCLHierarchyAt_wf) (ax_mp sfWf_ex lrdr_next_pair_wf)));
+
+-- Contexts. G0 holds the two open premises; G1 adds the law's antecedent;
+-- G2 opens the next-level witness D; G3 opens the definable witness X.
+theorem lrdr_g0_wf(m psi:nat):
+ $ sfContextWf (sfLLevelDefinableBody m psi : (sfLNextDefBody : 0)) $ =
+ '(mpbir sfContextWf_cons (ian lrdr_body_wf
+   (mpbir sfContextWf_cons (ian lrdr_next_wf sfContextWf_nil))));
+
+theorem lrdr_g1_wf(m psi:nat):
+ $ sfContextWf (sfLReplacementDefinableAntecedent m :
+   (sfLLevelDefinableBody m psi : (sfLNextDefBody : 0))) $ =
+ '(mpbir sfContextWf_cons (ian lrdr_antecedent_wf lrdr_g0_wf));
+
+theorem lrdr_g2_wf(G:nat)(hg:$ sfContextWf G $):
+ $ sfContextWf (sfAnd (sfLSeparationDef0 1 0) (sfAll (sfImp (sfMem 0 1) sfLDomain)) :
+   sfContextShift G) $ =
+ '(mpbir sfContextWf_cons (ian lrdr_next_pair_wf (ax_mp sfContextShift_preserves_wf hg)));
+
+theorem lrdr_g3_wf(H psi:nat)(hg:$ sfContextWf H $):
+ $ sfContextWf (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi) : sfContextShift H) $ =
+ '(mpbir sfContextWf_cons (ian lrdr_witness_wf (ax_mp sfContextShift_preserves_wf hg)));
+
+-- Shifting the law's image one binder deeper gives the image read at the opened D.
+theorem lrdr_image_shift(psi:nat):
+ $ sfShift 0 (sfLReplacementImageDefinable (sfLReplacementStartMap 2) sfLDomain psi 0) =
+   sfEx (sfAnd sfLDomain (sfLLevelDefinableProfile psi)) $ =
+ '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd
+   (nsAnd_eq (ax_mp sfShift_bound_identity sfLDomain_bound) eqid))));
+
+-- Instantiate a universal hypothesis at the freshly opened eigenvariable.
+theorem lrdr_kernel_lift(G psi:nat)(hg:$ sfContextWf G $)
+ (hU:$ nsLocal G (sfAll (sfImp (sfLSeparationDef0 1 0)
+   (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi))))) $):
+ $ nsLocal (sfAnd (sfLSeparationDef0 1 0) (sfAll (sfImp (sfMem 0 1) sfLDomain)) : sfContextShift G)
+   (sfImp (sfLSeparationDef0 1 0) (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi)))) $ =
+ '(sfRQ_rewrite (ax_mp sfSubst_shift_up_identity lrdr_kernel_wf)
+   (ax_mp nsLocal_AllE
+    (sfRQ_rewrite sfShift_sfAll
+     (ax_mp (ax_mp (ax_mp nsLocal_weaken (lrdr_g2_wf hg)) sfContextSub_cons)
+      (ax_mp sfSepLocal_shift hU)))));
+
+theorem lrdr_cover_lift(H psi:nat)(hg:$ sfContextWf H $)
+ (hc:$ nsLocal H (sfAll (sfImp (sfMem 0 1) sfLDomain)) $):
+ $ nsLocal (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi) : sfContextShift H)
+   (sfImp (sfMem 0 1) sfLDomain) $ =
+ '(sfRQ_rewrite (ax_mp sfSubst_shift_up_identity lrdr_cover_wf)
+   (ax_mp nsLocal_AllE
+    (sfRQ_rewrite sfShift_sfAll
+     (ax_mp (ax_mp (ax_mp nsLocal_weaken (lrdr_g3_wf hg)) sfContextSub_cons)
+      (ax_mp sfSepLocal_shift hc)))));
+
+theorem lrdr_head(H psi:nat)(hg:$ sfContextWf H $):
+ $ nsLocal (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi) : sfContextShift H)
+   (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi)) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (lrdr_g3_wf hg)) sfContext_member_head);
+
+-- At D: from X in D with the profile and D a subset of L, X witnesses the image in L.
+theorem lrdr_step2(H psi:nat)(hg:$ sfContextWf H $)
+ (hK:$ nsLocal H (sfImp (sfLSeparationDef0 1 0)
+   (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi)))) $)
+ (hp:$ nsLocal H (sfAnd (sfLSeparationDef0 1 0) (sfAll (sfImp (sfMem 0 1) sfLDomain))) $):
+ $ nsLocal H (sfEx (sfAnd sfLDomain (sfLLevelDefinableProfile psi))) $ =
+ '(ax_mp (ax_mp (sfLocal_exE lrdr_image2_wf) (ax_mp (ax_mp nsLocal_mp hK) (ax_mp nsLocal_CE1 hp)))
+   (sfRQ_rewrite (eqcom sfShift_sfEx)
+    (ax_mp (ax_mp nsLocal_ExI sfShift_wf)
+     (mpbir (nsLocal_formula_eq (ax_mp sfSubst_shift_up_identity lrdr_inner_wf))
+      (ax_mp (ax_mp sfLocal_and
+        (ax_mp (ax_mp nsLocal_mp (lrdr_cover_lift hg (ax_mp nsLocal_CE2 hp)))
+         (ax_mp nsLocal_CE1 (lrdr_head hg))))
+       (ax_mp nsLocal_CE2 (lrdr_head hg)))))));
+
+-- In any context proving the level law instance and the next-level instance.
+theorem lrdr_step(G psi:nat)(hg:$ sfContextWf G $)
+ (hU:$ nsLocal G (sfAll (sfImp (sfLSeparationDef0 1 0)
+   (sfEx (sfAnd (sfMem 0 1) (sfLLevelDefinableProfile psi))))) $)
+ (hN:$ nsLocal G (sfEx (sfAnd (sfLSeparationDef0 1 0) (sfAll (sfImp (sfMem 0 1) sfLDomain)))) $):
+ $ nsLocal G (sfLReplacementImageDefinable (sfLReplacementStartMap 2) sfLDomain psi 0) $ =
+ '(ax_mp (ax_mp (sfLocal_exE lrdr_image_wf) hN)
+   (sfRQ_rewrite (eqcom lrdr_image_shift)
+    (lrdr_step2 (lrdr_g2_wf hg) (lrdr_kernel_lift hg hU)
+     (ax_mp (ax_mp nsLocal_hyp (lrdr_g2_wf hg)) sfContext_member_head))));
+
+theorem lrdr_local(m psi:nat):
+ $ nsLocal (sfLLevelDefinableBody m psi : (sfLNextDefBody : 0))
+   (sfLReplacementDefinableBody m psi) $ =
+ '(ax_mp nsLocal_II
+   (lrdr_step lrdr_g1_wf
+    (ax_mp (ax_mp nsLocal_mp
+      (ax_mp (ax_mp nsLocal_hyp lrdr_g1_wf) (ax_mp sfContext_member_tail sfContext_member_head)))
+     (ax_mp (ax_mp nsLocal_hyp lrdr_g1_wf) sfContext_member_head))
+    (ax_mp (ax_mp nsLocal_mp
+      (ax_mp (ax_mp nsLocal_mp
+        (ax_mp (ax_mp nsLocal_hyp lrdr_g1_wf)
+         (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))
+       (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp lrdr_g1_wf) sfContext_member_head))))
+     (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE2
+      (ax_mp (ax_mp nsLocal_hyp lrdr_g1_wf) sfContext_member_head))))));
+
+pub theorem sfLReplacementDefinableLaw_from_level(m psi:nat)
+ (hU:$ sfTheoryProvable zfrAxioms (sfLLevelDefinableLaw m psi) $)
+ (hN:$ sfTheoryProvable zfrAxioms sfLNextDefLaw $):
+ $ sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw m psi) $ =
+ '(ax_mp (ax_mp sfTheoryProvable_prefix_intro zfrAxioms_closed)
+   (ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed)
+     (mpbir sfTheoryContext_cons (ian
+      (mpbir sfTheoryProofClass_value (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) hU))
+      (mpbir sfTheoryContext_cons (ian
+       (mpbir sfTheoryProofClass_value (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) hN))
+       sfTheoryContext_nil)))))
+    lrdr_local));

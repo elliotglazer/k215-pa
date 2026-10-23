@@ -1,0 +1,107 @@
+import "source_theory_renaming.mm1";
+import "source_structural_induction.mm1";
+import "raw_source_distribution.mm1";
+
+@_ def sfSuccessorMap (.i: nat): set = $ \ i, suc i $;
+pub theorem sfSuccessorMap_value (i: nat): $ sfSuccessorMap @ i = suc i $ =
+(named '(!! applame j ,eqtac));
+theorem sfSuccIndex_below (d i: nat):
+  $ i < d -> sfRenameIndex sfSuccessorMap d i = sfShiftIndex d i $ =
+'(eqtrd sfRenameIndex_bound (eqcomd sfShiftIndex_bound));
+theorem sfSuccIndex_above (d i: nat):
+  $ ~i < d -> sfRenameIndex sfSuccessorMap d i = sfShiftIndex d i $ =
+'(eqtrd sfRenameIndex_free @ eqtrd (a1i (addeq2 sfSuccessorMap_value)) @
+  eqtrd (a1i addS2) @ eqtrd (suceqd (syl pncan3 (bi2 lenlt))) (eqcomd sfShiftIndex_free));
+pub theorem sfRenameIndex_successor (d i: nat):
+  $ sfRenameIndex sfSuccessorMap d i = sfShiftIndex d i $ =
+'(cases sfSuccIndex_below sfSuccIndex_above);
+
+@_ def sfSuccessorShift (c .d: nat): wff =
+$ A. d (sfRename sfSuccessorMap d c = sfShift d c) $;
+@_ def sfSuccessorShiftClass (.c: nat): set = $ {c | sfSuccessorShift c} $;
+theorem sfSuccessorShiftClass_value (c: nat):
+  $ c e. sfSuccessorShiftClass <-> sfSuccessorShift c $ =
+(named '(elabe ,eqtac));
+theorem sfSuccessorShift_at (c d: nat):
+  $ sfSuccessorShift c -> sfRename sfSuccessorMap d c = sfShift d c $ =
+(named '(!! eale j ,eqtac));
+theorem sfSuccShiftClass_at (c d: nat):
+  $ c e. sfSuccessorShiftClass -> sfRename sfSuccessorMap d c = sfShift d c $ =
+'(syl sfSuccessorShift_at (bi1 sfSuccessorShiftClass_value));
+theorem sfSuccShift_bot: $ sfBot e. sfSuccessorShiftClass $ =
+(named '(mpbir sfSuccessorShiftClass_value @ ax_gen @ eqtr sfRename_bot (eqcom sfShift_bot)));
+theorem sfSuccShift_mem (a b: nat): $ sfMem a b e. sfSuccessorShiftClass $ =
+(named '(mpbir sfSuccessorShiftClass_value @ ax_gen @ eqtr sfRename_sfMem @
+  eqtr (trud (sfMem_congr (a1i sfRenameIndex_successor) (a1i sfRenameIndex_successor))) (eqcom sfShift_sfMem)));
+theorem sfSuccShift_eq (a b: nat): $ sfEq a b e. sfSuccessorShiftClass $ =
+(named '(mpbir sfSuccessorShiftClass_value @ ax_gen @ eqtr sfRename_sfEq @
+  eqtr (trud (sfEq_congr (a1i sfRenameIndex_successor) (a1i sfRenameIndex_successor))) (eqcom sfShift_sfEq)));
+theorem sfSuccShift_and (a b: nat):
+  $ a e. sfSuccessorShiftClass /\ b e. sfSuccessorShiftClass -> sfAnd a b e. sfSuccessorShiftClass $ =
+(named '(syl (bi2 sfSuccessorShiftClass_value) @ iald @ eqtrd (a1i sfRename_sfAnd) @
+  eqtrd (sfAnd_congr (syl sfSuccShiftClass_at anl) (syl sfSuccShiftClass_at anr)) (a1i (eqcom sfShift_sfAnd))));
+theorem sfSuccShift_or (a b: nat):
+  $ a e. sfSuccessorShiftClass /\ b e. sfSuccessorShiftClass -> sfOr a b e. sfSuccessorShiftClass $ =
+(named '(syl (bi2 sfSuccessorShiftClass_value) @ iald @ eqtrd (a1i sfRename_sfOr) @
+  eqtrd (sfOr_congr (syl sfSuccShiftClass_at anl) (syl sfSuccShiftClass_at anr)) (a1i (eqcom sfShift_sfOr))));
+theorem sfSuccShift_imp (a b: nat):
+  $ a e. sfSuccessorShiftClass /\ b e. sfSuccessorShiftClass -> sfImp a b e. sfSuccessorShiftClass $ =
+(named '(syl (bi2 sfSuccessorShiftClass_value) @ iald @ eqtrd (a1i sfRename_sfImp) @
+  eqtrd (sfImp_congr (syl sfSuccShiftClass_at anl) (syl sfSuccShiftClass_at anr)) (a1i (eqcom sfShift_sfImp))));
+theorem sfSuccShift_all (a: nat):
+  $ a e. sfSuccessorShiftClass -> sfAll a e. sfSuccessorShiftClass $ =
+(named '(syl (bi2 sfSuccessorShiftClass_value) @ iald @ eqtrd (a1i sfRename_sfAll) @
+  eqtrd (sfAll_congr sfSuccShiftClass_at) (a1i (eqcom sfShift_sfAll))));
+theorem sfSuccShift_ex (a: nat):
+  $ a e. sfSuccessorShiftClass -> sfEx a e. sfSuccessorShiftClass $ =
+(named '(syl (bi2 sfSuccessorShiftClass_value) @ iald @ eqtrd (a1i sfRename_sfEx) @
+  eqtrd (sfEx_congr sfSuccShiftClass_at) (a1i (eqcom sfShift_sfEx))));
+theorem sfSuccShift_construction: $ sfConstructionClosed sfSuccessorShiftClass $ =
+(named '(ian
+  (ian (ian sfSuccShift_bot (ax_gen @ ax_gen @ ian sfSuccShift_mem sfSuccShift_eq))
+    (ax_gen @ ax_gen @ iand (iand sfSuccShift_and sfSuccShift_or) sfSuccShift_imp))
+  (ax_gen @ iand sfSuccShift_all sfSuccShift_ex)));
+pub theorem sfRename_successor (d c: nat):
+  $ sfWf c -> sfRename sfSuccessorMap d c = sfShift d c $ =
+'(syl sfSuccShiftClass_at (ax_mp sfWf_induction sfSuccShift_construction));
+
+theorem sfTheory_shift_eq (A: set) (a: nat):
+  $ sfTheoryProvable A a ->
+    (sfTheoryProvable A (sfRename sfSuccessorMap 0 a) <-> sfTheoryProvable A (sfShift 0 a)) $ =
+'(sfTheoryProvable_congr (syl sfRename_successor sfTheoryProvable_wf));
+pub theorem sfTheoryProvable_shift (A: set) (a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A a -> sfTheoryProvable A (sfShift 0 a) $ =
+'(exp @ mpbid (syl sfTheory_shift_eq anr) (imp sfTheoryProvable_rename));
+theorem sfTheory_open_eq (A: set) (a: nat):
+  $ sfTheoryProvable A (sfAll a) ->
+    (sfTheoryProvable A (sfSubst 0 0 (sfShift 1 a)) <-> sfTheoryProvable A a) $ =
+'(sfTheoryProvable_congr @ syl sfSubst_shift_up_identity @
+  syl (bi1 sfWf_all_iff) sfTheoryProvable_wf);
+pub theorem sfTheoryProvable_all_open (A: set) (a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A (sfAll a) -> sfTheoryProvable A a $ =
+'(exp @ mpbid (syl sfTheory_open_eq anr) @ syl sfTheoryProvable_allE @
+  mpbid (a1i (trud (sfTheoryProvable_congr (a1i sfShift_sfAll))))
+    (imp sfTheoryProvable_shift));
+
+theorem sfTheoryPrefix_intro_step (A: set) (n a: nat):
+  $ (sfTheoryClosed A -> sfTheoryProvable A a -> sfTheoryProvable A (sfAllPrefix n a)) ->
+    sfTheoryClosed A -> sfTheoryProvable A a -> sfTheoryProvable A (sfAllPrefix (suc n) a) $ =
+'(exp @ exp @ mpbird (a1i (trud (sfTheoryProvable_congr (a1i sfAllPrefix_suc)))) @
+  mpd (mpd anr (mpd anlr anll)) (syl sfTheoryProvable_gen anlr));
+pub theorem sfTheoryProvable_prefix_intro (A: set) (n a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A a -> sfTheoryProvable A (sfAllPrefix n a) $ =
+(named @ induct '(ind) 'n
+  '(a1i (bi2 (trud (sfTheoryProvable_congr (a1i sfAllPrefix_zero)))))
+  'sfTheoryPrefix_intro_step);
+theorem sfTheoryPrefix_elim_step (A: set) (n a: nat):
+  $ (sfTheoryClosed A -> sfTheoryProvable A (sfAllPrefix n a) -> sfTheoryProvable A a) ->
+    sfTheoryClosed A -> sfTheoryProvable A (sfAllPrefix (suc n) a) -> sfTheoryProvable A a $ =
+'(exp @ exp @ mpd
+  (mpd (mpbid (a1i (trud (sfTheoryProvable_congr (a1i sfAllPrefix_suc)))) anr)
+    (syl sfTheoryProvable_all_open anlr))
+  (mpd anlr anll));
+pub theorem sfTheoryProvable_prefix_elim (A: set) (n a: nat):
+  $ sfTheoryClosed A -> sfTheoryProvable A (sfAllPrefix n a) -> sfTheoryProvable A a $ =
+(named @ induct '(ind) 'n
+  '(a1i (bi1 (trud (sfTheoryProvable_congr (a1i sfAllPrefix_zero)))))
+  'sfTheoryPrefix_elim_step);

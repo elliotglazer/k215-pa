@@ -1,0 +1,30 @@
+import "k230_quantifier_derived.mm0";
+
+-- Finite global K proof macros, with every vacuity premise explicit.
+
+theorem kPropNegativeImplication (p q: nat): $ kProvable (kImp (kImp p kF) (kImp p q)) $;
+
+theorem kPropCasesImplication (p q r: nat): $ kProvable (kImp (kImp (kImp p kF) r) (kImp (kImp q r) (kImp (kImp p q) r))) $;
+
+theorem kVacuity_negation (x p: nat)
+  (hv: $ kProvable (kImp p (kAll x p)) $):
+  $ kProvable (kImp (kNot p) (kAll x (kNot p))) $;
+
+theorem kVacuity_implication (x p q: nat)
+  (hp: $ kProvable (kImp p (kAll x p)) $)
+  (hq: $ kProvable (kImp q (kAll x q)) $):
+  $ kProvable (kImp (kImp p q) (kAll x (kImp p q))) $;
+
+theorem kVacuity_universal (x y p: nat)
+  (hv: $ kProvable (kImp p (kAll y p)) $):
+  $ kProvable (kImp (kAll x p) (kAll y (kAll x p))) $;
+
+theorem kVacuity_truth (x: nat):
+  $ kProvable (kImp 0 (kAll x 0)) $;
+
+theorem kAll_exists (x p q: nat):
+  $ kProvable (kImp (kAll x (kImp p q)) (kImp (kExists x p) (kExists x q))) $;
+
+theorem kExists_elimination (x p q: nat)
+  (hv: $ kProvable (kImp q (kAll x q)) $):
+  $ kProvable (kImp (kAll x (kImp p q)) (kImp (kExists x p) q)) $;

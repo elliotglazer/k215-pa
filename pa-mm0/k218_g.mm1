@@ -1,0 +1,67 @@
+import "k218_quantifier_derived.mm1";
+import "k230_bootstrap.mm1";
+import "raw_source_image.mm1";
+
+pub theorem k218Imp_mono_right (a b c: nat)
+  (h: $ k218Provable (kImp a b) $):
+  $ k218Provable (kImp (kImp c a) (kImp c b)) $ =
+'(k218Provable_mp (k218Provable_mp h k218PropK) k218PropS);
+
+theorem k218G_all_ex_normal (r a b: nat):
+  $ k218Provable (kImp (kAll r (kImp a b))
+    (kImp (kAll r (kNot b)) (kAll r (kNot a)))) $ =
+'(k218Provable_syl (k218All_mono k218PropContra)
+  (k218Provable_axiom k218Axioms_rho2));
+
+pub theorem k218All_exists (r a b: nat):
+  $ k218Provable (kImp (kAll r (kImp a b))
+    (kImp (kExists r a) (kExists r b))) $ =
+'(k218Provable_syl k218G_all_ex_normal k218PropContra);
+
+theorem k218G_refl_step (x: nat):
+  $ k218Provable (kImp (kEq (kMem x x) x)
+    (kAll (kMem x x) (kEq x x))) $ =
+'(k218Provable_mp (k218Provable_axiom k218Axioms_G) k218PropDuplicate);
+
+pub theorem k218Equality_reflexive (x: nat): $ k218Provable (kEq x x) $ =
+'(k218Provable_mp
+  (k218Provable_mp (k218Provable_axiom k218Axioms_rho1)
+    (k218Exists_mono k218G_refl_step))
+  (k218Provable_axiom k218Axioms_rho6));
+
+pub theorem k218Equality_helper (a b: nat):
+  $ k218Provable (kImp (kEq a b) (kAll (kMem a b) (kEq a b))) $ =
+'(k218Provable_mp k218Equality_reflexive (k218Provable_axiom k218Axioms_G));
+
+theorem k218G_specialize_first (a b: nat):
+  $ k218Provable (kImp (kAll (kMem a b) (kEq a b))
+    (kExists (kMem a b) (kEq a b))) $ =
+'(k218Provable_mp (k218Provable_axiom (! k218Axioms_rho1 $ (kMem a b) $ $ a $))
+  (k218Provable_mp
+    (k218Provable_syl (k218All_mono k218PropK) k218All_exists)
+    k218Cd103));
+
+pub theorem k218Equality_specialize (a b: nat):
+  $ k218Provable (kImp (kAll (kMem a b) (kEq a b)) (kEq a b)) $ =
+'(k218Provable_syl k218G_specialize_first
+  (k218Provable_syl (k218Exists_mono k218Equality_helper)
+    (k218Provable_axiom k218Axioms_rho6)));
+
+pub theorem k218Rho7_recovered (a b c: nat): $ k218Provable (kRho7 a b c) $ =
+'(k218Provable_mp (k218Provable_axiom k218Axioms_G)
+  (k218Imp_mono_right (k218Imp_mono_right k218Equality_specialize)));
+
+theorem k218G_mem_gt_left (a b: nat): $ a < kMem a b $ =
+'(mpbi (lteq1 raw_kMem_left) (ax_mp rawLeft_lt raw_kMem_positive));
+
+theorem k218G_mem_gt_right (a b: nat): $ b < kMem a b $ =
+'(mpbi (lteq1 raw_kMem_right) (ax_mp rawRight_lt raw_kMem_positive));
+
+pub theorem k218G_old_helper (a b: nat):
+  $ kProvable (kImp (kEq a b) (kAll (kMem a b) (kEq a b))) $ =
+'(kAnd_right (kBundle_vacuity
+  (ian (ltneri k218G_mem_gt_left) (ltneri k218G_mem_gt_right))));
+
+pub theorem k218G_in_oldK (a b c: nat): $ kProvable (k218RhoG a b c) $ =
+'(kProvable_mp (kProvable_axiom kAxioms_rho7)
+  (kImp_mono_right (kImp_mono_right k218G_old_helper)));

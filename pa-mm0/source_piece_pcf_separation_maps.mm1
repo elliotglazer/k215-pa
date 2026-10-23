@@ -1,0 +1,89 @@
+
+import "source_l_domain.mm1";
+import "source_relativization_laws.mm1";
+import "source_relative_prefix.mm1";
+import "source_theory_prefix.mm1";
+import "source_renaming_depth.mm1";
+import "source_renaming_extensional.mm1";
+import "quotation_binders.mm1";
+
+@_ def sfPieceSeparationShiftMap:set = $ sfRenameDepthMap sfSuccessorMap 1 $;
+@_ def sfPieceSeparationPredicate(phi:nat):nat =
+ $ sfAnd (sfMem 0 1) (sfRename sfPieceSeparationShiftMap 0 phi) $;
+@_ def sfPieceSeparationGuarded(D theta:nat):nat =
+ $ sfAll (sfImp D (sfEx (sfAnd D (sfAll (sfImp D
+    (sfIff (sfMem 0 1) (sfAnd (sfMem 0 2) theta))))))) $;
+
+theorem pcpss_zero: $ sfPieceSeparationShiftMap @ 0 = 0 $ =
+'(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound d0lt1));
+theorem pcpss_suc(i:nat): $ sfPieceSeparationShiftMap @ suc i = suc (suc i) $ =
+'(eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value))));
+pub theorem sfPieceSeparationPredicate_shift(phi:nat)(hf:$ sfWf phi $):
+ $ sfPieceSeparationPredicate phi = sfAnd (sfMem 0 1) (sfShift 1 phi) $ =
+'(nsAnd_eq eqid (eqtr (eqcom (ax_mp sfRename_as_map hf)) (ax_mp sfRename_successor hf)));
+pub theorem sfPieceSeparationPredicate_wf(phi:nat):
+ $ sfWf (sfPieceSeparationPredicate phi) $ =
+'(ax_mp (ax_mp sfWf_and sfWf_mem) sfRename_wf);
+
+theorem pcpss_bound_zero(n:nat):
+ $ 0 < suc n -> sfPieceSeparationShiftMap @ 0 < suc (suc n) $ =
+'(a1i (mpbir (lteq1 pcpss_zero) lt01S));
+theorem pcpss_bound_suc(n i:nat):
+ $ suc i < suc n -> sfPieceSeparationShiftMap @ suc i < suc (suc n) $ =
+'(sylibr (lteq1 pcpss_suc) (bi1 ltsuc));
+theorem pcpss_bound(n i:nat):
+ $ i < suc n -> sfPieceSeparationShiftMap @ i < suc (suc n) $ =
+(named @ induct '(ind) 'i 'pcpss_bound_zero '(a1i pcpss_bound_suc));
+theorem pcpss_body_bound(phi n:nat):
+ $ sfBound (suc n) phi -> sfBound (suc (suc n)) (sfRename sfPieceSeparationShiftMap 0 phi) $ =
+(named '(syl (bi1 (sfSchema_bound_index_eq add01))
+ (syl (ax_mp sfRename_bound (!! ax_gen i @ ! pcpss_bound n i)) (bi2 (sfSchema_bound_index_eq add01)))));
+pub theorem sfPieceSeparationPredicate_bound(phi n:nat):
+ $ sfBound (suc n) phi -> sfBound (suc (suc n)) (sfPieceSeparationPredicate phi) $ =
+'(syl (bi2 sfBound_sfAnd) (iand
+ (a1i (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))) pcpss_body_bound));
+
+theorem pcpss_drop_zero(T:set)(x z:nat):
+ $ sfComposeMap (sqEnvCons z (sqEnvCons x T)) sfPieceSeparationShiftMap @ 0 = sqEnvCons z T @ 0 $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 pcpss_zero) (eqtr sqEnvCons_zero (eqcom sqEnvCons_zero))));
+theorem pcpss_drop_suc(T:set)(x z i:nat):
+ $ sfComposeMap (sqEnvCons z (sqEnvCons x T)) sfPieceSeparationShiftMap @ suc i = sqEnvCons z T @ suc i $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 pcpss_suc) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqcom sqEnvCons_suc)))));
+theorem pcpss_drop_at(T:set)(x z i:nat):
+ $ sfComposeMap (sqEnvCons z (sqEnvCons x T)) sfPieceSeparationShiftMap @ i = sqEnvCons z T @ i $ =
+(named @ induct '(ind) 'i 'pcpss_drop_zero '(a1i pcpss_drop_suc));
+pub theorem sfPieceSeparationPredicate_at(T:set)(phi x z:nat)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons z (sqEnvCons x T)) 0 (sfPieceSeparationPredicate phi) =
+   sfAnd (sfMem z x) (sfRename (sqEnvCons z T) 0 phi) $ =
+(named '(eqtr sfRename_sfAnd (nsAnd_eq
+ (eqtr sfRename_sfMem (nsMem_eq
+  (eqtr sfRenameIndex_zero sqEnvCons_zero)
+  (eqtr sfRenameIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero))))
+ (eqtr (ax_mp sfRename_compose hf) (ax_mp (sfRename_extensional (!! ax_gen i @ ! pcpss_drop_at T x z i)) hf)))));
+
+pub theorem sfPieceSeparationPredicate_relative_at(T:set)(D phi x z:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons z (sqEnvCons x T)) 0 (sfRelativize D (sfPieceSeparationPredicate phi)) =
+   sfAnd (sfMem z x) (sfRelativize D (sfRename (sqEnvCons z T) 0 phi)) $ =
+'(eqtr (ax_mp (ax_mp sfRelativize_rename hd) sfPieceSeparationPredicate_wf)
+ (eqtr (sfRelativizeeq2 (sfPieceSeparationPredicate_at hf))
+ (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid))));
+pub theorem sfPieceSeparationPredicate_L_at(T:set)(phi x z:nat)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons z (sqEnvCons x T)) 0 (sfRelativize sfLDomain (sfPieceSeparationPredicate phi)) =
+   sfAnd (sfMem z x) (sfRelativize sfLDomain (sfRename (sqEnvCons z T) 0 phi)) $ =
+'(sfPieceSeparationPredicate_relative_at sfLDomain_bound hf);
+
+pub theorem sfPieceSeparation_relativize(D theta:nat):
+ $ sfRelativize D (sfSeparation theta) = sfPieceSeparationGuarded D (sfRelativize D theta) $ =
+'(eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid
+ (eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid
+ (eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid
+ (eqtr sfRelativize_sfAnd (nsAnd_eq
+  (eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfMem
+   (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid))))
+  (eqtr sfRelativize_sfImp (nsImp_eq
+   (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid)) sfRelativize_sfMem)))))))))))));
+pub theorem sfPieceSeparation_schema_code(phi n:nat):
+ $ sfRelativize sfLDomain (zfcSeparationCode phi n) =
+   sfGuardPrefix sfLDomain n (sfPieceSeparationGuarded sfLDomain (sfRelativize sfLDomain (sfRename sfSepMap 0 phi))) $ =
+'(eqtr sfRelativize_prefix (trud (sfGuardPrefixeqd (a1i eqid) (a1i eqid) (a1i sfPieceSeparation_relativize))));

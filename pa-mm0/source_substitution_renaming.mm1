@@ -1,0 +1,125 @@
+import "source_renaming_depth.mm1";
+
+def sfSubstDepthMap (k t .i: nat): set = $ \ i, sfSubstIndex k t i $;
+
+pub theorem sfSubstDepthMap_value (k t i: nat):
+ $ sfSubstDepthMap k t @ i = sfSubstIndex k t i $ =
+(named '(!! applame j ,eqtac));
+
+theorem sbr_index_congr_depth (H: wff) (d e t i: nat) (h: $ H -> d = e $):
+ $ H -> sfSubstIndex d t i = sfSubstIndex e t i $ =
+'(ifeqd (lteq2d h) eqidd (ifeqd (eqeq2d h) (addeq2d h) eqidd));
+
+theorem sbr_index_at (k t d i: nat):
+ $ (A. j sfSubstIndex (d + k) t j = sfRenameIndex (sfSubstDepthMap k t) d j) -> sfSubstIndex (d + k) t i = sfRenameIndex (sfSubstDepthMap k t) d i $ =
+(named '(!! eale j ,eqtac));
+
+theorem sbr_index_base (k t i: nat):
+ $ sfSubstIndex (0 + k) t i = sfRenameIndex (sfSubstDepthMap k t) 0 i $ =
+'(eqtr (trud (sbr_index_congr_depth (a1i add01))) (eqcom (eqtr sfRenameIndex_zero sfSubstDepthMap_value)));
+
+theorem sbr_index_step_zero (k t d: nat):
+ $ sfSubstIndex (suc d + k) t 0 = sfRenameIndex (sfSubstDepthMap k t) (suc d) 0 $ =
+'(eqtr (trud (sbr_index_congr_depth (a1i addS1))) (eqtr (ax_mp sfSubstIndex_bound lt01S) (eqcom (ax_mp sfRenameIndex_bound lt01S))));
+
+theorem sbr_index_step_suc (k t d i: nat):
+ $ (A. j sfSubstIndex (d + k) t j = sfRenameIndex (sfSubstDepthMap k t) d j) -> sfSubstIndex (suc d + k) t (suc i) = sfRenameIndex (sfSubstDepthMap k t) (suc d) (suc i) $ =
+(named '(eqtrd (a1i (trud (sbr_index_congr_depth (a1i addS1)))) (eqtrd (a1i sfSubstIndex_lift) (eqtrd (suceqd sbr_index_at) (a1i (eqcom sfRenameIndex_lift))))));
+
+theorem sbr_index_step_each (k t d i: nat):
+ $ (A. j sfSubstIndex (d + k) t j = sfRenameIndex (sfSubstDepthMap k t) d j) -> sfSubstIndex (suc d + k) t i = sfRenameIndex (sfSubstDepthMap k t) (suc d) i $ =
+(named @ induct '(ind) 'i '(a1i sbr_index_step_zero) '(a1i sbr_index_step_suc));
+
+theorem sbr_index_step_all (k t d: nat):
+ $ (A. j sfSubstIndex (d + k) t j = sfRenameIndex (sfSubstDepthMap k t) d j) -> A. i sfSubstIndex (suc d + k) t i = sfRenameIndex (sfSubstDepthMap k t) (suc d) i $ =
+(named '(iald sbr_index_step_each));
+
+theorem sbr_index_alpha (k t d: nat):
+ $ (A. j sfSubstIndex (d + k) t j = sfRenameIndex (sfSubstDepthMap k t) d j) <-> (A. i sfSubstIndex (d + k) t i = sfRenameIndex (sfSubstDepthMap k t) d i) $ =
+(named '(cbval ,eqtac));
+
+theorem sbr_index_step_same (k t d: nat):
+ $ (A. i sfSubstIndex (d + k) t i = sfRenameIndex (sfSubstDepthMap k t) d i) -> A. i sfSubstIndex (suc d + k) t i = sfRenameIndex (sfSubstDepthMap k t) (suc d) i $ =
+(named '(syl sbr_index_step_all (bi2 sbr_index_alpha)));
+
+theorem sbr_index_all (k t d: nat):
+ $ A. i sfSubstIndex (d + k) t i = sfRenameIndex (sfSubstDepthMap k t) d i $ =
+(named @ induct '(ind) 'd '(ax_gen sbr_index_base) 'sbr_index_step_same);
+
+pub theorem sfSubstIndex_depth (k t d i: nat):
+ $ sfSubstIndex (d + k) t i = sfRenameIndex (sfSubstDepthMap k t) d i $ =
+(named '(ax_mp sbr_index_at sbr_index_all));
+
+def sfSubstAsMapClass (k t .c .d: nat): set = $ {c | A. d sfSubst (d + k) t c = sfRename (sfSubstDepthMap k t) d c} $;
+
+theorem sbr_value (k t c: nat):
+ $ c e. sfSubstAsMapClass k t <-> A. d sfSubst (d + k) t c = sfRename (sfSubstDepthMap k t) d c $ =
+(named '(elabe ,eqtac));
+
+theorem sbr_depth (k t d c: nat):
+ $ (A. j sfSubst (j + k) t c = sfRename (sfSubstDepthMap k t) j c) -> sfSubst (d + k) t c = sfRename (sfSubstDepthMap k t) d c $ =
+(named '(!! eale j ,eqtac));
+
+theorem sbr_at (k t d c: nat):
+ $ c e. sfSubstAsMapClass k t -> sfSubst (d + k) t c = sfRename (sfSubstDepthMap k t) d c $ =
+(named '(syl sbr_depth (bi1 sbr_value)));
+
+theorem sbr_bot (k t: nat):
+ $ sfBot e. sfSubstAsMapClass k t $ =
+(named '(mpbir sbr_value @ ax_gen @ eqtr sfSubst_bot (eqcom sfRename_bot)));
+
+theorem sbr_mem (k t a b: nat):
+ $ sfMem a b e. sfSubstAsMapClass k t $ =
+(named '(mpbir sbr_value @ ax_gen @ eqtr sfSubst_sfMem @ eqtr (trud (sfMemeqd (a1i sfSubstIndex_depth) (a1i sfSubstIndex_depth))) (eqcom sfRename_sfMem)));
+
+theorem sbr_eq (k t a b: nat):
+ $ sfEq a b e. sfSubstAsMapClass k t $ =
+(named '(mpbir sbr_value @ ax_gen @ eqtr sfSubst_sfEq @ eqtr (trud (sfEqeqd (a1i sfSubstIndex_depth) (a1i sfSubstIndex_depth))) (eqcom sfRename_sfEq)));
+
+theorem sbr_atomic (k t: nat):
+ $ sfAtomicClosed (sfSubstAsMapClass k t) $ =
+(named '(ax_gen @ ax_gen @ ian sbr_mem sbr_eq));
+
+theorem sbr_and (k t a b: nat):
+ $ a e. sfSubstAsMapClass k t /\ b e. sfSubstAsMapClass k t -> sfAnd a b e. sfSubstAsMapClass k t $ =
+(named '(mpbird (a1i sbr_value) @ !! iald d @ eqtrd (a1i sfSubst_sfAnd) @ eqtrd (sfAndeqd (syl sbr_at anl) (syl sbr_at anr)) (a1i (eqcom sfRename_sfAnd))));
+
+theorem sbr_or (k t a b: nat):
+ $ a e. sfSubstAsMapClass k t /\ b e. sfSubstAsMapClass k t -> sfOr a b e. sfSubstAsMapClass k t $ =
+(named '(mpbird (a1i sbr_value) @ !! iald d @ eqtrd (a1i sfSubst_sfOr) @ eqtrd (sfOreqd (syl sbr_at anl) (syl sbr_at anr)) (a1i (eqcom sfRename_sfOr))));
+
+theorem sbr_imp (k t a b: nat):
+ $ a e. sfSubstAsMapClass k t /\ b e. sfSubstAsMapClass k t -> sfImp a b e. sfSubstAsMapClass k t $ =
+(named '(mpbird (a1i sbr_value) @ !! iald d @ eqtrd (a1i sfSubst_sfImp) @ eqtrd (sfImpeqd (syl sbr_at anl) (syl sbr_at anr)) (a1i (eqcom sfRename_sfImp))));
+
+theorem sbr_binary (k t: nat):
+ $ sfBinaryClosed (sfSubstAsMapClass k t) $ =
+(named '(ax_gen @ ax_gen @ iand (iand sbr_and sbr_or) sbr_imp));
+
+theorem sbr_all (k t a: nat):
+ $ a e. sfSubstAsMapClass k t -> sfAll a e. sfSubstAsMapClass k t $ =
+(named '(mpbird (a1i sbr_value) @ !! iald d @ eqtrd (a1i sfSubst_sfAll) @ eqtrd (sfAlleqd (eqtrd (a1i (eqcom (trud (sfSubst_congr (a1i addS1) eqidd eqidd)))) sbr_at)) (a1i (eqcom sfRename_sfAll))));
+
+theorem sbr_ex (k t a: nat):
+ $ a e. sfSubstAsMapClass k t -> sfEx a e. sfSubstAsMapClass k t $ =
+(named '(mpbird (a1i sbr_value) @ !! iald d @ eqtrd (a1i sfSubst_sfEx) @ eqtrd (sfExeqd (eqtrd (a1i (eqcom (trud (sfSubst_congr (a1i addS1) eqidd eqidd)))) sbr_at)) (a1i (eqcom sfRename_sfEx))));
+
+theorem sbr_quantifier (k t: nat):
+ $ sfQuantifierClosed (sfSubstAsMapClass k t) $ =
+(named '(ax_gen @ iand sbr_all sbr_ex));
+
+theorem sbr_closed (k t: nat):
+ $ sfConstructionClosed (sfSubstAsMapClass k t) $ =
+'(ian (ian (ian sbr_bot sbr_atomic) sbr_binary) sbr_quantifier);
+
+pub theorem sfSubst_lifted_map (k t d c: nat):
+ $ sfWf c -> sfSubst (d + k) t c = sfRename (sfSubstDepthMap k t) d c $ =
+(named '(syl sbr_at (ax_mp sfWf_induction sbr_closed)));
+
+pub theorem sfSubst_as_map (k t c: nat):
+ $ sfWf c -> sfSubst k t c = sfRename (sfSubstDepthMap k t) 0 c $ =
+(named '(eqtrd (a1i (eqcom (trud (sfSubst_congr (a1i add01) eqidd eqidd)))) sfSubst_lifted_map));
+
+pub theorem sfSubst_rename_compose (S: set) (k t c: nat):
+ $ sfWf c -> sfSubst k t (sfRename S 0 c) = sfRename (sfComposeMap (sfSubstDepthMap k t) S) 0 c $ =
+(named '(eqtrd (a1i (ax_mp sfSubst_as_map sfRename_wf)) sfRename_compose));

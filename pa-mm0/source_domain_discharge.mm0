@@ -1,0 +1,31 @@
+import "source_theory_prefix.mm0";
+
+def sfZeroMap (.i: nat): set = $ \ i, 0 $;
+def sfDomainCovered (D G H .a .i: nat): wff =
+$ A. a (a IN H -> a IN G \/ E. i a = sfSubst 0 i D) $;
+def sfDomainDischargeReady (D G H f: nat): wff =
+$ sfBound 1 D /\ (all sfClosedFormulaClass G /\ (sfBound 0 f /\ sfDomainCovered D G H)) $;
+
+theorem sfZeroMap_value (i: nat): $ sfZeroMap @ i = 0 $;
+theorem sfSubst_bound_top_identity (d c: nat):
+  $ sfBound (suc d) c -> sfSubst d 0 c = c $;
+theorem sfZero_domain_guard (D i: nat):
+  $ sfBound 1 D -> sfRename sfZeroMap 0 (sfSubst 0 i D) = D $;
+theorem sfDomainCovered_member {i: nat} (D G H a: nat):
+  $ sfDomainCovered D G H -> a IN H -> a IN G \/ E. i a = sfSubst 0 i D $;
+theorem sfDomainCovered_context_sub (D G H f: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfContextSub (sfContextRename sfZeroMap 0 H) (D : G) $;
+
+def sfDomainDischargeProof (D G f r q: nat): nat =
+$ sfSequent G f : (q ++ (sfSequent (D : G) f : r)) $;
+theorem sfDomainDischarge_renamed (D G H f r q: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfNDFullDerives r (sfRenameRow sfZeroMap 0 (sfSequent H f)) ->
+    sfNDFullDerives q (sfSequent G (sfEx D)) ->
+    sfNDFullDerives (sfDomainDischargeProof D G f r q) (sfSequent G f) $;
+theorem sfDomainDischarge {r: nat} (D G H f p q: nat):
+  $ sfDomainDischargeReady D G H f ->
+    sfNDFullDerives p (sfSequent H f) ->
+    sfNDFullDerives q (sfSequent G (sfEx D)) ->
+    E. r sfNDFullDerives r (sfSequent G f) $;

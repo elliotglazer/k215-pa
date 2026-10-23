@@ -1,0 +1,25 @@
+import "k218q_extracted_core_refl_closed.mm1";
+
+import "k218q_quotient_mixed_rebase.mm1";
+
+import "k218q_quotation_quantifiers.mm1";
+
+theorem qrepReflBound:
+ $ sfBound 0 zfcRefl $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfEq (ian lt01S lt01S)));
+
+theorem qrepReflQuoteEq (R x: nat):
+ $ sqQuote (sqEnvCons x sqZeroEnvironment) 1 (suc R) 0 (sfEq 0 0) = sqEqual 1 x x (suc R) $ =
+'(eqtr sqQuote_sfEq (sqEqualeq eqid (eqtr sfNamedIndex_zero sqEnvCons_zero) (eqtr sfNamedIndex_zero sqEnvCons_zero) add0));
+
+theorem qrepRefl_quote_at (R x: nat) (hR: $ 1 < R $) (hx: $ x < R $):
+ $ k218QProvable (kImp kEmptyMarker (sqQuote sqZeroEnvironment 1 R 0 zfcRefl)) $ =
+'(k218IProvable_syl qfxreflcLiteral (ax_mp anl (ax_mp (! k218QM_quote_rebase $ 0 = 0 $ $ sqZeroEnvironment $ $ 0 $ $ 1 $ $ 4 $ $ R $ $ zfcRefl $ (a1i qrepReflBound) (a1i lt01S) (a1i (lttr lt01S hR)) (a1i (mpbi ltsuc lt01S)) (a1i hR) (a1i k218QM_below_zero) (a1i k218QM_below_zero)) eqid)));
+
+theorem qrepRefl_specialize (R x: nat) (hR: $ 1 < R $) (hx: $ x < R $):
+ $ k218QProvable (kImp (sqQuote sqZeroEnvironment 1 R 0 zfcRefl) (kImp (kMem 1 x) (sqEqual 1 x x (suc R)))) $ =
+'(mpbi (k218QProvableeq (kImpeq2 (kImpeq2 qrepReflQuoteEq))) (ax_mp (! k218SQ_sqQuote_all_specialization $ sqZeroEnvironment $ $ 0 $ $ 1 $ $ R $ $ x $ $ (sfEq 0 0) $ (ltner (lttr lt01S hR)) (ltner hR) hx sqEnvAvoid_zero) (mpbir sfBound_sfEq (ian lt01S lt01S))));
+
+pub theorem sfK0QRep_reflexive (R x: nat) (hR: $ 1 < R $) (hx: $ x < R $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc R)))) $ =
+'(k218IProvable_syl (qrepRefl_quote_at hR hx) (qrepRefl_specialize hR hx));

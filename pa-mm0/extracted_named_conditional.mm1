@@ -1,0 +1,66 @@
+import "extracted_named_propositional.mm1";
+
+pub theorem exND_rebase (F: wff) (E: set) (n k l a: nat)
+ (hk: $ F -> 0 < k $) (hl: $ F -> 0 < l $)
+ (he: $ F -> sqEnvBelow E n k $) (hf: $ F -> sqEnvBelow E n l $)
+ (ha: $ F -> sfBound n a $):
+ $ F -> kEquivalent (sfNamedTemplate E k 0 a) (sfNamedTemplate E l 0 a) $ =
+'(mpd (iand (syl sqSQ_alloc_below hl) (syl sqSQ_range_below hf)) @
+ mpd (iand (syl sqSQ_alloc_below hk) (syl sqSQ_range_below he)) @
+ syl sfNamedTemplate_fresh_base_equivalent ha);
+
+theorem exND_absent (F: wff) (E: set) (k a x: nat)
+ (ha: $ F -> sfWf a $) (hx: $ F -> x < k $):
+ $ F -> kBinderAbsent (sfNamedTemplate E k 0 a) x $ =
+'(mpd (syl sqSQ_alloc_below hx) (syl sfNamedTemplate_allocation_absent_zero ha));
+theorem exND_subst (F: wff) (E: set) (n k y a: nat)
+ (hz: $ F -> k != 0 $) (he: $ F -> sqEnvAvoid E n k $)
+ (ha: $ F -> sfBound (suc n) a $):
+ $ F -> kSubst (sfNamedTemplate (sqEnvCons k E) (suc k) 0 a) k y =
+   sfNamedTemplate (sqEnvCons y E) (suc k) 0 a $ =
+'(mpd ha (mpd he (syl sfNamedTemplate_substitution_cons_when hz)));
+theorem exND_allE_scoped (F: wff) (H: nat) (E: set) (n k y a: nat)
+ (hz: $ F -> k != 0 $) (hy: $ F -> y < k $)
+ (he: $ F -> sqEnvAvoid E n k $) (ha: $ F -> sfBound (suc n) a $)
+ (hp: $ F -> kHypProvable H (sfNamedTemplate E k 0 (sfAll a)) $):
+ $ F -> kHypProvable H (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $ =
+'(sqSQ_hyp_mp hp @ syl kHypProvable_seed @ sqSQ_prov_transport
+ (kImpeqd (syl sfNamedTemplate_all_cons (syl sfBound_wf ha)) (eqcomd (exND_subst hz he ha)))
+ (mpd (exND_absent (syl sfBound_wf ha) (ltletrd hy (a1i lesucid)))
+  (mpd (exND_absent (syl sfBound_wf ha) (a1i ltsucid))
+   (syl kNamed_specialization (syl ltner hy)))));
+theorem exND_exI_scoped (F: wff) (H: nat) (E: set) (n k y a: nat)
+ (hz: $ F -> k != 0 $) (hy: $ F -> y < k $)
+ (he: $ F -> sqEnvAvoid E n k $) (ha: $ F -> sfBound (suc n) a $)
+ (hp: $ F -> kHypProvable H (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $):
+ $ F -> kHypProvable H (sfNamedTemplate E k 0 (sfEx a)) $ =
+'(sqSQ_hyp_mp hp @ syl kHypProvable_seed @ sqSQ_prov_transport
+ (kImpeqd (eqcomd (exND_subst hz he ha)) (syl sfNamedTemplate_ex_cons (syl sfBound_wf ha)))
+ (mpd (exND_absent (syl sfBound_wf ha) (ltletrd hy (a1i lesucid)))
+  (mpd (exND_absent (syl sfBound_wf ha) (a1i ltsucid))
+   (syl kNamed_exists_intro (syl ltner hy)))));
+theorem exND_child_rebase (F: wff) (E: set) (n k y a: nat)
+ (hk: $ F -> 0 < k $) (hy: $ F -> y < k $)
+ (he: $ F -> sqEnvBelow E n k $) (ha: $ F -> sfBound (suc n) a $):
+ $ F -> kEquivalent (sfNamedTemplate (sqEnvCons y E) k 0 a)
+   (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $ =
+'(exND_rebase hk (a1i lt01S) (mpd he (syl sqEnvBelow_cons hy))
+ (syl sqEnvBelow_successor (mpd he (syl sqEnvBelow_cons hy))) ha);
+pub theorem exND_allE (F: wff) (H: nat) (E: set) (n k i a: nat)
+ (hk: $ F -> 0 < k $) (he: $ F -> sqEnvBelow E n k $)
+ (hi: $ F -> i < n $) (ha: $ F -> sfBound (suc n) a $)
+ (hp: $ F -> kHypProvable H (sfNamedTemplate E k 0 (sfAll a)) $):
+ $ F -> kHypProvable H (sfNamedTemplate E k 0 (sfSubst 0 i a)) $ =
+'(sqSQ_hyp_transport (syl sfNamedTemplate_source_substitution (syl sfBound_wf ha)) @
+ sqSQ_equiv_backward (exND_child_rebase hk (mpd hi (syl sqSQ_below_at he)) he ha)
+ (exND_allE_scoped (syl (bi1 lt01) hk) (mpd hi (syl sqSQ_below_at he))
+  (syl sqEnvBelow_avoid he) ha hp));
+pub theorem exND_exI (F: wff) (H: nat) (E: set) (n k i a: nat)
+ (hk: $ F -> 0 < k $) (he: $ F -> sqEnvBelow E n k $)
+ (hi: $ F -> i < n $) (ha: $ F -> sfBound (suc n) a $)
+ (hp: $ F -> kHypProvable H (sfNamedTemplate E k 0 (sfSubst 0 i a)) $):
+ $ F -> kHypProvable H (sfNamedTemplate E k 0 (sfEx a)) $ =
+'(exND_exI_scoped (syl (bi1 lt01) hk) (mpd hi (syl sqSQ_below_at he))
+ (syl sqEnvBelow_avoid he) ha
+ (sqSQ_equiv_forward (exND_child_rebase hk (mpd hi (syl sqSQ_below_at he)) he ha)
+  (sqSQ_hyp_transport (eqcomd (syl sfNamedTemplate_source_substitution (syl sfBound_wf ha))) hp)));

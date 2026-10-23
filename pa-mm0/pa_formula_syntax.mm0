@@ -1,0 +1,52 @@
+import "pa_source_interpretation_terms.mm0";
+
+def paFormulaFalse: nat = $ 0 $;
+
+def paFormulaEqual (a b: nat): nat = $ sfMem a b $;
+
+def paFormulaAnd (a b: nat): nat = $ sfAnd a b $;
+
+def paFormulaOr (a b: nat): nat = $ sfOr a b $;
+
+def paFormulaImp (a b: nat): nat = $ sfImp a b $;
+
+def paFormulaAll (a: nat): nat = $ sfAll a $;
+
+def paFormulaEx (a: nat): nat = $ sfEx a $;
+
+def paFormulaBoundAllowed (n c h: nat): wff = $ ifp (c = 0) (0 = 0)
+ (ifp (sfTag c = 1) (paTermBound n (sfLeft c) /\ paTermBound n (sfRight c))
+ (ifp (sfTag c = 3) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 4) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 5) ((n, sfLeft c) e. h /\ (n, sfRight c) e. h)
+ (ifp (sfTag c = 6 /\ sfRight c = 0) ((suc n, sfLeft c) e. h)
+ (ifp (sfTag c = 7 /\ sfRight c = 0) ((suc n, sfLeft c) e. h)
+ (0 != 0))))))) $;
+
+def paFormulaBoundStep (.k .h: nat): set = $ S\ k, {h | paFormulaBoundAllowed (fst k) (snd k) h} $;
+
+def paFormulaBound (n c: nat): wff = $ srecp paFormulaBoundStep (n, c) $;
+
+def paFormulaBoundPrevious (n c .i: nat): nat = $ sep (upto (n, c)) {i | srecp paFormulaBoundStep i} $;
+
+def paFormula (c .n: nat): wff = $ E. n paFormulaBound n c $;
+
+theorem paFormulaBoundStep_value (k h: nat): $ (k, h) e. paFormulaBoundStep <-> paFormulaBoundAllowed (fst k) (snd k) h $;
+
+theorem paFormulaBoundPrevious_value (n c m a: nat): $ (m, a) e. paFormulaBoundPrevious n c <-> (m, a) < (n, c) /\ paFormulaBound m a $;
+
+theorem paFormulaBound_unfold (n c: nat): $ paFormulaBound n c <-> paFormulaBoundAllowed n c (paFormulaBoundPrevious n c) $;
+
+theorem paFormulaBound_false (n: nat): $ paFormulaBound n paFormulaFalse $;
+
+theorem paFormulaBound_equal (n a b: nat): $ paFormulaBound n (paFormulaEqual a b) <-> paTermBound n a /\ paTermBound n b $;
+
+theorem paFormulaBound_and (n a b: nat): $ paFormulaBound n (paFormulaAnd a b) <-> paFormulaBound n a /\ paFormulaBound n b $;
+
+theorem paFormulaBound_or (n a b: nat): $ paFormulaBound n (paFormulaOr a b) <-> paFormulaBound n a /\ paFormulaBound n b $;
+
+theorem paFormulaBound_imp (n a b: nat): $ paFormulaBound n (paFormulaImp a b) <-> paFormulaBound n a /\ paFormulaBound n b $;
+
+theorem paFormulaBound_all (n a: nat): $ paFormulaBound n (paFormulaAll a) <-> paFormulaBound (suc n) a $;
+
+theorem paFormulaBound_ex (n a: nat): $ paFormulaBound n (paFormulaEx a) <-> paFormulaBound (suc n) a $;

@@ -1,0 +1,30 @@
+import "quotation_rebase.mm1";
+import "quotation_source_substitution.mm1";
+import "k230_deduction.mm1";
+import "quotation_supported_quantifiers.mm1";
+
+pub theorem exNamed_allE_scoped (H: nat) (E: set) (n k y a: nat)
+ (hz: $ k != 0 $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $)
+ (ha: $ sfBound (suc n) a $):
+ $ kHypProvable H (sfNamedTemplate E k 0 (sfAll a)) ->
+   kHypProvable H (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $ =
+'(mpi (kHypProvable_seed
+ (mpbir (kProvableeq (kImpeq
+   (ax_mp sfNamedTemplate_all_cons (ax_mp sfBound_wf ha))
+   (eqcom (ax_mp (sfNamedTemplate_substitution_cons hz he) ha))))
+  (ax_mp (ax_mp (ax_mp kNamed_specialization (ltner hy))
+    (ax_mp (sfNamedTemplate_binder_absent ltsucid) (ax_mp sfBound_wf ha)))
+    (ax_mp (sfNamedTemplate_binder_absent (ltletr hy lesucid)) (ax_mp sfBound_wf ha))))) kHypProvable_mp);
+
+pub theorem exNamed_exI_scoped (H: nat) (E: set) (n k y a: nat)
+ (hz: $ k != 0 $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $)
+ (ha: $ sfBound (suc n) a $):
+ $ kHypProvable H (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) ->
+   kHypProvable H (sfNamedTemplate E k 0 (sfEx a)) $ =
+'(mpi (kHypProvable_seed
+ (mpbir (kProvableeq (kImpeq
+   (eqcom (ax_mp (sfNamedTemplate_substitution_cons hz he) ha))
+   (ax_mp sfNamedTemplate_ex_cons (ax_mp sfBound_wf ha))))
+  (ax_mp (ax_mp (ax_mp kNamed_exists_intro (ltner hy))
+    (ax_mp (sfNamedTemplate_binder_absent ltsucid) (ax_mp sfBound_wf ha)))
+    (ax_mp (sfNamedTemplate_binder_absent (ltletr hy lesucid)) (ax_mp sfBound_wf ha))))) kHypProvable_mp);

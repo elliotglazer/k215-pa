@@ -1,0 +1,46 @@
+import "source_l_common_level_instance_renaming.mm1";
+import "source_l_common_level_members.mm1";
+import "source_substitution_renaming.mm1";
+import "source_l_domain.mm1";
+
+@_ def sfLUnaryAt (c x: nat): nat = $ sfRename (sfCLPairMap x x) 0 c $;
+
+theorem slNames_subst_index (k t x: nat):
+ $ sfRenameIndex (sfSubstDepthMap k t) 0 x = sfSubstIndex k t x $ =
+ '(eqtr sfRenameIndex_zero sfSubstDepthMap_value);
+
+pub theorem sfLOrdinalAt_subst (k t d: nat):
+ $ sfSubst k t (sfCLOrdinalAt d) = sfCLOrdinalAt (sfSubstIndex k t d) $ =
+ '(eqtr (ax_mp sfSubst_as_map sfCLOrdinalAt_wf)
+   (eqtr sfCLOrdinalAt_rename (sfCLOrdinalAteq slNames_subst_index)));
+
+pub theorem sfLHierarchyAt_subst (k t d y: nat):
+ $ sfSubst k t (sfCLHierarchyAt d y) =
+   sfCLHierarchyAt (sfSubstIndex k t d) (sfSubstIndex k t y) $ =
+ '(eqtr (ax_mp sfSubst_as_map sfCLHierarchyAt_wf)
+   (eqtr sfCLHierarchyAt_rename (sfCLHierarchyAteq slNames_subst_index slNames_subst_index)));
+
+pub theorem sfLUnaryAt_subst (c n k t x: nat) (hc: $ sfBound n c $):
+ $ sfSubst k t (sfLUnaryAt c x) = sfLUnaryAt c (sfSubstIndex k t x) $ =
+ '(eqtr (ax_mp sfSubst_as_map sfRename_wf)
+   (eqtr (sfCLInstance_rename hc)
+     (sfLUnaryAteq eqid slNames_subst_index)));
+
+pub theorem sfLUnaryAt_to_subst (c x: nat) (hc: $ sfBound 1 c $):
+ $ sfLUnaryAt c x = sfSubst 0 x c $ = '(sfCLUnary_instance hc);
+
+pub theorem sfLUnarySubst_subst (c k t x: nat) (hc: $ sfBound 1 c $):
+ $ sfSubst k t (sfSubst 0 x c) = sfSubst 0 (sfSubstIndex k t x) c $ =
+ '(eqtr (sfSubsteq eqid eqid (eqcom (sfLUnaryAt_to_subst hc)))
+   (eqtr (sfLUnaryAt_subst hc) (sfLUnaryAt_to_subst hc)));
+
+pub theorem sfLDomainAt_subst (k t x: nat):
+ $ sfSubst k t (sfSubst 0 x sfLDomain) = sfSubst 0 (sfSubstIndex k t x) sfLDomain $ =
+ '(sfLUnarySubst_subst sfLDomain_bound);
+
+pub theorem sfLSubset_subst (k t a b: nat):
+ $ sfSubst k t (sfCLSubset a b) = sfCLSubset (sfSubstIndex k t a) (sfSubstIndex k t b) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq
+   (eqtr sfSubst_sfImp (nsImp_eq
+     (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) sfSubstIndex_lift))
+     (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) sfSubstIndex_lift))))));

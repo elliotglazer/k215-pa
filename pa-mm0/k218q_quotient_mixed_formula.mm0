@@ -1,0 +1,43 @@
+import "k218q_quotient_mixed_environment.mm0";
+
+def k218QMFormulaClass (.c .H .S .T .n .t .k: nat): set = $ {c | A. H A. S A. T A. n A. t A. k (sfBound n c -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe T n t k -> k218IHypProvable H (k218QAEmpty t k) -> k218QMixedEnv H S T n t k -> k218QHEquiv H (sqQuote (sqNumericEnvironment S) t k 0 c) (sqQuote (sqNumericEnvironment T) t k 0 c))} $;
+
+theorem k218QMFormula_value {H S T n t k: nat} (c: nat): $ c e. k218QMFormulaClass <-> A. H A. S A. T A. n A. t A. k (sfBound n c -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe T n t k -> k218IHypProvable H (k218QAEmpty t k) -> k218QMixedEnv H S T n t k -> k218QHEquiv H (sqQuote (sqNumericEnvironment S) t k 0 c) (sqQuote (sqNumericEnvironment T) t k 0 c)) $;
+
+theorem k218QMFormula_at (c H S T n t k: nat): $ c e. k218QMFormulaClass -> sfBound n c -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe T n t k -> k218IHypProvable H (k218QAEmpty t k) -> k218QMixedEnv H S T n t k -> k218QHEquiv H (sqQuote (sqNumericEnvironment S) t k 0 c) (sqQuote (sqNumericEnvironment T) t k 0 c) $;
+
+theorem k218QMFormula_use (G: wff) (c H S T n t k: nat) (hc: $ G -> c e. k218QMFormulaClass $) (hb: $ G -> sfBound n c $) (hs: $ G -> sqEnvironmentSafe S n t k $) (ht: $ G -> sqEnvironmentSafe T n t k $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218QMixedEnv H S T n t k $): $ G -> k218QHEquiv H (sqQuote (sqNumericEnvironment S) t k 0 c) (sqQuote (sqNumericEnvironment T) t k 0 c) $;
+
+theorem k218QMF_transport (G: wff) (H a b ap bp: nat) (ha: $ G -> a = ap $) (hb: $ G -> b = bp $) (he: $ G -> k218QHEquiv H ap bp $): $ G -> k218QHEquiv H a b $;
+
+theorem k218QMF_seed_equiv (G: wff) (H a b: nat) (he: $ G -> k218IEquivalent a b $): $ G -> k218QHEquiv H a b $;
+
+def k218QMName (H k: nat): nat = $ kFreshAllocate H 0 0 k $;
+
+theorem k218QMName_above (H k: nat): $ k < k218QMName H k $;
+
+theorem k218QMName_positive (H k: nat): $ 0 < k218QMName H k $;
+
+theorem k218QMName_vacuous (H k: nat): $ k218IContextVacuous H (k218QMName H k) $;
+
+theorem k218QMF_safe_raised (G: wff) (H S n t k: nat) (hs: $ G -> sqEnvironmentSafe S n t k $): $ G -> sqEnvironmentSafe S n t (k218QMName H k) $;
+
+theorem k218QMF_safe_successor (G: wff) (H S n t k: nat) (hs: $ G -> sqEnvironmentSafe S n t k $): $ G -> sqEnvironmentSafe S n t (suc (k218QMName H k)) $;
+
+theorem k218QMF_safe_child (G: wff) (H S n t k: nat) (hs: $ G -> sqEnvironmentSafe S n t k $): $ G -> sqEnvironmentSafe ((k218QMName H k) : S) (suc n) t (suc (k218QMName H k)) $;
+
+theorem k218QMF_empty_child (G: wff) (H S n t k: nat) (hs: $ G -> sqEnvironmentSafe S n t k $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $): $ G -> k218IHypProvable H (k218QAEmpty t (suc (k218QMName H k))) $;
+
+theorem k218QMF_mixed_child (G: wff) (H S T n t k: nat) (hs: $ G -> sqEnvironmentSafe S n t k $) (ht: $ G -> sqEnvironmentSafe T n t k $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218QMixedEnv H S T n t k $): $ G -> k218QMixedEnv H ((k218QMName H k) : S) ((k218QMName H k) : T) (suc n) t (suc (k218QMName H k)) $;
+
+theorem k218QMF_three (G: wff) (H a b c d: nat) (hab: $ G -> k218QHEquiv H a b $) (hbc: $ G -> k218QHEquiv H b c $) (hcd: $ G -> k218QHEquiv H c d $): $ G -> k218QHEquiv H a d $;
+
+theorem k218QMF_numeric_all (G: wff) (S t k a: nat) (ha: $ G -> sfWf a $): $ G -> (sqQuote (sqNumericEnvironment S) t k 0 (sfAll a)) = (kAll k (kImp (kMem t k) (sqQuote (sqNumericEnvironment (k : S)) t (suc k) 0 a))) $;
+
+theorem k218QMF_numeric_exists (G: wff) (S t k a: nat) (ha: $ G -> sfWf a $): $ G -> (sqQuote (sqNumericEnvironment S) t k 0 (sfEx a)) = (kExists k (kAnd (kMem t k) (sqQuote (sqNumericEnvironment (k : S)) t (suc k) 0 a))) $;
+
+theorem k218QMFormula_closed: $ sfConstructionClosed k218QMFormulaClass $;
+
+theorem k218QMFormula_member (c: nat): $ sfWf c -> c e. k218QMFormulaClass $;
+
+theorem k218QM_formula_invariance (H S T n t k c: nat): $ sfBound n c -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe T n t k -> k218IHypProvable H (k218QAEmpty t k) -> k218QMixedEnv H S T n t k -> k218QHEquiv H (sqQuote (sqNumericEnvironment S) t k 0 c) (sqQuote (sqNumericEnvironment T) t k 0 c) $;

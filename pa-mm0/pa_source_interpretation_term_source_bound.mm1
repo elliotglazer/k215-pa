@@ -1,0 +1,25 @@
+import "pa_source_interpretation_term_source.mm1";
+
+theorem paTSBound_cond (G p I J: wff) (b a c: nat) (hp: $ G /\ p -> I -> sfBound b a $) (hn: $ G -> J -> sfBound b c $): $ G -> ifp p I J -> sfBound b (if p a c) $ = (named '(eord (impd @ exp @ sylibrd hp (srecpeq2d (preq2d (syl ifpos anr)))) (impd @ exp @ sylibrd (syl hn anl) (srecpeq2d (preq2d (syl ifneg anr))))));
+
+theorem paTSBound_ind_at (c a: nat): $ A. j (j < c -> A. q (paTermBound q j -> sfBound (suc q) (paTermSource j))) -> a < c -> A. q (paTermBound q a -> sfBound (suc q) (paTermSource a)) $ = (named '(!! eale j ,eqtac));
+
+theorem paTSBound_ind_specialize (n a: nat): $ A. q (paTermBound q a -> sfBound (suc q) (paTermSource a)) -> paTermBound n a -> sfBound (suc n) (paTermSource a) $ = (named '(!! eale q ,eqtac));
+
+theorem paTSBound_use {j q: nat} (G: wff j q) (n c a: nat) (hi: $ G -> A. j (j < c -> A. q (paTermBound q j -> sfBound (suc q) (paTermSource j))) $) (ha: $ G -> a < c $): $ G -> paTermBound n a -> sfBound (suc n) (paTermSource a) $ = (named '(syl paTSBound_ind_specialize @ mpd ha (syl paTSBound_ind_at hi)));
+
+theorem paTSBound_history {j q: nat} (G: wff j q) (n c a: nat) (hi: $ G -> A. j (j < c -> A. q (paTermBound q j -> sfBound (suc q) (paTermSource j))) $) (ha: $ G -> a < c $): $ G -> paTermBound n a -> sfBound (suc n) (paTermSourceHistory c @ a) $ = (named '(sylibrd (paTSBound_use hi ha) (srecpeq2d (preq2d (syl paTermSourceHistory_lookup ha)))));
+
+theorem paTSBound_source_history (n c a: nat): $ (n, a) e. paTermBoundPrevious n c -> paTermBound n a $ = (named '(syl anr (bi1 paTermBoundPrevious_value)));
+
+theorem paTSBound_body {j q: nat} (G: wff j q) (n c: nat) (hi: $ G -> A. j (j < c -> A. q (paTermBound q j -> sfBound (suc q) (paTermSource j))) $): $ G -> paTermBoundAllowed n c (paTermBoundPrevious n c) -> sfBound (suc n) (paTermSourceBody c (paTermSourceHistory c)) $ = (named '(paTSBound_cond (a1i (a1i paSourceTermZero_bound)) (paTSBound_cond (exp @ syl paSourceTermVariable_bound anrr) (paTSBound_cond (exp @ syl paSourceTermSuccessor_bound (mpd (syl paTSBound_source_history anrr) (paTSBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S)))))) (paTSBound_cond (exp @ mpd (mpd (syl paTSBound_source_history anrr) (paTSBound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))))) (syl paSourceTermAddition_bound (mpd (syl paTSBound_source_history anrl) (paTSBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))))))) (paTSBound_cond (exp @ mpd (mpd (syl paTSBound_source_history anrr) (paTSBound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))))) (syl paSourceTermMultiplication_bound (mpd (syl paTSBound_source_history anrl) (paTSBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))))))) (a1i (a1i paSourceTermZero_bound))))))));
+
+theorem paTSBound_actual {j q: nat} (G: wff j q) (n c: nat) (hi: $ G -> A. j (j < c -> A. q (paTermBound q j -> sfBound (suc q) (paTermSource j))) $): $ G -> paTermBound n c -> sfBound (suc n) (paTermSource c) $ = (named '(syl5bi paTermBound_unfold @ sylibrd (paTSBound_body hi) (a1i (srecpeq2 (preq2 paTermSource_unfold)))));
+
+theorem paTSBound_alpha (c: nat): $ A. k (paTermBound k c -> sfBound (suc k) (paTermSource c)) <-> A. q (paTermBound q c -> sfBound (suc q) (paTermSource c)) $ = (named '(cbval ,eqtac));
+
+theorem paTSBound_step {j q: nat} (G: wff j q) (c: nat) (hi: $ G -> A. j (j < c -> A. q (paTermBound q j -> sfBound (suc q) (paTermSource j))) $): $ G -> A. q (paTermBound q c -> sfBound (suc q) (paTermSource c)) $ = (named '(sylib paTSBound_alpha @ !! iald k @ paTSBound_actual hi));
+
+theorem paTSBound_all (c: nat): $ 0 = 0 -> A. q (paTermBound q c -> sfBound (suc q) (paTermSource c)) $ = (named '(!! indstr j y {,eqtac : $ j = c -> ((A. q (paTermBound q j -> sfBound (suc q) (paTermSource j))) <-> (A. q (paTermBound q c -> sfBound (suc q) (paTermSource c)))) $} ,eqtac (paTSBound_step anr)));
+
+pub theorem paTermSource_bound (n c: nat): $ paTermBound n c -> sfBound (suc n) (paTermSource c) $ = (named '(paTSBound_ind_specialize (ax_mp paTSBound_all eqid)));

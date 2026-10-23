@@ -1,0 +1,33 @@
+import "source_l_replacement_core_definability.mm0";
+
+import "source_l_separation_image_op5_background.mm0";
+
+-- The three ingredients of Rocq Z_cl `definable_g` after `def_unpack`, as closed laws.
+-- Open layout: C = 0, S = 1, A = 2, parameters 3 .. m+2.
+-- rep_ex: some R in C represents psi on A^(m+1).
+def sfLRepOpen(m psi:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0)
+   (sfPieceDefinableWitness 2 0 (suc m) psi)) $;
+
+def sfLRepLaw(m psi:nat):nat = $ sfAllPrefix 3 (sfLRepOpen m psi) $;
+
+-- env_inC: the environment of the parameters lies in C.
+def sfLEnvOpen(m:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 3 2 m)
+   (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 4) m 0))))) $;
+
+def sfLEnvLaw(m:nat):nat = $ sfAllPrefix (m + 3) (sfLEnvOpen m) $;
+
+-- C is closed under operation 5: for R, s in C, {x in A | s + x in R} is in C.
+def sfLOp5Open: nat =
+ $ sfAll (sfAll (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2)
+   (sfImp (sfMem 1 2) (sfImp (sfMem 0 2)
+    (sfEx (sfAnd (sfMem 0 3) (sfLSeparationOp5 2 1 5 0)))))))) $;
+
+def sfLOp5Law: nat = $ sfAllPrefix 3 sfLOp5Open $;
+
+theorem sfLCoreDefinabilityLaw_from_parts(m psi:nat)(hb:$ sfBound (suc m) psi $)
+ (hR:$ sfTheoryProvable zfrAxioms (sfLRepLaw m psi) $)
+ (hE:$ sfTheoryProvable zfrAxioms (sfLEnvLaw m) $)
+ (hO:$ sfTheoryProvable zfrAxioms sfLOp5Law $):
+ $ sfTheoryProvable zfrAxioms (sfLCoreDefinabilityLaw m psi) $;

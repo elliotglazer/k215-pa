@@ -1,0 +1,28 @@
+import "source_piece_pcf_rep_rules_r8.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def sfPieceNumeralSome(k:nat):nat = $ sfEx (sfPieceNumeral k 0) $;
+
+def sfPieceRepEmptyExists:nat = $ sfEx (sfPieceRepEmpty 0) $;
+
+def sfPieceRepSuccessorTotal:nat = $ (sfAll (sfEx (sfPieceRepSuccessor 1 0))) $;
+
+theorem sfPieceNumeralSome_wf(k:nat):
+ $ sfWf (sfPieceNumeralSome k) $;
+
+theorem sfPieceNumeralSome_shift(k:nat):
+ $ sfShift 0 (sfPieceNumeralSome k) = sfPieceNumeralSome k $;
+
+theorem sfPieceNumeralSome_intro(G k x:nat):
+ $ (nsLocal G (sfPieceNumeral k x)) -> (nsLocal G (sfPieceNumeralSome k)) $;
+
+def pcrsFirst(G k:nat):nat = $ sfPieceNumeral k 0 : sfContextShift G $;
+
+def pcrsSecond(G k:nat):nat = $ sfPieceRepSuccessor 1 0 : sfContextShift (pcrsFirst G k) $;
+
+theorem sfPieceNumeralSome_step(G k:nat)(hs:$ (nsLocal G sfPieceRepSuccessorTotal) $):
+ $ (nsLocal G (sfPieceNumeralSome k)) -> (nsLocal G (sfPieceNumeralSome (suc k))) $;
+
+theorem sfPieceNumeralSome_from_laws(G k:nat)(h0:$ (nsLocal G sfPieceRepEmptyExists) $)(hs:$ (nsLocal G sfPieceRepSuccessorTotal) $):
+ $ (nsLocal G (sfPieceNumeralSome k)) $;

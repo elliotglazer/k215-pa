@@ -1,0 +1,46 @@
+import "source_syntax.mm1";
+
+-- Exact finite branch of the pinned source ZFC axiom predicate.
+-- This file does not include Separation or Replacement.
+-- All formula numbers use the eight-tag source constructors.
+
+@_ def zfcRefl: nat = $ sfAll (sfEq 0 0) $;
+
+@_ def zfcSym: nat = $ sfAll (sfAll (sfImp (sfEq 1 0) (sfEq 0 1))) $;
+
+@_ def zfcTrans: nat = $ sfAll (sfAll (sfAll (sfImp (sfEq 2 1) (sfImp (sfEq 1 0) (sfEq 2 0))))) $;
+
+@_ def zfcEqElem: nat = $ sfAll (sfAll (sfAll (sfAll (sfImp (sfEq 3 1) (sfImp (sfEq 2 0) (sfImp (sfMem 3 2) (sfMem 1 0))))))) $;
+
+@_ def zfcExt: nat = $ sfAll (sfAll (sfImp (sfAll (sfImp (sfMem 0 2) (sfMem 0 1))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 2))) (sfEq 1 0)))) $;
+
+@_ def zfcEmpty: nat = $ sfEx (sfAll (sfImp (sfMem 0 1) (sfBot))) $;
+
+@_ def zfcPair: nat = $ sfAll (sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 2)) (sfMem 0 1)))))) $;
+
+@_ def zfcUnion: nat = $ sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfEx (sfAnd (sfMem 0 3) (sfMem 1 0)))) (sfImp (sfEx (sfAnd (sfMem 0 3) (sfMem 1 0))) (sfMem 0 1))))) $;
+
+@_ def zfcPower: nat = $ sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 3)))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfMem 0 1))))) $;
+
+@_ def zfcOmega: nat = $ sfEx (sfAnd (sfAnd (sfEx (sfAnd (sfAll (sfImp (sfMem 0 1) (sfBot))) (sfMem 0 1))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfMem 0 2) (sfEq 0 2))) (sfImp (sfOr (sfMem 0 2) (sfEq 0 2)) (sfMem 0 1)))) (sfMem 0 2)))))) (sfAll (sfImp (sfAnd (sfEx (sfAnd (sfAll (sfImp (sfMem 0 1) (sfBot))) (sfMem 0 1))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfMem 0 2) (sfEq 0 2))) (sfImp (sfOr (sfMem 0 2) (sfEq 0 2)) (sfMem 0 1)))) (sfMem 0 2)))))) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))))) $;
+
+@_ def zfcFoundation: nat = $ sfAll (sfImp (sfEx (sfMem 0 1)) (sfEx (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) (sfBot))))))) $;
+
+@_ def zfcChoice: nat = $ sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfEx (sfMem 0 1)))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 2) (sfImp (sfImp (sfEq 1 0) (sfBot)) (sfImp (sfEx (sfAnd (sfMem 0 2) (sfMem 0 1))) (sfBot))))))) (sfEx (sfAll (sfImp (sfMem 0 2) (sfEx (sfAnd (sfAnd (sfMem 0 1) (sfMem 0 2)) (sfAll (sfImp (sfMem 0 2) (sfImp (sfMem 0 3) (sfEq 0 1))))))))))) $;
+
+@_ def zfcFixed (n: nat): wff = $ n = zfcRefl \/ (n = zfcSym \/ (n = zfcTrans \/ (n = zfcEqElem \/ (n = zfcExt \/ (n = zfcEmpty \/ (n = zfcPair \/ (n = zfcUnion \/ (n = zfcPower \/ (n = zfcOmega \/ (n = zfcFoundation \/ (n = zfcChoice))))))))))) $;
+
+pub theorem zfcRefl_wf: $ sfWf zfcRefl $ = '(ax_mp sfWf_all sfWf_eq);
+pub theorem zfcSym_wf: $ sfWf zfcSym $ = '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_eq) sfWf_eq)));
+pub theorem zfcTrans_wf: $ sfWf zfcTrans $ = '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_eq) (ax_mp (ax_mp sfWf_imp sfWf_eq) sfWf_eq)))));
+pub theorem zfcEqElem_wf: $ sfWf zfcEqElem $ = '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_eq) (ax_mp (ax_mp sfWf_imp sfWf_eq) (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)))))));
+pub theorem zfcExt_wf: $ sfWf zfcExt $ = '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem))) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem))) sfWf_eq))));
+pub theorem zfcEmpty_wf: $ sfWf zfcEmpty $ = '(ax_mp sfWf_ex (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_bot)));
+pub theorem zfcPair_wf: $ sfWf zfcPair $ = '(ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_ex (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or sfWf_eq) sfWf_eq)) sfWf_mem))))));
+pub theorem zfcUnion_wf: $ sfWf zfcUnion $ = '(ax_mp sfWf_all (ax_mp sfWf_ex (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem)))) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem))) sfWf_mem)))));
+pub theorem zfcPower_wf: $ sfWf zfcPower $ = '(ax_mp sfWf_all (ax_mp sfWf_ex (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem)))) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem))) sfWf_mem)))));
+pub theorem zfcOmega_wf: $ sfWf zfcOmega $ = '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_bot))) sfWf_mem))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_mem) sfWf_eq))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or sfWf_mem) sfWf_eq)) sfWf_mem)))) sfWf_mem)))))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_and (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_bot))) sfWf_mem))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_or sfWf_mem) sfWf_eq))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or sfWf_mem) sfWf_eq)) sfWf_mem)))) sfWf_mem)))))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_mem))))));
+pub theorem zfcFoundation_wf: $ sfWf zfcFoundation $ = '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_ex sfWf_mem)) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_bot)))))));
+pub theorem zfcChoice_wf: $ sfWf zfcChoice $ = '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_ex sfWf_mem)))) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_imp sfWf_eq) sfWf_bot)) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem))) sfWf_bot))))))) (ax_mp sfWf_ex (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_and sfWf_mem) sfWf_mem)) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfWf_mem) sfWf_eq)))))))))));
+
+pub theorem zfcFixed_wf (n: nat): $ zfcFixed n -> sfWf n $ = '(eori (mpbiri zfcRefl_wf sfWfeq) (eori (mpbiri zfcSym_wf sfWfeq) (eori (mpbiri zfcTrans_wf sfWfeq) (eori (mpbiri zfcEqElem_wf sfWfeq) (eori (mpbiri zfcExt_wf sfWfeq) (eori (mpbiri zfcEmpty_wf sfWfeq) (eori (mpbiri zfcPair_wf sfWfeq) (eori (mpbiri zfcUnion_wf sfWfeq) (eori (mpbiri zfcPower_wf sfWfeq) (eori (mpbiri zfcOmega_wf sfWfeq) (eori (mpbiri zfcFoundation_wf sfWfeq) (mpbiri zfcChoice_wf sfWfeq))))))))))));

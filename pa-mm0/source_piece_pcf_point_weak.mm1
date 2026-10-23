@@ -1,0 +1,83 @@
+import "source_reflection_least_cond_parameters_maps.mm1";
+
+import "source_local_extra.mm1";
+
+import "source_theory_local.mm1";
+
+def pcpgF0 (phi:nat):nat = $ sfLeastParam phi 0 2 $;
+
+def pcpgF1 (phi:nat):nat = $ sfAll (pcpgF0 phi) $;
+
+def pcpgG2 (phi:nat):nat = $ (pcpgF1 phi) : 0 $;
+
+def pcpgF3 (phi:nat):nat = $ sfMem 0 1 $;
+
+def pcpgG4 (phi:nat):nat = $ (pcpgF3 phi) : (pcpgG2 phi) $;
+
+def pcpgF5 (phi:nat):nat = $ sfLeastParam phi 0 1 $;
+
+def pcpgF6 (phi:nat):nat = $ sfImp (pcpgF3 phi) (pcpgF5 phi) $;
+
+def pcpgF7 (phi:nat):nat = $ sfAll (pcpgF5 phi) $;
+
+def pcpgG8 (phi:nat):nat = $ (pcpgF7 phi) : 0 $;
+
+def pcpgF9 (phi:nat):nat = $ sfAll (pcpgF6 phi) $;
+
+def pcpgF10 (phi:nat):nat = $ sfImp (pcpgF7 phi) (pcpgF9 phi) $;
+
+theorem pcpgWf0 (phi:nat) (hf:$ sfWf phi $): $ sfWf (pcpgF0 phi) $ = 'sfLeastParam_wf;
+
+theorem pcpgWf1 (phi:nat) (hf:$ sfWf phi $): $ sfWf (pcpgF1 phi) $ = '(ax_mp sfWf_all (pcpgWf0 hf));
+
+theorem pcpgGWf2 (phi:nat) (hf:$ sfWf phi $): $ sfContextWf 0 $ = 'sfContextWf_nil;
+
+theorem pcpgGWf3 (phi:nat) (hf:$ sfWf phi $): $ sfContextWf (pcpgG2 phi) $ = '(mpbir sfContextWf_cons (ian (pcpgWf1 hf) (pcpgGWf2 hf)));
+
+theorem pcpgMem4 (phi:nat) (hf:$ sfWf phi $): $ (pcpgF1 phi) IN (pcpgG2 phi) $ = 'sfContext_member_head;
+
+theorem pcpgP5 (phi:nat) (hf:$ sfWf phi $): $ nsLocal (pcpgG2 phi) (pcpgF1 phi) $ = '(ax_mp (ax_mp nsLocal_hyp (pcpgGWf3 hf)) (pcpgMem4 hf));
+
+theorem pcpgWf6 (phi:nat) (hf:$ sfWf phi $): $ sfWf (pcpgF3 phi) $ = 'sfWf_mem;
+
+theorem pcpgGWf7 (phi:nat) (hf:$ sfWf phi $): $ sfContextWf (pcpgG4 phi) $ = '(mpbir sfContextWf_cons (ian (pcpgWf6 hf) (pcpgGWf3 hf)));
+
+theorem pcpgMem8 (phi:nat) (hf:$ sfWf phi $): $ (pcpgF1 phi) IN (pcpgG4 phi) $ = '(ax_mp sfContext_member_tail sfContext_member_head);
+
+theorem pcpgSub9 (phi:nat) (hf:$ sfWf phi $): $ sfContextSub 0 (pcpgG4 phi) $ = '(mpbir (sseq1 (nseq lmems0)) ss01);
+
+theorem pcpgSub10 (phi:nat) (hf:$ sfWf phi $): $ sfContextSub (pcpgG2 phi) (pcpgG4 phi) $ = '(mpbir (sseq1 (nseq lmemsS)) (mpbir insss (ian (pcpgMem8 hf) (pcpgSub9 hf))));
+
+theorem pcpgP11 (phi:nat) (hf:$ sfWf phi $): $ nsLocal (pcpgG4 phi) (pcpgF1 phi) $ = '(ax_mp (ax_mp (ax_mp nsLocal_weaken (pcpgGWf7 hf)) (pcpgSub10 hf)) (pcpgP5 hf));
+
+theorem pcpgInst12 (phi:nat) (hf:$ sfWf phi $): $ sfSubst 0 0 (pcpgF0 phi) = (pcpgF5 phi) $ = '(eqtr (sfLeastParam_subst hf lt01S) (sfLeastParam_congr hf sfSubstIndex_zero eqid));
+
+theorem pcpgP13 (phi:nat) (hf:$ sfWf phi $): $ nsLocal (pcpgG4 phi) (pcpgF5 phi) $ = '(sfRQ_rewrite (pcpgInst12 hf) (ax_mp nsLocal_AllE (pcpgP11 hf)));
+
+theorem pcpgP14 (phi:nat) (hf:$ sfWf phi $): $ nsLocal (pcpgG2 phi) (pcpgF6 phi) $ = '(ax_mp nsLocal_II (pcpgP13 hf));
+
+theorem pcpgShift15 (phi:nat) (hf:$ sfWf phi $): $ sfShift 1 (pcpgF5 phi) = (pcpgF0 phi) $ = '(eqtr (sfLeastParam_shift hf leid) (sfLeastParam_congr hf (ax_mp sfShiftIndex_bound lt01S) eqid));
+
+theorem pcpgShift16 (phi:nat) (hf:$ sfWf phi $): $ sfShift 0 (pcpgF7 phi) = (pcpgF1 phi) $ = '(eqtr sfShift_sfAll (nsAll_eq (pcpgShift15 hf)));
+
+theorem pcpgGShift17 (phi:nat) (hf:$ sfWf phi $): $ sfContextShift 0 = 0 $ = 'sfContextShift_nil;
+
+theorem pcpgGShift18 (phi:nat) (hf:$ sfWf phi $): $ sfContextShift (pcpgG8 phi) = (pcpgG2 phi) $ = '(eqtr sfContextShift_cons (conseq (pcpgShift16 hf) (pcpgGShift17 hf)));
+
+theorem pcpgWf19 (phi:nat) (hf:$ sfWf phi $): $ sfWf (pcpgF5 phi) $ = 'sfLeastParam_wf;
+
+theorem pcpgWf20 (phi:nat) (hf:$ sfWf phi $): $ sfWf (pcpgF7 phi) $ = '(ax_mp sfWf_all (pcpgWf19 hf));
+
+theorem pcpgGWf21 (phi:nat) (hf:$ sfWf phi $): $ sfContextWf (pcpgG8 phi) $ = '(mpbir sfContextWf_cons (ian (pcpgWf20 hf) (pcpgGWf2 hf)));
+
+theorem pcpgP22 (phi:nat) (hf:$ sfWf phi $): $ nsLocal (pcpgG8 phi) (pcpgF9 phi) $ = '(ax_mp (sfLocal_allI (pcpgGWf21 hf)) (mpbir (nsLocal_context_eq (pcpgGShift18 hf)) (pcpgP14 hf)));
+
+theorem pcpgP23 (phi:nat) (hf:$ sfWf phi $): $ nsLocal 0 (pcpgF10 phi) $ = '(ax_mp nsLocal_II (pcpgP22 hf));
+
+def sfPieceAllGuardLaw(a:nat):nat = $ sfImp (sfAll a) (sfAll (sfImp (sfMem 0 1) a)) $;
+
+pub theorem sfPieceAllGuard_literal(phi:nat)(hf:$ sfWf phi $): $ (pcpgF10 phi) = sfPieceAllGuardLaw phi $ = (named '(nsImp_eq (nsAll_eq (sfLeastParam_identity hf)) (nsAll_eq (nsImp_eq eqid (sfLeastParam_identity hf)))));
+
+pub theorem sfPieceAllGuard_nd(phi:nat)(hf:$ sfWf phi $): $ nsLocal 0 (sfPieceAllGuardLaw phi) $ = (named '(sfRQ_rewrite (sfPieceAllGuard_literal hf) (pcpgP23 hf)));
+
+pub theorem sfPieceAllGuard_rule(T:set)(phi:nat)(hf:$ sfWf phi $): $ sfTheoryProvable T (sfAll phi) -> sfTheoryProvable T (sfAll (sfImp (sfMem 0 1) phi)) $ = (named '(ax_mp sfTheoryProvable_mp (ax_mp sfTheory_pure (sfPieceAllGuard_nd hf))));

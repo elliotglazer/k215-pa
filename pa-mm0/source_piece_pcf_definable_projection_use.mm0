@@ -1,0 +1,49 @@
+import "source_piece_pcf_definable_projection.mm0";
+
+import "source_piece_pcf_definable_existential_recipe.mm0";
+
+import "source_piece_pcf_rep_cover_laws_r39.mm0";
+
+import "source_l_replacement_prefix_elimination.mm0";
+
+-- The checked projection replay (definable_projection) proves, in the L background,
+-- that the closure C of B contains the projection {z in X | exists v in A. SC(R, z, v)}
+-- for all R, X, A in C (Rocq Z_cl op 4, PJ). This module exposes it as a rule.
+
+def sfPieceDefinableProjectionWitnessBody(R X A C:nat): nat = $ sfAnd (sfMem 0 (suc C)) (sfPieceDefinableExistentialProjection (suc R) (suc X) (suc A) 0) $;
+
+def sfPieceDefinableProjectionWitness(R X A C:nat): nat = $ sfEx (sfPieceDefinableProjectionWitnessBody R X A C) $;
+
+theorem sfPieceDefinableProjectionWitnessBody_wf(R X A C:nat): $ sfWf (sfPieceDefinableProjectionWitnessBody R X A C) $;
+
+theorem sfPieceDefinableProjectionWitness_wf(R X A C:nat): $ sfWf (sfPieceDefinableProjectionWitness R X A C) $;
+
+theorem pcpUse_profile_depth(T:set)(k R X A Y:nat): $ sfRename T k (sfPieceDefinableExistentialProjection R X A Y) = sfPieceDefinableExistentialProjection (sfRenameIndex T k R) (sfRenameIndex T k X) (sfRenameIndex T k A) (sfRenameIndex T k Y) $;
+
+theorem sfPieceDefinableProjectionWitness_rename(T:set)(R X A C:nat): $ sfRename T 0 (sfPieceDefinableProjectionWitness R X A C) = sfPieceDefinableProjectionWitness (T @ R) (T @ X) (T @ A) (T @ C) $;
+
+theorem sfPieceDefinableProjectionWitness_congr(R X A C R1 X1 A1 C1:nat)(hr:$ R = R1 $)(hx:$ X = X1 $)(ha:$ A = A1 $)(hc:$ C = C1 $): $ sfPieceDefinableProjectionWitness R X A C = sfPieceDefinableProjectionWitness R1 X1 A1 C1 $;
+
+def sfPieceDefinableProjectionProducerBody: nat = $ sfImp (sfPieceRepClosure 4 3) (sfImp (sfMem 2 3) (sfImp (sfMem 1 3) (sfImp (sfMem 0 3) (sfPieceDefinableProjectionWitness 1 2 0 3)))) $;
+
+def sfPieceDefinableProjectionProducerLaw: nat = $ sfAll (sfAll (sfAll (sfAll (sfAll sfPieceDefinableProjectionProducerBody)))) $;
+
+theorem sfPieceDefinableProjection_producer_exact: $ sfPieceDefinableProjectionFormula = sfPieceDefinableProjectionProducerLaw $;
+
+theorem sfPieceDefinableProjection_producer_prefix: $ sfAllPrefix 5 sfPieceDefinableProjectionProducerBody = sfPieceDefinableProjectionProducerLaw $;
+
+def sfPieceDefinableProjectionProducerMap(B C X R A:nat): set = $ sqEnvCons A (sqEnvCons R (sqEnvCons X (sqEnvCons C (sqEnvCons B sfIdentityMap)))) $;
+
+theorem pcpUse_at0(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 0 = A $;
+
+theorem pcpUse_at1(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 1 = R $;
+
+theorem pcpUse_at2(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 2 = X $;
+
+theorem pcpUse_at3(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 3 = C $;
+
+theorem pcpUse_at4(B C X R A:nat): $ sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5 @ 4 = B $;
+
+theorem sfPieceDefinableProjection_producer_open(B C X R A:nat): $ sfRename (sfCLBallEnv (sfPieceDefinableProjectionProducerMap B C X R A) 5) 0 sfPieceDefinableProjectionProducerBody = sfImp (sfPieceRepClosure B C) (sfImp (sfMem X C) (sfImp (sfMem R C) (sfImp (sfMem A C) (sfPieceDefinableProjectionWitness R X A C)))) $;
+
+theorem sfPieceDefinableProjection_produce(G B C X R A:nat)(hbg:$ sfContextSub sfLBackground G $)(hc:$ nsLocal G (sfPieceRepClosure B C) $)(hx:$ nsLocal G (sfMem X C) $)(hr:$ nsLocal G (sfMem R C) $)(ha:$ nsLocal G (sfMem A C) $): $ nsLocal G (sfEx (sfPieceDefinableProjectionWitnessBody R X A C)) $;

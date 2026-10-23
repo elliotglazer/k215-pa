@@ -1,0 +1,95 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm1";
+import "k218q_rebase.mm1";
+import "k218q_named_conditional.mm1";
+
+
+theorem k218INA_use (F: wff) (p G a n S k H: nat)
+ (hp: $ F -> k218INamedAt p G a $) (hn: $ F -> p <= n $)
+ (hs: $ F -> sqEnvironmentSafe S n 0 k $) (hg: $ F -> k218INamedSupport H S k G $):
+ $ F -> k218IHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $ =
+'(mpd hg (mpd hs (mpd hn (syl k218INamedAt_use hp))));
+
+pub theorem k218INamedAt_mono (p q G a: nat)
+ (hle: $ p <= q $)
+ (hp: $ k218INamedAt p G a $)
+: $ k218INamedAt q G a $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ k218INA_use (a1i hp) (syl (letr hle) anll) anlr anr));
+
+pub theorem k218INamedAt_Ctx (p G a: nat)
+ (hm: $ a IN G $)
+: $ k218INamedAt p G a $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ mpd (a1i hm) (syl k218INamedSupport_member anr)));
+
+pub theorem k218INamedAt_Pc (p G a b: nat)
+: $ k218INamedAt p G (sfImp (sfImp (sfImp a b) a) a) $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ a1i k218INamedLocal_peirce));
+
+pub theorem k218INamedAt_Wk (p G J a: nat)
+ (hsub: $ sfContextSub J G $)
+ (hp: $ k218INamedAt p J a $)
+: $ k218INamedAt p G a $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ k218INA_use (a1i hp) anll anlr (syl (ax_mp k218INamedSupport_subset hsub) anr)));
+
+pub theorem k218INamedAt_II (p G a b: nat)
+ (hp: $ k218INamedAt p (a : G) b $)
+: $ k218INamedAt p G (sfImp a b) $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ syl k218INamedLocal_impI (k218INA_use (a1i hp) anll anlr (syl k218INamedSupport_under anr))));
+
+pub theorem k218INamedAt_Exp (p G a: nat)
+ (hp: $ k218INamedAt p G sfBot $)
+: $ k218INamedAt p G a $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ syl k218INamedLocal_botE (k218INA_use (a1i hp) anll anlr anr)));
+
+pub theorem k218INamedAt_CE1 (p G a b: nat)
+ (hp: $ k218INamedAt p G (sfAnd a b) $)
+: $ k218INamedAt p G a $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ syl k218INamedLocal_andE1 (k218INA_use (a1i hp) anll anlr anr)));
+
+pub theorem k218INamedAt_CE2 (p G a b: nat)
+ (hp: $ k218INamedAt p G (sfAnd a b) $)
+: $ k218INamedAt p G b $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ syl k218INamedLocal_andE2 (k218INA_use (a1i hp) anll anlr anr)));
+
+pub theorem k218INamedAt_DI1 (p G a b: nat)
+ (hp: $ k218INamedAt p G a $)
+: $ k218INamedAt p G (sfOr a b) $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ syl k218INamedLocal_orI1 (k218INA_use (a1i hp) anll anlr anr)));
+
+pub theorem k218INamedAt_DI2 (p G a b: nat)
+ (hp: $ k218INamedAt p G b $)
+: $ k218INamedAt p G (sfOr a b) $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ syl k218INamedLocal_orI2 (k218INA_use (a1i hp) anll anlr anr)));
+
+pub theorem k218INamedAt_IE (p G a b: nat)
+ (hp: $ k218INamedAt p G a $)
+ (hq: $ k218INamedAt p G (sfImp a b) $)
+: $ k218INamedAt p G b $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ sylc k218INamedLocal_impE (k218INA_use (a1i hp) anll anlr anr) (k218INA_use (a1i hq) anll anlr anr)));
+
+pub theorem k218INamedAt_CI (p G a b: nat)
+ (hp: $ k218INamedAt p G a $)
+ (hq: $ k218INamedAt p G b $)
+: $ k218INamedAt p G (sfAnd a b) $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ sylc k218INamedLocal_andI (k218INA_use (a1i hp) anll anlr anr) (k218INA_use (a1i hq) anll anlr anr)));
+
+pub theorem k218INamedAt_DE (p G a b c: nat)
+ (hp: $ k218INamedAt p G (sfOr a b) $)
+ (hq: $ k218INamedAt p (a : G) c $)
+ (hr: $ k218INamedAt p (b : G) c $)
+: $ k218INamedAt p G c $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ mpd (k218INA_use (a1i hr) anll anlr (syl k218INamedSupport_under anr)) (mpd (k218INA_use (a1i hq) anll anlr (syl k218INamedSupport_under anr)) (syl k218INamedLocal_orE (k218INA_use (a1i hp) anll anlr anr)))));
+
+pub theorem k218INamedAt_AllE (p G i a: nat)
+ (ha: $ sfBound (suc p) a $)
+ (hi: $ i < p $)
+ (hp: $ k218INamedAt p G (sfAll a) $)
+: $ k218INamedAt p G (sfSubst 0 i a) $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ k218IND_allE (syl sqEnvironmentSafe_positive anlr) (syl sqEnvironmentSafe_live_below anlr) (ltletrd (a1i hi) anll) (mpd (syl (bi1 lesuc) anll) (a1i (ax_mp sfBound_mono ha))) (k218INA_use (a1i hp) anll anlr anr)));
+
+pub theorem k218INamedAt_ExI (p G i a: nat)
+ (ha: $ sfBound (suc p) a $)
+ (hi: $ i < p $)
+ (hp: $ k218INamedAt p G (sfSubst 0 i a) $)
+: $ k218INamedAt p G (sfEx a) $ =
+(named '(!! ax_gen n @ !! ax_gen S @ !! ax_gen k @ !! ax_gen H @ exp @ exp @ k218IND_exI (syl sqEnvironmentSafe_positive anlr) (syl sqEnvironmentSafe_live_below anlr) (ltletrd (a1i hi) anll) (mpd (syl (bi1 lesuc) anll) (a1i (ax_mp sfBound_mono ha))) (k218INA_use (a1i hp) anll anlr anr)));

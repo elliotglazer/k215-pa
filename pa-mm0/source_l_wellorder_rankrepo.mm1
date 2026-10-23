@@ -1,0 +1,29 @@
+import "source_l_wellorder_rank.mm1";
+import "source_l_wellorder_levellaws.mm1";
+
+-- The rank law of T2 from the repository's limit and monotonicity laws of the levels
+-- (both AWS-only); the zero law is proved (source_l_wellorder_levellaws).
+
+pub theorem sfLWellorderRankLaw_from_repo
+ (hL: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyLimit $)
+ (hP: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $):
+ $ sfTheoryProvable zfrAxioms sfLWellorderRankLaw $ =
+'(ax_mp (ax_mp sfTheoryProvable_mp
+  (ax_mp (ax_mp sfTheoryProvable_mp
+   (ax_mp (ax_mp sfTheoryProvable_mp sfLWellorderRankLaw_from_laws_zfr) sfLWOZero_zfr))
+   (ax_mp sfLWOLimitAt_from_limit hL)))
+  (ax_mp sfLWOMono_from_power hP));
+
+pub theorem sfLChoice_from_orders_repo
+ (hi: $ sfRelativeAxiomImages zfrAxioms zfrAxioms sfLDomain $)
+ (hN: $ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hL: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyLimit $)
+ (hP: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hO: $ sfTheoryProvable zfrAxioms sfLWellorderLevelOrders $)
+ (hS: $ sfTheoryProvable zfrAxioms sfLStageTrans $)
+ (hT: $ sfTheoryProvable zfrAxioms sfLTransitivity $)
+ (hOL: $ sfTheoryProvable zfrAxioms sfLChoiceOrdL $):
+ $ sfTheoryProvable zfrAxioms (sfRelativize sfLDomain zfcChoice) $ =
+'(sfLChoice_from_orders hi hN hE hU (sfLWellorderRankLaw_from_repo hL hP) hO hS hT hOL);

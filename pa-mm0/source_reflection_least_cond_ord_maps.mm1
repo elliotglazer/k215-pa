@@ -1,0 +1,77 @@
+import "source_reflection_least_cond_parameters_maps.mm1";
+
+def sfLCBinaryMap(x y z .i:nat):set = $ \ i, if (i = 0) x (if (i = 1) y ((i - 2) + z)) $;
+
+def sfLCBinary(phi x y z:nat):nat = $ sfRename (sfLCBinaryMap x y z) 0 phi $;
+
+pub theorem sfLCB_value(x y z i:nat): $ sfLCBinaryMap x y z @ i = if (i = 0) x (if (i = 1) y ((i - 2) + z)) $ = (named '(!! applame j ,eqtac));
+
+pub theorem sfLCB_zero(x y z:nat): $ sfLCBinaryMap x y z @ 0 = x $ = (named '(eqtr sfLCB_value (ax_mp ifpos eqid)));
+
+pub theorem sfLCB_one(x y z:nat): $ sfLCBinaryMap x y z @ 1 = y $ = (named '(eqtr sfLCB_value (eqtr (ax_mp ifneg d1ne0) (ax_mp ifpos eqid))));
+
+pub theorem sfLCB_tail(x y z i:nat): $ sfLCBinaryMap x y z @ suc (suc i) = i + z $ = (named '(eqtr sfLCB_value (eqtr (ax_mp ifneg peano1) (eqtr (ax_mp ifneg (mt (bi1 peano2) peano1)) (addeq1 (eqtr subSS (eqtr subSS sub02)))))));
+
+theorem sfLCB_congr_zero(x y z xx yy zz:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hz:$ z = zz $): $ sfLCBinaryMap x y z @ (0) = sfLCBinaryMap xx yy zz @ (0) $ = (named '(eqtr sfLCB_zero (eqtr hx (eqcom sfLCB_zero))));
+
+theorem sfLCB_congr_one(x y z xx yy zz:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hz:$ z = zz $): $ sfLCBinaryMap x y z @ (1) = sfLCBinaryMap xx yy zz @ (1) $ = (named '(eqtr sfLCB_one (eqtr hy (eqcom sfLCB_one))));
+
+theorem sfLCB_congr_tail(x y z xx yy zz:nat)(i:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hz:$ z = zz $): $ sfLCBinaryMap x y z @ (suc (suc i)) = sfLCBinaryMap xx yy zz @ (suc (suc i)) $ = (named '(eqtr sfLCB_tail (eqtr (addeq2 hz) (eqcom sfLCB_tail))));
+
+theorem sfLCB_congr_suc (x y z xx yy zz:nat)(j:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hz:$ z = zz $): $ sfLCBinaryMap x y z @ (suc j) = sfLCBinaryMap xx yy zz @ (suc j) $ = (named @ induct '(ind) 'j '(sfLCB_congr_one hx hy hz) '(a1i (sfLCB_congr_tail hx hy hz)));
+
+theorem sfLCB_congr_each(x y z xx yy zz:nat)(j:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hz:$ z = zz $): $ sfLCBinaryMap x y z @ (j) = sfLCBinaryMap xx yy zz @ (j) $ = (named @ induct '(ind) 'j '(sfLCB_congr_zero hx hy hz) '(a1i (sfLCB_congr_suc hx hy hz)));
+
+pub theorem sfLCBinary_congr(phi x y z xx yy zz:nat)(hf:$ sfWf phi $)(hx:$ x = xx $)(hy:$ y = yy $)(hz:$ z = zz $): $ sfLCBinary phi x y z = sfLCBinary phi xx yy zz $ = (named '(ax_mp (sfRename_extensional (ax_gen (sfLCB_congr_each hx hy hz))) hf));
+
+pub theorem sfLCBinary_wf(phi x y z:nat): $ sfWf (sfLCBinary phi x y z) $ = (named 'sfRename_wf);
+
+theorem sfLCB_shift_zero(x y z d:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfLCBinaryMap x y z) @ (0) = (sfLCBinaryMap (sfShiftIndex d x) (sfShiftIndex d y) (suc z)) @ (0) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLCB_zero) (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (eqcom sfLCB_zero))))));
+
+theorem sfLCB_shift_one(x y z d:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfLCBinaryMap x y z) @ (1) = (sfLCBinaryMap (sfShiftIndex d x) (sfShiftIndex d y) (suc z)) @ (1) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLCB_one) (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (eqcom sfLCB_one))))));
+
+theorem sfLCB_shift_tail(x y z d:nat)(i:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfLCBinaryMap x y z) @ (suc (suc i)) = (sfLCBinaryMap (sfShiftIndex d x) (sfShiftIndex d y) (suc z)) @ (suc (suc i)) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLCB_tail) (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (eqtr (ax_mp sfShiftIndex_free (ax_mp (bi1 lenlt) (ax_mp (ax_mp letr hd) leaddid2))) (eqtr (eqcom addS2) (eqcom sfLCB_tail))))))));
+
+theorem sfLCB_shift_suc (x y z d:nat)(j:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfLCBinaryMap x y z) @ (suc j) = (sfLCBinaryMap (sfShiftIndex d x) (sfShiftIndex d y) (suc z)) @ (suc j) $ = (named @ induct '(ind) 'j '(sfLCB_shift_one hd) '(a1i (sfLCB_shift_tail hd)));
+
+theorem sfLCB_shift_each(x y z d:nat)(j:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfLCBinaryMap x y z) @ (j) = (sfLCBinaryMap (sfShiftIndex d x) (sfShiftIndex d y) (suc z)) @ (j) $ = (named @ induct '(ind) 'j '(sfLCB_shift_zero hd) '(a1i (sfLCB_shift_suc hd)));
+
+pub theorem sfLCBinary_shift(phi x y z d:nat)(hf:$ sfWf phi $)(hd:$ d <= z $): $ sfShift d (sfLCBinary phi x y z) = sfLCBinary phi (sfShiftIndex d x) (sfShiftIndex d y) (suc z) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfLCBinary_wf)) (eqtr (ax_mp sfRename_mixed_compose hf) (ax_mp (sfRename_extensional (ax_gen (sfLCB_shift_each hd))) hf))));
+
+theorem sfLCB_subst_zero(x y z d t:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfLCBinaryMap x y (suc z)) @ (0) = (sfLCBinaryMap (sfSubstIndex d t x) (sfSubstIndex d t y) z) @ (0) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLCB_zero) (eqtr sfSubstDepthMap_value (eqcom sfLCB_zero)))));
+
+theorem sfLCB_subst_one(x y z d t:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfLCBinaryMap x y (suc z)) @ (1) = (sfLCBinaryMap (sfSubstIndex d t x) (sfSubstIndex d t y) z) @ (1) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLCB_one) (eqtr sfSubstDepthMap_value (eqcom sfLCB_one)))));
+
+theorem sfLCB_subst_tail(x y z d t:nat)(i:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfLCBinaryMap x y (suc z)) @ (suc (suc i)) = (sfLCBinaryMap (sfSubstIndex d t x) (sfSubstIndex d t y) z) @ (suc (suc i)) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLCB_tail) (eqtr sfSubstDepthMap_value (eqtr (ax_mp sfSubstIndex_above (ax_mp (ax_mp ltletr hd) leaddid2)) (eqtr (subeq1 addS2) (eqtr sucsub1 (eqcom sfLCB_tail))))))));
+
+theorem sfLCB_subst_suc (x y z d t:nat)(j:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfLCBinaryMap x y (suc z)) @ (suc j) = (sfLCBinaryMap (sfSubstIndex d t x) (sfSubstIndex d t y) z) @ (suc j) $ = (named @ induct '(ind) 'j '(sfLCB_subst_one hd) '(a1i (sfLCB_subst_tail hd)));
+
+theorem sfLCB_subst_each(x y z d t:nat)(j:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfLCBinaryMap x y (suc z)) @ (j) = (sfLCBinaryMap (sfSubstIndex d t x) (sfSubstIndex d t y) z) @ (j) $ = (named @ induct '(ind) 'j '(sfLCB_subst_zero hd) '(a1i (sfLCB_subst_suc hd)));
+
+pub theorem sfLCBinary_subst(phi x y z d t:nat)(hf:$ sfWf phi $)(hd:$ d < suc z $): $ sfSubst d t (sfLCBinary phi x y (suc z)) = sfLCBinary phi (sfSubstIndex d t x) (sfSubstIndex d t y) z $ = (named '(eqtr (ax_mp sfSubst_rename_compose hf) (ax_mp (sfRename_extensional (ax_gen (sfLCB_subst_each hd))) hf)));
+
+theorem sfLCB_identity_zero: $ sfLCBinaryMap 0 1 2 @ (0) = sfIdentityMap @ (0) $ = (named '(eqtr sfLCB_zero (eqtr eqid (eqcom sfIdentityMap_value))));
+
+theorem sfLCB_identity_one: $ sfLCBinaryMap 0 1 2 @ (1) = sfIdentityMap @ (1) $ = (named '(eqtr sfLCB_one (eqtr eqid (eqcom sfIdentityMap_value))));
+
+theorem sfLCB_identity_tail(i:nat): $ sfLCBinaryMap 0 1 2 @ (suc (suc i)) = sfIdentityMap @ (suc (suc i)) $ = (named '(eqtr sfLCB_tail (eqtr (eqtr addS2 (suceq add12)) (eqcom sfIdentityMap_value))));
+
+theorem sfLCB_identity_suc (j:nat): $ sfLCBinaryMap 0 1 2 @ (suc j) = sfIdentityMap @ (suc j) $ = (named @ induct '(ind) 'j '(sfLCB_identity_one ) '(a1i (sfLCB_identity_tail )));
+
+theorem sfLCB_identity_each(j:nat): $ sfLCBinaryMap 0 1 2 @ (j) = sfIdentityMap @ (j) $ = (named @ induct '(ind) 'j '(sfLCB_identity_zero ) '(a1i (sfLCB_identity_suc )));
+
+pub theorem sfLCBinary_identity(phi:nat)(hf:$ sfWf phi $): $ sfLCBinary phi 0 1 2 = phi $ = (named '(eqtr (ax_mp (sfRename_extensional (ax_gen sfLCB_identity_each)) hf) (ax_mp sfRename_identity hf)));
+
+pub theorem sfLCBinary_shift_two(phi:nat)(hf:$ sfWf phi $): $ sfLCBinary phi 0 1 3 = sfShift 2 phi $ = (named '(eqtr (eqcom (eqtr (sfLCBinary_shift hf leid) (sfLCBinary_congr hf (ax_mp sfShiftIndex_bound d0lt2) (ax_mp sfShiftIndex_bound d1lt2) eqid))) (trud (sfRL_Shift_formula (a1i (sfLCBinary_identity hf))))));
+
+theorem sfLCB_bound_zero(n x y z:nat)(hx:$ x < n + z $)(hy:$ y < n + z $): $ (0) < suc (suc n) -> sfLCBinaryMap x y z @ (0) < n + z $ = (named '(a1i (mpbir (lteq1 sfLCB_zero) hx)));
+
+theorem sfLCB_bound_one(n x y z:nat)(hx:$ x < n + z $)(hy:$ y < n + z $): $ (1) < suc (suc n) -> sfLCBinaryMap x y z @ (1) < n + z $ = (named '(a1i (mpbir (lteq1 sfLCB_one) hy)));
+
+theorem sfLCB_bound_tail(n x y z:nat)(i:nat)(hx:$ x < n + z $)(hy:$ y < n + z $): $ (suc (suc i)) < suc (suc n) -> sfLCBinaryMap x y z @ (suc (suc i)) < n + z $ = (named '(sylibr (lteq1 sfLCB_tail) (sylib ltadd1 (syl (bi2 ltsuc) (bi2 ltsuc)))));
+
+theorem sfLCB_bound_suc (n x y z:nat)(j:nat)(hx:$ x < n + z $)(hy:$ y < n + z $): $ (suc j) < suc (suc n) -> sfLCBinaryMap x y z @ (suc j) < n + z $ = (named @ induct '(ind) 'j '(sfLCB_bound_one hx hy) '(a1i (sfLCB_bound_tail hx hy)));
+
+theorem sfLCB_bound_each(n x y z:nat)(j:nat)(hx:$ x < n + z $)(hy:$ y < n + z $): $ (j) < suc (suc n) -> sfLCBinaryMap x y z @ (j) < n + z $ = (named @ induct '(ind) 'j '(sfLCB_bound_zero hx hy) '(a1i (sfLCB_bound_suc hx hy)));
+
+pub theorem sfLCBinary_bound(n phi x y z:nat)(hb:$ sfBound (suc (suc n)) phi $)(hx:$ x < n + z $)(hy:$ y < n + z $): $ sfBound (n + z) (sfLCBinary phi x y z) $ = (named '(mpbi (sfBoundeq add01 eqid) (ax_mp (ax_mp sfRename_bound (ax_gen (sfLCB_bound_each hx hy))) (mpbir (sfBoundeq add01 eqid) hb))));

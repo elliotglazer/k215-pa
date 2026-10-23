@@ -1,0 +1,35 @@
+import "source_l_level_member_names.mm1";
+import "source_l_common_level_witness_rules.mm1";
+import "source_reflection_transfer_maps.mm1";
+import "source_wf_separation_logic.mm1";
+import "source_theory_local.mm1";
+import "source_core_theory.mm1";
+
+-- Common level for two L-points (informal argument: lanes/L03.md, "Common2").
+
+@_ def sfCL2Lev (d y: nat): nat = $ sfAnd (sfCLOrdinalAt d) (sfCLHierarchyAt d y) $;
+
+@_ def sfCL2Pt (d y k: nat): nat = $ sfAnd (sfCL2Lev d y) (sfMem k y) $;
+
+@_ def sfCL2Both (d y k m: nat): nat = $ sfAnd (sfCL2Lev d y) (sfAnd (sfMem k y) (sfMem m y)) $;
+
+@_ def sfCL2Ex (k: nat): nat = $ sfEx (sfEx (sfCL2Pt 1 0 k)) $;
+
+@_ def sfCL2BothEx (k m: nat): nat = $ sfEx (sfEx (sfCL2Both 1 0 k m)) $;
+
+@_ def sfCL2Law: nat = $ sfAll (sfAll (sfImp (sfCL2Ex 3) (sfImp (sfCL2Ex 2) (sfCL2BothEx 3 2)))) $;
+
+@_ def sfCL2CmpBody (x y: nat): nat =
+ $ sfImp (sfCLOrdinalAt x) (sfImp (sfCLOrdinalAt y) (sfOr (sfCLSubset x y) (sfCLSubset y x))) $;
+
+@_ def sfCL2Cmp: nat = $ sfAll (sfAll (sfCL2CmpBody 1 0)) $;
+
+@_ def sfCL2SubBody (b a Y Z: nat): nat =
+ $ sfImp (sfCLOrdinalAt b) (sfImp (sfCLOrdinalAt a) (sfImp (sfCLSubset a b)
+   (sfImp (sfCLHierarchyAt b Y) (sfImp (sfCLHierarchyAt a Z) (sfCLSubset Z Y))))) $;
+
+@_ def sfCL2Sub: nat = $ sfAll (sfAll (sfAll (sfAll (sfCL2SubBody 3 2 1 0)))) $;
+
+@_ def sfCL2Context: nat = $ sfCL2Cmp : (sfCL2Sub : 0) $;
+
+pub theorem sfCL2Context_eq: $ sfCL2Context = sfCL2Cmp : (sfCL2Sub : 0) $ = 'eqid;

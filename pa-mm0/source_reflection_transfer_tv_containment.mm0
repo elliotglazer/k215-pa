@@ -1,0 +1,63 @@
+import "source_reflection_transfer_tv_domain_literal.mm0";
+
+import "source_l_level_member_names.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def sftvlcF0: nat = $ sfMem 0 1 $;
+
+def sftvlcF1: nat = $ sfAnd (sfCLOrdinalAt 1) (sfCLHierarchyAt 1 0) $;
+
+def sftvlcF2: nat = $ sfMem 2 0 $;
+
+def sftvlcF3: nat = $ sfAnd sftvlcF1 sftvlcF2 $;
+
+def sftvlcF4: nat = $ sfEx sftvlcF3 $;
+
+def sftvlcF5: nat = $ sfEx sftvlcF4 $;
+
+def sftvlcF6: nat = $ sfImp sftvlcF0 sftvlcF5 $;
+
+def sftvlcF7: nat = $ sfAll sftvlcF6 $;
+
+def sftvlcF8: nat = $ sfImp (sfCLHierarchyAt 1 0) sftvlcF7 $;
+
+def sftvlcF9: nat = $ sfImp (sfCLOrdinalAt 1) sftvlcF8 $;
+
+def sftvlcG10: nat = $ (sfCLOrdinalAt 1) : 0 $;
+
+def sftvlcG11: nat = $ (sfCLHierarchyAt 1 0) : sftvlcG10 $;
+
+def sftvlcG12: nat = $ (sfCLOrdinalAt 2) : 0 $;
+
+def sftvlcG13: nat = $ (sfCLHierarchyAt 2 1) : sftvlcG12 $;
+
+def sftvlcG14: nat = $ sftvlcF0 : sftvlcG13 $;
+
+def sftvlcF15: nat = $ sfAnd (sfCLOrdinalAt 3) (sfCLHierarchyAt 3 0) $;
+
+def sftvlcF16: nat = $ sfMem 1 0 $;
+
+def sftvlcF17: nat = $ sfAnd sftvlcF15 sftvlcF16 $;
+
+def sftvlcF18: nat = $ sfEx sftvlcF17 $;
+
+def sftvlcF19: nat = $ sfAnd (sfCLOrdinalAt 2) (sfCLHierarchyAt 2 1) $;
+
+def sftvlcF20: nat = $ sfAnd sftvlcF19 sftvlcF0 $;
+
+theorem sfTVLContainment_pure: $ nsLocal 0 (sfImp (sfCLOrdinalAt 1) (sfImp (sfCLHierarchyAt 1 0) (sfAll (sfImp (sfMem 0 (suc 0)) sfLDomain)))) $;
+
+theorem sftvl_pair_zero(y a:nat): $ sfRenameIndex (sfCLPairMap y a) 0 0 = y $;
+
+theorem sftvl_pair_one(y a:nat): $ sfRenameIndex (sfCLPairMap y a) 0 1 = a $;
+
+theorem sftvl_pair_bound(y a:nat): $ sfRenameIndex (sfCLPairMap y a) 1 0 = 0 $;
+
+theorem sftvl_pair_lift(y a:nat): $ sfRenameIndex (sfCLPairMap y a) 1 1 = suc y $;
+
+theorem sfTVLContainment_rename(a y:nat): $ sfRename (sfCLPairMap y a) 0 (sfImp (sfCLOrdinalAt 1) (sfImp (sfCLHierarchyAt 1 0) (sfAll (sfImp (sfMem 0 (suc 0)) sfLDomain)))) = (sfImp (sfCLOrdinalAt a) (sfImp (sfCLHierarchyAt a y) (sfAll (sfImp (sfMem 0 (suc y)) sfLDomain)))) $;
+
+theorem sfTVLContainment_at_pure(a y:nat): $ nsLocal 0 (sfImp (sfCLOrdinalAt a) (sfImp (sfCLHierarchyAt a y) (sfAll (sfImp (sfMem 0 (suc y)) sfLDomain)))) $;
+
+theorem sfTVLContainment_local(G a y:nat)(ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a y) $): $ nsLocal G (sfAll (sfImp (sfMem 0 (suc y)) sfLDomain)) $;

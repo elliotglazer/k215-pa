@@ -1,0 +1,64 @@
+import "source_piece_pcf_mono_collection.mm1";
+import "source_reflection_least_cond_ord_collect.mm1";
+
+@_ def sfPieceDnExistenceCode(count body:nat):nat =
+ $ sfEx (sfAnd sfLeastOrdinalPredicate (sfPieceDn count body)) $;
+def sfPieceDnExistenceHyp(body:nat):wff =
+ $ sfTheoryProvable zfrAxioms (sfEx (sfAnd sfLeastOrdinalPredicate body)) /\
+   sfTheoryProvable zfrAxioms (sfPieceMonoCode body) $;
+def sfPieceDnExistenceLaw(count body:nat):wff =
+ $ sfPieceDnExistenceHyp body -> sfTheoryProvable zfrAxioms (sfPieceDnExistenceCode count body) $;
+
+theorem pcdx_code_zero(body:nat):
+ $ sfPieceDnExistenceCode 0 body = sfEx (sfAnd sfLeastOrdinalPredicate body) $ =
+'(nsEx_eq (nsAnd_eq eqid sfPieceDn_zero));
+theorem pcdx_zero(body:nat): $ sfPieceDnExistenceLaw 0 body $ =
+'(syl (bi2 (trud (sfTheoryProvable_congr (a1i pcdx_code_zero)))) anl);
+theorem pcdx_count_congr(body a b:nat):
+ $ a = b -> (sfPieceDnExistenceLaw a body <-> sfPieceDnExistenceLaw b body) $ =
+'(imeq2d (sfTheoryProvable_congr (sfPieceDnExistenceCodeeqd id (a1i eqid))));
+
+pub theorem sfPieceCollection_zfr(phi:nat)(hf:$ sfWf phi $):
+ $ sfTheoryProvable zfrAxioms (sfOrdinalCollectionLaw phi) $ =
+'(! sfOrdinalCollection_zfr_meta phi phi
+ (ax_mp (ax_mp sfBound_mono_le lesucid) (ax_mp sfWf_upper_bound hf)));
+
+theorem pcdx_collect_use(H:wff)(q:nat)
+ (hp:$ H -> sfTheoryProvable zfrAxioms (sfOrdinalCollectionPoint q) $)
+ (hm:$ H -> sfTheoryProvable zfrAxioms (sfOrdinalCollectionMono q) $)
+ (hc:$ sfTheoryProvable zfrAxioms (sfOrdinalCollectionLaw q) $):
+ $ H -> sfTheoryProvable zfrAxioms (sfOrdinalCollectionOutput q) $ =
+'(mpd hm (syl sfTheoryProvable_mp (syl (ax_mp sfTheoryProvable_mp hc) hp)));
+
+theorem pcdx_step_cond(H:wff)(count body:nat)(hf:$ sfWf body $)
+ (hi:$ H -> sfPieceDnExistenceLaw count body $)
+ (hb:$ H -> sfTheoryProvable zfrAxioms (sfEx (sfAnd sfLeastOrdinalPredicate body)) $)
+ (hm:$ H -> sfTheoryProvable zfrAxioms (sfPieceMonoCode body) $):
+ $ H -> sfTheoryProvable zfrAxioms (sfPieceDnExistenceCode (suc count) body) $ =
+'(syl (sfPieceDn_collection_output zfrAxioms_closed hf)
+ (pcdx_collect_use
+  (syl (sfPiecePoint_rule zfrAxioms_closed (sfPieceDn_wf hf)) (mpd (iand hb hm) hi))
+  (syl (sfPieceMonoCollection_rule zfrAxioms_closed (sfPieceDn_wf hf))
+   (syl (sfPieceDn_mono_rule zfrAxioms_closed hf) hm))
+  (sfPieceCollection_zfr sfRename_wf)));
+
+theorem pcdx_step(count body:nat)(hf:$ sfWf body $):
+ $ sfPieceDnExistenceLaw count body -> sfPieceDnExistenceLaw (suc count) body $ =
+(named '(exp @ pcdx_step_cond hf anl (syl anl anr) (syl anr anr)));
+
+pub theorem sfPieceDn_existence_rule(count body:nat)(hf:$ sfWf body $):
+ $ sfPieceDnExistenceLaw count body $ =
+(named '(! ind dx di count
+ $ sfPieceDnExistenceLaw dx body $
+ $ sfPieceDnExistenceLaw 0 body $
+ $ sfPieceDnExistenceLaw count body $
+ $ sfPieceDnExistenceLaw di body $
+ $ sfPieceDnExistenceLaw (suc di) body $
+ pcdx_count_congr pcdx_count_congr pcdx_count_congr pcdx_count_congr
+ pcdx_zero (pcdx_step hf)));
+
+pub theorem sfPieceDn_exists(count body:nat)(hf:$ sfWf body $)
+ (hb:$ sfTheoryProvable zfrAxioms (sfEx (sfAnd sfLeastOrdinalPredicate body)) $)
+ (hm:$ sfTheoryProvable zfrAxioms (sfPieceMonoCode body) $):
+ $ sfTheoryProvable zfrAxioms (sfPieceDnExistenceCode count body) $ =
+'(ax_mp (sfPieceDn_existence_rule hf) (ian hb hm));

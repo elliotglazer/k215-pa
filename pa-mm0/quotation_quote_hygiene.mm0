@@ -1,0 +1,38 @@
+import "quotation_rebase_hygiene.mm0";
+
+def sqQuoteHygiene (E: set) (n t k c: nat): wff =
+ $ sqRebaseHygiene E n k c sqAllocationMargin /\
+   sqAllocAvoid k (suc (c + sqAllocationMargin)) t $;
+
+theorem sqQuoteHygiene_base (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> sqRebaseHygiene E n k c sqAllocationMargin $;
+
+theorem sqQuoteHygiene_tag (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> sqAllocAvoid k (suc (c + sqAllocationMargin)) t $;
+
+theorem sqQuoteHygiene_nonzero (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> k != 0 $;
+
+theorem sqQuoteHygiene_tag_neq (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> k != t $;
+
+theorem sqQuoteHygiene_avoid (E: set) (n t k c: nat):
+ $ sqQuoteHygiene E n t k c -> sqEnvAvoid E n k $;
+
+theorem sqQuoteHygiene_subformula (E: set) (n t k a c: nat) (ha: $ a <= c $):
+ $ sqQuoteHygiene E n t k c -> sqQuoteHygiene E n t k a $;
+
+theorem sqQuoteHygiene_agree (E F: set) (n t k c: nat) (he: $ sqEnvAgree E F n $):
+ $ sqQuoteHygiene E n t k c -> sqQuoteHygiene F n t k c $;
+
+theorem sqQuoteHygiene_stack_child (S n t k a c y: nat) (E: set) (ha: $ a < c $):
+ $ sqQuoteHygiene (sqStackEnv S E) n t k c ->
+ sqAllocAvoid (suc k) (suc (a + sqAllocationMargin)) y ->
+ sqQuoteHygiene (sqStackEnv (y : S) E) (suc n) t (suc k) a $;
+
+theorem sqQuoteHygiene_atom_template (G: wff) (E: set) (n t k p q a b: nat)
+ (hq: $ q <= sqAllocationMargin $)
+ (hh: $ G -> sqQuoteHygiene E n t k p $)
+ (ha: $ G -> a < n $) (hb: $ G -> b < n $):
+ $ G -> sqRebaseHygiene (sqAtomEnvironment t (E @ a) (E @ b)) 3 k q 0 $;
+

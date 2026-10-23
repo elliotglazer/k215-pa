@@ -1,0 +1,43 @@
+import "source_formula_equality_transport_logic.mm1";
+
+import "raw_source_distribution.mm1";
+
+theorem feq_local_identity (h: nat) (hh: $ sfWf h $):
+ $ nsLocal sfFormulaEqualityContext (sfImp h h) $ =
+'(trud (syl nsLocal_II (sylc nsLocal_hyp (a1i (feq_context_cons hh sfFormulaEqualityContext_wf)) (a1i sfContext_member_head))));
+
+theorem feq_local_weaken (h a: nat) (hh: $ sfWf h $) (ha: $ sfWf a $):
+ $ nsLocal sfFormulaEqualityContext a -> nsLocal sfFormulaEqualityContext (sfImp h a) $ =
+'(syl nsLocal_II (mpd id (sylc nsLocal_weaken (a1i (feq_context_cons hh sfFormulaEqualityContext_wf)) (a1i (ax_mp (ax_mp sfContextSub_trans sfContextSub_refl) sfContextSub_cons)))));
+
+theorem feq_index_congr (H: wff) (d t i j: nat) (hi: $ H -> i = j $):
+ $ H -> sfSubstIndex d t i = sfSubstIndex d t j $ =
+'(ifeqd (lteq1d hi) hi (ifeqd (eqeq1d hi) eqidd (subeq1d hi)));
+
+theorem feq_index_other (d x y i: nat):
+ $ i != d -> sfSubstIndex d x i = sfSubstIndex d y i $ =
+'(ifeqd (a1i biid) eqidd (eqtrd ifneg (eqcomd ifneg)));
+
+theorem feq_index_hit (d x i: nat):
+ $ i = d -> sfSubstIndex d x i = d + x $ =
+'(eqtrd (feq_index_congr id) (a1i (eqtr sfSubstIndex_hit addcom)));
+
+theorem feq_index_yes (d x y i: nat):
+ $ i = d -> nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfEq (sfSubstIndex d x i) (sfSubstIndex d y i))) $ =
+'(mpbiri (feq_local_identity sfWf_eq) (nsLocaleq2d (sfImpeq2d (sfEqeqd feq_index_hit feq_index_hit))));
+
+theorem feq_index_no (d x y i: nat):
+ $ i != d -> nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfEq (sfSubstIndex d x i) (sfSubstIndex d y i))) $ =
+'(mpbiri (ax_mp (feq_local_weaken sfWf_eq sfWf_eq) sfFormulaEquality_refl_local) (nsLocaleq2d (sfImpeq2d (sfEqeq2d (eqcomd feq_index_other)))));
+
+pub theorem sfFormulaEquality_index_local (d x y i: nat):
+ $ nsLocal sfFormulaEqualityContext (sfImp (sfEq (d + x) (d + y)) (sfEq (sfSubstIndex d x i) (sfSubstIndex d y i))) $ =
+'(cases feq_index_yes feq_index_no);
+
+pub theorem sfFormulaEquality_all_rule (h a b: nat) (hh: $ sfWf h $) (ha: $ sfWf a $) (hb: $ sfWf b $):
+ $ nsLocal sfFormulaEqualityContext (sfImp (sfShift 0 h) (sfImp a b)) -> nsLocal sfFormulaEqualityContext (sfImp h (sfImp (sfAll a) (sfAll b))) $ =
+'(syl nsLocal_II (syl nsLocal_II (syl (sfLocal_allI (feq_context_cons (ax_mp sfWf_all ha) (feq_context_cons hh sfFormulaEqualityContext_wf))) (mpbid (nsLocaleq1d (a1i (eqcom (eqtr sfContextShift_cons (conseq2 (eqtr sfContextShift_cons (conseq2 sfFormulaEqualityContext_shift))))))) (sylc nsLocal_mp (sylc nsLocal_mp (mpd id (sylc nsLocal_weaken (a1i (feq_context_cons sfShift_wf (feq_context_cons sfShift_wf sfFormulaEqualityContext_wf))) (a1i (ax_mp (ax_mp sfContextSub_trans (ax_mp (ax_mp sfContextSub_trans sfContextSub_refl) sfContextSub_cons)) sfContextSub_cons)))) (sylc nsLocal_hyp (a1i (feq_context_cons sfShift_wf (feq_context_cons sfShift_wf sfFormulaEqualityContext_wf))) (a1i (ax_mp sfContext_member_tail sfContext_member_head)))) (mpbid (nsLocaleq2d (a1i (ax_mp sfSubst_shift_up_identity ha))) (syl nsLocal_AllE (mpbid (nsLocaleq2d (a1i sfShift_sfAll)) (sylc nsLocal_hyp (a1i (feq_context_cons sfShift_wf (feq_context_cons sfShift_wf sfFormulaEqualityContext_wf))) (a1i sfContext_member_head))))))))));
+
+pub theorem sfFormulaEquality_ex_rule (h a b: nat) (hh: $ sfWf h $) (ha: $ sfWf a $) (hb: $ sfWf b $):
+ $ nsLocal sfFormulaEqualityContext (sfImp (sfShift 0 h) (sfImp a b)) -> nsLocal sfFormulaEqualityContext (sfImp h (sfImp (sfEx a) (sfEx b))) $ =
+'(syl nsLocal_II (syl nsLocal_II (sylc (sfLocal_exE (ax_mp sfWf_ex hb)) (sylc nsLocal_hyp (a1i (feq_context_cons (ax_mp sfWf_ex ha) (feq_context_cons hh sfFormulaEqualityContext_wf))) (a1i sfContext_member_head)) (mpbid (nsLocaleq1d (a1i (eqcom (conseq2 (eqtr sfContextShift_cons (conseq2 (eqtr sfContextShift_cons (conseq2 sfFormulaEqualityContext_shift)))))))) (mpbid (nsLocaleq2d (a1i (eqcom sfShift_sfEx))) (sylc nsLocal_ExI (a1i sfShift_wf) (mpbid (nsLocaleq2d (a1i (eqcom (ax_mp sfSubst_shift_up_identity hb)))) (sylc nsLocal_mp (sylc nsLocal_mp (mpd id (sylc nsLocal_weaken (a1i (feq_context_cons ha (feq_context_cons sfShift_wf (feq_context_cons sfShift_wf sfFormulaEqualityContext_wf)))) (a1i (ax_mp (ax_mp sfContextSub_trans (ax_mp (ax_mp sfContextSub_trans (ax_mp (ax_mp sfContextSub_trans sfContextSub_refl) sfContextSub_cons)) sfContextSub_cons)) sfContextSub_cons)))) (sylc nsLocal_hyp (a1i (feq_context_cons ha (feq_context_cons sfShift_wf (feq_context_cons sfShift_wf sfFormulaEqualityContext_wf)))) (a1i (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))) (sylc nsLocal_hyp (a1i (feq_context_cons ha (feq_context_cons sfShift_wf (feq_context_cons sfShift_wf sfFormulaEqualityContext_wf)))) (a1i sfContext_member_head))))))))));

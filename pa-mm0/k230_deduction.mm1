@@ -1,0 +1,149 @@
+import "k230_derived.mm1";
+
+do (apply (register-eqd 'kImp) '(kImp_congr kImp_congr_left kImp_congr_right));
+
+@_ abstract def kHypRules (G: nat) (.c .l .b: nat): set =
+$ S\ c, {l | c IN G \/ (c e. kTheorems \/
+    E. b (b IN l /\ kImp b c IN l))} $;
+@_ def kHypDerives (G p a: nat): wff = $ traceDerives (kHypRules G) p a $;
+@_ abstract def kHypProvable (G a: nat) (.p: nat): wff = $ E. p kHypDerives G p a $;
+
+pub theorem kHypRules_value {b: nat} (G c l: nat):
+  $ (c, l) e. kHypRules G <-> c IN G \/
+    (c e. kTheorems \/ E. b (b IN l /\ kImp b c IN l)) $ =
+(named '(elsabe @ elabed ,eqtac));
+
+theorem kHypMember_left (a p q: nat): $ a IN p -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orl);
+theorem kHypMember_right (a p q: nat): $ a IN q -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orr);
+theorem kHypRules_extend (G c l r: nat):
+  $ (c, l) e. kHypRules G -> (c, l ++ r) e. kHypRules G $ =
+(named '(syl (bi2 kHypRules_value) @ syl
+  (orim2 (orim2 (eximi @ iand
+    (syl kHypMember_left anl) (syl kHypMember_left anr))))
+  (bi1 kHypRules_value)));
+pub theorem kHypRules_stable (G: nat): $ traceAppendStable (kHypRules G) $ =
+(named '(ax_gen @ ax_gen @ ax_gen kHypRules_extend));
+pub theorem kHypProvable_intro (G p a: nat): $ kHypDerives G p a -> kHypProvable G a $ =
+(named '(iexe ,eqtac));
+
+theorem kHypRules_assumption (G a l: nat): $ a IN G -> (a, l) e. kHypRules G $ =
+(named '(syl (bi2 kHypRules_value) orl));
+theorem kHypRules_seed (G a l: nat): $ kProvable a -> (a, l) e. kHypRules G $ =
+(named '(syl (bi2 kHypRules_value) @ syl orr @ syl orl (bi2 kTheorems_value)));
+pub theorem kHypProvable_assumption (G a: nat): $ a IN G -> kHypProvable G a $ =
+'(syl kHypProvable_intro @ syl traceDerives_head @
+  iand (a1i traceValid_nil) kHypRules_assumption);
+pub theorem kHypProvable_seed (G a: nat): $ kProvable a -> kHypProvable G a $ =
+'(syl kHypProvable_intro @ syl traceDerives_head @
+  iand (a1i traceValid_nil) kHypRules_seed);
+
+theorem kHypRules_mp (G a b l: nat):
+  $ a IN l /\ kImp a b IN l -> (b, l) e. kHypRules G $ =
+(named '(syl (bi2 kHypRules_value) @ syl orr @ syl orr (iexe ,eqtac)));
+theorem kHypValid_append (G p q: nat):
+  $ traceValid (kHypRules G) p -> traceValid (kHypRules G) q ->
+    traceValid (kHypRules G) (p ++ q) $ = '(traceValid_append kHypRules_stable);
+pub theorem kHypDerives_mp (G p q a b: nat):
+  $ kHypDerives G p a -> kHypDerives G q (kImp a b) ->
+    kHypDerives G (b : (p ++ q)) b $ =
+'(exp @ syl traceDerives_head @ iand
+  (sylc kHypValid_append (syl anl anl) (syl anl anr))
+  (syl kHypRules_mp @ iand
+    (syl kHypMember_left (syl anr anl))
+    (syl kHypMember_right (syl anr anr))));
+theorem kHypProvable_mp_witnesses (G p q a b: nat):
+  $ kHypDerives G p a -> kHypDerives G q (kImp a b) -> kHypProvable G b $ =
+'(syl6 kHypProvable_intro kHypDerives_mp);
+pub theorem kHypProvable_mp (G a b: nat):
+  $ kHypProvable G a -> kHypProvable G (kImp a b) -> kHypProvable G b $ =
+(named '(eex @ eexd kHypProvable_mp_witnesses));
+
+pub theorem kHypProvable_imp_weaken (G h a: nat):
+  $ kHypProvable G a -> kHypProvable G (kImp h a) $ =
+'(mpi (kHypProvable_seed kPropK) kHypProvable_mp);
+pub theorem kHypProvable_imp_mp (G h a b: nat):
+  $ kHypProvable G (kImp h a) -> kHypProvable G (kImp h (kImp a b)) ->
+    kHypProvable G (kImp h b) $ =
+'(exp @ mpd
+  (syl (mpi (kHypProvable_seed kPropS) kHypProvable_mp) anr)
+  (syl kHypProvable_mp anl));
+
+@_ abstract def kDeductionClass (G h: nat) (.a: nat): set =
+$ {a | kHypProvable G (kImp h a)} $;
+pub theorem kDeductionClass_value (G h a: nat):
+  $ a e. kDeductionClass G h <-> kHypProvable G (kImp h a) $ =
+(named '(elabe ,eqtac));
+
+theorem kDeduction_assumption_equal (G h a: nat):
+  $ a = h -> kHypProvable G (kImp h a) $ =
+'(mpbiri (kHypProvable_seed kPropI) (kHypProvableeq2d (kImp_congr_right id)));
+theorem kDeduction_assumption (G h a: nat):
+  $ a IN (h : G) -> a e. kDeductionClass G h $ =
+'(syl (bi2 kDeductionClass_value) @
+  syl (eori kDeduction_assumption_equal
+    (syl kHypProvable_imp_weaken kHypProvable_assumption)) (bi1 lmemS));
+theorem kDeduction_seed (G h a: nat):
+  $ a e. kTheorems -> a e. kDeductionClass G h $ =
+'(syl (bi2 kDeductionClass_value) @ syl kHypProvable_imp_weaken @
+  syl kHypProvable_seed (bi1 kTheorems_value));
+theorem kDeduction_trace_get (G h l a: nat):
+  $ traceClassAll (kDeductionClass G h) l -> a IN l ->
+    kHypProvable G (kImp h a) $ =
+'(syl6 (bi1 kDeductionClass_value) traceClassAll_get);
+theorem kDeduction_mp_payload (G h l a b: nat):
+  $ traceClassAll (kDeductionClass G h) l ->
+    (b IN l /\ kImp b a IN l) -> a e. kDeductionClass G h $ =
+'(exp @ syl (bi2 kDeductionClass_value) @
+  sylc kHypProvable_imp_mp
+    (mpd (syl anl anr) (syl kDeduction_trace_get anl))
+    (mpd (syl anr anr) (syl kDeduction_trace_get anl)));
+theorem kDeduction_mp_exists {b: nat} (G h l a: nat):
+  $ traceClassAll (kDeductionClass G h) l ->
+    E. b (b IN l /\ kImp b a IN l) -> a e. kDeductionClass G h $ =
+(named '(eexd kDeduction_mp_payload));
+theorem kDeduction_rule (G h l a: nat):
+  $ traceClassAll (kDeductionClass G h) l ->
+    (a, l) e. kHypRules (h : G) -> a e. kDeductionClass G h $ =
+(named '(syl5bi kHypRules_value @ eord
+  (a1i kDeduction_assumption)
+  (eord (a1i kDeduction_seed) kDeduction_mp_exists)));
+pub theorem kHypRules_deduction_sound (G h: nat):
+  $ traceRuleSound (kHypRules (h : G)) (kDeductionClass G h) $ =
+(named '(ax_gen @ ax_gen kDeduction_rule));
+pub theorem kHypDerives_deduction (G h p a: nat):
+  $ kHypDerives (h : G) p a -> kHypProvable G (kImp h a) $ =
+'(syl (bi1 kDeductionClass_value) (traceDerives_class kHypRules_deduction_sound));
+pub theorem kHypProvable_deduction (G h a: nat):
+  $ kHypProvable (h : G) a -> kHypProvable G (kImp h a) $ =
+(named '(eex kHypDerives_deduction));
+
+theorem kHyp_theorem_get (l a: nat):
+  $ traceClassAll kTheorems l -> a IN l -> kProvable a $ =
+'(syl6 (bi1 kTheorems_value) traceClassAll_get);
+theorem kHyp_empty_mp_payload (l a b: nat):
+  $ traceClassAll kTheorems l ->
+    (b IN l /\ kImp b a IN l) -> a e. kTheorems $ =
+'(exp @ syl (bi2 kTheorems_value) @ sylc kProvable_mp
+  (mpd (syl anl anr) (syl kHyp_theorem_get anl))
+  (mpd (syl anr anr) (syl kHyp_theorem_get anl)));
+theorem kHyp_empty_mp_exists {b: nat} (l a: nat):
+  $ traceClassAll kTheorems l ->
+    E. b (b IN l /\ kImp b a IN l) -> a e. kTheorems $ =
+(named '(eexd kHyp_empty_mp_payload));
+theorem kHyp_empty_rule (l a: nat):
+  $ traceClassAll kTheorems l -> (a, l) e. kHypRules 0 -> a e. kTheorems $ =
+(named '(syl5bi kHypRules_value @ eord
+  (a1i (absurd lmem0)) (eord (a1i id) kHyp_empty_mp_exists)));
+pub theorem kHypRules_empty_sound: $ traceRuleSound (kHypRules 0) kTheorems $ =
+(named '(ax_gen @ ax_gen kHyp_empty_rule));
+pub theorem kHypDerives_empty (p a: nat): $ kHypDerives 0 p a -> kProvable a $ =
+'(syl (bi1 kTheorems_value) (traceDerives_class kHypRules_empty_sound));
+pub theorem kHypProvable_empty (a: nat): $ kHypProvable 0 a -> kProvable a $ =
+(named '(eex kHypDerives_empty));
+pub theorem kHypProvable_empty_iff (a: nat): $ kHypProvable 0 a <-> kProvable a $ =
+'(ibii kHypProvable_empty kHypProvable_seed);
+pub theorem kHypProvable_discharge (h a: nat):
+  $ kHypProvable (h : 0) a -> kProvable (kImp h a) $ =
+'(syl kHypProvable_empty kHypProvable_deduction);

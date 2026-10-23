@@ -1,0 +1,36 @@
+import "raw_seed_logic.mm0";
+import "source_theory_renaming.mm0";
+import "source_theory_prefix.mm0";
+import "k215_induction.mm0";
+
+-- The source theory S = ZFC + the universal closures of the decoded K215 bundles.
+-- Every K215 theorem decodes to an S-theorem; no relativization yet.
+def k215BundleClosed (f .a .b .c .n: nat): wff =
+$ E. a E. b E. c E. n
+  ((c != a /\ c != b) /\
+   (sfBound n (rawDecode (k218Bundle a b c)) /\
+    f = sfAllPrefix n (rawDecode (k218Bundle a b c)))) $;
+def k215BundleAxioms (.f: nat): set = $ {f | k215BundleClosed f} $;
+def k215BundleSourceAxioms: set = $ zfcAxioms u. k215BundleAxioms $;
+
+theorem k215BundleAxioms_value (f: nat):
+  $ f e. k215BundleAxioms <-> k215BundleClosed f $;
+theorem k215BundleClosed_closed (f: nat): $ k215BundleClosed f -> sfBound 0 f $;
+theorem k215BundleSourceAxioms_zfc: $ zfcAxioms C_ k215BundleSourceAxioms $;
+theorem k215BundleSourceAxioms_closed: $ sfTheoryClosed k215BundleSourceAxioms $;
+theorem k215BundleSource_from_zfc (a: nat):
+  $ zfcProvable a -> sfTheoryProvable k215BundleSourceAxioms a $;
+theorem k215BundleSource_bundle (a b c: nat):
+  $ c != a /\ c != b ->
+    sfTheoryProvable k215BundleSourceAxioms (rawDecode (k218Bundle a b c)) $;
+
+def k215BundleSourceImage (.a: nat): set =
+$ {a | sfTheoryProvable k215BundleSourceAxioms (rawDecode a)} $;
+theorem k215BundleSourceImage_value (a: nat):
+  $ a e. k215BundleSourceImage <-> sfTheoryProvable k215BundleSourceAxioms (rawDecode a) $;
+theorem k215BundleSourceImage_closed: $ k215Closed k215BundleSourceImage $;
+
+theorem k215BundleSource_proof_transfer (a: nat):
+  $ k215Provable a -> sfTheoryProvable k215BundleSourceAxioms (rawDecode a) $;
+theorem k215BundleSource_refutation_transfer:
+  $ k215Inconsistent -> sfTheoryProvable k215BundleSourceAxioms sfBot $;

@@ -1,0 +1,129 @@
+import "k230_freshness.mm0";
+
+import "k230_vacuity.mm0";
+
+def kReplace (x y a: nat): nat = $ if (a = x) y a $;
+
+def kSubstBody (x y c h: nat): nat =
+$ if (c = 0) 0
+ (if (rawTag c = 1) (kMem (kReplace x y (rawLeft c)) (kReplace x y (rawRight c)))
+  (if (rawTag c = 3) (kEq (kReplace x y (rawLeft c)) (kReplace x y (rawRight c)))
+   (if (rawTag c = 2)
+     (if (rawLeft c = x) c (kAll (rawLeft c) (h @ rawRight c)))
+     (kImp (h @ rawLeft c) (h @ rawRight c))))) $;
+
+def kSubstStep (x y .h: nat): set =
+ $ \ h, kSubstBody x y (sfHistoryLength h) h $;
+
+def kSubst (c x y: nat): nat = $ srec (kSubstStep x y) c $;
+
+def kSubstHistory (c x y .a: nat): nat =
+ $ \. a e. upto c, srec (kSubstStep x y) a $;
+
+theorem kReplace_hit (x y: nat): $ kReplace x y x = y $;
+
+theorem kReplace_miss (x y a: nat): $ a != x -> kReplace x y a = a $;
+
+theorem kReplace_identity (x a: nat): $ kReplace x x a = a $;
+
+theorem kReplace_congr (H: wff) (x u y v a b: nat)
+ (hx: $ H -> x = u $) (hy: $ H -> y = v $) (ha: $ H -> a = b $):
+ $ H -> kReplace x y a = kReplace u v b $;
+
+theorem kSubstStep_value (x y h: nat):
+ $ kSubstStep x y @ h = kSubstBody x y (sfHistoryLength h) h $;
+
+theorem kSubstHistory_size (c x y: nat):
+ $ sfHistoryLength (kSubstHistory c x y) = c $;
+
+theorem kSubstHistory_lookup (c x y a: nat):
+ $ a < c -> kSubstHistory c x y @ a = kSubst a x y $;
+
+theorem kSubst_unfold (c x y: nat):
+ $ kSubst c x y = kSubstBody x y c (kSubstHistory c x y) $;
+
+theorem kSubst_congr (H: wff) (a b x u y v: nat)
+ (ha: $ H -> a = b $) (hx: $ H -> x = u $) (hy: $ H -> y = v $):
+ $ H -> kSubst a x y = kSubst b u v $;
+
+theorem kSubst_zero (x y: nat): $ kSubst 0 x y = 0 $;
+
+theorem kSubst_kMem (a b x y: nat):
+ $ kSubst (kMem a b) x y = kMem (kReplace x y a) (kReplace x y b) $;
+
+theorem kSubst_kEq (a b x y: nat):
+ $ kSubst (kEq a b) x y = kEq (kReplace x y a) (kReplace x y b) $;
+
+theorem kSubst_kAll (a b x y: nat):
+ $ kSubst (kAll a b) x y = if (a = x) (kAll a b) (kAll a (kSubst b x y)) $;
+
+theorem kSubst_kImp (a b x y: nat):
+ $ kSubst (kImp a b) x y = kImp (kSubst a x y) (kSubst b x y) $;
+
+def kBinderAllowed (x c h: nat): wff =
+$ ifp (c = 0) (0 = 0)
+ (ifp (rawTag c = 1 \/ rawTag c = 3) (0 = 0)
+  (ifp (rawTag c = 2) (x != rawLeft c /\ rawRight c e. h)
+    (rawLeft c e. h /\ rawRight c e. h))) $;
+
+def kBinderStep (x .c .h: nat): set = $ S\ c, {h | kBinderAllowed x c h} $;
+
+def kBinderAbsent (c x: nat): wff = $ srecp (kBinderStep x) c $;
+
+def kBinderPrevious (x c .a: nat): nat = $ sep (upto c) {a | kBinderAbsent a x} $;
+
+theorem kBinderStep_value (x c h: nat):
+ $ (c, h) e. kBinderStep x <-> kBinderAllowed x c h $;
+
+theorem kBinderPrevious_value (x c a: nat):
+ $ a e. kBinderPrevious x c <-> a < c /\ kBinderAbsent a x $;
+
+theorem kBinderAbsent_unfold (c x: nat):
+ $ kBinderAbsent c x <-> kBinderAllowed x c (kBinderPrevious x c) $;
+
+theorem kBinderAbsent_congr (H: wff) (a b x y: nat)
+ (ha: $ H -> a = b $) (hx: $ H -> x = y $):
+ $ H -> (kBinderAbsent a x <-> kBinderAbsent b y) $;
+
+theorem kBinderAbsent_zero (x: nat): $ kBinderAbsent 0 x $;
+
+theorem kBinderAbsent_kMem (a b x: nat): $ kBinderAbsent (kMem a b) x $;
+
+theorem kBinderAbsent_kEq (a b x: nat): $ kBinderAbsent (kEq a b) x $;
+
+theorem kBinderAbsent_kAll (a b x: nat):
+ $ kBinderAbsent (kAll a b) x <-> x != a /\ kBinderAbsent b x $;
+
+theorem kBinderAbsent_kImp (a b x: nat):
+ $ kBinderAbsent (kImp a b) x <-> kBinderAbsent a x /\ kBinderAbsent b x $;
+
+def kSubstIdentityClass (x .c: nat): set = $ {c | kSubst c x x = c} $;
+
+theorem kSubstIdentity_value (x c: nat):
+ $ c e. kSubstIdentityClass x <-> kSubst c x x = c $;
+
+theorem kSubst_identity (c x: nat): $ kSubst c x x = c $;
+
+def kSubstFreshClass (x y .c: nat): set =
+ $ {c | kFresh c x -> kSubst c x y = c} $;
+
+theorem kSubstFresh_value (x y c: nat):
+ $ c e. kSubstFreshClass x y <-> (kFresh c x -> kSubst c x y = c) $;
+
+theorem kSubst_fresh_identity (c x y: nat):
+ $ kFresh c x -> kSubst c x y = c $;
+
+theorem kSubst_kAll_stop (a b x y: nat):
+ $ a = x -> kSubst (kAll a b) x y = kAll a b $;
+
+theorem kSubst_kAll_open (a b x y: nat):
+ $ a != x -> kSubst (kAll a b) x y = kAll a (kSubst b x y) $;
+
+def kFreshBinderClass (x .c: nat): set =
+ $ {c | kFresh c x -> kBinderAbsent c x} $;
+
+theorem kFreshBinder_value (x c: nat):
+ $ c e. kFreshBinderClass x <-> (kFresh c x -> kBinderAbsent c x) $;
+
+theorem kFresh_binder_absent (c x: nat):
+ $ kFresh c x -> kBinderAbsent c x $;

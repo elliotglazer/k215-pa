@@ -1,0 +1,60 @@
+import "source_l_replacement_common_reflection.mm1";
+import "source_l_separation_image_rows.mm1";
+import "source_l_separation_image_transitive_syntax.mm1";
+
+theorem slSepTransAt_wf(Y:nat): $ sfWf (sfLSeparationTransitiveAt Y) $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) rfc_subset_wf));
+theorem slSepStageBody_wf(a Y:nat): $ sfWf (sfLSeparationStageTransBody a Y) $ =
+ '(ax_mp (ax_mp sfWf_imp sfCLOrdinalAt_wf) (ax_mp (ax_mp sfWf_imp sfCLHierarchyAt_wf) slSepTransAt_wf));
+
+pub theorem sfLSeparationTransitiveAt_rename(R:set)(Y:nat):
+ $ sfRename R 0 (sfLSeparationTransitiveAt Y) = sfLSeparationTransitiveAt (R @ Y) $ =
+ '(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq
+  (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))))
+  (eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq
+   (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (ax_mp sfRenameIndex_bound (mpbi ltsuc lt01S))))
+   (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))))))))))))));
+
+pub theorem sfLSeparationStageTransBody_rename(R:set)(a Y:nat):
+ $ sfRename R 0 (sfLSeparationStageTransBody a Y) = sfLSeparationStageTransBody (R @ a) (R @ Y) $ =
+ '(eqtr sfRename_sfImp (nsImp_eq
+   (eqtr (trud (sfRename_congr_formula (a1i sfLReplacementOrdinal_reflection))) (eqtr sfReflectionOrdinalAt_rename (eqcom sfLReplacementOrdinal_reflection)))
+   (eqtr sfRename_sfImp (nsImp_eq
+    (eqtr (trud (sfRename_congr_formula (a1i sfLReplacementHierarchy_binary))) (eqtr (sfORBinary_rename sfCLHierarchy_wf) (eqcom sfLReplacementHierarchy_binary)))
+    sfLSeparationTransitiveAt_rename))));
+
+theorem slSepTransAt_congr(Y Z:nat)(he:$ Y = Z $):
+ $ sfLSeparationTransitiveAt Y = sfLSeparationTransitiveAt Z $ =
+ '(nsAll_eq (nsImp_eq (nsMem_eq eqid (suceq he)) (sfCLSubseteq eqid (suceq he))));
+theorem slSepStageBody_congr(a b Y Z:nat)(ha:$ a = b $)(hY:$ Y = Z $):
+ $ sfLSeparationStageTransBody a Y = sfLSeparationStageTransBody b Z $ =
+ '(nsImp_eq (sfCLOrdinalAteq ha) (nsImp_eq (sfCLHierarchyAteq ha hY) (slSepTransAt_congr hY)));
+
+pub theorem sfLSeparationStageTrans_use(G a Y:nat)
+ (ht:$ nsLocal G sfLSeparationStageTransNormal $)
+ (ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a Y) $):
+ $ nsLocal G (sfLSeparationTransitiveAt Y) $ =
+ '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+   (mpbi (nsLocal_formula_eq (eqtr sfLSeparationStageTransBody_rename
+    (slSepStageBody_congr rfom_pair1 rfom_pair0)))
+    (ax_mp (rfcl_all_cons slSepStageBody_wf)
+     (ax_mp (rfcl_all_cons (ax_mp sfWf_all slSepStageBody_wf))
+      (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all (ax_mp sfWf_all slSepStageBody_wf)))) ht)))))
+   ho)) hl);
+
+pub theorem sfLSeparationTransitiveAt_use(G Y x:nat)
+ (ht:$ nsLocal G (sfLSeparationTransitiveAt Y) $)(hx:$ nsLocal G (sfMem x Y) $):
+ $ nsLocal G (sfCLSubset x Y) $ =
+ '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (eqtr rfom_trans_rename (rfom_trans_congr rfcc_cons_suc rfcc_cons_zero)))
+   (ax_mp (rfcl_all_cons rfom_trans_wf)
+    (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity slSepTransAt_wf)) ht)))) hx);
+
+pub theorem sfLSeparationReflected_subset(G start Y beta n count phi:nat)
+ (ht:$ nsLocal G sfLSeparationStageTransNormal $)
+ (hp:$ nsLocal G (sfCLReflectedPoint start (suc n) count phi beta Y) $):
+ $ nsLocal G (sfCLSubset start Y) $ =
+ '(sfLSeparationTransitiveAt_use
+   (sfLSeparationStageTrans_use ht
+    (ax_mp nsLocal_CE1 (ax_mp sfCLPoint_pair (ax_mp sfCLReflectedPoint_forget hp)))
+    (ax_mp nsLocal_CE2 (ax_mp sfCLPoint_pair (ax_mp sfCLReflectedPoint_forget hp))))
+   (sfLSeparationImageReflected_target hp));

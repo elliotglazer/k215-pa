@@ -1,0 +1,178 @@
+import "source_piece_pcf_syntax.mm1";
+import "source_theory_prefix.mm1";
+import "source_syntax_laws.mm1";
+
+theorem pcpb_bindex (n m c: nat) (h: $ n = m $): $ sfBound n c <-> sfBound m c $ =
+'(ax_mp srecpeq2 (preq1 h));
+theorem pcpb_bformula (n a b: nat) (h: $ a = b $): $ sfBound n a <-> sfBound n b $ =
+'(ax_mp srecpeq2 (preq2 h));
+theorem pcpb_bound_index (H: wff) (n m c: nat) (h: $ H -> n = m $):
+ $ H -> (sfBound n c <-> sfBound m c) $ = '(syl srecpeq2 (preq1d h));
+theorem pcpb_bound_formula (H: wff) (n a b: nat) (h: $ H -> a = b $):
+ $ H -> (sfBound n a <-> sfBound n b) $ = '(syl srecpeq2 (preq2d h));
+
+theorem pcpb_if_lt (H p: wff) (a b m: nat)
+ (ha: $ H -> a < m $) (hb: $ H -> b < m $):
+ $ H -> if p a b < m $ =
+'(ifbothd lteq1 lteq1 (syl ha anl) (syl hb anl));
+
+theorem pcpb_successor_map (n i: nat):
+ $ i < n -> sfSuccessorMap @ i < suc n $ =
+'(mpbird (lteq1d (a1i sfSuccessorMap_value)) (bi1 ltsuc));
+
+theorem pcpb_shift1_cond (H: wff) (n phi: nat) (hb: $ H -> sfBound (suc n) phi $):
+ $ H -> sfBound (suc (suc n)) (sfShift 1 phi) $ =
+(named '(mpbid
+ (pcpb_bound_formula (syl sfRename_successor (syl sfBound_wf hb)))
+ (mpbid (pcpb_bound_index (a1i add11))
+  (mpd (mpbird (pcpb_bound_index (a1i add11)) hb)
+   (a1i (ax_mp sfRename_bound (ax_gen pcpb_successor_map)))))));
+
+theorem pcpb_shift3_cond (H: wff) (n phi: nat) (hb: $ H -> sfBound (suc n) phi $):
+ $ H -> sfBound (suc (suc (suc (suc n)))) (sfPieceShift3 phi) $ =
+'(pcpb_shift1_cond (pcpb_shift1_cond (pcpb_shift1_cond hb)));
+
+theorem pcpb_ew_atom (n: nat): $ sfBound (suc (suc n)) (sfMem 0 1) $ =
+'(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem pcpb_ew_cond (H: wff) (domain matrix n: nat)
+ (hd: $ H -> sfBound 1 domain $)
+ (hb: $ H -> sfBound (suc (suc n)) matrix $):
+ $ H -> sfBound (suc n) (sfPieceEw domain matrix) $ =
+'(syl (bi2 sfBound_sfImp)
+ (iand
+  (syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd)
+   (iand (syl (ax_mp sfBound_mono_le le11S) hd) hb)))
+  (syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd)
+   (iand (a1i pcpb_ew_atom) hb)))));
+
+theorem pcpb_d0_cond (H: wff) (domain level count phi: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hb: $ H -> sfBound (suc count) phi $):
+ $ H -> sfBound (suc (suc count)) (sfPieceD0 domain level phi) $ =
+'(syl (bi2 sfBound_sfAll) (syl (bi2 sfBound_sfImp)
+ (iand (syl (ax_mp sfBound_mono_le (mpbi lesuc le11S)) hl)
+  (pcpb_ew_cond hd (pcpb_shift3_cond hb)))));
+
+pub theorem sfPieceD0_bound (domain level count phi: nat):
+ $ sfBound 1 domain -> sfBound 2 level -> sfBound (suc count) phi ->
+   sfBound (suc (suc count)) (sfPieceD0 domain level phi) $ =
+(named '(exp @ exp @ pcpb_d0_cond anll anlr anr));
+
+theorem pcpb_rotate_point (n i: nat):
+ $ i < suc (suc (suc n)) -> sfPieceRotate @ i < suc (suc (suc n)) $ =
+'(mpbird (lteq1d (a1i sfPieceRotate_value))
+ (pcpb_if_lt (a1i (mpbi ltsuc lt01S))
+  (pcpb_if_lt (a1i (mpbi ltsuc (mpbi ltsuc lt01S)))
+   (pcpb_if_lt (a1i lt01S) id))));
+
+theorem pcpb_rotate_bound (n previous: nat):
+ $ sfBound (suc (suc (suc n))) previous ->
+   sfBound (suc (suc (suc n))) (sfRename sfPieceRotate 0 previous) $ =
+(named '(syl (bi1 (pcpb_bindex add01))
+ (syl (ax_mp sfRename_bound (ax_gen pcpb_rotate_point)) (bi2 (pcpb_bindex add01)))));
+
+theorem pcpb_dn_atom (n: nat): $ sfBound (suc (suc (suc n))) (sfMem 0 2) $ =
+'(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+pub theorem sfPieceDnStep_bound (n previous: nat):
+ $ sfBound (suc (suc (suc n))) previous ->
+   sfBound (suc (suc n))
+    (sfAll (sfImp (sfMem 0 2) (sfRename sfPieceRotate 0 previous))) $ =
+'(syl (bi2 sfBound_sfAll) (syl (bi2 sfBound_sfImp)
+ (iand (a1i pcpb_dn_atom) pcpb_rotate_bound)));
+
+@_ def sfPieceDnBoundLaw (count body .n: nat): wff =
+ $ A. n (sfBound (count + suc (suc n)) body ->
+   sfBound (suc (suc n)) (sfPieceDn count body)) $;
+
+theorem pcpb_dn_at (count body n: nat):
+ $ sfPieceDnBoundLaw count body -> sfBound (count + suc (suc n)) body ->
+   sfBound (suc (suc n)) (sfPieceDn count body) $ =
+(named '(!! eale j ,eqtac));
+
+theorem pcpb_dn_base (body: nat): $ sfPieceDnBoundLaw 0 body $ =
+(named '(ax_gen (syl (bi2 (pcpb_bformula sfPieceDn_zero)) (bi1 (pcpb_bindex add01)))));
+
+theorem pcpb_dn_step_each (count body n: nat):
+ $ sfPieceDnBoundLaw count body -> sfBound (suc count + suc (suc n)) body ->
+   sfBound (suc (suc n)) (sfPieceDn (suc count) body) $ =
+(named '(exp @ mpbird (a1i (pcpb_bformula sfPieceDn_suc))
+ (syl sfPieceDnStep_bound
+  (mpd (mpbid (pcpb_bound_index (a1i addSass)) anr) (syl pcpb_dn_at anl)))));
+
+theorem pcpb_dn_step (count body: nat):
+ $ sfPieceDnBoundLaw count body -> sfPieceDnBoundLaw (suc count) body $ =
+(named '(!! iald n @ pcpb_dn_step_each));
+
+theorem pcpb_dn_all (count body: nat): $ sfPieceDnBoundLaw count body $ =
+(named @ induct '(ind) 'count 'pcpb_dn_base 'pcpb_dn_step);
+
+pub theorem sfPieceDn_bound (count body n: nat):
+ $ sfBound (count + suc (suc n)) body ->
+   sfBound (suc (suc n)) (sfPieceDn count body) $ =
+'(ax_mp pcpb_dn_at pcpb_dn_all);
+
+theorem pcpb_open_izero (i: nat): $ i = 0 -> sfPieceOpenMap 0 1 @ i = i $ =
+'(eqtrd (eqtrd (a1i sfPieceOpenMap_value) ifpos) (eqcomd id));
+theorem pcpb_open_notzero (i: nat): $ ~i = 0 -> sfPieceOpenMap 0 1 @ i = if (i = 1) 1 i $ =
+'(eqtrd (a1i sfPieceOpenMap_value) ifneg);
+theorem pcpb_inner_one (i: nat): $ i = 1 -> if (i = 1) 1 i = i $ =
+'(eqtrd ifpos (eqcomd id));
+theorem pcpb_inner_any (i: nat): $ if (i = 1) 1 i = i $ =
+'(cases pcpb_inner_one ifneg);
+theorem pcpb_open_identity_at (i: nat): $ sfPieceOpenMap 0 1 @ i = i $ =
+'(cases pcpb_open_izero (eqtrd pcpb_open_notzero (a1i pcpb_inner_any)));
+
+pub theorem sfPieceOpenMap_identity: $ sfPieceOpenMap 0 1 == sfIdentityMap $ =
+(named '(lameq @ ax_gen @ eqtr (eqcom sfPieceOpenMap_value) pcpb_open_identity_at));
+
+theorem pcpb_count2 (count: nat): $ count + 2 = suc (suc count) $ =
+'(eqtr addS (suceq add12));
+
+theorem pcpb_dn_binary_cond (H: wff) (domain level count phi: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hb: $ H -> sfBound (suc count) phi $):
+ $ H -> sfBound 2 (sfPieceDn count (sfPieceD0 domain level phi)) $ =
+'(mpd (mpbird (pcpb_bound_index (a1i pcpb_count2)) (pcpb_d0_cond hd hl hb))
+ (a1i sfPieceDn_bound));
+
+theorem pcpb_pc_zero_cond (H: wff) (domain level count phi: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hb: $ H -> sfBound (suc count) phi $):
+ $ H -> sfBound 2 (sfPiecePC domain level count phi 0 1) $ =
+'(mpbird
+ (pcpb_bound_formula (eqtrd
+  (a1i (trud (sfRename_congr_graph (a1i sfPieceOpenMap_identity))))
+  (syl sfRename_identity (syl sfBound_wf (pcpb_dn_binary_cond hd hl hb)))))
+ (pcpb_dn_binary_cond hd hl hb));
+
+pub theorem sfPiecePC_binary_bound (domain level count phi: nat):
+ $ sfBound 1 domain -> sfBound 2 level -> sfBound (suc count) phi ->
+   sfBound 2 (sfPiecePC domain level count phi 0 1) $ =
+(named '(exp @ exp @ pcpb_pc_zero_cond anll anlr anr));
+
+theorem pcpb_rows_each (H: wff) (domain level sb sc n i: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hv: $ H -> sfPieceTableValid sb sc n $):
+ $ H -> i < n -> sfBound 2 (sfPieceRows domain level sb sc 0 1 @ i) $ =
+(named '(exp @ mpbird (a1i (pcpb_bformula sfPieceRows_value))
+ (pcpb_pc_zero_cond (syl hd anl) (syl hl anl)
+  (mpd anr (syl sfPieceTableValid_at (syl hv anl))))));
+
+theorem pcpb_rows_bound (H: wff) (domain level sb sc n: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hv: $ H -> sfPieceTableValid sb sc n $):
+ $ H -> sfCLRowBounds (sfPieceRows domain level sb sc 0 1) 2 n $ =
+(named '(!! iald i @ pcpb_rows_each hd hl hv));
+
+theorem pcpb_binary_cond (H: wff) (domain level sb sc n: nat)
+ (hd: $ H -> sfBound 1 domain $) (hl: $ H -> sfBound 2 level $)
+ (hv: $ H -> sfPieceTableValid sb sc n $):
+ $ H -> sfBound 2 (sfPieceBinary domain level sb sc n) $ =
+'(syl sfCLFold_bound (pcpb_rows_bound hd hl hv));
+
+pub theorem sfPieceBinary_bound (domain level sb sc n: nat):
+ $ sfBound 1 domain -> sfBound 2 level -> sfPieceTableValid sb sc n ->
+   sfBound 2 (sfPieceBinary domain level sb sc n) $ =
+(named '(exp @ exp @ pcpb_binary_cond anll anlr anr));

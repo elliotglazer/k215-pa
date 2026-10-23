@@ -1,0 +1,41 @@
+import "pa_source_interpretation_terms.mm1";
+
+import "source_renaming_laws.mm1";
+
+@_ abstract def paTermVariableClosed (P: set) (n .i: nat): wff = $ A. i (i < n -> paTermVariable i e. P) $;
+
+@_ abstract def paTermSuccessorClosed (P: set) (.a: nat): wff = $ A. a (a e. P -> paTermSuccessor a e. P) $;
+
+@_ abstract def paTermBinaryClosed (P: set) (.a .b: nat): wff = $ A. a A. b (a e. P /\ b e. P -> (paTermAddition a b e. P /\ paTermMultiplication a b e. P)) $;
+
+@_ abstract def paTermConstructionClosed (P: set) (n: nat): wff = $ paTermZero e. P /\ (paTermVariableClosed P n /\ (paTermSuccessorClosed P /\ paTermBinaryClosed P)) $;
+
+theorem paTSI_transport (P: set) (G: wff) (a b: nat) (he: $ G -> a = b $) (hp: $ G -> b e. P $): $ G -> a e. P $ = (named '(mpbird (eleq1d he) hp));
+
+theorem paTSI_variable_at (P: set) (n a: nat): $ paTermVariableClosed P n -> a < n -> paTermVariable a e. P $ = (named '(!! eale i ,eqtac));
+
+theorem paTSI_successor_at (P: set) (a: nat): $ paTermSuccessorClosed P -> a e. P -> paTermSuccessor a e. P $ = (named '(!! eale i ,eqtac));
+
+theorem paTSI_binary_at_left (P: set) (a: nat): $ paTermBinaryClosed P -> A. j (a e. P /\ j e. P -> (paTermAddition a j e. P /\ paTermMultiplication a j e. P)) $ = (named '(!! eale i ,eqtac));
+
+theorem paTSI_binary_at_right (P: set) (a b: nat): $ A. j (a e. P /\ j e. P -> (paTermAddition a j e. P /\ paTermMultiplication a j e. P)) -> (a e. P /\ b e. P) -> (paTermAddition a b e. P /\ paTermMultiplication a b e. P) $ = (named '(!! eale j ,eqtac));
+
+theorem paTSI_binary_at (P: set) (a b: nat): $ paTermBinaryClosed P -> (a e. P /\ b e. P) -> (paTermAddition a b e. P /\ paTermMultiplication a b e. P) $ = (named '(syl paTSI_binary_at_right paTSI_binary_at_left));
+
+theorem paTSI_ind_at (P: set) (n c a: nat): $ A. j (j < c -> (paTermBound n j -> j e. P)) -> a < c -> paTermBound n a -> a e. P $ = (named '(!! eale j ,eqtac));
+
+theorem paTSI_history {j: nat} (P: set) (G: wff j) (n c a: nat) (hi: $ G -> A. j (j < c -> (paTermBound n j -> j e. P)) $) (ha: $ G -> a < c $): $ G -> (n, a) e. paTermBoundPrevious n c -> a e. P $ = (named '(syl5 (syl anr (bi1 paTermBoundPrevious_value)) (mpd ha (syl paTSI_ind_at hi))));
+
+theorem paTSI_variable (P: set) (G: wff) (n c: nat) (hc: $ G -> paTermConstructionClosed P n $) (ht: $ G -> sfTag c = 1 $) (hz: $ G -> sfRight c = 0 $) (hb: $ G -> sfLeft c < n $): $ G -> c e. P $ = (named '(paTSI_transport (eqtrd (sfRL_rebuild ht) (sfMem_congr_right hz)) (sylc paTSI_variable_at (syl anrl hc) hb)));
+
+theorem paTSI_successor (P: set) (G: wff) (n c: nat) (hc: $ G -> paTermConstructionClosed P n $) (ht: $ G -> sfTag c = 2 $) (hz: $ G -> sfRight c = 0 $) (hl: $ G -> sfLeft c e. P $): $ G -> c e. P $ = (named '(paTSI_transport (eqtrd (sfRL_rebuild ht) (sfEq_congr_right hz)) (sylc paTSI_successor_at (syl anrl (syl anr hc)) hl)));
+
+theorem paTSI_addition (P: set) (G: wff) (n c: nat) (hc: $ G -> paTermConstructionClosed P n $) (ht: $ G -> sfTag c = 3 $) (hl: $ G -> sfLeft c e. P $) (hr: $ G -> sfRight c e. P $): $ G -> c e. P $ = (named '(paTSI_transport (sfRL_rebuild ht) (syl anl (sylc paTSI_binary_at (syl anr (syl anr (syl anr hc))) (iand hl hr)))));
+
+theorem paTSI_multiplication (P: set) (G: wff) (n c: nat) (hc: $ G -> paTermConstructionClosed P n $) (ht: $ G -> sfTag c = 4 $) (hl: $ G -> sfLeft c e. P $) (hr: $ G -> sfRight c e. P $): $ G -> c e. P $ = (named '(paTSI_transport (sfRL_rebuild ht) (syl anr (sylc paTSI_binary_at (syl anr (syl anr (syl anr hc))) (iand hl hr)))));
+
+theorem paTSI_allowed {j: nat} (P: set) (G: wff j) (n c: nat) (hc: $ G -> paTermConstructionClosed P n $) (hi: $ G -> A. j (j < c -> (paTermBound n j -> j e. P)) $): $ G -> paTermBoundAllowed n c (paTermBoundPrevious n c) -> c e. P $ = (named '(sfBound_ifp_sound (exp @ exp @ paTSI_transport anlr (syl anl (syl hc anll))) (sfBound_ifp_sound (exp @ exp @ paTSI_variable (syl hc anll) anlr anrl anrr) (sfBound_ifp_sound (exp @ exp @ paTSI_successor (syl hc anll) anlr anrl (mpd anrr (paTSI_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S)))))) (sfBound_ifp_sound (exp @ exp @ paTSI_addition (syl hc anll) anlr (mpd anrl (paTSI_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))))) (mpd anrr (paTSI_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S)))))) (sfBound_ifp_sound (exp @ exp @ paTSI_multiplication (syl hc anll) anlr (mpd anrl (paTSI_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))))) (mpd anrr (paTSI_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S)))))) (a1i (absurdr eqid))))))));
+
+theorem paTSI_actual {j: nat} (P: set) (G: wff j) (n c: nat) (hc: $ G -> paTermConstructionClosed P n $) (hi: $ G -> A. j (j < c -> (paTermBound n j -> j e. P)) $): $ G -> paTermBound n c -> c e. P $ = (named '(syl5bi paTermBound_unfold (paTSI_allowed hc hi)));
+
+pub theorem paTermBound_induction (P: set) (n c: nat): $ paTermConstructionClosed P n -> paTermBound n c -> c e. P $ = (named '(!! indstr j y {,eqtac : $ j = c -> ((paTermBound n j -> j e. P) <-> (paTermBound n c -> c e. P)) $} ,eqtac (paTSI_actual anl anr)));

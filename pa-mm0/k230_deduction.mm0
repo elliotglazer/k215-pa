@@ -1,0 +1,44 @@
+import "k230_derived.mm0";
+
+-- Contextual deduction uses only assumptions, already proved kProvable
+-- seeds (kTheorems), and earlier modus ponens. There is no GEN rule here.
+def kHypRules (G: nat) (.c .l .b: nat): set =
+$ S\ c, {l | c IN G \/ (c e. kTheorems \/
+    E. b (b IN l /\ kImp b c IN l))} $;
+def kHypDerives (G p a: nat): wff = $ traceDerives (kHypRules G) p a $;
+def kHypProvable (G a: nat) (.p: nat): wff = $ E. p kHypDerives G p a $;
+
+theorem kHypRules_value {b: nat} (G c l: nat):
+  $ (c, l) e. kHypRules G <-> c IN G \/
+    (c e. kTheorems \/ E. b (b IN l /\ kImp b c IN l)) $;
+theorem kHypRules_stable (G: nat): $ traceAppendStable (kHypRules G) $;
+theorem kHypProvable_intro (G p a: nat): $ kHypDerives G p a -> kHypProvable G a $;
+theorem kHypProvable_assumption (G a: nat): $ a IN G -> kHypProvable G a $;
+theorem kHypProvable_seed (G a: nat): $ kProvable a -> kHypProvable G a $;
+theorem kHypDerives_mp (G p q a b: nat):
+  $ kHypDerives G p a -> kHypDerives G q (kImp a b) ->
+    kHypDerives G (b : (p ++ q)) b $;
+theorem kHypProvable_mp (G a b: nat):
+  $ kHypProvable G a -> kHypProvable G (kImp a b) -> kHypProvable G b $;
+
+theorem kHypProvable_imp_weaken (G h a: nat):
+  $ kHypProvable G a -> kHypProvable G (kImp h a) $;
+theorem kHypProvable_imp_mp (G h a b: nat):
+  $ kHypProvable G (kImp h a) -> kHypProvable G (kImp h (kImp a b)) ->
+    kHypProvable G (kImp h b) $;
+def kDeductionClass (G h: nat) (.a: nat): set =
+$ {a | kHypProvable G (kImp h a)} $;
+theorem kDeductionClass_value (G h a: nat):
+  $ a e. kDeductionClass G h <-> kHypProvable G (kImp h a) $;
+theorem kHypRules_deduction_sound (G h: nat):
+  $ traceRuleSound (kHypRules (h : G)) (kDeductionClass G h) $;
+theorem kHypDerives_deduction (G h p a: nat):
+  $ kHypDerives (h : G) p a -> kHypProvable G (kImp h a) $;
+theorem kHypProvable_deduction (G h a: nat):
+  $ kHypProvable (h : G) a -> kHypProvable G (kImp h a) $;
+theorem kHypRules_empty_sound: $ traceRuleSound (kHypRules 0) kTheorems $;
+theorem kHypDerives_empty (p a: nat): $ kHypDerives 0 p a -> kProvable a $;
+theorem kHypProvable_empty (a: nat): $ kHypProvable 0 a -> kProvable a $;
+theorem kHypProvable_empty_iff (a: nat): $ kHypProvable 0 a <-> kProvable a $;
+theorem kHypProvable_discharge (h a: nat):
+  $ kHypProvable (h : 0) a -> kProvable (kImp h a) $;

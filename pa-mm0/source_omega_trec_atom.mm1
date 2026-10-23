@@ -1,0 +1,67 @@
+-- Four-place instance of a step formula S for transfinite recursion (lane L08).
+-- sfTRS S a b c d renames the free variables 0, 1, 2 of S to a, b, c and every other free
+-- variable to d: the Rocq Z_trec convention SR S f xi v p = S[f .: xi .: v .: p .: (fun _ => p)].
+-- Written by hand after source_omega_recursion_binary.mm1 (the two-place sfORBinary).
+import "source_theory_prefix.mm1";
+
+import "source_substitution_renaming.mm1";
+
+import "source_renaming_extensional.mm1";
+
+do { (set-timeout 5000) };
+
+def sfTRMap (a b c d .i: nat): set = $ \ i, if (i = 0) a (if (i = 1) b (if (i = 2) c d)) $;
+
+def sfTRS (phi a b c d: nat): nat = $ sfRename (sfTRMap a b c d) 0 phi $;
+
+pub theorem sfTRMap_value (a b c d i: nat): $ sfTRMap a b c d @ i = if (i = 0) a (if (i = 1) b (if (i = 2) c d)) $ = (named '(!! applame j ,eqtac));
+
+theorem trm_v0 (a b c d i: nat): $ i = 0 -> sfTRMap a b c d @ i = a $ = (named '(eqtrd (a1i sfTRMap_value) ifpos));
+
+theorem trm_v1 (a b c d i: nat): $ ~ i = 0 /\ i = 1 -> sfTRMap a b c d @ i = b $ = (named '(eqtrd (a1i sfTRMap_value) (eqtrd (syl ifneg anl) (syl ifpos anr))));
+
+theorem trm_v2 (a b c d i: nat): $ (~ i = 0 /\ ~ i = 1) /\ i = 2 -> sfTRMap a b c d @ i = c $ = (named '(eqtrd (a1i sfTRMap_value) (eqtrd (syl ifneg (syl anl anl)) (eqtrd (syl ifneg (syl anr anl)) (syl ifpos anr)))));
+
+theorem trm_v3 (a b c d i: nat): $ (~ i = 0 /\ ~ i = 1) /\ ~ i = 2 -> sfTRMap a b c d @ i = d $ = (named '(eqtrd (a1i sfTRMap_value) (eqtrd (syl ifneg (syl anl anl)) (eqtrd (syl ifneg (syl anr anl)) (syl ifneg anr)))));
+
+theorem trm_c0 (R: set) (a b c d i: nat): $ i = 0 -> sfComposeMap R (sfTRMap a b c d) @ i = sfTRMap (R @ a) (R @ b) (R @ c) (R @ d) @ i $ = (named '(eqtrd (a1i sfComposeMap_value) (eqtrd (appeq2d trm_v0) (eqcomd trm_v0))));
+
+theorem trm_c1 (R: set) (a b c d i: nat): $ ~ i = 0 /\ i = 1 -> sfComposeMap R (sfTRMap a b c d) @ i = sfTRMap (R @ a) (R @ b) (R @ c) (R @ d) @ i $ = (named '(eqtrd (a1i sfComposeMap_value) (eqtrd (appeq2d trm_v1) (eqcomd trm_v1))));
+
+theorem trm_c2 (R: set) (a b c d i: nat): $ (~ i = 0 /\ ~ i = 1) /\ i = 2 -> sfComposeMap R (sfTRMap a b c d) @ i = sfTRMap (R @ a) (R @ b) (R @ c) (R @ d) @ i $ = (named '(eqtrd (a1i sfComposeMap_value) (eqtrd (appeq2d trm_v2) (eqcomd trm_v2))));
+
+theorem trm_c3 (R: set) (a b c d i: nat): $ (~ i = 0 /\ ~ i = 1) /\ ~ i = 2 -> sfComposeMap R (sfTRMap a b c d) @ i = sfTRMap (R @ a) (R @ b) (R @ c) (R @ d) @ i $ = (named '(eqtrd (a1i sfComposeMap_value) (eqtrd (appeq2d trm_v3) (eqcomd trm_v3))));
+
+pub theorem sfTRMap_compose (R: set) (a b c d i: nat): $ sfComposeMap R (sfTRMap a b c d) @ i = sfTRMap (R @ a) (R @ b) (R @ c) (R @ d) @ i $ = (named '(cases trm_c0 (casesda trm_c1 (casesda trm_c2 trm_c3))));
+
+theorem trm_k0 (a b c d aP bP cP dP i: nat) (ha: $ a = aP $) (hb: $ b = bP $) (hc: $ c = cP $) (hd: $ d = dP $): $ i = 0 -> sfTRMap a b c d @ i = sfTRMap aP bP cP dP @ i $ = (named '(eqtrd trm_v0 (eqtrd (a1i ha) (eqcomd trm_v0))));
+
+theorem trm_k1 (a b c d aP bP cP dP i: nat) (ha: $ a = aP $) (hb: $ b = bP $) (hc: $ c = cP $) (hd: $ d = dP $): $ ~ i = 0 /\ i = 1 -> sfTRMap a b c d @ i = sfTRMap aP bP cP dP @ i $ = (named '(eqtrd trm_v1 (eqtrd (a1i hb) (eqcomd trm_v1))));
+
+theorem trm_k2 (a b c d aP bP cP dP i: nat) (ha: $ a = aP $) (hb: $ b = bP $) (hc: $ c = cP $) (hd: $ d = dP $): $ (~ i = 0 /\ ~ i = 1) /\ i = 2 -> sfTRMap a b c d @ i = sfTRMap aP bP cP dP @ i $ = (named '(eqtrd trm_v2 (eqtrd (a1i hc) (eqcomd trm_v2))));
+
+theorem trm_k3 (a b c d aP bP cP dP i: nat) (ha: $ a = aP $) (hb: $ b = bP $) (hc: $ c = cP $) (hd: $ d = dP $): $ (~ i = 0 /\ ~ i = 1) /\ ~ i = 2 -> sfTRMap a b c d @ i = sfTRMap aP bP cP dP @ i $ = (named '(eqtrd trm_v3 (eqtrd (a1i hd) (eqcomd trm_v3))));
+
+theorem trm_congr_map (a b c d aP bP cP dP i: nat) (ha: $ a = aP $) (hb: $ b = bP $) (hc: $ c = cP $) (hd: $ d = dP $): $ sfTRMap a b c d @ i = sfTRMap aP bP cP dP @ i $ = (named '(cases (trm_k0 ha hb hc hd) (casesda (trm_k1 ha hb hc hd) (casesda (trm_k2 ha hb hc hd) (trm_k3 ha hb hc hd)))));
+
+theorem trm_b0 (a b c d i m: nat) (ha: $ a < m $) (hb: $ b < m $) (hc: $ c < m $) (hd: $ d < m $): $ i = 0 -> sfTRMap a b c d @ i < m $ = (named '(mpbird (lteq1d trm_v0) (a1i ha)));
+
+theorem trm_b1 (a b c d i m: nat) (ha: $ a < m $) (hb: $ b < m $) (hc: $ c < m $) (hd: $ d < m $): $ ~ i = 0 /\ i = 1 -> sfTRMap a b c d @ i < m $ = (named '(mpbird (lteq1d trm_v1) (a1i hb)));
+
+theorem trm_b2 (a b c d i m: nat) (ha: $ a < m $) (hb: $ b < m $) (hc: $ c < m $) (hd: $ d < m $): $ (~ i = 0 /\ ~ i = 1) /\ i = 2 -> sfTRMap a b c d @ i < m $ = (named '(mpbird (lteq1d trm_v2) (a1i hc)));
+
+theorem trm_b3 (a b c d i m: nat) (ha: $ a < m $) (hb: $ b < m $) (hc: $ c < m $) (hd: $ d < m $): $ (~ i = 0 /\ ~ i = 1) /\ ~ i = 2 -> sfTRMap a b c d @ i < m $ = (named '(mpbird (lteq1d trm_v3) (a1i hd)));
+
+theorem trm_map_bound (a b c d i m: nat) (ha: $ a < m $) (hb: $ b < m $) (hc: $ c < m $) (hd: $ d < m $): $ sfTRMap a b c d @ i < m $ = (named '(cases (trm_b0 ha hb hc hd) (casesda (trm_b1 ha hb hc hd) (casesda (trm_b2 ha hb hc hd) (trm_b3 ha hb hc hd)))));
+
+pub theorem sfTRS_congr (phi a b c d aP bP cP dP: nat) (hf: $ sfWf phi $) (ha: $ a = aP $) (hb: $ b = bP $) (hc: $ c = cP $) (hd: $ d = dP $): $ sfTRS phi a b c d = sfTRS phi aP bP cP dP $ = (named '(ax_mp (sfRename_extensional (ax_gen (trm_congr_map ha hb hc hd))) hf));
+
+pub theorem sfTRS_wf (phi a b c d: nat): $ sfWf (sfTRS phi a b c d) $ = 'sfRename_wf;
+
+pub theorem sfTRS_rename_depth (R: set) (k phi a b c d: nat) (hf: $ sfWf phi $): $ sfRename R k (sfTRS phi a b c d) = sfTRS phi (sfRenameDepthMap R k @ a) (sfRenameDepthMap R k @ b) (sfRenameDepthMap R k @ c) (sfRenameDepthMap R k @ d) $ = (named '(eqtr (ax_mp sfRename_mixed_compose hf) (ax_mp (sfRename_extensional (ax_gen sfTRMap_compose)) hf)));
+
+pub theorem sfTRS_shift (phi k a b c d: nat) (hf: $ sfWf phi $): $ sfShift k (sfTRS phi a b c d) = sfTRS phi (sfShiftIndex k a) (sfShiftIndex k b) (sfShiftIndex k c) (sfShiftIndex k d) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfTRS_wf)) (eqtr (sfTRS_rename_depth hf) (sfTRS_congr hf (eqtr sfRenameDepthMap_value sfRenameIndex_successor) (eqtr sfRenameDepthMap_value sfRenameIndex_successor) (eqtr sfRenameDepthMap_value sfRenameIndex_successor) (eqtr sfRenameDepthMap_value sfRenameIndex_successor)))));
+
+pub theorem sfTRS_subst (phi k t a b c d: nat) (hf: $ sfWf phi $): $ sfSubst k t (sfTRS phi a b c d) = sfTRS phi (sfSubstIndex k t a) (sfSubstIndex k t b) (sfSubstIndex k t c) (sfSubstIndex k t d) $ = (named '(eqtr (ax_mp sfSubst_rename_compose hf) (eqtr (ax_mp (sfRename_extensional (ax_gen sfTRMap_compose)) hf) (sfTRS_congr hf sfSubstDepthMap_value sfSubstDepthMap_value sfSubstDepthMap_value sfSubstDepthMap_value))));
+
+pub theorem sfTRS_bound (phi a b c d m: nat) (hb4: $ sfBound 4 phi $) (ha: $ a < m $) (hb: $ b < m $) (hc: $ c < m $) (hd: $ d < m $): $ sfBound m (sfTRS phi a b c d) $ = (named '(mpbi (sfBoundeq add01 eqid) (ax_mp (ax_mp sfRename_bound (ax_gen (a1i (trm_map_bound ha hb hc hd)))) (mpbir (sfBoundeq add01 eqid) hb4))));

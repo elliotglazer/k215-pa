@@ -1,0 +1,28 @@
+import "quotation_supported_environment.mm0";
+import "quotation_source_substitution.mm0";
+
+theorem sqQuoteHygiene_from_below (E: set) (n t k c: nat):
+ $ 0 < k -> t < k -> sqEnvBelow E n k -> sqQuoteHygiene E n t k c $;
+
+theorem sqEnvironmentSafe_live_below (S n t k: nat):
+ $ sqEnvironmentSafe S n t k -> sqEnvBelow (sqNumericEnvironment S) n k $;
+
+theorem sqEnvironmentSafe_hygiene (S n t k c: nat):
+ $ sqEnvironmentSafe S n t k -> sqQuoteHygiene (sqNumericEnvironment S) n t k c $;
+
+theorem sqEnvBelow_cons (E: set) (n k y: nat):
+ $ y < k -> sqEnvBelow E n k -> sqEnvBelow (sqEnvCons y E) (suc n) k $;
+
+theorem sqEnvBelow_successor (E: set) (n k: nat):
+ $ sqEnvBelow E n k -> sqEnvBelow E n (suc k) $;
+
+theorem sqSupported_AllE (H S n t k i a: nat):
+ $ sqEnvironmentSafe S n t k -> sqDomainSupport H S t -> i < n -> sfBound (suc n) a ->
+ kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfAll a)) ->
+ kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfSubst 0 i a)) $;
+
+theorem sqSupported_ExI (H S n t k i a: nat):
+ $ sqEnvironmentSafe S n t k -> sqDomainSupport H S t -> i < n -> sfBound (suc n) a ->
+ kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfSubst 0 i a)) ->
+ kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfEx a)) $;
+

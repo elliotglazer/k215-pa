@@ -1,0 +1,21 @@
+
+import "source_piece_pcf_join.mm0";
+
+def sfPieceRowWitnesses(domain level sb sc n .i:nat):wff =
+ $ A. i (i < n ->
+   (sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPiecePC domain level (sfPieceCount sb sc i) (sfPieceMatrix sb sc i) 0 1)) /\
+    sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfPiecePC domain level (sfPieceCount sb sc i) (sfPieceMatrix sb sc i) 0 1)))) $;
+def sfPieceTableWitnesses(domain level sb sc n:nat):wff =
+ $ sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPieceBinary domain level sb sc n)) /\
+   sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfPieceBinary domain level sb sc n)) $;
+def sfPieceTableWitnessLaw(domain level sb sc n:nat):wff =
+ $ sfPieceRowWitnesses domain level sb sc n -> sfPieceTableWitnesses domain level sb sc n $;
+
+
+
+
+
+
+theorem sfPieceTable_join_induction(domain level sb sc n:nat)
+ (ho:$ sfTheoryProvable zfrAxioms (sfEx sfLeastOrdinalPredicate) $):
+ $ sfPieceTableWitnessLaw domain level sb sc n $;

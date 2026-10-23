@@ -1,0 +1,79 @@
+import "source_constructors.mm1";
+
+@_ def sfAllowed (n h: nat): wff =
+$ n = 0 \/ ((sfTag n = 1 \/ sfTag n = 2) \/ (
+  ((sfTag n = 3 \/ sfTag n = 4 \/ sfTag n = 5) /\
+    sfLeft n e. h /\ sfRight n e. h) \/
+  ((sfTag n = 6 \/ sfTag n = 7) /\
+    sfRight n = 0 /\ sfLeft n e. h))) $;
+
+@_ abstract def sfSyntaxStep (.n .h: nat): set = $ S\ n, {h | sfAllowed n h} $;
+
+@_ abstract def sfWf (n: nat): wff = $ srecp sfSyntaxStep n $;
+
+@_ abstract def sfPrevious (n .i: nat): nat = $ sep (upto n) {i | sfWf i} $;
+
+pub theorem sfSyntaxStep_value (n h: nat):
+  $ (n, h) e. sfSyntaxStep <-> sfAllowed n h $ =
+(named '(elsabe @ elabed ,eqtac));
+
+pub theorem sfPrevious_value (n a: nat):
+  $ a e. sfPrevious n <-> a < n /\ sfWf a $ =
+(named '(bitr elsep @ bitr (aneq1i elupto) (aneq2i (elabe ,eqtac))));
+
+pub theorem sfWf_unfold (n: nat):
+  $ sfWf n <-> sfAllowed n (sfPrevious n) $ =
+(named '(bitr srecpval sfSyntaxStep_value));
+
+pub theorem sfAllowed_zero (h: nat): $ sfAllowed 0 h $ = '(ax_mp orl eqid);
+pub theorem sfAllowed_atom (n h: nat):
+  $ sfTag n = 1 \/ sfTag n = 2 -> sfAllowed n h $ = '(syl orr orl);
+pub theorem sfAllowed_binary (n h: nat):
+  $ ((sfTag n = 3 \/ sfTag n = 4 \/ sfTag n = 5) /\
+    sfLeft n e. h /\ sfRight n e. h) -> sfAllowed n h $ =
+'(syl orr @ syl orr orl);
+pub theorem sfAllowed_quantifier (n h: nat):
+  $ ((sfTag n = 6 \/ sfTag n = 7) /\
+    sfRight n = 0 /\ sfLeft n e. h) -> sfAllowed n h $ =
+'(syl orr @ syl orr orr);
+
+pub theorem sfWf_bot: $ sfWf sfBot $ = '(mpbir sfWf_unfold sfAllowed_zero);
+pub theorem sfWf_mem (i j: nat): $ sfWf (sfMem i j) $ =
+'(mpbir sfWf_unfold @ ax_mp sfAllowed_atom @ ax_mp orl sfMem_tag);
+pub theorem sfWf_eq (i j: nat): $ sfWf (sfEq i j) $ =
+'(mpbir sfWf_unfold @ ax_mp sfAllowed_atom @ ax_mp orr sfEq_tag);
+
+pub theorem sfPrevious_intro (n a: nat): $ a < n -> sfWf a -> a e. sfPrevious n $ =
+'(exp @ bi2 sfPrevious_value);
+
+theorem sfWf_binary_intro (n a b: nat)
+  (ht: $ sfTag n = 3 \/ sfTag n = 4 \/ sfTag n = 5 $)
+  (hl: $ sfLeft n = a $) (hr: $ sfRight n = b $)
+  (hll: $ a < n $) (hrl: $ b < n $):
+  $ sfWf a -> sfWf b -> sfWf n $ =
+'(exp @ syl (bi2 sfWf_unfold) @ syl sfAllowed_binary @ iand
+  (iand (a1i ht) (syl (bi2 (eleq1 hl)) @ syl (sfPrevious_intro hll) anl))
+  (syl (bi2 (eleq1 hr)) @ syl (sfPrevious_intro hrl) anr));
+
+pub theorem sfWf_and (a b: nat): $ sfWf a -> sfWf b -> sfWf (sfAnd a b) $ =
+'(sfWf_binary_intro (ax_mp orl (ax_mp orl sfAnd_tag))
+  sfAnd_left sfAnd_right sfAnd_left_lt sfAnd_right_lt);
+pub theorem sfWf_or (a b: nat): $ sfWf a -> sfWf b -> sfWf (sfOr a b) $ =
+'(sfWf_binary_intro (ax_mp orl (ax_mp orr sfOr_tag))
+  sfOr_left sfOr_right sfOr_left_lt sfOr_right_lt);
+pub theorem sfWf_imp (a b: nat): $ sfWf a -> sfWf b -> sfWf (sfImp a b) $ =
+'(sfWf_binary_intro (ax_mp orr sfImp_tag)
+  sfImp_left sfImp_right sfImp_left_lt sfImp_right_lt);
+
+theorem sfWf_quantifier_intro (n a: nat)
+  (ht: $ sfTag n = 6 \/ sfTag n = 7 $)
+  (hz: $ sfRight n = 0 $) (hl: $ sfLeft n = a $) (hb: $ a < n $):
+  $ sfWf a -> sfWf n $ =
+'(syl (bi2 sfWf_unfold) @ syl sfAllowed_quantifier @ iand
+  (iand (a1i ht) (a1i hz))
+  (syl (bi2 (eleq1 hl)) (sfPrevious_intro hb)));
+
+pub theorem sfWf_all (a: nat): $ sfWf a -> sfWf (sfAll a) $ =
+'(sfWf_quantifier_intro (ax_mp orl sfAll_tag) sfAll_right sfAll_left sfAll_body_lt);
+pub theorem sfWf_ex (a: nat): $ sfWf a -> sfWf (sfEx a) $ =
+'(sfWf_quantifier_intro (ax_mp orr sfEx_tag) sfEx_right sfEx_left sfEx_body_lt);

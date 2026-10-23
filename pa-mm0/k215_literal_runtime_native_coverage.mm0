@@ -1,0 +1,20 @@
+import "k215_literal_runtime_native_ranges.mm0";
+import "k215_literal_runtime_ordinals.mm0";
+
+def k215PNativeRow (pc: nat) (.g .regs .w .r: nat): wff =
+ $ A. g A. regs A. w A. r k215PNativeOutcome g (k215PState pc regs) w r $;
+
+def k215PNativeSpan (lo hi: nat) (.pc: nat): wff =
+ $ A. pc (lo <= pc /\ pc < hi -> k215PNativeRow pc) $;
+
+theorem k215PNativeRow_at (pc g regs w r: nat):
+ $ k215PNativeRow pc -> k215PNativeOutcome g (k215PState pc regs) w r $;
+
+theorem k215PNativeSpan_at (lo hi pc: nat):
+ $ k215PNativeSpan lo hi -> lo <= pc /\ pc < hi -> k215PNativeRow pc $;
+
+theorem k215PNativeSpan_single (lo: nat):
+ $ k215PNativeRow lo -> k215PNativeSpan lo (suc lo) $;
+
+theorem k215PNativeSpan_join (lo mid hi: nat):
+ $ k215PNativeSpan lo mid /\ k215PNativeSpan mid hi -> k215PNativeSpan lo hi $;

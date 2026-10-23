@@ -1,0 +1,27 @@
+import "source_reflection_transfer_piece.mm0";
+
+def sfReflectionTupleRows(T:set)(start y .i:nat):set = $ \ i, sfMem ((T @ i) + start) y $;
+
+def sfReflectionTuple(T:set)(start y count:nat):nat = $ sfCLFold (sfReflectionTupleRows T start y) count $;
+
+theorem sfReflectionTupleRows_at(T:set)(start y i:nat): $ sfReflectionTupleRows T start y @ i = sfMem ((T @ i) + start) y $;
+
+theorem sfReflectionTuple_zero(T:set)(start y:nat): $ sfReflectionTuple T start y 0 = sfCLTrue $;
+
+theorem sfReflectionTuple_suc(T:set)(start y n:nat): $ sfReflectionTuple T start y (suc n) = sfAnd (sfReflectionTuple T start y n) (sfMem ((T @ n) + start) y) $;
+
+theorem sfReflectionTuple_wf(T:set)(start y n:nat): $ sfWf (sfReflectionTuple T start y n) $;
+
+theorem sfReflectionTuple_prefix(T:set)(G start y n:nat): $ nsLocal G (sfReflectionTuple T start y (suc n)) -> nsLocal G (sfReflectionTuple T start y n) $;
+
+theorem sfReflectionTuple_last(T:set)(G start y n:nat): $ nsLocal G (sfReflectionTuple T start y (suc n)) -> nsLocal G (sfMem ((T @ n) + start) y) $;
+
+theorem sfReflectionTuple_append(T:set)(G start y n:nat): $ nsLocal G (sfReflectionTuple T start y n) -> nsLocal G (sfMem ((T @ n) + start) y) -> nsLocal G (sfReflectionTuple T start y (suc n)) $;
+
+theorem sfReflectionTuple_mono(T:set)(G start y z n:nat)(hs:$ nsLocal G (sfCLSubset y z) $): $ nsLocal G (sfReflectionTuple T start y n) -> nsLocal G (sfReflectionTuple T start z n) $;
+
+theorem sfReflectionTuple_shift(T:set)(k start y n:nat)(hk:$ k <= start $): $ sfShift k (sfReflectionTuple T start y n) = sfReflectionTuple T (suc start) (sfShiftIndex k y) n $;
+
+theorem sfReflectionTuple_subst(T:set)(k start y t n:nat)(hk:$ k <= start $): $ sfSubst k t (sfReflectionTuple T (suc start) y n) = sfReflectionTuple T start (sfSubstIndex k t y) n $;
+
+theorem sfReflectionTuple_zero_shift(T:set)(start y n:nat): $ sfShift 0 (sfReflectionTuple T start y n) = sfReflectionTuple T (suc start) (suc y) n $;

@@ -1,0 +1,24 @@
+import "k218q_leibniz.mm0";
+import "k218_role_substitution.mm0";
+import "quotation_binders_absent.mm0";
+
+def k218MatrixRequest (E: set) (B b a c f: nat): nat =
+ $ kImp (kExists b (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f))
+     (kExists b (kAnd (kMem b c)
+       (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) B 0 f))) $;
+
+theorem k218MatrixRequest_substitution (E: set) (n B b a c p f: nat)
+ (ha: $ a < B $) (ha0: $ a != 0 $) (hab: $ a != b $) (hac: $ a != c $)
+ (he: $ sqEnvAvoid E n a $) (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (k218MatrixRequest E B b a c f) a p = k218MatrixRequest E B b p c f $;
+
+theorem k218MatrixRequest_binder_absent (E: set) (B b a c f z: nat)
+ (hz: $ z < B $) (hzb: $ z != b $) (hf: $ sfWf f $):
+ $ kBinderAbsent (k218MatrixRequest E B b a c f) z $;
+
+theorem k218QMatrixRequest_congruence (E: set) (n B b a c p f: nat)
+ (ha: $ a < B $) (hp: $ p < B $) (ha0: $ a != 0 $)
+ (hab: $ a != b $) (hpb: $ p != b $) (hac: $ a != c $)
+ (he: $ sqEnvAvoid E n a $) (hf: $ sfBound (suc (suc n)) f $):
+ $ k218QProvable (kImp (kEq a p)
+     (kImp (k218MatrixRequest E B b a c f) (k218MatrixRequest E B b p c f))) $;

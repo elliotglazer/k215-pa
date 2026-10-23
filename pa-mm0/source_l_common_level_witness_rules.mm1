@@ -1,0 +1,34 @@
+import "source_l_common_level_reflection.mm1";
+import "source_local_extra.mm1";
+
+@_ def sfCLWitnessContext (G point: nat): nat =
+ $ point : sfContextShift (sfEx point : sfContextShift G) $;
+
+theorem clwr_inner_wf (G point: nat) (hg: $ sfContextWf G $) (hp: $ sfWf point $):
+ $ sfContextWf (sfEx point : sfContextShift G) $ =
+'(mpbir sfContextWf_cons (ian (ax_mp sfWf_ex hp) (ax_mp sfContextShift_preserves_wf hg)));
+
+theorem clwr_inner_hyp (G point: nat) (hg: $ sfContextWf G $) (hp: $ sfWf point $):
+ $ nsLocal (sfEx point : sfContextShift G) (sfEx point) $ =
+'(ax_mp (ax_mp nsLocal_hyp (clwr_inner_wf hg hp)) sfContext_member_head);
+
+pub theorem sfCLDoubleEx_eliminate (G point out: nat)
+ (hg: $ sfContextWf G $) (hp: $ sfWf point $) (ho: $ sfWf out $)
+ (hm: $ nsLocal G (sfEx (sfEx point)) $):
+ $ nsLocal (sfCLWitnessContext G point) (sfShift 0 (sfShift 0 out)) -> nsLocal G out $ =
+'(syl (ax_mp (sfLocal_exE ho) hm)
+ (ax_mp (sfLocal_exE sfShift_wf) (clwr_inner_hyp hg hp)));
+
+pub theorem sfCLRecipe_eliminate (G start params out: nat)
+ (hg: $ sfContextWf G $) (ho: $ sfWf out $)
+ (hm: $ nsLocal G (sfCLRecipe start params) $):
+ $ nsLocal (sfCLWitnessContext G (sfCLPoint (suc (suc start)) params 1 0))
+    (sfShift 0 (sfShift 0 out)) -> nsLocal G out $ =
+'(sfCLDoubleEx_eliminate hg sfCLPoint_wf ho hm);
+
+pub theorem sfCLReflectedRecipe_eliminate (G start params count phi out: nat)
+ (hg: $ sfContextWf G $) (ho: $ sfWf out $)
+ (hm: $ nsLocal G (sfCLReflectedRecipe start params count phi) $):
+ $ nsLocal (sfCLWitnessContext G (sfCLReflectedPoint (suc (suc start)) params count phi 1 0))
+    (sfShift 0 (sfShift 0 out)) -> nsLocal G out $ =
+'(sfCLDoubleEx_eliminate hg sfCLReflectedPoint_wf ho hm);

@@ -1,0 +1,27 @@
+-- Dominated-rho8 K215 calculus. Shared arithmetic codes only; no K218 provability import.
+import "k215_axioms.mm0";
+
+-- A fixed numerical checker for the actual Thm222 axiom/rule calculus.
+-- Its reverse-list representation must still be related to the machine's
+-- enumeration and to the beta-coded representation in the Rocq proof.
+def k215MpRules (.c .l .b: nat): set =
+$ S\ c, {l | c e. k215Axioms \/ E. b (b IN l /\ kImp b c IN l)} $;
+def k215GenRules (.c .l .a .b: nat): set =
+$ S\ c, {l | E. a E. b (b IN l /\ c = kAll a b)} $;
+def k215Rules: set = $ k215MpRules u. k215GenRules $;
+def k215Derives (p a: nat): wff = $ traceDerives k215Rules p a $;
+def k215Inconsistent (.p: nat): wff = $ E. p k215Derives p kF $;
+
+theorem k215MpRules_value {b: nat} (c l: nat):
+  $ (c, l) e. k215MpRules <-> c e. k215Axioms \/ E. b (b IN l /\ kImp b c IN l) $;
+theorem k215GenRules_value {a b: nat} (c l: nat):
+  $ (c, l) e. k215GenRules <-> E. a E. b (b IN l /\ c = kAll a b) $;
+theorem k215Rules_stable: $ traceAppendStable k215Rules $;
+theorem k215Derives_axiom (a: nat): $ a e. k215Axioms -> k215Derives (a : 0) a $;
+theorem k215Derives_true: $ k215Derives (0 : 0) 0 $;
+theorem k215Derives_mp (p q a b: nat):
+  $ k215Derives p a -> k215Derives q (kImp a b) -> k215Derives (b : (p ++ q)) b $;
+theorem k215Derives_gen (p a b: nat):
+  $ k215Derives p b -> k215Derives (kAll a b : p) (kAll a b) $;
+theorem k215Derives_bundle (a b c: nat):
+  $ c != a /\ c != b -> k215Derives (k218Bundle a b c : 0) (k218Bundle a b c) $;

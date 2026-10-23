@@ -1,0 +1,17 @@
+import "source_piece_pcf_definable_calibration.mm0";
+
+import "source_k_upper_ex_logic.mm0";
+
+def sfPieceDefinableBotClosureBody (A C n:nat): nat = $ sfAnd (sfMem 0 (suc C)) (sfRename (sfPieceOpenMap 0 (suc A)) 0 (sfPieceDefinableRecipe n sfBot)) $;
+
+def sfPieceDefinableBotClosureWitness (A C n:nat): nat = $ sfEx (sfPieceDefinableBotClosureBody A C n) $;
+
+theorem sfPieceDefinableBotClosureBody_wf (A C n:nat): $ sfWf (sfPieceDefinableBotClosureBody A C n) $;
+
+theorem sfPieceDefinableBotClosureWitness_wf (A C n:nat): $ sfWf (sfPieceDefinableBotClosureWitness A C n) $;
+
+theorem sfPieceDefinableBotClosure_at_carrier (A n:nat): $ nsLocal 0 (sfImp (sfPieceRepEmpty 0) (sfRename (sfPieceOpenMap 0 (suc A)) 0 (sfPieceDefinableRecipe n sfBot))) $;
+
+theorem sfPieceDefinableBotClosure_exists (G A C n:nat)(he:$ nsLocal G (sfEx (sfAnd (sfPieceRepEmpty 0) (sfMem 0 (suc C)))) $): $ nsLocal G (sfPieceDefinableBotClosureWitness A C n) $;
+
+theorem sfPieceDefinableBotClosure_shell (G n successor closure:nat)(he:$ nsLocal G (sfAll (sfAll (sfAll (sfImp successor (sfImp closure (sfEx (sfAnd (sfPieceRepEmpty 0) (sfMem 0 1)))))))) $): $ nsLocal G (sfAll (sfAll (sfAll (sfImp successor (sfImp closure (sfPieceDefinableBotClosureWitness 2 0 n)))))) $;

@@ -1,0 +1,248 @@
+import "source_relative_invariant.mm1";
+import "source_relative_prop_closure.mm1";
+
+-- Quantifier rules preserve the existential guard-bound invariant.
+-- AllE and ExI explicitly enlarge to k + suc t, covering the actual witness.
+theorem sfQC_local_formula (H: wff) (G a b: nat) (h: $ H -> a = b $):
+ $ H -> (nsLocal G a <-> nsLocal G b) $ = '(sfRI_Local_congr eqidd h);
+theorem sfQC_local_context (H: wff) (G J a: nat) (h: $ H -> G = J $):
+ $ H -> (nsLocal G a <-> nsLocal J a) $ = '(sfRI_Local_congr h eqidd);
+theorem sfQC_rel_context_wf (D G k: nat) (hd: $ sfBound 1 D $):
+ $ sfContextWf (sfRelativeContext D G k) $ =
+'(ax_mp sfRelativeContext_wf (ax_mp sfBound_wf hd));
+theorem sfQC_shift_context_wf (D G k: nat) (hd: $ sfBound 1 D $):
+ $ sfContextWf (D : sfContextShift (sfRelativeContext D G k)) $ =
+'(mpbir sfContextWf_cons (ian (ax_mp sfBound_wf hd) sfContextShift_wf));
+
+theorem sfQC_AllI_weaken (D G a k: nat) (hd: $ sfBound 1 D $):
+ $ sfContextWf G ->
+ nsLocal (sfRelativeContext D (sfContextShift G) k) (sfRelativize D a) ->
+ nsLocal (D : sfContextShift (sfRelativeContext D G k)) (sfRelativize D a) $ =
+'(syl5 (ax_mp (ax_mp sfRelativeLocal_mono (ax_mp sfBound_wf hd)) lesucid)
+ (syl (ax_mp nsLocal_weaken (sfQC_shift_context_wf hd))
+   (ax_mp sfRelativeContext_shift_sub hd)));
+theorem sfQC_AllI_local (D G a k: nat) (hd: $ sfBound 1 D $):
+ $ sfContextWf G ->
+ nsLocal (sfRelativeContext D (sfContextShift G) k) (sfRelativize D a) ->
+ nsLocal (sfRelativeContext D G k) (sfRelativize D (sfAll a)) $ =
+'(syl6 (bi2 (trud (sfQC_local_formula (a1i sfRelativize_sfAll)))) @
+ syl6 (syl (sfLocal_allI (sfQC_rel_context_wf hd)) nsLocal_II) (sfQC_AllI_weaken hd));
+theorem sfQC_AllI_at (D G a k: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf (sfSequent G (sfAll a)) ->
+ sfRelativeAt D k (sfSequent (sfContextShift G) a) ->
+ sfRelativeGood D (sfSequent G (sfAll a)) $ =
+'(exp @ mpd (syl (bi2 sfRelativeAt_sequent) @
+ mpd (syl (bi1 sfRelativeAt_sequent) anr)
+ (syl (sfQC_AllI_local hd) (syl anl (syl (bi1 sfRowWf_sequent) anl))))
+ (syl sfRelativeGood_intro anl));
+pub theorem sfRelative_AllI_good (D G a: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf (sfSequent G (sfAll a)) ->
+ sfRelativeGood D (sfSequent (sfContextShift G) a) ->
+ sfRelativeGood D (sfSequent G (sfAll a)) $ =
+(named '(syl5 anr (eexd (sfQC_AllI_at hd))));
+
+-- Implication produced by the decoded bounded universal elimination.
+theorem sfQC_AllE_code (D a t: nat) (hd: $ sfBound 1 D $):
+ $ sfWf a -> sfSubst 0 t (sfImp D (sfRelativize D a)) =
+ sfImp (sfDomainAt D t) (sfRelativize D (sfSubst 0 t a)) $ =
+'(eqtrd (a1i sfSubst_sfImp)
+ (sfImp_congr eqidd (ax_mp sfRelativize_subst hd)));
+theorem sfQC_AllE_prepare (D G a t: nat) (hd: $ sfBound 1 D $):
+ $ sfWf a -> nsLocal G (sfRelativize D (sfAll a)) ->
+ nsLocal G (sfImp (sfDomainAt D t) (sfRelativize D (sfSubst 0 t a))) $ =
+'(sylibd
+ (a1i (syl nsLocal_AllE (bi1 (trud (sfQC_local_formula (a1i sfRelativize_sfAll))))))
+ (sfQC_local_formula (sfQC_AllE_code hd)));
+theorem sfQC_AllE_local (D G a t: nat) (hd: $ sfBound 1 D $):
+ $ sfWf a -> nsLocal G (sfRelativize D (sfAll a)) ->
+ nsLocal G (sfDomainAt D t) -> nsLocal G (sfRelativize D (sfSubst 0 t a)) $ =
+'(syl6 nsLocal_mp (sfQC_AllE_prepare hd));
+
+theorem sfQC_guard_hyp (D G k t: nat) (hd: $ sfBound 1 D $):
+ $ t < k -> nsLocal (sfRelativeContext D G k) (sfDomainAt D t) $ =
+'(syl (ax_mp nsLocal_hyp (sfQC_rel_context_wf hd)) @
+ syl (bi2 lmemappend) @ syl orr sfDomainGuards_contains);
+theorem sfQC_enlarged_witness (k t: nat): $ t < k + suc t $ =
+'(ltletr ltsucid leaddid2);
+theorem sfQC_AllE_at (D G a t k: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf (sfSequent G (sfSubst 0 t a)) -> sfWf a ->
+ sfRelativeAt D k (sfSequent G (sfAll a)) ->
+ sfRelativeGood D (sfSequent G (sfSubst 0 t a)) $ =
+'(exp @ exp @ mpd
+ (syl (bi2 sfRelativeAt_sequent) @
+ mpd (a1i (ax_mp (sfQC_guard_hyp hd) sfQC_enlarged_witness)) @
+ mpd (syl (ax_mp (ax_mp sfRelativeLocal_mono (ax_mp sfBound_wf hd)) leaddid1)
+   (syl (bi1 sfRelativeAt_sequent) anr))
+ (syl (sfQC_AllE_local hd) anlr))
+ (syl sfRelativeGood_intro anll));
+pub theorem sfRelative_AllE_good (D G a t: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf (sfSequent G (sfSubst 0 t a)) ->
+ sfRelativeGood D (sfSequent G (sfAll a)) ->
+ sfRelativeGood D (sfSequent G (sfSubst 0 t a)) $ =
+(named '(exp @ mpd (syl anr anr) @ eexd @
+ exp @ mpd anr @ mpd
+ (syl (bi1 sfWf_all_iff) (syl anr (syl (bi1 sfRowWf_sequent) (syl anl anlr))))
+ (syl (sfQC_AllE_at hd) anll)));
+
+
+theorem sfQC_ExI_code (D a t: nat) (hd: $ sfBound 1 D $):
+ $ sfWf a -> sfSubst 0 t (sfAnd D (sfRelativize D a)) =
+ sfAnd (sfDomainAt D t) (sfRelativize D (sfSubst 0 t a)) $ =
+'(eqtrd (a1i sfSubst_sfAnd)
+ (sfAnd_congr eqidd (ax_mp sfRelativize_subst hd)));
+theorem sfQC_ExI_prepare (D G a t: nat) (hd: $ sfBound 1 D $):
+ $ sfWf a -> nsLocal G (sfRelativize D (sfSubst 0 t a)) ->
+ nsLocal G (sfDomainAt D t) ->
+ nsLocal G (sfSubst 0 t (sfAnd D (sfRelativize D a))) $ =
+'(exp @ exp @ mpbird (sfQC_local_formula (syl (sfQC_ExI_code hd) anll))
+ (mpd anlr (syl sfLocal_and anr)));
+theorem sfQC_ExI_local (D G a t: nat) (hd: $ sfBound 1 D $):
+ $ sfWf a -> nsLocal G (sfRelativize D (sfSubst 0 t a)) ->
+ nsLocal G (sfDomainAt D t) -> nsLocal G (sfRelativize D (sfEx a)) $ =
+'(exp @ exp @ syl (bi2 (trud (sfQC_local_formula (a1i sfRelativize_sfEx)))) @
+ syl (ax_mp nsLocal_ExI (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd))
+  (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd)))) @
+ mpd anr (mpd anlr (syl (sfQC_ExI_prepare hd) anll)));
+theorem sfQC_ExI_at (D G a t k: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf (sfSequent G (sfEx a)) ->
+ sfRelativeAt D k (sfSequent G (sfSubst 0 t a)) ->
+ sfRelativeGood D (sfSequent G (sfEx a)) $ =
+'(exp @ mpd
+ (syl (bi2 sfRelativeAt_sequent) @
+ mpd (a1i (ax_mp (sfQC_guard_hyp hd) sfQC_enlarged_witness)) @
+ mpd (syl (ax_mp (ax_mp sfRelativeLocal_mono (ax_mp sfBound_wf hd)) leaddid1)
+   (syl (bi1 sfRelativeAt_sequent) anr))
+ (syl (sfQC_ExI_local hd) (syl (bi1 sfWf_ex_iff) (syl anr (syl (bi1 sfRowWf_sequent) anl)))))
+ (syl sfRelativeGood_intro anl));
+pub theorem sfRelative_ExI_good (D G a t: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf (sfSequent G (sfEx a)) ->
+ sfRelativeGood D (sfSequent G (sfSubst 0 t a)) ->
+ sfRelativeGood D (sfSequent G (sfEx a)) $ =
+(named '(syl5 anr (eexd (sfQC_ExI_at hd))));
+
+-- Lift the paired-assumption elimination template through an implication.
+theorem sfQC_pair_local (G a b c: nat)
+ (hg: $ sfContextWf G $) (ha: $ sfWf a $) (hb: $ sfWf b $):
+ $ nsLocal (b : (a : G)) c -> nsLocal (sfAnd a b : G) c $ =
+'(syl (mpi (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp
+ (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and ha) hb) hg))) sfContext_member_head)) nsLocal_mp) @
+ syl (mpi (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp
+ (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and ha) hb) hg))) sfContext_member_head)) nsLocal_mp) @
+ syl (ax_mp (ax_mp nsLocal_weaken
+ (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and ha) hb) hg))) sfContextSub_cons)
+ (syl nsLocal_II nsLocal_II));
+theorem sfQC_ExE_minor (D G a c: nat) (hd: $ sfBound 1 D $):
+ $ sfWf c ->
+ nsLocal (sfRelativize D a : (D : sfContextShift G))
+  (sfRelativize D (sfShift 0 c)) ->
+ nsLocal (sfAnd D (sfRelativize D a) : sfContextShift G)
+  (sfShift 0 (sfRelativize D c)) $ =
+'(syl6 (sfQC_pair_local sfContextShift_wf (ax_mp sfBound_wf hd)
+ (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd))) @
+ sylibrd (a1i id) (sfQC_local_formula (ax_mp sfRelativize_shift hd)));
+theorem sfQC_ExE_local (D G a c: nat) (hd: $ sfBound 1 D $):
+ $ sfWf c -> nsLocal G (sfRelativize D (sfEx a)) ->
+ nsLocal (sfRelativize D a : (D : sfContextShift G))
+  (sfRelativize D (sfShift 0 c)) -> nsLocal G (sfRelativize D c) $ =
+'(exp @ exp @ mpd (mpd anr (syl (sfQC_ExE_minor hd) anll)) @
+ syl (sfLocal_exE (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd))) @
+ mpbid (a1i (trud (sfQC_local_formula (a1i sfRelativize_sfEx)))) anlr);
+
+
+theorem sfQC_context_cons (D G a k: nat):
+ $ sfRelativeContext D (a : G) k = sfRelativize D a : sfRelativeContext D G k $ =
+'(eqtr (appendeq1 sfContextRelativize_cons) appendS);
+theorem sfQC_cons_sub (a G H: nat):
+ $ sfContextSub G H -> sfContextSub (a : G) (a : H) $ =
+(named '(iald @ syl5bi lmemS @ eord
+ (a1i (syl (bi2 lmemS) orl))
+ (syl6 (syl (bi2 lmemS) orr) sfContextSub_member)));
+theorem sfQC_minor_target_wf (D G a k: nat) (hd: $ sfBound 1 D $):
+ $ sfContextWf (sfRelativize D a : (D : sfContextShift (sfRelativeContext D G k))) $ =
+'(mpbir sfContextWf_cons (ian (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd))
+ (sfQC_shift_context_wf hd)));
+theorem sfQC_ExE_weaken (D G a c k: nat) (hd: $ sfBound 1 D $):
+ $ sfContextWf G ->
+ nsLocal (sfRelativeContext D (a : sfContextShift G) k) (sfRelativize D (sfShift 0 c)) ->
+ nsLocal (sfRelativize D a : (D : sfContextShift (sfRelativeContext D G k)))
+  (sfRelativize D (sfShift 0 c)) $ =
+'(syl5 (bi1 (trud (sfQC_local_context (a1i sfQC_context_cons)))) @
+ syl5 (ax_mp (ax_mp sfRelativeBranch_mono (ax_mp sfBound_wf hd)) lesucid) @
+ syl (ax_mp nsLocal_weaken (sfQC_minor_target_wf hd))
+ (syl sfQC_cons_sub (ax_mp sfRelativeContext_shift_sub hd)));
+theorem sfQC_ExE_at (D G a c k: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf (sfSequent G c) ->
+ (sfRelativeAt D k (sfSequent G (sfEx a)) /\
+  sfRelativeAt D k (sfSequent (a : sfContextShift G) (sfShift 0 c))) ->
+ sfRelativeGood D (sfSequent G c) $ =
+'(exp @ mpd (syl (bi2 sfRelativeAt_sequent) @
+ mpd (mpd (syl (bi1 sfRelativeAt_sequent) anrr)
+   (syl (sfQC_ExE_weaken hd) (syl anl (syl (bi1 sfRowWf_sequent) anl)))) @
+ mpd (syl (bi1 sfRelativeAt_sequent) anrl)
+ (syl (sfQC_ExE_local hd) (syl anr (syl (bi1 sfRowWf_sequent) anl))))
+ (syl sfRelativeGood_intro anl));
+pub theorem sfRelative_ExE_good (D G a c: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf (sfSequent G c) ->
+ sfRelativeGood D (sfSequent G (sfEx a)) ->
+ sfRelativeGood D (sfSequent (a : sfContextShift G) (sfShift 0 c)) ->
+ sfRelativeGood D (sfSequent G c) $ =
+(named '(expd @ syl5 (imp (sfRelative_common_bound (ax_mp sfBound_wf hd)))
+ (eexd (sfQC_ExE_at hd))));
+
+
+-- Reconstruct each exact arithmetic rule payload before applying the closure.
+theorem sfQC_unary_transport (D r p R P: nat)
+ (h: $ sfRowWf R -> sfRelativeGood D P -> sfRelativeGood D R $):
+ $ sfRowWf r -> (r = R /\ p = P) -> sfRelativeGood D p -> sfRelativeGood D r $ =
+'(exp @ exp @ mpbird (sfRelativeGood_congr (syl anl anlr)) @
+ mpd (mpbid (sfRelativeGood_congr (syl anr anlr)) anr)
+ (syl h (mpbid (sfRowWf_congr (syl anl anlr)) anll)));
+theorem sfQC_binary_transport (D r p q R P Q: nat)
+ (h: $ sfRowWf R -> sfRelativeGood D P -> sfRelativeGood D Q -> sfRelativeGood D R $):
+ $ sfRowWf r -> (r = R /\ (p = P /\ q = Q)) ->
+ sfRelativeGood D p -> sfRelativeGood D q -> sfRelativeGood D r $ =
+'(exp @ exp @ exp @ mpbird (sfRelativeGood_congr (syl anl (syl anlr anl))) @
+ mpd (mpbid (sfRelativeGood_congr (syl anr (syl anr (syl anlr anl)))) anr) @
+ mpd (mpbid (sfRelativeGood_congr (syl anl (syl anr (syl anlr anl)))) anlr) @
+ syl h (mpbid (sfRowWf_congr (syl anl (syl anlr anl))) (syl anll anl)));
+theorem sfQC_AllI_payload (D r p G a: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf r ->
+ (r = sfSequent G (sfAll a) /\ p = sfSequent (sfContextShift G) a) ->
+ sfRelativeGood D p -> sfRelativeGood D r $ =
+'(sfQC_unary_transport (sfRelative_AllI_good hd));
+pub theorem sfRelativeCase_AllI (D r p: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf r -> sfNDCaseAllI r p -> sfRelativeGood D p -> sfRelativeGood D r $ =
+(named '(eexd @ eexd (sfQC_AllI_payload hd)));
+theorem sfQC_AllE_payload (D r p G a t: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf r ->
+ (r = sfSequent G (sfSubst 0 t a) /\ p = sfSequent G (sfAll a)) ->
+ sfRelativeGood D p -> sfRelativeGood D r $ =
+'(sfQC_unary_transport (sfRelative_AllE_good hd));
+pub theorem sfRelativeCase_AllE (D r p: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf r -> sfNDCaseAllE r p -> sfRelativeGood D p -> sfRelativeGood D r $ =
+(named '(eexd @ eexd @ eexd (sfQC_AllE_payload hd)));
+theorem sfQC_ExI_payload (D r p G a t: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf r ->
+ (r = sfSequent G (sfEx a) /\ p = sfSequent G (sfSubst 0 t a)) ->
+ sfRelativeGood D p -> sfRelativeGood D r $ =
+'(sfQC_unary_transport (sfRelative_ExI_good hd));
+pub theorem sfRelativeCase_ExI (D r p: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf r -> sfNDCaseExI r p -> sfRelativeGood D p -> sfRelativeGood D r $ =
+(named '(eexd @ eexd @ eexd (sfQC_ExI_payload hd)));
+theorem sfQC_ExE_payload (D r p q G a c: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf r ->
+ (r = sfSequent G c /\ (p = sfSequent G (sfEx a) /\
+ q = sfSequent (a : sfContextShift G) (sfShift 0 c))) ->
+ sfRelativeGood D p -> sfRelativeGood D q -> sfRelativeGood D r $ =
+'(sfQC_binary_transport (sfRelative_ExE_good hd));
+pub theorem sfRelativeCase_ExE (D r p q: nat) (hd: $ sfBound 1 D $):
+ $ sfRowWf r -> sfNDCaseExE r p q ->
+ sfRelativeGood D p -> sfRelativeGood D q -> sfRelativeGood D r $ =
+(named '(eexd @ eexd @ eexd (sfQC_ExE_payload hd)));
+pub theorem sfRelative_quant_unary (D r p: nat) (hd: $ sfBound 1 D $):
+ $ sfNDQuantUnary r p -> sfRelativeGood D p -> sfRelativeGood D r $ =
+'(mpd anr @ syl (eord (sfRelativeCase_AllI hd)
+ (eord (sfRelativeCase_AllE hd) (sfRelativeCase_ExI hd))) anl);
+pub theorem sfRelative_quant_binary (D r p q: nat) (hd: $ sfBound 1 D $):
+ $ sfNDQuantBinary r p q -> sfRelativeGood D p -> sfRelativeGood D q -> sfRelativeGood D r $ =
+'(mpd anr (syl (sfRelativeCase_ExE hd) anl));

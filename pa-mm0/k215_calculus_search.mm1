@@ -1,0 +1,209 @@
+import "k215_calculus_iterator_algebra.mm1";
+
+@_ def k215EnumTail (s: nat): nat = $ snd (k218EnumList s) $;
+
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+
+@_ def k215SearchBound (r bound next: nat): wff =
+  $ ifp (r = 0) T. (k218EnumNP (r - 1) = next /\ k218EnumPL (r - 1) <= bound) $;
+
+pub theorem k215SearchBound_zero (bound next: nat): $ k215SearchBound 0 bound next $ =
+'(mpbir (ifppos eqid) itru);
+pub theorem k215SearchBound_some (s bound next: nat):
+  $ k215SearchBound (suc s) bound next <-> k218EnumNP s = next /\ k218EnumPL s <= bound $ =
+'(bitr (ifpneg peano1)
+  (aneq (eqeq1 (k218EnumNPeq sucsub1)) (leeq1 (k218EnumPLeq sucsub1))));
+theorem k215SearchBound_state_le (pl bound next tw ws d h: nat)
+ (hp: $ pl <= bound $):
+ $ k215SearchBound (suc (k218EnumState pl next tw ws d h)) bound next $ =
+ '(mpbir k215SearchBound_some
+   (iani k218EnumState_NP (mpbir (leeq1 k218EnumState_PL) hp)));
+theorem k215SearchBound_ax (s c fields next: nat):
+ $ k215SearchBound (k215AXFields s c fields next) fields next $ =
+ '(k215SearchBound_state_le (letr sndleid sndleid));
+theorem k215SearchBound_if (p: wff) (a b bound next: nat)
+ (ha: $ k215SearchBound a bound next $) (hb: $ k215SearchBound b bound next $):
+ $ k215SearchBound (if p a b) bound next $ =
+ '(trud @ ifbothd (k215SearchBoundeq1d id) (k215SearchBoundeq1d id) (a1i ha) (a1i hb));
+pub theorem k215EnumCommand_bound (s ac fields next: nat):
+ $ k215SearchBound (k215EnumCommand s ac fields next) fields next $ =
+ '(k215SearchBound_if
+   (k215SearchBound_if k215SearchBound_zero (k215SearchBound_state_le leid))
+   (k215SearchBound_if (k215SearchBound_state_le leid)
+     (k215SearchBound_if
+       (k215SearchBound_if (k215SearchBound_state_le sndleid) (k215SearchBound_state_le sndleid))
+       k215SearchBound_ax)));
+
+pub theorem k215EnumStep_bound (s: nat):
+  $ k215SearchBound (k215EnumStep s) (k215EnumTail s) (k218EnumNext s) $ = 'k215EnumCommand_bound;
+pub theorem k215EnumStep_some_fields (s t: nat):
+  $ k215EnumStep s = suc t -> k218EnumNP t = k218EnumNext s /\ k218EnumPL t <= k215EnumTail s $ =
+'(syl (bi1 k215SearchBound_some)
+  (mpbid (k215SearchBoundeq1d id) (a1i k215EnumStep_bound)));
+pub theorem k215EnumTail_le_list (s: nat): $ k215EnumTail s <= k218EnumList s $ =
+'sndleid;
+pub theorem k215EnumTail_decreases (s: nat):
+  $ k218EnumPL s != 0 -> k215EnumTail s < k218EnumPL s $ =
+'(syl (lelttr k215EnumTail_le_list)
+  (mpbird (lteq1d k218EnumList_continue)
+    (syl subltid (iand (syl (bi2 lt01) id) (a1i lt01S)))));
+pub theorem k215EnumStep_continue_decreases (s t: nat):
+  $ k218EnumPL s != 0 -> k215EnumStep s = suc t ->
+    k218EnumPL t < k218EnumPL s /\ k218EnumNP t = k218EnumNP s $ =
+'(exp @ iand
+  (mpd (syl k215EnumTail_decreases anl)
+    (syl (lelttr) (syl anr (syl k215EnumStep_some_fields anr))))
+  (eqtrd (syl anl (syl k215EnumStep_some_fields anr)) (syl k218EnumNext_continue anl)));
+pub theorem k215EnumIter_one (s: nat): $ k215EnumIter 1 s = k215EnumStep s $ =
+'(eqtr k215EnumIter_succ (eqtr (k215EnumAdvanceeq k215EnumIter_zero) k215EnumAdvance_some));
+pub theorem k215EnumRunsForever_step (s: nat):
+  $ k215EnumRunsForever s -> k215EnumStep s != 0 $ =
+'(mpbid (a1i (noteq (eqeq1 k215EnumIter_one))) k215EnumRunsForever_at);
+
+@_ abstract def k215EnumReach (s t: nat) (.n: nat): wff = $ E. n k215EnumIter n s = suc t $;
+@_ abstract def k215SearchDrain (s: nat) (.t: nat): wff =
+  $ E. t (k215EnumReach s t /\ (k218EnumPL t = 0 /\ k218EnumNP t = k218EnumNP s)) $;
+
+pub theorem k215EnumReach_intro (n s t: nat): $ k215EnumIter n s = suc t -> k215EnumReach s t $ =
+(named '(iexe ,eqtac));
+pub theorem k215EnumReach_refl (s: nat): $ k215EnumReach s s $ = '(k215EnumReach_intro k215EnumIter_zero);
+pub theorem k215EnumReach_step (s t: nat): $ k215EnumStep s = suc t -> k215EnumReach s t $ =
+'(syl k215EnumReach_intro (eqtrd (a1i k215EnumIter_one) id));
+theorem k215EnumReach_trans_witness (n m s t u: nat):
+  $ k215EnumIter n s = suc t -> k215EnumIter m t = suc u -> k215EnumReach s u $ =
+'(exp @ syl k215EnumReach_intro (eqtrd (syl k215EnumIter_splice anl) anr));
+pub theorem k215EnumReach_trans (s t u: nat):
+  $ k215EnumReach s t -> k215EnumReach t u -> k215EnumReach s u $ =
+(named '(eex @ eexd k215EnumReach_trans_witness));
+pub theorem k215EnumReach_forever (s t: nat):
+  $ k215EnumRunsForever s -> k215EnumReach s t -> k215EnumRunsForever t $ =
+(named '(eexd k215EnumRunsForever_reachable));
+pub theorem k215SearchDrain_intro (s t: nat):
+  $ k215EnumReach s t /\ (k218EnumPL t = 0 /\ k218EnumNP t = k218EnumNP s) -> k215SearchDrain s $ =
+(named '(iexe ,eqtac));
+pub theorem k215SearchDrain_zero (s: nat): $ k218EnumPL s = 0 -> k215SearchDrain s $ =
+'(syl k215SearchDrain_intro (iand (a1i k215EnumReach_refl) (iand id (a1i eqid))));
+theorem k215SearchDrain_transfer_witness (s t u: nat):
+  $ k215EnumReach s t /\ k218EnumNP t = k218EnumNP s ->
+    k215EnumReach t u /\ (k218EnumPL u = 0 /\ k218EnumNP u = k218EnumNP t) -> k215SearchDrain s $ =
+'(exp @ syl k215SearchDrain_intro @ iand
+  (mpd (syl anl anr) (syl k215EnumReach_trans (syl anl anl)))
+  (iand (syl anl (syl anr anr))
+    (eqtrd (syl anr (syl anr anr)) (syl anr anl))));
+pub theorem k215SearchDrain_transfer (s t: nat):
+  $ k215EnumReach s t /\ k218EnumNP t = k218EnumNP s -> k215SearchDrain t -> k215SearchDrain s $ =
+(named '(eexd k215SearchDrain_transfer_witness));
+
+@_ abstract def k215SearchComplete (p: nat) (.v: nat): wff =
+  $ A. v (k218EnumPL v = p -> k215EnumRunsForever v -> k215SearchDrain v) $;
+@_ abstract def k215SearchBelow (p: nat) (.j: nat): wff =
+  $ A. j (j < p -> k215SearchComplete j) $;
+
+pub theorem k215EnumRunsForever_next_some (s: nat):
+  $ k215EnumRunsForever s -> k215EnumStep s = suc (k215EnumStep s - 1) $ =
+'(eqcomd (syl sub1can k215EnumRunsForever_step));
+pub theorem k215EnumRunsForever_next_reach (s: nat):
+  $ k215EnumRunsForever s -> k215EnumReach s (k215EnumStep s - 1) $ =
+'(syl k215EnumReach_step k215EnumRunsForever_next_some);
+pub theorem k215EnumRunsForever_next_forever (s: nat):
+  $ k215EnumRunsForever s -> k215EnumRunsForever (k215EnumStep s - 1) $ =
+'(mpd k215EnumRunsForever_next_reach k215EnumReach_forever);
+pub theorem k215SearchComplete_at (p s: nat):
+  $ k215SearchComplete p -> k218EnumPL s = p -> k215EnumRunsForever s -> k215SearchDrain s $ =
+(named '(!! eale v ,eqtac));
+theorem k215SearchComplete_self (s: nat):
+  $ k215SearchComplete (k218EnumPL s) -> k215EnumRunsForever s -> k215SearchDrain s $ =
+'(mpi eqid k215SearchComplete_at);
+theorem k215SearchBelow_get (p j: nat):
+  $ k215SearchBelow p -> j < p -> k215SearchComplete j $ =
+(named '(!! eale z ,eqtac));
+theorem k215SearchBelow_at (p s: nat):
+  $ k215SearchBelow p -> k218EnumPL s < p -> k215EnumRunsForever s -> k215SearchDrain s $ =
+'(syl6 k215SearchComplete_self k215SearchBelow_get);
+theorem k215Search_next_fields (s: nat):
+  $ k215EnumRunsForever s /\ k218EnumPL s != 0 ->
+    k218EnumPL (k215EnumStep s - 1) < k218EnumPL s /\ k218EnumNP (k215EnumStep s - 1) = k218EnumNP s $ =
+'(mpd (syl k215EnumRunsForever_next_some anl) (syl k215EnumStep_continue_decreases anr));
+theorem k215SearchDrain_nonzero (s: nat):
+  $ k215SearchBelow (k218EnumPL s) /\ (k215EnumRunsForever s /\ k218EnumPL s != 0) -> k215SearchDrain s $ =
+'(mpd
+  (mpd (syl k215EnumRunsForever_next_forever (syl anl anr))
+    (mpd (syl anl (syl k215Search_next_fields anr)) (syl k215SearchBelow_at anl)))
+  (syl k215SearchDrain_transfer (iand
+    (syl k215EnumRunsForever_next_reach (syl anl anr))
+    (syl anr (syl k215Search_next_fields anr)))));
+theorem k215SearchDrain_underIH (s: nat):
+  $ k215SearchBelow (k218EnumPL s) -> k215EnumRunsForever s -> k215SearchDrain s $ =
+'(exp @ casesda (syl k215SearchDrain_zero anr)
+  (syl k215SearchDrain_nonzero (iand (syl anl anl) (iand (syl anr anl) anr))));
+theorem k215SearchComplete_step (p: nat): $ k215SearchBelow p -> k215SearchComplete p $ =
+(named '(iald @ exp @ syl k215SearchDrain_underIH
+  (mpbird (k215SearchBeloweqd anr) anl)));
+pub theorem k215SearchComplete_all (p: nat): $ k215SearchComplete p $ =
+(named '(trud @ !! indstr j y
+  {,eqtac : $ j = p -> (k215SearchComplete j <-> k215SearchComplete p) $}
+  ,eqtac (syl k215SearchComplete_step anr)));
+pub theorem k215SearchDrain_forever (s: nat):
+  $ k215EnumRunsForever s -> k215SearchDrain s $ =
+'(ax_mp k215SearchComplete_self k215SearchComplete_all);
+
+@_ abstract def k215SearchAt (s k: nat) (.v: nat): wff =
+  $ E. v (k215EnumReach s v /\ (k218EnumPL v = 0 /\ k218EnumNP v = k)) $;
+
+pub theorem k215SearchAt_intro (s t k: nat):
+  $ k215EnumReach s t /\ (k218EnumPL t = 0 /\ k218EnumNP t = k) -> k215SearchAt s k $ =
+(named '(iexe ,eqtac));
+theorem k215SearchAt_drain (s: nat): $ k215SearchDrain s -> k215SearchAt s (k218EnumNP s) $ = (named 'id);
+theorem k215SearchAt_transfer_witness (s t u k: nat):
+  $ k215EnumReach s t -> k215EnumReach t u /\ (k218EnumPL u = 0 /\ k218EnumNP u = k) -> k215SearchAt s k $ =
+'(exp @ syl k215SearchAt_intro (iand
+  (mpd (syl anl anr) (syl k215EnumReach_trans anl)) (syl anr anr)));
+pub theorem k215SearchAt_transfer (s t k: nat):
+  $ k215EnumReach s t -> k215SearchAt t k -> k215SearchAt s k $ =
+(named '(eexd k215SearchAt_transfer_witness));
+
+theorem k215SearchNext_counter (s: nat):
+  $ k215EnumRunsForever s /\ k218EnumPL s = 0 -> k218EnumNP (k215EnumStep s - 1) = suc (k218EnumNP s) $ =
+'(eqtrd
+  (syl anl (syl k215EnumStep_some_fields (syl k215EnumRunsForever_next_some anl)))
+  (syl k218EnumNext_reload anr));
+pub theorem k215SearchAt_boundary_next (s: nat):
+  $ k215EnumRunsForever s -> k218EnumPL s = 0 -> k215SearchAt s (suc (k218EnumNP s)) $ =
+'(exp @ mpd
+  (mpbid (k215SearchAteq2d k215SearchNext_counter)
+    (syl k215SearchAt_drain (syl k215SearchDrain_forever (syl k215EnumRunsForever_next_forever anl))))
+  (syl k215SearchAt_transfer (syl k215EnumRunsForever_next_reach anl)));
+theorem k215SearchAt_next_at (G: wff) (s t k: nat)
+  (hf: $ G -> k215EnumRunsForever s $)
+  (hr: $ G -> k215EnumReach s t $)
+  (hp: $ G -> k218EnumPL t = 0 $)
+  (hn: $ G -> k218EnumNP t = k $):
+  $ G -> k215SearchAt s (suc k) $ =
+'(mpd
+  (mpbid (k215SearchAteq2d (suceqd hn))
+    (mpd hp (syl k215SearchAt_boundary_next (mpd hr (syl k215EnumReach_forever hf)))))
+  (syl k215SearchAt_transfer hr));
+theorem k215SearchAt_next_witness (s t k: nat):
+  $ k215EnumRunsForever s ->
+    k215EnumReach s t /\ (k218EnumPL t = 0 /\ k218EnumNP t = k) -> k215SearchAt s (suc k) $ =
+'(exp @ k215SearchAt_next_at anl (syl anl anr) (syl anl (syl anr anr)) (syl anr (syl anr anr)));
+pub theorem k215SearchAt_next (s k: nat):
+  $ k215EnumRunsForever s -> k215SearchAt s k -> k215SearchAt s (suc k) $ =
+(named '(eexd k215SearchAt_next_witness));
+
+pub theorem k215SearchAt_initial_four: $ k215SearchAt k215EnumInitial 4 $ =
+ '(k215SearchAt_intro (iani k215EnumReach_refl (iani k218EnumState_PL k218EnumState_NP)));
+theorem k215SearchAt_initial_plus_four (n: nat):
+ $ k215EnumRunsForever k215EnumInitial -> k215SearchAt k215EnumInitial (n + 4) $ =
+ (named @ induct '(indd) 'n
+   '(a1i (mpbir (k215SearchAteq2 add01) k215SearchAt_initial_four))
+   '(mpbird (a1i (k215SearchAteq2 addS1)) (mpd anr (syl k215SearchAt_next anl))));
+theorem k215Search_four_sub (k: nat): $ 4 <= k -> (k - 4) + 4 = k $ =
+ '(eqtrd (a1i addcom) (mpbid subadd (a1i eqid)));
+pub theorem k215SearchAt_initial (k: nat):
+ $ k215EnumRunsForever k215EnumInitial -> 4 <= k -> k215SearchAt k215EnumInitial k $ =
+ '(exp @ mpbid (k215SearchAteq2d (syl k215Search_four_sub anr))
+   (syl k215SearchAt_initial_plus_four anl));
+pub theorem k215Enum_nonhalt_reaches_candidate (k: nat):
+ $ ~k215EnumHalts -> 4 <= k -> k215SearchAt k215EnumInitial k $ =
+ '(syl k215SearchAt_initial (bi1 k215EnumRunsForever_initial));

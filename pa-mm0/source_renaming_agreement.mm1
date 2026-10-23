@@ -1,0 +1,51 @@
+import "source_renaming.mm1";
+
+import "source_structural_induction.mm1";
+
+@_ abstract def sfRenameMapAgree (R S: set) (n .i: nat): wff = $ A. i (i < n -> R @ i = S @ i) $;
+
+pub theorem sfRenameMapAgree_at (R S: set) (n i: nat): $ sfRenameMapAgree R S n -> i < n -> R @ i = S @ i $ = (named '(!! eale j ,eqtac));
+
+theorem sraIndex_below (R S: set) (G: wff) (d i: nat) (hi: $ G -> i < d $): $ G -> sfRenameIndex R d i = sfRenameIndex S d i $ = '(eqtrd (syl sfRenameIndex_bound hi) (eqcomd (syl sfRenameIndex_bound hi)));
+
+theorem sraIndex_above (R S: set) (G: wff) (d n i: nat) (he: $ G -> sfRenameMapAgree R S n $) (hb: $ G -> i < d + n $) (hi: $ G -> ~i < d $): $ G -> sfRenameIndex R d i = sfRenameIndex S d i $ = '(eqtrd (syl sfRenameIndex_free hi) @ eqtrd (addeq2d (mpd (mpbird (syl ltsubadd2 (syl (bi2 lenlt) hi)) hb) (syl sfRenameMapAgree_at he))) (eqcomd (syl sfRenameIndex_free hi)));
+
+pub theorem sfRenameIndex_agreement (R S: set) (d n i: nat): $ sfRenameMapAgree R S n -> i < d + n -> sfRenameIndex R d i = sfRenameIndex S d i $ = '(exp @ casesda (sraIndex_below anr) (sraIndex_above (syl anl anl) (syl anr anl) anr));
+
+@_ abstract def sfRenameAgreementClass (R S: set) (n: nat) (.c .d: nat): set = $ {c | A. d (sfBound (d + n) c -> sfRename R d c = sfRename S d c)} $;
+
+theorem sra_value {d: nat} (R S: set) (n c: nat): $ c e. sfRenameAgreementClass R S n <-> A. d (sfBound (d + n) c -> sfRename R d c = sfRename S d c) $ = (named '(elabe ,eqtac));
+
+theorem sra_depth (R S: set) (n d c: nat): $ A. j (sfBound (j + n) c -> sfRename R j c = sfRename S j c) -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $ = (named '(!! eale j ,eqtac));
+
+theorem sra_at (R S: set) (n d c: nat): $ c e. sfRenameAgreementClass R S n -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $ = (named '(syl sra_depth {(bi1 sra_value) : $ c e. sfRenameAgreementClass R S n -> A. j (sfBound (j + n) c -> sfRename R j c = sfRename S j c) $}));
+
+theorem sra_bot (R S: set) (n: nat): $ sfBot e. sfRenameAgreementClass R S n $ = (named '(mpbir sra_value @ ax_gen @ a1i @ eqtr sfRename_bot (eqcom sfRename_bot)));
+
+theorem sra_mem (R S: set) (n a b: nat): $ sfRenameMapAgree R S n -> sfMem a b e. sfRenameAgreementClass R S n $ = (named '(mpbird (a1i sra_value) @ !! iald d @ exp @ eqtrd (a1i sfRename_sfMem) @ eqtrd (sfMemeqd (mpd (syl anl (syl (bi1 sfBound_sfMem) anr)) (syl sfRenameIndex_agreement anl)) (mpd (syl anr (syl (bi1 sfBound_sfMem) anr)) (syl sfRenameIndex_agreement anl))) (a1i (eqcom sfRename_sfMem))));
+
+theorem sra_eq (R S: set) (n a b: nat): $ sfRenameMapAgree R S n -> sfEq a b e. sfRenameAgreementClass R S n $ = (named '(mpbird (a1i sra_value) @ !! iald d @ exp @ eqtrd (a1i sfRename_sfEq) @ eqtrd (sfEqeqd (mpd (syl anl (syl (bi1 sfBound_sfEq) anr)) (syl sfRenameIndex_agreement anl)) (mpd (syl anr (syl (bi1 sfBound_sfEq) anr)) (syl sfRenameIndex_agreement anl))) (a1i (eqcom sfRename_sfEq))));
+
+theorem sra_atomic (R S: set) (n: nat): $ sfRenameMapAgree R S n -> sfAtomicClosed (sfRenameAgreementClass R S n) $ = (named '(!! iald a @ !! iald b @ iand sra_mem sra_eq));
+
+theorem sra_and (R S: set) (n a b: nat): $ a e. sfRenameAgreementClass R S n /\ b e. sfRenameAgreementClass R S n -> sfAnd a b e. sfRenameAgreementClass R S n $ = (named '(mpbird (a1i sra_value) @ !! iald d @ exp @ eqtrd (a1i sfRename_sfAnd) @ eqtrd (sfAndeqd (mpd (syl anl (syl (bi1 sfBound_sfAnd) anr)) (syl sra_at (syl anl anl))) (mpd (syl anr (syl (bi1 sfBound_sfAnd) anr)) (syl sra_at (syl anr anl)))) (a1i (eqcom sfRename_sfAnd))));
+
+theorem sra_or (R S: set) (n a b: nat): $ a e. sfRenameAgreementClass R S n /\ b e. sfRenameAgreementClass R S n -> sfOr a b e. sfRenameAgreementClass R S n $ = (named '(mpbird (a1i sra_value) @ !! iald d @ exp @ eqtrd (a1i sfRename_sfOr) @ eqtrd (sfOreqd (mpd (syl anl (syl (bi1 sfBound_sfOr) anr)) (syl sra_at (syl anl anl))) (mpd (syl anr (syl (bi1 sfBound_sfOr) anr)) (syl sra_at (syl anr anl)))) (a1i (eqcom sfRename_sfOr))));
+
+theorem sra_imp (R S: set) (n a b: nat): $ a e. sfRenameAgreementClass R S n /\ b e. sfRenameAgreementClass R S n -> sfImp a b e. sfRenameAgreementClass R S n $ = (named '(mpbird (a1i sra_value) @ !! iald d @ exp @ eqtrd (a1i sfRename_sfImp) @ eqtrd (sfImpeqd (mpd (syl anl (syl (bi1 sfBound_sfImp) anr)) (syl sra_at (syl anl anl))) (mpd (syl anr (syl (bi1 sfBound_sfImp) anr)) (syl sra_at (syl anr anl)))) (a1i (eqcom sfRename_sfImp))));
+
+theorem sra_binary (R S: set) (n: nat): $ sfBinaryClosed (sfRenameAgreementClass R S n) $ = (named '(ax_gen @ ax_gen @ iand (iand sra_and sra_or) sra_imp));
+
+theorem sra_all (R S: set) (n a: nat): $ a e. sfRenameAgreementClass R S n -> sfAll a e. sfRenameAgreementClass R S n $ = (named '(mpbird (a1i sra_value) @ !! iald d @ exp @ eqtrd (a1i sfRename_sfAll) @ eqtrd (sfAlleqd (mpd (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfAll) anr)) (syl sra_at anl))) (a1i (eqcom sfRename_sfAll))));
+
+theorem sra_ex (R S: set) (n a: nat): $ a e. sfRenameAgreementClass R S n -> sfEx a e. sfRenameAgreementClass R S n $ = (named '(mpbird (a1i sra_value) @ !! iald d @ exp @ eqtrd (a1i sfRename_sfEx) @ eqtrd (sfExeqd (mpd (mpbird (a1i (srecpeq2 (preq1 addS1))) (syl (bi1 sfBound_sfEx) anr)) (syl sra_at anl))) (a1i (eqcom sfRename_sfEx))));
+
+theorem sra_quantifier (R S: set) (n: nat): $ sfQuantifierClosed (sfRenameAgreementClass R S n) $ = (named '(ax_gen @ iand sra_all sra_ex));
+
+theorem sra_closed (R S: set) (n: nat): $ sfRenameMapAgree R S n -> sfConstructionClosed (sfRenameAgreementClass R S n) $ = '(iand (iand (iand (a1i sra_bot) sra_atomic) (a1i sra_binary)) (a1i sra_quantifier));
+
+theorem sra_wf (R S: set) (n c: nat): $ sfRenameMapAgree R S n -> sfWf c -> c e. sfRenameAgreementClass R S n $ = '(syl sfWf_induction sra_closed);
+
+pub theorem sfRename_bounded_agreement (R S: set) (n d c: nat): $ sfRenameMapAgree R S n -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $ = '(exp @ mpd anr (syl sra_at (mpd (syl sfBound_wf anr) (syl sra_wf anl))));
+
+pub theorem sfRename_agreement {i: nat} (R S: set) (n d c: nat): $ (A. i (i < n -> R @ i = S @ i)) -> sfBound (d + n) c -> sfRename R d c = sfRename S d c $ = 'sfRename_bounded_agreement;

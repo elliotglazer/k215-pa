@@ -1,0 +1,29 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+import "k218_induction.mm0";
+
+-- The machine stack is a raw Cantor-pair stream with infinite zero padding,
+-- distinct from the finite reverse proof lists encoded by cons.
+def k218PopStep (.x: nat): set = $ \ x, snd x $;
+def k218Pop (n w: nat): nat = $ rec w k218PopStep n $;
+def k218GoodStack (w: nat) (.n: nat): wff =
+  $ A. n k218Provable (fst (k218Pop n w)) $;
+def k218AxStack (a h b c u t w: nat): nat =
+  $ (kRho1 a b, kRho2 a b c, kRho3 a b c, kRho4 a b c,
+     kRho5 a b c, kRho6 a c, k218RhoG a b c, kRho8 a b c u,
+     kAll a h, t, w) $;
+
+theorem k218Pop_zero (w: nat): $ k218Pop 0 w = w $;
+theorem k218Pop_succ (n w: nat): $ k218Pop (suc n) w = snd (k218Pop n w) $;
+theorem k218Pop_commute (n w: nat): $ k218Pop (suc n) w = k218Pop n (snd w) $;
+theorem k218Pop_zero_stream (n: nat): $ k218Pop n 0 = 0 $;
+theorem k218GoodStack_get (n w: nat):
+  $ k218GoodStack w -> k218Provable (fst (k218Pop n w)) $;
+theorem k218GoodStack_zero: $ k218GoodStack 0 $;
+theorem k218GoodStack_push (x w: nat):
+  $ k218Provable x -> k218GoodStack w -> k218GoodStack (x, w) $;
+theorem k218GoodStack_head (w: nat): $ k218GoodStack w -> k218Provable (fst w) $;
+theorem k218GoodStack_pop (w: nat): $ k218GoodStack w -> k218GoodStack (snd w) $;
+theorem k218AxStack_good (a h b c u t w: nat):
+  $ k218Provable t -> k218Provable h -> k218GoodStack w ->
+    k218GoodStack (k218AxStack a h b c u t w) $;
+theorem k218Gate_provable (a b c: nat): $ k218Provable (k218Gate a b c) $;

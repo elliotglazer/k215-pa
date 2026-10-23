@@ -1,0 +1,76 @@
+import "quotation_supported_transport.mm0";
+import "quotation_supported_contexts.mm0";
+import "k230_fresh_allocation.mm0";
+import "quotation_exists_elimination.mm0";
+
+theorem sqEnvironmentSafe_raise (S n t k l: nat):
+ $ k < l -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe S n t l $;
+
+def sqEigenName (H S t k c: nat): nat =
+ $ kFreshAllocate H (sqQuote (sqNumericEnvironment S) t k 0 c) 0 k $;
+
+def sqEigenContext (H S t k c: nat): nat = $ kMem t (sqEigenName H S t k c) : H $;
+
+theorem sqEigenName_above_base (H S t k c: nat): $ k < sqEigenName H S t k c $;
+
+theorem sqEigenName_context (H S t k c: nat): $ kContextFresh H (sqEigenName H S t k c) $;
+
+theorem sqEigenName_formula (H S t k c: nat):
+ $ kFresh (sqQuote (sqNumericEnvironment S) t k 0 c) (sqEigenName H S t k c) $;
+
+theorem sqEigenName_positive (H S t k c: nat): $ 0 < sqEigenName H S t k c $;
+
+theorem sqEigen_safe (H S n t k c: nat):
+ $ sqEnvironmentSafe S n t k -> sqEnvironmentSafe S n t (sqEigenName H S t k c) $;
+
+theorem sqEigen_safe_body (H S n t k c: nat):
+ $ sqEnvironmentSafe S n t k ->
+ sqEnvironmentSafe ((sqEigenName H S t k c) : S) (suc n) t (suc (sqEigenName H S t k c)) $;
+
+theorem sqEigen_domain (H S t k c: nat):
+ $ sqDomainSupport H S t ->
+ sqDomainSupport (sqEigenContext H S t k c) ((sqEigenName H S t k c) : S) t $;
+
+theorem sqSourceBound_from_code (n G: nat):
+ $ sfContextWf G -> G <= n -> sqSourceBound n G $;
+
+theorem sqEigen_source_support (H S n t k G c: nat):
+ $ sfContextWf G -> sqSourceBound n G -> sqEnvironmentSafe S n t k ->
+ sqSourceSupport H S t k G ->
+ sqSourceSupport (sqEigenContext H S t k c) ((sqEigenName H S t k c) : S) t
+ (suc (sqEigenName H S t k c)) (sfContextShift G) $;
+
+theorem sqSupported_AllI_core (F: wff) (H S n m t k G a: nat)
+ (hp: $ F -> sqSupportedAt m (sfSequent (sfContextShift G) a) $)
+ (hm: $ F -> m <= suc n $) (hw: $ F -> sfContextWf G $)
+ (hb: $ F -> sqSourceBound n G $) (ha: $ F -> sfBound n (sfAll a) $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> sqDomainSupport H S t $) (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfAll a)) $;
+
+theorem sqRowWf_sequent_source_bound (n G a: nat):
+ $ sfRowWf (sfSequent G a) -> sfSequent G a <= n -> sqSourceBound n G $;
+
+theorem sqRowWf_sequent_formula_bound (n G a: nat):
+ $ sfRowWf (sfSequent G a) -> sfSequent G a <= n -> sfBound n a $;
+
+theorem sqSupported_AllI_at (m G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> sqSupportedAt m (sfSequent (sfContextShift G) a) ->
+ sqSupportedAt (sfSequent G (sfAll a) + m) (sfSequent G (sfAll a)) $;
+
+theorem sqSupported_AllI (G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> sqSupportedGood (sfSequent (sfContextShift G) a) ->
+ sqSupportedGood (sfSequent G (sfAll a)) $;
+
+def sqEigenMinorContext (H S t k c a: nat): nat =
+ $ sqScopeBody (sqNumericEnvironment S) t (sqEigenName H S t k c) a : sqEigenContext H S t k c $;
+
+theorem sqSupported_ExE_core (F: wff) (H S n m j t k G a c: nat)
+ (hp: $ F -> sqSupportedAt m (sfSequent G (sfEx a)) $)
+ (hq: $ F -> sqSupportedAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) $)
+ (hm: $ F -> m <= n $) (hj: $ F -> j <= suc n $)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (hc: $ F -> sfBound n c $) (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> sqDomainSupport H S t $) (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 c) $;
+

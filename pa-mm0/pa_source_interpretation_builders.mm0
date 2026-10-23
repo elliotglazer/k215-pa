@@ -1,0 +1,47 @@
+import "pa_source_interpretation_operations.mm0";
+
+def paSITermSuccMap (.i: nat): set = $ \ i, if (i = 0) 0 (suc (i)) $;
+
+def paSITermLeftMap (.i: nat): set = $ \ i, if (i = 0) 1 (suc (suc (i))) $;
+
+def paSITermRightMap (.i: nat): set = $ \ i, if (i = 0) 0 (suc (suc (i))) $;
+
+def paSIFormulaLeftMap (.i: nat): set = $ \ i, if (i = 0) 1 (suc (i)) $;
+
+def paSourceTermVariable (i: nat): nat = $ sfEq 0 (suc i) $;
+
+def paSourceTermZero: nat = $ paSourceZero $;
+
+def paSourceTermNumeral (v: nat): nat = $ bb215SFNumeral v $;
+
+def paSourceTermSuccessor (a: nat): nat = $ sfEx (sfAnd (sfRename paSITermSuccMap 0 a) paSourceSuccessor) $;
+
+def paSourceTermAddition (a b: nat): nat = $ sfEx (sfEx (sfAnd (sfRename paSITermLeftMap 0 a) (sfAnd (sfRename paSITermRightMap 0 b) paSourceAddition102))) $;
+
+def paSourceTermMultiplication (a b: nat): nat = $ sfEx (sfEx (sfAnd (sfRename paSITermLeftMap 0 a) (sfAnd (sfRename paSITermRightMap 0 b) paSourceMultiplication102))) $;
+
+def paSourceFormulaEqual (a b: nat): nat = $ sfEx (sfEx (sfAnd (sfRename paSIFormulaLeftMap 0 a) (sfAnd (sfRename paSITermSuccMap 0 b) (sfEq 1 0)))) $;
+
+def paSourceFormulaAll (a: nat): nat = $ sfAll (sfImp paSourceNatural a) $;
+
+def paSourceFormulaEx (a: nat): nat = $ sfEx (sfAnd paSourceNatural a) $;
+
+theorem paSourceTermVariable_bound (i n: nat): $ i < n -> sfBound (suc n) (paSourceTermVariable i) $;
+
+theorem paSourceTermZero_bound (n: nat): $ sfBound (suc n) paSourceTermZero $;
+
+theorem paSourceTermNumeral_bound (v n: nat): $ sfBound (suc n) (paSourceTermNumeral v) $;
+
+theorem paSourceTermNumeral_instance (v a: nat): $ sfEx (sfAnd (paSourceTermNumeral v) a) = bb215SFNumeralInstance v a $;
+
+theorem paSourceTermSuccessor_bound (a n: nat): $ sfBound (suc n) a -> sfBound (suc n) (paSourceTermSuccessor a) $;
+
+theorem paSourceTermAddition_bound (a b n: nat): $ sfBound (suc n) a -> sfBound (suc n) b -> sfBound (suc n) (paSourceTermAddition a b) $;
+
+theorem paSourceTermMultiplication_bound (a b n: nat): $ sfBound (suc n) a -> sfBound (suc n) b -> sfBound (suc n) (paSourceTermMultiplication a b) $;
+
+theorem paSourceFormulaEqual_bound (a b n: nat): $ sfBound (suc n) a -> sfBound (suc n) b -> sfBound n (paSourceFormulaEqual a b) $;
+
+theorem paSourceFormulaAll_bound (a n: nat): $ sfBound (suc n) a -> sfBound n (paSourceFormulaAll a) $;
+
+theorem paSourceFormulaEx_bound (a n: nat): $ sfBound (suc n) a -> sfBound n (paSourceFormulaEx a) $;

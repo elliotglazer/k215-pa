@@ -1,0 +1,68 @@
+import "source_l_level_member_names.mm1";
+
+-- Ordinary numerical list induction, uniform in the internally finite count.
+theorem slRI_true_subst (k t: nat): $ sfSubst k t sfCLTrue = sfCLTrue $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq sfSubst_bot sfSubst_bot));
+
+theorem slRI_member1_index (start n t: nat):
+ $ sfSubstIndex 1 t (n + suc (suc start)) = n + suc start $ =
+ '(eqtr (sfSubstIndexeq3 (eqtr addS2 (suceq addS2)))
+   (eqtr sfSubstIndex_lift (eqtr (suceq sfSubstIndex_successor) (eqcom addS2))));
+
+theorem slRI_member1_last (start n t: nat):
+ $ sfSubst 1 t (sfMem (n + suc (suc start)) 0) = sfMem (n + suc start) 0 $ =
+ '(eqtr sfSubst_sfMem (nsMem_eq slRI_member1_index (ax_mp sfSubstIndex_bound lt01S)));
+
+pub theorem sfLMemberBlock_subst1 (start n t: nat):
+ $ sfSubst 1 t (sfCLMembership (suc (suc start)) 0 n) = sfCLMembership (suc start) 0 n $ =
+ (named @ induct '(ind) 'n
+   '(eqtr (sfSubsteq eqid eqid sfCLMembership_zero) (eqtr slRI_true_subst (eqcom sfCLMembership_zero)))
+   '(eqtrd (a1i (sfSubsteq eqid eqid sfCLMembership_suc))
+     (eqtrd (a1i sfSubst_sfAnd)
+       (eqtrd (sfAndeqd id (a1i slRI_member1_last)) (a1i (eqcom sfCLMembership_suc))))));
+
+theorem slRI_member0_index (start n t: nat):
+ $ sfSubstIndex 0 t (n + suc start) = n + start $ =
+ '(eqtr (sfSubstIndexeq3 addS2) sfSubstIndex_successor);
+
+theorem slRI_member0_last (start n t: nat):
+ $ sfSubst 0 t (sfMem (n + suc start) 0) = sfMem (n + start) t $ =
+ '(eqtr sfSubst_sfMem (nsMem_eq slRI_member0_index sfSubstIndex_zero));
+
+pub theorem sfLMemberBlock_subst0 (start n t: nat):
+ $ sfSubst 0 t (sfCLMembership (suc start) 0 n) = sfCLMembership start t n $ =
+ (named @ induct '(ind) 'n
+   '(eqtr (sfSubsteq eqid eqid sfCLMembership_zero) (eqtr slRI_true_subst (eqcom sfCLMembership_zero)))
+   '(eqtrd (a1i (sfSubsteq eqid eqid sfCLMembership_suc))
+     (eqtrd (a1i sfSubst_sfAnd)
+       (eqtrd (sfAndeqd id (a1i slRI_member0_last)) (a1i (eqcom sfCLMembership_suc))))));
+
+pub theorem sfLPoint_subst1 (start n t: nat):
+ $ sfSubst 1 t (sfCLPoint (suc (suc start)) n 1 0) = sfCLPoint (suc start) n (suc t) 0 $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq
+   (eqtr sfSubst_sfAnd (nsAnd_eq
+     (eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq (eqtr sfSubstIndex_hit add12)))
+     (eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq
+       (eqtr sfSubstIndex_hit add12) (ax_mp sfSubstIndex_bound lt01S)))))
+   sfLMemberBlock_subst1));
+
+pub theorem sfLPoint_subst0 (start n beta y: nat):
+ $ sfSubst 0 y (sfCLPoint (suc start) n (suc beta) 0) = sfCLPoint start n beta y $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq
+   (eqtr sfSubst_sfAnd (nsAnd_eq
+     (eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq sfSubstIndex_successor))
+     (eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq sfSubstIndex_successor sfSubstIndex_zero))))
+   sfLMemberBlock_subst0));
+
+theorem slRI_outer (start n beta: nat):
+ $ sfSubst 0 beta (sfEx (sfCLPoint (suc (suc start)) n 1 0)) =
+   sfEx (sfCLPoint (suc start) n (suc beta) 0) $ =
+ '(eqtr sfSubst_sfEx (nsEx_eq sfLPoint_subst1));
+
+pub theorem sfLRecipe_intro (G start n beta y: nat)
+ (hp: $ nsLocal G (sfCLPoint start n beta y) $):
+ $ nsLocal G (sfCLRecipe start n) $ =
+ '(ax_mp (ax_mp nsLocal_ExI (ax_mp sfWf_ex sfCLPoint_wf))
+   (sfRQ_rewrite (eqcom slRI_outer)
+     (ax_mp (ax_mp nsLocal_ExI sfCLPoint_wf)
+       (sfRQ_rewrite (eqcom sfLPoint_subst0) hp))));

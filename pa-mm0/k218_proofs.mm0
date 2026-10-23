@@ -1,0 +1,27 @@
+-- Replayed in the distinct exact SeedG calculus. No K230 proof predicate is assumed.
+import "k218_axioms.mm0";
+
+-- A fixed numerical checker for the actual Thm222 axiom/rule calculus.
+-- Its reverse-list representation must still be related to the machine's
+-- enumeration and to the beta-coded representation in the Rocq proof.
+def k218MpRules (.c .l .b: nat): set =
+$ S\ c, {l | c e. k218Axioms \/ E. b (b IN l /\ kImp b c IN l)} $;
+def k218GenRules (.c .l .a .b: nat): set =
+$ S\ c, {l | E. a E. b (b IN l /\ c = kAll a b)} $;
+def k218Rules: set = $ k218MpRules u. k218GenRules $;
+def k218Derives (p a: nat): wff = $ traceDerives k218Rules p a $;
+def k218Inconsistent (.p: nat): wff = $ E. p k218Derives p kF $;
+
+theorem k218MpRules_value {b: nat} (c l: nat):
+  $ (c, l) e. k218MpRules <-> c e. k218Axioms \/ E. b (b IN l /\ kImp b c IN l) $;
+theorem k218GenRules_value {a b: nat} (c l: nat):
+  $ (c, l) e. k218GenRules <-> E. a E. b (b IN l /\ c = kAll a b) $;
+theorem k218Rules_stable: $ traceAppendStable k218Rules $;
+theorem k218Derives_axiom (a: nat): $ a e. k218Axioms -> k218Derives (a : 0) a $;
+theorem k218Derives_true: $ k218Derives (0 : 0) 0 $;
+theorem k218Derives_mp (p q a b: nat):
+  $ k218Derives p a -> k218Derives q (kImp a b) -> k218Derives (b : (p ++ q)) b $;
+theorem k218Derives_gen (p a b: nat):
+  $ k218Derives p b -> k218Derives (kAll a b : p) (kAll a b) $;
+theorem k218Derives_bundle (a b c: nat):
+  $ c != a /\ c != b -> k218Derives (k218Bundle a b c : 0) (k218Bundle a b c) $;

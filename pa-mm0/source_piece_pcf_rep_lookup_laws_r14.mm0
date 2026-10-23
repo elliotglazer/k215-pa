@@ -1,0 +1,78 @@
+import "source_piece_pcf_rep_domain_r9.mm0";
+
+import "source_piece_pcf_rep_neq_r12.mm0";
+
+import "source_piece_pcf_rep_some_r13.mm0";
+
+def sfPieceRepApplication(e x w:nat):nat = $ (sfEx (sfAnd (sfMem 0 (suc e)) (sfAnd (sfAnd (sfEx (sfAnd (sfMem 0 1) (sfAnd (sfMem (suc (suc x)) 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 (suc (suc (suc x))))))))) (sfEx (sfAnd (sfMem 0 1) (sfAnd (sfAnd (sfMem (suc (suc x)) 0) (sfMem (suc (suc w)) 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 (suc (suc (suc x)))) (sfEq 0 (suc (suc (suc w))))))))))) (sfAll (sfImp (sfMem 0 1) (sfOr (sfAnd (sfMem (suc (suc x)) 0) (sfAll (sfImp (sfMem 0 1) (sfEq 0 (suc (suc (suc x))))))) (sfAnd (sfAnd (sfMem (suc (suc x)) 0) (sfMem (suc (suc w)) 0)) (sfAll (sfImp (sfMem 0 1) (sfOr (sfEq 0 (suc (suc (suc x)))) (sfEq 0 (suc (suc (suc w)))))))))))))) $;
+
+theorem sfPieceRepApplication_wf(e x w:nat):
+ $ sfWf (sfPieceRepApplication e x w) $;
+
+theorem sfPieceRepApplication_eq(e x w ep xp wp:nat)(he:$ e = ep $)(hx:$ x = xp $)(hw:$ w = wp $):
+ $ sfPieceRepApplication e x w = sfPieceRepApplication ep xp wp $;
+
+theorem sfPieceRepApplication_rename(R:set)(d e x w:nat):
+ $ sfRename R d (sfPieceRepApplication e x w) = sfPieceRepApplication (sfRenameIndex R d e) (sfRenameIndex R d x) (sfRenameIndex R d w) $;
+
+theorem sfPieceRepApplication_subst(d t e x w:nat):
+ $ sfSubst d t (sfPieceRepApplication e x w) = sfPieceRepApplication (sfSubstIndex d t e) (sfSubstIndex d t x) (sfSubstIndex d t w) $;
+
+def sfPieceRepIff(a b:nat):nat = $ sfAnd (sfImp a b) (sfImp b a) $;
+
+theorem sfPieceRepIff_wf(a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $):
+ $ sfWf (sfPieceRepIff a b) $;
+
+theorem sfPieceRepIff_eq(a b c d:nat)(ha:$ a = c $)(hb:$ b = d $):
+ $ sfPieceRepIff a b = sfPieceRepIff c d $;
+
+theorem sfPieceRepIff_shift(a b:nat):
+ $ sfShift 0 (sfPieceRepIff a b) = sfPieceRepIff (sfShift 0 a) (sfShift 0 b) $;
+
+def sfPieceRepLookupHeadLaw:nat = $ (sfAll (sfAll (sfAll (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension 5 4 3) (sfImp (sfPieceRepDomain 5 2) (sfImp (sfEq 1 2) (sfAnd (sfImp (sfPieceRepApplication 3 1 0) (sfEq 0 4)) (sfImp (sfEq 0 4) (sfPieceRepApplication 3 1 0)))))))))))) $;
+
+theorem sfPieceRepLookup_head_use(G e v z d x w:nat):
+ $ (nsLocal G sfPieceRepLookupHeadLaw) -> (nsLocal G (sfPieceRepExtension e v z)) -> (nsLocal G (sfPieceRepDomain e d)) -> (nsLocal G (sfEq x d)) -> (nsLocal G (sfAnd (sfImp (sfPieceRepApplication z x w) (sfEq w v)) (sfImp (sfEq w v) (sfPieceRepApplication z x w)))) $;
+
+def sfPieceRepLookupTailLaw:nat = $ (sfAll (sfAll (sfAll (sfAll (sfAll (sfAll (sfImp (sfPieceRepExtension 5 4 3) (sfImp (sfPieceRepDomain 5 2) (sfImp (sfImp (sfEq 1 2) sfBot) (sfAnd (sfImp (sfPieceRepApplication 3 1 0) (sfPieceRepApplication 5 1 0)) (sfImp (sfPieceRepApplication 5 1 0) (sfPieceRepApplication 3 1 0)))))))))))) $;
+
+theorem sfPieceRepLookup_tail_use(G e v z d x w:nat):
+ $ (nsLocal G sfPieceRepLookupTailLaw) -> (nsLocal G (sfPieceRepExtension e v z)) -> (nsLocal G (sfPieceRepDomain e d)) -> (nsLocal G (sfImp (sfEq x d) sfBot)) -> (nsLocal G (sfAnd (sfImp (sfPieceRepApplication z x w) (sfPieceRepApplication e x w)) (sfImp (sfPieceRepApplication e x w) (sfPieceRepApplication z x w)))) $;
+
+def sfPieceRepLookupLaws:nat = $ (sfAnd sfPieceRepEmptyExists (sfAnd sfPieceRepSuccessorTotal (sfAnd sfPieceRepEmptyUniqueLaw (sfAnd sfPieceRepSuccessorUniqueLaw (sfAnd sfPieceRepSuccessorLiftLaw (sfAnd sfPieceRepNoSelfLaw (sfAnd sfPieceRepDomainBaseLaw (sfAnd sfPieceRepDomainStepLaw (sfAnd sfPieceRepLookupHeadLaw sfPieceRepLookupTailLaw))))))))) $;
+
+theorem sfPieceRepLookupLaws_wf:
+ $ sfWf sfPieceRepLookupLaws $;
+
+theorem sfPieceRepLookupLaws_shift:
+ $ sfShift 0 sfPieceRepLookupLaws = sfPieceRepLookupLaws $;
+
+theorem sfPieceRepLookupLaws_empty_exists(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepEmptyExists) $;
+
+theorem sfPieceRepLookupLaws_total(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepSuccessorTotal) $;
+
+theorem sfPieceRepLookupLaws_empty_unique(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepEmptyUniqueLaw) $;
+
+theorem sfPieceRepLookupLaws_successor_unique(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepSuccessorUniqueLaw) $;
+
+theorem sfPieceRepLookupLaws_successor_lift(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepSuccessorLiftLaw) $;
+
+theorem sfPieceRepLookupLaws_no_self(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepNoSelfLaw) $;
+
+theorem sfPieceRepLookupLaws_domain_base(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepDomainBaseLaw) $;
+
+theorem sfPieceRepLookupLaws_domain_step(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepDomainStepLaw) $;
+
+theorem sfPieceRepLookupLaws_head(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepLookupHeadLaw) $;
+
+theorem sfPieceRepLookupLaws_tail(G:nat):
+ $ (nsLocal G sfPieceRepLookupLaws) -> (nsLocal G sfPieceRepLookupTailLaw) $;

@@ -1,0 +1,288 @@
+import "source_piece_pcf_rep_environment.mm1";
+import "source_piece_pcf_rep_cover_laws_r39.mm1";
+import "source_l_common_level_blocks.mm1";
+import "source_l_common_level_recipe_transport.mm1";
+import "source_l_replacement_reflected_image.mm1";
+import "source_theory_local.mm1";
+import "source_l_background.mm1";
+
+@_ def lreEnvOpen(m:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 3 2 m)
+   (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 4) m 0))))) $;
+
+@_ def lreEnvLaw(m:nat):nat = $ sfAllPrefix (m + 3) (lreEnvOpen m) $;
+
+@_ def lreEnvOpen5(m:nat):nat =
+ $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfImp (sfCLMembership 4 2 m)
+   (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 5) m 0))))) $;
+
+@_ def lreExtStep: nat =
+ $ sfAll (sfAll (sfImp (sfMem 1 2) (sfImp (sfMem 0 4)
+   (sfEx (sfAnd (sfMem 0 3) (sfPieceRepExtension 2 1 0)))))) $;
+
+@_ def lreExtOpen: nat = $ sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) lreExtStep) $;
+
+@_ def lreExtLaw: nat = $ sfAllPrefix 3 lreExtOpen $;
+
+-- Arithmetic.
+theorem lre_n4(n:nat): $ n + 4 = suc (suc (suc (suc n))) $ =
+ '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add02))))))));
+theorem lre_n5(n:nat): $ n + 5 = suc (suc (suc (suc (suc n)))) $ =
+ '(eqtr addS (suceq lre_n4));
+theorem lre_sn3(n:nat): $ suc n + 3 = n + 4 $ = '(eqtr addS1 (eqcom addS2));
+
+-- Well-formedness.
+pub theorem lreEnvOpen_wf(m:nat): $ sfWf (lreEnvOpen m) $ =
+ '(ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepClosure_wf)
+   (ax_mp (ax_mp sfWf_imp sfCLMembership_wf) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf)))));
+
+theorem lre_env5_wf(m:nat): $ sfWf (lreEnvOpen5 m) $ =
+ '(ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepClosure_wf)
+   (ax_mp (ax_mp sfWf_imp sfCLMembership_wf) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf)))));
+
+theorem lre_B_wf:
+ $ sfWf (sfImp (sfMem 1 2) (sfImp (sfMem 0 4) (sfEx (sfAnd (sfMem 0 3) (sfPieceRepExtension 2 1 0))))) $ =
+ '(ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfWf_mem)
+   (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceRepExtension_wf))));
+
+theorem lre_step_wf: $ sfWf lreExtStep $ = '(ax_mp sfWf_all (ax_mp sfWf_all lre_B_wf));
+
+theorem lre_ext_wf: $ sfWf lreExtOpen $ =
+ '(ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepClosure_wf) lre_step_wf));
+
+-- Context plumbing.
+theorem lre_lift(G a b:nat)(hg:$ sfContextWf (a : sfContextShift G) $)
+ (h:$ nsLocal G b $): $ nsLocal (a : sfContextShift G) (sfShift 0 b) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken hg) sfContextSub_cons) (ax_mp sfSepLocal_shift h));
+
+theorem lre_lift_all(G a b:nat)(hb:$ sfWf b $)(hg:$ sfContextWf (a : sfContextShift G) $)
+ (h:$ nsLocal G (sfAll b) $): $ nsLocal (a : sfContextShift G) b $ =
+ '(sfRQ_rewrite (ax_mp sfSubst_shift_up_identity hb) (ax_mp nsLocal_AllE (sfRQ_rewrite sfShift_sfAll
+   (lre_lift hg h))));
+
+theorem lre_cons_wf(G a:nat)(ha:$ sfWf a $)(hg:$ sfContextWf G $):
+ $ sfContextWf (a : sfContextShift G) $ =
+ '(mpbir sfContextWf_cons (ian ha (ax_mp sfContextShift_preserves_wf hg)));
+
+theorem lre_mem_shift0(a b:nat): $ sfShift 0 (sfMem a b) = sfMem (suc a) (suc b) $ =
+ '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_free lt02) (ax_mp sfShiftIndex_free lt02)));
+
+-- Parameter rows: sfCLMembership 3 2 (suc n) gives 3 in 2 and sfCLMembership 4 2 n.
+theorem lre_mr1_zero(G:nat):
+ $ nsLocal G (sfCLMembership 3 2 (suc 0)) -> nsLocal G (sfMem 3 2) $ =
+ '(syl (bi1 (nsLocal_formula_eq (nsMem_eq add01 eqid)))
+   (syl nsLocal_CE2 (bi1 (nsLocal_formula_eq sfCLMembership_suc))));
+
+theorem lre_mr1_step(G n:nat):
+ $ (nsLocal G (sfCLMembership 3 2 (suc n)) -> nsLocal G (sfMem 3 2)) ->
+   nsLocal G (sfCLMembership 3 2 (suc (suc n))) -> nsLocal G (sfMem 3 2) $ =
+ '(imim1i (syl nsLocal_CE1 (bi1 (nsLocal_formula_eq sfCLMembership_suc))));
+
+theorem lre_mr1(G n:nat):
+ $ nsLocal G (sfCLMembership 3 2 (suc n)) -> nsLocal G (sfMem 3 2) $ =
+ (named @ induct '(ind) 'n 'lre_mr1_zero 'lre_mr1_step);
+
+theorem lre_mr2_zero(G:nat)(hg:$ sfContextWf G $):
+ $ nsLocal G (sfCLMembership 3 2 (suc 0)) -> nsLocal G (sfCLMembership 4 2 0) $ =
+ '(a1i (sfRQ_rewrite (eqcom sfCLMembership_zero) (sfCLTrue_proof hg)));
+
+theorem lre_mr2_step(G n:nat):
+ $ (nsLocal G (sfCLMembership 3 2 (suc n)) -> nsLocal G (sfCLMembership 4 2 n)) ->
+   nsLocal G (sfCLMembership 3 2 (suc (suc n))) -> nsLocal G (sfCLMembership 4 2 (suc n)) $ =
+ '(exp @ sylc (syl6 (bi2 (nsLocal_formula_eq sfCLMembership_suc)) sfLocal_and)
+   (mpd (syl (syl nsLocal_CE1 (bi1 (nsLocal_formula_eq sfCLMembership_suc))) anr) anl)
+   (syl (syl (bi1 (nsLocal_formula_eq (nsMem_eq lre_sn3 eqid)))
+     (syl nsLocal_CE2 (bi1 (nsLocal_formula_eq sfCLMembership_suc)))) anr));
+
+theorem lre_mr2(G n:nat)(hg:$ sfContextWf G $):
+ $ nsLocal G (sfCLMembership 3 2 (suc n)) -> nsLocal G (sfCLMembership 4 2 n) $ =
+ (named @ induct '(ind) 'n '(lre_mr2_zero hg) 'lre_mr2_step);
+
+-- Renaming the parameters up by one: sfRename (i -> i+1 above 3) of lreEnvOpen is lreEnvOpen5.
+theorem lre_lt13: $ 1 < 3 $ = '(mpbi ltsuc lt01S);
+theorem lre_lt23: $ 2 < 3 $ = '(mpbi ltsuc (mpbi ltsuc lt01S));
+
+theorem lre_succ_s3: $ sfShift 3 (sfPieceRepSuccessor 2 1) = sfPieceRepSuccessor 2 1 $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepSuccessor_wf))
+   (eqtr sfPieceRepSuccessor_rename (sfPieceRepSuccessor_eq
+    (ax_mp sfRenameIndex_bound lre_lt23) (ax_mp sfRenameIndex_bound lre_lt13))));
+
+theorem lre_cl_s3: $ sfShift 3 (sfPieceRepClosure 1 0) = sfPieceRepClosure 1 0 $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepClosure_wf))
+   (eqtr sfPieceRepClosure_rename (sfPieceRepClosure_eq
+    (ax_mp sfRenameIndex_bound lre_lt13) (ax_mp sfRenameIndex_bound lt01S))));
+
+theorem lre_mem_s3(n:nat): $ sfShift 3 (sfCLMembership 3 2 n) = sfCLMembership 4 2 n $ =
+ '(sfCLMembership_shift_cutoff leid lre_lt23);
+
+theorem lre_m01_s4: $ sfShift 4 (sfMem 0 1) = sfMem 0 1 $ =
+ '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S)
+   (ax_mp sfShiftIndex_bound (mpbi ltsuc lt01S))));
+
+theorem lre_dm4_zero: $ sfRenameDepthMap sfSuccessorMap 4 @ 0 = 0 $ =
+ '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S));
+
+theorem lre_dm4_at(j:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap 4) (sfLReplacementStartMap 4) @ j =
+   sfLReplacementStartMap 5 @ j $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i (eqtr sfLReplacementStartMap_at lre_n4))))
+    (eqtr (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_lift
+      (suceq (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)))))))))
+     (eqcom (eqtr sfLReplacementStartMap_at lre_n5))))));
+
+theorem lre_env_s4(n:nat):
+ $ sfShift 4 (sfPieceEnv (sfLReplacementStartMap 4) n 0) = sfPieceEnv (sfLReplacementStartMap 5) n 0 $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceEnv_wf))
+   (eqtr (sfRenameeq2 (eqcom add01))
+    (eqtr (ax_mp sfRename_depth sfPieceEnv_wf)
+     (eqtr sfPieceEnv_rename (sfPieceEnv_eq lre_dm4_zero (!! ax_gen j @ ! lre_dm4_at j)))))));
+
+theorem lre_open_s3(n:nat): $ sfShift 3 (lreEnvOpen n) = lreEnvOpen5 n $ =
+ '(eqtr sfShift_sfImp (nsImp_eq lre_succ_s3 (eqtr sfShift_sfImp (nsImp_eq lre_cl_s3
+   (eqtr sfShift_sfImp (nsImp_eq lre_mem_s3 (eqtr sfShift_sfEx (nsEx_eq
+    (eqtr sfShift_sfAnd (nsAnd_eq lre_m01_s4 lre_env_s4))))))))));
+
+theorem lre_rename3(n:nat):
+ $ sfRename (sfRenameDepthMap sfSuccessorMap 3) 0 (lreEnvOpen n) = lreEnvOpen5 n $ =
+ '(eqtr (eqcom (ax_mp sfRename_depth lreEnvOpen_wf))
+   (eqtr (sfRenameeq2 add01) (eqtr (ax_mp sfRename_successor lreEnvOpen_wf) lre_open_s3)));
+
+-- The goal under one more binder.
+theorem lre_dm1_zero: $ sfRenameDepthMap sfSuccessorMap 1 @ 0 = 0 $ =
+ '(eqtr sfRenameDepthMap_value (ax_mp sfRenameIndex_bound lt01S));
+
+theorem lre_dm1_at(j:nat):
+ $ sfComposeMap (sfRenameDepthMap sfSuccessorMap 1) (sfLReplacementStartMap 4) @ j =
+   sfLReplacementStartMap 5 @ j $ =
+ '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+   (eqtr (trud (sfRenameIndex_congr_index (a1i (eqtr sfLReplacementStartMap_at lre_n4))))
+    (eqtr (eqtr sfRenameIndex_lift (suceq (eqtr sfRenameIndex_zero sfSuccessorMap_value)))
+     (eqcom (eqtr sfLReplacementStartMap_at lre_n5))))));
+
+theorem lre_env_s1(k:nat):
+ $ sfShift 1 (sfPieceEnv (sfLReplacementStartMap 4) k 0) = sfPieceEnv (sfLReplacementStartMap 5) k 0 $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceEnv_wf))
+   (eqtr (sfRenameeq2 (eqcom add01))
+    (eqtr (ax_mp sfRename_depth sfPieceEnv_wf)
+     (eqtr sfPieceEnv_rename (sfPieceEnv_eq lre_dm1_zero (!! ax_gen j @ ! lre_dm1_at j)))))));
+
+theorem lre_goal_s0(k:nat):
+ $ sfShift 0 (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 4) k 0))) =
+   sfEx (sfAnd (sfMem 0 2) (sfPieceEnv (sfLReplacementStartMap 5) k 0)) $ =
+ '(eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq
+   (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free ltirr)))
+   lre_env_s1))));
+
+-- The tail environment after the second binder.
+theorem lre_rest5_at(j:nat):
+ $ sfComposeMap sfSuccessorMap (sfLReplacementStartMap 5) @ j =
+   sfPieceRepRest (sfLReplacementStartMap 5) @ j $ =
+ '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value (eqtr (suceq sfLReplacementStartMap_at)
+   (eqcom (eqtr sfPieceRepRest_at (eqtr sfLReplacementStartMap_at addS1))))));
+
+theorem lre_tail_shift(n:nat):
+ $ sfShift 0 (sfPieceEnv (sfLReplacementStartMap 5) n 0) =
+   sfPieceEnv (sfPieceRepRest (sfLReplacementStartMap 5)) n 1 $ =
+ (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceEnv_wf))
+   (eqtr sfPieceEnv_rename (sfPieceEnv_eq sfSuccessorMap_value (!! ax_gen j @ ! lre_rest5_at j)))));
+
+theorem lre_sm5_0: $ sfLReplacementStartMap 5 @ 0 = 5 $ = '(eqtr sfLReplacementStartMap_at add01);
+
+-- The extension step instantiated at v = 4 (the first parameter, one binder down).
+theorem lre_ext_inst:
+ $ sfSubst 0 4 (sfImp (sfMem 1 2) (sfImp (sfMem 0 4) (sfEx (sfAnd (sfMem 0 3) (sfPieceRepExtension 2 1 0))))) =
+   sfImp (sfMem 0 1) (sfImp (sfMem 4 3) (sfEx (sfAnd (sfMem 0 2) (sfPieceRepExtension 1 5 0)))) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq
+   (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_successor sfSubstIndex_successor))
+   (eqtr sfSubst_sfImp (nsImp_eq
+    (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))
+    (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd (nsAnd_eq
+     (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S)
+      (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor))))
+     (eqtr sfPieceRepExtension_subst (sfPieceRepExtension_eq
+      (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor))
+      (eqtr sfSubstIndex_lift (suceq sfSubstIndex_zero))
+      (ax_mp sfSubstIndex_bound lt01S)))))))))));
+
+-- Local step: from the tail environment in C, p_0 = 3 in A = 2 and the extension step,
+-- the environment of all parameters is in C (C = 0).
+theorem lre_step_local(G n:nat)(hg:$ sfContextWf G $)
+ (hx:$ nsLocal G lreExtStep $)
+ (he:$ nsLocal G (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 5) n 0))) $)
+ (ha:$ nsLocal G (sfMem 3 2) $):
+ $ nsLocal G (sfEx (sfAnd (sfMem 0 1) (sfPieceEnv (sfLReplacementStartMap 4) (suc n) 0))) $ =
+ '(ax_mp (ax_mp (sfLocal_exE (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf))) he)
+   (sfRQ_rewrite (eqcom lre_goal_s0)
+    (ax_mp (ax_mp (sfLocal_exE (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf)))
+      (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+        (sfRQ_rewrite lre_ext_inst (ax_mp nsLocal_AllE
+         (lre_lift_all (ax_mp sfWf_all lre_B_wf)
+          (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg) hx))))
+        (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp
+         (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg)) sfContext_member_head))))
+       (sfRQ_rewrite lre_mem_shift0
+        (lre_lift (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg) ha))))
+     (sfRQ_rewrite (eqcom sfShift_sfEx)
+      (ax_mp (ax_mp nsLocal_ExI sfShift_wf)
+       (mpbir (nsLocal_formula_eq (ax_mp sfSubst_shift_up_identity
+         (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf)))
+        (ax_mp (ax_mp sfLocal_and
+          (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp
+           (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceRepExtension_wf)
+            (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg))) sfContext_member_head)))
+         (sfPieceEnv_suc_intro
+          (sfRQ_rewrite lre_tail_shift
+           (lre_lift (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceRepExtension_wf)
+             (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg))
+            (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp
+             (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg)) sfContext_member_head))))
+          (sfRQ_rewrite (sfPieceRepExtension_eq eqid (eqcom lre_sm5_0) eqid)
+           (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp
+            (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceRepExtension_wf)
+             (lre_cons_wf (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceEnv_wf) hg))) sfContext_member_head)))))))))));
+
+-- Background level: lreExtOpen -> lreEnvOpen5 n -> lreEnvOpen (suc n).
+theorem lre_gc_wf(n:nat):
+ $ sfContextWf (sfCLMembership 3 2 (suc n) : (sfPieceRepClosure 1 0 : (sfPieceRepSuccessor 2 1 :
+   (lreEnvOpen5 n : (lreExtOpen : sfLBackground))))) $ =
+ '(mpbir sfContextWf_cons (ian sfCLMembership_wf (mpbir sfContextWf_cons (ian sfPieceRepClosure_wf
+   (mpbir sfContextWf_cons (ian sfPieceRepSuccessor_wf (mpbir sfContextWf_cons (ian lre_env5_wf
+    (mpbir sfContextWf_cons (ian lre_ext_wf sfLBackground_wf))))))))));
+
+theorem lre_step_bg(n:nat):
+ $ nsLocal sfLBackground (sfImp lreExtOpen (sfImp (lreEnvOpen5 n) (lreEnvOpen (suc n)))) $ =
+ '(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II
+   (lre_step_local lre_gc_wf
+    (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+      (ax_mp (ax_mp nsLocal_hyp lre_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+       (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))))
+      (ax_mp (ax_mp nsLocal_hyp lre_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+       sfContext_member_head)))))
+     (ax_mp (ax_mp nsLocal_hyp lre_gc_wf) (ax_mp sfContext_member_tail sfContext_member_head)))
+    (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+      (ax_mp (ax_mp nsLocal_hyp lre_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+       (ax_mp sfContext_member_tail sfContext_member_head)))))
+      (ax_mp (ax_mp nsLocal_hyp lre_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+       sfContext_member_head)))))
+      (ax_mp (ax_mp nsLocal_hyp lre_gc_wf) (ax_mp sfContext_member_tail sfContext_member_head))))
+     (ax_mp (lre_mr2 lre_gc_wf) (ax_mp (ax_mp nsLocal_hyp lre_gc_wf) sfContext_member_head)))
+    (ax_mp lre_mr1 (ax_mp (ax_mp nsLocal_hyp lre_gc_wf) sfContext_member_head))))))));
+
+pub theorem lreEnvOpen_step(n:nat)(hX:$ sfTheoryProvable zfrAxioms lreExtOpen $):
+ $ sfTheoryProvable zfrAxioms (lreEnvOpen n) -> sfTheoryProvable zfrAxioms (lreEnvOpen (suc n)) $ =
+ '(syl (ax_mp sfTheoryProvable_mp (ax_mp (ax_mp sfTheoryProvable_mp
+     (ax_mp (sfTheory_local sfLBackground_zfr) lre_step_bg)) hX))
+   (syl (bi1 (sfTheoryProvableeq2 lre_rename3)) (ax_mp sfTheoryProvable_rename zfrAxioms_closed)));
+
+pub theorem lreEnvOpen_all(n:nat)(hX:$ sfTheoryProvable zfrAxioms lreExtOpen $)
+ (h0:$ sfTheoryProvable zfrAxioms (lreEnvOpen 0) $):
+ $ sfTheoryProvable zfrAxioms (lreEnvOpen n) $ =
+ (named @ induct '(ind) 'n 'h0 '(lreEnvOpen_step hX));
+
+pub theorem lreEnvLaw_from_ext(m:nat)(hX:$ sfTheoryProvable zfrAxioms lreExtLaw $)
+ (h0:$ sfTheoryProvable zfrAxioms (lreEnvLaw 0) $):
+ $ sfTheoryProvable zfrAxioms (lreEnvLaw m) $ =
+ '(ax_mp (ax_mp sfTheoryProvable_prefix_intro zfrAxioms_closed)
+   (lreEnvOpen_all (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) hX)
+    (ax_mp (ax_mp sfTheoryProvable_prefix_elim zfrAxioms_closed) h0)));

@@ -1,0 +1,23 @@
+import "k215_literal_control.mm1";
+
+do (apply (register-eqd 'k215TMRun) '(k215TMRuneqd));
+do (apply (register-eqd 'k215TMQ) '(k215TMQeqd));
+
+theorem k215TmControlBudget_at (m n s t: nat):
+ $ k215TMRun (suc m) s = t ->
+   k215TMQ (k215TMRun (suc n) s) = k215Num215 ->
+   k215TMQ (k215TMRun n t) = k215Num215 $ =
+'(exp @ eqtrd
+  (k215TMQeqd @ eqtrd (eqcomd (syl k215TMRun_splice anl)) @
+    eqtrd (a1i (k215TMRuneq1 (eqtr addcom (eqtr addS (eqcom addS1))))) @
+    eqtrd (a1i k215TMRun_add) (syl k215TMRun_stopped anr)) anr);
+
+pub theorem k215TmControlProgress_reach (s t: nat):
+ $ k215TmControlProgress s t -> k215TMReach s t $ =
+ (named '(eex k215TMReach_intro));
+
+pub theorem k215TmControlProgress_budget (s t n: nat):
+ $ k215TmControlProgress s t ->
+   k215TMQ (k215TMRun (suc n) s) = k215Num215 ->
+   k215TMQ (k215TMRun n t) = k215Num215 $ =
+ (named '(eex k215TmControlBudget_at));

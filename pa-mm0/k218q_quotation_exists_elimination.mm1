@@ -1,0 +1,40 @@
+-- Generated Q replay candidate; not a checked theorem until check.py passes.
+import "quotation_exists_elimination.mm1";
+import "k218q_bootstrap.mm1";
+import "k218q_quotation_quantifiers.mm1";
+
+pub theorem k218SQ_sqLocal_exE_matrix (H: nat) (E: set) (t k a q: nat)
+ (ha: $ sfWf a $) (hf: $ kContextFresh H k $) (hq: $ kFresh q k $):
+ $ k218SQ_sqLocal H E t k 0 (sfEx a) ->
+   k218IHypProvable (sqScopeEx E t k a : H) q -> k218IHypProvable H q $ =
+'(exp @ sylc
+ (k218IHypProvable_exists_elim (ax_mp k218IContextFresh_vacuous hf) (k218QFresh_vacuity hq))
+ (syl (bi1 (k218IHypProvableeq2 (sqQuote_ex_cons ha))) anl)
+ (syl k218IHypProvable_deduction anr));
+
+theorem k218SQ_sqEE_matrix_member (H: nat) (E: set) (t k a: nat):
+ $ k218IHypProvable (sqScopeEx E t k a : H) (sqScopeEx E t k a) $ =
+'(k218IHypProvable_assumption lmemconsid);
+
+theorem k218SQ_sqEE_domain (H: nat) (E: set) (t k a: nat):
+ $ k218IHypProvable (sqScopeEx E t k a : H) (kMem t k) $ =
+'(k218IHypProvable_mp k218SQ_sqEE_matrix_member (k218IHypProvable_seed k218IPropAndLeft));
+
+theorem k218SQ_sqEE_body (H: nat) (E: set) (t k a: nat):
+ $ k218IHypProvable (sqScopeEx E t k a : H) (sqScopeBody E t k a) $ =
+'(k218IHypProvable_mp k218SQ_sqEE_matrix_member (k218IHypProvable_seed k218IPropAndRight));
+
+theorem k218SQ_sqEE_context_support (H: nat) (E: set) (t k a: nat):
+ $ k218IContextSupports (sqScopeEx E t k a : H) H $ =
+(named '(k218IContextSupports_inclusion (ax_gen (syl (bi2 lmemS) orr))));
+
+pub theorem k218SQ_sqExMatrix_support (H: nat) (E: set) (t k a: nat):
+ $ k218IContextSupports (sqScopeEx E t k a : H)
+     (sqScopeBody E t k a : (kMem t k : H)) $ =
+'(k218IContextSupports_cons (k218IContextSupports_cons k218SQ_sqEE_context_support k218SQ_sqEE_domain) k218SQ_sqEE_body);
+
+pub theorem k218SQ_sqLocal_exE_split (H: nat) (E: set) (t k a q: nat)
+ (ha: $ sfWf a $) (hf: $ kContextFresh H k $) (hq: $ kFresh q k $):
+ $ k218SQ_sqLocal H E t k 0 (sfEx a) ->
+   k218IHypProvable (sqScopeBody E t k a : (kMem t k : H)) q -> k218IHypProvable H q $ =
+'(syl5 (k218IHypProvable_refine k218SQ_sqExMatrix_support) (k218SQ_sqLocal_exE_matrix ha hf hq));

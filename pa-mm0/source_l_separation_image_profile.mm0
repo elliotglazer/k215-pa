@@ -1,0 +1,30 @@
+import "source_piece_pcf_separation_local.mm0";
+
+import "source_l_common_level_members.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def sfLSeparationImageDefProfile(T:set)(phi Y X x:nat):nat =
+ $ sfAll (sfIff (sfMem 0 (suc X))
+   (sfAnd (sfMem 0 (suc Y))
+    (sfAnd (sfMem 0 (suc x)) (sfCLSetRel (suc Y) (sfRename T 1 phi))))) $;
+
+def sfLSeparationImageComparison(T:set)(D phi Y:nat):nat =
+ $ sfAll (sfImp (sfMem 0 (suc Y))
+   (sfIff (sfRelativize D (sfRename T 1 phi))
+    (sfCLSetRel (suc Y) (sfRename T 1 phi)))) $;
+
+theorem sfLSeparationImagePredicate_under_binder(T:set)(phi x:nat)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons x T) 1 (sfPieceSeparationPredicate phi) =
+   sfAnd (sfMem 0 (suc x)) (sfRename T 1 phi) $;
+
+theorem sfLSeparationImageDefProfile_exact(T:set)(phi Y X x:nat)(hf:$ sfWf phi $):
+ $ sfPieceDefinableProfile (sqEnvCons x T) (sfPieceSeparationPredicate phi) Y X =
+   sfLSeparationImageDefProfile T phi Y X x $;
+
+theorem sfLSeparationImage_profile(T:set)(G D phi Y X x:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf phi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile (sqEnvCons x T) (sfPieceSeparationPredicate phi) Y X) $)
+ (hs:$ nsLocal G (sfCLSubset x Y) $)
+ (hr:$ nsLocal G (sfLSeparationImageComparison T D phi Y) $):
+ $ nsLocal G (sfPieceSeparationLocalBody T D phi X x) $;

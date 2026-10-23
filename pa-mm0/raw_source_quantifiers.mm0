@@ -1,0 +1,66 @@
+import "raw_source_equality.mm0";
+import "raw_source_falsity.mm0";
+import "source_renaming_cutoffs.mm0";
+
+theorem rqNot_decode (a: nat):
+  $ rawDecode (kNot a) = sfImp (rawDecode a) (sfMem 0 0) $;
+
+theorem rqExists_decode (x a: nat):
+  $ rawDecode (kExists x a) = sfImp (sfAll (sfRename (rawBinderMap x) 0 (sfImp (rawDecode a) (sfMem 0 0)))) (sfMem 0 0) $;
+
+theorem rqAllE_provable (a t: nat) (ha: $ sfWf a $):
+  $ zfcProvable (sfImp (sfAll a) (sfSubst 0 t a)) $;
+
+def rqRefuteContext (a p q: nat): nat = $ a : (sfImp q sfBot : (p : (sfImp a (sfImp p q) : 0))) $;
+
+theorem rqRefute_provable (a p q b: nat) (ha: $ sfWf a $) (hp: $ sfWf p $) (hq: $ sfWf q $) (hb: $ sfWf b $):
+  $ zfcProvable (sfImp (sfImp a (sfImp p q)) (sfImp p (sfImp (sfImp q sfBot) (sfImp a b)))) $;
+
+theorem zfcProvable_no_self_at (v: nat):
+  $ zfcProvable (sfImp (sfMem v v) sfBot) $;
+
+def rqEqMatrix (a b: nat): nat = $ sfRename (rawBinderMap a) 0 (sfImp (sfEq a b) (sfMem 0 0)) $;
+
+def rqWitnessBad (a b: nat): nat = $ sfSubstIndex 0 b (rawBinderIndex a 0) $;
+
+theorem rawSource_rho1 (a b: nat):
+  $ zfcProvable (rawDecode (kRho1 a b)) $;
+
+theorem rqBinder_cancel_index (a d i: nat):
+  $ sfSubstIndex d a (sfRenameIndex (rawBinderMap a) d i) = i $;
+
+theorem rqBinder_shadow_index (a d i: nat):
+  $ sfRenameIndex (rawBinderMap a) (suc d) (sfRenameIndex (rawBinderMap a) d i) = sfShiftIndex (suc d) (sfRenameIndex (rawBinderMap a) d i) $;
+
+theorem rqBinder_cancel (d t c: nat):
+  $ sfWf c -> sfSubst d t (sfRename (rawBinderMap t) d c) = c $;
+
+theorem rqBinder_shadow (x d c: nat):
+  $ sfWf c -> sfRename (rawBinderMap x) (suc d) (sfRename (rawBinderMap x) d c) = sfShift (suc d) (sfRename (rawBinderMap x) d c) $;
+
+def rqVacContext (q: nat): nat = $ sfImp q sfBot : 0 $;
+
+def rqVacShiftContext (q: nat): nat = $ sfImp (sfShift 0 q) sfBot : 0 $;
+
+def rqVacDeepContext (q: nat): nat = $ sfShift 0 q : rqVacShiftContext q $;
+
+theorem rqVacuous_provable (q a: nat) (hq: $ sfWf q $) (ha: $ sfWf a $):
+  $ zfcProvable (sfImp (sfImp q sfBot) (sfAll (sfImp (sfShift 0 q) a))) $;
+
+def rqCLBase (q u b c: nat): nat = $ ((sfImp u b) : ((sfImp q c) : ((sfImp b sfBot) : ((sfImp (sfImp q sfBot) u) : 0)))) $;
+
+def rqCLDeep (q u b c: nat): nat = $ ((sfImp c sfBot) : ((sfImp u b) : ((sfImp q c) : ((sfImp b sfBot) : ((sfImp (sfImp q sfBot) u) : 0))))) $;
+
+def rqCLSuper (q u b c: nat): nat = $ (q : ((sfImp c sfBot) : ((sfImp u b) : ((sfImp q c) : ((sfImp b sfBot) : ((sfImp (sfImp q sfBot) u) : 0)))))) $;
+
+theorem rqClassical_provable (q u b c: nat) (hq: $ sfWf q $) (hu: $ sfWf u $) (hb: $ sfWf b $) (hc: $ sfWf c $):
+  $ zfcProvable (sfImp (sfImp (sfImp q sfBot) u) (sfImp (sfImp b sfBot) (sfImp (sfImp q c) (sfImp (sfImp u b) c)))) $;
+
+def rqQuantified (a b: nat): nat = $ sfAll (sfRename (rawBinderMap a) 0 (rawDecode b)) $;
+
+def rqBad (a: nat): nat = $ sfRename (rawBinderMap a) 0 (sfMem 0 0) $;
+
+def rqUniversalNegation (a b: nat): nat = $ sfAll (sfImp (sfShift 0 (rqQuantified a b)) (rqBad a)) $;
+
+theorem rawSource_rho6 (a b: nat):
+  $ zfcProvable (rawDecode (kRho6 a b)) $;

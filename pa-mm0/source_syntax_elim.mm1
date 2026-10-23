@@ -1,0 +1,162 @@
+import "source_syntax.mm1";
+
+theorem sfAllowed_binary_elim (n h: nat)
+  (h0: $ n != 0 $) (h1: $ sfTag n != 1 $) (h2: $ sfTag n != 2 $)
+  (h6: $ sfTag n != 6 $) (h7: $ sfTag n != 7 $):
+  $ sfAllowed n h -> sfLeft n e. h /\ sfRight n e. h $ =
+'(eor (absurd h0) @ eor (eor (absurd h1) (absurd h2)) @
+  eor (iand (syl anr anl) anr)
+    (syl (eor (absurd h6) (absurd h7)) (syl anl anl)));
+
+theorem sfAllowed_quantifier_elim (n h: nat)
+  (h0: $ n != 0 $) (h1: $ sfTag n != 1 $) (h2: $ sfTag n != 2 $)
+  (h3: $ sfTag n != 3 $) (h4: $ sfTag n != 4 $) (h5: $ sfTag n != 5 $):
+  $ sfAllowed n h -> sfRight n = 0 /\ sfLeft n e. h $ =
+'(eor (absurd h0) @ eor (eor (absurd h1) (absurd h2)) @
+  eor (syl (eor (eor (absurd h3) (absurd h4)) (absurd h5)) (syl anl anl))
+    (iand (syl anr anl) anr));
+
+theorem sfPrevious_wf (n a: nat): $ a e. sfPrevious n -> sfWf a $ =
+'(syl anr (bi1 sfPrevious_value));
+
+theorem sfWf_binary_elim (n a b: nat)
+  (h0: $ n != 0 $) (h1: $ sfTag n != 1 $) (h2: $ sfTag n != 2 $)
+  (h6: $ sfTag n != 6 $) (h7: $ sfTag n != 7 $)
+  (hl: $ sfLeft n = a $) (hr: $ sfRight n = b $):
+  $ sfWf n -> sfWf a /\ sfWf b $ =
+'(syl (iand
+  (syl sfPrevious_wf (syl (bi1 (eleq1 hl)) anl))
+  (syl sfPrevious_wf (syl (bi1 (eleq1 hr)) anr)))
+  (syl (sfAllowed_binary_elim h0 h1 h2 h6 h7) (bi1 sfWf_unfold)));
+
+theorem sfWf_quantifier_elim (n a: nat)
+  (h0: $ n != 0 $) (h1: $ sfTag n != 1 $) (h2: $ sfTag n != 2 $)
+  (h3: $ sfTag n != 3 $) (h4: $ sfTag n != 4 $) (h5: $ sfTag n != 5 $)
+  (hl: $ sfLeft n = a $):
+  $ sfWf n -> sfWf a $ =
+'(syl sfPrevious_wf @ syl (bi1 (eleq1 hl)) @ syl anr @
+  syl (sfAllowed_quantifier_elim h0 h1 h2 h3 h4 h5) (bi1 sfWf_unfold));
+
+-- GENERATED CONSTRUCTOR SPECIALIZATIONS
+pub theorem sfWf_imp_iff (a b: nat):
+  $ sfWf (sfImp a b) <-> sfWf a /\ sfWf b $ =
+'(ibii (sfWf_binary_elim sfImp_ne_sfBot
+  (mpbir (noteq (eqeq1 sfImp_tag)) (ltneri (mpbi ltsuc lt01S)))
+  (mpbir (noteq (eqeq1 sfImp_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))
+  (mpbir (noteq (eqeq1 sfImp_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))
+  (mpbir (noteq (eqeq1 sfImp_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))
+  sfImp_left sfImp_right)
+  (imp sfWf_imp));
+
+pub theorem sfWf_and_iff (a b: nat):
+  $ sfWf (sfAnd a b) <-> sfWf a /\ sfWf b $ =
+'(ibii (sfWf_binary_elim sfAnd_ne_sfBot
+  (mpbir (noteq (eqeq1 sfAnd_tag)) (ltneri (mpbi ltsuc lt01S)))
+  (mpbir (noteq (eqeq1 sfAnd_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))
+  (mpbir (noteq (eqeq1 sfAnd_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))
+  (mpbir (noteq (eqeq1 sfAnd_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))
+  sfAnd_left sfAnd_right)
+  (imp sfWf_and));
+
+pub theorem sfWf_or_iff (a b: nat):
+  $ sfWf (sfOr a b) <-> sfWf a /\ sfWf b $ =
+'(ibii (sfWf_binary_elim sfOr_ne_sfBot
+  (mpbir (noteq (eqeq1 sfOr_tag)) (ltneri (mpbi ltsuc lt01S)))
+  (mpbir (noteq (eqeq1 sfOr_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))
+  (mpbir (noteq (eqeq1 sfOr_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))
+  (mpbir (noteq (eqeq1 sfOr_tag)) (ltnei (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))
+  sfOr_left sfOr_right)
+  (imp sfWf_or));
+
+pub theorem sfWf_all_iff (a: nat):
+  $ sfWf (sfAll a) <-> sfWf a $ =
+'(ibii (sfWf_quantifier_elim sfAll_ne_sfBot
+  (mpbir (noteq (eqeq1 sfAll_tag)) (ltneri (mpbi ltsuc lt01S)))
+  (mpbir (noteq (eqeq1 sfAll_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))
+  (mpbir (noteq (eqeq1 sfAll_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))
+  (mpbir (noteq (eqeq1 sfAll_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))
+  (mpbir (noteq (eqeq1 sfAll_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))
+  sfAll_left)
+  sfWf_all);
+
+pub theorem sfWf_ex_iff (a: nat):
+  $ sfWf (sfEx a) <-> sfWf a $ =
+'(ibii (sfWf_quantifier_elim sfEx_ne_sfBot
+  (mpbir (noteq (eqeq1 sfEx_tag)) (ltneri (mpbi ltsuc lt01S)))
+  (mpbir (noteq (eqeq1 sfEx_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))
+  (mpbir (noteq (eqeq1 sfEx_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))
+  (mpbir (noteq (eqeq1 sfEx_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))
+  (mpbir (noteq (eqeq1 sfEx_tag)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))
+  sfEx_left)
+  sfWf_ex);
+
+-- MALFORMED CODE REJECTION
+theorem sfAllowed_tags (n h: nat):
+  $ sfAllowed n h -> n = 0 \/ ((sfTag n = 1 \/ sfTag n = 2) \/
+    ((sfTag n = 3 \/ sfTag n = 4 \/ sfTag n = 5) \/ (sfTag n = 6 \/ sfTag n = 7))) $ =
+'(orim id @ orim id @ orim (syl anl anl) (syl anl anl));
+
+theorem sfWf_tags (n: nat):
+  $ sfWf n -> n = 0 \/ ((sfTag n = 1 \/ sfTag n = 2) \/
+    ((sfTag n = 3 \/ sfTag n = 4 \/ sfTag n = 5) \/ (sfTag n = 6 \/ sfTag n = 7))) $ =
+'(syl sfAllowed_tags (bi1 sfWf_unfold));
+
+theorem sfTag0_conflict (n k: nat) (hk: $ 0 != k $):
+  $ sfTag n = 0 -> sfTag n = k -> n = 0 $ =
+'(syl6 (absurd hk) eqtr3);
+
+theorem sfTag0_cases (n: nat):
+  $ sfTag n = 0 -> (n = 0 \/ ((sfTag n = 1 \/ sfTag n = 2) \/
+    ((sfTag n = 3 \/ sfTag n = 4 \/ sfTag n = 5) \/ (sfTag n = 6 \/ sfTag n = 7)))) -> n = 0 $ =
+'(eord (a1i id) @ eord
+  (eord (sfTag0_conflict (ltnei lt01S)) (sfTag0_conflict (ltnei lt01S)))
+  (eord (eord (eord (sfTag0_conflict (ltnei lt01S)) (sfTag0_conflict (ltnei lt01S)))
+    (sfTag0_conflict (ltnei lt01S)))
+    (eord (sfTag0_conflict (ltnei lt01S)) (sfTag0_conflict (ltnei lt01S)))));
+
+pub theorem sfWf_tag0 (n: nat): $ sfTag n = 0 -> sfWf n -> n = 0 $ =
+'(syl5 sfWf_tags sfTag0_cases);
+
+pub theorem sfMalformed_tag0 (n: nat): $ n != 0 -> sfTag n = 0 -> ~sfWf n $ =
+'(com12 @ con3d sfWf_tag0);
+
+theorem sfTag_nonzero (n: nat) (ht: $ sfTag n != 0 $): $ n != 0 $ =
+'(mt (syl6eq mod01 modeq1) ht);
+
+theorem sfWf_quantifier_right (n b: nat)
+  (h0: $ n != 0 $) (h1: $ sfTag n != 1 $) (h2: $ sfTag n != 2 $)
+  (h3: $ sfTag n != 3 $) (h4: $ sfTag n != 4 $) (h5: $ sfTag n != 5 $)
+  (hr: $ sfRight n = b $):
+  $ sfWf n -> b = 0 $ =
+'(syl (eqtr3 hr) @ syl anl @
+  syl (sfAllowed_quantifier_elim h0 h1 h2 h3 h4 h5) (bi1 sfWf_unfold));
+
+-- GENERATED PAYLOAD REJECTIONS
+theorem sfWf_all_node_right (a b: nat):
+  $ sfWf (sfNode 6 a b) -> b = 0 $ =
+'(sfWf_quantifier_right (sfTag_nonzero (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (ltneri lt01S)))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (ltneri (mpbi ltsuc lt01S)))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))
+  (sfNode_right (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))));
+
+pub theorem sfMalformed_all_payload (a b: nat):
+  $ b != 0 -> ~sfWf (sfNode 6 a b) $ =
+'(con3 sfWf_all_node_right);
+
+theorem sfWf_ex_node_right (a b: nat):
+  $ sfWf (sfNode 7 a b) -> b = 0 $ =
+'(sfWf_quantifier_right (sfTag_nonzero (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ltneri lt01S)))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ltneri (mpbi ltsuc lt01S)))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))
+  (mpbir (noteq (eqeq1 (sfNode_tag (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))
+  (sfNode_right (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))));
+
+pub theorem sfMalformed_ex_payload (a b: nat):
+  $ b != 0 -> ~sfWf (sfNode 7 a b) $ =
+'(con3 sfWf_ex_node_right);
+

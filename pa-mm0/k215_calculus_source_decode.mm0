@@ -1,0 +1,48 @@
+import "k215_calculus_source_decode_unpair.mm0";
+import "k215_calculus_iteration.mm0";
+
+def k215ReloadState (pc x n c: nat): nat = $ k215PState pc (k215PVector x (k215PR1 c) (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) n (k215PR7 c) (k215PR8 c)) $;
+
+def k215ReloadRun (n x c: nat): wff = $ k215PReach (k215ReloadState 7 x n c) (k215ReloadState 9 (n + x) 0 c) $;
+
+def k215ReloadClaim (n c: nat) (.x: nat): wff = $ A. x k215ReloadRun n x c $;
+
+theorem k215Reload6 (n x c: nat): $ k215PReach (k215ReloadState 6 x n c) (k215ReloadState 9 (suc (n + x)) 0 c) $;
+
+theorem k215Reload6_vector (a0 a1 a2 a3 a4 a5 a6 a7 a8: nat): $ k215PReach (k215PState 6 (k215PVector a0 a1 a2 a3 a4 a5 a6 a7 a8)) (k215PState 9 (k215PVector (suc (a6 + a0)) a1 a2 a3 a4 a5 0 a7 a8)) $;
+
+theorem k215DecodeUnpair9 (u t w c a b l: nat): $ k215PReach (k215PState 9 (k215PVector u t w c a b 0 0 l)) (k215PState k215Num17 (k215PVector u t w c a b (fst l) (snd l) 0)) $;
+
+theorem k215DecodeReloadTo9 (u t w d h: nat): $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 0)) (k215PState 9 (k215PVector (suc u) t w 0 d h 0 0 u)) $;
+
+theorem k215DecodeContinueTo9 (u t w d h l: nat): $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 (suc l))) (k215PState 9 (k215PVector u t w 0 d h 0 0 l)) $;
+
+theorem k215DecodeFrom9 (u t w d h l: nat):
+ $ k215PReach (k215PState 9 (k215PVector u t w 0 d h 0 0 l))
+    (k215PState k215Num23 (k215PVector u t w (fst l) d h 0 0 (snd l))) $;
+
+theorem k215DecodeReload (u t w d h: nat):
+ $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 0))
+    (k215PState k215Num23 (k215PVector (suc u) t w (fst u) d h 0 0 (snd u))) $;
+
+theorem k215DecodeContinue (u t w d h l: nat):
+ $ k215PReach (k215PState 0 (k215PVector u t w 0 d h 0 0 (suc l)))
+    (k215PState k215Num23 (k215PVector u t w (fst l) d h 0 0 (snd l))) $;
+
+def k215PEnumConfig (s: nat): nat =
+ $ k215PState 0 (k215PVector (k218EnumNP s) (k218EnumTW s) (k218EnumWS s)
+    0 (k218EnumD s) (k218EnumH s) 0 0 (k218EnumPL s)) $;
+
+def k215PDecodedConfig (s: nat): nat =
+ $ k215PState k215Num23 (k215PVector (k218EnumNext s) (k218EnumTW s) (k218EnumWS s)
+    (fst (k218EnumList s)) (k218EnumD s) (k218EnumH s) 0 0 (snd (k218EnumList s))) $;
+
+theorem k215PEnumConfig_state (pl u t w d h: nat):
+ $ k215PEnumConfig (k218EnumState pl u t w d h) =
+   k215PState 0 (k215PVector u t w 0 d h 0 0 pl) $;
+
+theorem k215PDecodeEnum (s: nat):
+ $ k215PReach (k215PEnumConfig s) (k215PDecodedConfig s) $;
+
+theorem k215PInitial_enum_config:
+ $ k215PInitial = k215PEnumConfig k215EnumInitial $;

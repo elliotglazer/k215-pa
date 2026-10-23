@@ -1,0 +1,43 @@
+import "source_quotient_predicate.mm1";
+
+@_ abstract def sfK0QRepInsertMarker (.i: nat): set = $ \ i, if (i = 0) 0 (if (i = 1) 1 (suc i)) $;
+
+@_ abstract def sfK0QRepPredicate (c: nat): nat = $ sfQuotient 2 (sfRename sfK0QRepInsertMarker 0 c) $;
+
+theorem qrepPInsert_value (i: nat): $ sfK0QRepInsertMarker @ i = if (i = 0) 0 (if (i = 1) 1 (suc i)) $ = (named '(!! applame j ,eqtac));
+
+pub theorem sfK0QRepInsert_zero: $ sfK0QRepInsertMarker @ 0 = 0 $ = '(eqtr qrepPInsert_value (ifpos eqid));
+
+pub theorem sfK0QRepInsert_one: $ sfK0QRepInsertMarker @ 1 = 1 $ = '(eqtr qrepPInsert_value (eqtr (ifneg peano1) (ifpos eqid)));
+
+pub theorem sfK0QRepInsert_tail (i: nat): $ sfK0QRepInsertMarker @ suc (suc i) = suc (suc (suc i)) $ = '(eqtr qrepPInsert_value (eqtr (ifneg peano1) (ifneg (mpbir (noteqi peano2) peano1))));
+
+theorem qrepPIf (G p: wff) (a b n: nat) (ha: $ G -> a < n $) (hb: $ G -> b < n $): $ G -> if p a b < n $ = '(ifbothd lteq1 lteq1 (syl ha anl) (syl hb anl));
+
+theorem qrepPInsert_bound_at (n i: nat): $ i < suc (suc n) -> sfK0QRepInsertMarker @ i < suc (suc (suc n)) $ = '(mpbird (a1i (lteq1 qrepPInsert_value)) (qrepPIf (a1i lt01S) (qrepPIf (a1i (mpbi ltsuc lt01S)) (syl (bi1 ltsuc) id))));
+
+theorem qrepPInsert_bound (n: nat): $ A. i (i < suc (suc n) -> sfK0QRepInsertMarker @ i < suc (suc (suc n))) $ = (named '(ax_gen qrepPInsert_bound_at));
+
+theorem qrepPRename_zero (G: wff) (R: set) (n m c: nat) (hi: $ G -> A. i (i < n -> R @ i < m) $) (hb: $ G -> sfBound n c $): $ G -> sfBound m (sfRename R 0 c) $ = (named '(mpbid (a1i (srecpeq2 (preq1 add01))) (mpd (mpbird (a1i (srecpeq2 (preq1 add01))) hb) (syl sfRename_bound hi))));
+
+theorem qrepPRenamed_bound (n c: nat): $ sfBound (suc (suc n)) c -> sfBound (suc (suc (suc n))) (sfRename sfK0QRepInsertMarker 0 c) $ = (named '(qrepPRename_zero (a1i {qrepPInsert_bound : $ A. j (j < suc (suc n) -> sfK0QRepInsertMarker @ j < suc (suc (suc n))) $}) id));
+
+theorem qrepPMarker_bound (n: nat): $ 2 < suc (suc (suc n)) $ = '(mpbi ltsuc (mpbi ltsuc lt01S));
+
+pub theorem sfK0QRepPredicate_bound (n c: nat): $ sfBound (suc (suc n)) c -> sfBound (suc (suc (suc n))) (sfK0QRepPredicate c) $ = '(mpd (a1i qrepPMarker_bound) (syl sfQuotient_bound qrepPRenamed_bound));
+
+theorem qrepPEnv_zero (E: set) (x y t: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) sfK0QRepInsertMarker @ 0 = (sqEnvCons x (sqEnvCons y E)) @ 0 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfK0QRepInsert_zero) (eqtr sqEnvCons_zero (eqcom sqEnvCons_zero))));
+
+theorem qrepPEnv_one (E: set) (x y t: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) sfK0QRepInsertMarker @ 1 = (sqEnvCons x (sqEnvCons y E)) @ 1 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfK0QRepInsert_one) (eqtr sqEnvCons_suc (eqtr sqEnvCons_zero (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero))))));
+
+theorem qrepPEnv_tail (E: set) (x y t i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) sfK0QRepInsertMarker @ suc (suc i) = (sqEnvCons x (sqEnvCons y E)) @ suc (suc i) $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfK0QRepInsert_tail) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc)))))));
+
+theorem qrepPEnv_suc (E: set) (x y t i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) sfK0QRepInsertMarker @ suc i = (sqEnvCons x (sqEnvCons y E)) @ suc i $ = (named @ induct '(ind) 'i 'qrepPEnv_one '(a1i qrepPEnv_tail));
+
+theorem qrepPEnv_point (E: set) (x y t i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) sfK0QRepInsertMarker @ i = (sqEnvCons x (sqEnvCons y E)) @ i $ = (named @ induct '(ind) 'i 'qrepPEnv_zero '(a1i qrepPEnv_suc));
+
+theorem qrepPEnv_agree (E: set) (x y t n: nat): $ sqEnvAgree (sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) sfK0QRepInsertMarker) (sqEnvCons x (sqEnvCons y E)) n $ = (named '(ax_gen (a1i qrepPEnv_point)));
+
+theorem qrepPEnv_marker (E: set) (x y t: nat): $ (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) @ 2 = t $ = '(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero));
+
+pub theorem sfK0QRepPredicate_named (E: set) (n x y t k c: nat): $ sfBound (suc (suc n)) c -> sfNamedTemplate (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) k 0 (sfK0QRepPredicate c) = sqQuote (sqEnvCons x (sqEnvCons y E)) t k 0 c $ = '(eqtrd (mpd (a1i qrepPMarker_bound) (syl sfQuotient_quote qrepPRenamed_bound)) (eqtrd (a1i (sqQuoteeq2 qrepPEnv_marker)) (eqtrd (syl sqQuote_source_renaming sfBound_wf) (syl (sqQuote_environment qrepPEnv_agree) (bi2 (sfBoundeq1 add01))))));

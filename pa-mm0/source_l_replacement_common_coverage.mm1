@@ -1,0 +1,72 @@
+import "source_l_replacement_common_collect.mm1";
+import "source_l_replacement_range_transport.mm1";
+
+@_ def sfLReplacementShift2Map(T:set):set =
+ $ sfComposeMap sfSuccessorMap (sfComposeMap sfSuccessorMap T) $;
+@_ def sfLReplacementCollectedRecipe(T:set)(D psi start count:nat):nat =
+ $ sfEx (sfEx (sfAnd (sfCLPoint (suc (suc start)) count 1 0)
+  (sfLReplacementImageCoverage (sfLReplacementShift2Map T) D psi 0))) $;
+
+pub theorem sfLReplacementCoverage_shift(T:set)(D psi Y:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $):
+ $ sfShift 0 (sfLReplacementImageCoverage T D psi Y) =
+ sfLReplacementImageCoverage (sfComposeMap sfSuccessorMap T) D psi (suc Y) $ =
+ '(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfImp (nsImp_eq (ax_mp sfShift_bound_identity hd) (eqtr sfShift_sfImp (nsImp_eq (eqtr (ax_mp (ax_mp sfRelativize_shift hd) sfRename_wf) (sfRelativizeeq2 (eqtr (eqcom (ax_mp sfRename_successor sfRename_wf)) (ax_mp sfRename_compose hf)))) (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02))))))))));
+
+pub theorem sfLReplacementEx_mono(G a b:nat)(hb:$ sfWf b $)
+ (hp:$ nsLocal G (sfEx a) $)
+ (hq:$ nsLocal (a : sfContextShift G) b $):
+ $ nsLocal G (sfEx b) $ =
+ '(ax_mp (ax_mp (sfLocal_exE (ax_mp sfWf_ex hb)) hp)
+  (sfRQ_rewrite (eqcom sfShift_sfEx)
+   (ax_mp (ax_mp nsLocal_ExI sfShift_wf)
+    (sfRQ_rewrite (eqcom (ax_mp sfSubst_shift_up_identity hb)) hq))));
+
+pub theorem sfLReplacementDoubleEx_mono(G a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)
+ (hp:$ nsLocal G (sfEx (sfEx a)) $)
+ (hq:$ nsLocal (sfCLWitnessContext G a) b $):
+ $ nsLocal G (sfEx (sfEx b)) $ =
+ '(sfLReplacementEx_mono (ax_mp sfWf_ex hb) hp
+  (sfLReplacementEx_mono hb
+   (ax_mp (ax_mp nsLocal_hyp
+    (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex ha) sfContextShift_wf)))
+    sfContext_member_head) hq));
+
+@_ def lrcCoverageContext(G start count seed:nat):nat =
+ $ sfCLWitnessContext G (sfLReplacementSeededPoint (suc (suc start)) count (suc (suc seed)) 1 0) $;
+
+theorem lrcCoverage_inner_wf(G start count seed:nat):
+ $ sfContextWf (lrcCoverageContext G start count seed) $ =
+ '(mpbir sfContextWf_cons (ian sfLReplacementSeededPoint_wf sfContextShift_wf));
+
+theorem lrcCoverage_inner_point(G start count seed:nat):
+ $ nsLocal (lrcCoverageContext G start count seed)
+ (sfLReplacementSeededPoint (suc (suc start)) count (suc (suc seed)) 1 0) $ =
+ '(ax_mp (ax_mp nsLocal_hyp lrcCoverage_inner_wf) sfContext_member_head);
+
+theorem lrcCoverage_shifted(T:set)(G D psi start count seed:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $)
+ (hp:$ nsLocal G (sfLReplacementImageCoverage T D psi seed) $):
+ $ nsLocal (lrcCoverageContext G start count seed)
+ (sfLReplacementImageCoverage (sfLReplacementShift2Map T) D psi (suc (suc seed))) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken lrcCoverage_inner_wf) sfContextSub_cons)
+  (sfRQ_rewrite (sfLReplacementCoverage_shift hd hf)
+   (ax_mp sfSepLocal_shift
+    (ax_mp (ax_mp (ax_mp nsLocal_weaken
+     (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex sfLReplacementSeededPoint_wf) sfContextShift_wf)))
+      sfContextSub_cons)
+     (sfRQ_rewrite (sfLReplacementCoverage_shift hd hf) (ax_mp sfSepLocal_shift hp))))));
+
+pub theorem sfLReplacementCollectedCoverage(T:set)(G D psi start count seed:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $)
+ (hp:$ nsLocal G (sfLReplacementImageCoverage T D psi seed) $)
+ (hc:$ nsLocal G (sfLReplacementSeededRecipe start count seed) $):
+ $ nsLocal G (sfLReplacementCollectedRecipe T D psi start count) $ =
+ '(sfLReplacementDoubleEx_mono sfLReplacementSeededPoint_wf
+   (ax_mp (ax_mp sfWf_and sfCLPoint_wf)
+    (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp (ax_mp sfBound_wf hd))
+     (ax_mp (ax_mp sfWf_imp (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd))) sfWf_mem))))
+   hc
+   (ax_mp (ax_mp sfLocal_and (ax_mp nsLocal_CE1 lrcCoverage_inner_point))
+    (sfLReplacementImageCoverage_mono hd (lrcCoverage_shifted hd hf hp)
+     (ax_mp nsLocal_CE2 lrcCoverage_inner_point))));

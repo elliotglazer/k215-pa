@@ -1,0 +1,30 @@
+import "source_l_domain.mm0";
+import "source_relative_contexts.mm0";
+import "source_core_theory.mm0";
+import "source_theory_prefix.mm0";
+
+def sfLReplacementMatrix (phi: nat): nat = $ sfAnd (sfAnd sfLDomain (sfDomainAt sfLDomain 1)) (sfRelativize sfLDomain phi) $;
+
+def sfLReplacementPsi (phi: nat): nat = $ sfEx (sfAnd (sfMem 0 2) (sfShift 2 phi)) $;
+
+theorem sfLReplacementMatrix_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc n)) (sfLReplacementMatrix phi) $;
+
+theorem sfLReplacementShiftTwo_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc (suc n))) (sfShift 2 phi) $;
+
+theorem sfLReplacementPsi_bound (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfBound (suc (suc n)) (sfLReplacementPsi phi) $;
+
+theorem sfLReplacementMatrix_axiom (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> zfcReplacementCode (sfLReplacementMatrix phi) n e. zfrAxioms $;
+
+theorem sfLReplacementMatrix_schema (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms (zfcReplacementCode (sfLReplacementMatrix phi) n) $;
+
+theorem sfLReplacementMatrix_raw (phi n: nat):
+ $ sfBound (suc (suc n)) phi -> sfTheoryProvable zfrAxioms
+  (sfReplacement (sfRename sfRepAMap 0 (sfLReplacementMatrix phi))
+   (sfRename sfRepBMap 0 (sfLReplacementMatrix phi))
+   (sfRename sfRepCMap 0 (sfLReplacementMatrix phi))) $;
+

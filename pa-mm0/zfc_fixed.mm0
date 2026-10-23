@@ -1,0 +1,46 @@
+import "source_syntax.mm0";
+
+-- Exact finite branch of the pinned source ZFC axiom predicate.
+-- This file does not include Separation or Replacement.
+-- All formula numbers use the eight-tag source constructors.
+
+def zfcRefl: nat = $ sfAll (sfEq 0 0) $;
+
+def zfcSym: nat = $ sfAll (sfAll (sfImp (sfEq 1 0) (sfEq 0 1))) $;
+
+def zfcTrans: nat = $ sfAll (sfAll (sfAll (sfImp (sfEq 2 1) (sfImp (sfEq 1 0) (sfEq 2 0))))) $;
+
+def zfcEqElem: nat = $ sfAll (sfAll (sfAll (sfAll (sfImp (sfEq 3 1) (sfImp (sfEq 2 0) (sfImp (sfMem 3 2) (sfMem 1 0))))))) $;
+
+def zfcExt: nat = $ sfAll (sfAll (sfImp (sfAll (sfImp (sfMem 0 2) (sfMem 0 1))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 2))) (sfEq 1 0)))) $;
+
+def zfcEmpty: nat = $ sfEx (sfAll (sfImp (sfMem 0 1) (sfBot))) $;
+
+def zfcPair: nat = $ sfAll (sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfEq 0 3) (sfEq 0 2))) (sfImp (sfOr (sfEq 0 3) (sfEq 0 2)) (sfMem 0 1)))))) $;
+
+def zfcUnion: nat = $ sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfEx (sfAnd (sfMem 0 3) (sfMem 1 0)))) (sfImp (sfEx (sfAnd (sfMem 0 3) (sfMem 1 0))) (sfMem 0 1))))) $;
+
+def zfcPower: nat = $ sfAll (sfEx (sfAll (sfAnd (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfMem 0 3)))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfMem 0 1))))) $;
+
+def zfcOmega: nat = $ sfEx (sfAnd (sfAnd (sfEx (sfAnd (sfAll (sfImp (sfMem 0 1) (sfBot))) (sfMem 0 1))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfMem 0 2) (sfEq 0 2))) (sfImp (sfOr (sfMem 0 2) (sfEq 0 2)) (sfMem 0 1)))) (sfMem 0 2)))))) (sfAll (sfImp (sfAnd (sfEx (sfAnd (sfAll (sfImp (sfMem 0 1) (sfBot))) (sfMem 0 1))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfAll (sfAnd (sfImp (sfMem 0 1) (sfOr (sfMem 0 2) (sfEq 0 2))) (sfImp (sfOr (sfMem 0 2) (sfEq 0 2)) (sfMem 0 1)))) (sfMem 0 2)))))) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))))) $;
+
+def zfcFoundation: nat = $ sfAll (sfImp (sfEx (sfMem 0 1)) (sfEx (sfAnd (sfMem 0 1) (sfAll (sfImp (sfMem 0 1) (sfImp (sfMem 0 2) (sfBot))))))) $;
+
+def zfcChoice: nat = $ sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfEx (sfMem 0 1)))) (sfImp (sfAll (sfImp (sfMem 0 1) (sfAll (sfImp (sfMem 0 2) (sfImp (sfImp (sfEq 1 0) (sfBot)) (sfImp (sfEx (sfAnd (sfMem 0 2) (sfMem 0 1))) (sfBot))))))) (sfEx (sfAll (sfImp (sfMem 0 2) (sfEx (sfAnd (sfAnd (sfMem 0 1) (sfMem 0 2)) (sfAll (sfImp (sfMem 0 2) (sfImp (sfMem 0 3) (sfEq 0 1))))))))))) $;
+
+def zfcFixed (n: nat): wff = $ n = zfcRefl \/ (n = zfcSym \/ (n = zfcTrans \/ (n = zfcEqElem \/ (n = zfcExt \/ (n = zfcEmpty \/ (n = zfcPair \/ (n = zfcUnion \/ (n = zfcPower \/ (n = zfcOmega \/ (n = zfcFoundation \/ (n = zfcChoice))))))))))) $;
+
+theorem zfcRefl_wf: $ sfWf zfcRefl $;
+theorem zfcSym_wf: $ sfWf zfcSym $;
+theorem zfcTrans_wf: $ sfWf zfcTrans $;
+theorem zfcEqElem_wf: $ sfWf zfcEqElem $;
+theorem zfcExt_wf: $ sfWf zfcExt $;
+theorem zfcEmpty_wf: $ sfWf zfcEmpty $;
+theorem zfcPair_wf: $ sfWf zfcPair $;
+theorem zfcUnion_wf: $ sfWf zfcUnion $;
+theorem zfcPower_wf: $ sfWf zfcPower $;
+theorem zfcOmega_wf: $ sfWf zfcOmega $;
+theorem zfcFoundation_wf: $ sfWf zfcFoundation $;
+theorem zfcChoice_wf: $ sfWf zfcChoice $;
+
+theorem zfcFixed_wf (n: nat): $ zfcFixed n -> sfWf n $;

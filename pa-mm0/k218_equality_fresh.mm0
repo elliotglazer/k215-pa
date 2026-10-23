@@ -1,0 +1,21 @@
+import "k218_membership_syntax.mm0";
+
+theorem k218Iff_fresh (p q z: nat)
+  (h0: $ z != 0 $) (hp: $ kFresh p z $) (hq: $ kFresh q z $):
+  $ kFresh (k218Iff p q) z $;
+
+theorem k218EqEv_fresh (v x y z: nat)
+  (h0: $ z != 0 $) (hv: $ z != v $) (hx: $ z != x $) (hy: $ z != y $):
+  $ kFresh (k218EqEv v x y) z $;
+
+theorem k218EqEv_vacuity (v x y z: nat)
+  (h0: $ z != 0 $) (hv: $ z != v $) (hx: $ z != x $) (hy: $ z != y $):
+  $ k218Provable (kImp (k218EqEv v x y) (kAll z (k218EqEv v x y))) $;
+
+theorem k218EqInd_vacuity_safe (x y z: nat)
+  (h0: $ z != 0 $) (hx: $ z != x $) (hy: $ z != y $)
+  (ha: $ z != k218EqAux x y $):
+  $ k218Provable (kImp (k218EqInd x y) (kAll z (k218EqInd x y))) $;
+
+-- General fresh-binder equality vacuity still needs the checked auxiliary
+-- alpha conversion, particularly when z equals the canonical auxiliary.

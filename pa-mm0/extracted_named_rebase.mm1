@@ -1,0 +1,34 @@
+import "extracted_named_quantifiers.mm1";
+
+pub theorem exNamed_child_rebase (E: set) (n k y a: nat)
+ (hk: $ 0 < k $) (hy: $ y < k $) (he: $ sqEnvBelow E n k $)
+ (ha: $ sfBound (suc n) a $):
+ $ kEquivalent (sfNamedTemplate (sqEnvCons y E) k 0 a)
+     (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $ =
+'(ax_mp (ax_mp (ax_mp sfNamedTemplate_fresh_base_equivalent ha)
+ (ian (sqAllocAvoid_below hk)
+  (ax_mp sqSQ_range_below (ax_mp (ax_mp sqEnvBelow_cons hy) he))))
+ (ian (sqAllocAvoid_below lt01S)
+  (ax_mp sqSQ_range_below (ax_mp sqEnvBelow_successor (ax_mp (ax_mp sqEnvBelow_cons hy) he)))));
+
+pub theorem exNamed_allE (H: nat) (E: set) (n k i a: nat)
+ (hk: $ 0 < k $) (he: $ sqEnvBelow E n k $) (hi: $ i < n $)
+ (ha: $ sfBound (suc n) a $):
+ $ kHypProvable H (sfNamedTemplate E k 0 (sfAll a)) ->
+   kHypProvable H (sfNamedTemplate E k 0 (sfSubst 0 i a)) $ =
+'(syl (bi2 (kHypProvableeq2 (ax_mp sfNamedTemplate_source_substitution (ax_mp sfBound_wf ha))))
+ (syl (mpi (kHypProvable_seed (anr (exNamed_child_rebase hk
+   (ax_mp (ax_mp sqSQ_below_at he) hi) he ha))) kHypProvable_mp)
+ (exNamed_allE_scoped (mpbi lt01 hk) (ax_mp (ax_mp sqSQ_below_at he) hi)
+  (ax_mp sqEnvBelow_avoid he) ha)));
+
+pub theorem exNamed_exI (H: nat) (E: set) (n k i a: nat)
+ (hk: $ 0 < k $) (he: $ sqEnvBelow E n k $) (hi: $ i < n $)
+ (ha: $ sfBound (suc n) a $):
+ $ kHypProvable H (sfNamedTemplate E k 0 (sfSubst 0 i a)) ->
+   kHypProvable H (sfNamedTemplate E k 0 (sfEx a)) $ =
+'(syl (exNamed_exI_scoped (mpbi lt01 hk) (ax_mp (ax_mp sqSQ_below_at he) hi)
+  (ax_mp sqEnvBelow_avoid he) ha)
+ (syl (mpi (kHypProvable_seed (anl (exNamed_child_rebase hk
+   (ax_mp (ax_mp sqSQ_below_at he) hi) he ha))) kHypProvable_mp)
+  (bi1 (kHypProvableeq2 (ax_mp sfNamedTemplate_source_substitution (ax_mp sfBound_wf ha))))));

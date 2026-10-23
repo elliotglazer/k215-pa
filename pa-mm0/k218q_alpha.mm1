@@ -1,0 +1,117 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_specialization.mm1";
+import "k230_substitution_inverse.mm1";
+
+theorem k218IA_syl (a b c: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp b c) -> k218QProvable (kImp a c) $ =
+'(exp @ mpd (syl (mpi k218IPropB k218QProvable_mp) anl) (syl k218QProvable_mp anr));
+theorem k218IA_all_mono (x a b: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp (kAll x a) (kAll x b)) $ =
+'(syl (mpi (k218QProvable_axiom k218QAxioms_rho2) k218QProvable_mp) k218QProvable_gen);
+theorem k218IA_not_mono (a b: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp (kNot b) (kNot a)) $ =
+'(mpi k218IPropContra k218QProvable_mp);
+theorem k218IA_exists_mono (x a b: nat):
+ $ k218QProvable (kImp a b) -> k218QProvable (kImp (kExists x a) (kExists x b)) $ =
+'(syl k218IA_not_mono (syl k218IA_all_mono k218IA_not_mono));
+theorem k218IA_exists_collapse (x a: nat):
+ $ k218QProvable (kImp a (kAll x a)) -> k218QProvable (kImp (kExists x a) a) $ =
+'(syl (mpi (k218QProvable_axiom k218QAxioms_rho6) k218IA_syl) k218IA_exists_mono);
+
+theorem k218IA_all_forward (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $) (hx: $ G -> kBinderAbsent f x $) (hy: $ G -> kFresh f y $):
+ $ G -> k218QProvable (kImp (kAll x f) (kAll y (kSubst f x y))) $ =
+'(sylc k218IA_syl
+ (syl k218QFresh_vacuity (mpd hy (syl kFresh_all_intro (syl necom hxy))))
+ (syl k218IA_all_mono
+  (mpd (syl kFresh_binder_absent hy)
+   (mpd hx (syl k218INamed_specialization hxy)))));
+pub theorem k218IAlpha_all_forward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kAll x f) (kAll y (kSubst f x y))) $ =
+'(exp @ exp @ k218IA_all_forward anll anlr anr);
+
+theorem k218IA_vac_not (x p: nat):
+ $ k218QProvable (kImp p (kAll x p)) ->
+   k218QProvable (kImp (kNot p) (kAll x (kNot p))) $ =
+'(syl (ax_mp k218IA_syl
+ (k218IProvable_syl (k218INot_mono (k218QProvable_axiom k218QAxioms_rho6)) k218IPropDNE))
+ (syl k218IA_all_mono k218IA_not_mono));
+theorem k218IA_vac_all (x y p: nat):
+ $ k218QProvable (kImp p (kAll y p)) ->
+   k218QProvable (kImp (kAll x p) (kAll y (kAll x p))) $ =
+'(syl (mpi (k218QProvable_axiom k218QAxioms_rho4) k218IA_syl) k218IA_all_mono);
+theorem k218IA_vac_exists (x y p: nat):
+ $ k218QProvable (kImp p (kAll x p)) ->
+   k218QProvable (kImp (kExists y p) (kAll x (kExists y p))) $ =
+'(syl k218IA_vac_not (syl k218IA_vac_all k218IA_vac_not));
+theorem k218IA_exists_eliminate (G: wff) (x f c: nat)
+ (hc: $ G -> k218QProvable (kImp c (kAll x c)) $)
+ (hp: $ G -> k218QProvable (kImp f c) $):
+ $ G -> k218QProvable (kImp (kExists x f) c) $ =
+'(sylc k218IA_syl (syl k218IA_exists_mono hp) (syl k218IA_exists_collapse hc));
+theorem k218IA_exists_backward (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $) (hx: $ G -> kBinderAbsent f x $) (hy: $ G -> kFresh f y $):
+ $ G -> k218QProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $ =
+'(k218IA_exists_eliminate (syl k218IA_vac_exists (syl k218QFresh_vacuity hy))
+ (mpd (syl kFresh_binder_absent hy) (mpd hx (syl k218INamed_exists_intro hxy))));
+pub theorem k218IAlpha_exists_backward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $ =
+'(exp @ exp @ k218IA_exists_backward anll anlr anr);
+
+theorem k218IA_prov_transport (G: wff) (a b: nat)
+ (he: $ G -> a = b $) (hp: $ G -> k218QProvable b $):
+ $ G -> k218QProvable a $ = '(mpbird (k218QProvableeqd he) hp);
+theorem k218IA_all_backward_from_inverse (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $)
+ (hb: $ G -> kBinderAbsent (kSubst f x y) y $)
+ (hf: $ G -> kFresh (kSubst f x y) x $)
+ (hu: $ G -> kSubst (kSubst f x y) y x = f $):
+ $ G -> k218QProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $ =
+'(k218IA_prov_transport (kImp_congr_right (kAll_congr_right (eqcomd hu)))
+ (k218IA_all_forward (syl necom hxy) hb hf));
+theorem k218IA_exists_forward_from_inverse (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $)
+ (hb: $ G -> kBinderAbsent (kSubst f x y) y $)
+ (hf: $ G -> kFresh (kSubst f x y) x $)
+ (hu: $ G -> kSubst (kSubst f x y) y x = f $):
+ $ G -> k218QProvable (kImp (kExists x f) (kExists y (kSubst f x y))) $ =
+'(k218IA_prov_transport (kImp_congr_left (kExistseqd eqidd (eqcomd hu)))
+ (k218IA_exists_backward (syl necom hxy) hb hf));
+
+theorem k218IA_all_backward (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $) (hx: $ G -> kBinderAbsent f x $) (hy: $ G -> kFresh f y $):
+ $ G -> k218QProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $ =
+'(k218IA_all_backward_from_inverse hxy
+ (syl kBinderAbsent_substitution (syl kFresh_binder_absent hy))
+ (syl k218ISubst_output_fresh (iand hxy hx))
+ (mpd hx (syl kSubst_undo hy)));
+theorem k218IA_exists_forward (G: wff) (f x y: nat)
+ (hxy: $ G -> x != y $) (hx: $ G -> kBinderAbsent f x $) (hy: $ G -> kFresh f y $):
+ $ G -> k218QProvable (kImp (kExists x f) (kExists y (kSubst f x y))) $ =
+'(k218IA_exists_forward_from_inverse hxy
+ (syl kBinderAbsent_substitution (syl kFresh_binder_absent hy))
+ (syl k218ISubst_output_fresh (iand hxy hx))
+ (mpd hx (syl kSubst_undo hy)));
+pub theorem k218IAlpha_all_backward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $ =
+'(exp @ exp @ k218IA_all_backward anll anlr anr);
+pub theorem k218IAlpha_exists_forward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kExists x f) (kExists y (kSubst f x y))) $ =
+'(exp @ exp @ k218IA_exists_forward anll anlr anr);
+pub theorem k218IAlpha_all (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kAll x f) (kAll y (kSubst f x y))) /\
+   k218QProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $ =
+'(exp @ exp @ iand
+ (k218IA_all_forward anll anlr anr) (k218IA_all_backward anll anlr anr));
+pub theorem k218IAlpha_exists (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kExists x f) (kExists y (kSubst f x y))) /\
+   k218QProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $ =
+'(exp @ exp @ iand
+ (k218IA_exists_forward anll anlr anr) (k218IA_exists_backward anll anlr anr));

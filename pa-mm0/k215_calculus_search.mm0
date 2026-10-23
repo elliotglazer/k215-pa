@@ -1,0 +1,105 @@
+import "k215_calculus_iterator_algebra.mm0";
+
+def k215EnumTail (s: nat): nat = $ snd (k218EnumList s) $;
+
+def k215SearchBound (r bound next: nat): wff =
+  $ ifp (r = 0) T. (k218EnumNP (r - 1) = next /\ k218EnumPL (r - 1) <= bound) $;
+
+theorem k215SearchBound_zero (bound next: nat): $ k215SearchBound 0 bound next $;
+
+theorem k215SearchBound_some (s bound next: nat):
+  $ k215SearchBound (suc s) bound next <-> k218EnumNP s = next /\ k218EnumPL s <= bound $;
+
+theorem k215EnumCommand_bound (s ac fields next: nat):
+ $ k215SearchBound (k215EnumCommand s ac fields next) fields next $;
+
+theorem k215EnumStep_bound (s: nat):
+  $ k215SearchBound (k215EnumStep s) (k215EnumTail s) (k218EnumNext s) $;
+
+theorem k215EnumStep_some_fields (s t: nat):
+  $ k215EnumStep s = suc t -> k218EnumNP t = k218EnumNext s /\ k218EnumPL t <= k215EnumTail s $;
+
+theorem k215EnumTail_le_list (s: nat): $ k215EnumTail s <= k218EnumList s $;
+
+theorem k215EnumTail_decreases (s: nat):
+  $ k218EnumPL s != 0 -> k215EnumTail s < k218EnumPL s $;
+
+theorem k215EnumStep_continue_decreases (s t: nat):
+  $ k218EnumPL s != 0 -> k215EnumStep s = suc t ->
+    k218EnumPL t < k218EnumPL s /\ k218EnumNP t = k218EnumNP s $;
+
+theorem k215EnumIter_one (s: nat): $ k215EnumIter 1 s = k215EnumStep s $;
+
+theorem k215EnumRunsForever_step (s: nat):
+  $ k215EnumRunsForever s -> k215EnumStep s != 0 $;
+
+def k215EnumReach (s t: nat) (.n: nat): wff = $ E. n k215EnumIter n s = suc t $;
+
+def k215SearchDrain (s: nat) (.t: nat): wff =
+  $ E. t (k215EnumReach s t /\ (k218EnumPL t = 0 /\ k218EnumNP t = k218EnumNP s)) $;
+
+theorem k215EnumReach_intro (n s t: nat): $ k215EnumIter n s = suc t -> k215EnumReach s t $;
+
+theorem k215EnumReach_refl (s: nat): $ k215EnumReach s s $;
+
+theorem k215EnumReach_step (s t: nat): $ k215EnumStep s = suc t -> k215EnumReach s t $;
+
+theorem k215EnumReach_trans (s t u: nat):
+  $ k215EnumReach s t -> k215EnumReach t u -> k215EnumReach s u $;
+
+theorem k215EnumReach_forever (s t: nat):
+  $ k215EnumRunsForever s -> k215EnumReach s t -> k215EnumRunsForever t $;
+
+theorem k215SearchDrain_intro (s t: nat):
+  $ k215EnumReach s t /\ (k218EnumPL t = 0 /\ k218EnumNP t = k218EnumNP s) -> k215SearchDrain s $;
+
+theorem k215SearchDrain_zero (s: nat): $ k218EnumPL s = 0 -> k215SearchDrain s $;
+
+theorem k215SearchDrain_transfer (s t: nat):
+  $ k215EnumReach s t /\ k218EnumNP t = k218EnumNP s -> k215SearchDrain t -> k215SearchDrain s $;
+
+def k215SearchComplete (p: nat) (.v: nat): wff =
+  $ A. v (k218EnumPL v = p -> k215EnumRunsForever v -> k215SearchDrain v) $;
+
+def k215SearchBelow (p: nat) (.j: nat): wff =
+  $ A. j (j < p -> k215SearchComplete j) $;
+
+theorem k215EnumRunsForever_next_some (s: nat):
+  $ k215EnumRunsForever s -> k215EnumStep s = suc (k215EnumStep s - 1) $;
+
+theorem k215EnumRunsForever_next_reach (s: nat):
+  $ k215EnumRunsForever s -> k215EnumReach s (k215EnumStep s - 1) $;
+
+theorem k215EnumRunsForever_next_forever (s: nat):
+  $ k215EnumRunsForever s -> k215EnumRunsForever (k215EnumStep s - 1) $;
+
+theorem k215SearchComplete_at (p s: nat):
+  $ k215SearchComplete p -> k218EnumPL s = p -> k215EnumRunsForever s -> k215SearchDrain s $;
+
+theorem k215SearchComplete_all (p: nat): $ k215SearchComplete p $;
+
+theorem k215SearchDrain_forever (s: nat):
+  $ k215EnumRunsForever s -> k215SearchDrain s $;
+
+def k215SearchAt (s k: nat) (.v: nat): wff =
+  $ E. v (k215EnumReach s v /\ (k218EnumPL v = 0 /\ k218EnumNP v = k)) $;
+
+theorem k215SearchAt_intro (s t k: nat):
+  $ k215EnumReach s t /\ (k218EnumPL t = 0 /\ k218EnumNP t = k) -> k215SearchAt s k $;
+
+theorem k215SearchAt_transfer (s t k: nat):
+  $ k215EnumReach s t -> k215SearchAt t k -> k215SearchAt s k $;
+
+theorem k215SearchAt_boundary_next (s: nat):
+  $ k215EnumRunsForever s -> k218EnumPL s = 0 -> k215SearchAt s (suc (k218EnumNP s)) $;
+
+theorem k215SearchAt_next (s k: nat):
+  $ k215EnumRunsForever s -> k215SearchAt s k -> k215SearchAt s (suc k) $;
+
+theorem k215SearchAt_initial_four: $ k215SearchAt k215EnumInitial 4 $;
+
+theorem k215SearchAt_initial (k: nat):
+ $ k215EnumRunsForever k215EnumInitial -> 4 <= k -> k215SearchAt k215EnumInitial k $;
+
+theorem k215Enum_nonhalt_reaches_candidate (k: nat):
+ $ ~k215EnumHalts -> 4 <= k -> k215SearchAt k215EnumInitial k $;

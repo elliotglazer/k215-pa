@@ -1,0 +1,53 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+import "k218_enum.mm1";
+
+do (apply (register-eqd 'k218EnumStep) '(k218EnumStepeqd));
+do (apply (register-eqd 'k218EnumOptionGood) '(k218EnumOptionGoodeqd));
+
+@_ def k218EnumAdvance (r: nat): nat = $ if (r = 0) 0 (k218EnumStep (r - 1)) $;
+@_ abstract def k218EnumIter (n s .r: nat): nat =
+  $ rec (suc s) (\ r, k218EnumAdvance r) n $;
+@_ abstract def k218EnumHalts (.n: nat): wff = $ E. n k218EnumIter n k218EnumInitial = 0 $;
+
+theorem k218EnumOption_eq (a b: nat) (h: $ a = b $):
+  $ k218EnumOptionGood a <-> k218EnumOptionGood b $ =
+'(ax_mp (k218EnumOptionGoodeqd id) h);
+pub theorem k218EnumAdvance_zero: $ k218EnumAdvance 0 = 0 $ = '(ifpos eqid);
+pub theorem k218EnumAdvance_some (s: nat): $ k218EnumAdvance (suc s) = k218EnumStep s $ =
+'(eqtr (ifneg peano1) (ax_mp (k218EnumStepeqd id) sucsub1));
+pub theorem k218EnumIter_zero (s: nat): $ k218EnumIter 0 s = suc s $ = (named 'rec0);
+pub theorem k218EnumIter_succ (n s: nat):
+  $ k218EnumIter (suc n) s = k218EnumAdvance (k218EnumIter n s) $ =
+'(eqtr recS @ ! applame $ k218EnumIter n s $ _ r _ k218EnumAdvanceeq);
+
+theorem k218EnumAdvance_good_zero:
+  $ k218EnumOptionGood 0 -> k218EnumOptionGood (k218EnumAdvance 0) $ =
+'(bi2 (k218EnumOption_eq k218EnumAdvance_zero));
+theorem k218EnumAdvance_good_succ (s: nat):
+  $ k218EnumOptionGood (suc s) -> k218EnumOptionGood (k218EnumAdvance (suc s)) $ =
+'(syl (bi2 (k218EnumOption_eq k218EnumAdvance_some)) @
+  syl k218EnumStep_good (bi1 k218EnumOption_some));
+pub theorem k218EnumAdvance_good (r: nat):
+  $ k218EnumOptionGood r -> k218EnumOptionGood (k218EnumAdvance r) $ =
+(named @ induct '(ind) 'r 'k218EnumAdvance_good_zero '(a1i k218EnumAdvance_good_succ));
+
+theorem k218EnumIter_good_zero (s: nat):
+  $ k218EnumStateGood s -> k218EnumOptionGood (k218EnumIter 0 s) $ =
+'(syl (bi2 (k218EnumOption_eq k218EnumIter_zero)) (bi2 k218EnumOption_some));
+theorem k218EnumIter_good_step (n s: nat):
+  $ k218EnumStateGood s /\ k218EnumOptionGood (k218EnumIter n s) ->
+    k218EnumOptionGood (k218EnumIter (suc n) s) $ =
+'(syl (bi2 (k218EnumOption_eq k218EnumIter_succ)) (syl k218EnumAdvance_good anr));
+pub theorem k218EnumIter_good (n s: nat):
+  $ k218EnumStateGood s -> k218EnumOptionGood (k218EnumIter n s) $ =
+(named @ induct '(indd) 'n 'k218EnumIter_good_zero 'k218EnumIter_good_step);
+pub theorem k218EnumIter_initial_good (n: nat):
+  $ k218EnumOptionGood (k218EnumIter n k218EnumInitial) $ =
+'(k218EnumIter_good k218EnumInitial_good);
+theorem k218EnumHalts_at (n: nat): $ k218EnumIter n k218EnumInitial = 0 -> k218Provable 1 $ =
+'(syl (bi1 k218EnumOption_zero) @
+  mpbid (k218EnumOptionGoodeqd id) (a1i k218EnumIter_initial_good));
+pub theorem k218EnumHalts_sound: $ k218EnumHalts -> k218Inconsistent $ =
+(named '(eex k218EnumHalts_at));
+pub theorem k218Enum_nonhalting: $ ~k218Inconsistent -> ~k218EnumHalts $ =
+'(con3 k218EnumHalts_sound);

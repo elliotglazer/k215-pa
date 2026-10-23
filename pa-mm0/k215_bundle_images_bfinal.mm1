@@ -1,0 +1,99 @@
+import "k215_bundle_images_bschema.mm1";
+import "k215_bundle_images_corel.mm1";
+
+-- (lane L01, bound^L step 5) bound^L from G1, L nonempty, the levels-in-L premise and the stage facts.
+
+@_ def k215BAboveAll (.c .n: nat): wff =
+ $ A. c A. n (sfBound n c -> zfcProvable (sfLReplacementAboveLaw n c)) $;
+
+theorem k215BF_A_inst {c n: nat} (phi m: nat):
+  $ A. c A. n (sfBound n c -> zfcProvable (sfLReplacementAboveLaw n c)) ->
+    sfBound m phi -> zfcProvable (sfLReplacementAboveLaw m phi) $ =
+(named '(syl
+  {(!! eale n ,eqtac) : $ A. n (sfBound n phi -> zfcProvable (sfLReplacementAboveLaw n phi)) ->
+    sfBound m phi -> zfcProvable (sfLReplacementAboveLaw m phi) $}
+  {(!! eale c ,eqtac) : $ A. c A. n (sfBound n c -> zfcProvable (sfLReplacementAboveLaw n c)) ->
+    A. n (sfBound n phi -> zfcProvable (sfLReplacementAboveLaw n phi)) $}));
+
+theorem k215BF_A (phi m: nat) (hA: $ k215BAboveAll $) (hb: $ sfBound m phi $):
+  $ zfcProvable (sfLReplacementAboveLaw m phi) $ =
+(named '(ax_mp (ax_mp k215BF_A_inst hA) hb));
+
+theorem k215BF_zc (a: nat) (h: $ sfTheoryProvable zfrAxioms a $): $ sfTheoryProvable zfcAxioms a $ =
+'(ax_mp (sfTheoryProvable_mono zfrAxioms_subset_zfc) h);
+
+-- The power axiom and two distinct sets, relativized to L by G1.
+theorem k215BF_pow
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+  $ sfTheoryProvable zfcAxioms k215BPowL $ =
+'(mpbi (trud (sfTheoryProvable_congr (a1i (k215BPow_rel sfWf_bot))))
+   (mpbir sfTheoryProvable_zfc (ax_mp (ax_mp (k215BI_relativize_closed hz hn)
+       (ax_mp (ax_mp sfTheoryClosed_member zfrAxioms_closed) zfrPower_member))
+     (mpbi sfTheoryProvable_zfc
+       (k215BF_zc (ax_mp (ax_mp sfTheoryAxiom_provable_closed zfrAxioms_closed) zfrPower_member))))));
+
+theorem k215BF_e2
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+  $ sfTheoryProvable zfcAxioms (sfRelativize sfLDomain k215BE2) $ =
+'(mpbir sfTheoryProvable_zfc (ax_mp (ax_mp (k215BI_relativize_closed hz hn) k215SC_E2_closed)
+   (mpbi sfTheoryProvable_zfc (k215BF_zc k215BE2_zfr))));
+
+-- One matrix q with at most N parameters.
+theorem k215BF_each (q N: nat)
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+  (hlv:$ zfcProvable k215BLvl $)
+  (hE:$ zfcProvable sfLReplacementLevelExtension $)
+  (hA:$ k215BAboveAll $)
+  (hL:$ zfcProvable sfLReplacementLevelExistsLaw $)
+  (hS:$ zfcProvable (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+  (hT:$ zfcProvable sfLSeparationStageTransNormal $)
+  (hZ:$ zfcProvable (sfCLRecipe 0 0) $)
+  (hb: $ sfBound (2 + N) q $):
+  $ zfcProvable (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF q))) $ =
+'(mpbi sfTheoryProvable_zfc (k215SC_schema (ax_mp sfBound_wf hb) hb
+   (mpbir sfTheoryProvable_zfc hE) (mpbir sfTheoryProvable_zfc (k215BF_A hA (k215BRefl_bound hb)))
+   (mpbir sfTheoryProvable_zfc hL) (mpbir sfTheoryProvable_zfc hS)
+   (mpbir sfTheoryProvable_zfc hT) (mpbir sfTheoryProvable_zfc hZ)
+   (mpbir sfTheoryProvable_zfc hlv) (k215BF_pow hz hn) (k215BF_e2 hz hn)));
+
+-- Weak deduction for the bound: q' = q under the bound, and q' always satisfies it.
+@_ def k215BFq (q N: nat): nat = $ if (sfBound (2 + N) q) q 0 $;
+
+theorem k215BFq_bound (q N: nat): $ sfBound (2 + N) (k215BFq q N) $ =
+'(cases (mpbird (sfLaw_bound_congr eqidd ifpos) id) (mpbird (sfLaw_bound_congr eqidd ifneg) (a1i sfBound_bot)));
+
+theorem k215BF_keq (q1 q2 N: nat):
+  $ q1 = q2 -> sfRelativize sfLDomain (sfAllPrefix N (k215BoundF q1)) =
+               sfRelativize sfLDomain (sfAllPrefix N (k215BoundF q2)) $ =
+'{,eqtac : $ q1 = q2 -> sfRelativize sfLDomain (sfAllPrefix N (k215BoundF q1)) =
+               sfRelativize sfLDomain (sfAllPrefix N (k215BoundF q2)) $};
+
+theorem k215BF_d (q N: nat)
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+  (hlv:$ zfcProvable k215BLvl $)
+  (hE:$ zfcProvable sfLReplacementLevelExtension $)
+  (hA:$ k215BAboveAll $)
+  (hL:$ zfcProvable sfLReplacementLevelExistsLaw $)
+  (hS:$ zfcProvable (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+  (hT:$ zfcProvable sfLSeparationStageTransNormal $)
+  (hZ:$ zfcProvable (sfCLRecipe 0 0) $):
+  $ sfBound (2 + N) q -> zfcProvable (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF q))) $ =
+'(mpbid (rawProvable_congr (syl k215BF_keq ifpos))
+   (a1i (k215BF_each hz hn hlv hE hA hL hS hT hZ k215BFq_bound)));
+
+pub theorem k215BoundL_from_stages
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+  (hlv:$ zfcProvable k215BLvl $)
+  (hE:$ zfcProvable sfLReplacementLevelExtension $)
+  (hA:$ k215BAboveAll $)
+  (hL:$ zfcProvable sfLReplacementLevelExistsLaw $)
+  (hS:$ zfcProvable (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+  (hT:$ zfcProvable sfLSeparationStageTransNormal $)
+  (hZ:$ zfcProvable (sfCLRecipe 0 0) $):
+  $ k215BoundL $ =
+(named '(ax_gen @ ax_gen @ k215BF_d hz hn hlv hE hA hL hS hT hZ));

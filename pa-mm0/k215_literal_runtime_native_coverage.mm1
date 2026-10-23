@@ -1,0 +1,28 @@
+import "k215_literal_runtime_native_ranges.mm1";
+import "k215_literal_runtime_ordinals.mm1";
+
+
+@_ abstract def k215PNativeRow (pc: nat) (.g .regs .w .r: nat): wff =
+ $ A. g A. regs A. w A. r k215PNativeOutcome g (k215PState pc regs) w r $;
+do (apply (register-eqd 'k215PNativeRow) '(k215PNativeRoweqd));
+@_ abstract def k215PNativeSpan (lo hi: nat) (.pc: nat): wff =
+ $ A. pc (lo <= pc /\ pc < hi -> k215PNativeRow pc) $;
+pub theorem k215PNativeRow_at (pc g regs w r: nat):
+ $ k215PNativeRow pc -> k215PNativeOutcome g (k215PState pc regs) w r $ =
+ (named '(!! ealie a @ !! ealde b @ !! ealde c @ !! ealde d @ bi1d ,eqtac));
+pub theorem k215PNativeSpan_at (lo hi pc: nat):
+ $ k215PNativeSpan lo hi -> lo <= pc /\ pc < hi -> k215PNativeRow pc $ =
+ (named '(!! eale a ,eqtac));
+theorem k215PNativeSpan_single_at (lo pc: nat):
+ $ k215PNativeRow lo -> lo <= pc /\ pc < suc lo -> k215PNativeRow pc $ =
+ '(exp @ mpbird (k215PNativeRoweqd (syl k215PInterval_eq anr)) anl);
+pub theorem k215PNativeSpan_single (lo: nat):
+ $ k215PNativeRow lo -> k215PNativeSpan lo (suc lo) $ =
+ (named '(iald k215PNativeSpan_single_at));
+theorem k215PNativeSpan_join_at (lo mid hi pc: nat):
+ $ k215PNativeSpan lo mid /\ k215PNativeSpan mid hi ->
+   lo <= pc /\ pc < hi -> k215PNativeRow pc $ =
+ '(com12 (k215PNativeIntervalJoin (com12 (syl k215PNativeSpan_at anl)) (com12 (syl k215PNativeSpan_at anr))));
+pub theorem k215PNativeSpan_join (lo mid hi: nat):
+ $ k215PNativeSpan lo mid /\ k215PNativeSpan mid hi -> k215PNativeSpan lo hi $ =
+ (named '(iald k215PNativeSpan_join_at));

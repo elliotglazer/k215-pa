@@ -1,0 +1,34 @@
+import "quotient_quotation.mm0";
+
+def sqEnvAgree (E F: set) (n .i: nat): wff = $ A. i (i < n -> E @ i = F @ i) $;
+theorem sqEnvAgree_at (E F: set) (n i: nat):
+  $ sqEnvAgree E F n -> i < n -> E @ i = F @ i $;
+
+theorem sqEnvAgree_zero (E F: set): $ sqEnvAgree E F 0 $;
+
+theorem sqEnvAgree_index (E F: set) (k d n i: nat):
+  $ sqEnvAgree E F n -> i < d + n ->
+    sfNamedIndex E k d i = sfNamedIndex F k d i $;
+
+def ntEnvClass (E F: set) (k n: nat) (.c .d: nat): set =
+$ {c | A. d (sfBound (d + n) c -> sfNamedTemplate E k d c = sfNamedTemplate F k d c)} $;
+theorem ntEnv_value {d: nat} (E F: set) (k n: nat) (c: nat):
+  $ c e. ntEnvClass E F k n <-> A. d (sfBound (d + n) c -> sfNamedTemplate E k d c = sfNamedTemplate F k d c) $;
+
+theorem sfNamedTemplate_environment (E F: set) (k n: nat) (d c: nat) (he: $ sqEnvAgree E F n $):
+  $ sfBound (d + n) c -> sfNamedTemplate E k d c = sfNamedTemplate F k d c $;
+
+theorem sfNamedTemplate_environment_closed (E F: set) (k: nat) (c: nat):
+  $ sfBound 0 c -> sfNamedTemplate E k 0 c = sfNamedTemplate F k 0 c $;
+
+def qqEnvClass (E F: set) (t k n: nat) (.c .d: nat): set =
+$ {c | A. d (sfBound (d + n) c -> sqQuote E t k d c = sqQuote F t k d c)} $;
+theorem qqEnv_value {d: nat} (E F: set) (t k n: nat) (c: nat):
+  $ c e. qqEnvClass E F t k n <-> A. d (sfBound (d + n) c -> sqQuote E t k d c = sqQuote F t k d c) $;
+
+theorem sqQuote_environment (E F: set) (t k n: nat) (d c: nat) (he: $ sqEnvAgree E F n $):
+  $ sfBound (d + n) c -> sqQuote E t k d c = sqQuote F t k d c $;
+
+theorem sqQuote_environment_closed (E F: set) (t k: nat) (c: nat):
+  $ sfBound 0 c -> sqQuote E t k 0 c = sqQuote F t k 0 c $;
+

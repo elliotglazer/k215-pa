@@ -1,0 +1,83 @@
+import "source_shift.mm0";
+
+-- Single-variable instantiation and its d-fold capture-avoiding lifts.
+-- NumericalSubstitutionMaps.v: substitution_singleton_total maps 0 to t
+-- and suc i to i. Its substitution_lift fixes 0 and maps suc i to suc v.
+-- The arithmetic specialization after d lifts is i<d -> i, i=d -> t+d,
+-- and d<i -> i-1. SubstitutionRules.v recurses under each quantifier using
+-- the lifted map. No finite-map or source trace equivalence is claimed here.
+
+def sfSubstIndex (d t i: nat): nat = $ if (i < d) i (if (i = d) (t + d) (i - 1)) $;
+def sfSubstBody (d t c h: nat): nat =
+$ if (c = 0) 0
+  (if (sfTag c = 1) (sfMem (sfSubstIndex d t (sfLeft c)) (sfSubstIndex d t (sfRight c)))
+  (if (sfTag c = 2) (sfEq (sfSubstIndex d t (sfLeft c)) (sfSubstIndex d t (sfRight c)))
+  (if (sfTag c = 3) (sfAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 4) (sfOr (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 5) (sfImp (h @ (d, sfLeft c)) (h @ (d, sfRight c)))
+  (if (sfTag c = 6 /\ sfRight c = 0) (sfAll (h @ (suc d, sfLeft c)))
+  (if (sfTag c = 7 /\ sfRight c = 0) (sfEx (h @ (suc d, sfLeft c))) 0))))))) $;
+def sfSubstStep (t .h: nat): set =
+$ \ h, sfSubstBody (fst (sfHistoryLength h)) t (snd (sfHistoryLength h)) h $;
+def sfSubst (d t c: nat): nat = $ srec (sfSubstStep t) (d, c) $;
+def sfSubstHistory (d t c .i: nat): nat =
+$ \. i e. upto (d, c), srec (sfSubstStep t) i $;
+
+theorem sfSubstStep_apply (t h: nat):
+  $ sfSubstStep t @ h = sfSubstBody (fst (sfHistoryLength h)) t (snd (sfHistoryLength h)) h $;
+theorem sfSubstHistory_size (d t c: nat): $ sfHistoryLength (sfSubstHistory d t c) = (d, c) $;
+theorem sfSubstHistory_lookup (d t c e a: nat):
+  $ (e, a) < (d, c) -> sfSubstHistory d t c @ (e, a) = sfSubst e t a $;
+theorem sfSubst_unfold (d t c: nat):
+  $ sfSubst d t c = sfSubstBody d t c (sfSubstHistory d t c) $;
+
+theorem sfSubst_bot (d t: nat):
+  $ sfSubst d t sfBot = sfBot $;
+
+theorem sfSubst_sfMem (d t a b: nat):
+  $ sfSubst d t (sfMem a b) = sfMem (sfSubstIndex d t a) (sfSubstIndex d t b) $;
+
+theorem sfSubst_sfEq (d t a b: nat):
+  $ sfSubst d t (sfEq a b) = sfEq (sfSubstIndex d t a) (sfSubstIndex d t b) $;
+
+theorem sfSubst_sfAnd (d t a b: nat):
+  $ sfSubst d t (sfAnd a b) = sfAnd (sfSubst d t a) (sfSubst d t b) $;
+
+theorem sfSubst_sfOr (d t a b: nat):
+  $ sfSubst d t (sfOr a b) = sfOr (sfSubst d t a) (sfSubst d t b) $;
+
+theorem sfSubst_sfImp (d t a b: nat):
+  $ sfSubst d t (sfImp a b) = sfImp (sfSubst d t a) (sfSubst d t b) $;
+
+theorem sfSubst_sfAll (d t a: nat):
+  $ sfSubst d t (sfAll a) = sfAll (sfSubst (suc d) t a) $;
+
+theorem sfSubst_sfEx (d t a: nat):
+  $ sfSubst d t (sfEx a) = sfEx (sfSubst (suc d) t a) $;
+
+theorem sfSubst_tag0 (d t c: nat):
+  $ sfTag c = 0 -> sfSubst d t c = 0 $;
+
+theorem sfSubst_bad_all (d t c: nat):
+  $ sfTag c = 6 -> sfRight c != 0 -> sfSubst d t c = 0 $;
+
+theorem sfSubst_bad_ex (d t c: nat):
+  $ sfTag c = 7 -> sfRight c != 0 -> sfSubst d t c = 0 $;
+
+
+theorem sfSubstIndex_bound (d t i: nat): $ i < d -> sfSubstIndex d t i = i $;
+theorem sfSubstIndex_hit (d t: nat): $ sfSubstIndex d t d = t + d $;
+theorem sfSubstIndex_above (d t i: nat): $ d < i -> sfSubstIndex d t i = i - 1 $;
+theorem sfSubstIndex_zero (t: nat): $ sfSubstIndex 0 t 0 = t $;
+theorem sfSubstIndex_successor (t i: nat): $ sfSubstIndex 0 t (suc i) = i $;
+
+theorem sfSubstIndex_lift (d t i: nat):
+  $ sfSubstIndex (suc d) t (suc i) = suc (sfSubstIndex d t i) $;
+
+-- Total normalization implies the customary wellformedness preservation.
+theorem sfSubst_wf (d t c: nat): $ sfWf (sfSubst d t c) $;
+theorem sfSubst_preserves_wf (d t c: nat): $ sfWf c -> sfWf (sfSubst d t c) $;
+
+theorem sfSubst_congr (H: wff) (d e t u a b: nat)
+  (hd: $ H -> d = e $) (ht: $ H -> t = u $) (ha: $ H -> a = b $):
+  $ H -> sfSubst d t a = sfSubst e u b $;

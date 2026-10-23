@@ -1,0 +1,56 @@
+import "source_piece_pcf_definable_conjunction.mm1";
+
+import "source_piece_pcf_definable_or.mm1";
+
+import "source_piece_pcf_rep_implication_named_r43.mm1";
+
+-- Disjunction at recipe level; the proofs follow sfPieceDefinableAnd_represents and
+-- sfPieceDefinableConjunction_point / _recipe with the union law in place of the two
+-- differences.
+
+pub theorem sfPieceDefinableOr_represents(T:set)(G A R1 R2 R phi psi e:nat)
+ (hU:$ nsLocal G (sfIff (sfMem e R) (sfOr (sfMem e R1) (sfMem e R2))) $)
+ (hA:$ sfPieceRepresentationAt T G A R1 phi e $)
+ (hB:$ sfPieceRepresentationAt T G A R2 psi e $):
+ $ sfPieceRepresentationAt T G A R (sfOr phi psi) e $ =
+(named '(sfRQ_rewrite
+  (nsAnd_eq
+    (nsImp_eq eqid (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfOr))) sfCLSetRel_sfOr)))
+    (nsImp_eq (eqcom (eqtr (trud (sfCLSetRel_formula_congr (a1i eqid) (a1i sfRename_sfOr))) sfCLSetRel_sfOr)) eqid))
+  (sfPieceDefinableOr_local sfWf_mem sfWf_mem sfWf_mem sfCLSetRel_wf sfCLSetRel_wf hU hA hB)));
+
+pub theorem sfPieceDefinableDisjunction_point(G n phi psi l r:nat)
+ (hl:$ sfBound n phi $)(hr:$ sfBound n psi $)
+ (hL:$ nsLocal G (sfPieceDefinableNamed n phi l 1) $)
+ (hR:$ nsLocal G (sfPieceDefinableNamed n psi r 1) $)
+ (hU:$ nsLocal G (sfPieceRepImplicationNamedUnion l r 0) $):
+ $ nsLocal (sfPieceDefinableParametersContext n G) (sfPieceDefinableRecipePoint n (sfOr phi psi)) $ =
+(named '(ax_mp (sfLocal_allI (ax_mp nsLocal_context_wf (sfPieceDefinableContextTransport_named hl hL)))
+  (ax_mp nsLocal_II (sfPieceDefinableOr_represents
+    (sfPieceRepImplicationNamedUnion_member
+      (ax_mp (ax_mp (ax_mp nsLocal_weaken sfPieceDefinableConjunctionPointContext_wf) sfContextSub_cons)
+        (sfRQ_rewrite sfPieceRepImplicationNamedUnion_shift
+          (ax_mp sfSepLocal_shift
+            (sfRQ_rewrite (sfPieceRepImplicationNamedUnion_congr eqid eqid sfLCB_zero)
+              (sfPieceRepImplicationNamedUnion_context hU))))))
+    (sfPieceDefinableRealization_local hl
+      (ax_mp (ax_mp (ax_mp nsLocal_weaken sfPieceDefinableConjunctionPointContext_wf) sfContextSub_cons)
+        (sfPieceDefinableConjunction_named_shift hl
+          (sfRQ_rewrite (sfPieceDefinableNamed_congr hl eqid sfLCB_one)
+            (sfPieceDefinableContextTransport_named hl hL))))
+      sfPieceDefinableConjunction_members sfPieceDefinableConjunction_environment)
+    (sfPieceDefinableRealization_local hr
+      (ax_mp (ax_mp (ax_mp nsLocal_weaken sfPieceDefinableConjunctionPointContext_wf) sfContextSub_cons)
+        (sfPieceDefinableConjunction_named_shift hr
+          (sfRQ_rewrite (sfPieceDefinableNamed_congr hr eqid sfLCB_one)
+            (sfPieceDefinableContextTransport_named hr hR))))
+      sfPieceDefinableConjunction_members sfPieceDefinableConjunction_environment)))));
+
+pub theorem sfPieceDefinableDisjunction_recipe(G n phi psi l r:nat)
+ (hl:$ sfBound n phi $)(hr:$ sfBound n psi $)
+ (hL:$ nsLocal G (sfPieceDefinableNamed n phi l 1) $)
+ (hR:$ nsLocal G (sfPieceDefinableNamed n psi r 1) $)
+ (hU:$ nsLocal G (sfPieceRepImplicationNamedUnion l r 0) $):
+ $ nsLocal G (sfPieceDefinableRecipe n (sfOr phi psi)) $ =
+(named '(sfPieceDefinableCanonical_recipe (ax_mp nsLocal_context_wf hL)
+  (sfPieceDefinableDisjunction_point hl hr hL hR hU)));

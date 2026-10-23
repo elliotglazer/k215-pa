@@ -1,0 +1,59 @@
+import "quotation_supported_propositional.mm1";
+import "quotation_supported_quantifier_closure.mm1";
+
+theorem sqST_history (l p: nat):
+ $ traceClassAll sqSupportedClass l -> p IN l -> sqSupportedGood p $ =
+'(syl6 (bi1 sqSupportedClass_value) traceClassAll_get);
+
+theorem sqST_prop_unary (r p l: nat):
+ $ traceClassAll sqSupportedClass l -> p IN l /\ sfNDPropUnary r p -> sqSupportedGood r $ =
+'(exp @ mpd (mpd anrl (syl sqST_history anl)) (syl sqSupported_prop_unary anrr));
+
+theorem sqST_prop_binary (r p q l: nat):
+ $ traceClassAll sqSupportedClass l ->
+   p IN l /\ (q IN l /\ sfNDPropBinary r p q) -> sqSupportedGood r $ =
+'(exp @ mpd (mpd (syl anl anrr) (syl sqST_history anl)) @
+ mpd (mpd anrl (syl sqST_history anl)) @ syl sqSupported_prop_binary (syl anr anrr));
+
+theorem sqST_prop_rule (r l: nat):
+ $ traceClassAll sqSupportedClass l -> (r, l) e. sfNDPropRules -> sqSupportedGood r $ =
+(named '(syl5bi sfNDPropRules_value @ eord (a1i sqSupported_prop_base)
+ (eord (eexd sqST_prop_unary) (eexd (eexd sqST_prop_binary)))));
+
+theorem sqST_quant_unary (r p l: nat):
+ $ traceClassAll sqSupportedClass l -> p IN l /\ sfNDQuantUnary r p -> sqSupportedGood r $ =
+'(exp @ mpd (mpd anrl (syl sqST_history anl)) (syl sqSupported_quant_unary anrr));
+
+theorem sqST_quant_binary (r p q l: nat):
+ $ traceClassAll sqSupportedClass l ->
+   p IN l /\ (q IN l /\ sfNDQuantBinary r p q) -> sqSupportedGood r $ =
+'(exp @ mpd (mpd (syl anl anrr) (syl sqST_history anl)) @
+ mpd (mpd anrl (syl sqST_history anl)) @ syl sqSupported_quant_binary (syl anr anrr));
+
+theorem sqST_quant_rule (r l: nat):
+ $ traceClassAll sqSupportedClass l -> (r, l) e. sfNDQuantRules -> sqSupportedGood r $ =
+(named '(syl5bi sfNDQuantRules_value @
+ eord (eexd sqST_quant_unary) (eexd (eexd sqST_quant_binary))));
+
+theorem sqST_full_rule (r l: nat):
+ $ traceClassAll sqSupportedClass l -> (r, l) e. sfNDFullRules -> sqSupportedGood r $ =
+'(syl5bi elun (eord sqST_prop_rule sqST_quant_rule));
+
+pub theorem sqSupported_rules_sound: $ traceRuleSound sfNDFullRules sqSupportedClass $ =
+(named '(ax_gen @ ax_gen @ syl6 (bi2 sqSupportedClass_value) sqST_full_rule));
+
+pub theorem sqSupported_trace (p: nat):
+ $ traceValid sfNDFullRules p -> traceClassAll sqSupportedClass p $ =
+'(ax_mp traceValid_classAll sqSupported_rules_sound);
+
+pub theorem sqSupported_derives (p r: nat):
+ $ sfNDFullDerives p r -> sqSupportedGood r $ =
+'(syl (bi1 sqSupportedClass_value) (ax_mp traceDerives_class sqSupported_rules_sound));
+
+pub theorem sqSupported_sequent (p G a: nat):
+ $ sfNDFullDerives p (sfSequent G a) -> sqSupportedGood (sfSequent G a) $ =
+'sqSupported_derives;
+
+pub theorem sqSupported_sequent_cutoff {n: nat} (p G a: nat):
+ $ sfNDFullDerives p (sfSequent G a) -> E. n sqSupportedAt n (sfSequent G a) $ =
+'sqSupported_derives;

@@ -1,0 +1,18 @@
+import "source_l_replacement_common_step.mm0";
+
+def sfLReplacementCollectorFormula(start count seed:nat):nat =
+ $ sfImp (sfCLPredicates sfLDomain start count) (sfLReplacementSeededRecipe start count seed) $;
+
+def lrcCollectHyp(G start n:nat):nat =
+ $ sfCLPredicates sfLDomain start (suc n) : G $;
+
+theorem sfLReplacementSeededCollector_local(G start count a seed:nat)
+ (hg:$ sfContextWf G $)(he:$ sfLReplacementLevelExtension IN G $)
+ (ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a seed) $):
+ $ nsLocal G (sfLReplacementCollectorFormula start count seed) $;
+
+theorem sfLReplacementSeededCollector_use(G start count a seed:nat)
+ (he:$ sfLReplacementLevelExtension IN G $)
+ (ho:$ nsLocal G (sfCLOrdinalAt a) $)(hl:$ nsLocal G (sfCLHierarchyAt a seed) $)
+ (hi:$ nsLocal G (sfCLPredicates sfLDomain start count) $):
+ $ nsLocal G (sfLReplacementSeededRecipe start count seed) $;

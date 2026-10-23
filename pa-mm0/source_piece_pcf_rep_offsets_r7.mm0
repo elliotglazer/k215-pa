@@ -1,0 +1,42 @@
+import "source_piece_pcf_rep_environment.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def sfPieceRepOffset(T:set)(r d .i:nat):set = $ \ i, d + (T @ (r + i)) $;
+
+theorem sfPieceRepOffset_at(T:set)(r d i:nat):
+ $ sfPieceRepOffset T r d @ i = d + (T @ (r + i)) $;
+
+theorem sfPieceRepOffset_origin(T:set)(i:nat):
+ $ sfPieceRepOffset T 0 0 @ i = T @ i $;
+
+theorem sfPieceRepOffset_head(T:set)(r d:nat):
+ $ sfPieceRepOffset T r d @ 0 = d + (T @ r) $;
+
+theorem sfPieceRepOffset_rest(T:set)(r d i:nat):
+ $ sfPieceRepRest (sfPieceRepOffset T r d) @ i = sfPieceRepOffset T (suc r) d @ i $;
+
+theorem sfPieceRepOffset_lift_rest(T:set)(r d i:nat):
+ $ sfPieceRepLiftRest (sfPieceRepOffset T r d) @ i = sfPieceRepOffset T (suc r) (suc d) @ i $;
+
+theorem sfPieceRepOffset_shift(T:set)(r d i:nat):
+ $ sfComposeMap sfSuccessorMap (sfPieceRepOffset T r d) @ i = sfPieceRepOffset T r (suc d) @ i $;
+
+theorem sfPieceEnv_offset_origin(T:set)(n e:nat):
+ $ sfPieceEnv (sfPieceRepOffset T 0 0) n e = sfPieceEnv T n e $;
+
+theorem sfPieceEnv_offset_suc(T:set)(r d n e:nat):
+ $ sfPieceEnv (sfPieceRepOffset T r d) (suc n) e =
+   sfEx (sfAnd (sfPieceEnv (sfPieceRepOffset T (suc r) (suc d)) n 0)
+    (sfPieceRepExtension 0 (suc (d + (T @ r))) (suc e))) $;
+
+theorem sfPieceEnv_offset_shift(T:set)(r d n e:nat):
+ $ sfShift 0 (sfPieceEnv (sfPieceRepOffset T r d) n e) =
+   sfPieceEnv (sfPieceRepOffset T r (suc d)) n (suc e) $;
+
+theorem sfPieceEnv_offset_suc_eliminate(T:set)(G r d n e out:nat)
+ (ho:$ sfWf out $)(he:$ nsLocal G (sfPieceEnv (sfPieceRepOffset T r d) (suc n) e) $)
+ (hc:$ nsLocal (sfAnd (sfPieceEnv (sfPieceRepOffset T (suc r) (suc d)) n 0)
+    (sfPieceRepExtension 0 (suc (d + (T @ r))) (suc e)) : sfContextShift G)
+   (sfShift 0 out) $):
+ $ nsLocal G out $;

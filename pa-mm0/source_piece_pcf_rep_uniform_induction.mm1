@@ -1,0 +1,212 @@
+import "source_piece_pcf_definable_bot_use_r2.mm1";
+import "source_structural_induction.mm1";
+
+-- Uniform representation theorem, induction skeleton (Rocq OldZFC/Z_cl.v, rep_ex).
+-- The induction follows the pattern of extracted_rename_prefix.mm1: a class of formula codes,
+-- closure under the eight constructors, then sfWf_induction.
+
+@_ abstract def sfPieceRepMemLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n (sfMem a b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfMem a b))) $;
+
+@_ abstract def sfPieceRepEqLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n (sfEq a b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfEq a b))) $;
+
+@_ abstract def sfPieceRepAndLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n a -> sfBound n b ->
+  nsLocal G (sfPieceDefinableWitness A C n a) ->
+  nsLocal G (sfPieceDefinableWitness A C n b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfAnd a b))) $;
+
+@_ abstract def sfPieceRepOrLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n a -> sfBound n b ->
+  nsLocal G (sfPieceDefinableWitness A C n a) ->
+  nsLocal G (sfPieceDefinableWitness A C n b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfOr a b))) $;
+
+@_ abstract def sfPieceRepImpLaw (G A C: nat) (.n .a .b: nat): wff =
+$ A. n A. a A. b (sfBound n a -> sfBound n b ->
+  nsLocal G (sfPieceDefinableWitness A C n a) ->
+  nsLocal G (sfPieceDefinableWitness A C n b) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfImp a b))) $;
+
+@_ abstract def sfPieceRepAllLaw (G A C: nat) (.n .a: nat): wff =
+$ A. n A. a (sfBound (suc n) a ->
+  nsLocal G (sfPieceDefinableWitness A C (suc n) a) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfAll a))) $;
+
+@_ abstract def sfPieceRepExLaw (G A C: nat) (.n .a: nat): wff =
+$ A. n A. a (sfBound (suc n) a ->
+  nsLocal G (sfPieceDefinableWitness A C (suc n) a) ->
+  nsLocal G (sfPieceDefinableWitness A C n (sfEx a))) $;
+
+@_ abstract def sfPieceRepUniformClass (G A C .c .n: nat): set =
+$ {c | A. n (sfBound n c -> nsLocal G (sfPieceDefinableWitness A C n c))} $;
+
+-- Membership in the class.
+theorem pcru_value {n: nat} (G A C c: nat):
+  $ c e. sfPieceRepUniformClass G A C <->
+    A. n (sfBound n c -> nsLocal G (sfPieceDefinableWitness A C n c)) $ =
+(named '(elabe ,eqtac));
+
+theorem pcru_depth (G A C c m: nat):
+  $ A. j (sfBound j c -> nsLocal G (sfPieceDefinableWitness A C j c)) ->
+    sfBound m c -> nsLocal G (sfPieceDefinableWitness A C m c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem pcru_at (G A C c m: nat):
+  $ c e. sfPieceRepUniformClass G A C ->
+    sfBound m c -> nsLocal G (sfPieceDefinableWitness A C m c) $ =
+(named '(syl pcru_depth {(bi1 pcru_value) :
+  $ c e. sfPieceRepUniformClass G A C ->
+    A. j (sfBound j c -> nsLocal G (sfPieceDefinableWitness A C j c)) $}));
+
+theorem pcru_use (X: wff) (G A C c m: nat)
+  (hc: $ X -> c e. sfPieceRepUniformClass G A C $) (hb: $ X -> sfBound m c $):
+  $ X -> nsLocal G (sfPieceDefinableWitness A C m c) $ =
+'(mpd hb (syl pcru_at hc));
+
+-- Instances of the step laws.
+theorem pcru_mem_at (G A C n a b: nat):
+  $ sfPieceRepMemLaw G A C -> sfBound n (sfMem a b) ->
+    nsLocal G (sfPieceDefinableWitness A C n (sfMem a b)) $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+
+theorem pcru_eq_at (G A C n a b: nat):
+  $ sfPieceRepEqLaw G A C -> sfBound n (sfEq a b) ->
+    nsLocal G (sfPieceDefinableWitness A C n (sfEq a b)) $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+
+theorem pcru_and_at (G A C n a b: nat):
+  $ sfPieceRepAndLaw G A C -> sfBound n a -> sfBound n b ->
+    nsLocal G (sfPieceDefinableWitness A C n a) ->
+    nsLocal G (sfPieceDefinableWitness A C n b) ->
+    nsLocal G (sfPieceDefinableWitness A C n (sfAnd a b)) $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+
+theorem pcru_or_at (G A C n a b: nat):
+  $ sfPieceRepOrLaw G A C -> sfBound n a -> sfBound n b ->
+    nsLocal G (sfPieceDefinableWitness A C n a) ->
+    nsLocal G (sfPieceDefinableWitness A C n b) ->
+    nsLocal G (sfPieceDefinableWitness A C n (sfOr a b)) $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+
+theorem pcru_imp_at (G A C n a b: nat):
+  $ sfPieceRepImpLaw G A C -> sfBound n a -> sfBound n b ->
+    nsLocal G (sfPieceDefinableWitness A C n a) ->
+    nsLocal G (sfPieceDefinableWitness A C n b) ->
+    nsLocal G (sfPieceDefinableWitness A C n (sfImp a b)) $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+
+theorem pcru_all_at (G A C n a: nat):
+  $ sfPieceRepAllLaw G A C -> sfBound (suc n) a ->
+    nsLocal G (sfPieceDefinableWitness A C (suc n) a) ->
+    nsLocal G (sfPieceDefinableWitness A C n (sfAll a)) $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+theorem pcru_ex_at (G A C n a: nat):
+  $ sfPieceRepExLaw G A C -> sfBound (suc n) a ->
+    nsLocal G (sfPieceDefinableWitness A C (suc n) a) ->
+    nsLocal G (sfPieceDefinableWitness A C n (sfEx a)) $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+
+-- Closure of the class under the constructors.
+theorem pcru_bot (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ sfBot e. sfPieceRepUniformClass G A C $ =
+(named '(mpbir pcru_value @ ax_gen @ a1i @ sfPieceDefinableBot_witness hg hbg hs hc));
+
+theorem pcru_mem (G A C a b: nat) (hm: $ sfPieceRepMemLaw G A C $):
+  $ sfMem a b e. sfPieceRepUniformClass G A C $ =
+(named '(mpbir pcru_value @ ax_gen @ ax_mp pcru_mem_at hm));
+
+theorem pcru_eq (G A C a b: nat) (he: $ sfPieceRepEqLaw G A C $):
+  $ sfEq a b e. sfPieceRepUniformClass G A C $ =
+(named '(mpbir pcru_value @ ax_gen @ ax_mp pcru_eq_at he));
+
+theorem pcru_atomic (G A C: nat)
+  (hm: $ sfPieceRepMemLaw G A C $) (he: $ sfPieceRepEqLaw G A C $):
+  $ sfAtomicClosed (sfPieceRepUniformClass G A C) $ =
+(named '(ax_gen @ ax_gen @ ian (pcru_mem hm) (pcru_eq he)));
+
+theorem pcru_and (G A C a b: nat) (ha: $ sfPieceRepAndLaw G A C $):
+  $ a e. sfPieceRepUniformClass G A C /\ b e. sfPieceRepUniformClass G A C ->
+    sfAnd a b e. sfPieceRepUniformClass G A C $ =
+(named '(mpbird (a1i pcru_value) @ !! iald n @ exp @
+  mpd (pcru_use (syl anr anl) (syl anr (syl (bi1 sfBound_sfAnd) anr))) @
+  mpd (pcru_use (syl anl anl) (syl anl (syl (bi1 sfBound_sfAnd) anr))) @
+  mpd (syl anr (syl (bi1 sfBound_sfAnd) anr)) @
+  mpd (syl anl (syl (bi1 sfBound_sfAnd) anr)) @
+  a1i (ax_mp pcru_and_at ha)));
+
+theorem pcru_or (G A C a b: nat) (ho: $ sfPieceRepOrLaw G A C $):
+  $ a e. sfPieceRepUniformClass G A C /\ b e. sfPieceRepUniformClass G A C ->
+    sfOr a b e. sfPieceRepUniformClass G A C $ =
+(named '(mpbird (a1i pcru_value) @ !! iald n @ exp @
+  mpd (pcru_use (syl anr anl) (syl anr (syl (bi1 sfBound_sfOr) anr))) @
+  mpd (pcru_use (syl anl anl) (syl anl (syl (bi1 sfBound_sfOr) anr))) @
+  mpd (syl anr (syl (bi1 sfBound_sfOr) anr)) @
+  mpd (syl anl (syl (bi1 sfBound_sfOr) anr)) @
+  a1i (ax_mp pcru_or_at ho)));
+
+theorem pcru_imp (G A C a b: nat) (hi: $ sfPieceRepImpLaw G A C $):
+  $ a e. sfPieceRepUniformClass G A C /\ b e. sfPieceRepUniformClass G A C ->
+    sfImp a b e. sfPieceRepUniformClass G A C $ =
+(named '(mpbird (a1i pcru_value) @ !! iald n @ exp @
+  mpd (pcru_use (syl anr anl) (syl anr (syl (bi1 sfBound_sfImp) anr))) @
+  mpd (pcru_use (syl anl anl) (syl anl (syl (bi1 sfBound_sfImp) anr))) @
+  mpd (syl anr (syl (bi1 sfBound_sfImp) anr)) @
+  mpd (syl anl (syl (bi1 sfBound_sfImp) anr)) @
+  a1i (ax_mp pcru_imp_at hi)));
+
+theorem pcru_binary (G A C: nat)
+  (ha: $ sfPieceRepAndLaw G A C $) (ho: $ sfPieceRepOrLaw G A C $)
+  (hi: $ sfPieceRepImpLaw G A C $):
+  $ sfBinaryClosed (sfPieceRepUniformClass G A C) $ =
+(named '(ax_gen @ ax_gen @ iand (iand (pcru_and ha) (pcru_or ho)) (pcru_imp hi)));
+
+theorem pcru_all (G A C a: nat) (hl: $ sfPieceRepAllLaw G A C $):
+  $ a e. sfPieceRepUniformClass G A C -> sfAll a e. sfPieceRepUniformClass G A C $ =
+(named '(mpbird (a1i pcru_value) @ !! iald n @ exp @
+  mpd (pcru_use anl (syl (bi1 sfBound_sfAll) anr)) @
+  mpd (syl (bi1 sfBound_sfAll) anr) @
+  a1i (ax_mp pcru_all_at hl)));
+
+theorem pcru_ex (G A C a: nat) (hx: $ sfPieceRepExLaw G A C $):
+  $ a e. sfPieceRepUniformClass G A C -> sfEx a e. sfPieceRepUniformClass G A C $ =
+(named '(mpbird (a1i pcru_value) @ !! iald n @ exp @
+  mpd (pcru_use anl (syl (bi1 sfBound_sfEx) anr)) @
+  mpd (syl (bi1 sfBound_sfEx) anr) @
+  a1i (ax_mp pcru_ex_at hx)));
+
+theorem pcru_quantifier (G A C: nat)
+  (hl: $ sfPieceRepAllLaw G A C $) (hx: $ sfPieceRepExLaw G A C $):
+  $ sfQuantifierClosed (sfPieceRepUniformClass G A C) $ =
+(named '(ax_gen @ iand (pcru_all hl) (pcru_ex hx)));
+
+theorem pcru_closed (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hm: $ sfPieceRepMemLaw G A C $) (he: $ sfPieceRepEqLaw G A C $)
+  (ha: $ sfPieceRepAndLaw G A C $) (ho: $ sfPieceRepOrLaw G A C $)
+  (hi: $ sfPieceRepImpLaw G A C $) (hl: $ sfPieceRepAllLaw G A C $)
+  (hx: $ sfPieceRepExLaw G A C $):
+  $ sfConstructionClosed (sfPieceRepUniformClass G A C) $ =
+'(ian (ian (ian (pcru_bot hg hbg hs hc) (pcru_atomic hm he))
+  (pcru_binary ha ho hi)) (pcru_quantifier hl hx));
+
+pub theorem sfPieceRepUniform (G A B C n phi: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hm: $ sfPieceRepMemLaw G A C $) (he: $ sfPieceRepEqLaw G A C $)
+  (ha: $ sfPieceRepAndLaw G A C $) (ho: $ sfPieceRepOrLaw G A C $)
+  (hi: $ sfPieceRepImpLaw G A C $) (hl: $ sfPieceRepAllLaw G A C $)
+  (hx: $ sfPieceRepExLaw G A C $):
+  $ sfBound n phi -> nsLocal G (sfPieceDefinableWitness A C n phi) $ =
+'(pcru_use (syl (ax_mp sfWf_induction
+    (pcru_closed hg hbg hs hc hm he ha ho hi hl hx)) sfBound_wf) id);

@@ -1,0 +1,59 @@
+import "k215_bundle_images.mm1";
+
+pub theorem k215BI_relativize_closed (a: nat)
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+ $ sfBound 0 a -> zfcProvable a -> zfcProvable (sfRelativize sfLDomain a) $ =
+'(syl6 (bi1 sfTheoryProvable_zfc) (syl6 (ax_mp sfTheoryProvable_mono zfrAxioms_subset_zfc)
+   (ax_mp (ax_mp (sfZFCImageFamilies_transfer zfrAxioms_closed sfLDomain_bound) hz) hn)));
+
+theorem k215BI_rel_imp (a b: nat):
+ $ zfcProvable (sfRelativize sfLDomain (sfImp a b)) <->
+   zfcProvable (sfImp (sfRelativize sfLDomain a) (sfRelativize sfLDomain b)) $ =
+'(trud (rqProvable_congr (a1i sfRelativize_sfImp)));
+
+theorem k215BI_rmp_conj (a b: nat)
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+ $ sfBound 0 a /\ sfBound 0 b -> zfcProvable (sfImp a b) ->
+   zfcProvable (sfRelativize sfLDomain a) -> zfcProvable (sfRelativize sfLDomain b) $ =
+'(syl6 (syl zfcProvable_mp (bi1 k215BI_rel_imp))
+   (syl (k215BI_relativize_closed hz hn) (bi2 sfBound_sfImp)));
+
+pub theorem k215BI_relativize_mp (a b: nat)
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+ $ sfBound 0 a -> sfBound 0 b -> zfcProvable (sfImp a b) ->
+   zfcProvable (sfRelativize sfLDomain a) -> zfcProvable (sfRelativize sfLDomain b) $ =
+'(exp (k215BI_rmp_conj hz hn));
+
+@_ def k215BoundGlueClass (.f .g: nat): set =
+$ {f | E. g ((sfBound 0 g /\ zfcProvable (sfRelativize sfLDomain g)) /\
+             (sfBound 0 f /\ zfcProvable (sfImp g f)))} $;
+pub theorem k215BoundGlueClass_value {g: nat} (f: nat):
+ $ f e. k215BoundGlueClass <-> E. g ((sfBound 0 g /\ zfcProvable (sfRelativize sfLDomain g)) /\
+             (sfBound 0 f /\ zfcProvable (sfImp g f))) $ =
+(named '(elabe ,eqtac));
+
+-- One witness g: projections of ((A /\ B) /\ (C /\ D)) fed to relativized modus ponens.
+theorem k215BI_glue_point (f g: nat)
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+ $ (sfBound 0 g /\ zfcProvable (sfRelativize sfLDomain g)) /\
+   (sfBound 0 f /\ zfcProvable (sfImp g f)) -> zfcProvable (sfRelativize sfLDomain f) $ =
+'(mpd (syl anr anl) @ mpd (syl anr anr) @ mpd (syl anl anr)
+   (syl (k215BI_relativize_mp hz hn) (syl anl anl)));
+
+pub theorem k215BoundGlueClass_images
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $):
+ $ k215BoundGlueClass C_ sfRelativeAxiomClass zfcAxioms sfLDomain $ =
+(named '(ax_gen @ syl (bi2 sfRelativeAxiomClass_value) @ syl (bi2 sfTheoryProvable_zfc) @
+  syl (eex (k215BI_glue_point hz hn)) (bi1 k215BoundGlueClass_value)));
+
+pub theorem k215CoreImagesL_from_bound_glue
+ (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+ (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+ (hg:$ k215CoreAxioms C_ k215BoundGlueClass $):
+ $ k215CoreImagesL $ =
+'(ax_mp (ax_mp sstr hg) (k215BoundGlueClass_images hz hn));

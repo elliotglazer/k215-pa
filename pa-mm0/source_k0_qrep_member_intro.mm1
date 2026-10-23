@@ -1,0 +1,17 @@
+import "source_k0_qrep_raw_member.mm1";
+
+theorem qrepMemberIntro_subst (M y z c: nat) (hM: $ 1 < M $) (hy: $ y < M $) (hz: $ z < M $) (hc: $ c < M $):
+ $ kSubst (kAnd (kAnd (kMem 1 M) (kMem M c)) (sqEqual 1 y M (suc M))) M z = (kAnd (kAnd (kMem 1 z) (kMem z c)) (sqEqual 1 y z (suc M))) $ =
+'(eqtr (qsSubst_kAnd (ltner (lttr lt01S hM))) (kAndeq (eqtr (qsSubst_kAnd (ltner (lttr lt01S hM))) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltne hM)) kReplace_hit)) (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (ltne hc)))))) (eqtr (sqEqual_substitution ltsucid (ltner (lttr lt01S hM))) (sqEqualeq (ax_mp kReplace_miss (ltne hM)) (ax_mp kReplace_miss (ltne hy)) kReplace_hit eqid))));
+
+theorem qrepMemberIntro_absent_M (M y z c: nat) (hM: $ 1 < M $) (hy: $ y < M $) (hz: $ z < M $) (hc: $ c < M $):
+ $ kBinderAbsent (kAnd (kAnd (kMem 1 M) (kMem M c)) (sqEqual 1 y M (suc M))) M $ =
+'(ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) kBinderAbsent_kMem)) (sqEqual_binder_absent ltsucid));
+
+theorem qrepMemberIntro_absent_z (M y z c: nat) (hM: $ 1 < M $) (hy: $ y < M $) (hz: $ z < M $) (hc: $ c < M $):
+ $ kBinderAbsent (kAnd (kAnd (kMem 1 M) (kMem M c)) (sqEqual 1 y M (suc M))) z $ =
+'(ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) kBinderAbsent_kMem)) (sqEqual_binder_absent (lttr hz ltsucid)));
+
+pub theorem sfK0QRep_member_intro (M y z c: nat) (hM: $ 1 < M $) (hy: $ y < M $) (hz: $ z < M $) (hc: $ c < M $):
+ $ k218QProvable (kImp (kAnd (kAnd (kMem 1 z) (kMem z c)) (sqEqual 1 y z (suc M))) (sqMember 1 y c M)) $ =
+'(mpbi (k218QProvableeq (kImpeq (! qrepMemberIntro_subst $ M $ $ y $ $ z $ $ c $ hM hy hz hc) (eqcom sfK0QSepMember_unfold))) (ax_mp (ax_mp (ax_mp k218INamed_exists_intro (ltner hz)) (! qrepMemberIntro_absent_M $ M $ $ y $ $ z $ $ c $ hM hy hz hc)) (! qrepMemberIntro_absent_z $ M $ $ y $ $ z $ $ c $ hM hy hz hc)));

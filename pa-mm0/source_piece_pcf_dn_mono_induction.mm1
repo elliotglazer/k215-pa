@@ -1,0 +1,33 @@
+import "source_piece_pcf_dn_mono_step.mm1";
+
+do { (add-eqd-thm 'sfLCBinary 'pcdmiLCBinaryCong)
+     (add-eqd-thm 'sfPieceMonoCode 'pcdmiMonoCodeCong) };
+
+def sfPieceMonoDnLaw(T:set)(body count:nat):wff =
+ $ sfTheoryProvable T (sfPieceMonoCode body) ->
+   sfTheoryProvable T (sfPieceMonoCode (sfPieceDn count body)) $;
+
+theorem pcdmi_count_congr(T:set)(body a b:nat):
+ $ a = b -> (sfPieceMonoDnLaw T body a <-> sfPieceMonoDnLaw T body b) $ =
+'(imeq2d (sfTheoryProvable_congr (pcdmiMonoCodeCongeqd (sfPieceDneqd id (a1i eqid)))));
+
+theorem pcdmi_zero(T:set)(body:nat): $ sfPieceMonoDnLaw T body 0 $ =
+'(bi2 (trud (sfTheoryProvable_congr (a1i (sfPieceMonoCode_eq sfPieceDn_zero)))));
+
+theorem pcdmi_step(T:set)(body count:nat)
+ (ht:$ sfTheoryClosed T $)(hf:$ sfWf body $):
+ $ sfPieceMonoDnLaw T body count -> sfPieceMonoDnLaw T body (suc count) $ =
+'(syl6 (syl
+ (bi2 (trud (sfTheoryProvable_congr (a1i (sfPieceMonoCode_eq sfPieceDn_suc_one)))))
+ (sfPieceMono_step ht (sfPieceDn_wf hf))) id);
+
+pub theorem sfPieceDn_mono_rule(T:set)(body count:nat)
+ (ht:$ sfTheoryClosed T $)(hf:$ sfWf body $):
+ $ sfPieceMonoDnLaw T body count $ =
+(named '(! ind pm pi count
+ $ sfPieceMonoDnLaw T body pm $
+ $ sfPieceMonoDnLaw T body 0 $
+ $ sfPieceMonoDnLaw T body count $
+ $ sfPieceMonoDnLaw T body pi $
+ $ sfPieceMonoDnLaw T body (suc pi) $
+ pcdmi_count_congr pcdmi_count_congr pcdmi_count_congr pcdmi_count_congr pcdmi_zero (pcdmi_step ht hf)));

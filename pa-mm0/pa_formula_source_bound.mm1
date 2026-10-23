@@ -1,0 +1,27 @@
+import "pa_formula_source.mm1";
+
+import "pa_source_interpretation_term_source_bound.mm1";
+
+theorem paFSBound_cond (G p I J: wff) (b a c: nat) (hp: $ G /\ p -> I -> sfBound b a $) (hn: $ G -> J -> sfBound b c $): $ G -> ifp p I J -> sfBound b (if p a c) $ = (named '(eord (impd @ exp @ sylibrd hp (srecpeq2d (preq2d (syl ifpos anr)))) (impd @ exp @ sylibrd (syl hn anl) (srecpeq2d (preq2d (syl ifneg anr))))));
+
+theorem paFSBound_ind_at (c a: nat): $ A. j (j < c -> A. q (paFormulaBound q j -> sfBound q (paFormulaSource j))) -> a < c -> A. q (paFormulaBound q a -> sfBound q (paFormulaSource a)) $ = (named '(!! eale j ,eqtac));
+
+theorem paFSBound_specialize (n a: nat): $ A. q (paFormulaBound q a -> sfBound q (paFormulaSource a)) -> paFormulaBound n a -> sfBound n (paFormulaSource a) $ = (named '(!! eale q ,eqtac));
+
+theorem paFSBound_use {j q: nat} (G: wff j q) (n c a: nat) (hi: $ G -> A. j (j < c -> A. q (paFormulaBound q j -> sfBound q (paFormulaSource j))) $) (ha: $ G -> a < c $): $ G -> paFormulaBound n a -> sfBound n (paFormulaSource a) $ = (named '(syl paFSBound_specialize @ mpd ha (syl paFSBound_ind_at hi)));
+
+theorem paFSBound_history {j q: nat} (G: wff j q) (n c a: nat) (hi: $ G -> A. j (j < c -> A. q (paFormulaBound q j -> sfBound q (paFormulaSource j))) $) (ha: $ G -> a < c $): $ G -> paFormulaBound n a -> sfBound n (paFormulaSourceHistory c @ a) $ = (named '(sylibrd (paFSBound_use hi ha) (srecpeq2d (preq2d (syl paFormulaSourceHistory_lookup ha)))));
+
+theorem paFSBound_source_history (n c a q: nat): $ (q, a) e. paFormulaBoundPrevious n c -> paFormulaBound q a $ = (named '(syl anr (bi1 paFormulaBoundPrevious_value)));
+
+theorem paFSBound_body {j q: nat} (G: wff j q) (n c: nat) (hi: $ G -> A. j (j < c -> A. q (paFormulaBound q j -> sfBound q (paFormulaSource j))) $): $ G -> paFormulaBoundAllowed n c (paFormulaBoundPrevious n c) -> sfBound n (paFormulaSourceBody c (paFormulaSourceHistory c)) $ = (named '(paFSBound_cond (a1i (a1i sfBound_bot)) (paFSBound_cond (exp @ mpd (syl paTermSource_bound anrr) (syl paSourceFormulaEqual_bound (syl paTermSource_bound anrl))) (paFSBound_cond (exp @ syl (bi2 sfBound_sfAnd) (iand (mpd (syl paFSBound_source_history anrl) (paFSBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))))) (mpd (syl paFSBound_source_history anrr) (paFSBound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))))))) (paFSBound_cond (exp @ syl (bi2 sfBound_sfOr) (iand (mpd (syl paFSBound_source_history anrl) (paFSBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))))) (mpd (syl paFSBound_source_history anrr) (paFSBound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))))))) (paFSBound_cond (exp @ syl (bi2 sfBound_sfImp) (iand (mpd (syl paFSBound_source_history anrl) (paFSBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive anlr (ltneri lt01S))))) (mpd (syl paFSBound_source_history anrr) (paFSBound_history (syl hi anll) (syl sfRight_lt (sfRename_code_positive anlr (ltneri lt01S))))))) (paFSBound_cond (exp @ syl paSourceFormulaAll_bound (mpd (syl paFSBound_source_history anr) (paFSBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive (syl anl anlr) (ltneri lt01S)))))) (paFSBound_cond (exp @ syl paSourceFormulaEx_bound (mpd (syl paFSBound_source_history anr) (paFSBound_history (syl hi anll) (syl sfLeft_lt (sfRename_code_positive (syl anl anlr) (ltneri lt01S)))))) (a1i (a1i sfBound_bot))))))))));
+
+theorem paFSBound_actual {j q: nat} (G: wff j q) (n c: nat) (hi: $ G -> A. j (j < c -> A. q (paFormulaBound q j -> sfBound q (paFormulaSource j))) $): $ G -> paFormulaBound n c -> sfBound n (paFormulaSource c) $ = (named '(syl5bi paFormulaBound_unfold @ sylibrd (paFSBound_body hi) (a1i (srecpeq2 (preq2 paFormulaSource_unfold)))));
+
+theorem paFSBound_alpha (c: nat): $ A. k (paFormulaBound k c -> sfBound k (paFormulaSource c)) <-> A. q (paFormulaBound q c -> sfBound q (paFormulaSource c)) $ = (named '(cbval ,eqtac));
+
+theorem paFSBound_step {j q: nat} (G: wff j q) (c: nat) (hi: $ G -> A. j (j < c -> A. q (paFormulaBound q j -> sfBound q (paFormulaSource j))) $): $ G -> A. q (paFormulaBound q c -> sfBound q (paFormulaSource c)) $ = (named '(sylib paFSBound_alpha @ !! iald k @ paFSBound_actual hi));
+
+theorem paFSBound_all (c: nat): $ 0 = 0 -> A. q (paFormulaBound q c -> sfBound q (paFormulaSource c)) $ = (named '(!! indstr j y {,eqtac : $ j = c -> ((A. q (paFormulaBound q j -> sfBound q (paFormulaSource j))) <-> (A. q (paFormulaBound q c -> sfBound q (paFormulaSource c)))) $} ,eqtac (paFSBound_step anr)));
+
+pub theorem paFormulaSource_bound (n c: nat): $ paFormulaBound n c -> sfBound n (paFormulaSource c) $ = (named '(paFSBound_specialize (ax_mp paFSBound_all eqid)));

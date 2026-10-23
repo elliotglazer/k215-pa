@@ -1,0 +1,56 @@
+import "source_wf_separation_logic.mm0";
+
+import "source_l_replacement_common_extension.mm0";
+
+import "source_l_level_member_recipe_intro.mm0";
+
+import "source_l_common_level_recipe_transport.mm0";
+
+import "source_l_common_level_point_rules.mm0";
+
+def sfLReplacementSeededPoint(start count seed beta y:nat):nat =
+ $ sfAnd (sfCLPoint start count beta y) (sfCLSubset seed y) $;
+
+def sfLReplacementSeededRecipe(start count seed:nat):nat =
+ $ sfEx (sfEx (sfLReplacementSeededPoint (suc (suc start)) count (suc (suc seed)) 1 0)) $;
+
+theorem sfLReplacementSubset_wf(a b:nat): $ sfWf (sfCLSubset a b) $;
+
+theorem sfLReplacementSubset_refl(G a:nat)(hg:$ sfContextWf G $):
+ $ nsLocal G (sfCLSubset a a) $;
+
+theorem sfLReplacementSubset_trans(G a b c:nat)
+ (hab:$ nsLocal G (sfCLSubset a b) $)(hbc:$ nsLocal G (sfCLSubset b c) $):
+ $ nsLocal G (sfCLSubset a c) $;
+
+theorem sfLReplacementSubset_shift(a b:nat):
+ $ sfShift 0 (sfCLSubset a b) = sfCLSubset (suc a) (suc b) $;
+
+theorem sfLReplacementSeededPoint_wf(start count seed beta y:nat):
+ $ sfWf (sfLReplacementSeededPoint start count seed beta y) $;
+
+theorem sfLReplacementSeededRecipe_wf(start count seed:nat):
+ $ sfWf (sfLReplacementSeededRecipe start count seed) $;
+
+theorem sfLReplacementSeededPoint_shift(start count seed beta y:nat):
+ $ sfShift 0 (sfLReplacementSeededPoint start count seed beta y) =
+ sfLReplacementSeededPoint (suc start) count (suc seed) (suc beta) (suc y) $;
+
+theorem sfLReplacementSeededRecipe_shift(start count seed:nat):
+ $ sfShift 0 (sfLReplacementSeededRecipe start count seed) =
+ sfLReplacementSeededRecipe (suc start) count (suc seed) $;
+
+theorem sfLReplacementSeededRecipe_intro(G start n seed beta y:nat)
+ (hp:$ nsLocal G (sfLReplacementSeededPoint start n seed beta y) $):
+ $ nsLocal G (sfLReplacementSeededRecipe start n seed) $;
+
+theorem sfLReplacementSeededPoint_extend(G start n seed oldBeta oldY beta y:nat)
+ (hp:$ nsLocal G (sfLReplacementSeededPoint start n seed oldBeta oldY) $)
+ (hs:$ nsLocal G (sfCLSubset oldY y) $)
+ (ho:$ nsLocal G (sfCLOrdinalAt beta) $)(hl:$ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ nsLocal G (sfLReplacementSeededPoint start n seed beta y) $;
+
+theorem sfLReplacementSeededPoint_append(G start n seed beta y:nat)
+ (hp:$ nsLocal G (sfLReplacementSeededPoint start n seed beta y) $)
+ (hm:$ nsLocal G (sfMem (n + start) y) $):
+ $ nsLocal G (sfLReplacementSeededPoint start (suc n) seed beta y) $;

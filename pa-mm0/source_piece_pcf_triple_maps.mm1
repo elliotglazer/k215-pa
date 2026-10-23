@@ -1,0 +1,101 @@
+import "source_reflection_least_cond_ord_maps.mm1";
+
+def sfPieceTripleMap(x y v z .i:nat):set = $ \ i, if (i = 0) x (if (i = 1) y (if (i = 2) v ((i - 3) + z))) $;
+
+def sfPieceTriple(phi x y v z:nat):nat = $ sfRename (sfPieceTripleMap x y v z) 0 phi $;
+
+pub theorem sfPCT_value(x y v z i:nat): $ sfPieceTripleMap x y v z @ i = if (i = 0) x (if (i = 1) y (if (i = 2) v ((i - 3) + z))) $ = (named '(!! applame j ,eqtac));
+
+pub theorem sfPCT_zero(x y v z:nat): $ sfPieceTripleMap x y v z @ 0 = x $ = (named '(eqtr sfPCT_value (ax_mp ifpos eqid)));
+
+pub theorem sfPCT_one(x y v z:nat): $ sfPieceTripleMap x y v z @ 1 = y $ = (named '(eqtr sfPCT_value (eqtr (ax_mp ifneg d1ne0) (ax_mp ifpos eqid))));
+
+pub theorem sfPCT_two(x y v z:nat): $ sfPieceTripleMap x y v z @ 2 = v $ = (named '(eqtr sfPCT_value (eqtr (ax_mp ifneg d2ne0) (eqtr (ax_mp ifneg (ax_mp necom (ltnei d1lt2))) (ax_mp ifpos eqid)))));
+
+theorem pctp_sss_ne1(i:nat): $ suc (suc (suc i)) != 1 $ = (named '(mt (bi1 peano2) peano1));
+
+theorem pctp_sss_ne2(i:nat): $ suc (suc (suc i)) != 2 $ = (named '(mt (syl (bi1 peano2) (bi1 peano2)) peano1));
+
+pub theorem sfPCT_tail(x y v z i:nat): $ sfPieceTripleMap x y v z @ suc (suc (suc i)) = i + z $ = (named '(eqtr sfPCT_value (eqtr (ax_mp ifneg peano1) (eqtr (ax_mp ifneg pctp_sss_ne1) (eqtr (ax_mp ifneg pctp_sss_ne2) (addeq1 (eqtr subSS (eqtr subSS (eqtr subSS sub02)))))))));
+
+theorem pctp_congr_zero(x y v z xx yy vv zz:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hv:$ v = vv $)(hz:$ z = zz $): $ sfPieceTripleMap x y v z @ (0) = sfPieceTripleMap xx yy vv zz @ (0) $ = (named '(eqtr sfPCT_zero (eqtr hx (eqcom sfPCT_zero))));
+
+theorem pctp_congr_one(x y v z xx yy vv zz:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hv:$ v = vv $)(hz:$ z = zz $): $ sfPieceTripleMap x y v z @ (1) = sfPieceTripleMap xx yy vv zz @ (1) $ = (named '(eqtr sfPCT_one (eqtr hy (eqcom sfPCT_one))));
+
+theorem pctp_congr_two(x y v z xx yy vv zz:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hv:$ v = vv $)(hz:$ z = zz $): $ sfPieceTripleMap x y v z @ (2) = sfPieceTripleMap xx yy vv zz @ (2) $ = (named '(eqtr sfPCT_two (eqtr hv (eqcom sfPCT_two))));
+
+theorem pctp_congr_tail(x y v z xx yy vv zz:nat)(i:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hv:$ v = vv $)(hz:$ z = zz $): $ sfPieceTripleMap x y v z @ (suc (suc (suc i))) = sfPieceTripleMap xx yy vv zz @ (suc (suc (suc i))) $ = (named '(eqtr sfPCT_tail (eqtr (addeq2 hz) (eqcom sfPCT_tail))));
+
+theorem pctp_congr_ss(x y v z xx yy vv zz:nat)(j:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hv:$ v = vv $)(hz:$ z = zz $): $ sfPieceTripleMap x y v z @ (suc (suc j)) = sfPieceTripleMap xx yy vv zz @ (suc (suc j)) $ = (named @ induct '(ind) 'j '(pctp_congr_two hx hy hv hz) '(a1i (pctp_congr_tail hx hy hv hz)));
+
+theorem pctp_congr_s(x y v z xx yy vv zz:nat)(j:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hv:$ v = vv $)(hz:$ z = zz $): $ sfPieceTripleMap x y v z @ (suc j) = sfPieceTripleMap xx yy vv zz @ (suc j) $ = (named @ induct '(ind) 'j '(pctp_congr_one hx hy hv hz) '(a1i (pctp_congr_ss hx hy hv hz)));
+
+theorem pctp_congr_each(x y v z xx yy vv zz:nat)(j:nat)(hx:$ x = xx $)(hy:$ y = yy $)(hv:$ v = vv $)(hz:$ z = zz $): $ sfPieceTripleMap x y v z @ (j) = sfPieceTripleMap xx yy vv zz @ (j) $ = (named @ induct '(ind) 'j '(pctp_congr_zero hx hy hv hz) '(a1i (pctp_congr_s hx hy hv hz)));
+
+pub theorem sfPieceTriple_congr(phi x y v z xx yy vv zz:nat)(hf:$ sfWf phi $)(hx:$ x = xx $)(hy:$ y = yy $)(hv:$ v = vv $)(hz:$ z = zz $): $ sfPieceTriple phi x y v z = sfPieceTriple phi xx yy vv zz $ = (named '(ax_mp (sfRename_extensional (ax_gen (pctp_congr_each hx hy hv hz))) hf));
+
+pub theorem sfPieceTriple_wf(phi x y v z:nat): $ sfWf (sfPieceTriple phi x y v z) $ = (named 'sfRename_wf);
+
+theorem pctp_shift_zero(x y v z d:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfPieceTripleMap x y v z) @ (0) = (sfPieceTripleMap (sfShiftIndex d x) (sfShiftIndex d y) (sfShiftIndex d v) (suc z)) @ (0) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfPCT_zero) (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (eqcom sfPCT_zero))))));
+
+theorem pctp_shift_one(x y v z d:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfPieceTripleMap x y v z) @ (1) = (sfPieceTripleMap (sfShiftIndex d x) (sfShiftIndex d y) (sfShiftIndex d v) (suc z)) @ (1) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfPCT_one) (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (eqcom sfPCT_one))))));
+
+theorem pctp_shift_two(x y v z d:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfPieceTripleMap x y v z) @ (2) = (sfPieceTripleMap (sfShiftIndex d x) (sfShiftIndex d y) (sfShiftIndex d v) (suc z)) @ (2) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfPCT_two) (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (eqcom sfPCT_two))))));
+
+theorem pctp_shift_tail(x y v z d:nat)(i:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfPieceTripleMap x y v z) @ (suc (suc (suc i))) = (sfPieceTripleMap (sfShiftIndex d x) (sfShiftIndex d y) (sfShiftIndex d v) (suc z)) @ (suc (suc (suc i))) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfPCT_tail) (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (eqtr (ax_mp sfShiftIndex_free (ax_mp (bi1 lenlt) (ax_mp (ax_mp letr hd) leaddid2))) (eqtr (eqcom addS2) (eqcom sfPCT_tail))))))));
+
+theorem pctp_shift_ss(x y v z d:nat)(j:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfPieceTripleMap x y v z) @ (suc (suc j)) = (sfPieceTripleMap (sfShiftIndex d x) (sfShiftIndex d y) (sfShiftIndex d v) (suc z)) @ (suc (suc j)) $ = (named @ induct '(ind) 'j '(pctp_shift_two hd) '(a1i (pctp_shift_tail hd)));
+
+theorem pctp_shift_s(x y v z d:nat)(j:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfPieceTripleMap x y v z) @ (suc j) = (sfPieceTripleMap (sfShiftIndex d x) (sfShiftIndex d y) (sfShiftIndex d v) (suc z)) @ (suc j) $ = (named @ induct '(ind) 'j '(pctp_shift_one hd) '(a1i (pctp_shift_ss hd)));
+
+theorem pctp_shift_each(x y v z d:nat)(j:nat)(hd:$ d <= z $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfPieceTripleMap x y v z) @ (j) = (sfPieceTripleMap (sfShiftIndex d x) (sfShiftIndex d y) (sfShiftIndex d v) (suc z)) @ (j) $ = (named @ induct '(ind) 'j '(pctp_shift_zero hd) '(a1i (pctp_shift_s hd)));
+
+pub theorem sfPieceTriple_shift(phi x y v z d:nat)(hf:$ sfWf phi $)(hd:$ d <= z $): $ sfShift d (sfPieceTriple phi x y v z) = sfPieceTriple phi (sfShiftIndex d x) (sfShiftIndex d y) (sfShiftIndex d v) (suc z) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfPieceTriple_wf)) (eqtr (ax_mp sfRename_mixed_compose hf) (ax_mp (sfRename_extensional (ax_gen (pctp_shift_each hd))) hf))));
+
+theorem pctp_subst_zero(x y v z d t:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfPieceTripleMap x y v (suc z)) @ (0) = (sfPieceTripleMap (sfSubstIndex d t x) (sfSubstIndex d t y) (sfSubstIndex d t v) z) @ (0) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfPCT_zero) (eqtr sfSubstDepthMap_value (eqcom sfPCT_zero)))));
+
+theorem pctp_subst_one(x y v z d t:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfPieceTripleMap x y v (suc z)) @ (1) = (sfPieceTripleMap (sfSubstIndex d t x) (sfSubstIndex d t y) (sfSubstIndex d t v) z) @ (1) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfPCT_one) (eqtr sfSubstDepthMap_value (eqcom sfPCT_one)))));
+
+theorem pctp_subst_two(x y v z d t:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfPieceTripleMap x y v (suc z)) @ (2) = (sfPieceTripleMap (sfSubstIndex d t x) (sfSubstIndex d t y) (sfSubstIndex d t v) z) @ (2) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfPCT_two) (eqtr sfSubstDepthMap_value (eqcom sfPCT_two)))));
+
+theorem pctp_subst_tail(x y v z d t:nat)(i:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfPieceTripleMap x y v (suc z)) @ (suc (suc (suc i))) = (sfPieceTripleMap (sfSubstIndex d t x) (sfSubstIndex d t y) (sfSubstIndex d t v) z) @ (suc (suc (suc i))) $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfPCT_tail) (eqtr sfSubstDepthMap_value (eqtr (ax_mp sfSubstIndex_above (ax_mp (ax_mp ltletr hd) leaddid2)) (eqtr (subeq1 addS2) (eqtr sucsub1 (eqcom sfPCT_tail))))))));
+
+theorem pctp_subst_ss(x y v z d t:nat)(j:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfPieceTripleMap x y v (suc z)) @ (suc (suc j)) = (sfPieceTripleMap (sfSubstIndex d t x) (sfSubstIndex d t y) (sfSubstIndex d t v) z) @ (suc (suc j)) $ = (named @ induct '(ind) 'j '(pctp_subst_two hd) '(a1i (pctp_subst_tail hd)));
+
+theorem pctp_subst_s(x y v z d t:nat)(j:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfPieceTripleMap x y v (suc z)) @ (suc j) = (sfPieceTripleMap (sfSubstIndex d t x) (sfSubstIndex d t y) (sfSubstIndex d t v) z) @ (suc j) $ = (named @ induct '(ind) 'j '(pctp_subst_one hd) '(a1i (pctp_subst_ss hd)));
+
+theorem pctp_subst_each(x y v z d t:nat)(j:nat)(hd:$ d < suc z $): $ sfComposeMap (sfSubstDepthMap d t) (sfPieceTripleMap x y v (suc z)) @ (j) = (sfPieceTripleMap (sfSubstIndex d t x) (sfSubstIndex d t y) (sfSubstIndex d t v) z) @ (j) $ = (named @ induct '(ind) 'j '(pctp_subst_zero hd) '(a1i (pctp_subst_s hd)));
+
+pub theorem sfPieceTriple_subst(phi x y v z d t:nat)(hf:$ sfWf phi $)(hd:$ d < suc z $): $ sfSubst d t (sfPieceTriple phi x y v (suc z)) = sfPieceTriple phi (sfSubstIndex d t x) (sfSubstIndex d t y) (sfSubstIndex d t v) z $ = (named '(eqtr (ax_mp sfSubst_rename_compose hf) (ax_mp (sfRename_extensional (ax_gen (pctp_subst_each hd))) hf)));
+
+theorem pctp_identity_zero: $ sfPieceTripleMap 0 1 2 3 @ (0) = sfIdentityMap @ (0) $ = (named '(eqtr sfPCT_zero (eqtr eqid (eqcom sfIdentityMap_value))));
+
+theorem pctp_identity_one: $ sfPieceTripleMap 0 1 2 3 @ (1) = sfIdentityMap @ (1) $ = (named '(eqtr sfPCT_one (eqtr eqid (eqcom sfIdentityMap_value))));
+
+theorem pctp_identity_two: $ sfPieceTripleMap 0 1 2 3 @ (2) = sfIdentityMap @ (2) $ = (named '(eqtr sfPCT_two (eqtr eqid (eqcom sfIdentityMap_value))));
+
+theorem pctp_identity_tail(i:nat): $ sfPieceTripleMap 0 1 2 3 @ (suc (suc (suc i))) = sfIdentityMap @ (suc (suc (suc i))) $ = (named '(eqtr sfPCT_tail (eqtr (eqtr addS (suceq (eqtr addS (suceq add12)))) (eqcom sfIdentityMap_value))));
+
+theorem pctp_identity_ss(j:nat): $ sfPieceTripleMap 0 1 2 3 @ (suc (suc j)) = sfIdentityMap @ (suc (suc j)) $ = (named @ induct '(ind) 'j '(pctp_identity_two) '(a1i (pctp_identity_tail)));
+
+theorem pctp_identity_s(j:nat): $ sfPieceTripleMap 0 1 2 3 @ (suc j) = sfIdentityMap @ (suc j) $ = (named @ induct '(ind) 'j '(pctp_identity_one) '(a1i (pctp_identity_ss)));
+
+theorem pctp_identity_each(j:nat): $ sfPieceTripleMap 0 1 2 3 @ (j) = sfIdentityMap @ (j) $ = (named @ induct '(ind) 'j '(pctp_identity_zero) '(a1i (pctp_identity_s)));
+
+pub theorem sfPieceTriple_identity(phi:nat)(hf:$ sfWf phi $): $ sfPieceTriple phi 0 1 2 3 = phi $ = (named '(eqtr (ax_mp (sfRename_extensional (ax_gen pctp_identity_each)) hf) (ax_mp sfRename_identity hf)));
+
+theorem pctp_binary_zero(x y z:nat): $ sfPieceTripleMap x y z (suc z) @ (0) = sfLCBinaryMap x y z @ (0) $ = (named '(eqtr sfPCT_zero (eqtr eqid (eqcom sfLCB_zero))));
+
+theorem pctp_binary_one(x y z:nat): $ sfPieceTripleMap x y z (suc z) @ (1) = sfLCBinaryMap x y z @ (1) $ = (named '(eqtr sfPCT_one (eqtr eqid (eqcom sfLCB_one))));
+
+theorem pctp_binary_two(x y z:nat): $ sfPieceTripleMap x y z (suc z) @ (2) = sfLCBinaryMap x y z @ (2) $ = (named '(eqtr sfPCT_two (eqtr (eqcom add01) (eqcom sfLCB_tail))));
+
+theorem pctp_binary_tail(x y z:nat)(i:nat): $ sfPieceTripleMap x y z (suc z) @ (suc (suc (suc i))) = sfLCBinaryMap x y z @ (suc (suc (suc i))) $ = (named '(eqtr sfPCT_tail (eqtr (eqcom addSass) (eqcom sfLCB_tail))));
+
+theorem pctp_binary_ss(x y z:nat)(j:nat): $ sfPieceTripleMap x y z (suc z) @ (suc (suc j)) = sfLCBinaryMap x y z @ (suc (suc j)) $ = (named @ induct '(ind) 'j '(pctp_binary_two) '(a1i (pctp_binary_tail)));
+
+theorem pctp_binary_s(x y z:nat)(j:nat): $ sfPieceTripleMap x y z (suc z) @ (suc j) = sfLCBinaryMap x y z @ (suc j) $ = (named @ induct '(ind) 'j '(pctp_binary_one) '(a1i (pctp_binary_ss)));
+
+theorem pctp_binary_each(x y z:nat)(j:nat): $ sfPieceTripleMap x y z (suc z) @ (j) = sfLCBinaryMap x y z @ (j) $ = (named @ induct '(ind) 'j '(pctp_binary_zero) '(a1i (pctp_binary_s)));
+
+pub theorem sfPieceTriple_binary(phi x y z:nat)(hf:$ sfWf phi $): $ sfPieceTriple phi x y z (suc z) = sfLCBinary phi x y z $ = (named '(ax_mp (sfRename_extensional (ax_gen pctp_binary_each)) hf));

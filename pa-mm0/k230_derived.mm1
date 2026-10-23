@@ -1,0 +1,395 @@
+import "k230_propositional.mm1";
+
+theorem kDerivedRho6 (x a: nat): $ kProvable (kImp (kExists x (kAll x a)) a) $ =
+'(kProvable_axiom kAxioms_rho6);
+
+theorem kDerived0 (a: nat): $ kProvable (kImp (kImp a (kImp a a)) (kImp a a)) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp a a) a)) $ $ (kImp (kImp a (kImp a a)) (kImp a a)) $ (! kPropK $ a $ $ (kImp a a) $) (! kPropS $ a $ $ (kImp a a) $ $ a $));
+
+theorem kDerived1 (a: nat): $ kProvable (kImp a a) $ =
+'(! kProvable_mp $ (kImp a (kImp a a)) $ $ (kImp a a) $ (! kPropK $ a $ $ a $) (! kDerived0 $ a $));
+
+pub theorem kPropI (a: nat):
+  $ kProvable (kImp a a) $ =
+'(! kDerived1 $ a $);
+
+theorem kDerived2: $ kProvable (kImp (kImp kF (kImp kF kF)) (kImp kF kF)) $ =
+'(! kProvable_mp $ (kImp kF (kImp (kImp kF kF) kF)) $ $ (kImp (kImp kF (kImp kF kF)) (kImp kF kF)) $ (! kPropK $ kF $ $ (kImp kF kF) $) (! kPropS $ kF $ $ (kImp kF kF) $ $ kF $));
+
+theorem kDerived3: $ kProvable (kImp kF kF) $ =
+'(! kProvable_mp $ (kImp kF (kImp kF kF)) $ $ (kImp kF kF) $ (! kPropK $ kF $ $ kF $) (! kDerived2 ));
+
+theorem kDerived4 (a: nat): $ kProvable (kImp kF (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF))) $ =
+'(! kProvable_mp $ (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF)) $ $ (kImp kF (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF))) $ (! kPropK $ kF $ $ (kAll 0 (kImp (kAll 0 a) kF)) $) (! kPropK $ (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF)) $ $ kF $));
+
+theorem kDerived5 (a: nat): $ kProvable (kImp (kImp kF kF) (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF))) $ =
+'(! kProvable_mp $ (kImp kF (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF))) $ $ (kImp (kImp kF kF) (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF))) $ (! kDerived4 $ a $) (! kPropS $ kF $ $ kF $ $ (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF) $));
+
+theorem kDerived6 (a: nat): $ kProvable (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF)) $ =
+'(! kProvable_mp $ (kImp kF kF) $ $ (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF)) $ (! kDerived3 ) (! kDerived5 $ a $));
+
+theorem kDerived7 (a: nat): $ kProvable (kImp kF (kImp (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF) a)) $ =
+'(! kProvable_mp $ (kImp (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF) a) $ $ (kImp kF (kImp (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF) a)) $ (! kDerivedRho6 $ 0 $ $ a $) (! kPropK $ (kImp (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF) a) $ $ kF $));
+
+theorem kDerived8 (a: nat): $ kProvable (kImp (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF)) (kImp kF a)) $ =
+'(! kProvable_mp $ (kImp kF (kImp (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF) a)) $ $ (kImp (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF)) (kImp kF a)) $ (! kDerived7 $ a $) (! kPropS $ kF $ $ (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF) $ $ a $));
+
+theorem kDerived9 (a: nat): $ kProvable (kImp kF a) $ =
+'(! kProvable_mp $ (kImp kF (kImp (kAll 0 (kImp (kAll 0 a) kF)) kF)) $ $ (kImp kF a) $ (! kDerived6 $ a $) (! kDerived8 $ a $));
+
+pub theorem kPropF (a: nat):
+  $ kProvable (kImp kF a) $ =
+'(! kDerived9 $ a $);
+
+theorem kDerived10 (a: nat): $ kProvable (kImp (kImp (kImp a kF) (kImp (kImp a kF) (kImp a kF))) (kImp (kImp a kF) (kImp a kF))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp a kF))) $ $ (kImp (kImp (kImp a kF) (kImp (kImp a kF) (kImp a kF))) (kImp (kImp a kF) (kImp a kF))) $ (! kPropK $ (kImp a kF) $ $ (kImp (kImp a kF) (kImp a kF)) $) (! kPropS $ (kImp a kF) $ $ (kImp (kImp a kF) (kImp a kF)) $ $ (kImp a kF) $));
+
+theorem kDerived11 (a: nat): $ kProvable (kImp (kImp a kF) (kImp a kF)) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp (kImp a kF) (kImp a kF))) $ $ (kImp (kImp a kF) (kImp a kF)) $ (! kPropK $ (kImp a kF) $ $ (kImp a kF) $) (! kDerived10 $ a $));
+
+theorem kDerived12 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp a kF))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp a kF)) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp a kF))) $ (! kDerived11 $ a $) (! kPropK $ (kImp (kImp a kF) (kImp a kF)) $ $ (kImp (kImp a kF) kF) $));
+
+theorem kDerived13 (a: nat): $ kProvable (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF))) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) (kImp (kImp a kF) kF))) $ $ (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF))) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF))) $ (! kPropK $ (kImp (kImp a kF) kF) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) $) (! kPropS $ (kImp (kImp a kF) kF) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) $ $ (kImp (kImp a kF) kF) $));
+
+theorem kDerived14 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF))) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) $ (! kPropK $ (kImp (kImp a kF) kF) $ $ (kImp (kImp a kF) kF) $) (! kDerived13 $ a $));
+
+theorem kDerived15 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF))) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF)))) $ (! kPropK $ (kImp (kImp a kF) kF) $ $ (kImp a kF) $) (! kPropK $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF))) $ $ (kImp (kImp a kF) kF) $));
+
+theorem kDerived16 (a: nat): $ kProvable (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF)))) $ $ (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF)))) $ (! kDerived15 $ a $) (! kPropS $ (kImp (kImp a kF) kF) $ $ (kImp (kImp a kF) kF) $ $ (kImp (kImp a kF) (kImp (kImp a kF) kF)) $));
+
+theorem kDerived17 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF))) $ (! kDerived14 $ a $) (! kDerived16 $ a $));
+
+theorem kDerived18 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF))) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF)))) $ (! kPropS $ (kImp a kF) $ $ (kImp a kF) $ $ kF $) (! kPropK $ (kImp (kImp (kImp a kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF))) $ $ (kImp (kImp a kF) kF) $));
+
+theorem kDerived19 (a: nat): $ kProvable (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF))) (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF)))) $ $ (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF))) (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF)))) $ (! kDerived18 $ a $) (! kPropS $ (kImp (kImp a kF) kF) $ $ (kImp (kImp a kF) (kImp (kImp a kF) kF)) $ $ (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF)) $));
+
+theorem kDerived20 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp (kImp a kF) kF))) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF))) $ (! kDerived17 $ a $) (! kDerived19 $ a $));
+
+theorem kDerived21 (a: nat): $ kProvable (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp a kF))) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) kF))) $ $ (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp a kF))) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF))) $ (! kDerived20 $ a $) (! kPropS $ (kImp (kImp a kF) kF) $ $ (kImp (kImp a kF) (kImp a kF)) $ $ (kImp (kImp a kF) kF) $));
+
+theorem kDerived22 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) (kImp a kF))) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) $ (! kDerived12 $ a $) (! kDerived21 $ a $));
+
+theorem kDerived23 (a: nat): $ kProvable (kImp (kImp a kF) (kImp kF a)) $ =
+'(! kProvable_mp $ (kImp kF a) $ $ (kImp (kImp a kF) (kImp kF a)) $ (! kPropF $ a $) (! kPropK $ (kImp kF a) $ $ (kImp a kF) $));
+
+theorem kDerived24 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a)) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp kF a)) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a)) $ (! kDerived23 $ a $) (! kPropS $ (kImp a kF) $ $ kF $ $ a $));
+
+theorem kDerived25 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a)) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a))) $ (! kDerived24 $ a $) (! kPropK $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a)) $ $ (kImp (kImp a kF) kF) $));
+
+theorem kDerived26 (a: nat): $ kProvable (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a))) $ $ (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a))) $ (! kDerived25 $ a $) (! kPropS $ (kImp (kImp a kF) kF) $ $ (kImp (kImp a kF) kF) $ $ (kImp (kImp a kF) a) $));
+
+theorem kDerived27 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) kF)) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a)) $ (! kDerived22 $ a $) (! kDerived26 $ a $));
+
+theorem kDerived28 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) a) a)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) a) a) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) a) a)) $ (! kPropP $ a $ $ kF $) (! kPropK $ (kImp (kImp (kImp a kF) a) a) $ $ (kImp (kImp a kF) kF) $));
+
+theorem kDerived29 (a: nat): $ kProvable (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a)) (kImp (kImp (kImp a kF) kF) a)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp (kImp a kF) a) a)) $ $ (kImp (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a)) (kImp (kImp (kImp a kF) kF) a)) $ (! kDerived28 $ a $) (! kPropS $ (kImp (kImp a kF) kF) $ $ (kImp (kImp a kF) a) $ $ a $));
+
+theorem kDerived30 (a: nat): $ kProvable (kImp (kImp (kImp a kF) kF) a) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) a)) $ $ (kImp (kImp (kImp a kF) kF) a) $ (! kDerived27 $ a $) (! kDerived29 $ a $));
+
+pub theorem kPropDNE (a: nat):
+  $ kProvable (kImp (kImp (kImp a kF) kF) a) $ =
+'(! kDerived30 $ a $);
+
+theorem kDerived31 (a: nat): $ kProvable (kImp (kImp a kF) (kImp a a)) $ =
+'(! kProvable_mp $ (kImp a a) $ $ (kImp (kImp a kF) (kImp a a)) $ (! kDerived1 $ a $) (! kPropK $ (kImp a a) $ $ (kImp a kF) $));
+
+theorem kDerived32 (a: nat): $ kProvable (kImp (kImp a kF) (kImp (kImp a kF) (kImp a (kImp a kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp a (kImp a kF))) $ $ (kImp (kImp a kF) (kImp (kImp a kF) (kImp a (kImp a kF)))) $ (! kPropK $ (kImp a kF) $ $ a $) (! kPropK $ (kImp (kImp a kF) (kImp a (kImp a kF))) $ $ (kImp a kF) $));
+
+theorem kDerived33 (a: nat): $ kProvable (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) (kImp a (kImp a kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp (kImp a kF) (kImp a (kImp a kF)))) $ $ (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) (kImp a (kImp a kF)))) $ (! kDerived32 $ a $) (! kPropS $ (kImp a kF) $ $ (kImp a kF) $ $ (kImp a (kImp a kF)) $));
+
+theorem kDerived34 (a: nat): $ kProvable (kImp (kImp a kF) (kImp a (kImp a kF))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp a kF)) $ $ (kImp (kImp a kF) (kImp a (kImp a kF))) $ (! kDerived11 $ a $) (! kDerived33 $ a $));
+
+theorem kDerived35 (a: nat): $ kProvable (kImp (kImp a kF) (kImp (kImp a (kImp a kF)) (kImp (kImp a a) (kImp a kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp a (kImp a kF)) (kImp (kImp a a) (kImp a kF))) $ $ (kImp (kImp a kF) (kImp (kImp a (kImp a kF)) (kImp (kImp a a) (kImp a kF)))) $ (! kPropS $ a $ $ a $ $ kF $) (! kPropK $ (kImp (kImp a (kImp a kF)) (kImp (kImp a a) (kImp a kF))) $ $ (kImp a kF) $));
+
+theorem kDerived36 (a: nat): $ kProvable (kImp (kImp (kImp a kF) (kImp a (kImp a kF))) (kImp (kImp a kF) (kImp (kImp a a) (kImp a kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp (kImp a (kImp a kF)) (kImp (kImp a a) (kImp a kF)))) $ $ (kImp (kImp (kImp a kF) (kImp a (kImp a kF))) (kImp (kImp a kF) (kImp (kImp a a) (kImp a kF)))) $ (! kDerived35 $ a $) (! kPropS $ (kImp a kF) $ $ (kImp a (kImp a kF)) $ $ (kImp (kImp a a) (kImp a kF)) $));
+
+theorem kDerived37 (a: nat): $ kProvable (kImp (kImp a kF) (kImp (kImp a a) (kImp a kF))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp a (kImp a kF))) $ $ (kImp (kImp a kF) (kImp (kImp a a) (kImp a kF))) $ (! kDerived34 $ a $) (! kDerived36 $ a $));
+
+theorem kDerived38 (a: nat): $ kProvable (kImp (kImp (kImp a kF) (kImp a a)) (kImp (kImp a kF) (kImp a kF))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp (kImp a a) (kImp a kF))) $ $ (kImp (kImp (kImp a kF) (kImp a a)) (kImp (kImp a kF) (kImp a kF))) $ (! kDerived37 $ a $) (! kPropS $ (kImp a kF) $ $ (kImp a a) $ $ (kImp a kF) $));
+
+theorem kDerived39 (a: nat): $ kProvable (kImp (kImp a kF) (kImp a kF)) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp a a)) $ $ (kImp (kImp a kF) (kImp a kF)) $ (! kDerived31 $ a $) (! kDerived38 $ a $));
+
+theorem kDerived40 (a b: nat): $ kProvable (kImp a (kImp kF (kImp b kF))) $ =
+'(! kProvable_mp $ (kImp kF (kImp b kF)) $ $ (kImp a (kImp kF (kImp b kF))) $ (! kPropF $ (kImp b kF) $) (! kPropK $ (kImp kF (kImp b kF)) $ $ a $));
+
+theorem kDerived41 (a b: nat): $ kProvable (kImp (kImp a kF) (kImp a (kImp b kF))) $ =
+'(! kProvable_mp $ (kImp a (kImp kF (kImp b kF))) $ $ (kImp (kImp a kF) (kImp a (kImp b kF))) $ (! kDerived40 $ a $ $ b $) (! kPropS $ a $ $ kF $ $ (kImp b kF) $));
+
+theorem kDerived42 (a b: nat): $ kProvable (kImp (kImp a kF) (kImp (kImp a kF) (kImp a (kImp b kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp a (kImp b kF))) $ $ (kImp (kImp a kF) (kImp (kImp a kF) (kImp a (kImp b kF)))) $ (! kDerived41 $ a $ $ b $) (! kPropK $ (kImp (kImp a kF) (kImp a (kImp b kF))) $ $ (kImp a kF) $));
+
+theorem kDerived43 (a b: nat): $ kProvable (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) (kImp a (kImp b kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp (kImp a kF) (kImp a (kImp b kF)))) $ $ (kImp (kImp (kImp a kF) (kImp a kF)) (kImp (kImp a kF) (kImp a (kImp b kF)))) $ (! kDerived42 $ a $ $ b $) (! kPropS $ (kImp a kF) $ $ (kImp a kF) $ $ (kImp a (kImp b kF)) $));
+
+theorem kDerived44 (a b: nat): $ kProvable (kImp (kImp a kF) (kImp a (kImp b kF))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp a kF)) $ $ (kImp (kImp a kF) (kImp a (kImp b kF))) $ (! kDerived39 $ a $) (! kDerived43 $ a $ $ b $));
+
+theorem kDerived45 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp a (kImp b kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp a (kImp b kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp a (kImp b kF)))) $ (! kDerived44 $ a $ $ b $) (! kPropK $ (kImp (kImp a kF) (kImp a (kImp b kF))) $ $ (kImp (kImp a (kImp b kF)) kF) $));
+
+theorem kDerived46 (a b: nat): $ kProvable (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF))) $ (! kPropK $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) $) (! kPropS $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) $ $ (kImp (kImp a (kImp b kF)) kF) $));
+
+theorem kDerived47 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) $ (! kPropK $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp a (kImp b kF)) kF) $) (! kDerived46 $ a $ $ b $));
+
+theorem kDerived48 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)))) $ (! kPropK $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp a kF) $) (! kPropK $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp (kImp a (kImp b kF)) kF) $));
+
+theorem kDerived49 (a b: nat): $ kProvable (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)))) $ $ (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)))) $ (! kDerived48 $ a $ $ b $) (! kPropS $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)) $));
+
+theorem kDerived50 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF))) $ (! kDerived47 $ a $ $ b $) (! kDerived49 $ a $ $ b $));
+
+theorem kDerived51 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF)))) $ (! kPropS $ (kImp a kF) $ $ (kImp a (kImp b kF)) $ $ kF $) (! kPropK $ (kImp (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF))) $ $ (kImp (kImp a (kImp b kF)) kF) $));
+
+theorem kDerived52 (a b: nat): $ kProvable (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF)))) $ $ (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF)))) $ (! kDerived51 $ a $ $ b $) (! kPropS $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF)) $ $ (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF)) $));
+
+theorem kDerived53 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF))) $ (! kDerived50 $ a $ $ b $) (! kDerived52 $ a $ $ b $));
+
+theorem kDerived54 (a b: nat): $ kProvable (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp a (kImp b kF)))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) (kImp a (kImp b kF))) (kImp (kImp a kF) kF))) $ $ (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp a (kImp b kF)))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) kF))) $ (! kDerived53 $ a $ $ b $) (! kPropS $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp a kF) (kImp a (kImp b kF))) $ $ (kImp (kImp a kF) kF) $));
+
+theorem kDerived55 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) kF)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) (kImp a (kImp b kF)))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) kF)) $ (! kDerived45 $ a $ $ b $) (! kDerived54 $ a $ $ b $));
+
+theorem kDerived56 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) kF) a)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) a) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) kF) a)) $ (! kPropDNE $ a $) (! kPropK $ (kImp (kImp (kImp a kF) kF) a) $ $ (kImp (kImp a (kImp b kF)) kF) $));
+
+theorem kDerived57 (a b: nat): $ kProvable (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a (kImp b kF)) kF) a)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a kF) kF) a)) $ $ (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) kF)) (kImp (kImp (kImp a (kImp b kF)) kF) a)) $ (! kDerived56 $ a $ $ b $) (! kPropS $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp a kF) kF) $ $ a $));
+
+theorem kDerived58 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) a) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a kF) kF)) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) a) $ (! kDerived55 $ a $ $ b $) (! kDerived57 $ a $ $ b $));
+
+pub theorem kPropAndLeft (a b: nat):
+  $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) a) $ =
+'(! kDerived58 $ a $ $ b $);
+
+theorem kDerived59 (b: nat): $ kProvable (kImp (kImp (kImp b kF) (kImp (kImp b kF) (kImp b kF))) (kImp (kImp b kF) (kImp b kF))) $ =
+'(! kProvable_mp $ (kImp (kImp b kF) (kImp (kImp (kImp b kF) (kImp b kF)) (kImp b kF))) $ $ (kImp (kImp (kImp b kF) (kImp (kImp b kF) (kImp b kF))) (kImp (kImp b kF) (kImp b kF))) $ (! kPropK $ (kImp b kF) $ $ (kImp (kImp b kF) (kImp b kF)) $) (! kPropS $ (kImp b kF) $ $ (kImp (kImp b kF) (kImp b kF)) $ $ (kImp b kF) $));
+
+theorem kDerived60 (b: nat): $ kProvable (kImp (kImp b kF) (kImp b kF)) $ =
+'(! kProvable_mp $ (kImp (kImp b kF) (kImp (kImp b kF) (kImp b kF))) $ $ (kImp (kImp b kF) (kImp b kF)) $ (! kPropK $ (kImp b kF) $ $ (kImp b kF) $) (! kDerived59 $ b $));
+
+theorem kDerived61 (a b: nat): $ kProvable (kImp (kImp b kF) (kImp (kImp b kF) (kImp a (kImp b kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp b kF) (kImp a (kImp b kF))) $ $ (kImp (kImp b kF) (kImp (kImp b kF) (kImp a (kImp b kF)))) $ (! kPropK $ (kImp b kF) $ $ a $) (! kPropK $ (kImp (kImp b kF) (kImp a (kImp b kF))) $ $ (kImp b kF) $));
+
+theorem kDerived62 (a b: nat): $ kProvable (kImp (kImp (kImp b kF) (kImp b kF)) (kImp (kImp b kF) (kImp a (kImp b kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp b kF) (kImp (kImp b kF) (kImp a (kImp b kF)))) $ $ (kImp (kImp (kImp b kF) (kImp b kF)) (kImp (kImp b kF) (kImp a (kImp b kF)))) $ (! kDerived61 $ a $ $ b $) (! kPropS $ (kImp b kF) $ $ (kImp b kF) $ $ (kImp a (kImp b kF)) $));
+
+theorem kDerived63 (a b: nat): $ kProvable (kImp (kImp b kF) (kImp a (kImp b kF))) $ =
+'(! kProvable_mp $ (kImp (kImp b kF) (kImp b kF)) $ $ (kImp (kImp b kF) (kImp a (kImp b kF))) $ (! kDerived60 $ b $) (! kDerived62 $ a $ $ b $));
+
+theorem kDerived64 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp a (kImp b kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp b kF) (kImp a (kImp b kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp a (kImp b kF)))) $ (! kDerived63 $ a $ $ b $) (! kPropK $ (kImp (kImp b kF) (kImp a (kImp b kF))) $ $ (kImp (kImp a (kImp b kF)) kF) $));
+
+theorem kDerived65 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)))) $ (! kPropK $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp b kF) $) (! kPropK $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp (kImp a (kImp b kF)) kF) $));
+
+theorem kDerived66 (a b: nat): $ kProvable (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)))) $ $ (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)))) $ (! kDerived65 $ a $ $ b $) (! kPropS $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)) $));
+
+theorem kDerived67 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp a (kImp b kF)) kF)) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF))) $ (! kDerived47 $ a $ $ b $) (! kDerived66 $ a $ $ b $));
+
+theorem kDerived68 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF)))) $ (! kPropS $ (kImp b kF) $ $ (kImp a (kImp b kF)) $ $ kF $) (! kPropK $ (kImp (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF))) $ $ (kImp (kImp a (kImp b kF)) kF) $));
+
+theorem kDerived69 (a b: nat): $ kProvable (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF)))) $ $ (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF)))) $ (! kDerived68 $ a $ $ b $) (! kPropS $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF)) $ $ (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF)) $));
+
+theorem kDerived70 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF))) $ (! kDerived67 $ a $ $ b $) (! kDerived69 $ a $ $ b $));
+
+theorem kDerived71 (a b: nat): $ kProvable (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp a (kImp b kF)))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) (kImp a (kImp b kF))) (kImp (kImp b kF) kF))) $ $ (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp a (kImp b kF)))) (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) kF))) $ (! kDerived70 $ a $ $ b $) (! kPropS $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp b kF) (kImp a (kImp b kF))) $ $ (kImp (kImp b kF) kF) $));
+
+theorem kDerived72 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) kF)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) (kImp a (kImp b kF)))) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) kF)) $ (! kDerived64 $ a $ $ b $) (! kDerived71 $ a $ $ b $));
+
+theorem kDerived73 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) kF) b)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp b kF) kF) b) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) kF) b)) $ (! kPropDNE $ b $) (! kPropK $ (kImp (kImp (kImp b kF) kF) b) $ $ (kImp (kImp a (kImp b kF)) kF) $));
+
+theorem kDerived74 (a b: nat): $ kProvable (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) kF)) (kImp (kImp (kImp a (kImp b kF)) kF) b)) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp (kImp b kF) kF) b)) $ $ (kImp (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) kF)) (kImp (kImp (kImp a (kImp b kF)) kF) b)) $ (! kDerived73 $ a $ $ b $) (! kPropS $ (kImp (kImp a (kImp b kF)) kF) $ $ (kImp (kImp b kF) kF) $ $ b $));
+
+theorem kDerived75 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) b) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) kF) (kImp (kImp b kF) kF)) $ $ (kImp (kImp (kImp a (kImp b kF)) kF) b) $ (! kDerived72 $ a $ $ b $) (! kDerived74 $ a $ $ b $));
+
+pub theorem kPropAndRight (a b: nat):
+  $ kProvable (kImp (kImp (kImp a (kImp b kF)) kF) b) $ =
+'(! kDerived75 $ a $ $ b $);
+
+theorem kDerived76 (b: nat): $ kProvable (kImp (kImp b (kImp b b)) (kImp b b)) $ =
+'(! kProvable_mp $ (kImp b (kImp (kImp b b) b)) $ $ (kImp (kImp b (kImp b b)) (kImp b b)) $ (! kPropK $ b $ $ (kImp b b) $) (! kPropS $ b $ $ (kImp b b) $ $ b $));
+
+theorem kDerived77 (b: nat): $ kProvable (kImp b b) $ =
+'(! kProvable_mp $ (kImp b (kImp b b)) $ $ (kImp b b) $ (! kPropK $ b $ $ b $) (! kDerived76 $ b $));
+
+theorem kDerived78 (a b: nat): $ kProvable (kImp b (kImp b (kImp (kImp a (kImp b kF)) b))) $ =
+'(! kProvable_mp $ (kImp b (kImp (kImp a (kImp b kF)) b)) $ $ (kImp b (kImp b (kImp (kImp a (kImp b kF)) b))) $ (! kPropK $ b $ $ (kImp a (kImp b kF)) $) (! kPropK $ (kImp b (kImp (kImp a (kImp b kF)) b)) $ $ b $));
+
+theorem kDerived79 (a b: nat): $ kProvable (kImp (kImp b b) (kImp b (kImp (kImp a (kImp b kF)) b))) $ =
+'(! kProvable_mp $ (kImp b (kImp b (kImp (kImp a (kImp b kF)) b))) $ $ (kImp (kImp b b) (kImp b (kImp (kImp a (kImp b kF)) b))) $ (! kDerived78 $ a $ $ b $) (! kPropS $ b $ $ b $ $ (kImp (kImp a (kImp b kF)) b) $));
+
+theorem kDerived80 (a b: nat): $ kProvable (kImp b (kImp (kImp a (kImp b kF)) b)) $ =
+'(! kProvable_mp $ (kImp b b) $ $ (kImp b (kImp (kImp a (kImp b kF)) b)) $ (! kDerived77 $ b $) (! kDerived79 $ a $ $ b $));
+
+theorem kDerived81 (a b: nat): $ kProvable (kImp a (kImp b (kImp (kImp a (kImp b kF)) b))) $ =
+'(! kProvable_mp $ (kImp b (kImp (kImp a (kImp b kF)) b)) $ $ (kImp a (kImp b (kImp (kImp a (kImp b kF)) b))) $ (! kDerived80 $ a $ $ b $) (! kPropK $ (kImp b (kImp (kImp a (kImp b kF)) b)) $ $ a $));
+
+theorem kDerived82 (a b: nat): $ kProvable (kImp a (kImp a (kImp (kImp a (kImp b kF)) a))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp a (kImp b kF)) a)) $ $ (kImp a (kImp a (kImp (kImp a (kImp b kF)) a))) $ (! kPropK $ a $ $ (kImp a (kImp b kF)) $) (! kPropK $ (kImp a (kImp (kImp a (kImp b kF)) a)) $ $ a $));
+
+theorem kDerived83 (a b: nat): $ kProvable (kImp (kImp a a) (kImp a (kImp (kImp a (kImp b kF)) a))) $ =
+'(! kProvable_mp $ (kImp a (kImp a (kImp (kImp a (kImp b kF)) a))) $ $ (kImp (kImp a a) (kImp a (kImp (kImp a (kImp b kF)) a))) $ (! kDerived82 $ a $ $ b $) (! kPropS $ a $ $ a $ $ (kImp (kImp a (kImp b kF)) a) $));
+
+theorem kDerived84 (a b: nat): $ kProvable (kImp a (kImp (kImp a (kImp b kF)) a)) $ =
+'(! kProvable_mp $ (kImp a a) $ $ (kImp a (kImp (kImp a (kImp b kF)) a)) $ (! kDerived1 $ a $) (! kDerived83 $ a $ $ b $));
+
+theorem kDerived85 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF)))) (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp a (kImp b kF)) (kImp (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF))) (kImp a (kImp b kF)))) $ $ (kImp (kImp (kImp a (kImp b kF)) (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF)))) (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF)))) $ (! kPropK $ (kImp a (kImp b kF)) $ $ (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF))) $) (! kPropS $ (kImp a (kImp b kF)) $ $ (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF))) $ $ (kImp a (kImp b kF)) $));
+
+theorem kDerived86 (a b: nat): $ kProvable (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF))) $ =
+'(! kProvable_mp $ (kImp (kImp a (kImp b kF)) (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF)))) $ $ (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF))) $ (! kPropK $ (kImp a (kImp b kF)) $ $ (kImp a (kImp b kF)) $) (! kDerived85 $ a $ $ b $));
+
+theorem kDerived87 (a b: nat): $ kProvable (kImp (kImp (kImp a (kImp b kF)) a) (kImp (kImp a (kImp b kF)) (kImp b kF))) $ =
+'(! kProvable_mp $ (kImp (kImp a (kImp b kF)) (kImp a (kImp b kF))) $ $ (kImp (kImp (kImp a (kImp b kF)) a) (kImp (kImp a (kImp b kF)) (kImp b kF))) $ (! kDerived86 $ a $ $ b $) (! kPropS $ (kImp a (kImp b kF)) $ $ a $ $ (kImp b kF) $));
+
+theorem kDerived88 (a b: nat): $ kProvable (kImp a (kImp (kImp (kImp a (kImp b kF)) a) (kImp (kImp a (kImp b kF)) (kImp b kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) a) (kImp (kImp a (kImp b kF)) (kImp b kF))) $ $ (kImp a (kImp (kImp (kImp a (kImp b kF)) a) (kImp (kImp a (kImp b kF)) (kImp b kF)))) $ (! kDerived87 $ a $ $ b $) (! kPropK $ (kImp (kImp (kImp a (kImp b kF)) a) (kImp (kImp a (kImp b kF)) (kImp b kF))) $ $ a $));
+
+theorem kDerived89 (a b: nat): $ kProvable (kImp (kImp a (kImp (kImp a (kImp b kF)) a)) (kImp a (kImp (kImp a (kImp b kF)) (kImp b kF)))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp (kImp a (kImp b kF)) a) (kImp (kImp a (kImp b kF)) (kImp b kF)))) $ $ (kImp (kImp a (kImp (kImp a (kImp b kF)) a)) (kImp a (kImp (kImp a (kImp b kF)) (kImp b kF)))) $ (! kDerived88 $ a $ $ b $) (! kPropS $ a $ $ (kImp (kImp a (kImp b kF)) a) $ $ (kImp (kImp a (kImp b kF)) (kImp b kF)) $));
+
+theorem kDerived90 (a b: nat): $ kProvable (kImp a (kImp (kImp a (kImp b kF)) (kImp b kF))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp a (kImp b kF)) a)) $ $ (kImp a (kImp (kImp a (kImp b kF)) (kImp b kF))) $ (! kDerived84 $ a $ $ b $) (! kDerived89 $ a $ $ b $));
+
+theorem kDerived91 (a b: nat): $ kProvable (kImp a (kImp (kImp (kImp a (kImp b kF)) (kImp b kF)) (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a (kImp b kF)) (kImp b kF)) (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp a (kImp (kImp (kImp a (kImp b kF)) (kImp b kF)) (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ (! kPropS $ (kImp a (kImp b kF)) $ $ b $ $ kF $) (! kPropK $ (kImp (kImp (kImp a (kImp b kF)) (kImp b kF)) (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) $ $ a $));
+
+theorem kDerived92 (a b: nat): $ kProvable (kImp (kImp a (kImp (kImp a (kImp b kF)) (kImp b kF))) (kImp a (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp (kImp a (kImp b kF)) (kImp b kF)) (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ $ (kImp (kImp a (kImp (kImp a (kImp b kF)) (kImp b kF))) (kImp a (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ (! kDerived91 $ a $ $ b $) (! kPropS $ a $ $ (kImp (kImp a (kImp b kF)) (kImp b kF)) $ $ (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)) $));
+
+theorem kDerived93 (a b: nat): $ kProvable (kImp a (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp a (kImp b kF)) (kImp b kF))) $ $ (kImp a (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) $ (! kDerived90 $ a $ $ b $) (! kDerived92 $ a $ $ b $));
+
+theorem kDerived94 (a b: nat): $ kProvable (kImp a (kImp (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)) (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)) (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ $ (kImp a (kImp (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)) (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))))) $ (! kPropK $ (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)) $ $ b $) (! kPropK $ (kImp (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)) (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ $ a $));
+
+theorem kDerived95 (a b: nat): $ kProvable (kImp (kImp a (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) (kImp a (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)) (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))))) $ $ (kImp (kImp a (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) (kImp a (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))))) $ (! kDerived94 $ a $ $ b $) (! kPropS $ a $ $ (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)) $ $ (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) $));
+
+theorem kDerived96 (a b: nat): $ kProvable (kImp a (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp a (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ (! kDerived93 $ a $ $ b $) (! kDerived95 $ a $ $ b $));
+
+theorem kDerived97 (a b: nat): $ kProvable (kImp a (kImp (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF))))) $ =
+'(! kProvable_mp $ (kImp (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF)))) $ $ (kImp a (kImp (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF))))) $ (! kPropS $ b $ $ (kImp (kImp a (kImp b kF)) b) $ $ (kImp (kImp a (kImp b kF)) kF) $) (! kPropK $ (kImp (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF)))) $ $ a $));
+
+theorem kDerived98 (a b: nat): $ kProvable (kImp (kImp a (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) (kImp a (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF))))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF))))) $ $ (kImp (kImp a (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) (kImp a (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF))))) $ (! kDerived97 $ a $ $ b $) (! kPropS $ a $ $ (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF))) $ $ (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF))) $));
+
+theorem kDerived99 (a b: nat): $ kProvable (kImp a (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF)))) $ =
+'(! kProvable_mp $ (kImp a (kImp b (kImp (kImp (kImp a (kImp b kF)) b) (kImp (kImp a (kImp b kF)) kF)))) $ $ (kImp a (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF)))) $ (! kDerived96 $ a $ $ b $) (! kDerived98 $ a $ $ b $));
+
+theorem kDerived100 (a b: nat): $ kProvable (kImp (kImp a (kImp b (kImp (kImp a (kImp b kF)) b))) (kImp a (kImp b (kImp (kImp a (kImp b kF)) kF)))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp b (kImp (kImp a (kImp b kF)) b)) (kImp b (kImp (kImp a (kImp b kF)) kF)))) $ $ (kImp (kImp a (kImp b (kImp (kImp a (kImp b kF)) b))) (kImp a (kImp b (kImp (kImp a (kImp b kF)) kF)))) $ (! kDerived99 $ a $ $ b $) (! kPropS $ a $ $ (kImp b (kImp (kImp a (kImp b kF)) b)) $ $ (kImp b (kImp (kImp a (kImp b kF)) kF)) $));
+
+theorem kDerived101 (a b: nat): $ kProvable (kImp a (kImp b (kImp (kImp a (kImp b kF)) kF))) $ =
+'(! kProvable_mp $ (kImp a (kImp b (kImp (kImp a (kImp b kF)) b))) $ $ (kImp a (kImp b (kImp (kImp a (kImp b kF)) kF))) $ (! kDerived81 $ a $ $ b $) (! kDerived100 $ a $ $ b $));
+
+pub theorem kPropAndIntro (a b: nat):
+  $ kProvable (kImp a (kImp b (kImp (kImp a (kImp b kF)) kF))) $ =
+'(! kDerived101 $ a $ $ b $);
+
+theorem kDerived102 (a: nat): $ kProvable (kImp a (kImp a (kImp (kImp a kF) a))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp a kF) a)) $ $ (kImp a (kImp a (kImp (kImp a kF) a))) $ (! kPropK $ a $ $ (kImp a kF) $) (! kPropK $ (kImp a (kImp (kImp a kF) a)) $ $ a $));
+
+theorem kDerived103 (a: nat): $ kProvable (kImp (kImp a a) (kImp a (kImp (kImp a kF) a))) $ =
+'(! kProvable_mp $ (kImp a (kImp a (kImp (kImp a kF) a))) $ $ (kImp (kImp a a) (kImp a (kImp (kImp a kF) a))) $ (! kDerived102 $ a $) (! kPropS $ a $ $ a $ $ (kImp (kImp a kF) a) $));
+
+theorem kDerived104 (a: nat): $ kProvable (kImp a (kImp (kImp a kF) a)) $ =
+'(! kProvable_mp $ (kImp a a) $ $ (kImp a (kImp (kImp a kF) a)) $ (! kDerived1 $ a $) (! kDerived103 $ a $));
+
+theorem kDerived105 (a: nat): $ kProvable (kImp (kImp (kImp a kF) a) (kImp (kImp a kF) kF)) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp a kF)) $ $ (kImp (kImp (kImp a kF) a) (kImp (kImp a kF) kF)) $ (! kDerived11 $ a $) (! kPropS $ (kImp a kF) $ $ a $ $ kF $));
+
+theorem kDerived106 (a: nat): $ kProvable (kImp a (kImp (kImp (kImp a kF) a) (kImp (kImp a kF) kF))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) a) (kImp (kImp a kF) kF)) $ $ (kImp a (kImp (kImp (kImp a kF) a) (kImp (kImp a kF) kF))) $ (! kDerived105 $ a $) (! kPropK $ (kImp (kImp (kImp a kF) a) (kImp (kImp a kF) kF)) $ $ a $));
+
+theorem kDerived107 (a: nat): $ kProvable (kImp (kImp a (kImp (kImp a kF) a)) (kImp a (kImp (kImp a kF) kF))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp (kImp a kF) a) (kImp (kImp a kF) kF))) $ $ (kImp (kImp a (kImp (kImp a kF) a)) (kImp a (kImp (kImp a kF) kF))) $ (! kDerived106 $ a $) (! kPropS $ a $ $ (kImp (kImp a kF) a) $ $ (kImp (kImp a kF) kF) $));
+
+theorem kDerived108 (a: nat): $ kProvable (kImp a (kImp (kImp a kF) kF)) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp a kF) a)) $ $ (kImp a (kImp (kImp a kF) kF)) $ (! kDerived104 $ a $) (! kDerived107 $ a $));
+
+theorem kDerived109 (a b: nat): $ kProvable (kImp (kImp a kF) (kImp kF b)) $ =
+'(! kProvable_mp $ (kImp kF b) $ $ (kImp (kImp a kF) (kImp kF b)) $ (! kPropF $ b $) (! kPropK $ (kImp kF b) $ $ (kImp a kF) $));
+
+theorem kDerived110 (a b: nat): $ kProvable (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) b)) $ =
+'(! kProvable_mp $ (kImp (kImp a kF) (kImp kF b)) $ $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) b)) $ (! kDerived109 $ a $ $ b $) (! kPropS $ (kImp a kF) $ $ kF $ $ b $));
+
+theorem kDerived111 (a b: nat): $ kProvable (kImp a (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) b))) $ =
+'(! kProvable_mp $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) b)) $ $ (kImp a (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) b))) $ (! kDerived110 $ a $ $ b $) (! kPropK $ (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) b)) $ $ a $));
+
+theorem kDerived112 (a b: nat): $ kProvable (kImp (kImp a (kImp (kImp a kF) kF)) (kImp a (kImp (kImp a kF) b))) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp (kImp a kF) kF) (kImp (kImp a kF) b))) $ $ (kImp (kImp a (kImp (kImp a kF) kF)) (kImp a (kImp (kImp a kF) b))) $ (! kDerived111 $ a $ $ b $) (! kPropS $ a $ $ (kImp (kImp a kF) kF) $ $ (kImp (kImp a kF) b) $));
+
+theorem kDerived113 (a b: nat): $ kProvable (kImp a (kImp (kImp a kF) b)) $ =
+'(! kProvable_mp $ (kImp a (kImp (kImp a kF) kF)) $ $ (kImp a (kImp (kImp a kF) b)) $ (! kDerived108 $ a $) (! kDerived112 $ a $ $ b $));
+
+pub theorem kPropB3 (a b: nat):
+  $ kProvable (kImp a (kImp (kImp a kF) b)) $ =
+'(! kDerived113 $ a $ $ b $);
+
+pub theorem kAnd_left (a b: nat):
+  $ kProvable (kAnd a b) -> kProvable a $ =
+'(mpi kPropAndLeft kProvable_mp);
+
+pub theorem kAnd_right (a b: nat):
+  $ kProvable (kAnd a b) -> kProvable b $ =
+'(mpi kPropAndRight kProvable_mp);
+
+pub theorem kAnd_intro (a b: nat):
+  $ kProvable a -> kProvable b -> kProvable (kAnd a b) $ =
+'(syl (com12 kProvable_mp) (mpi kPropAndIntro kProvable_mp));
+
+pub theorem kBundle_core (a b c: nat):
+  $ c != a /\ c != b -> kProvable (k230 a b c) $ =
+'(syl kAnd_left (syl kProvable_axiom kAxioms_bundle));
+
+pub theorem kBundle_vacuity (a b c: nat):
+  $ c != a /\ c != b -> kProvable (kVacuity a b c) $ =
+'(syl kAnd_right (syl kProvable_axiom kAxioms_bundle));
+

@@ -1,0 +1,22 @@
+import "source_piece_pcf_rep_cover_consumer_r40.mm1";
+import "source_piece_pcf_rep_r26_kernel_an_base.mm1";
+import "source_piece_pcf_rep_r26_kernel_an_step.mm1";
+import "source_piece_pcf_rep_r37_kernel_cl_carrier.mm1";
+
+pub theorem pcr41_base_shape: $ sfPieceRepR26KernelAnBaseFormula = sfPieceRepCoverBaseLaw $ = 'eqid;
+
+pub theorem pcr41_base_local: $ nsLocal sfLBackground sfPieceRepCoverBaseLaw $ = '(sfRQ_rewrite pcr41_base_shape sfPieceRepR26KernelAnBase_local);
+
+
+pub theorem pcr41_step_shape: $ sfPieceRepR26KernelAnStepFormula = sfPieceRepCoverStepLaw $ = 'eqid;
+
+pub theorem pcr41_step_local: $ nsLocal sfLBackground sfPieceRepCoverStepLaw $ = '(sfRQ_rewrite pcr41_step_shape sfPieceRepR26KernelAnStep_local);
+
+
+pub theorem pcr41_carrier_shape: $ sfPieceRepR37KernelClCarrierFormula = sfPieceRepCoverCarrierLaw $ = 'eqid;
+
+pub theorem pcr41_carrier_local: $ nsLocal sfLBackground sfPieceRepCoverCarrierLaw $ = '(sfRQ_rewrite pcr41_carrier_shape sfPieceRepR37KernelClCarrier_local);
+
+pub theorem sfPieceRepCover_background_local(n:nat): $ nsLocal sfLBackground (sfPieceRepCoverFormula n) $ = '(sfPieceRepCover_from_finite_laws pcr41_base_local pcr41_carrier_local pcr41_step_local);
+
+pub theorem sfPieceRepCover_background_zfr(n:nat): $ sfTheoryProvable zfrAxioms (sfPieceRepCoverFormula n) $ = '(ax_mp (sfTheory_local sfLBackground_zfr) sfPieceRepCover_background_local);

@@ -1,0 +1,209 @@
+import "source_piece_pcf_definable_dn.mm1";
+
+@_ def pcdfOF0(a b r u v:nat):nat = $ sfOr a b $;
+
+@_ def pcdfOF1(a b r u v:nat):nat = $ sfImp r (pcdfOF0 a b r u v) $;
+
+@_ def pcdfOF2(a b r u v:nat):nat = $ sfImp (pcdfOF0 a b r u v) r $;
+
+@_ def pcdfOF3(a b r u v:nat):nat = $ sfAnd (pcdfOF1 a b r u v) (pcdfOF2 a b r u v) $;
+
+@_ def pcdfOF4(a b r u v:nat):nat = $ sfImp a u $;
+
+@_ def pcdfOF5(a b r u v:nat):nat = $ sfImp u a $;
+
+@_ def pcdfOF6(a b r u v:nat):nat = $ sfAnd (pcdfOF4 a b r u v) (pcdfOF5 a b r u v) $;
+
+@_ def pcdfOF7(a b r u v:nat):nat = $ sfImp b v $;
+
+@_ def pcdfOF8(a b r u v:nat):nat = $ sfImp v b $;
+
+@_ def pcdfOF9(a b r u v:nat):nat = $ sfAnd (pcdfOF7 a b r u v) (pcdfOF8 a b r u v) $;
+
+@_ def pcdfOF10(a b r u v:nat):nat = $ sfOr u v $;
+
+@_ def pcdfOF11(a b r u v:nat):nat = $ sfImp r (pcdfOF10 a b r u v) $;
+
+@_ def pcdfOF12(a b r u v:nat):nat = $ sfImp (pcdfOF10 a b r u v) r $;
+
+@_ def pcdfOF13(a b r u v:nat):nat = $ sfAnd (pcdfOF11 a b r u v) (pcdfOF12 a b r u v) $;
+
+@_ def pcdfOF14(a b r u v:nat):nat = $ sfImp (pcdfOF9 a b r u v) (pcdfOF13 a b r u v) $;
+
+@_ def pcdfOF15(a b r u v:nat):nat = $ sfImp (pcdfOF6 a b r u v) (pcdfOF14 a b r u v) $;
+
+@_ def pcdfOF16(a b r u v:nat):nat = $ sfImp (pcdfOF3 a b r u v) (pcdfOF15 a b r u v) $;
+
+@_ def pcdfOG17(a b r u v:nat):nat = $ (pcdfOF3 a b r u v) : 0 $;
+
+@_ def pcdfOG18(a b r u v:nat):nat = $ (pcdfOF6 a b r u v) : (pcdfOG17 a b r u v) $;
+
+@_ def pcdfOG19(a b r u v:nat):nat = $ (pcdfOF9 a b r u v) : (pcdfOG18 a b r u v) $;
+
+@_ def pcdfOG20(a b r u v:nat):nat = $ r : (pcdfOG19 a b r u v) $;
+
+@_ def pcdfOG21(a b r u v:nat):nat = $ a : (pcdfOG20 a b r u v) $;
+
+@_ def pcdfOG22(a b r u v:nat):nat = $ b : (pcdfOG20 a b r u v) $;
+
+@_ def pcdfOG23(a b r u v:nat):nat = $ (pcdfOF10 a b r u v) : (pcdfOG19 a b r u v) $;
+
+@_ def pcdfOG24(a b r u v:nat):nat = $ u : (pcdfOG23 a b r u v) $;
+
+@_ def pcdfOG25(a b r u v:nat):nat = $ v : (pcdfOG23 a b r u v) $;
+
+theorem pcdfOWf0(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF7 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hb) hv));
+
+theorem pcdfOWf1(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF8 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hv) hb));
+
+theorem pcdfOWf2(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF9 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_and (pcdfOWf0 ha hb hr hu hv)) (pcdfOWf1 ha hb hr hu hv)));
+
+theorem pcdfOWf3(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF4 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_imp ha) hu));
+
+theorem pcdfOWf4(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF5 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hu) ha));
+
+theorem pcdfOWf5(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF6 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_and (pcdfOWf3 ha hb hr hu hv)) (pcdfOWf4 ha hb hr hu hv)));
+
+theorem pcdfOWf6(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF0 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_or ha) hb));
+
+theorem pcdfOWf7(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF1 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_imp hr) (pcdfOWf6 ha hb hr hu hv)));
+
+theorem pcdfOWf8(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF2 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_imp (pcdfOWf6 ha hb hr hu hv)) hr));
+
+theorem pcdfOWf9(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF3 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_and (pcdfOWf7 ha hb hr hu hv)) (pcdfOWf8 ha hb hr hu hv)));
+
+theorem pcdfOGWf10(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf 0 $ = (named 'sfContextWf_nil);
+
+theorem pcdfOGWf11(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfOG17 a b r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfOWf9 ha hb hr hu hv) (pcdfOGWf10 ha hb hr hu hv))));
+
+theorem pcdfOGWf12(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfOG18 a b r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfOWf5 ha hb hr hu hv) (pcdfOGWf11 ha hb hr hu hv))));
+
+theorem pcdfOGWf13(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfOG19 a b r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfOWf2 ha hb hr hu hv) (pcdfOGWf12 ha hb hr hu hv))));
+
+theorem pcdfOGWf14(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfOG20 a b r u v) $ = (named '(mpbir sfContextWf_cons (ian hr (pcdfOGWf13 ha hb hr hu hv))));
+
+theorem pcdfOMem15(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfOF3 a b r u v) IN (pcdfOG20 a b r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem pcdfOP16(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG20 a b r u v) (pcdfOF3 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf14 ha hb hr hu hv)) (pcdfOMem15 ha hb hr hu hv)));
+
+theorem pcdfOP17(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG20 a b r u v) (pcdfOF1 a b r u v) $ = (named '(ax_mp nsLocal_CE1 (pcdfOP16 ha hb hr hu hv)));
+
+theorem pcdfOMem18(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ r IN (pcdfOG20 a b r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfOP19(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG20 a b r u v) r $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf14 ha hb hr hu hv)) (pcdfOMem18 ha hb hr hu hv)));
+
+theorem pcdfOP20(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG20 a b r u v) (pcdfOF0 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfOP17 ha hb hr hu hv)) (pcdfOP19 ha hb hr hu hv)));
+
+theorem pcdfOGWf21(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfOG21 a b r u v) $ = (named '(mpbir sfContextWf_cons (ian ha (pcdfOGWf14 ha hb hr hu hv))));
+
+theorem pcdfOMem22(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfOF6 a b r u v) IN (pcdfOG21 a b r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem pcdfOP23(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG21 a b r u v) (pcdfOF6 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf21 ha hb hr hu hv)) (pcdfOMem22 ha hb hr hu hv)));
+
+theorem pcdfOP24(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG21 a b r u v) (pcdfOF4 a b r u v) $ = (named '(ax_mp nsLocal_CE1 (pcdfOP23 ha hb hr hu hv)));
+
+theorem pcdfOMem25(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ a IN (pcdfOG21 a b r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfOP26(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG21 a b r u v) a $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf21 ha hb hr hu hv)) (pcdfOMem25 ha hb hr hu hv)));
+
+theorem pcdfOP27(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG21 a b r u v) u $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfOP24 ha hb hr hu hv)) (pcdfOP26 ha hb hr hu hv)));
+
+theorem pcdfOP28(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG21 a b r u v) (pcdfOF10 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_DI1 hv) (pcdfOP27 ha hb hr hu hv)));
+
+theorem pcdfOGWf29(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfOG22 a b r u v) $ = (named '(mpbir sfContextWf_cons (ian hb (pcdfOGWf14 ha hb hr hu hv))));
+
+theorem pcdfOMem30(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfOF9 a b r u v) IN (pcdfOG22 a b r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem pcdfOP31(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG22 a b r u v) (pcdfOF9 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf29 ha hb hr hu hv)) (pcdfOMem30 ha hb hr hu hv)));
+
+theorem pcdfOP32(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG22 a b r u v) (pcdfOF7 a b r u v) $ = (named '(ax_mp nsLocal_CE1 (pcdfOP31 ha hb hr hu hv)));
+
+theorem pcdfOMem33(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ b IN (pcdfOG22 a b r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfOP34(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG22 a b r u v) b $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf29 ha hb hr hu hv)) (pcdfOMem33 ha hb hr hu hv)));
+
+theorem pcdfOP35(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG22 a b r u v) v $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfOP32 ha hb hr hu hv)) (pcdfOP34 ha hb hr hu hv)));
+
+theorem pcdfOP36(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG22 a b r u v) (pcdfOF10 a b r u v) $ = (named '(ax_mp (sfLocal_orR hu) (pcdfOP35 ha hb hr hu hv)));
+
+theorem pcdfOP37(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG20 a b r u v) (pcdfOF10 a b r u v) $ = (named '(ax_mp (ax_mp (ax_mp nsLocal_DE (pcdfOP20 ha hb hr hu hv)) (pcdfOP28 ha hb hr hu hv)) (pcdfOP36 ha hb hr hu hv)));
+
+theorem pcdfOP38(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG19 a b r u v) (pcdfOF11 a b r u v) $ = (named '(ax_mp nsLocal_II (pcdfOP37 ha hb hr hu hv)));
+
+theorem pcdfOWf39(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfWf (pcdfOF10 a b r u v) $ = (named '(ax_mp (ax_mp sfWf_or hu) hv));
+
+theorem pcdfOGWf40(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfOG23 a b r u v) $ = (named '(mpbir sfContextWf_cons (ian (pcdfOWf39 ha hb hr hu hv) (pcdfOGWf13 ha hb hr hu hv))));
+
+theorem pcdfOMem41(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfOF10 a b r u v) IN (pcdfOG23 a b r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfOP42(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG23 a b r u v) (pcdfOF10 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf40 ha hb hr hu hv)) (pcdfOMem41 ha hb hr hu hv)));
+
+theorem pcdfOGWf43(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfOG24 a b r u v) $ = (named '(mpbir sfContextWf_cons (ian hu (pcdfOGWf40 ha hb hr hu hv))));
+
+theorem pcdfOMem44(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfOF3 a b r u v) IN (pcdfOG24 a b r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem pcdfOP45(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG24 a b r u v) (pcdfOF3 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf43 ha hb hr hu hv)) (pcdfOMem44 ha hb hr hu hv)));
+
+theorem pcdfOP46(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG24 a b r u v) (pcdfOF2 a b r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfOP45 ha hb hr hu hv)));
+
+theorem pcdfOMem47(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfOF6 a b r u v) IN (pcdfOG24 a b r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem pcdfOP48(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG24 a b r u v) (pcdfOF6 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf43 ha hb hr hu hv)) (pcdfOMem47 ha hb hr hu hv)));
+
+theorem pcdfOP49(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG24 a b r u v) (pcdfOF5 a b r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfOP48 ha hb hr hu hv)));
+
+theorem pcdfOMem50(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ u IN (pcdfOG24 a b r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfOP51(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG24 a b r u v) u $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf43 ha hb hr hu hv)) (pcdfOMem50 ha hb hr hu hv)));
+
+theorem pcdfOP52(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG24 a b r u v) a $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfOP49 ha hb hr hu hv)) (pcdfOP51 ha hb hr hu hv)));
+
+theorem pcdfOP53(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG24 a b r u v) (pcdfOF0 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_DI1 hb) (pcdfOP52 ha hb hr hu hv)));
+
+theorem pcdfOP54(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG24 a b r u v) r $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfOP46 ha hb hr hu hv)) (pcdfOP53 ha hb hr hu hv)));
+
+theorem pcdfOGWf55(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ sfContextWf (pcdfOG25 a b r u v) $ = (named '(mpbir sfContextWf_cons (ian hv (pcdfOGWf40 ha hb hr hu hv))));
+
+theorem pcdfOMem56(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfOF3 a b r u v) IN (pcdfOG25 a b r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem pcdfOP57(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG25 a b r u v) (pcdfOF3 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf55 ha hb hr hu hv)) (pcdfOMem56 ha hb hr hu hv)));
+
+theorem pcdfOP58(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG25 a b r u v) (pcdfOF2 a b r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfOP57 ha hb hr hu hv)));
+
+theorem pcdfOMem59(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ (pcdfOF9 a b r u v) IN (pcdfOG25 a b r u v) $ = (named '(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem pcdfOP60(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG25 a b r u v) (pcdfOF9 a b r u v) $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf55 ha hb hr hu hv)) (pcdfOMem59 ha hb hr hu hv)));
+
+theorem pcdfOP61(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG25 a b r u v) (pcdfOF8 a b r u v) $ = (named '(ax_mp nsLocal_CE2 (pcdfOP60 ha hb hr hu hv)));
+
+theorem pcdfOMem62(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ v IN (pcdfOG25 a b r u v) $ = (named 'sfContext_member_head);
+
+theorem pcdfOP63(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG25 a b r u v) v $ = (named '(ax_mp (ax_mp nsLocal_hyp (pcdfOGWf55 ha hb hr hu hv)) (pcdfOMem62 ha hb hr hu hv)));
+
+theorem pcdfOP64(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG25 a b r u v) b $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfOP61 ha hb hr hu hv)) (pcdfOP63 ha hb hr hu hv)));
+
+theorem pcdfOP65(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG25 a b r u v) (pcdfOF0 a b r u v) $ = (named '(ax_mp (sfLocal_orR ha) (pcdfOP64 ha hb hr hu hv)));
+
+theorem pcdfOP66(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG25 a b r u v) r $ = (named '(ax_mp (ax_mp nsLocal_mp (pcdfOP58 ha hb hr hu hv)) (pcdfOP65 ha hb hr hu hv)));
+
+theorem pcdfOP67(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG23 a b r u v) r $ = (named '(ax_mp (ax_mp (ax_mp nsLocal_DE (pcdfOP42 ha hb hr hu hv)) (pcdfOP54 ha hb hr hu hv)) (pcdfOP66 ha hb hr hu hv)));
+
+theorem pcdfOP68(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG19 a b r u v) (pcdfOF12 a b r u v) $ = (named '(ax_mp nsLocal_II (pcdfOP67 ha hb hr hu hv)));
+
+theorem pcdfOP69(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG19 a b r u v) (pcdfOF13 a b r u v) $ = (named '(ax_mp (ax_mp sfLocal_and (pcdfOP38 ha hb hr hu hv)) (pcdfOP68 ha hb hr hu hv)));
+
+theorem pcdfOP70(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG18 a b r u v) (pcdfOF14 a b r u v) $ = (named '(ax_mp nsLocal_II (pcdfOP69 ha hb hr hu hv)));
+
+theorem pcdfOP71(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal (pcdfOG17 a b r u v) (pcdfOF15 a b r u v) $ = (named '(ax_mp nsLocal_II (pcdfOP70 ha hb hr hu hv)));
+
+theorem pcdfOP72(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal 0 (pcdfOF16 a b r u v) $ = (named '(ax_mp nsLocal_II (pcdfOP71 ha hb hr hu hv)));
+
+pub theorem sfPieceDefinableOr_pure(a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $): $ nsLocal 0 (sfImp (sfIff r (sfOr a b)) (sfImp (sfIff a u) (sfImp (sfIff b v) (sfIff r (sfOr u v))))) $ = (named '(pcdfOP72 ha hb hr hu hv));
+
+pub theorem sfPieceDefinableOr_local(G a b r u v:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(hR:$ nsLocal G (sfIff r (sfOr a b)) $)(hA:$ nsLocal G (sfIff a u) $)(hB:$ nsLocal G (sfIff b v) $): $ nsLocal G (sfIff r (sfOr u v)) $ = (named '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (ax_mp nsLocal_context_wf hR)) all0) (sfPieceDefinableOr_pure ha hb hr hu hv))) hR)) hA)) hB));
+
+pub theorem sfPieceDefinableOr_all(G:nat)(a b r u v e:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(he:$ sfWf e $)(hR:$ nsLocal G (sfAll (sfAnd (sfImp r (sfOr a b)) (sfImp (sfOr a b) r))) $)(hA:$ nsLocal G (sfAll (sfImp e (sfAnd (sfImp a u) (sfImp u a)))) $)(hB:$ nsLocal G (sfAll (sfImp e (sfAnd (sfImp b v) (sfImp v b)))) $): $ nsLocal G (sfAll (sfImp e (sfAnd (sfImp r (sfOr u v)) (sfImp (sfOr u v) r)))) $ = (named '(ax_mp (sfLocal_allI (ax_mp nsLocal_context_wf hR)) (ax_mp nsLocal_II (sfPieceDefinableOr_local ha hb hr hu hv (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian he sfContextShift_wf))) sfContextSub_cons) (ax_mp sfSepLocal_open hR)) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian he sfContextShift_wf))) sfContextSub_cons) (ax_mp sfSepLocal_open hA))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian he sfContextShift_wf))) sfContext_member_head)) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian he sfContextShift_wf))) sfContextSub_cons) (ax_mp sfSepLocal_open hB))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian he sfContextShift_wf))) sfContext_member_head))))));
+
+pub theorem sfPieceDefinableOr_all_pure(a b r u v e:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(he:$ sfWf e $): $ nsLocal 0 (sfImp (sfAll (sfAnd (sfImp r (sfOr a b)) (sfImp (sfOr a b) r))) (sfImp (sfAll (sfImp e (sfAnd (sfImp a u) (sfImp u a)))) (sfImp (sfAll (sfImp e (sfAnd (sfImp b v) (sfImp v b)))) (sfAll (sfImp e (sfAnd (sfImp r (sfOr u v)) (sfImp (sfOr u v) r))))))) $ = (named '(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (sfPieceDefinableOr_all ha hb hr hu hv he (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hb) hv)) (ax_mp (ax_mp sfWf_imp hv) hb)))) (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp ha) hu)) (ax_mp (ax_mp sfWf_imp hu) ha)))) (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hr) (ax_mp (ax_mp sfWf_or ha) hb))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or ha) hb)) hr))) sfContextWf_nil))))))) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hb) hv)) (ax_mp (ax_mp sfWf_imp hv) hb)))) (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp ha) hu)) (ax_mp (ax_mp sfWf_imp hu) ha)))) (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hr) (ax_mp (ax_mp sfWf_or ha) hb))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or ha) hb)) hr))) sfContextWf_nil))))))) (ax_mp sfContext_member_tail sfContext_member_head)) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hb) hv)) (ax_mp (ax_mp sfWf_imp hv) hb)))) (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp ha) hu)) (ax_mp (ax_mp sfWf_imp hu) ha)))) (mpbir sfContextWf_cons (ian (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hr) (ax_mp (ax_mp sfWf_or ha) hb))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or ha) hb)) hr))) sfContextWf_nil))))))) sfContext_member_head))))));
+
+pub theorem sfPieceDefinableOr_count(G count:nat)(a b r u v e:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hr:$ sfWf r $)(hu:$ sfWf u $)(hv:$ sfWf v $)(he:$ sfWf e $)(hR:$ nsLocal G (sfPieceDn count (sfAll (sfAnd (sfImp r (sfOr a b)) (sfImp (sfOr a b) r)))) $)(hA:$ nsLocal G (sfPieceDn count (sfAll (sfImp e (sfAnd (sfImp a u) (sfImp u a))))) $)(hB:$ nsLocal G (sfPieceDn count (sfAll (sfImp e (sfAnd (sfImp b v) (sfImp v b))))) $): $ nsLocal G (sfPieceDn count (sfAll (sfImp e (sfAnd (sfImp r (sfOr u v)) (sfImp (sfOr u v) r))))) $ = (named '(sfPieceDefinableDn_apply (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hb) hv)) (ax_mp (ax_mp sfWf_imp hv) hb)))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hr) (ax_mp (ax_mp sfWf_or hu) hv))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or hu) hv)) hr)))) (sfPieceDefinableDn_apply (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp ha) hu)) (ax_mp (ax_mp sfWf_imp hu) ha)))) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hb) hv)) (ax_mp (ax_mp sfWf_imp hv) hb))))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hr) (ax_mp (ax_mp sfWf_or hu) hv))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or hu) hv)) hr))))) (sfPieceDefinableDn_apply (ax_mp sfWf_all (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hr) (ax_mp (ax_mp sfWf_or ha) hb))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or ha) hb)) hr))) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp ha) hu)) (ax_mp (ax_mp sfWf_imp hu) ha))))) (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hb) hv)) (ax_mp (ax_mp sfWf_imp hv) hb))))) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp he) (ax_mp (ax_mp sfWf_and (ax_mp (ax_mp sfWf_imp hr) (ax_mp (ax_mp sfWf_or hu) hv))) (ax_mp (ax_mp sfWf_imp (ax_mp (ax_mp sfWf_or hu) hv)) hr)))))) (ax_mp (ax_mp (ax_mp nsLocal_weaken (ax_mp nsLocal_context_wf hR)) all0) (ax_mp sfPieceDefinableDn_intro (sfPieceDefinableOr_all_pure ha hb hr hu hv he))) hR) hA) hB));

@@ -1,0 +1,55 @@
+import "source_named_renaming.mm1";
+
+import "zfc_schema_maps.mm1";
+
+import "source_bounds.mm1";
+
+import "quotation_binders.mm1";
+
+theorem qrepMapA0 (E: set) (x y z: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepAMap @ 0 = (sqEnvCons x (sqEnvCons y E)) @ 0 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfRepAMap_zero) (eqtr (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)) (eqcom sqEnvCons_zero))));
+
+theorem qrepMapA1 (E: set) (x y z: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepAMap @ 1 = (sqEnvCons x (sqEnvCons y E)) @ 1 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfRepAMap_one) (eqtr (eqtr sqEnvCons_suc sqEnvCons_zero) (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem qrepMapAPlus (i: nat): $ i + 3 = (suc (suc (suc i))) $ = '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))));
+
+theorem qrepMapATail (E: set) (x y z: nat) (i: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepAMap @ suc (suc i) = (sqEnvCons x (sqEnvCons y E)) @ suc (suc i) $ = '(eqtr sfComposeMap_value (eqtr (appeq2 (eqtr sfRepAMap_tail qrepMapAPlus)) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc)))))));
+
+theorem qrepMapASuc (E: set) (x y z: nat) (i: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepAMap @ suc i = (sqEnvCons x (sqEnvCons y E)) @ suc i $ = (named @ induct '(ind) 'i 'qrepMapA1 '(a1i qrepMapATail));
+
+theorem qrepMapAPoint (E: set) (x y z: nat) (i: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepAMap @ i = (sqEnvCons x (sqEnvCons y E)) @ i $ = (named @ induct '(ind) 'i 'qrepMapA0 '(a1i qrepMapASuc));
+
+theorem qrepMapAAgree (E: set) (x y z: nat) (n: nat): $ sqEnvAgree (sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepAMap) (sqEnvCons x (sqEnvCons y E)) n $ = (named '(ax_gen (a1i qrepMapAPoint)));
+
+pub theorem sfK0QRepQuote_A (E: set) (x y z: nat) (n t k phi: nat): $ sfBound (suc (suc n)) phi -> sqQuote (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) t k 0 (sfRename sfRepAMap 0 phi) = sqQuote (sqEnvCons x (sqEnvCons y E)) t k 0 phi $ = '(eqtrd (syl sqQuote_source_renaming sfBound_wf) (syl (sqQuote_environment qrepMapAAgree) (bi2 (sfBoundeq1 add01))));
+
+theorem qrepMapB0 (E: set) (x y z: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepBMap @ 0 = (sqEnvCons x (sqEnvCons z E)) @ 0 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfRepBMap_zero) (eqtr (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)) (eqcom sqEnvCons_zero))));
+
+theorem qrepMapB1 (E: set) (x y z: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepBMap @ 1 = (sqEnvCons x (sqEnvCons z E)) @ 1 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfRepBMap_one) (eqtr sqEnvCons_zero (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem qrepMapBPlus (i: nat): $ i + 3 = (suc (suc (suc i))) $ = '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))));
+
+theorem qrepMapBTail (E: set) (x y z: nat) (i: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepBMap @ suc (suc i) = (sqEnvCons x (sqEnvCons z E)) @ suc (suc i) $ = '(eqtr sfComposeMap_value (eqtr (appeq2 (eqtr sfRepBMap_tail qrepMapBPlus)) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc)))))));
+
+theorem qrepMapBSuc (E: set) (x y z: nat) (i: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepBMap @ suc i = (sqEnvCons x (sqEnvCons z E)) @ suc i $ = (named @ induct '(ind) 'i 'qrepMapB1 '(a1i qrepMapBTail));
+
+theorem qrepMapBPoint (E: set) (x y z: nat) (i: nat): $ sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepBMap @ i = (sqEnvCons x (sqEnvCons z E)) @ i $ = (named @ induct '(ind) 'i 'qrepMapB0 '(a1i qrepMapBSuc));
+
+theorem qrepMapBAgree (E: set) (x y z: nat) (n: nat): $ sqEnvAgree (sfComposeMap (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) sfRepBMap) (sqEnvCons x (sqEnvCons z E)) n $ = (named '(ax_gen (a1i qrepMapBPoint)));
+
+pub theorem sfK0QRepQuote_B (E: set) (x y z: nat) (n t k phi: nat): $ sfBound (suc (suc n)) phi -> sqQuote (sqEnvCons z (sqEnvCons y (sqEnvCons x E))) t k 0 (sfRename sfRepBMap 0 phi) = sqQuote (sqEnvCons x (sqEnvCons z E)) t k 0 phi $ = '(eqtrd (syl sqQuote_source_renaming sfBound_wf) (syl (sqQuote_environment qrepMapBAgree) (bi2 (sfBoundeq1 add01))));
+
+theorem qrepMapC0 (E: set) (x y c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons c (sqEnvCons a E)))) sfRepCMap @ 0 = (sqEnvCons x (sqEnvCons y E)) @ 0 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfRepCMap_zero) (eqtr sqEnvCons_zero (eqcom sqEnvCons_zero))));
+
+theorem qrepMapC1 (E: set) (x y c a: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons c (sqEnvCons a E)))) sfRepCMap @ 1 = (sqEnvCons x (sqEnvCons y E)) @ 1 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfRepCMap_one) (eqtr (eqtr sqEnvCons_suc sqEnvCons_zero) (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem qrepMapCPlus (i: nat): $ i + 4 = (suc (suc (suc (suc i)))) $ = '(eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq (eqtr addS (suceq add0))))))));
+
+theorem qrepMapCTail (E: set) (x y c a: nat) (i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons c (sqEnvCons a E)))) sfRepCMap @ suc (suc i) = (sqEnvCons x (sqEnvCons y E)) @ suc (suc i) $ = '(eqtr sfComposeMap_value (eqtr (appeq2 (eqtr sfRepCMap_tail qrepMapCPlus)) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc))))))));
+
+theorem qrepMapCSuc (E: set) (x y c a: nat) (i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons c (sqEnvCons a E)))) sfRepCMap @ suc i = (sqEnvCons x (sqEnvCons y E)) @ suc i $ = (named @ induct '(ind) 'i 'qrepMapC1 '(a1i qrepMapCTail));
+
+theorem qrepMapCPoint (E: set) (x y c a: nat) (i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons c (sqEnvCons a E)))) sfRepCMap @ i = (sqEnvCons x (sqEnvCons y E)) @ i $ = (named @ induct '(ind) 'i 'qrepMapC0 '(a1i qrepMapCSuc));
+
+theorem qrepMapCAgree (E: set) (x y c a: nat) (n: nat): $ sqEnvAgree (sfComposeMap (sqEnvCons x (sqEnvCons y (sqEnvCons c (sqEnvCons a E)))) sfRepCMap) (sqEnvCons x (sqEnvCons y E)) n $ = (named '(ax_gen (a1i qrepMapCPoint)));
+
+pub theorem sfK0QRepQuote_C (E: set) (x y c a: nat) (n t k phi: nat): $ sfBound (suc (suc n)) phi -> sqQuote (sqEnvCons x (sqEnvCons y (sqEnvCons c (sqEnvCons a E)))) t k 0 (sfRename sfRepCMap 0 phi) = sqQuote (sqEnvCons x (sqEnvCons y E)) t k 0 phi $ = '(eqtrd (syl sqQuote_source_renaming sfBound_wf) (syl (sqQuote_environment qrepMapCAgree) (bi2 (sfBoundeq1 add01))));

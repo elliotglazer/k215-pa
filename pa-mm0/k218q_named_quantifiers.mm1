@@ -1,0 +1,28 @@
+import "extracted_named_quantifiers.mm1";
+import "k218q_specialization.mm1";
+
+pub theorem k218INamed_allE_scoped (H: nat) (E: set) (n k y a: nat)
+ (hz: $ k != 0 $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $)
+ (ha: $ sfBound (suc n) a $):
+ $ k218IHypProvable H (sfNamedTemplate E k 0 (sfAll a)) ->
+   k218IHypProvable H (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $ =
+'(mpi (k218IHypProvable_seed
+ (mpbir (k218QProvableeq (kImpeq
+   (ax_mp sfNamedTemplate_all_cons (ax_mp sfBound_wf ha))
+   (eqcom (ax_mp (sfNamedTemplate_substitution_cons hz he) ha))))
+  (ax_mp (ax_mp (ax_mp k218INamed_specialization (ltner hy))
+    (ax_mp (sfNamedTemplate_binder_absent ltsucid) (ax_mp sfBound_wf ha)))
+    (ax_mp (sfNamedTemplate_binder_absent (ltletr hy lesucid)) (ax_mp sfBound_wf ha))))) k218IHypProvable_mp);
+
+pub theorem k218INamed_exI_scoped (H: nat) (E: set) (n k y a: nat)
+ (hz: $ k != 0 $) (hy: $ y < k $) (he: $ sqEnvAvoid E n k $)
+ (ha: $ sfBound (suc n) a $):
+ $ k218IHypProvable H (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) ->
+   k218IHypProvable H (sfNamedTemplate E k 0 (sfEx a)) $ =
+'(mpi (k218IHypProvable_seed
+ (mpbir (k218QProvableeq (kImpeq
+   (eqcom (ax_mp (sfNamedTemplate_substitution_cons hz he) ha))
+   (ax_mp sfNamedTemplate_ex_cons (ax_mp sfBound_wf ha))))
+  (ax_mp (ax_mp (ax_mp k218INamed_exists_intro (ltner hy))
+    (ax_mp (sfNamedTemplate_binder_absent ltsucid) (ax_mp sfBound_wf ha)))
+    (ax_mp (sfNamedTemplate_binder_absent (ltletr hy lesucid)) (ax_mp sfBound_wf ha))))) k218IHypProvable_mp);

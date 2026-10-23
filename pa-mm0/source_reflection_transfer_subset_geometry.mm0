@@ -1,0 +1,31 @@
+import "source_reflection_transfer_merge_law.mm0";
+
+import "source_reflection_transfer_limit_profile.mm0";
+
+def sfReflectionKsSubsetBody(K b d:nat):nat = $ sfImp (sfMem d K) (sfCLSubset d b) $;
+
+def sfReflectionKsSubset(K b:nat):nat = $ sfAll (sfReflectionKsSubsetBody (suc K) (suc b) 0) $;
+
+theorem sfReflectionKsSubset_rename(R:set)(K b:nat): $ sfRename R 0 (sfReflectionKsSubset K b) = sfReflectionKsSubset (R @ K) (R @ b) $;
+
+theorem sfReflectionKsSubset_shift(K b:nat): $ sfShift 0 (sfReflectionKsSubset K b) = sfReflectionKsSubset (suc K) (suc b) $;
+
+theorem sfReflectionKsSubset_use(G K b d:nat)(hK:$ nsLocal G (sfReflectionKsSubset K b) $)(hd:$ nsLocal G (sfMem d K) $): $ nsLocal G (sfCLSubset d b) $;
+
+theorem sfReflectionPHSubsetOn_from_subset(G level K b z:nat)(hl:$ sfBound 2 level $)(hO:$ nsLocal G (sfReflectionCofinalOrdinals K) $)(hK:$ nsLocal G (sfReflectionKsSubset K b) $)(hB:$ nsLocal G (sfReflectionOrdinalAt b) $)(hL:$ nsLocal G (sfORBinary level b z) $)(hS:$ nsLocal G (sfReflectionHierarchySubsetNormal level) $): $ nsLocal G (sfReflectionPHSubsetOn level K z) $;
+
+theorem sfReflectionLimitProfile_KsSubset_eq(level P:nat): $ rflF339 level P = sfReflectionKsSubset 1 0 $;
+
+theorem sfReflectionLimitProfile_KsSubset(G level P:nat)(h:$ nsLocal G (sfReflectionLimitProfile level P) $): $ nsLocal G (sfReflectionKsSubset 1 0) $;
+
+theorem sfReflectionLimitProfile_beta_ordinal(G level P:nat)(h:$ nsLocal G (sfReflectionLimitProfile level P) $): $ nsLocal G (sfReflectionOrdinalAt 0) $;
+
+theorem sfReflectionPHSubsetOn_from_profile(G level P z:nat)(hl:$ sfBound 2 level $)(h:$ nsLocal G (sfReflectionLimitProfile level P) $)(hL:$ nsLocal G (sfORBinary level 0 z) $)(hS:$ nsLocal G (sfReflectionHierarchySubsetNormal level) $): $ nsLocal G (sfReflectionPHSubsetOn level 1 z) $;
+
+def sfReflectionSubsetProducerContext(level:nat):nat = $ (sfReflectionHierarchySubsetNormal level) : 0 $;
+
+def sfReflectionSubsetProfileLaw(level P z:nat):nat = $ sfImp (sfReflectionLimitProfile level P) (sfImp (sfORBinary level 0 z) (sfReflectionPHSubsetOn level 1 z)) $;
+
+theorem sfReflectionSubsetProducer_local(level P z:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ nsLocal (sfReflectionSubsetProducerContext level) (sfReflectionSubsetProfileLaw level P z) $;
+
+theorem sfReflectionSubsetProducer_zfr(level P z:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal level) $): $ sfTheoryProvable zfrAxioms (sfReflectionSubsetProfileLaw level P z) $;

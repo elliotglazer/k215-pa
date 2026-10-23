@@ -1,0 +1,43 @@
+import "source_piece_pcf_definable_union_u2.mm1";
+
+import "source_piece_pcf_rep_implication_named_r43.mm1";
+
+import "source_piece_pcf_rep_cover_laws_r39.mm1";
+
+import "source_l_replacement_prefix_elimination.mm1";
+
+@_ abstract def sfPieceDefinableUnionWitnessBody(a b C:nat): nat = $ sfAnd (sfMem 0 (suc C)) (sfPieceRepImplicationNamedUnion (suc a) (suc b) 0) $;
+
+@_ abstract def sfPieceDefinableUnionWitness(a b C:nat): nat = $ sfEx (sfPieceDefinableUnionWitnessBody a b C) $;
+
+pub theorem sfPieceDefinableUnionWitnessBody_wf(a b C:nat): $ sfWf (sfPieceDefinableUnionWitnessBody a b C) $ = (named '(ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceRepImplicationNamedUnion_wf));
+
+pub theorem sfPieceDefinableUnionWitness_wf(a b C:nat): $ sfWf (sfPieceDefinableUnionWitness a b C) $ = (named '(ax_mp sfWf_ex sfPieceDefinableUnionWitnessBody_wf));
+
+pub theorem pcuUse_profile_depth(T:set)(k a b r:nat): $ sfRename T k (sfPieceRepImplicationNamedUnion a b r) = sfPieceRepImplicationNamedUnion (sfRenameIndex T k a) (sfRenameIndex T k b) (sfRenameIndex T k r) $ = (named '(eqtr (ax_mp sfRename_as_map sfPieceRepImplicationNamedUnion_wf) (eqtr sfPieceRepImplicationNamedUnion_rename (sfPieceRepImplicationNamedUnion_congr sfRenameDepthMap_value sfRenameDepthMap_value sfRenameDepthMap_value))));
+
+pub theorem sfPieceDefinableUnionWitness_rename(T:set)(a b C:nat): $ sfRename T 0 (sfPieceDefinableUnionWitness a b C) = sfPieceDefinableUnionWitness (T @ a) (T @ b) (T @ C) $ = (named '(eqtr sfRename_sfEx (sfExeq (eqtr sfRename_sfAnd (sfAndeq (eqtr sfRename_sfMem (sfMemeq (ax_mp sfRenameIndex_bound lt01S) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)))) (eqtr pcuUse_profile_depth (sfPieceRepImplicationNamedUnion_congr (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero)) (ax_mp sfRenameIndex_bound lt01S))))))));
+
+pub theorem sfPieceDefinableUnionWitness_congr(a b C x y D:nat)(ha:$ a = x $)(hb:$ b = y $)(hc:$ C = D $): $ sfPieceDefinableUnionWitness a b C = sfPieceDefinableUnionWitness x y D $ = (named '(sfExeq (sfAndeq (sfMemeq eqid (suceq hc)) (sfPieceRepImplicationNamedUnion_congr (suceq ha) (suceq hb) eqid))));
+
+@_ abstract def sfPieceDefinableUnionProducerBody: nat = $ sfImp (sfPieceRepClosure 3 2) (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfPieceDefinableUnionWitness 1 0 2))) $;
+
+@_ abstract def sfPieceDefinableUnionProducerLaw: nat = $ sfAll (sfAll (sfAll (sfAll sfPieceDefinableUnionProducerBody))) $;
+
+pub theorem sfPieceDefinableUnion_producer_exact: $ sfPieceDefinableUnionU2Formula = sfPieceDefinableUnionProducerLaw $ = (named 'eqid);
+
+pub theorem sfPieceDefinableUnion_producer_prefix: $ sfAllPrefix 4 sfPieceDefinableUnionProducerBody = sfPieceDefinableUnionProducerLaw $ = (named '(eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq (eqtr sfAllPrefix_suc (sfAlleq sfAllPrefix_zero)))))))));
+
+@_ abstract def sfPieceDefinableUnionProducerMap(B C a b:nat): set = $ sqEnvCons b (sqEnvCons a (sqEnvCons C (sqEnvCons B sfIdentityMap))) $;
+
+pub theorem pcuUse_at0(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4 @ 0 = b $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos lt01S) sqEnvCons_zero)));
+
+pub theorem pcuUse_at1(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4 @ 1 = a $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc lt01S)) (eqtr sqEnvCons_suc sqEnvCons_zero))));
+
+pub theorem pcuUse_at2(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4 @ 2 = C $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc (mpbi ltsuc lt01S))) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+pub theorem pcuUse_at3(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4 @ 3 = B $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))))));
+
+pub theorem sfPieceDefinableUnion_producer_open(B C a b:nat): $ sfRename (sfCLBallEnv (sfPieceDefinableUnionProducerMap B C a b) 4) 0 sfPieceDefinableUnionProducerBody = sfImp (sfPieceRepClosure B C) (sfImp (sfMem a C) (sfImp (sfMem b C) (sfPieceDefinableUnionWitness a b C))) $ = (named '(eqtr sfRename_sfImp (sfImpeq (eqtr sfPieceRepClosure_rename (sfPieceRepClosure_eq (eqtr sfRenameIndex_zero pcuUse_at3) (eqtr sfRenameIndex_zero pcuUse_at2))) (eqtr sfRename_sfImp (sfImpeq (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero pcuUse_at1) (eqtr sfRenameIndex_zero pcuUse_at2))) (eqtr sfRename_sfImp (sfImpeq (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero pcuUse_at0) (eqtr sfRenameIndex_zero pcuUse_at2))) (eqtr sfPieceDefinableUnionWitness_rename (sfPieceDefinableUnionWitness_congr pcuUse_at1 pcuUse_at0 pcuUse_at2)))))))));
+
+pub theorem sfPieceDefinableUnion_produce(G B C a b:nat)(hbg:$ sfContextSub sfLBackground G $)(hc:$ nsLocal G (sfPieceRepClosure B C) $)(ha:$ nsLocal G (sfMem a C) $)(hb:$ nsLocal G (sfMem b C) $): $ nsLocal G (sfEx (sfPieceDefinableUnionWitnessBody a b C)) $ = (named '(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (sfRQ_rewrite sfPieceDefinableUnion_producer_open (sfLReplacementPrefix_eliminate (sfRQ_rewrite (eqcom sfPieceDefinableUnion_producer_prefix) (sfRQ_rewrite sfPieceDefinableUnion_producer_exact (ax_mp (ax_mp (ax_mp nsLocal_weaken (ax_mp nsLocal_context_wf hc)) hbg) sfPieceDefinableUnionU2_local)))))) hc)) ha)) hb));

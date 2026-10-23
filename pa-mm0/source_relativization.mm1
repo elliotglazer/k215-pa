@@ -1,0 +1,125 @@
+import "source_context_shift.mm1";
+
+@_ def sfRelBody (d c h: nat): nat =
+$ if (c = 0) 0
+  (if (sfTag c = 1) (sfMem (sfLeft c) (sfRight c))
+  (if (sfTag c = 2) (sfEq (sfLeft c) (sfRight c))
+  (if (sfTag c = 3) (sfAnd (h @ sfLeft c) (h @ sfRight c))
+  (if (sfTag c = 4) (sfOr (h @ sfLeft c) (h @ sfRight c))
+  (if (sfTag c = 5) (sfImp (h @ sfLeft c) (h @ sfRight c))
+  (if (sfTag c = 6 /\ sfRight c = 0) (sfAll (sfImp d (h @ sfLeft c)))
+  (if (sfTag c = 7 /\ sfRight c = 0) (sfEx (sfAnd d (h @ sfLeft c))) 0))))))) $;
+
+@_ abstract def sfRelStep (d .h: nat): set = $ \ h, sfRelBody d (sfHistoryLength h) h $;
+@_ abstract def sfRelativize (d c: nat): nat = $ srec (sfRelStep d) c $;
+@_ abstract def sfRelHistory (d c .i: nat): nat = $ \. i e. upto c, srec (sfRelStep d) i $;
+
+pub theorem sfRelStep_apply (d h: nat):
+  $ sfRelStep d @ h = sfRelBody d (sfHistoryLength h) h $ =
+(named '(!! applame j ,eqtac));
+
+pub theorem sfRelHistory_size (d c: nat):
+  $ sfHistoryLength (sfRelHistory d c) = c $ =
+(named '(sreclem eqid));
+
+pub theorem sfRelHistory_lookup (d c a: nat):
+  $ a < c -> sfRelHistory d c @ a = sfRelativize d a $ =
+(named '(syl (apprlame sreceq2) (bi2 elupto)));
+
+pub theorem sfRelativize_unfold (d c: nat):
+  $ sfRelativize d c = sfRelBody d c (sfRelHistory d c) $ =
+(named '(eqtr srecval @ eqtr sfRelStep_apply @ sfRelBodyeq eqid sfRelHistory_size eqid));
+
+theorem sfRelBody_sfMem (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $):
+  $ sfRelBody d c h = sfMem (sfLeft c) (sfRight c) $ =
+'(eqtr (ifneg h0) (ifpos ht));
+
+theorem sfRelBody_sfEq (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $):
+  $ sfRelBody d c h = sfEq (sfLeft c) (sfRight c) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (ifpos ht)));
+
+theorem sfRelBody_sfAnd (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $):
+  $ sfRelBody d c h = sfAnd (h @ sfLeft c) (h @ sfRight c) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (ifpos ht))));
+
+theorem sfRelBody_sfOr (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $):
+  $ sfRelBody d c h = sfOr (h @ sfLeft c) (h @ sfRight c) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (ifpos ht)))));
+
+theorem sfRelBody_sfImp (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 5 $):
+  $ sfRelBody d c h = sfImp (h @ sfLeft c) (h @ sfRight c) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (ifpos ht))))));
+
+theorem sfRelBody_sfAll (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 6 $) (hz: $ sfRight c = 0 $):
+  $ sfRelBody d c h = sfAll (sfImp d (h @ sfLeft c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (ifpos (ian ht hz))))))));
+
+theorem sfRelBody_sfEx (d c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 7 $) (hz: $ sfRight c = 0 $):
+  $ sfRelBody d c h = sfEx (sfAnd d (h @ sfLeft c)) $ =
+'(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc lt01S)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc lt01S))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))) (eqtr (ifneg (mt anl (mpbir (noteq (eqeq1 ht)) (ltneri (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))) (ifpos (ian ht hz)))))))));
+
+theorem sfRelHistory_child (d c a: nat) (he: $ sfLeft c = a $) (ha: $ a < c $):
+  $ sfRelHistory d c @ sfLeft c = sfRelativize d a $ =
+'(eqtr (appeq2 he) (sfRelHistory_lookup ha));
+theorem sfRelHistory_right (d c a: nat) (he: $ sfRight c = a $) (ha: $ a < c $):
+  $ sfRelHistory d c @ sfRight c = sfRelativize d a $ =
+'(eqtr (appeq2 he) (sfRelHistory_lookup ha));
+
+pub theorem sfRelativize_bot (d: nat): $ sfRelativize d sfBot = sfBot $ =
+'(eqtr sfRelativize_unfold (ifpos eqid));
+
+pub theorem sfRelativize_sfMem (d a b: nat):
+  $ sfRelativize d (sfMem a b) = sfMem a b $ =
+'(eqtr sfRelativize_unfold (eqtr (sfRelBody_sfMem sfMem_ne_sfBot sfMem_tag) (eqtr (sfMem_eq_left sfMem_left) (sfMem_eq_right sfMem_right))));
+
+pub theorem sfRelativize_sfEq (d a b: nat):
+  $ sfRelativize d (sfEq a b) = sfEq a b $ =
+'(eqtr sfRelativize_unfold (eqtr (sfRelBody_sfEq sfEq_ne_sfBot sfEq_tag) (eqtr (sfEq_eq_left sfEq_left) (sfEq_eq_right sfEq_right))));
+
+pub theorem sfRelativize_sfAnd (d a b: nat):
+  $ sfRelativize d (sfAnd a b) = sfAnd (sfRelativize d a) (sfRelativize d b) $ =
+'(eqtr sfRelativize_unfold (eqtr (sfRelBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (eqtr (sfAnd_eq_left (sfRelHistory_child sfAnd_left sfAnd_left_lt)) (sfAnd_eq_right (sfRelHistory_right sfAnd_right sfAnd_right_lt)))));
+
+pub theorem sfRelativize_sfOr (d a b: nat):
+  $ sfRelativize d (sfOr a b) = sfOr (sfRelativize d a) (sfRelativize d b) $ =
+'(eqtr sfRelativize_unfold (eqtr (sfRelBody_sfOr sfOr_ne_sfBot sfOr_tag) (eqtr (sfOr_eq_left (sfRelHistory_child sfOr_left sfOr_left_lt)) (sfOr_eq_right (sfRelHistory_right sfOr_right sfOr_right_lt)))));
+
+pub theorem sfRelativize_sfImp (d a b: nat):
+  $ sfRelativize d (sfImp a b) = sfImp (sfRelativize d a) (sfRelativize d b) $ =
+'(eqtr sfRelativize_unfold (eqtr (sfRelBody_sfImp sfImp_ne_sfBot sfImp_tag) (eqtr (sfImp_eq_left (sfRelHistory_child sfImp_left sfImp_left_lt)) (sfImp_eq_right (sfRelHistory_right sfImp_right sfImp_right_lt)))));
+
+pub theorem sfRelativize_sfAll (d a: nat):
+  $ sfRelativize d (sfAll a) = sfAll (sfImp d (sfRelativize d a)) $ =
+'(eqtr sfRelativize_unfold (eqtr (sfRelBody_sfAll sfAll_ne_sfBot sfAll_tag sfAll_right) (sfAll_eq (sfImp_eq_right (sfRelHistory_child sfAll_left sfAll_body_lt)))));
+
+pub theorem sfRelativize_sfEx (d a: nat):
+  $ sfRelativize d (sfEx a) = sfEx (sfAnd d (sfRelativize d a)) $ =
+'(eqtr sfRelativize_unfold (eqtr (sfRelBody_sfEx sfEx_ne_sfBot sfEx_tag sfEx_right) (sfEx_eq (sfAnd_eq_right (sfRelHistory_child sfEx_left sfEx_body_lt)))));
+
+theorem sfRel_wf_at (d c a: nat):
+  $ A. j (j < c -> sfWf (sfRelativize d j)) -> a < c -> sfWf (sfRelativize d a) $ =
+(named '(!! eale j ,eqtac));
+theorem sfRel_history_wf {j: nat} (G: wff j) (d c a: nat)
+  (hi: $ G -> A. j (j < c -> sfWf (sfRelativize d j)) $)
+  (ha: $ G -> a < c $):
+  $ G -> sfWf (sfRelHistory d c @ a) $ =
+'(mpbird (srecpeq2d (syl sfRelHistory_lookup ha)) (mpd ha (syl sfRel_wf_at hi)));
+
+theorem sfRelBody_wf {j: nat} (G: wff j) (d c: nat)
+  (hd: $ G -> sfWf d $)
+  (hi: $ G -> A. j (j < c -> sfWf (sfRelativize d j)) $):
+  $ G -> sfWf (sfRelBody d c (sfRelHistory d c)) $ =
+'(sfShift_if_wf (a1i sfWf_bot) (sfShift_if_wf (a1i sfWf_mem) (sfShift_if_wf (a1i sfWf_eq) (sfShift_if_wf (sylc sfWf_and (sfRel_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive anr (ltneri lt01S)))) (sfRel_history_wf (syl hi anl) (syl sfRight_lt (sfShift_code_positive anr (ltneri lt01S))))) (sfShift_if_wf (sylc sfWf_or (sfRel_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive anr (ltneri lt01S)))) (sfRel_history_wf (syl hi anl) (syl sfRight_lt (sfShift_code_positive anr (ltneri lt01S))))) (sfShift_if_wf (sylc sfWf_imp (sfRel_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive anr (ltneri lt01S)))) (sfRel_history_wf (syl hi anl) (syl sfRight_lt (sfShift_code_positive anr (ltneri lt01S))))) (sfShift_if_wf (syl sfWf_all (sylc sfWf_imp (syl hd anl) (sfRel_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive (syl anl anr) (ltneri lt01S)))))) (sfShift_if_wf (syl sfWf_ex (sylc sfWf_and (syl hd anl) (sfRel_history_wf (syl hi anl) (syl sfLeft_lt (sfShift_code_positive (syl anl anr) (ltneri lt01S)))))) (a1i sfWf_bot)))))))));
+
+theorem sfRel_wf_step {j: nat} (G: wff j) (d c: nat)
+  (hd: $ G -> sfWf d $)
+  (hi: $ G -> A. j (j < c -> sfWf (sfRelativize d j)) $):
+  $ G -> sfWf (sfRelativize d c) $ =
+'(mpbird (a1i (srecpeq2 sfRelativize_unfold)) (sfRelBody_wf hd hi));
+
+pub theorem sfRelativize_wf (d c: nat):
+  $ sfWf d -> sfWf (sfRelativize d c) $ =
+(named '(!! indstr j y
+  {,eqtac : $ j = c -> (sfWf (sfRelativize d j) <-> sfWf (sfRelativize d c)) $}
+  ,eqtac (sfRel_wf_step anl anr)));
+

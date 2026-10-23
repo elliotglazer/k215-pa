@@ -1,0 +1,53 @@
+import "k215_calculus_source_nip.mm1";
+import "k215_calculus_source_drop.mm1";
+import "k215_literal_runtime_progress.mm1";
+
+
+@_ def k215PCommandInput (s ac fields next: nat): nat =
+ $ k215PState k215Num23 (k215PVector next (k218EnumTW s) (k218EnumWS s)
+    ac (k218EnumD s) (k218EnumH s) 0 0 fields) $;
+@_ def k215PCommandResult (p r: nat): wff =
+ $ ifp (r = 0) (k215PHaltsFrom p) (k215PReach p (k215PEnumConfig (r - 1))) $;
+do (apply (register-eqd 'k215PCommandInput) '(k215PCommandInputeqd));
+do (apply (register-eqd 'k215PCommandResult) '(k215PCommandResulteqd));
+
+pub theorem k215PCommandResult_none (p: nat):
+ $ k215PCommandResult p 0 <-> k215PHaltsFrom p $ = '(ifppos eqid);
+pub theorem k215PCommandResult_some (p t: nat):
+ $ k215PCommandResult p (suc t) <-> k215PReach p (k215PEnumConfig t) $ =
+ '(bitr (ifpneg peano1) (k215PReacheq2 (k215PEnumConfigeq sucsub1)));
+pub theorem k215PCommandResult_vector (p pl u t w d h: nat):
+ $ k215PReach p (k215PState 0 (k215PVector u t w 0 d h 0 0 pl)) ->
+   k215PCommandResult p (suc (k218EnumState pl u t w d h)) $ =
+ '(syl (bi2 k215PCommandResult_some) (bi2 (k215PReacheq2 k215PEnumConfig_state)));
+
+theorem k215PStatus_halts (p: nat):
+ $ k215PStatus p = 4 -> k215PHaltsFrom p $ =
+ '(syl k215PHaltsFrom_intro (eqtrd (a1i (k215PStatuseq k215PIter_zero)) id));
+theorem k215PStopped4736 (v: nat):
+ $ k215PHaltsFrom (k215PState k215PNum4736 v) $ =
+ '(k215PStatus_halts (eqtr (k215PETageq
+   (eqtr (k215PLookupeq k215PPC_state) k215PLookupNip_4736)) k215PETag_entry));
+
+theorem k215PDoNIPHalt (s fields next: nat):
+ $ k218EnumH s = 1 ->
+   k215PCommandResult (k215PCommandInput s 0 fields next) (k218DoNIP s fields next) $ =
+ '(mpbird (k215PCommandResulteq2d ifpos)
+   (syl (bi2 k215PCommandResult_none)
+     (mpd (a1i k215PStopped4736) (syl k215PReach_halts k215NipHaltSource))));
+
+theorem k215PDoNIPPop (s fields next: nat):
+ $ k218EnumH s != 1 ->
+   k215PCommandResult (k215PCommandInput s 0 fields next) (k218DoNIP s fields next) $ =
+ '(mpbird (k215PCommandResulteq2d ifneg)
+   (syl k215PCommandResult_vector k215NipPopSource));
+
+pub theorem k215PCommandNIP (s fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s 0 fields next) (k215EnumCommand s 0 fields next) $ =
+ '(mpbir (k215PCommandResulteq2 k215EnumCommand_nip)
+   (cases k215PDoNIPHalt k215PDoNIPPop));
+
+pub theorem k215PCommandDROP (s fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s 1 fields next) (k215EnumCommand s 1 fields next) $ =
+ '(mpbir (k215PCommandResulteq2 k215EnumCommand_drop)
+   (k215PCommandResult_vector k215DropSourceInterval));

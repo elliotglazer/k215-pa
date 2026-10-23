@@ -1,0 +1,83 @@
+import "source_l_common_level_reflection.mm1";
+import "source_renaming_laws.mm1";
+import "source_syntax_laws.mm1";
+
+@_ def sfCLBallRenameLaw (R: set) (n body .k .y: nat): wff =
+ $ A. k A. y sfRename R k (sfCLBall n y body) =
+   sfCLBall n (sfRenameIndex R k y) (sfRename R (n + k) body) $;
+
+theorem clbr_at (R: set) (n body k y: nat):
+ $ sfCLBallRenameLaw R n body -> sfRename R k (sfCLBall n y body) =
+   sfCLBall n (sfRenameIndex R k y) (sfRename R (n + k) body) $ =
+(named '(!! ealie x @ !! ealde z @ bi1d ,eqtac));
+
+theorem clbr_guard (R: set) (k y: nat):
+ $ sfRename R (suc k) (sfMem 0 (suc y)) = sfMem 0 (suc (sfRenameIndex R k y)) $ =
+'(eqtr sfRename_sfMem (trud (sfMemeqd (a1i (ax_mp sfRenameIndex_bound lt01S)) (a1i sfRenameIndex_lift))));
+
+theorem clbr_base (R: set) (body: nat): $ sfCLBallRenameLaw R 0 body $ =
+(named '(ax_gen @ ax_gen @ eqtr (sfRenameeq3 sfCLBall_zero) @
+ eqtr (sfRenameeq2 (eqcom add01)) (eqcom sfCLBall_zero)));
+
+theorem clbr_step_each (R: set) (n body k y: nat):
+ $ sfCLBallRenameLaw R n body -> sfRename R k (sfCLBall (suc n) y body) =
+   sfCLBall (suc n) (sfRenameIndex R k y) (sfRename R (suc n + k) body) $ =
+(named '(eqtrd (a1i (sfRenameeq3 sfCLBall_suc)) @
+ eqtrd (a1i sfRename_sfAll) @
+ eqtrd (a1i (trud (sfAlleqd (a1i sfRename_sfImp)))) @
+ eqtrd (sfAlleqd (sfImpeqd (a1i clbr_guard)
+  (eqtrd clbr_at (a1i (sfCLBalleq eqid sfRenameIndex_lift (sfRenameeq2 (eqcom addSass)))))))
+ (a1i (eqcom sfCLBall_suc))));
+
+theorem clbr_step (R: set) (n body: nat):
+ $ sfCLBallRenameLaw R n body -> sfCLBallRenameLaw R (suc n) body $ =
+(named '(!! iald k @ !! iald y @ clbr_step_each));
+
+theorem clbr_all (R: set) (n body: nat): $ sfCLBallRenameLaw R n body $ =
+(named @ induct '(ind) 'n 'clbr_base 'clbr_step);
+
+pub theorem sfCLBall_rename (R: set) (n y body k: nat):
+ $ sfRename R k (sfCLBall n y body) =
+   sfCLBall n (sfRenameIndex R k y) (sfRename R (n + k) body) $ =
+'(ax_mp clbr_at clbr_all);
+
+@_ def sfCLBallSubstLaw (t: nat) (n body .k .y: nat): wff =
+ $ A. k A. y sfSubst k t (sfCLBall n y body) =
+   sfCLBall n (sfSubstIndex k t y) (sfSubst (n + k) t body) $;
+
+theorem clbu_at (t: nat) (n body k y: nat):
+ $ sfCLBallSubstLaw t n body -> sfSubst k t (sfCLBall n y body) =
+   sfCLBall n (sfSubstIndex k t y) (sfSubst (n + k) t body) $ =
+(named '(!! ealie x @ !! ealde z @ bi1d ,eqtac));
+
+theorem clbu_guard (t: nat) (k y: nat):
+ $ sfSubst (suc k) t (sfMem 0 (suc y)) = sfMem 0 (suc (sfSubstIndex k t y)) $ =
+'(eqtr sfSubst_sfMem (trud (sfMemeqd (a1i (ax_mp sfSubstIndex_bound lt01S)) (a1i sfSubstIndex_lift))));
+
+theorem clbu_base (t: nat) (body: nat): $ sfCLBallSubstLaw t 0 body $ =
+(named '(ax_gen @ ax_gen @ eqtr (sfSubsteq3 sfCLBall_zero) @
+ eqtr (sfSubsteq1 (eqcom add01)) (eqcom sfCLBall_zero)));
+
+theorem clbu_step_each (t: nat) (n body k y: nat):
+ $ sfCLBallSubstLaw t n body -> sfSubst k t (sfCLBall (suc n) y body) =
+   sfCLBall (suc n) (sfSubstIndex k t y) (sfSubst (suc n + k) t body) $ =
+(named '(eqtrd (a1i (sfSubsteq3 sfCLBall_suc)) @
+ eqtrd (a1i sfSubst_sfAll) @
+ eqtrd (a1i (trud (sfAlleqd (a1i sfSubst_sfImp)))) @
+ eqtrd (sfAlleqd (sfImpeqd (a1i clbu_guard)
+  (eqtrd clbu_at (a1i (sfCLBalleq eqid sfSubstIndex_lift (sfSubsteq1 (eqcom addSass)))))))
+ (a1i (eqcom sfCLBall_suc))));
+
+theorem clbu_step (t: nat) (n body: nat):
+ $ sfCLBallSubstLaw t n body -> sfCLBallSubstLaw t (suc n) body $ =
+(named '(!! iald k @ !! iald y @ clbu_step_each));
+
+theorem clbu_all (t: nat) (n body: nat): $ sfCLBallSubstLaw t n body $ =
+(named @ induct '(ind) 'n 'clbu_base 'clbu_step);
+
+pub theorem sfCLBall_subst (t: nat) (n y body k: nat):
+ $ sfSubst k t (sfCLBall n y body) =
+   sfCLBall n (sfSubstIndex k t y) (sfSubst (n + k) t body) $ =
+'(ax_mp clbu_at clbu_all);
+
+

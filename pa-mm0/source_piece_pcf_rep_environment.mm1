@@ -1,0 +1,207 @@
+import "source_piece_pcf_rep_transport.mm1";
+
+@_ def sfPieceRepRest(T:set)(.i:nat):set = $ \ i, T @ suc i $;
+@_ def sfPieceRepLiftRest(T:set)(.i:nat):set = $ \ i, suc (T @ suc i) $;
+@_ def sfPieceRepSkip(.i:nat):set = $ \ i, if (i = 0) 0 (suc (suc i)) $;
+@_ def sfPieceEnvStep(.previous:nat):set =
+ $ \ previous, sfEx (sfAnd (sfRename sfPieceRepSkip 0 previous) (sfPieceRepExtension 0 2 1)) $;
+@_ def sfPieceEnvCore(n:nat):nat =
+ $ rec (sfPieceRepEmpty 0) sfPieceEnvStep n $;
+@_ def sfPieceEnv(T:set)(n e:nat):nat =
+ $ sfRename (sqEnvCons e T) 0 (sfPieceEnvCore n) $;
+
+pub theorem sfPieceRepRest_at(T:set)(i:nat):
+ $ sfPieceRepRest T @ i = T @ suc i $ = (named '(applame ,eqtac));
+pub theorem sfPieceRepLiftRest_at(T:set)(i:nat):
+ $ sfPieceRepLiftRest T @ i = suc (T @ suc i) $ = (named '(applame ,eqtac));
+theorem pcre_skip_at(i:nat): $ sfPieceRepSkip @ i = if (i = 0) 0 (suc (suc i)) $ = (named '(applame ,eqtac));
+pub theorem sfPieceRepSkip_zero:
+ $ sfPieceRepSkip @ 0 = 0 $ = '(eqtr pcre_skip_at (ax_mp ifpos eqid));
+pub theorem sfPieceRepSkip_suc(i:nat):
+ $ sfPieceRepSkip @ suc i = suc (suc (suc i)) $ =
+ '(eqtr pcre_skip_at (ax_mp ifneg peano1));
+
+pub theorem sfPieceEnvCore_zero:
+ $ sfPieceEnvCore 0 = sfPieceRepEmpty 0 $ = 'rec0;
+pub theorem sfPieceEnvStep_at(p:nat):
+ $ sfPieceEnvStep @ p =
+   sfEx (sfAnd (sfRename sfPieceRepSkip 0 p) (sfPieceRepExtension 0 2 1)) $ =
+ (named '(applame ,eqtac));
+pub theorem sfPieceEnvCore_suc(n:nat):
+ $ sfPieceEnvCore (suc n) =
+   sfEx (sfAnd (sfRename sfPieceRepSkip 0 (sfPieceEnvCore n)) (sfPieceRepExtension 0 2 1)) $ =
+ '(eqtr recS sfPieceEnvStep_at);
+
+theorem pcre_core_wf_zero: $ sfWf (sfPieceEnvCore 0) $ =
+ '(mpbir (ax_mp srecpeq2 sfPieceEnvCore_zero) sfPieceRepEmpty_wf);
+theorem pcre_core_wf_suc(n:nat):
+ $ sfWf (sfPieceEnvCore n) -> sfWf (sfPieceEnvCore (suc n)) $ =
+ '(a1i (mpbir (ax_mp srecpeq2 sfPieceEnvCore_suc)
+   (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfRename_wf) sfPieceRepExtension_wf))));
+pub theorem sfPieceEnvCore_wf(n:nat): $ sfWf (sfPieceEnvCore n) $ =
+ (named @ induct '(ind) 'n 'pcre_core_wf_zero 'pcre_core_wf_suc);
+pub theorem sfPieceEnv_wf(T:set)(n e:nat): $ sfWf (sfPieceEnv T n e) $ = 'sfRename_wf;
+
+theorem pcre_depth_zero(T:set)(e:nat):
+ $ sfRenameIndex (sqEnvCons e T) 1 0 = 0 $ =
+ '(ax_mp sfRenameIndex_bound lt01S);
+theorem pcre_depth_suc(T:set)(e i:nat):
+ $ sfRenameIndex (sqEnvCons e T) 1 (suc i) = suc (sqEnvCons e T @ i) $ =
+ '(eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero));
+
+theorem pcre_lift_map_zero(T:set)(e:nat):
+ $ sfComposeMap (sfRenameDepthMap (sqEnvCons e T) 1) sfPieceRepSkip @ 0 =
+   sqEnvCons 0 (sfPieceRepLiftRest T) @ 0 $ =
+ '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRepSkip_zero)
+   (eqtr sfRenameDepthMap_value (eqtr pcre_depth_zero (eqcom sqEnvCons_zero)))));
+theorem pcre_lift_map_suc(T:set)(e i:nat):
+ $ sfComposeMap (sfRenameDepthMap (sqEnvCons e T) 1) sfPieceRepSkip @ suc i =
+   sqEnvCons 0 (sfPieceRepLiftRest T) @ suc i $ =
+ '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRepSkip_suc)
+   (eqtr sfRenameDepthMap_value (eqtr pcre_depth_suc
+    (eqtr (suceq sqEnvCons_suc)
+     (eqcom (eqtr sqEnvCons_suc sfPieceRepLiftRest_at)))))));
+theorem pcre_lift_map_at(T:set)(e i:nat):
+ $ sfComposeMap (sfRenameDepthMap (sqEnvCons e T) 1) sfPieceRepSkip @ i =
+   sqEnvCons 0 (sfPieceRepLiftRest T) @ i $ =
+ (named @ induct '(ind) 'i 'pcre_lift_map_zero '(a1i pcre_lift_map_suc));
+theorem pcre_lift_rename(T:set)(n e:nat):
+ $ sfRename (sqEnvCons e T) 1 (sfRename sfPieceRepSkip 0 (sfPieceEnvCore n)) =
+   sfPieceEnv (sfPieceRepLiftRest T) n 0 $ =
+ (named '(eqtr (ax_mp sfRename_mixed_compose sfPieceEnvCore_wf)
+   (ax_mp (sfRename_extensional (ax_gen pcre_lift_map_at)) sfPieceEnvCore_wf)));
+theorem pcre_ext_rename(T:set)(e:nat):
+ $ sfRename (sqEnvCons e T) 1 (sfPieceRepExtension 0 2 1) =
+   sfPieceRepExtension 0 (suc (T @ 0)) (suc e) $ =
+ '(eqtr sfPieceRepExtension_rename
+   (sfPieceRepExtension_eq pcre_depth_zero
+    (eqtr pcre_depth_suc (suceq sqEnvCons_suc))
+    (eqtr pcre_depth_suc (suceq sqEnvCons_zero))));
+
+pub theorem sfPieceEnv_zero(T:set)(e:nat):
+ $ sfPieceEnv T 0 e = sfPieceRepEmpty e $ =
+ '(eqtr (trud (sfRename_congr_formula (a1i sfPieceEnvCore_zero)))
+   (eqtr sfPieceRepEmpty_rename
+    (sfPieceRepEmpty_eq (eqtr sfRenameIndex_zero sqEnvCons_zero))));
+pub theorem sfPieceEnv_suc(T:set)(n e:nat):
+ $ sfPieceEnv T (suc n) e =
+   sfEx (sfAnd (sfPieceEnv (sfPieceRepLiftRest T) n 0)
+     (sfPieceRepExtension 0 (suc (T @ 0)) (suc e))) $ =
+ '(eqtr (trud (sfRename_congr_formula (a1i sfPieceEnvCore_suc)))
+   (eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd
+     (nsAnd_eq pcre_lift_rename pcre_ext_rename)))));
+
+theorem pcre_specialize(T U:set)(i:nat):
+ $ (A. j T @ j = U @ j) -> T @ i = U @ i $ = (named '(!! eale j ,eqtac));
+theorem pcre_at{j:nat}(T U:set)(i:nat)(h:$ A. j T @ j = U @ j $):
+ $ T @ i = U @ i $ = (named '(ax_mp pcre_specialize h));
+theorem pcre_cons_eq_zero(T U:set)(e f:nat)(h:$ e = f $):
+ $ sqEnvCons e T @ 0 = sqEnvCons f U @ 0 $ =
+ '(eqtr sqEnvCons_zero (eqtr h (eqcom sqEnvCons_zero)));
+theorem pcre_cons_eq_suc{j:nat}(T U:set)(e f i:nat)(h:$ A. j T @ j = U @ j $):
+ $ sqEnvCons e T @ suc i = sqEnvCons f U @ suc i $ =
+ '(eqtr sqEnvCons_suc (eqtr (pcre_at h) (eqcom sqEnvCons_suc)));
+theorem pcre_cons_eq{j:nat}(T U:set)(e f i:nat)(he:$ e = f $)(h:$ A. j T @ j = U @ j $):
+ $ sqEnvCons e T @ i = sqEnvCons f U @ i $ =
+ (named @ induct '(ind) 'i '(pcre_cons_eq_zero he) '(a1i (pcre_cons_eq_suc h)));
+pub theorem sfPieceEnv_eq{j:nat}(T U:set)(n e f:nat)(he:$ e = f $)(h:$ A. j T @ j = U @ j $):
+ $ sfPieceEnv T n e = sfPieceEnv U n f $ =
+ (named '(ax_mp (sfRename_extensional (ax_gen (pcre_cons_eq he h))) sfPieceEnvCore_wf));
+
+theorem pcre_rename_zero(R T:set)(e:nat):
+ $ sfComposeMap R (sqEnvCons e T) @ 0 =
+   sqEnvCons (R @ e) (sfComposeMap R T) @ 0 $ =
+ '(eqtr sfComposeMap_value (eqtr (appeq2 sqEnvCons_zero) (eqcom sqEnvCons_zero)));
+theorem pcre_rename_suc(R T:set)(e i:nat):
+ $ sfComposeMap R (sqEnvCons e T) @ suc i =
+   sqEnvCons (R @ e) (sfComposeMap R T) @ suc i $ =
+ '(eqtr sfComposeMap_value (eqtr (appeq2 sqEnvCons_suc)
+   (eqcom (eqtr sqEnvCons_suc sfComposeMap_value))));
+theorem pcre_rename_at(R T:set)(e i:nat):
+ $ sfComposeMap R (sqEnvCons e T) @ i =
+   sqEnvCons (R @ e) (sfComposeMap R T) @ i $ =
+ (named @ induct '(ind) 'i 'pcre_rename_zero '(a1i pcre_rename_suc));
+pub theorem sfPieceEnv_rename(R T:set)(n e:nat):
+ $ sfRename R 0 (sfPieceEnv T n e) =
+   sfPieceEnv (sfComposeMap R T) n (R @ e) $ =
+ (named '(eqtr (ax_mp sfRename_compose sfPieceEnvCore_wf)
+   (ax_mp (sfRename_extensional (ax_gen pcre_rename_at)) sfPieceEnvCore_wf)));
+pub theorem sfPieceEnv_subst(T:set)(d t n e:nat):
+ $ sfSubst d t (sfPieceEnv T n e) =
+   sfPieceEnv (sfComposeMap (sfSubstDepthMap d t) T) n (sfSubstIndex d t e) $ =
+ (named '(eqtr (ax_mp sfSubst_as_map sfPieceEnv_wf)
+   (eqtr sfPieceEnv_rename (sfPieceEnv_eq sfSubstDepthMap_value (ax_gen eqid)))));
+
+theorem pcre_unlift_at(T:set)(v i:nat):
+ $ sfComposeMap (sfSubstDepthMap 0 v) (sfPieceRepLiftRest T) @ i =
+   sfPieceRepRest T @ i $ =
+ '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRepLiftRest_at)
+   (eqtr sfSubstDepthMap_value (eqtr sfSubstIndex_successor (eqcom sfPieceRepRest_at)))));
+pub theorem sfPieceEnv_suc_instance(T:set)(n e v:nat):
+ $ sfSubst 0 v (sfAnd (sfPieceEnv (sfPieceRepLiftRest T) n 0)
+      (sfPieceRepExtension 0 (suc (T @ 0)) (suc e))) =
+   sfAnd (sfPieceEnv (sfPieceRepRest T) n v) (sfPieceRepExtension v (T @ 0) e) $ =
+ (named '(eqtr sfSubst_sfAnd (nsAnd_eq
+   (eqtr sfPieceEnv_subst (sfPieceEnv_eq sfSubstIndex_zero (ax_gen pcre_unlift_at)))
+   (eqtr sfPieceRepExtension_subst
+    (sfPieceRepExtension_eq sfSubstIndex_zero sfSubstIndex_successor sfSubstIndex_successor)))));
+
+pub theorem sfPieceEnv_suc_intro(T:set)(G n e v:nat)
+ (ht:$ nsLocal G (sfPieceEnv (sfPieceRepRest T) n v) $)
+ (he:$ nsLocal G (sfPieceRepExtension v (T @ 0) e) $):
+ $ nsLocal G (sfPieceEnv T (suc n) e) $ =
+ '(mpbir (nsLocal_formula_eq sfPieceEnv_suc)
+   (ax_mp (ax_mp nsLocal_ExI
+     (ax_mp (ax_mp sfWf_and sfPieceEnv_wf) sfPieceRepExtension_wf))
+    (mpbir (nsLocal_formula_eq sfPieceEnv_suc_instance) (sfLocal_and ht he))));
+
+theorem pcre_bformula(n a b:nat)(h:$ a = b $): $ sfBound n a <-> sfBound n b $ =
+ '(ax_mp srecpeq2 (preq2 h));
+theorem pcre_bindex(n m a:nat)(h:$ n = m $): $ sfBound n a <-> sfBound m a $ =
+ '(ax_mp srecpeq2 (preq1 h));
+
+theorem pcre_skip_bound_zero(n:nat):
+ $ 0 < suc n -> sfPieceRepSkip @ 0 < suc (suc (suc n)) $ =
+ '(a1i (mpbir (lteq1 sfPieceRepSkip_zero) lt01S));
+theorem pcre_skip_bound_suc(n i:nat):
+ $ suc i < suc n -> sfPieceRepSkip @ suc i < suc (suc (suc n)) $ =
+ '(mpbird (lteq1d (a1i sfPieceRepSkip_suc))
+   (syl (bi2 ltsuc) (syl (bi1 ltsuc) (syl (bi1 ltsuc) (bi1 ltsuc)))));
+theorem pcre_skip_bound_at(n i:nat):
+ $ i < suc n -> sfPieceRepSkip @ i < suc (suc (suc n)) $ =
+ (named @ induct '(ind) 'i 'pcre_skip_bound_zero '(a1i pcre_skip_bound_suc));
+theorem pcre_skip_bound(n a:nat):
+ $ sfBound (suc n) a -> sfBound (suc (suc (suc n))) (sfRename sfPieceRepSkip 0 a) $ =
+ (named '(syl (bi1 (pcre_bindex add01))
+   (syl (ax_mp sfRename_bound (ax_gen pcre_skip_bound_at)) (bi2 (pcre_bindex add01)))));
+theorem pcre_extension_bound(n:nat):
+ $ sfBound (suc (suc (suc n))) (sfPieceRepExtension 0 2 1) $ =
+ '(mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S)) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S)) (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) lt01S)))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S)) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S)) (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) lt01S)))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))))))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) lt01S)) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))))))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) lt01S)) (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S)))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) lt01S)) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))) lt01S)) (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S)))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))))))))))))))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfImp (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))) lt01S)) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))) lt01S)) (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S)))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))) lt01S)) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))))))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))) lt01S)) (mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S)))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))))) (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc lt01S)) (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))))))))))))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))))))))))))))))));
+theorem pcre_bound_zero: $ sfBound 1 (sfPieceEnvCore 0) $ =
+ '(mpbir (pcre_bformula sfPieceEnvCore_zero)
+   (mpbi (pcre_bformula sfPieceNumeralCore_zero) sfPieceNumeralCore_bound));
+theorem pcre_bound_suc(n:nat):
+ $ sfBound (suc n) (sfPieceEnvCore n) -> sfBound (suc (suc n)) (sfPieceEnvCore (suc n)) $ =
+ '(mpbird (a1i (pcre_bformula sfPieceEnvCore_suc))
+   (syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd)
+    (iand pcre_skip_bound (a1i pcre_extension_bound)))));
+pub theorem sfPieceEnvCore_bound(n:nat): $ sfBound (suc n) (sfPieceEnvCore n) $ =
+ (named @ induct '(ind) 'n 'pcre_bound_zero 'pcre_bound_suc);
+
+pub theorem sfPieceRepRest_cons_at(T:set)(v i:nat):
+ $ sfPieceRepRest (sqEnvCons v T) @ i = T @ i $ =
+ '(eqtr sfPieceRepRest_at sqEnvCons_suc);
+pub theorem sfPieceEnv_cons_intro(T:set)(G n v prev e:nat)
+ (ht:$ nsLocal G (sfPieceEnv T n prev) $)
+ (he:$ nsLocal G (sfPieceRepExtension prev v e) $):
+ $ nsLocal G (sfPieceEnv (sqEnvCons v T) (suc n) e) $ =
+ (named '(sfPieceEnv_suc_intro
+   (mpbir (nsLocal_formula_eq (sfPieceEnv_eq eqid (ax_gen sfPieceRepRest_cons_at))) ht)
+   (mpbir (nsLocal_formula_eq (sfPieceRepExtension_eq eqid sqEnvCons_zero eqid)) he)));
+pub theorem sfPieceEnv_suc_eliminate(T:set)(G n e out:nat)
+ (ho:$ sfWf out $)(hn:$ nsLocal G (sfPieceEnv T (suc n) e) $)
+ (hc:$ nsLocal (sfAnd (sfPieceEnv (sfPieceRepLiftRest T) n 0)
+   (sfPieceRepExtension 0 (suc (T @ 0)) (suc e)) : sfContextShift G) (sfShift 0 out) $):
+ $ nsLocal G out $ =
+ '(ax_mp (ax_mp (sfLocal_exE ho)
+   (mpbi (nsLocal_formula_eq sfPieceEnv_suc) hn)) hc);

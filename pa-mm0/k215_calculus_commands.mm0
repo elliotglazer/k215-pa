@@ -1,0 +1,85 @@
+import "k215_calculus_equivalence.mm0";
+import "k218_commands.mm0";
+
+def k215CmdNIP (r: nat): nat = $ (0, r) $;
+
+def k215CmdDROP (r: nat): nat = $ (1, r) $;
+
+def k215CmdMP (x r: nat): nat = $ (2, x, r) $;
+
+def k215CmdAX (c y x r: nat): nat = $ (suc (suc (suc c)), y, x, r) $;
+
+def k215AxStack (a h b c u t w: nat): nat =
+ $ (kRho1 a b, kRho2 a b c, kRho3 a b c, kRho4 a b c,
+    kRho5 a b c, kRho6 a c, k218RhoG a b c, kRho8 a b c u,
+    kAll u h, t, w) $;
+
+def k215AXResult (s r next c y x: nat): nat =
+ $ suc (k218EnumState r next
+    (k218Gate (k218EnumD s + x) (k218EnumH s + y) c)
+    (k215AxStack (k218EnumD s + x) (k218EnumH s)
+      (k218EnumH s + y) c (k218EnumD s)
+      (k218EnumTW s) (k218EnumWS s)) 0 0) $;
+
+def k215AXFields (s c fields next: nat): nat =
+ $ k215AXResult s (snd (snd fields)) next c
+    (fst fields) (fst (snd fields)) $;
+
+def k215EnumCommand (s ac fields next: nat): nat =
+ $ if (ac = 0) (k218DoNIP s fields next)
+    (if (ac = 1) (k218DoDROP s fields next)
+      (if (ac = 2) (k218DoMP s (snd fields) next (fst fields))
+        (k215AXFields s (ac - 3) fields next))) $;
+
+def k215EnumStep (s: nat): nat =
+ $ k215EnumCommand s (fst (k218EnumList s)) (snd (k218EnumList s))
+    (k218EnumNext s) $;
+
+theorem k215EnumCommand_nip (s r next: nat):
+ $ k215EnumCommand s 0 r next = k218DoNIP s r next $;
+
+theorem k215EnumCommand_drop (s r next: nat):
+ $ k215EnumCommand s 1 r next = k218DoDROP s r next $;
+
+theorem k215EnumCommand_mp (s fields next: nat):
+ $ k215EnumCommand s 2 fields next = k218DoMP s (snd fields) next (fst fields) $;
+
+theorem k215EnumCommand_ax (s c fields next: nat):
+ $ k215EnumCommand s (suc (suc (suc c))) fields next =
+    k215AXFields s c fields next $;
+
+theorem k215EnumStep_ready (s prefix next: nat):
+ $ k218CommandReady s prefix next ->
+   k215EnumStep s = k215EnumCommand s (fst prefix) (snd prefix) next $;
+
+theorem k215ReadNIP (s r next: nat):
+ $ k218CommandReady s (k215CmdNIP r) next ->
+   k215EnumStep s = k218DoNIP s r next $;
+
+theorem k215ReadDROP (s r next: nat):
+ $ k218CommandReady s (k215CmdDROP r) next ->
+   k215EnumStep s = k218DoDROP s r next $;
+
+theorem k215ReadMP (s x r next: nat):
+ $ k218CommandReady s (k215CmdMP x r) next ->
+   k215EnumStep s = k218DoMP s r next x $;
+
+theorem k215ReadAX (s c y x r next: nat):
+ $ k218CommandReady s (k215CmdAX c y x r) next ->
+   k215EnumStep s = k215AXResult s r next c y x $;
+
+theorem k215AX_dominated (s x: nat):
+ $ k218EnumD s <= k218EnumD s + x $;
+
+theorem k215AxStack_good (a h b c u t w: nat):
+ $ k218Provable t -> k218Provable h -> k218GoodStack w ->
+   k218GoodStack (k215AxStack a h b c u t w) $;
+
+theorem k215EnumCommand_good (s ac fields next: nat):
+ $ k218EnumStateGood s -> k218EnumOptionGood (k215EnumCommand s ac fields next) $;
+
+theorem k215EnumStep_good (s: nat):
+ $ k218EnumStateGood s -> k218EnumOptionGood (k215EnumStep s) $;
+
+theorem k215EnumStep_halt_sound (s: nat):
+ $ k218EnumStateGood s -> k215EnumStep s = 0 -> k215Inconsistent $;

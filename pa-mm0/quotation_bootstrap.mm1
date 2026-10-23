@@ -1,0 +1,87 @@
+import "quotation_supported_environment.mm1";
+import "k230_bootstrap_discharge.mm1";
+
+pub theorem sqBootstrap_repeat_length (a n: nat): $ len (repeat a n) = n $ = 'repeatlen;
+
+theorem sqBS_repeat_below_step (a n k: nat):
+ $ (a < k -> sqEnvironmentBelow (repeat a n) k) ->
+   a < k -> sqEnvironmentBelow (repeat a (suc n)) k $ =
+'(exp @ mpbird (a1i (sqEnvironmentBeloweq1 repeatS)) @
+  mpd (mpd anr anl) (syl sqEnvironmentBelow_cons anr));
+
+pub theorem sqBootstrap_repeat_below (a n k: nat):
+ $ a < k -> sqEnvironmentBelow (repeat a n) k $ =
+(named @ induct '(ind) 'n
+ '(a1i (mpbir (sqEnvironmentBeloweq1 repeat0) sqEnvironmentBelow_nil))
+ 'sqBS_repeat_below_step);
+
+theorem sqBS_repeat_domain_step (H t a n: nat):
+ $ (kHypProvable H (kMem t a) -> sqDomainSupport H (repeat a n) t) ->
+   kHypProvable H (kMem t a) -> sqDomainSupport H (repeat a (suc n)) t $ =
+'(exp @ mpbird (a1i (sqDomainSupporteq2 repeatS)) @
+  mpd (mpd anr anl) (syl sqDomainSupport_cons anr));
+
+pub theorem sqBootstrap_repeat_domain (H t a n: nat):
+ $ kHypProvable H (kMem t a) -> sqDomainSupport H (repeat a n) t $ =
+(named @ induct '(ind) 'n
+ '(a1i (mpbir (sqDomainSupporteq2 repeat0) sqDomainSupport_nil))
+ 'sqBS_repeat_domain_step);
+
+pub theorem sqBootstrap_repeat_safe (a n t k: nat):
+ $ a < k -> 0 < k -> t < k -> sqEnvironmentSafe (repeat a n) n t k $ =
+'(exp @ exp @ iand (a1i (mpbir (leeq2 repeatlen) leid))
+  (iand anlr (iand anr (syl sqBootstrap_repeat_below anll))));
+
+pub theorem sqBootstrap_default_safe (n: nat):
+ $ sqEnvironmentSafe (repeat 3 n) n 1 4 $ =
+'(ax_mp (ax_mp (ax_mp sqBootstrap_repeat_safe ltsucid) lt01S) (mpbi ltsuc lt01S));
+
+theorem sqBS_default_member: $ kHypProvable kQuotientContext (kMem 1 3) $ =
+'(ax_mp kHypProvable_assumption sfContext_member_head);
+
+pub theorem sqBootstrap_default_domain (n: nat):
+ $ sqDomainSupport kQuotientContext (repeat 3 n) 1 $ =
+'(ax_mp sqBootstrap_repeat_domain sqBS_default_member);
+
+pub theorem sqBootstrap_default_source (n: nat):
+ $ sqSourceSupport kQuotientContext (repeat 3 n) 1 4 0 $ = 'sqSourceSupport_nil;
+
+@_ abstract def sqBootstrapConsequence (n a .S .k: nat): wff =
+ $ A. S A. k (sqEnvironmentSafe S n 1 k ->
+   sqDomainSupport kQuotientContext S 1 ->
+   kHypProvable kQuotientContext (sqQuote (sqNumericEnvironment S) 1 k 0 a)) $;
+
+pub theorem sqBootstrapConsequence_at (n a S k: nat):
+ $ sqBootstrapConsequence n a -> sqEnvironmentSafe S n 1 k ->
+   sqDomainSupport kQuotientContext S 1 ->
+   kHypProvable kQuotientContext (sqQuote (sqNumericEnvironment S) 1 k 0 a) $ =
+(named '(!! ealie R @ !! ealde l @ bi1d ,eqtac));
+
+pub theorem sqBootstrapConsequence_default (n a: nat):
+ $ sqBootstrapConsequence n a ->
+   kHypProvable kQuotientContext (sqQuote (sqNumericEnvironment (repeat 3 n)) 1 4 0 a) $ =
+'(mpi sqBootstrap_default_domain (mpi sqBootstrap_default_safe sqBootstrapConsequence_at));
+
+pub theorem sqBootstrapConsequence_closed (n a: nat):
+ $ sfBound 0 a -> sqBootstrapConsequence n a ->
+   kHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $ =
+'(exp @ mpbid
+  (kHypProvableeq2d (syl sqQuote_environment_closed anl))
+  (syl sqBootstrapConsequence_default anr));
+
+pub theorem sqBootstrapConsequence_exists_closed {n: nat} (a: nat):
+ $ sfBound 0 a -> (E. n sqBootstrapConsequence n a) ->
+   kHypProvable kQuotientContext (sqQuote sqZeroEnvironment 1 4 0 a) $ =
+(named '(eexd sqBootstrapConsequence_closed));
+
+pub theorem sqBootstrapConsequence_false (n: nat):
+ $ sqBootstrapConsequence n sfBot -> kHypProvable kQuotientContext kF $ =
+'(syl (bi1 (kHypProvableeq2 sqQuote_bot)) sqBootstrapConsequence_default);
+
+theorem sqBS_exists_false {n: nat}:
+ $ (E. n sqBootstrapConsequence n sfBot) -> kHypProvable kQuotientContext kF $ =
+(named '(eex sqBootstrapConsequence_false));
+
+pub theorem sqBootstrapConsequence_refutation {n: nat}:
+ $ (E. n sqBootstrapConsequence n sfBot) -> kProvable kF $ =
+'(syl kBootstrap_refutation sqBS_exists_false);

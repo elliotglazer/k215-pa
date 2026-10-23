@@ -1,0 +1,45 @@
+import "source_theory_prefix.mm1";
+
+import "source_substitution_renaming.mm1";
+
+import "source_renaming_extensional.mm1";
+
+def sfORBinaryMap (x y .i: nat): set = $ \ i, if (i = 1) y x $;
+
+def sfORBinary (phi x y: nat): nat = $ sfRename (sfORBinaryMap x y) 0 phi $;
+
+pub theorem sfORBinaryMap_value (x y i: nat): $ sfORBinaryMap x y @ i = if (i = 1) y x $ = (named '(!! applame j ,eqtac));
+
+theorem orf_app (R: set) (a b: nat) (h: $ a = b $): $ R @ a = R @ b $ = '(trud (appeq2d (a1i h)));
+
+theorem orf_compose_pos (R: set) (x y i: nat): $ i = 1 -> sfComposeMap R (sfORBinaryMap x y) @ i = sfORBinaryMap (R @ x) (R @ y) @ i $ = (named '(eqtrd (a1i sfComposeMap_value) (eqtrd (appeq2d (eqtrd (a1i sfORBinaryMap_value) ifpos)) (eqcomd (eqtrd (a1i sfORBinaryMap_value) ifpos)))));
+
+theorem orf_compose_neg (R: set) (x y i: nat): $ ~i = 1 -> sfComposeMap R (sfORBinaryMap x y) @ i = sfORBinaryMap (R @ x) (R @ y) @ i $ = (named '(eqtrd (a1i sfComposeMap_value) (eqtrd (appeq2d (eqtrd (a1i sfORBinaryMap_value) ifneg)) (eqcomd (eqtrd (a1i sfORBinaryMap_value) ifneg)))));
+
+pub theorem sfORBinaryMap_compose (R: set) (x y i: nat): $ sfComposeMap R (sfORBinaryMap x y) @ i = sfORBinaryMap (R @ x) (R @ y) @ i $ = (named '(cases orf_compose_pos orf_compose_neg));
+
+theorem orf_congr_pos (x y xx yy i: nat) (hx: $ x = xx $) (hy: $ y = yy $): $ i = 1 -> sfORBinaryMap x y @ i = sfORBinaryMap xx yy @ i $ = (named '(eqtrd (eqtrd (a1i sfORBinaryMap_value) ifpos) (eqtrd (a1i hy) (eqcomd (eqtrd (a1i sfORBinaryMap_value) ifpos)))));
+
+theorem orf_congr_neg (x y xx yy i: nat) (hx: $ x = xx $) (hy: $ y = yy $): $ ~i = 1 -> sfORBinaryMap x y @ i = sfORBinaryMap xx yy @ i $ = (named '(eqtrd (eqtrd (a1i sfORBinaryMap_value) ifneg) (eqtrd (a1i hx) (eqcomd (eqtrd (a1i sfORBinaryMap_value) ifneg)))));
+
+theorem orf_congr_map (x y xx yy i: nat) (hx: $ x = xx $) (hy: $ y = yy $): $ sfORBinaryMap x y @ i = sfORBinaryMap xx yy @ i $ = (named '(cases (orf_congr_pos hx hy) (orf_congr_neg hx hy)));
+
+pub theorem sfORBinary_congr (phi x y xx yy: nat) (hf: $ sfWf phi $) (hx: $ x = xx $) (hy: $ y = yy $): $ sfORBinary phi x y = sfORBinary phi xx yy $ = (named '(ax_mp (sfRename_extensional (ax_gen (orf_congr_map hx hy))) hf));
+
+pub theorem sfORBinary_wf (phi x y: nat): $ sfWf (sfORBinary phi x y) $ = 'sfRename_wf;
+
+pub theorem sfORBinary_rename (R: set) (phi x y: nat) (hf: $ sfWf phi $): $ sfRename R 0 (sfORBinary phi x y) = sfORBinary phi (R @ x) (R @ y) $ = (named '(eqtr (ax_mp sfRename_compose hf) (ax_mp (sfRename_extensional (ax_gen sfORBinaryMap_compose)) hf)));
+
+pub theorem sfORBinary_rename_depth (R: set) (k phi x y: nat) (hf: $ sfWf phi $): $ sfRename R k (sfORBinary phi x y) = sfORBinary phi (sfRenameDepthMap R k @ x) (sfRenameDepthMap R k @ y) $ = (named '(eqtr (ax_mp sfRename_mixed_compose hf) (ax_mp (sfRename_extensional (ax_gen sfORBinaryMap_compose)) hf)));
+
+pub theorem sfORBinary_shift (phi k x y: nat) (hf: $ sfWf phi $): $ sfShift k (sfORBinary phi x y) = sfORBinary phi (sfShiftIndex k x) (sfShiftIndex k y) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfORBinary_wf)) (eqtr (sfORBinary_rename_depth hf) (sfORBinary_congr hf (eqtr sfRenameDepthMap_value sfRenameIndex_successor) (eqtr sfRenameDepthMap_value sfRenameIndex_successor)))));
+
+pub theorem sfORBinary_subst (phi k t x y: nat) (hf: $ sfWf phi $): $ sfSubst k t (sfORBinary phi x y) = sfORBinary phi (sfSubstIndex k t x) (sfSubstIndex k t y) $ = (named '(eqtr (ax_mp sfSubst_rename_compose hf) (eqtr (ax_mp (sfRename_extensional (ax_gen sfORBinaryMap_compose)) hf) (sfORBinary_congr hf sfSubstDepthMap_value sfSubstDepthMap_value))));
+
+theorem orf_bound_pos (x y i m: nat) (hx: $ x < m $) (hy: $ y < m $): $ i = 1 -> sfORBinaryMap x y @ i < m $ = (named '(mpbird (lteq1d (eqtrd (a1i sfORBinaryMap_value) ifpos)) (a1i hy)));
+
+theorem orf_bound_neg (x y i m: nat) (hx: $ x < m $) (hy: $ y < m $): $ ~i = 1 -> sfORBinaryMap x y @ i < m $ = (named '(mpbird (lteq1d (eqtrd (a1i sfORBinaryMap_value) ifneg)) (a1i hx)));
+
+theorem orf_map_bound (x y i m: nat) (hx: $ x < m $) (hy: $ y < m $): $ sfORBinaryMap x y @ i < m $ = (named '(cases (orf_bound_pos hx hy) (orf_bound_neg hx hy)));
+
+pub theorem sfORBinary_bound (phi x y m: nat) (hb: $ sfBound 2 phi $) (hx: $ x < m $) (hy: $ y < m $): $ sfBound m (sfORBinary phi x y) $ = (named '(mpbi (sfBoundeq add01 eqid) (ax_mp (ax_mp sfRename_bound (ax_gen (a1i (orf_map_bound hx hy)))) (mpbir (sfBoundeq add01 eqid) hb))));

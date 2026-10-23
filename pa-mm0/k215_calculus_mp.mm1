@@ -1,0 +1,88 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+
+import "k215_calculus_leaves.mm1";
+do (apply (register-eqd 'k218EnumState) '(k218EnumStateeqd));
+do (apply (register-eqd 'k215EnumStep) '(k215EnumStepeqd));
+do (apply (register-eqd 'k215EnumAdvance) '(k215EnumAdvanceeqd));
+do (apply (register-eqd 'k215EnumIter) '(k215EnumItereqd));
+do (apply (register-eqd 'k215CmdNIP) '(k215CmdNIPeqd));
+do (apply (register-eqd 'k215CmdDROP) '(k215CmdDROPeqd));
+do (apply (register-eqd 'k215CmdMP) '(k215CmdMPeqd));
+do (apply (register-eqd 'k215CmdAX) '(k215CmdAXeqd));
+do (apply (register-eqd 'k215NipPrefix) '(k215NipPrefixeqd));
+
+@_ def k215MPPrefix (B r: nat): nat = $ k215CmdNIP (suc (k215CmdDROP (suc (k215CmdNIP (suc (k215CmdMP B (suc (k215CmdAX B 0 0 (k215NipPrefix 10 (suc (k215CmdDROP (k215NipPrefix 2 r)))))))))))) $;
+@_ def k215MPTime: nat = $ suc (suc (suc (suc (suc (suc (suc (suc 10))))))) $;
+
+theorem k215MP_iter_one (s: nat): $ k215EnumIter 1 s = k215EnumStep s $ =
+'(eqtr k215EnumIter_succ (eqtr (k215EnumAdvanceeq k215EnumIter_zero) k215EnumAdvance_some));
+theorem k215MP_zero_more (G: wff) (n s: nat) (h: $ G -> k215EnumIter n s = 0 $):
+ $ G -> k215EnumIter (suc n) s = 0 $ =
+'(eqtrd (a1i k215EnumIter_succ) (eqtrd (k215EnumAdvanceeqd h) (a1i k215EnumAdvance_zero)));
+theorem k215MP_after_step (G: wff) (n s t: nat) (h: $ G -> k215EnumStep s = suc t $):
+ $ G -> k215EnumIter (suc n) s = k215EnumIter n t $ =
+(named @ induct '(indd) 'n
+ '(eqtrd (a1i k215MP_iter_one) (eqtrd h (a1i (eqcom k215EnumIter_zero))))
+ '(eqtrd (a1i k215EnumIter_succ)
+   (eqtrd (k215EnumAdvanceeqd anr) (a1i (eqcom k215EnumIter_succ)))));
+theorem k215MP_NIP_pop (G: wff) (r np t x w d h: nat) (hn: $ G -> h != 1 $):
+ $ G -> k215EnumStep (k218EnumState (suc (k215CmdNIP r)) np t (x, w) d h) =
+   suc (k218EnumState r np t w d x) $ =
+'(eqtrd (a1i k215StepNIP_continue)
+  (eqtrd (syl ifneg hn) (a1i (suceq (k218EnumStateeq eqid eqid eqid sndpr eqid fstpr)))));
+theorem k215MP_NIP_halt (G: wff) (r np t w d h: nat) (hh: $ G -> h = 1 $):
+ $ G -> k215EnumStep (k218EnumState (suc (k215CmdNIP r)) np t w d h) = 0 $ =
+'(eqtrd (a1i k215StepNIP_continue) (syl ifpos hh));
+theorem k215MP_Nips_pop (G: wff) (n r np t x w d h: nat) (hn: $ G -> h != 1 $):
+ $ G -> k215EnumStep (k218EnumState (k215NipPrefix (suc n) r) np t (x, w) d h) =
+   suc (k218EnumState (k215NipPrefix n r) np t w d x) $ =
+'(eqtrd (a1i (k215EnumStepeq (k218EnumStateeq k215NipPrefix_succ eqid eqid eqid eqid eqid)))
+  (k215MP_NIP_pop hn));
+theorem k215MP_Nips_halt (G: wff) (n r np t w d h: nat) (hh: $ G -> h = 1 $):
+ $ G -> k215EnumStep (k218EnumState (k215NipPrefix (suc n) r) np t w d h) = 0 $ =
+'(eqtrd (a1i (k215EnumStepeq (k218EnumStateeq k215NipPrefix_succ eqid eqid eqid eqid eqid)))
+  (k215MP_NIP_halt hh));
+
+theorem k215MP_hit (A B r np w: nat):
+ $ k215EnumStep (k218EnumState (suc (k215CmdMP B r)) np A w 0 (kImp A B)) =
+   suc (k218EnumState r np B (0, w) B 0) $ =
+'(eqtr k215StepMP_continue (eqtr (ifpos (kImpeq2 add01))
+  (suceq (k218EnumStateeq eqid eqid add01 eqid add01 eqid))));
+theorem k215MP_AX (B r np w: nat):
+ $ k215EnumStep (k218EnumState (suc (k215CmdAX B 0 0 r)) np B (0, w) B 0) =
+   suc (k218EnumState r np 0 (k215AxStack B 0 0 B B B (0, w)) 0 0) $ =
+'(eqtr k215StepAX_continue
+  (suceq (k218EnumStateeq eqid eqid
+    (eqtr (k218Gateeq add0 add0 eqid) (k218Gate_disabled (ax_mp orl eqid)))
+    (k215AxStackeq add0 eqid add0 eqid eqid eqid eqid) eqid eqid)));
+
+pub theorem k215MP_run_positive (A B r np w: nat):
+ $ A != 1 /\ B != 1 ->
+   k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = suc (k218EnumState r np B w 0 0) $ =
+'(eqtrd (k215MP_after_step (a1i (k215StepNIP_pair (necom d1ne0)))) (eqtrd (k215MP_after_step (a1i k215StepDROP_continue)) (eqtrd (k215MP_after_step (k215MP_NIP_pop anl)) (eqtrd (k215MP_after_step (a1i k215MP_hit)) (eqtrd (k215MP_after_step (a1i k215MP_AX)) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair (necom d1ne0)))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_All_neone))) (eqtrd (k215MP_after_step (a1i k215Leaf_DROPstep)) (eqtrd (k215MP_after_step (k215MP_Nips_pop anr)) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair (necom d1ne0)))) (a1i (eqtr k215EnumIter_zero (suceq (k218EnumStateeq k215NipPrefix_zero eqid eqid eqid eqid eqid))))))))))))))))))))));
+
+pub theorem k215MP_Ahalt_three (A B r np w: nat):
+ $ A = 1 -> k215EnumIter 3 (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $ =
+'(eqtrd (k215MP_after_step (a1i (k215StepNIP_pair (necom d1ne0)))) (eqtrd (k215MP_after_step (a1i k215StepDROP_continue)) (eqtrd (a1i k215MP_iter_one) (k215MP_NIP_halt id))));
+pub theorem k215MP_run_Ahalt (A B r np w: nat):
+ $ A = 1 -> k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $ =
+'(k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more (k215MP_zero_more k215MP_Ahalt_three)))))))))))))));
+
+pub theorem k215MP_Bhalt_seventeen (A B r np w: nat):
+ $ A != 1 /\ B = 1 ->
+   k215EnumIter (suc (suc (suc (suc (suc (suc (suc 10))))))) (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $ =
+'(eqtrd (k215MP_after_step (a1i (k215StepNIP_pair (necom d1ne0)))) (eqtrd (k215MP_after_step (a1i k215StepDROP_continue)) (eqtrd (k215MP_after_step (k215MP_NIP_pop anl)) (eqtrd (k215MP_after_step (a1i k215MP_hit)) (eqtrd (k215MP_after_step (a1i k215MP_AX)) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair (necom d1ne0)))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_Imp_neone))) (eqtrd (k215MP_after_step (a1i (k215StepNips_pair k215Command_All_neone))) (eqtrd (k215MP_after_step (a1i k215Leaf_DROPstep)) (eqtrd (a1i k215MP_iter_one) (k215MP_Nips_halt anr))))))))))))))))));
+pub theorem k215MP_run_Bhalt (A B r np w: nat):
+ $ A != 1 /\ B = 1 -> k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $ =
+'(k215MP_zero_more k215MP_Bhalt_seventeen);
+pub theorem k215MP_run_halt (A B r np w: nat):
+ $ A = 1 \/ B = 1 -> k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $ =
+'(eori k215MP_run_Ahalt (casesd (a1i k215MP_run_Ahalt) (expcom k215MP_run_Bhalt)));
+pub theorem k215MP_run (A B r np w: nat):
+ $ k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) =
+   if (A = 1 \/ B = 1) 0 (suc (k218EnumState r np B w 0 0)) $ =
+'(cases (eqtr4d k215MP_run_halt ifpos)
+  (eqtr4d (syl k215MP_run_positive (bi1 notor)) ifneg));
+
+pub theorem k215EnumIter_zero_next (n s: nat):
+ $ k215EnumIter n s = 0 -> k215EnumIter (suc n) s = 0 $ = '(k215MP_zero_more id);

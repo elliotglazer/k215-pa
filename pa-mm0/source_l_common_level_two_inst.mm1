@@ -1,0 +1,83 @@
+import "source_l_common_level_two_wf.mm1";
+
+-- Instantiating the closed lemma sentences by renaming.
+
+theorem cl2_all_cons (E: set) (G t a: nat) (ha: $ sfWf a $):
+ $ nsLocal G (sfRename E 0 (sfAll a)) -> nsLocal G (sfRename (sqEnvCons t E) 0 a) $ =
+'(syl (bi1 (nsLocal_formula_eq (sfReflectionTransfer_open ha)))
+  (syl nsLocal_AllE (bi1 (nsLocal_formula_eq sfRename_sfAll))));
+
+theorem cl2_subset_rename (R: set) (a b: nat):
+ $ sfRename R 0 (sfCLSubset a b) = sfCLSubset (R @ a) (R @ b) $ =
+'(eqtr sfRename_sfAll (nsAll_eq (eqtr sfRename_sfImp (nsImp_eq
+  (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound d0lt1) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))))
+  (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound d0lt1) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))))))));
+
+theorem cl2_ord_rename (R: set) (d: nat):
+ $ sfRename R 0 (sfCLOrdinalAt d) = sfCLOrdinalAt (R @ d) $ =
+'(eqtr sfCLOrdinalAt_rename (sfCLOrdinalAteq sfRenameIndex_zero));
+
+theorem cl2_hier_rename (R: set) (d y: nat):
+ $ sfRename R 0 (sfCLHierarchyAt d y) = sfCLHierarchyAt (R @ d) (R @ y) $ =
+'(eqtr sfCLHierarchyAt_rename (sfCLHierarchyAteq sfRenameIndex_zero sfRenameIndex_zero));
+
+theorem cl2_cmpbody_rename (R: set) (x y: nat):
+ $ sfRename R 0 (sfCL2CmpBody x y) = sfCL2CmpBody (R @ x) (R @ y) $ =
+'(eqtr sfRename_sfImp (nsImp_eq cl2_ord_rename
+  (eqtr sfRename_sfImp (nsImp_eq cl2_ord_rename
+   (eqtr sfRename_sfOr (nsOr_eq cl2_subset_rename cl2_subset_rename))))));
+
+theorem cl2_subbody_rename (R: set) (b a Y Z: nat):
+ $ sfRename R 0 (sfCL2SubBody b a Y Z) = sfCL2SubBody (R @ b) (R @ a) (R @ Y) (R @ Z) $ =
+'(eqtr sfRename_sfImp (nsImp_eq cl2_ord_rename
+  (eqtr sfRename_sfImp (nsImp_eq cl2_ord_rename
+   (eqtr sfRename_sfImp (nsImp_eq cl2_subset_rename
+    (eqtr sfRename_sfImp (nsImp_eq cl2_hier_rename
+     (eqtr sfRename_sfImp (nsImp_eq cl2_hier_rename cl2_subset_rename))))))))));
+
+theorem cl2_cmp_inst (G x y: nat) (hC: $ nsLocal G sfCL2Cmp $):
+ $ nsLocal G (sfRename (sqEnvCons y (sqEnvCons x sfIdentityMap)) 0 (sfCL2CmpBody 1 0)) $ =
+'(ax_mp (cl2_all_cons cl2_cmpbody_wf)
+  (ax_mp (cl2_all_cons (ax_mp sfWf_all cl2_cmpbody_wf))
+   (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity cl2_cmp_wf)) hC)));
+
+theorem cl2_cmp_eq (x y: nat):
+ $ sfRename (sqEnvCons y (sqEnvCons x sfIdentityMap)) 0 (sfCL2CmpBody 1 0) = sfCL2CmpBody x y $ =
+'(eqtr cl2_cmpbody_rename (sfCL2CmpBodyeq (eqtr sqEnvCons_suc sqEnvCons_zero) sqEnvCons_zero));
+
+theorem cl2_sub_inst (G b a Y Z: nat) (hS: $ nsLocal G sfCL2Sub $):
+ $ nsLocal G (sfRename (sqEnvCons Z (sqEnvCons Y (sqEnvCons a (sqEnvCons b sfIdentityMap))))
+    0 (sfCL2SubBody 3 2 1 0)) $ =
+'(ax_mp (cl2_all_cons cl2_subbody_wf)
+  (ax_mp (cl2_all_cons (ax_mp sfWf_all cl2_subbody_wf))
+   (ax_mp (cl2_all_cons (ax_mp sfWf_all (ax_mp sfWf_all cl2_subbody_wf)))
+    (ax_mp (cl2_all_cons (ax_mp sfWf_all (ax_mp sfWf_all (ax_mp sfWf_all cl2_subbody_wf))))
+     (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity cl2_sub_wf)) hS)))));
+
+theorem cl2_sub_eq (b a Y Z: nat):
+ $ sfRename (sqEnvCons Z (sqEnvCons Y (sqEnvCons a (sqEnvCons b sfIdentityMap))))
+    0 (sfCL2SubBody 3 2 1 0) = sfCL2SubBody b a Y Z $ =
+'(eqtr cl2_subbody_rename (sfCL2SubBodyeq
+  (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)))
+  (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))
+  (eqtr sqEnvCons_suc sqEnvCons_zero)
+  sqEnvCons_zero));
+
+pub theorem sfCL2_sub_use (G b a Y Z: nat) (hS: $ nsLocal G sfCL2Sub $)
+ (hb: $ nsLocal G (sfCLOrdinalAt b) $) (ha: $ nsLocal G (sfCLOrdinalAt a) $)
+ (hs: $ nsLocal G (sfCLSubset a b) $)
+ (hY: $ nsLocal G (sfCLHierarchyAt b Y) $) (hZ: $ nsLocal G (sfCLHierarchyAt a Z) $):
+ $ nsLocal G (sfCLSubset Z Y) $ =
+'(ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp nsLocal_mp
+   (ax_mp (ax_mp nsLocal_mp
+    (ax_mp (ax_mp nsLocal_mp
+     (ax_mp (ax_mp nsLocal_mp
+      (mpbi (nsLocal_formula_eq cl2_sub_eq) (cl2_sub_inst hS)))
+      hb)) ha)) hs)) hY)) hZ);
+
+pub theorem sfCL2_cmp_use (G x y: nat) (hC: $ nsLocal G sfCL2Cmp $)
+ (hx: $ nsLocal G (sfCLOrdinalAt x) $) (hy: $ nsLocal G (sfCLOrdinalAt y) $):
+ $ nsLocal G (sfOr (sfCLSubset x y) (sfCLSubset y x)) $ =
+'(ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq cl2_cmp_eq) (cl2_cmp_inst hC))) hx)) hy);

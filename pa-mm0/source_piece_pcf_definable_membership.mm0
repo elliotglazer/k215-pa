@@ -1,0 +1,19 @@
+import "source_l_common_level_setrel_renaming.mm0";
+
+import "source_reflection_transfer_maps.mm0";
+
+def sfPieceDefinableProfile(T:set)(phi Y X:nat):nat =
+ $ sfAll (sfIff (sfMem 0 (suc X))
+   (sfAnd (sfMem 0 (suc Y)) (sfCLSetRel (suc Y) (sfRename T 1 phi)))) $;
+
+theorem sfPieceSetRel_subst(phi k t Y:nat)(hf:$ sfWf phi $):
+ $ sfSubst k t (sfCLSetRel Y phi) = sfCLSetRel (sfSubstIndex k t Y) (sfSubst k t phi) $;
+
+theorem sfPieceDefinableProfile_open(T:set)(phi Y X z:nat)(hf:$ sfWf phi $):
+ $ sfSubst 0 z (sfIff (sfMem 0 (suc X))
+   (sfAnd (sfMem 0 (suc Y)) (sfCLSetRel (suc Y) (sfRename T 1 phi)))) =
+   sfIff (sfMem z X) (sfAnd (sfMem z Y) (sfCLSetRel Y (sfRename (sqEnvCons z T) 0 phi))) $;
+
+theorem sfPieceDefinableProfile_member(T:set)(G phi Y X z:nat)(hf:$ sfWf phi $)
+ (hp:$ nsLocal G (sfPieceDefinableProfile T phi Y X) $):
+ $ nsLocal G (sfIff (sfMem z X) (sfAnd (sfMem z Y) (sfCLSetRel Y (sfRename (sqEnvCons z T) 0 phi)))) $;

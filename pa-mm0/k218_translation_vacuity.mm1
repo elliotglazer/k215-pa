@@ -1,0 +1,50 @@
+import "k218_translation_logic.mm1";
+import "k218_equality_conditional.mm1";
+
+@_ abstract def k218TranslatedVacuousClass (x .a: nat): set =
+  $ {a | kFresh a x ->
+    k218Provable (kImp (k218Translate a) (kAll x (k218Translate a)))} $;
+pub theorem k218TranslatedVacuousClass_value (a x: nat):
+  $ a e. k218TranslatedVacuousClass x <->
+    (kFresh a x -> k218Provable (kImp (k218Translate a) (kAll x (k218Translate a)))) $ =
+(named '(elabe ,eqtac));
+
+theorem k218TV_congr (x p q: nat) (he: $ p = q $):
+  $ k218Provable (kImp p (kAll x p)) <-> k218Provable (kImp q (kAll x q)) $ =
+'(k218Provableeq (kImpeq he (kAlleq2 he)));
+theorem k218TV_image (a b x: nat) (he: $ k218Translate a = b $)
+  (hv: $ kFresh a x -> k218Provable (kImp b (kAll x b)) $):
+  $ a e. k218TranslatedVacuousClass x $ =
+'(mpbir k218TranslatedVacuousClass_value (mpbird (a1i (k218TV_congr he)) hv));
+
+theorem k218TV_zero (x: nat): $ 0 e. k218TranslatedVacuousClass x $ =
+'(k218TV_image k218Translate_zero (a1i k218Vacuity_truth));
+theorem k218TV_mem (x a b: nat): $ kMem a b e. k218TranslatedVacuousClass x $ =
+'(k218TV_image k218Translate_kMem (syl k218Membership_vacuity (bi1 kFresh_kMem)));
+theorem k218TV_eq (x a b: nat): $ kEq a b e. k218TranslatedVacuousClass x $ =
+'(k218TV_image k218Translate_kEq (syl k218EqInd_vacuity_if (bi1 kFresh_kEq)));
+
+theorem k218TV_imp (x a b: nat):
+  $ a e. k218TranslatedVacuousClass x /\ b e. k218TranslatedVacuousClass x ->
+    kImp a b e. k218TranslatedVacuousClass x $ =
+'(syl (bi2 k218TranslatedVacuousClass_value) @ exp @
+  mpbird (a1i (k218TV_congr k218Translate_kImp)) @ k218MV_implication
+    (mpd (syl anl (syl (bi1 kFresh_kImp) anr))
+      (syl (bi1 k218TranslatedVacuousClass_value) (syl anl anl)))
+    (mpd (syl anr (syl (bi1 kFresh_kImp) anr))
+      (syl (bi1 k218TranslatedVacuousClass_value) (syl anr anl))));
+theorem k218TV_all (x a b: nat):
+  $ b e. k218TranslatedVacuousClass x -> kAll a b e. k218TranslatedVacuousClass x $ =
+'(syl (bi2 k218TranslatedVacuousClass_value) @ exp @
+  mpbird (a1i (k218TV_congr k218Translate_kAll)) @ syl k218MV_universal @
+    mpd (syl anr (syl (bi1 kFresh_kAll) anr))
+      (syl (bi1 k218TranslatedVacuousClass_value) anl));
+
+pub theorem k218TranslatedVacuousClass_closed (x: nat):
+  $ kRawConstructionClosed (k218TranslatedVacuousClass x) $ =
+(named '(ian (ian (ian k218TV_zero (ax_gen @ ax_gen @ ian k218TV_mem k218TV_eq))
+  (ax_gen @ ax_gen k218TV_imp)) (ax_gen @ ax_gen k218TV_all)));
+pub theorem k218Translate_fresh_vacuity (a x: nat):
+  $ kFresh a x -> k218Provable (kImp (k218Translate a) (kAll x (k218Translate a))) $ =
+'(mpbi k218TranslatedVacuousClass_value
+  (ax_mp kRaw_induction k218TranslatedVacuousClass_closed));

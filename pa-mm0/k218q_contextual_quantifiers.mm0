@@ -1,0 +1,28 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_deduction.mm0";
+import "k218q_quantifier_macros.mm0";
+
+-- Every assumption has its own explicit global vacuity proof.
+def k218IContextVacuous (G x .a: nat): wff =
+$ A. a (a IN G -> k218QProvable (kImp a (kAll x a))) $;
+def k218IContextUniversalClass (G x .a: nat): set =
+$ {a | k218IHypProvable G (kAll x a)} $;
+
+theorem k218IContextVacuous_member (G x a: nat):
+  $ k218IContextVacuous G x -> a IN G -> k218QProvable (kImp a (kAll x a)) $;
+theorem k218IContextVacuous_nil (x: nat): $ k218IContextVacuous 0 x $;
+theorem k218IContextVacuous_cons (G x a: nat):
+  $ k218IContextVacuous (a : G) x <-> k218QProvable (kImp a (kAll x a)) /\ k218IContextVacuous G x $;
+theorem k218IContextUniversalClass_value (G x a: nat):
+  $ a e. k218IContextUniversalClass G x <-> k218IHypProvable G (kAll x a) $;
+theorem k218IHypRules_generalization_sound (G x: nat) (hv: $ k218IContextVacuous G x $):
+  $ traceRuleSound (k218IHypRules G) (k218IContextUniversalClass G x) $;
+theorem k218IHypDerives_gen (G x p a: nat) (hv: $ k218IContextVacuous G x $):
+  $ k218IHypDerives G p a -> k218IHypProvable G (kAll x a) $;
+theorem k218IHypProvable_gen (G x a: nat) (hv: $ k218IContextVacuous G x $):
+  $ k218IHypProvable G a -> k218IHypProvable G (kAll x a) $;
+theorem k218IHypProvable_exists_elim (G x p q: nat)
+  (hv: $ k218IContextVacuous G x $)
+  (hq: $ k218QProvable (kImp q (kAll x q)) $):
+  $ k218IHypProvable G (kExists x p) -> k218IHypProvable G (kImp p q) -> k218IHypProvable G q $;

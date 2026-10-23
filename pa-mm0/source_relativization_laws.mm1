@@ -1,0 +1,409 @@
+import "source_relativization_bounds.mm1";
+import "source_structural_induction.mm1";
+
+theorem sfRC_rel_eq (D a b: nat) (h: $ a = b $):
+  $ sfRelativize D a = sfRelativize D b $ =
+'(sfRelativizeeq2 h);
+
+theorem sfRC_rel_congr (G: wff) (D a b: nat) (h: $ G -> a = b $):
+  $ G -> sfRelativize D a = sfRelativize D b $ =
+'(sfRelativizeeq2d h);
+
+pub theorem sfSubst_bound_identity (n t c: nat):
+  $ sfBound n c -> sfSubst n t c = c $ =
+'(eqtrd (sfSubst_congr eqidd eqidd (eqcomd sfShift_bound_identity))
+  (syl sfSubst_shift_cancel sfBound_wf));
+
+@_ abstract def sfRRClass (R: set) (D: nat) (.c .n: nat): set =
+$ {c | A. n (sfRename R n (sfRelativize D c) = sfRelativize D (sfRename R n c))} $;
+
+pub theorem sfRRClass_value {n: nat} (R: set) (D: nat) (c: nat):
+  $ c e. sfRRClass R D <-> A. n (sfRename R n (sfRelativize D c) = sfRelativize D (sfRename R n c)) $ =
+(named '(elabe ,eqtac));
+
+theorem sfRR_depth (R: set) (D: nat) (n c: nat):
+  $ A. k (sfRename R k (sfRelativize D c) = sfRelativize D (sfRename R k c)) -> sfRename R n (sfRelativize D c) = sfRelativize D (sfRename R n c) $ =
+(named '(!! eale k ,eqtac));
+
+theorem sfRR_at (R: set) (D: nat) (n c: nat):
+  $ c e. sfRRClass R D -> sfRename R n (sfRelativize D c) = sfRelativize D (sfRename R n c) $ =
+(named '(syl sfRR_depth {(bi1 sfRRClass_value) :
+  $ c e. sfRRClass R D -> A. k (sfRename R k (sfRelativize D c) = sfRelativize D (sfRename R k c)) $}));
+
+theorem sfRR_domain (R: set) (D: nat) (n: nat):
+  $ sfBound 1 D -> sfRename R (suc n) D = D $ =
+'(syl sfRename_bound_identity (sfBound_mono_le (mpbi lesuc le01)));
+
+theorem sfRR_bot (R: set) (D: nat) (n: nat):
+  $ sfRename R n (sfRelativize D sfBot) = sfRelativize D (sfRename R n sfBot) $ =
+'(eqtr (eqtr (sfRL_rename_eq sfRelativize_bot) sfRename_bot)
+  (eqcom (eqtr (sfRC_rel_eq sfRename_bot) sfRelativize_bot)));
+
+theorem sfRR_mem (R: set) (D: nat) (n a b: nat):
+  $ sfRename R n (sfRelativize D (sfMem a b)) = sfRelativize D (sfRename R n (sfMem a b)) $ =
+'(eqtr (eqtr (sfRL_rename_eq sfRelativize_sfMem) sfRename_sfMem)
+  (eqcom (eqtr (sfRC_rel_eq sfRename_sfMem) sfRelativize_sfMem)));
+
+theorem sfRR_eq (R: set) (D: nat) (n a b: nat):
+  $ sfRename R n (sfRelativize D (sfEq a b)) = sfRelativize D (sfRename R n (sfEq a b)) $ =
+'(eqtr (eqtr (sfRL_rename_eq sfRelativize_sfEq) sfRename_sfEq)
+  (eqcom (eqtr (sfRC_rel_eq sfRename_sfEq) sfRelativize_sfEq)));
+
+theorem sfRR_and (R: set) (D: nat) (G: wff) (n a b: nat)
+  (ha: $ G -> sfRename R n (sfRelativize D a) = sfRelativize D (sfRename R n a) $)
+  (hb: $ G -> sfRename R n (sfRelativize D b) = sfRelativize D (sfRename R n b) $):
+  $ G -> sfRename R n (sfRelativize D (sfAnd a b)) = sfRelativize D (sfRename R n (sfAnd a b)) $ =
+'(eqtrd (a1i (eqtr (sfRL_rename_eq sfRelativize_sfAnd) sfRename_sfAnd)) (eqtrd (sfAnd_congr ha hb) (a1i (eqcom (eqtr (sfRC_rel_eq sfRename_sfAnd) sfRelativize_sfAnd)))));
+
+theorem sfRR_or (R: set) (D: nat) (G: wff) (n a b: nat)
+  (ha: $ G -> sfRename R n (sfRelativize D a) = sfRelativize D (sfRename R n a) $)
+  (hb: $ G -> sfRename R n (sfRelativize D b) = sfRelativize D (sfRename R n b) $):
+  $ G -> sfRename R n (sfRelativize D (sfOr a b)) = sfRelativize D (sfRename R n (sfOr a b)) $ =
+'(eqtrd (a1i (eqtr (sfRL_rename_eq sfRelativize_sfOr) sfRename_sfOr)) (eqtrd (sfOr_congr ha hb) (a1i (eqcom (eqtr (sfRC_rel_eq sfRename_sfOr) sfRelativize_sfOr)))));
+
+theorem sfRR_imp (R: set) (D: nat) (G: wff) (n a b: nat)
+  (ha: $ G -> sfRename R n (sfRelativize D a) = sfRelativize D (sfRename R n a) $)
+  (hb: $ G -> sfRename R n (sfRelativize D b) = sfRelativize D (sfRename R n b) $):
+  $ G -> sfRename R n (sfRelativize D (sfImp a b)) = sfRelativize D (sfRename R n (sfImp a b)) $ =
+'(eqtrd (a1i (eqtr (sfRL_rename_eq sfRelativize_sfImp) sfRename_sfImp)) (eqtrd (sfImp_congr ha hb) (a1i (eqcom (eqtr (sfRC_rel_eq sfRename_sfImp) sfRelativize_sfImp)))));
+
+theorem sfRR_all (R: set) (D: nat) (G: wff) (n a: nat)
+  (hd: $ G -> sfBound 1 D $)
+  (ha: $ G -> sfRename R (suc n) (sfRelativize D a) = sfRelativize D (sfRename R (suc n) a) $):
+  $ G -> sfRename R n (sfRelativize D (sfAll a)) = sfRelativize D (sfRename R n (sfAll a)) $ =
+'(eqtrd (a1i (eqtr (sfRL_rename_eq sfRelativize_sfAll) (eqtr sfRename_sfAll (sfAll_eq sfRename_sfImp))))
+  (eqtrd (sfAll_congr (sfImp_congr (syl sfRR_domain hd) ha))
+    (a1i (eqcom (eqtr (sfRC_rel_eq sfRename_sfAll) sfRelativize_sfAll)))));
+
+theorem sfRR_ex (R: set) (D: nat) (G: wff) (n a: nat)
+  (hd: $ G -> sfBound 1 D $)
+  (ha: $ G -> sfRename R (suc n) (sfRelativize D a) = sfRelativize D (sfRename R (suc n) a) $):
+  $ G -> sfRename R n (sfRelativize D (sfEx a)) = sfRelativize D (sfRename R n (sfEx a)) $ =
+'(eqtrd (a1i (eqtr (sfRL_rename_eq sfRelativize_sfEx) (eqtr sfRename_sfEx (sfEx_eq sfRename_sfAnd))))
+  (eqtrd (sfEx_congr (sfAnd_congr (syl sfRR_domain hd) ha))
+    (a1i (eqcom (eqtr (sfRC_rel_eq sfRename_sfEx) sfRelativize_sfEx)))));
+
+theorem sfRR_class_bot (R: set) (D: nat):
+  $ sfBot e. sfRRClass R D $ =
+(named '(mpbir sfRRClass_value (ax_gen sfRR_bot)));
+
+theorem sfRR_class_mem (R: set) (D: nat) (a b: nat):
+  $ sfMem a b e. sfRRClass R D $ =
+(named '(mpbir sfRRClass_value (ax_gen sfRR_mem)));
+
+theorem sfRR_class_eq (R: set) (D: nat) (a b: nat):
+  $ sfEq a b e. sfRRClass R D $ =
+(named '(mpbir sfRRClass_value (ax_gen sfRR_eq)));
+
+theorem sfRR_class_atomic (R: set) (D: nat):
+  $ sfAtomicClosed (sfRRClass R D) $ =
+(named '(ax_gen @ ax_gen @ ian sfRR_class_mem sfRR_class_eq));
+
+theorem sfRR_class_and (R: set) (D: nat) (a b: nat):
+  $ a e. sfRRClass R D /\ b e. sfRRClass R D -> sfAnd a b e. sfRRClass R D $ =
+(named '(mpbird (a1i sfRRClass_value) @ !! iald n @
+  sfRR_and (syl sfRR_at anl) (syl sfRR_at anr)));
+
+theorem sfRR_class_or (R: set) (D: nat) (a b: nat):
+  $ a e. sfRRClass R D /\ b e. sfRRClass R D -> sfOr a b e. sfRRClass R D $ =
+(named '(mpbird (a1i sfRRClass_value) @ !! iald n @
+  sfRR_or (syl sfRR_at anl) (syl sfRR_at anr)));
+
+theorem sfRR_class_imp (R: set) (D: nat) (a b: nat):
+  $ a e. sfRRClass R D /\ b e. sfRRClass R D -> sfImp a b e. sfRRClass R D $ =
+(named '(mpbird (a1i sfRRClass_value) @ !! iald n @
+  sfRR_imp (syl sfRR_at anl) (syl sfRR_at anr)));
+
+theorem sfRR_class_binary (R: set) (D: nat):
+  $ sfBinaryClosed (sfRRClass R D) $ =
+(named '(ax_gen @ ax_gen @ iand (iand sfRR_class_and sfRR_class_or) sfRR_class_imp));
+
+theorem sfRR_class_all (R: set) (D: nat) (a: nat):
+  $ sfBound 1 D /\ a e. sfRRClass R D -> sfAll a e. sfRRClass R D $ =
+(named '(mpbird (a1i sfRRClass_value) @ !! iald n @
+  sfRR_all anl (syl sfRR_at anr)));
+
+theorem sfRR_class_ex (R: set) (D: nat) (a: nat):
+  $ sfBound 1 D /\ a e. sfRRClass R D -> sfEx a e. sfRRClass R D $ =
+(named '(mpbird (a1i sfRRClass_value) @ !! iald n @
+  sfRR_ex anl (syl sfRR_at anr)));
+
+theorem sfRR_class_quantifier (R: set) (D: nat):
+  $ sfBound 1 D -> sfQuantifierClosed (sfRRClass R D) $ =
+(named '(!! iald a @ exp (iand sfRR_class_all sfRR_class_ex)));
+
+theorem sfRR_class_closed (R: set) (D: nat):
+  $ sfBound 1 D -> sfConstructionClosed (sfRRClass R D) $ =
+'(iand (iand (iand (a1i sfRR_class_bot) (a1i sfRR_class_atomic))
+  (a1i sfRR_class_binary)) sfRR_class_quantifier);
+
+theorem sfRR_uniform (R: set) (D: nat) (c: nat):
+  $ sfBound 1 D -> sfWf c -> c e. sfRRClass R D $ =
+'(syl sfWf_induction sfRR_class_closed);
+
+pub theorem sfRelativize_rename (R: set) (D: nat) (n c: nat):
+  $ sfBound 1 D -> sfWf c -> sfRename R n (sfRelativize D c) = sfRelativize D (sfRename R n c) $ =
+'(syl6 sfRR_at sfRR_uniform);
+
+@_ abstract def sfRSClass (D: nat) (.c .n: nat): set =
+$ {c | A. n (sfShift n (sfRelativize D c) = sfRelativize D (sfShift n c))} $;
+
+pub theorem sfRSClass_value {n: nat} (D: nat) (c: nat):
+  $ c e. sfRSClass D <-> A. n (sfShift n (sfRelativize D c) = sfRelativize D (sfShift n c)) $ =
+(named '(elabe ,eqtac));
+
+theorem sfRS_depth (D: nat) (n c: nat):
+  $ A. k (sfShift k (sfRelativize D c) = sfRelativize D (sfShift k c)) -> sfShift n (sfRelativize D c) = sfRelativize D (sfShift n c) $ =
+(named '(!! eale k ,eqtac));
+
+theorem sfRS_at (D: nat) (n c: nat):
+  $ c e. sfRSClass D -> sfShift n (sfRelativize D c) = sfRelativize D (sfShift n c) $ =
+(named '(syl sfRS_depth {(bi1 sfRSClass_value) :
+  $ c e. sfRSClass D -> A. k (sfShift k (sfRelativize D c) = sfRelativize D (sfShift k c)) $}));
+
+theorem sfRS_domain (D: nat) (n: nat):
+  $ sfBound 1 D -> sfShift (suc n) D = D $ =
+'(syl sfShift_bound_identity (sfBound_mono_le (mpbi lesuc le01)));
+
+theorem sfRS_bot (D: nat) (n: nat):
+  $ sfShift n (sfRelativize D sfBot) = sfRelativize D (sfShift n sfBot) $ =
+'(eqtr (eqtr (sfRL_shift_code_eq sfRelativize_bot) sfShift_bot)
+  (eqcom (eqtr (sfRC_rel_eq sfShift_bot) sfRelativize_bot)));
+
+theorem sfRS_mem (D: nat) (n a b: nat):
+  $ sfShift n (sfRelativize D (sfMem a b)) = sfRelativize D (sfShift n (sfMem a b)) $ =
+'(eqtr (eqtr (sfRL_shift_code_eq sfRelativize_sfMem) sfShift_sfMem)
+  (eqcom (eqtr (sfRC_rel_eq sfShift_sfMem) sfRelativize_sfMem)));
+
+theorem sfRS_eq (D: nat) (n a b: nat):
+  $ sfShift n (sfRelativize D (sfEq a b)) = sfRelativize D (sfShift n (sfEq a b)) $ =
+'(eqtr (eqtr (sfRL_shift_code_eq sfRelativize_sfEq) sfShift_sfEq)
+  (eqcom (eqtr (sfRC_rel_eq sfShift_sfEq) sfRelativize_sfEq)));
+
+theorem sfRS_and (D: nat) (G: wff) (n a b: nat)
+  (ha: $ G -> sfShift n (sfRelativize D a) = sfRelativize D (sfShift n a) $)
+  (hb: $ G -> sfShift n (sfRelativize D b) = sfRelativize D (sfShift n b) $):
+  $ G -> sfShift n (sfRelativize D (sfAnd a b)) = sfRelativize D (sfShift n (sfAnd a b)) $ =
+'(eqtrd (a1i (eqtr (sfRL_shift_code_eq sfRelativize_sfAnd) sfShift_sfAnd)) (eqtrd (sfAnd_congr ha hb) (a1i (eqcom (eqtr (sfRC_rel_eq sfShift_sfAnd) sfRelativize_sfAnd)))));
+
+theorem sfRS_or (D: nat) (G: wff) (n a b: nat)
+  (ha: $ G -> sfShift n (sfRelativize D a) = sfRelativize D (sfShift n a) $)
+  (hb: $ G -> sfShift n (sfRelativize D b) = sfRelativize D (sfShift n b) $):
+  $ G -> sfShift n (sfRelativize D (sfOr a b)) = sfRelativize D (sfShift n (sfOr a b)) $ =
+'(eqtrd (a1i (eqtr (sfRL_shift_code_eq sfRelativize_sfOr) sfShift_sfOr)) (eqtrd (sfOr_congr ha hb) (a1i (eqcom (eqtr (sfRC_rel_eq sfShift_sfOr) sfRelativize_sfOr)))));
+
+theorem sfRS_imp (D: nat) (G: wff) (n a b: nat)
+  (ha: $ G -> sfShift n (sfRelativize D a) = sfRelativize D (sfShift n a) $)
+  (hb: $ G -> sfShift n (sfRelativize D b) = sfRelativize D (sfShift n b) $):
+  $ G -> sfShift n (sfRelativize D (sfImp a b)) = sfRelativize D (sfShift n (sfImp a b)) $ =
+'(eqtrd (a1i (eqtr (sfRL_shift_code_eq sfRelativize_sfImp) sfShift_sfImp)) (eqtrd (sfImp_congr ha hb) (a1i (eqcom (eqtr (sfRC_rel_eq sfShift_sfImp) sfRelativize_sfImp)))));
+
+theorem sfRS_all (D: nat) (G: wff) (n a: nat)
+  (hd: $ G -> sfBound 1 D $)
+  (ha: $ G -> sfShift (suc n) (sfRelativize D a) = sfRelativize D (sfShift (suc n) a) $):
+  $ G -> sfShift n (sfRelativize D (sfAll a)) = sfRelativize D (sfShift n (sfAll a)) $ =
+'(eqtrd (a1i (eqtr (sfRL_shift_code_eq sfRelativize_sfAll) (eqtr sfShift_sfAll (sfAll_eq sfShift_sfImp))))
+  (eqtrd (sfAll_congr (sfImp_congr (syl sfRS_domain hd) ha))
+    (a1i (eqcom (eqtr (sfRC_rel_eq sfShift_sfAll) sfRelativize_sfAll)))));
+
+theorem sfRS_ex (D: nat) (G: wff) (n a: nat)
+  (hd: $ G -> sfBound 1 D $)
+  (ha: $ G -> sfShift (suc n) (sfRelativize D a) = sfRelativize D (sfShift (suc n) a) $):
+  $ G -> sfShift n (sfRelativize D (sfEx a)) = sfRelativize D (sfShift n (sfEx a)) $ =
+'(eqtrd (a1i (eqtr (sfRL_shift_code_eq sfRelativize_sfEx) (eqtr sfShift_sfEx (sfEx_eq sfShift_sfAnd))))
+  (eqtrd (sfEx_congr (sfAnd_congr (syl sfRS_domain hd) ha))
+    (a1i (eqcom (eqtr (sfRC_rel_eq sfShift_sfEx) sfRelativize_sfEx)))));
+
+theorem sfRS_class_bot (D: nat):
+  $ sfBot e. sfRSClass D $ =
+(named '(mpbir sfRSClass_value (ax_gen sfRS_bot)));
+
+theorem sfRS_class_mem (D: nat) (a b: nat):
+  $ sfMem a b e. sfRSClass D $ =
+(named '(mpbir sfRSClass_value (ax_gen sfRS_mem)));
+
+theorem sfRS_class_eq (D: nat) (a b: nat):
+  $ sfEq a b e. sfRSClass D $ =
+(named '(mpbir sfRSClass_value (ax_gen sfRS_eq)));
+
+theorem sfRS_class_atomic (D: nat):
+  $ sfAtomicClosed (sfRSClass D) $ =
+(named '(ax_gen @ ax_gen @ ian sfRS_class_mem sfRS_class_eq));
+
+theorem sfRS_class_and (D: nat) (a b: nat):
+  $ a e. sfRSClass D /\ b e. sfRSClass D -> sfAnd a b e. sfRSClass D $ =
+(named '(mpbird (a1i sfRSClass_value) @ !! iald n @
+  sfRS_and (syl sfRS_at anl) (syl sfRS_at anr)));
+
+theorem sfRS_class_or (D: nat) (a b: nat):
+  $ a e. sfRSClass D /\ b e. sfRSClass D -> sfOr a b e. sfRSClass D $ =
+(named '(mpbird (a1i sfRSClass_value) @ !! iald n @
+  sfRS_or (syl sfRS_at anl) (syl sfRS_at anr)));
+
+theorem sfRS_class_imp (D: nat) (a b: nat):
+  $ a e. sfRSClass D /\ b e. sfRSClass D -> sfImp a b e. sfRSClass D $ =
+(named '(mpbird (a1i sfRSClass_value) @ !! iald n @
+  sfRS_imp (syl sfRS_at anl) (syl sfRS_at anr)));
+
+theorem sfRS_class_binary (D: nat):
+  $ sfBinaryClosed (sfRSClass D) $ =
+(named '(ax_gen @ ax_gen @ iand (iand sfRS_class_and sfRS_class_or) sfRS_class_imp));
+
+theorem sfRS_class_all (D: nat) (a: nat):
+  $ sfBound 1 D /\ a e. sfRSClass D -> sfAll a e. sfRSClass D $ =
+(named '(mpbird (a1i sfRSClass_value) @ !! iald n @
+  sfRS_all anl (syl sfRS_at anr)));
+
+theorem sfRS_class_ex (D: nat) (a: nat):
+  $ sfBound 1 D /\ a e. sfRSClass D -> sfEx a e. sfRSClass D $ =
+(named '(mpbird (a1i sfRSClass_value) @ !! iald n @
+  sfRS_ex anl (syl sfRS_at anr)));
+
+theorem sfRS_class_quantifier (D: nat):
+  $ sfBound 1 D -> sfQuantifierClosed (sfRSClass D) $ =
+(named '(!! iald a @ exp (iand sfRS_class_all sfRS_class_ex)));
+
+theorem sfRS_class_closed (D: nat):
+  $ sfBound 1 D -> sfConstructionClosed (sfRSClass D) $ =
+'(iand (iand (iand (a1i sfRS_class_bot) (a1i sfRS_class_atomic))
+  (a1i sfRS_class_binary)) sfRS_class_quantifier);
+
+theorem sfRS_uniform (D: nat) (c: nat):
+  $ sfBound 1 D -> sfWf c -> c e. sfRSClass D $ =
+'(syl sfWf_induction sfRS_class_closed);
+
+pub theorem sfRelativize_shift (D: nat) (n c: nat):
+  $ sfBound 1 D -> sfWf c -> sfShift n (sfRelativize D c) = sfRelativize D (sfShift n c) $ =
+'(syl6 sfRS_at sfRS_uniform);
+
+@_ abstract def sfRTClass (D t: nat) (.c .n: nat): set =
+$ {c | A. n (sfSubst n t (sfRelativize D c) = sfRelativize D (sfSubst n t c))} $;
+
+pub theorem sfRTClass_value {n: nat} (D t: nat) (c: nat):
+  $ c e. sfRTClass D t <-> A. n (sfSubst n t (sfRelativize D c) = sfRelativize D (sfSubst n t c)) $ =
+(named '(elabe ,eqtac));
+
+theorem sfRT_depth (D t: nat) (n c: nat):
+  $ A. k (sfSubst k t (sfRelativize D c) = sfRelativize D (sfSubst k t c)) -> sfSubst n t (sfRelativize D c) = sfRelativize D (sfSubst n t c) $ =
+(named '(!! eale k ,eqtac));
+
+theorem sfRT_at (D t: nat) (n c: nat):
+  $ c e. sfRTClass D t -> sfSubst n t (sfRelativize D c) = sfRelativize D (sfSubst n t c) $ =
+(named '(syl sfRT_depth {(bi1 sfRTClass_value) :
+  $ c e. sfRTClass D t -> A. k (sfSubst k t (sfRelativize D c) = sfRelativize D (sfSubst k t c)) $}));
+
+theorem sfRT_domain (D t: nat) (n: nat):
+  $ sfBound 1 D -> sfSubst (suc n) t D = D $ =
+'(syl sfSubst_bound_identity (sfBound_mono_le (mpbi lesuc le01)));
+
+theorem sfRT_bot (D t: nat) (n: nat):
+  $ sfSubst n t (sfRelativize D sfBot) = sfRelativize D (sfSubst n t sfBot) $ =
+'(eqtr (eqtr (sfRL_subst_code_eq sfRelativize_bot) sfSubst_bot)
+  (eqcom (eqtr (sfRC_rel_eq sfSubst_bot) sfRelativize_bot)));
+
+theorem sfRT_mem (D t: nat) (n a b: nat):
+  $ sfSubst n t (sfRelativize D (sfMem a b)) = sfRelativize D (sfSubst n t (sfMem a b)) $ =
+'(eqtr (eqtr (sfRL_subst_code_eq sfRelativize_sfMem) sfSubst_sfMem)
+  (eqcom (eqtr (sfRC_rel_eq sfSubst_sfMem) sfRelativize_sfMem)));
+
+theorem sfRT_eq (D t: nat) (n a b: nat):
+  $ sfSubst n t (sfRelativize D (sfEq a b)) = sfRelativize D (sfSubst n t (sfEq a b)) $ =
+'(eqtr (eqtr (sfRL_subst_code_eq sfRelativize_sfEq) sfSubst_sfEq)
+  (eqcom (eqtr (sfRC_rel_eq sfSubst_sfEq) sfRelativize_sfEq)));
+
+theorem sfRT_and (D t: nat) (G: wff) (n a b: nat)
+  (ha: $ G -> sfSubst n t (sfRelativize D a) = sfRelativize D (sfSubst n t a) $)
+  (hb: $ G -> sfSubst n t (sfRelativize D b) = sfRelativize D (sfSubst n t b) $):
+  $ G -> sfSubst n t (sfRelativize D (sfAnd a b)) = sfRelativize D (sfSubst n t (sfAnd a b)) $ =
+'(eqtrd (a1i (eqtr (sfRL_subst_code_eq sfRelativize_sfAnd) sfSubst_sfAnd)) (eqtrd (sfAnd_congr ha hb) (a1i (eqcom (eqtr (sfRC_rel_eq sfSubst_sfAnd) sfRelativize_sfAnd)))));
+
+theorem sfRT_or (D t: nat) (G: wff) (n a b: nat)
+  (ha: $ G -> sfSubst n t (sfRelativize D a) = sfRelativize D (sfSubst n t a) $)
+  (hb: $ G -> sfSubst n t (sfRelativize D b) = sfRelativize D (sfSubst n t b) $):
+  $ G -> sfSubst n t (sfRelativize D (sfOr a b)) = sfRelativize D (sfSubst n t (sfOr a b)) $ =
+'(eqtrd (a1i (eqtr (sfRL_subst_code_eq sfRelativize_sfOr) sfSubst_sfOr)) (eqtrd (sfOr_congr ha hb) (a1i (eqcom (eqtr (sfRC_rel_eq sfSubst_sfOr) sfRelativize_sfOr)))));
+
+theorem sfRT_imp (D t: nat) (G: wff) (n a b: nat)
+  (ha: $ G -> sfSubst n t (sfRelativize D a) = sfRelativize D (sfSubst n t a) $)
+  (hb: $ G -> sfSubst n t (sfRelativize D b) = sfRelativize D (sfSubst n t b) $):
+  $ G -> sfSubst n t (sfRelativize D (sfImp a b)) = sfRelativize D (sfSubst n t (sfImp a b)) $ =
+'(eqtrd (a1i (eqtr (sfRL_subst_code_eq sfRelativize_sfImp) sfSubst_sfImp)) (eqtrd (sfImp_congr ha hb) (a1i (eqcom (eqtr (sfRC_rel_eq sfSubst_sfImp) sfRelativize_sfImp)))));
+
+theorem sfRT_all (D t: nat) (G: wff) (n a: nat)
+  (hd: $ G -> sfBound 1 D $)
+  (ha: $ G -> sfSubst (suc n) t (sfRelativize D a) = sfRelativize D (sfSubst (suc n) t a) $):
+  $ G -> sfSubst n t (sfRelativize D (sfAll a)) = sfRelativize D (sfSubst n t (sfAll a)) $ =
+'(eqtrd (a1i (eqtr (sfRL_subst_code_eq sfRelativize_sfAll) (eqtr sfSubst_sfAll (sfAll_eq sfSubst_sfImp))))
+  (eqtrd (sfAll_congr (sfImp_congr (syl sfRT_domain hd) ha))
+    (a1i (eqcom (eqtr (sfRC_rel_eq sfSubst_sfAll) sfRelativize_sfAll)))));
+
+theorem sfRT_ex (D t: nat) (G: wff) (n a: nat)
+  (hd: $ G -> sfBound 1 D $)
+  (ha: $ G -> sfSubst (suc n) t (sfRelativize D a) = sfRelativize D (sfSubst (suc n) t a) $):
+  $ G -> sfSubst n t (sfRelativize D (sfEx a)) = sfRelativize D (sfSubst n t (sfEx a)) $ =
+'(eqtrd (a1i (eqtr (sfRL_subst_code_eq sfRelativize_sfEx) (eqtr sfSubst_sfEx (sfEx_eq sfSubst_sfAnd))))
+  (eqtrd (sfEx_congr (sfAnd_congr (syl sfRT_domain hd) ha))
+    (a1i (eqcom (eqtr (sfRC_rel_eq sfSubst_sfEx) sfRelativize_sfEx)))));
+
+theorem sfRT_class_bot (D t: nat):
+  $ sfBot e. sfRTClass D t $ =
+(named '(mpbir sfRTClass_value (ax_gen sfRT_bot)));
+
+theorem sfRT_class_mem (D t: nat) (a b: nat):
+  $ sfMem a b e. sfRTClass D t $ =
+(named '(mpbir sfRTClass_value (ax_gen sfRT_mem)));
+
+theorem sfRT_class_eq (D t: nat) (a b: nat):
+  $ sfEq a b e. sfRTClass D t $ =
+(named '(mpbir sfRTClass_value (ax_gen sfRT_eq)));
+
+theorem sfRT_class_atomic (D t: nat):
+  $ sfAtomicClosed (sfRTClass D t) $ =
+(named '(ax_gen @ ax_gen @ ian sfRT_class_mem sfRT_class_eq));
+
+theorem sfRT_class_and (D t: nat) (a b: nat):
+  $ a e. sfRTClass D t /\ b e. sfRTClass D t -> sfAnd a b e. sfRTClass D t $ =
+(named '(mpbird (a1i sfRTClass_value) @ !! iald n @
+  sfRT_and (syl sfRT_at anl) (syl sfRT_at anr)));
+
+theorem sfRT_class_or (D t: nat) (a b: nat):
+  $ a e. sfRTClass D t /\ b e. sfRTClass D t -> sfOr a b e. sfRTClass D t $ =
+(named '(mpbird (a1i sfRTClass_value) @ !! iald n @
+  sfRT_or (syl sfRT_at anl) (syl sfRT_at anr)));
+
+theorem sfRT_class_imp (D t: nat) (a b: nat):
+  $ a e. sfRTClass D t /\ b e. sfRTClass D t -> sfImp a b e. sfRTClass D t $ =
+(named '(mpbird (a1i sfRTClass_value) @ !! iald n @
+  sfRT_imp (syl sfRT_at anl) (syl sfRT_at anr)));
+
+theorem sfRT_class_binary (D t: nat):
+  $ sfBinaryClosed (sfRTClass D t) $ =
+(named '(ax_gen @ ax_gen @ iand (iand sfRT_class_and sfRT_class_or) sfRT_class_imp));
+
+theorem sfRT_class_all (D t: nat) (a: nat):
+  $ sfBound 1 D /\ a e. sfRTClass D t -> sfAll a e. sfRTClass D t $ =
+(named '(mpbird (a1i sfRTClass_value) @ !! iald n @
+  sfRT_all anl (syl sfRT_at anr)));
+
+theorem sfRT_class_ex (D t: nat) (a: nat):
+  $ sfBound 1 D /\ a e. sfRTClass D t -> sfEx a e. sfRTClass D t $ =
+(named '(mpbird (a1i sfRTClass_value) @ !! iald n @
+  sfRT_ex anl (syl sfRT_at anr)));
+
+theorem sfRT_class_quantifier (D t: nat):
+  $ sfBound 1 D -> sfQuantifierClosed (sfRTClass D t) $ =
+(named '(!! iald a @ exp (iand sfRT_class_all sfRT_class_ex)));
+
+theorem sfRT_class_closed (D t: nat):
+  $ sfBound 1 D -> sfConstructionClosed (sfRTClass D t) $ =
+'(iand (iand (iand (a1i sfRT_class_bot) (a1i sfRT_class_atomic))
+  (a1i sfRT_class_binary)) sfRT_class_quantifier);
+
+theorem sfRT_uniform (D t: nat) (c: nat):
+  $ sfBound 1 D -> sfWf c -> c e. sfRTClass D t $ =
+'(syl sfWf_induction sfRT_class_closed);
+
+pub theorem sfRelativize_subst (D t: nat) (n c: nat):
+  $ sfBound 1 D -> sfWf c -> sfSubst n t (sfRelativize D c) = sfRelativize D (sfSubst n t c) $ =
+'(syl6 sfRT_at sfRT_uniform);
+

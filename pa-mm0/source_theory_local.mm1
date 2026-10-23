@@ -1,0 +1,33 @@
+import "source_theory_support.mm1";
+import "source_local_extra.mm1";
+
+pub theorem sfTheory_local (T: set) (G a: nat)
+  (hg: $ sfTheoryContext T G $):
+  $ nsLocal G a -> sfTheoryProvable T a $ =
+(named '(eex @ syl sfTheoryProvable_intro (iand (a1i hg) id)));
+
+pub theorem sfTheory_pure (T: set) (a: nat):
+  $ nsLocal 0 a -> sfTheoryProvable T a $ =
+'(sfTheory_local sfTheoryContext_nil);
+
+theorem sfTheory_local_general (T: set) (G a: nat):
+  $ sfTheoryContext T G -> nsLocal G a -> sfTheoryProvable T a $ =
+(named '(eexd @ exp @ syl sfTheoryProvable_intro (iand anl anr)));
+
+theorem sfTheory_lemmas_at (T: set) (G H a: nat)
+  (ht: $ sfTheoryClosed T $):
+  $ sfTheorySupport T G H -> nsLocal G a -> sfTheoryProvable T a $ =
+'(exp @ mpd
+    (mpd anr @ mpd anlr @ syl sfLocal_hypothesis_replacement @
+      syl (ax_mp sfTheoryContext_wf ht) anll)
+    (syl sfTheory_local_general anll));
+
+theorem sfTheory_lemmas_support {H: nat} (T: set) (G a: nat)
+  (ht: $ sfTheoryClosed T $):
+  $ (E. H sfTheorySupport T G H) -> nsLocal G a -> sfTheoryProvable T a $ =
+(named '(eex (sfTheory_lemmas_at ht)));
+
+pub theorem sfTheory_lemma_context (T: set) (G a: nat)
+  (ht: $ sfTheoryClosed T $):
+  $ all (sfTheoryProofClass T) G -> nsLocal G a -> sfTheoryProvable T a $ =
+(named '(syl (sfTheory_lemmas_support ht) (sfTheory_finite_support ht)));

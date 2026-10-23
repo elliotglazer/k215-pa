@@ -1,0 +1,190 @@
+import "quotation_environment.mm1";
+
+-- Extending an environment moves the previous free variables one place right.
+@_ def sqEnvCons (x: nat) (E: set) (.i: nat): set =
+$ \ i, if (i = 0) x (E @ (i - 1)) $;
+pub theorem sqEnvCons_value (x: nat) (E: set) (i: nat):
+ $ sqEnvCons x E @ i = if (i = 0) x (E @ (i - 1)) $ =
+(named '(!! applame j ,eqtac));
+pub theorem sqEnvCons_zero (x: nat) (E: set): $ sqEnvCons x E @ 0 = x $ =
+'(eqtr sqEnvCons_value (ifpos eqid));
+pub theorem sqEnvCons_suc (x: nat) (E: set) (i: nat):
+ $ sqEnvCons x E @ suc i = E @ i $ =
+'(eqtr sqEnvCons_value (eqtr (ifneg peano1) (appeq2 sucsub1)));
+theorem sqEnvCons_nonzero (x: nat) (E: set) (i: nat):
+ $ i != 0 -> sqEnvCons x E @ i = E @ (i - 1) $ =
+'(eqtrd (a1i sqEnvCons_value) ifneg);
+
+theorem sqBinder_index_below (E: set) (k d i: nat):
+ $ i < d -> sfNamedIndex E k (suc d) i = sfNamedIndex (sqEnvCons k E) (suc k) d i $ =
+'(eqtrd (syl sfNamedIndex_bound (ltletrd id (a1i lesucid))) @
+ eqtrd (addeq2d (syl sucsub id)) @ eqtrd (a1i addS2) @
+ eqtrd (a1i (eqcom addS1)) (eqcomd sfNamedIndex_bound));
+theorem sqBinder_index_hit (E: set) (k d: nat):
+ $ sfNamedIndex E k (suc d) d = sfNamedIndex (sqEnvCons k E) (suc k) d d $ =
+'(eqtr (sfNamedIndex_bound ltsucid) @ eqtr (addeq2 subid) @ eqtr add0 @ eqcom @
+ eqtr (sfNamedIndex_free (bi1 lenlt leid)) @ eqtr (appeq2 subid) sqEnvCons_zero);
+theorem sqBinder_index_above (E: set) (k d i: nat):
+ $ d < i -> sfNamedIndex E k (suc d) i = sfNamedIndex (sqEnvCons k E) (suc k) d i $ =
+'(eqtrd (syl sfNamedIndex_free (bi1 lenlt)) @ eqcomd @
+ eqtrd (syl sfNamedIndex_free (syl (bi1 lenlt) ltle)) @
+ eqtrd (syl sqEnvCons_nonzero (syl (bi1 lt01) (syl (bi1 subpos) id))) @
+ eqtrd (a1i (appeq2 subsub)) (a1i (appeq2 (subeq2 add12))));
+theorem sqBinder_index_equal (E: set) (k d i: nat):
+ $ i = d -> sfNamedIndex E k (suc d) i = sfNamedIndex (sqEnvCons k E) (suc k) d i $ =
+'(eqtrd (sfNamedIndexeq4d id) @ eqtrd (a1i sqBinder_index_hit)
+ (eqcomd (sfNamedIndexeq4d id)));
+pub theorem sfNamedIndex_rebase (E: set) (k d i: nat):
+ $ sfNamedIndex E k (suc d) i = sfNamedIndex (sqEnvCons k E) (suc k) d i $ =
+'(cases sqBinder_index_equal (syl (eor sqBinder_index_below sqBinder_index_above) (bi1 neltlt)));
+
+-- Both the binder name and the atom-freshness base are unchanged by rebasing.
+pub theorem sqBinder_base (k d: nat): $ k + suc d = suc k + d $ =
+'(eqtr addS2 (eqcom addS1));
+
+@_ abstract def ntRebaseClass (E: set) (k: nat) (.c .d: nat): set =
+$ {c | A. d (sfNamedTemplate E  k (suc d) c = sfNamedTemplate (sqEnvCons k E)  (suc k) d c)} $;
+pub theorem ntRebase_value {d: nat} (E: set) (k: nat) (c: nat):
+ $ c e. ntRebaseClass E k <-> A. d (sfNamedTemplate E  k (suc d) c = sfNamedTemplate (sqEnvCons k E)  (suc k) d c) $ =
+(named '(elabe ,eqtac));
+theorem ntRebase_depth (E: set) (k: nat) (d c: nat):
+ $ (A. j (sfNamedTemplate E  k (suc j) c = sfNamedTemplate (sqEnvCons k E)  (suc k) j c)) -> sfNamedTemplate E  k (suc d) c = sfNamedTemplate (sqEnvCons k E)  (suc k) d c $ =
+(named '(!! eale j ,eqtac));
+theorem ntRebase_at (E: set) (k: nat) (d c: nat):
+ $ c e. ntRebaseClass E k -> sfNamedTemplate E  k (suc d) c = sfNamedTemplate (sqEnvCons k E)  (suc k) d c $ =
+(named '(syl ntRebase_depth (bi1 ntRebase_value)));
+theorem ntRebase_bot (E: set) (k: nat): $ sfBot e. ntRebaseClass E k $ =
+(named '(mpbir ntRebase_value @ ax_gen @ eqtr sfNamedTemplate_bot (eqcom sfNamedTemplate_bot)));
+theorem ntRebase_mem (E: set) (k: nat) (a b: nat):
+ $ (sfMem a b) e. ntRebaseClass E k $ =
+(named '(mpbir ntRebase_value @ ax_gen @ eqtr sfNamedTemplate_sfMem @
+ eqtr (kMemeq sfNamedIndex_rebase sfNamedIndex_rebase) (eqcom sfNamedTemplate_sfMem)));
+theorem ntRebase_eq (E: set) (k: nat) (a b: nat):
+ $ (sfEq a b) e. ntRebaseClass E k $ =
+(named '(mpbir ntRebase_value @ ax_gen @ eqtr sfNamedTemplate_sfEq @
+ eqtr (kEqeq sfNamedIndex_rebase sfNamedIndex_rebase) (eqcom sfNamedTemplate_sfEq)));
+theorem ntRebase_atomic (E: set) (k: nat): $ sfAtomicClosed (ntRebaseClass E k) $ =
+(named '(ax_gen @ ax_gen @ ian ntRebase_mem ntRebase_eq));
+theorem ntRebase_and (E: set) (k: nat) (a b: nat):
+ $ a e. ntRebaseClass E k /\ b e. ntRebaseClass E k ->
+ (sfAnd a b) e. ntRebaseClass E k $ =
+(named '(mpbird (a1i ntRebase_value) @ !! iald d @
+ eqtrd (a1i sfNamedTemplate_sfAnd) @
+ eqtrd (kAndeqd (syl ntRebase_at anl) (syl ntRebase_at anr))
+ (a1i (eqcom sfNamedTemplate_sfAnd))));
+theorem ntRebase_or (E: set) (k: nat) (a b: nat):
+ $ a e. ntRebaseClass E k /\ b e. ntRebaseClass E k ->
+ (sfOr a b) e. ntRebaseClass E k $ =
+(named '(mpbird (a1i ntRebase_value) @ !! iald d @
+ eqtrd (a1i sfNamedTemplate_sfOr) @
+ eqtrd (kDisjeqd (syl ntRebase_at anl) (syl ntRebase_at anr))
+ (a1i (eqcom sfNamedTemplate_sfOr))));
+theorem ntRebase_imp (E: set) (k: nat) (a b: nat):
+ $ a e. ntRebaseClass E k /\ b e. ntRebaseClass E k ->
+ (sfImp a b) e. ntRebaseClass E k $ =
+(named '(mpbird (a1i ntRebase_value) @ !! iald d @
+ eqtrd (a1i sfNamedTemplate_sfImp) @
+ eqtrd (kImpeqd (syl ntRebase_at anl) (syl ntRebase_at anr))
+ (a1i (eqcom sfNamedTemplate_sfImp))));
+theorem ntRebase_binary (E: set) (k: nat): $ sfBinaryClosed (ntRebaseClass E k) $ =
+(named '(ax_gen @ ax_gen @ iand (iand ntRebase_and ntRebase_or) ntRebase_imp));
+theorem ntRebase_all (E: set) (k: nat) (a: nat):
+ $ a e. ntRebaseClass E k -> (sfAll a) e. ntRebaseClass E k $ =
+(named '(mpbird (a1i ntRebase_value) @ !! iald d @
+ eqtrd (a1i sfNamedTemplate_sfAll) @ eqtrd (kAlleqd (a1i sqBinder_base) ntRebase_at) (a1i (eqcom sfNamedTemplate_sfAll))));
+theorem ntRebase_ex (E: set) (k: nat) (a: nat):
+ $ a e. ntRebaseClass E k -> (sfEx a) e. ntRebaseClass E k $ =
+(named '(mpbird (a1i ntRebase_value) @ !! iald d @
+ eqtrd (a1i sfNamedTemplate_sfEx) @ eqtrd (kExistseqd (a1i sqBinder_base) ntRebase_at) (a1i (eqcom sfNamedTemplate_sfEx))));
+theorem ntRebase_quantifier (E: set) (k: nat): $ sfQuantifierClosed (ntRebaseClass E k) $ =
+(named '(ax_gen @ iand ntRebase_all ntRebase_ex));
+theorem ntRebase_closed (E: set) (k: nat): $ sfConstructionClosed (ntRebaseClass E k) $ =
+'(ian (ian (ian ntRebase_bot ntRebase_atomic) ntRebase_binary) ntRebase_quantifier);
+pub theorem sfNamedTemplate_rebase (E: set) (k: nat) (d c: nat):
+ $ sfWf c -> sfNamedTemplate E  k (suc d) c = sfNamedTemplate (sqEnvCons k E)  (suc k) d c $ =
+'(syl ntRebase_at (ax_mp sfWf_induction ntRebase_closed));
+
+@_ abstract def qqRebaseClass (E: set) (t k: nat) (.c .d: nat): set =
+$ {c | A. d (sqQuote E t  k (suc d) c = sqQuote (sqEnvCons k E) t  (suc k) d c)} $;
+pub theorem qqRebase_value {d: nat} (E: set) (t k: nat) (c: nat):
+ $ c e. qqRebaseClass E t k <-> A. d (sqQuote E t  k (suc d) c = sqQuote (sqEnvCons k E) t  (suc k) d c) $ =
+(named '(elabe ,eqtac));
+theorem qqRebase_depth (E: set) (t k: nat) (d c: nat):
+ $ (A. j (sqQuote E t  k (suc j) c = sqQuote (sqEnvCons k E) t  (suc k) j c)) -> sqQuote E t  k (suc d) c = sqQuote (sqEnvCons k E) t  (suc k) d c $ =
+(named '(!! eale j ,eqtac));
+theorem qqRebase_at (E: set) (t k: nat) (d c: nat):
+ $ c e. qqRebaseClass E t k -> sqQuote E t  k (suc d) c = sqQuote (sqEnvCons k E) t  (suc k) d c $ =
+(named '(syl qqRebase_depth (bi1 qqRebase_value)));
+theorem qqRebase_bot (E: set) (t k: nat): $ sfBot e. qqRebaseClass E t k $ =
+(named '(mpbir qqRebase_value @ ax_gen @ eqtr sqQuote_bot (eqcom sqQuote_bot)));
+theorem qqRebase_mem (E: set) (t k: nat) (a b: nat):
+ $ (sfMem a b) e. qqRebaseClass E t k $ =
+(named '(mpbir qqRebase_value @ ax_gen @ eqtr sqQuote_sfMem @
+ eqtr (sqMembereq eqid sfNamedIndex_rebase sfNamedIndex_rebase sqBinder_base) (eqcom sqQuote_sfMem)));
+theorem qqRebase_eq (E: set) (t k: nat) (a b: nat):
+ $ (sfEq a b) e. qqRebaseClass E t k $ =
+(named '(mpbir qqRebase_value @ ax_gen @ eqtr sqQuote_sfEq @
+ eqtr (sqEqualeq eqid sfNamedIndex_rebase sfNamedIndex_rebase sqBinder_base) (eqcom sqQuote_sfEq)));
+theorem qqRebase_atomic (E: set) (t k: nat): $ sfAtomicClosed (qqRebaseClass E t k) $ =
+(named '(ax_gen @ ax_gen @ ian qqRebase_mem qqRebase_eq));
+theorem qqRebase_and (E: set) (t k: nat) (a b: nat):
+ $ a e. qqRebaseClass E t k /\ b e. qqRebaseClass E t k ->
+ (sfAnd a b) e. qqRebaseClass E t k $ =
+(named '(mpbird (a1i qqRebase_value) @ !! iald d @
+ eqtrd (a1i sqQuote_sfAnd) @
+ eqtrd (kAndeqd (syl qqRebase_at anl) (syl qqRebase_at anr))
+ (a1i (eqcom sqQuote_sfAnd))));
+theorem qqRebase_or (E: set) (t k: nat) (a b: nat):
+ $ a e. qqRebaseClass E t k /\ b e. qqRebaseClass E t k ->
+ (sfOr a b) e. qqRebaseClass E t k $ =
+(named '(mpbird (a1i qqRebase_value) @ !! iald d @
+ eqtrd (a1i sqQuote_sfOr) @
+ eqtrd (kDisjeqd (syl qqRebase_at anl) (syl qqRebase_at anr))
+ (a1i (eqcom sqQuote_sfOr))));
+theorem qqRebase_imp (E: set) (t k: nat) (a b: nat):
+ $ a e. qqRebaseClass E t k /\ b e. qqRebaseClass E t k ->
+ (sfImp a b) e. qqRebaseClass E t k $ =
+(named '(mpbird (a1i qqRebase_value) @ !! iald d @
+ eqtrd (a1i sqQuote_sfImp) @
+ eqtrd (kImpeqd (syl qqRebase_at anl) (syl qqRebase_at anr))
+ (a1i (eqcom sqQuote_sfImp))));
+theorem qqRebase_binary (E: set) (t k: nat): $ sfBinaryClosed (qqRebaseClass E t k) $ =
+(named '(ax_gen @ ax_gen @ iand (iand qqRebase_and qqRebase_or) qqRebase_imp));
+theorem qqRebase_all (E: set) (t k: nat) (a: nat):
+ $ a e. qqRebaseClass E t k -> (sfAll a) e. qqRebaseClass E t k $ =
+(named '(mpbird (a1i qqRebase_value) @ !! iald d @
+ eqtrd (a1i sqQuote_sfAll) @ eqtrd (kAlleqd (a1i sqBinder_base) (kImpeqd (kMemeqd eqidd (a1i sqBinder_base)) qqRebase_at)) (a1i (eqcom sqQuote_sfAll))));
+theorem qqRebase_ex (E: set) (t k: nat) (a: nat):
+ $ a e. qqRebaseClass E t k -> (sfEx a) e. qqRebaseClass E t k $ =
+(named '(mpbird (a1i qqRebase_value) @ !! iald d @
+ eqtrd (a1i sqQuote_sfEx) @ eqtrd (kExistseqd (a1i sqBinder_base) (kAndeqd (kMemeqd eqidd (a1i sqBinder_base)) qqRebase_at)) (a1i (eqcom sqQuote_sfEx))));
+theorem qqRebase_quantifier (E: set) (t k: nat): $ sfQuantifierClosed (qqRebaseClass E t k) $ =
+(named '(ax_gen @ iand qqRebase_all qqRebase_ex));
+theorem qqRebase_closed (E: set) (t k: nat): $ sfConstructionClosed (qqRebaseClass E t k) $ =
+'(ian (ian (ian qqRebase_bot qqRebase_atomic) qqRebase_binary) qqRebase_quantifier);
+pub theorem sqQuote_rebase (E: set) (t k: nat) (d c: nat):
+ $ sfWf c -> sqQuote E t  k (suc d) c = sqQuote (sqEnvCons k E) t  (suc k) d c $ =
+'(syl qqRebase_at (ax_mp sfWf_induction qqRebase_closed));
+
+
+-- Conventional recursive binder equations at an empty local binder stack.
+pub theorem sfNamedTemplate_all_cons (E: set) (k a: nat):
+ $ sfWf a -> sfNamedTemplate E k 0 (sfAll a) =
+ kAll k (sfNamedTemplate (sqEnvCons k E) (suc k) 0 a) $ =
+'(eqtrd (a1i sfNamedTemplate_sfAll)
+ (kAlleqd (a1i add0) sfNamedTemplate_rebase));
+pub theorem sfNamedTemplate_ex_cons (E: set) (k a: nat):
+ $ sfWf a -> sfNamedTemplate E k 0 (sfEx a) =
+ kExists k (sfNamedTemplate (sqEnvCons k E) (suc k) 0 a) $ =
+'(eqtrd (a1i sfNamedTemplate_sfEx)
+ (kExistseqd (a1i add0) sfNamedTemplate_rebase));
+pub theorem sqQuote_all_cons (E: set) (t k a: nat):
+ $ sfWf a -> sqQuote E t k 0 (sfAll a) =
+ kAll k (kImp (kMem t k) (sqQuote (sqEnvCons k E) t (suc k) 0 a)) $ =
+'(eqtrd (a1i sqQuote_sfAll)
+ (kAlleqd (a1i add0) (kImpeqd (kMemeqd eqidd (a1i add0)) sqQuote_rebase)));
+pub theorem sqQuote_ex_cons (E: set) (t k a: nat):
+ $ sfWf a -> sqQuote E t k 0 (sfEx a) =
+ kExists k (kAnd (kMem t k) (sqQuote (sqEnvCons k E) t (suc k) 0 a)) $ =
+'(eqtrd (a1i sqQuote_sfEx)
+ (kExistseqd (a1i add0) (kAndeqd (kMemeqd eqidd (a1i add0)) sqQuote_rebase)));

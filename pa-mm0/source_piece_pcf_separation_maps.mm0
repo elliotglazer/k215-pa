@@ -1,0 +1,51 @@
+import "source_l_domain.mm0";
+
+import "source_relativization_laws.mm0";
+
+import "source_relative_prefix.mm0";
+
+import "source_theory_prefix.mm0";
+
+import "source_renaming_depth.mm0";
+
+import "source_renaming_extensional.mm0";
+
+import "quotation_binders.mm0";
+
+def sfPieceSeparationShiftMap:set = $ sfRenameDepthMap sfSuccessorMap 1 $;
+
+def sfPieceSeparationPredicate(phi:nat):nat =
+ $ sfAnd (sfMem 0 1) (sfRename sfPieceSeparationShiftMap 0 phi) $;
+
+def sfPieceSeparationGuarded(D theta:nat):nat =
+ $ sfAll (sfImp D (sfEx (sfAnd D (sfAll (sfImp D
+    (sfIff (sfMem 0 1) (sfAnd (sfMem 0 2) theta))))))) $;
+
+theorem sfPieceSeparationPredicate_shift(phi:nat)(hf:$ sfWf phi $):
+ $ sfPieceSeparationPredicate phi = sfAnd (sfMem 0 1) (sfShift 1 phi) $;
+
+theorem sfPieceSeparationPredicate_wf(phi:nat):
+ $ sfWf (sfPieceSeparationPredicate phi) $;
+
+theorem sfPieceSeparationPredicate_bound(phi n:nat):
+ $ sfBound (suc n) phi -> sfBound (suc (suc n)) (sfPieceSeparationPredicate phi) $;
+
+theorem sfPieceSeparationPredicate_at(T:set)(phi x z:nat)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons z (sqEnvCons x T)) 0 (sfPieceSeparationPredicate phi) =
+   sfAnd (sfMem z x) (sfRename (sqEnvCons z T) 0 phi) $;
+
+theorem sfPieceSeparationPredicate_relative_at(T:set)(D phi x z:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons z (sqEnvCons x T)) 0 (sfRelativize D (sfPieceSeparationPredicate phi)) =
+   sfAnd (sfMem z x) (sfRelativize D (sfRename (sqEnvCons z T) 0 phi)) $;
+
+theorem sfPieceSeparationPredicate_L_at(T:set)(phi x z:nat)(hf:$ sfWf phi $):
+ $ sfRename (sqEnvCons z (sqEnvCons x T)) 0 (sfRelativize sfLDomain (sfPieceSeparationPredicate phi)) =
+   sfAnd (sfMem z x) (sfRelativize sfLDomain (sfRename (sqEnvCons z T) 0 phi)) $;
+
+theorem sfPieceSeparation_relativize(D theta:nat):
+ $ sfRelativize D (sfSeparation theta) = sfPieceSeparationGuarded D (sfRelativize D theta) $;
+
+theorem sfPieceSeparation_schema_code(phi n:nat):
+ $ sfRelativize sfLDomain (zfcSeparationCode phi n) =
+   sfGuardPrefix sfLDomain n (sfPieceSeparationGuarded sfLDomain (sfRelativize sfLDomain (sfRename sfSepMap 0 phi))) $;

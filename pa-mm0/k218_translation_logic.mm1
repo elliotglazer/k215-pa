@@ -1,0 +1,74 @@
+import "k218_translation_range.mm1";
+
+pub theorem k218Translate_kNot (a: nat):
+  $ k218Translate (kNot a) = kNot (k218Translate a) $ =
+'(eqtr k218Translate_kImp (kImpeq2 k218Translate_kF));
+pub theorem k218Translate_kAnd (a b: nat):
+  $ k218Translate (kAnd a b) = kAnd (k218Translate a) (k218Translate b) $ =
+'(eqtr k218Translate_kNot @ kNoteq @ eqtr k218Translate_kImp @ kImpeq2 k218Translate_kNot);
+pub theorem k218Translate_kExists (x a: nat):
+  $ k218Translate (kExists x a) = kExists x (k218Translate a) $ =
+'(eqtr k218Translate_kNot @ kNoteq @ eqtr k218Translate_kAll @ kAlleq2 k218Translate_kNot);
+
+pub theorem k218Translate_rho1 (a b: nat):
+  $ k218Translate (kRho1 a b) = kExists a (k218EqInd a b) $ =
+'(eqtr k218Translate_kExists (kExistseq2 k218Translate_kEq));
+pub theorem k218Translate_rho2 (a b c: nat):
+  $ k218Translate (kRho2 a b c) = kRho2 a (k218Translate b) (k218Translate c) $ =
+'(eqtr k218Translate_kImp @ kImpeq
+  (eqtr k218Translate_kAll (kAlleq2 k218Translate_kImp))
+  (eqtr k218Translate_kImp (kImpeq k218Translate_kAll k218Translate_kAll)));
+pub theorem k218Translate_rho3 (a b c: nat):
+  $ k218Translate (kRho3 a b c) = kImp (k218EqInd a b) (kImp (kMem c a) (kMem c b)) $ =
+'(eqtr k218Translate_kImp @ kImpeq k218Translate_kEq
+  (eqtr k218Translate_kImp (kImpeq k218Translate_kMem k218Translate_kMem)));
+pub theorem k218Translate_rho4 (a b c: nat):
+  $ k218Translate (kRho4 a b c) = kRho4 a b (k218Translate c) $ =
+'(eqtr k218Translate_kImp @ kImpeq
+  (eqtr k218Translate_kAll (kAlleq2 k218Translate_kAll))
+  (eqtr k218Translate_kAll (kAlleq2 k218Translate_kAll)));
+pub theorem k218Translate_rho5 (a b c: nat):
+  $ k218Translate (kRho5 a b c) = kImp (k218EqInd c a) (kImp (kMem c b) (kMem a b)) $ =
+'(eqtr k218Translate_kImp @ kImpeq k218Translate_kEq
+  (eqtr k218Translate_kImp (kImpeq k218Translate_kMem k218Translate_kMem)));
+pub theorem k218Translate_rho6 (a b: nat):
+  $ k218Translate (kRho6 a b) = kRho6 a (k218Translate b) $ =
+'(eqtr k218Translate_kImp @ kImpeq
+  (eqtr k218Translate_kExists (kExistseq2 k218Translate_kAll)) eqid);
+pub theorem k218Translate_rho7 (a b c: nat):
+  $ k218Translate (kRho7 a b c) = kImp (k218EqInd c a) (kImp (k218EqInd c b) (k218EqInd a b)) $ =
+'(eqtr k218Translate_kImp @ kImpeq k218Translate_kEq
+  (eqtr k218Translate_kImp (kImpeq k218Translate_kEq k218Translate_kEq)));
+pub theorem k218Translate_rho8 (a b c u: nat):
+  $ k218Translate (kRho8 a b c u) =
+    kRho8 (k218Translate a) (k218Translate b) (k218Translate c) (k218Translate u) $ =
+'(eqtr k218Translate_kImp @ kImpeq
+  (eqtr k218Translate_kImp (kImpeq1 k218Translate_kImp))
+  (eqtr k218Translate_kImp (kImpeq k218Translate_kImp k218Translate_kImp)));
+
+pub theorem k218Translated_rho1 (a b: nat): $ k218Provable (k218Translate (kRho1 a b)) $ =
+'(mpbir (k218Provableeq k218Translate_rho1) k218EqInd_exists);
+pub theorem k218Translated_rho2 (a b c: nat): $ k218Provable (k218Translate (kRho2 a b c)) $ =
+'(mpbir (k218Provableeq k218Translate_rho2) (k218Provable_axiom k218Axioms_rho2));
+pub theorem k218Translated_rho3 (a b c: nat): $ k218Provable (k218Translate (kRho3 a b c)) $ =
+'(mpbir (k218Provableeq k218Translate_rho3) k218EqInd_el_right);
+pub theorem k218Translated_rho4 (a b c: nat): $ k218Provable (k218Translate (kRho4 a b c)) $ =
+'(mpbir (k218Provableeq k218Translate_rho4) (k218Provable_axiom k218Axioms_rho4));
+pub theorem k218Translated_rho5 (a b c: nat): $ k218Provable (k218Translate (kRho5 a b c)) $ =
+'(mpbir (k218Provableeq k218Translate_rho5) k218EqInd_el_left);
+pub theorem k218Translated_rho6 (a b: nat): $ k218Provable (k218Translate (kRho6 a b)) $ =
+'(mpbir (k218Provableeq k218Translate_rho6) (k218Provable_axiom k218Axioms_rho6));
+pub theorem k218Translated_rho7 (a b c: nat): $ k218Provable (k218Translate (kRho7 a b c)) $ =
+'(mpbir (k218Provableeq k218Translate_rho7) k218EqInd_euclid);
+pub theorem k218Translated_rho8 (a b c u: nat): $ k218Provable (k218Translate (kRho8 a b c u)) $ =
+'(mpbir (k218Provableeq k218Translate_rho8) (k218Provable_axiom k218Axioms_rho8));
+
+pub theorem k218Translated_mp (a b: nat):
+  $ k218Provable (k218Translate a) -> k218Provable (k218Translate (kImp a b)) ->
+    k218Provable (k218Translate b) $ =
+'(exp @ mpd
+  (syl (bi1 (k218Provableeq k218Translate_kImp)) anr)
+  (syl k218Provable_mp anl));
+pub theorem k218Translated_gen (x a: nat):
+  $ k218Provable (k218Translate a) -> k218Provable (k218Translate (kAll x a)) $ =
+'(syl (bi2 (k218Provableeq k218Translate_kAll)) k218Provable_gen);

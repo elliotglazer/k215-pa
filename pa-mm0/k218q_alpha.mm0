@@ -1,0 +1,26 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_specialization.mm0";
+import "k230_substitution_inverse.mm0";
+
+-- Alpha conversion in the fixed named K calculus, with explicit freshness.
+theorem k218IAlpha_all_forward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kAll x f) (kAll y (kSubst f x y))) $;
+theorem k218IAlpha_exists_backward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $;
+theorem k218IAlpha_all_backward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $;
+theorem k218IAlpha_exists_forward (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kExists x f) (kExists y (kSubst f x y))) $;
+theorem k218IAlpha_all (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kAll x f) (kAll y (kSubst f x y))) /\
+   k218QProvable (kImp (kAll y (kSubst f x y)) (kAll x f)) $;
+theorem k218IAlpha_exists (f x y: nat):
+ $ x != y -> kBinderAbsent f x -> kFresh f y ->
+   k218QProvable (kImp (kExists x f) (kExists y (kSubst f x y))) /\
+   k218QProvable (kImp (kExists y (kSubst f x y)) (kExists x f)) $;

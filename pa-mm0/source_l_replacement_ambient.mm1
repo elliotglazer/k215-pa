@@ -1,0 +1,75 @@
+import "source_l_replacement_functionality.mm1";
+import "source_l_replacement_schema.mm1";
+
+@_ def sfLReplacementAmbientBody(phi:nat):nat =
+ $ sfAll (sfIff (sfMem 0 1) (sfEx (sfAnd (sfMem 0 3)
+  (sfRename sfRepCMap 0 (sfLReplacementMatrix phi))))) $;
+
+@_ def sfLReplacementRawAxiom(phi:nat):nat =
+ $ sfReplacement (sfRename sfRepAMap 0 (sfLReplacementMatrix phi))
+  (sfRename sfRepBMap 0 (sfLReplacementMatrix phi))
+  (sfRename sfRepCMap 0 (sfLReplacementMatrix phi)) $;
+
+theorem lrepAmbient_domain_rename(R:set)(i:nat):
+ $ sfRename R 0 (sfDomainAt sfLDomain i) = sfDomainAt sfLDomain (R @ i) $ =
+ '(eqtr (ax_mp sfRename_subst sfLDomain_wf) (sfSubsteq3 (ax_mp sfRename_bound_identity sfLDomain_bound)));
+
+theorem lrepAmbient_L_rename(R:set):
+ $ sfRename R 0 sfLDomain = sfDomainAt sfLDomain (R @ 0) $ =
+ '(eqtr (sfRenameeq3 (eqcom (ax_mp sfDomainAt_zero sfLDomain_bound))) lrepAmbient_domain_rename);
+
+theorem lrepAmbient_matrix_rename(R:set)(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename R 0 (sfLReplacementMatrix phi) =
+ sfAnd (sfAnd (sfDomainAt sfLDomain (R @ 0)) (sfDomainAt sfLDomain (R @ 1)))
+  (sfRelativize sfLDomain (sfRename R 0 phi)) $ =
+ '(eqtr sfRename_sfAnd (nsAnd_eq (eqtr sfRename_sfAnd (nsAnd_eq lrepAmbient_L_rename lrepAmbient_domain_rename)) (ax_mp (ax_mp sfRelativize_rename sfLDomain_bound) hf)));
+
+theorem lrepAmbient_matrix_A(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename sfRepAMap 0 (sfLReplacementMatrix phi) =
+ sfAnd (sfAnd (sfDomainAt sfLDomain 2) (sfDomainAt sfLDomain 1))
+  (sfRelativize sfLDomain (sfRename sfRepAMap 0 phi)) $ =
+ '(eqtr (lrepAmbient_matrix_rename hf) (nsAnd_eq (nsAnd_eq (sfSubsteq2 sfRepAMap_zero) (sfSubsteq2 sfRepAMap_one)) eqid));
+
+theorem lrepAmbient_matrix_B(phi:nat)(hf:$ sfWf phi $):
+ $ sfRename sfRepBMap 0 (sfLReplacementMatrix phi) =
+ sfAnd (sfAnd (sfDomainAt sfLDomain 2) (sfDomainAt sfLDomain 0))
+  (sfRelativize sfLDomain (sfRename sfRepBMap 0 phi)) $ =
+ '(eqtr (lrepAmbient_matrix_rename hf) (nsAnd_eq (nsAnd_eq (sfSubsteq2 sfRepBMap_zero) (sfSubsteq2 sfRepBMap_one)) eqid));
+
+pub theorem sfLReplacement_ambient_functionality(phi:nat)(hf:$ sfWf phi $):
+ $ nsLocal 0 (sfImp (sfLReplacementFunctional phi)
+ (sfFunctionality (sfRename sfRepAMap 0 (sfLReplacementMatrix phi))
+ (sfRename sfRepBMap 0 (sfLReplacementMatrix phi)))) $ =
+ '(sfRQ_rewrite (eqtr (nsImp_eq (eqcom (eqtr (eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid (eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid (eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid (eqtr sfRelativize_sfImp (nsImp_eq eqid (eqtr sfRelativize_sfImp (nsImp_eq eqid sfRelativize_sfEq))))))))))))) (nsAll_eq (nsImp_eq (eqcom (ax_mp sfDomainAt_zero sfLDomain_bound)) (nsAll_eq (nsImp_eq (eqcom (ax_mp sfDomainAt_zero sfLDomain_bound)) (nsAll_eq (nsImp_eq (eqcom (ax_mp sfDomainAt_zero sfLDomain_bound)) eqid)))))))) eqid) (nsImp_eq eqid (nsAll_eq (nsAll_eq (nsAll_eq (nsImp_eq (eqcom (lrepAmbient_matrix_A hf)) (nsImp_eq (eqcom (lrepAmbient_matrix_B hf)) eqid)))))))
+  (sfLReplacement_functionality_local (ax_mp sfRelativize_wf sfLDomain_wf)
+   (ax_mp sfRelativize_wf sfLDomain_wf) sfLDomain_wf));
+
+@_ def lrepAmbientContext(phi:nat):nat =
+ $ sfLReplacementFunctional phi : (sfLReplacementRawAxiom phi : 0) $;
+
+theorem lrepAmbientContext_wf(phi:nat)(hf:$ sfWf phi $):
+ $ sfContextWf (lrepAmbientContext phi) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp sfRelativize_wf sfLDomain_wf)
+  (mpbir sfContextWf_cons (ian (mpbir sfWf_replacement (ian (ian sfRename_wf sfRename_wf) sfRename_wf)) sfContextWf_nil))));
+
+theorem lrepAmbient_functional_lift(phi:nat)(hf:$ sfWf phi $):
+ $ nsLocal (lrepAmbientContext phi) (sfImp (sfLReplacementFunctional phi)
+ (sfFunctionality (sfRename sfRepAMap 0 (sfLReplacementMatrix phi))
+ (sfRename sfRepBMap 0 (sfLReplacementMatrix phi)))) $ =
+ '(ax_mp (ax_mp (ax_mp sfLocal_hypothesis_replacement (lrepAmbientContext_wf hf)) sfLocalCoverage_nil)
+  (sfLReplacement_ambient_functionality hf));
+
+theorem lrepAmbient_body_local(phi:nat)(hf:$ sfWf phi $):
+ $ nsLocal (lrepAmbientContext phi) (sfAll (sfEx (sfLReplacementAmbientBody phi))) $ =
+ '(ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp nsLocal_hyp (lrepAmbientContext_wf hf)) (ax_mp sfContext_member_tail sfContext_member_head)))
+  (ax_mp (ax_mp nsLocal_mp (lrepAmbient_functional_lift hf))
+   (ax_mp (ax_mp nsLocal_hyp (lrepAmbientContext_wf hf)) sfContext_member_head)));
+
+pub theorem sfLReplacement_ambient_image(phi n:nat)(hb:$ sfBound (suc (suc n)) phi $):
+ $ sfTheoryProvable zfrAxioms (sfImp (sfLReplacementFunctional phi)
+ (sfAll (sfEx (sfLReplacementAmbientBody phi)))) $ =
+ '(ax_mp (ax_mp sfTheoryProvable_mp
+  (ax_mp sfTheory_pure (ax_mp nsLocal_II (ax_mp nsLocal_II
+   (lrepAmbient_body_local (ax_mp sfBound_wf hb))))))
+  (ax_mp sfLReplacementMatrix_raw hb));

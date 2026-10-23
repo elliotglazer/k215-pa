@@ -1,0 +1,17 @@
+import "zfc_proofs.mm0";
+import "source_syntax_laws.mm0";
+
+theorem zfcContext_shift_identity (G: nat):
+  $ zfcContext G -> sfContextShift G = G $;
+def zfcGenProof (G p a: nat): nat = $ sfSequent G (sfAll a) : p $;
+def zfcInstantiateProof (G p a t: nat): nat = $ sfSequent G (sfSubst 0 t a) : p $;
+theorem zfcProof_gen (G p a: nat):
+  $ zfcContext G -> sfNDFullDerives p (sfSequent G a) ->
+    sfNDFullDerives (zfcGenProof G p a) (sfSequent G (sfAll a)) $;
+theorem zfcProvable_gen (a: nat):
+  $ zfcProvable a -> zfcProvable (sfAll a) $;
+theorem zfcProof_allE (G p a t: nat):
+  $ zfcContext G -> sfNDFullDerives p (sfSequent G (sfAll a)) ->
+    sfNDFullDerives (zfcInstantiateProof G p a t) (sfSequent G (sfSubst 0 t a)) $;
+theorem zfcProvable_allE (a t: nat):
+  $ zfcProvable (sfAll a) -> zfcProvable (sfSubst 0 t a) $;

@@ -1,0 +1,33 @@
+import "bb215_arithmetic_formula_run_scalar.mm1";
+
+import "bb215_arithmetic_formula_projections.mm1";
+
+import "bb215_table_arithmetic_valid_universal.mm1";
+
+@_ abstract def bb215ArithmeticFormulaHaltedGraph (T n .s: nat): wff = $ E. s (bb215ArithmeticFormulaRunScalarGraph T n s /\ bb215ArithmeticFormulaFstGraph s k215Num215) $;
+
+pub theorem bb215ArithmeticFormulaHaltedGraph_correct (T n: nat) {s: nat}: $ bb215ArithmeticFormulaHaltedGraph T n <-> bb215Halted T n $ = (named '(bitr (!! exeqi s (aneq1i (bitr bb215ArithmeticFormulaRunScalarGraph_correct eqcomb))) (bitr (!! exeqe s (bb215ArithmeticFormulaFstGrapheq1d id)) bb215ArithmeticFormulaFstGraph_correct)));
+
+@_ abstract def bb215ArithmeticFormulaHaltsGraph (T .n: nat): wff = $ E. n bb215ArithmeticFormulaHaltedGraph T n $;
+
+pub theorem bb215ArithmeticFormulaHaltsGraph_correct (T: nat) {n: nat}: $ bb215ArithmeticFormulaHaltsGraph T <-> bb215Halts T $ = (named '(!! exeqi n bb215ArithmeticFormulaHaltedGraph_correct));
+
+@_ abstract def bb215ArithmeticFormulaNonHaltedGraph (T n: nat): wff = $ bb215ArithmeticFormulaHaltedGraph T n -> 0 != 0 $;
+
+pub theorem bb215ArithmeticFormulaNonHaltedGraph_correct (T n: nat): $ bb215ArithmeticFormulaNonHaltedGraph T n <-> ~bb215Halted T n $ = (named '(bitr (imeq1i bb215ArithmeticFormulaHaltedGraph_correct) (biim2 (notnot1 eqid))));
+
+@_ abstract def bb215ArithmeticFormulaLessGraph (n b .h: nat): wff = $ E. h suc n + h = b $;
+
+pub theorem bb215ArithmeticFormulaLessGraph_correct (n b: nat) {h: nat}: $ bb215ArithmeticFormulaLessGraph n b <-> n < b $ = (named '(bicom dfle));
+
+@_ abstract def bb215ArithmeticFormulaUpperGraph (b .T: nat): wff = $ A. T (bb215TableArithmeticValidPolynomial T -> bb215ArithmeticFormulaHaltsGraph T -> bb215ArithmeticFormulaHaltedGraph T b) $;
+
+pub theorem bb215ArithmeticFormulaUpperGraph_correct (b: nat) {T: nat}: $ bb215ArithmeticFormulaUpperGraph b <-> bb215Upper b $ = (named '(!! aleqi T @ imeqi bb215TableArithmeticValidPolynomial_correct (imeqi bb215ArithmeticFormulaHaltsGraph_correct bb215ArithmeticFormulaHaltedGraph_correct)));
+
+@_ abstract def bb215ArithmeticFormulaFirstGraph (T b .n: nat): wff = $ bb215ArithmeticFormulaHaltedGraph T b /\ A. n (bb215ArithmeticFormulaLessGraph n b -> bb215ArithmeticFormulaNonHaltedGraph T n) $;
+
+pub theorem bb215ArithmeticFormulaFirstGraph_correct (T b: nat) {n: nat}: $ bb215ArithmeticFormulaFirstGraph T b <-> bb215First T b $ = (named '(aneq bb215ArithmeticFormulaHaltedGraph_correct (!! aleqi n (imeqi bb215ArithmeticFormulaLessGraph_correct bb215ArithmeticFormulaNonHaltedGraph_correct))));
+
+@_ abstract def bb215ArithmeticFormulaValueGraph (b .T: nat): wff = $ bb215ArithmeticFormulaUpperGraph b /\ E. T (bb215TableArithmeticValidPolynomial T /\ bb215ArithmeticFormulaFirstGraph T b) $;
+
+pub theorem bb215ArithmeticFormulaValueGraph_correct (b: nat) {T: nat}: $ bb215ArithmeticFormulaValueGraph b <-> bb215Value b $ = (named '(aneq bb215ArithmeticFormulaUpperGraph_correct (!! exeqi T (aneq bb215TableArithmeticValidPolynomial_correct bb215ArithmeticFormulaFirstGraph_correct))));

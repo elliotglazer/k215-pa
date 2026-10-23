@@ -1,0 +1,36 @@
+import "k218_equality_interpretation.mm0";
+
+theorem k218Iff_euclid (a b c: nat):
+  $ k218Provable (kImp (k218Iff a b) (kImp (k218Iff a c) (k218Iff b c))) $;
+theorem k218All_mono2 (v p q r: nat)
+  (h: $ k218Provable (kImp p (kImp q r)) $):
+  $ k218Provable (kImp (kAll v p) (kImp (kAll v q) (kAll v r))) $;
+theorem k218Imp_binary_map (a b c p q r: nat)
+  (ha: $ k218Provable (kImp a p) $)
+  (hb: $ k218Provable (kImp b q) $)
+  (hc: $ k218Provable (kImp r c) $)
+  (h: $ k218Provable (kImp p (kImp q r)) $):
+  $ k218Provable (kImp a (kImp b c)) $;
+theorem k218Imp_binary_conjoin (a b r s: nat)
+  (hr: $ k218Provable (kImp a (kImp b r)) $)
+  (hs: $ k218Provable (kImp a (kImp b s)) $):
+  $ k218Provable (kImp a (kImp b (kAnd r s))) $;
+theorem k218EqEv_euclid (v x y z: nat):
+  $ k218Provable (kImp (k218EqEv v x y)
+    (kImp (k218EqEv v x z) (k218EqEv v y z))) $;
+theorem k218EqInd_euclid (x y z: nat):
+  $ k218Provable (kImp (k218EqInd x y)
+    (kImp (k218EqInd x z) (k218EqInd y z))) $;
+
+theorem k218EqOut_specialize (v x y z: nat)
+  (hvx: $ v != x $) (hvy: $ v != y $) (hvz: $ v != z $):
+  $ k218Provable (kImp (k218EqOut v x y)
+    (k218Iff (kMem x z) (kMem y z))) $;
+theorem k218EqIn_specialize (v x y z: nat)
+  (hvx: $ v != x $) (hvy: $ v != y $) (hvz: $ v != z $):
+  $ k218Provable (kImp (k218EqIn v x y)
+    (k218Iff (kMem z x) (kMem z y))) $;
+theorem k218EqInd_el_left (x y z: nat):
+  $ k218Provable (kImp (k218EqInd x y) (kImp (kMem x z) (kMem y z))) $;
+theorem k218EqInd_el_right (x y z: nat):
+  $ k218Provable (kImp (k218EqInd x y) (kImp (kMem z x) (kMem z y))) $;

@@ -1,0 +1,59 @@
+import "quotation_propositional.mm1";
+import "source_contexts.mm1";
+
+@_ def sqQuoteMap (E: set) (t k d .a: nat): set = $ \ a, sqQuote E t k d a $;
+@_ def sqContext (E: set) (t k d G: nat): nat = $ map (sqQuoteMap E t k d) G $;
+
+pub theorem sqQuoteMap_value (E: set) (t k d a: nat):
+ $ sqQuoteMap E t k d @ a = sqQuote E t k d a $ =
+(named '(!! applame q ,eqtac));
+
+pub theorem sqContext_nil (E: set) (t k d: nat): $ sqContext E t k d 0 = 0 $ = 'map0;
+
+pub theorem sqContext_cons (E: set) (t k d a G: nat):
+ $ sqContext E t k d (a : G) = sqQuote E t k d a : sqContext E t k d G $ =
+'(eqtr mapS (conseq1 sqQuoteMap_value));
+
+pub theorem sqContext_length (E: set) (t k d G: nat):
+ $ len (sqContext E t k d G) = len G $ = 'maplen;
+
+pub theorem sqContext_member_iff {b: nat} (E: set) (t k d G a: nat):
+ $ a IN sqContext E t k d G <-> E. b (b IN G /\ a = sqQuote E t k d b) $ =
+(named '(bitr lmemmap @ exeqi (aneq2i (eqeq2 sqQuoteMap_value))));
+
+pub theorem sqContext_member (E: set) (t k d G a: nat):
+ $ a IN G -> sqQuote E t k d a IN sqContext E t k d G $ =
+'(mpbid (a1i (lmemeq1 sqQuoteMap_value)) lmemmapi);
+
+pub theorem sqContext_congr (F: wff) (E: set) (t k d G H: nat)
+ (h: $ F -> G = H $):
+ $ F -> sqContext E t k d G = sqContext E t k d H $ = '(mapeq2d h);
+
+theorem sqContext_sub_at (E: set) (t k d G H a b: nat):
+ $ sfContextSub G H -> (b IN G /\ a = sqQuote E t k d b) ->
+   a IN sqContext E t k d H $ =
+'(exp @ mpbird (lmemeq1d anrr)
+  (syl sqContext_member (mpd anrl (syl sfContextSub_member anl))));
+
+theorem sqContext_sub_member (E: set) (t k d G H a: nat):
+ $ sfContextSub G H -> a IN sqContext E t k d G -> a IN sqContext E t k d H $ =
+(named '(syl5bi sqContext_member_iff @ eexd sqContext_sub_at));
+
+pub theorem sqContext_sub (E: set) (t k d G H: nat):
+ $ sfContextSub G H -> sfContextSub (sqContext E t k d G) (sqContext E t k d H) $ =
+(named '(iald sqContext_sub_member));
+
+theorem sqContext_support_member (E: set) (t k d G H a: nat):
+ $ sfContextSub G H -> a IN sqContext E t k d G ->
+   a e. kContextProofClass (sqContext E t k d H) $ =
+'(syl6 (bi2 kContextProofClass_value)
+  (syl6 kHypProvable_assumption sqContext_sub_member));
+
+pub theorem sqContext_support (E: set) (t k d G H: nat):
+ $ sfContextSub G H -> kContextSupports (sqContext E t k d H) (sqContext E t k d G) $ =
+(named '(iald sqContext_support_member));
+
+pub theorem sqLocal_context_weaken (E: set) (t k d G H a: nat):
+ $ sfContextSub G H -> sqLocal (sqContext E t k d G) E t k d a ->
+   sqLocal (sqContext E t k d H) E t k d a $ =
+'(syl kHypProvable_refine_d sqContext_support);

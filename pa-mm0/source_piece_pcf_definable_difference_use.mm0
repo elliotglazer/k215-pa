@@ -1,0 +1,43 @@
+import "source_piece_pcf_definable_difference.mm0";
+
+import "source_piece_pcf_definable_conjunction.mm0";
+
+import "source_piece_pcf_rep_cover_laws_r39.mm0";
+
+import "source_l_replacement_prefix_elimination.mm0";
+
+def sfPieceDefinableDifferenceWitnessBody(a b C:nat): nat = $ sfAnd (sfMem 0 (suc C)) (sfPieceDefinableConjunctionDifference (suc a) (suc b) 0) $;
+
+def sfPieceDefinableDifferenceWitness(a b C:nat): nat = $ sfEx (sfPieceDefinableDifferenceWitnessBody a b C) $;
+
+theorem sfPieceDefinableDifferenceWitnessBody_wf(a b C:nat): $ sfWf (sfPieceDefinableDifferenceWitnessBody a b C) $;
+
+theorem sfPieceDefinableDifferenceWitness_wf(a b C:nat): $ sfWf (sfPieceDefinableDifferenceWitness a b C) $;
+
+theorem pcdUse_profile_depth(T:set)(k a b r:nat): $ sfRename T k (sfPieceDefinableConjunctionDifference a b r) = sfPieceDefinableConjunctionDifference (sfRenameIndex T k a) (sfRenameIndex T k b) (sfRenameIndex T k r) $;
+
+theorem sfPieceDefinableDifferenceWitness_rename(T:set)(a b C:nat): $ sfRename T 0 (sfPieceDefinableDifferenceWitness a b C) = sfPieceDefinableDifferenceWitness (T @ a) (T @ b) (T @ C) $;
+
+theorem sfPieceDefinableDifferenceWitness_congr(a b C x y D:nat)(ha:$ a = x $)(hb:$ b = y $)(hc:$ C = D $): $ sfPieceDefinableDifferenceWitness a b C = sfPieceDefinableDifferenceWitness x y D $;
+
+def sfPieceDefinableDifferenceProducerBody: nat = $ sfImp (sfPieceRepClosure 3 2) (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfPieceDefinableDifferenceWitness 1 0 2))) $;
+
+def sfPieceDefinableDifferenceProducerLaw: nat = $ sfAll (sfAll (sfAll (sfAll sfPieceDefinableDifferenceProducerBody))) $;
+
+theorem sfPieceDefinableDifference_producer_exact: $ sfPieceDefinableDifferenceFormula = sfPieceDefinableDifferenceProducerLaw $;
+
+theorem sfPieceDefinableDifference_producer_prefix: $ sfAllPrefix 4 sfPieceDefinableDifferenceProducerBody = sfPieceDefinableDifferenceProducerLaw $;
+
+def sfPieceDefinableDifferenceProducerMap(B C a b:nat): set = $ sqEnvCons b (sqEnvCons a (sqEnvCons C (sqEnvCons B sfIdentityMap))) $;
+
+theorem pcdUse_at0(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4 @ 0 = b $;
+
+theorem pcdUse_at1(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4 @ 1 = a $;
+
+theorem pcdUse_at2(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4 @ 2 = C $;
+
+theorem pcdUse_at3(B C a b:nat): $ sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4 @ 3 = B $;
+
+theorem sfPieceDefinableDifference_producer_open(B C a b:nat): $ sfRename (sfCLBallEnv (sfPieceDefinableDifferenceProducerMap B C a b) 4) 0 sfPieceDefinableDifferenceProducerBody = sfImp (sfPieceRepClosure B C) (sfImp (sfMem a C) (sfImp (sfMem b C) (sfPieceDefinableDifferenceWitness a b C))) $;
+
+theorem sfPieceDefinableDifference_produce(G B C a b:nat)(hbg:$ sfContextSub sfLBackground G $)(hc:$ nsLocal G (sfPieceRepClosure B C) $)(ha:$ nsLocal G (sfMem a C) $)(hb:$ nsLocal G (sfMem b C) $): $ nsLocal G (sfEx (sfPieceDefinableDifferenceWitnessBody a b C)) $;

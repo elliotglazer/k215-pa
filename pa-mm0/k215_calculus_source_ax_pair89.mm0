@@ -1,0 +1,20 @@
+import "k215_calculus_source_ax_loops.mm0";
+import "k215_literal_runtime_reach.mm0";
+import "k215_calculus_source_pairing.mm0";
+import "k215_calculus_source_ax_lookups.mm0";
+
+def k215PairAt89State (pc a b t c: nat): nat = $ k215PState pc (k215PVector (k215PR0 c) b (k215PR2 c) (k215PR3 c) (k215PR4 c) (k215PR5 c) a t (k215PR8 c)) $;
+
+theorem k215PairAt89ReachIn (a b t c: nat): $ k215PReach (k215PairAt89State k215Num89 a b t c) (k215PairAt89State k215Num93 (a + b) 0 (t + b) c) $;
+
+theorem k215PairAt89Cycle (a b t k c: nat): $ a + b = suc k -> k215PReach (k215PairAt89State k215Num89 a b t c) (k215PairAt89State k215Num89 0 k (suc (t + b)) c) $;
+
+theorem k215PairAt89Base (t c: nat): $ k215PReach (k215PairAt89State k215Num89 0 0 t c) (k215PairAt89State k215Num99 0 0 t c) $;
+
+def k215PairAt89Run (a b t c: nat): wff =
+ $ k215PReach (k215PairAt89State k215Num89 a b t c) (k215PairAt89State k215Num99 0 0 (t + (a, b)) c) $;
+
+def k215PairAt89Claim (k c: nat) (.a .b .t: nat): wff =
+ $ A. a A. b A. t (a + b = k -> k215PairAt89Run a b t c) $;
+
+theorem k215PairMacro89 (a b t c: nat): $ k215PReach (k215PairAt89State k215Num89 a b t c) (k215PairAt89State k215Num99 0 0 (t + (a, b)) c) $;

@@ -1,0 +1,40 @@
+import "source_piece_pcf_rep_background_r18.mm0";
+
+import "source_piece_pcf_rep_atoms_uniform_r20.mm0";
+
+import "source_piece_pcf_rep_kernel_env_domain_base.mm0";
+
+import "source_piece_pcf_rep_r16_kernel_env_domain_step.mm0";
+
+import "source_piece_pcf_rep_r16_kernel_env_lookup_head.mm0";
+
+import "source_piece_pcf_rep_r16_kernel_env_lookup_tail.mm0";
+
+import "source_piece_pcf_rep_r16_kernel_member_from_lookups.mm0";
+
+import "source_piece_pcf_rep_r16_kernel_equal_from_lookups.mm0";
+
+import "source_piece_pcf_rep_r17_kernel_empty_exists.mm0";
+
+import "source_piece_pcf_rep_r17_kernel_successor_total.mm0";
+
+theorem sfPieceRepLookupLaws_background:
+ $ (nsLocal sfLBackground sfPieceRepLookupLaws) $;
+
+theorem sfPieceNumeralSome_background(G k:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $):
+ $ (nsLocal G (sfPieceNumeralSome k)) $;
+
+theorem sfPieceEnv_domain(T:set)(G n e d:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $)(he:$ nsLocal G (sfPieceEnv T n e) $)(hd:$ nsLocal G (sfPieceNumeral n d) $):
+ $ (nsLocal G (sfPieceRepDomain e d)) $;
+
+theorem sfPieceEnv_lookup(T:set)(G n i e x w:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $)(hi:$ i < n $)(he:$ nsLocal G (sfPieceEnv T n e) $)(hx:$ nsLocal G (sfPieceNumeral (n - 1 - i) x) $):
+ $ (nsLocal G (sfPieceRepIff (sfPieceRepApplication e x w) (sfEq w (T @ i)))) $;
+
+theorem sfPieceEnv_lookup_all(T:set)(G n i e x:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $)(hi:$ i < n $)(he:$ nsLocal G (sfPieceEnv T n e) $)(hx:$ nsLocal G (sfPieceNumeral (n - 1 - i) x) $):
+ $ (nsLocal G (sfPieceRepLookup e x (T @ i))) $;
+
+theorem sfPieceEnv_member_test(T:set)(G n i j e x y:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $)(hi:$ i < n $)(hj:$ j < n $)(he:$ nsLocal G (sfPieceEnv T n e) $)(hx:$ nsLocal G (sfPieceNumeral (n - 1 - i) x) $)(hy:$ nsLocal G (sfPieceNumeral (n - 1 - j) y) $):
+ $ (nsLocal G (sfPieceRepIff (sfPieceRepMemberTest x y e) (sfMem (T @ i) (T @ j)))) $;
+
+theorem sfPieceEnv_equal_test(T:set)(G n i j e x y:nat)(hg:$ sfContextWf G $)(hb:$ sfContextSub sfLBackground G $)(hi:$ i < n $)(hj:$ j < n $)(he:$ nsLocal G (sfPieceEnv T n e) $)(hx:$ nsLocal G (sfPieceNumeral (n - 1 - i) x) $)(hy:$ nsLocal G (sfPieceNumeral (n - 1 - j) y) $):
+ $ (nsLocal G (sfPieceRepIff (sfPieceRepEqualTest x y e) (sfEq (T @ i) (T @ j)))) $;

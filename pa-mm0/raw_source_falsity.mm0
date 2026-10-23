@@ -1,0 +1,22 @@
+import "raw_source_image.mm0";
+import "zfc_irreflexive.mm0";
+
+-- Concrete falsity bridge. K's distinguished contradiction decodes to
+-- self-membership, whose negation is proved from literal fixed ZFC axioms.
+def zfcExplosionProof (G p a: nat): nat = $ sfSequent G a : p $;
+
+theorem zfcProof_explosion (G p a: nat):
+  $ sfWf a -> sfNDFullDerives p (sfSequent G sfBot) ->
+    sfNDFullDerives (zfcExplosionProof G p a) (sfSequent G a) $;
+
+theorem zfcProvable_explosion (a: nat):
+  $ sfWf a -> zfcInconsistent -> zfcProvable a $;
+
+theorem rawSource_falsity_forward:
+  $ zfcProvable (rawDecode kF) -> zfcInconsistent $;
+
+theorem rawSource_falsity_reverse:
+  $ zfcInconsistent -> zfcProvable (rawDecode kF) $;
+
+theorem rawSource_falsity:
+  $ zfcProvable (rawDecode kF) <-> zfcInconsistent $;

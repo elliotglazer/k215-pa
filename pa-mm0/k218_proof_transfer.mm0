@@ -1,0 +1,21 @@
+import "k218_translation_logic.mm0";
+
+-- This module is a conditional finite-proof transport theorem. The actual
+-- set-theory bundle images needed for its hypothesis are still unproved.
+def k218TranslatedClass (.a: nat): set =
+  $ {a | k218Provable (k218Translate a)} $;
+
+theorem k218TranslatedClass_value (a: nat):
+  $ a e. k218TranslatedClass <-> k218Provable (k218Translate a) $;
+theorem k218TranslatedClass_MPClosed:
+  $ kMPClosed k218TranslatedClass $;
+theorem k218TranslatedClass_GenClosed:
+  $ kGenClosed k218TranslatedClass $;
+theorem k218TranslatedClass_closed:
+  $ kAxioms C_ k218TranslatedClass -> kClosed k218TranslatedClass $;
+theorem k218RawProofTransfer (a: nat):
+  $ kAxioms C_ k218TranslatedClass ->
+    kProvable a -> k218Provable (k218Translate a) $;
+theorem k218RawConsistencyTransfer:
+  $ kAxioms C_ k218TranslatedClass ->
+    (~k218Provable kF -> ~kProvable kF) $;

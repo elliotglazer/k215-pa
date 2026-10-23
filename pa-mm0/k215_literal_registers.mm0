@@ -1,0 +1,14 @@
+import "k215_literal_scans.mm0";
+
+def k215TmRegister (v r: nat): nat = $ k215TmPush 0 (k215TmPush 1 (k215TmRepeat 1 v r)) $;
+
+def k215TmFileStep (.z: nat): set =
+ $ \ z, k215TmRegister (fst z) (pi22 z) $;
+
+def k215TmFile (vs r: nat): nat = $ lrec r k215TmFileStep vs $;
+
+theorem k215TmFile_nil (r: nat): $ k215TmFile 0 r = r $;
+
+theorem k215TmFile_cons (v vs r: nat): $ k215TmFile (v : vs) r = k215TmRegister v (k215TmFile vs r) $;
+
+theorem k215TmFile_append (vs ws r: nat): $ k215TmFile (vs ++ ws) r = k215TmFile vs (k215TmFile ws r) $;

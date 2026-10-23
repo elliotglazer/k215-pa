@@ -1,0 +1,28 @@
+import "k218_translation_logic.mm1";
+
+@_ abstract def k218TranslatedClass (.a: nat): set =
+  $ {a | k218Provable (k218Translate a)} $;
+pub theorem k218TranslatedClass_value (a: nat):
+  $ a e. k218TranslatedClass <-> k218Provable (k218Translate a) $ =
+(named '(elabe ,eqtac));
+pub theorem k218TranslatedClass_MPClosed:
+  $ kMPClosed k218TranslatedClass $ =
+(named '(ax_gen @ ax_gen @ syl (bi2 k218TranslatedClass_value) @
+  mpd (syl (bi1 k218TranslatedClass_value) anr)
+    (syl k218Translated_mp (syl (bi1 k218TranslatedClass_value) anl))));
+pub theorem k218TranslatedClass_GenClosed:
+  $ kGenClosed k218TranslatedClass $ =
+(named '(ax_gen @ ax_gen @ syl (bi2 k218TranslatedClass_value) @
+  syl k218Translated_gen (bi1 k218TranslatedClass_value)));
+pub theorem k218TranslatedClass_closed:
+  $ kAxioms C_ k218TranslatedClass -> kClosed k218TranslatedClass $ =
+'(iand (iand id (a1i k218TranslatedClass_MPClosed)) (a1i k218TranslatedClass_GenClosed));
+pub theorem k218RawProofTransfer (a: nat):
+  $ kAxioms C_ k218TranslatedClass ->
+    kProvable a -> k218Provable (k218Translate a) $ =
+'(exp @ syl (bi1 k218TranslatedClass_value) @
+  mpd anr (syl kProvable_induction (syl k218TranslatedClass_closed anl)));
+pub theorem k218RawConsistencyTransfer:
+  $ kAxioms C_ k218TranslatedClass ->
+    (~k218Provable kF -> ~kProvable kF) $ =
+'(con3d (syl6 (bi1 (k218Provableeq k218Translate_kF)) k218RawProofTransfer));

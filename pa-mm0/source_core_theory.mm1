@@ -1,0 +1,221 @@
+import "source_theory.mm1";
+
+-- Ten fixed axioms, closed Separation, and closed Replacement. No Choice or Foundation in this class.
+
+@_ def zfcCoreFixed (z: nat): wff = $ z = zfcRefl \/ (z = zfcSym \/ (z = zfcTrans \/ (z = zfcEqElem \/ (z = zfcExt \/ (z = zfcEmpty \/ (z = zfcPair \/ (z = zfcUnion \/ (z = zfcPower \/ (z = zfcOmega))))))))) $;
+
+@_ abstract def zfcCoreAxioms (.z: nat): set =
+$ {z | zfcCoreFixed z \/ (zfcClosedSeparation z \/ zfcClosedReplacement z)} $;
+
+@_ abstract def zfrAxioms (.z: nat): set =
+$ {z | z e. zfcCoreAxioms \/ z = zfcFoundation} $;
+
+@_ def zfcCoreSmallContext: nat =
+$ zfcRefl : (zfcEqElem : (zfcEmpty : (zfcPair : 0))) $;
+
+pub theorem zfcCoreAxioms_value (z: nat): $ z e. zfcCoreAxioms <-> zfcCoreFixed z \/ (zfcClosedSeparation z \/ zfcClosedReplacement z) $ =
+(named '(elabe ,eqtac));
+
+pub theorem zfrAxioms_value (z: nat): $ z e. zfrAxioms <-> z e. zfcCoreAxioms \/ z = zfcFoundation $ =
+(named '(elabe ,eqtac));
+
+pub theorem zfcCoreRefl_fixed: $ zfcCoreFixed zfcRefl $ =
+'(ax_mp orl eqid);
+
+pub theorem zfcCoreSym_fixed: $ zfcCoreFixed zfcSym $ =
+'(ax_mp orr (ax_mp orl eqid));
+
+pub theorem zfcCoreTrans_fixed: $ zfcCoreFixed zfcTrans $ =
+'(ax_mp orr (ax_mp orr (ax_mp orl eqid)));
+
+pub theorem zfcCoreEqElem_fixed: $ zfcCoreFixed zfcEqElem $ =
+'(ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))));
+
+pub theorem zfcCoreExt_fixed: $ zfcCoreFixed zfcExt $ =
+'(ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))));
+
+pub theorem zfcCoreEmpty_fixed: $ zfcCoreFixed zfcEmpty $ =
+'(ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))));
+
+pub theorem zfcCorePair_fixed: $ zfcCoreFixed zfcPair $ =
+'(ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))))));
+
+pub theorem zfcCoreUnion_fixed: $ zfcCoreFixed zfcUnion $ =
+'(ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid))))))));
+
+pub theorem zfcCorePower_fixed: $ zfcCoreFixed zfcPower $ =
+'(ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orl eqid)))))))));
+
+pub theorem zfcCoreOmega_fixed: $ zfcCoreFixed zfcOmega $ =
+'(ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr (ax_mp orr eqid)))))))));
+
+pub theorem zfcCoreFixed_zfcFixed (z: nat): $ zfcCoreFixed z -> zfcFixed z $ =
+'(eori (syl orl id) (eori (syl orr (syl orl id)) (eori (syl orr (syl orr (syl orl id))) (eori (syl orr (syl orr (syl orr (syl orl id)))) (eori (syl orr (syl orr (syl orr (syl orr (syl orl id))))) (eori (syl orr (syl orr (syl orr (syl orr (syl orr (syl orl id)))))) (eori (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orl id))))))) (eori (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orl id)))))))) (eori (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orl id))))))))) (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orl id)))))))))))))))))));
+
+pub theorem zfcCoreFixed_member (z: nat): $ zfcCoreFixed z -> z e. zfcCoreAxioms $ =
+'(syl (bi2 zfcCoreAxioms_value) orl);
+
+pub theorem zfcCoreClosedSeparation_member (z: nat): $ zfcClosedSeparation z -> z e. zfcCoreAxioms $ =
+'(syl (bi2 zfcCoreAxioms_value) (syl orr orl));
+
+pub theorem zfcCoreClosedReplacement_member (z: nat): $ zfcClosedReplacement z -> z e. zfcCoreAxioms $ =
+'(syl (bi2 zfcCoreAxioms_value) (syl orr orr));
+
+theorem zfcCoreSeparation_witness_n (phi n z: nat):
+ $ (sfBound (suc n) phi /\ z = zfcSeparationCode phi n) ->
+ E. k (sfBound (suc k) phi /\ z = zfcSeparationCode phi k) $ =
+ (named '(!! iexe k ,eqtac));
+theorem zfcCoreSeparation_witness (phi n z: nat):
+ $ (sfBound (suc n) phi /\ z = zfcSeparationCode phi n) ->
+ E. p E. k (sfBound (suc k) p /\ z = zfcSeparationCode p k) $ =
+ (named '(syl (!! iexe p ,eqtac) zfcCoreSeparation_witness_n));
+
+theorem zfcCoreReplacement_witness_n (phi n z: nat):
+ $ (sfBound (suc (suc n)) phi /\ z = zfcReplacementCode phi n) ->
+ E. k (sfBound (suc (suc k)) phi /\ z = zfcReplacementCode phi k) $ =
+ (named '(!! iexe k ,eqtac));
+theorem zfcCoreReplacement_witness (phi n z: nat):
+ $ (sfBound (suc (suc n)) phi /\ z = zfcReplacementCode phi n) ->
+ E. p E. k (sfBound (suc (suc k)) p /\ z = zfcReplacementCode p k) $ =
+ (named '(syl (!! iexe p ,eqtac) zfcCoreReplacement_witness_n));
+
+pub theorem zfcCoreSeparationCode_member (phi n: nat): $ sfBound (suc n) phi -> zfcSeparationCode phi n e. zfcCoreAxioms $ =
+(named '(syl zfcCoreClosedSeparation_member (iand zfcSeparationCode_closed (syl zfcCoreSeparation_witness (iand id (a1i eqid))))));
+
+pub theorem zfcCoreReplacementCode_member (phi n: nat): $ sfBound (suc (suc n)) phi -> zfcReplacementCode phi n e. zfcCoreAxioms $ =
+(named '(syl zfcCoreClosedReplacement_member (iand zfcReplacementCode_closed (syl zfcCoreReplacement_witness (iand id (a1i eqid))))));
+
+pub theorem zfcCoreAxioms_zfcAxioms_member (z: nat): $ z e. zfcCoreAxioms -> z e. zfcAxioms $ =
+'(syl (eori (syl zfcFixed_member zfcCoreFixed_zfcFixed) (eori zfcClosedSeparation_member zfcClosedReplacement_member)) (bi1 zfcCoreAxioms_value));
+
+pub theorem zfcCoreAxioms_subset_zfc: $ zfcCoreAxioms C_ zfcAxioms $ =
+(named '(ax_gen zfcCoreAxioms_zfcAxioms_member));
+
+pub theorem zfcCoreAxioms_zfr_member (z: nat): $ z e. zfcCoreAxioms -> z e. zfrAxioms $ =
+'(syl (bi2 zfrAxioms_value) orl);
+
+pub theorem zfcCoreAxioms_subset_zfr: $ zfcCoreAxioms C_ zfrAxioms $ =
+(named '(ax_gen zfcCoreAxioms_zfr_member));
+
+pub theorem zfrSeparationCode_member (phi n: nat): $ sfBound (suc n) phi -> zfcSeparationCode phi n e. zfrAxioms $ =
+'(syl zfcCoreAxioms_zfr_member zfcCoreSeparationCode_member);
+
+pub theorem zfrReplacementCode_member (phi n: nat): $ sfBound (suc (suc n)) phi -> zfcReplacementCode phi n e. zfrAxioms $ =
+'(syl zfcCoreAxioms_zfr_member zfcCoreReplacementCode_member);
+
+pub theorem zfrFoundation_member: $ zfcFoundation e. zfrAxioms $ =
+'(mpbir zfrAxioms_value (ax_mp orr eqid));
+
+pub theorem zfrAxioms_zfcAxioms_member (z: nat): $ z e. zfrAxioms -> z e. zfcAxioms $ =
+'(syl (eori zfcCoreAxioms_zfcAxioms_member (syl zfcFixed_member (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orr (syl orl id))))))))))))) (bi1 zfrAxioms_value));
+
+pub theorem zfrAxioms_subset_zfc: $ zfrAxioms C_ zfcAxioms $ =
+(named '(ax_gen zfrAxioms_zfcAxioms_member));
+
+pub theorem zfcCoreAxioms_formula_closed (z: nat): $ z e. zfcCoreAxioms -> sfBound 0 z $ =
+'(syl zfcAxioms_closed zfcCoreAxioms_zfcAxioms_member);
+
+pub theorem zfcCoreAxioms_closed: $ sfTheoryClosed zfcCoreAxioms $ =
+(named '(ax_gen @ syl (bi2 sfClosedFormulaClass_value) zfcCoreAxioms_formula_closed));
+
+pub theorem zfcCoreAxioms_wf (z: nat): $ z e. zfcCoreAxioms -> sfWf z $ =
+'(syl sfBound_wf zfcCoreAxioms_formula_closed);
+
+pub theorem zfrAxioms_formula_closed (z: nat): $ z e. zfrAxioms -> sfBound 0 z $ =
+'(syl zfcAxioms_closed zfrAxioms_zfcAxioms_member);
+
+pub theorem zfrAxioms_closed: $ sfTheoryClosed zfrAxioms $ =
+(named '(ax_gen @ syl (bi2 sfClosedFormulaClass_value) zfrAxioms_formula_closed));
+
+pub theorem zfrAxioms_wf (z: nat): $ z e. zfrAxioms -> sfWf z $ =
+'(syl sfBound_wf zfrAxioms_formula_closed);
+
+pub theorem zfcCoreRefl_member: $ zfcRefl e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCoreRefl_fixed);
+
+pub theorem zfrRefl_member: $ zfcRefl e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCoreRefl_member);
+
+pub theorem zfcCoreSym_member: $ zfcSym e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCoreSym_fixed);
+
+pub theorem zfrSym_member: $ zfcSym e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCoreSym_member);
+
+pub theorem zfcCoreTrans_member: $ zfcTrans e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCoreTrans_fixed);
+
+pub theorem zfrTrans_member: $ zfcTrans e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCoreTrans_member);
+
+pub theorem zfcCoreEqElem_member: $ zfcEqElem e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCoreEqElem_fixed);
+
+pub theorem zfrEqElem_member: $ zfcEqElem e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCoreEqElem_member);
+
+pub theorem zfcCoreExt_member: $ zfcExt e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCoreExt_fixed);
+
+pub theorem zfrExt_member: $ zfcExt e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCoreExt_member);
+
+pub theorem zfcCoreEmpty_member: $ zfcEmpty e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCoreEmpty_fixed);
+
+pub theorem zfrEmpty_member: $ zfcEmpty e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCoreEmpty_member);
+
+pub theorem zfcCorePair_member: $ zfcPair e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCorePair_fixed);
+
+pub theorem zfrPair_member: $ zfcPair e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCorePair_member);
+
+pub theorem zfcCoreUnion_member: $ zfcUnion e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCoreUnion_fixed);
+
+pub theorem zfrUnion_member: $ zfcUnion e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCoreUnion_member);
+
+pub theorem zfcCorePower_member: $ zfcPower e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCorePower_fixed);
+
+pub theorem zfrPower_member: $ zfcPower e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCorePower_member);
+
+pub theorem zfcCoreOmega_member: $ zfcOmega e. zfcCoreAxioms $ =
+'(ax_mp zfcCoreFixed_member zfcCoreOmega_fixed);
+
+pub theorem zfrOmega_member: $ zfcOmega e. zfrAxioms $ =
+'(ax_mp zfcCoreAxioms_zfr_member zfcCoreOmega_member);
+
+pub theorem zfcCoreFixed_provable (z: nat): $ zfcCoreFixed z -> sfTheoryProvable zfcCoreAxioms z $ =
+'(syl (ax_mp sfTheoryAxiom_provable_closed zfcCoreAxioms_closed) zfcCoreFixed_member);
+
+pub theorem zfrFoundation_provable: $ sfTheoryProvable zfrAxioms zfcFoundation $ =
+'(ax_mp (ax_mp sfTheoryAxiom_provable_closed zfrAxioms_closed) zfrFoundation_member);
+
+pub theorem zfcCoreSmallContext_core: $ sfTheoryContext zfcCoreAxioms zfcCoreSmallContext $ =
+'(mpbir sfTheoryContext_cons (ian zfcCoreRefl_member (mpbir sfTheoryContext_cons (ian zfcCoreEqElem_member (mpbir sfTheoryContext_cons (ian zfcCoreEmpty_member (mpbir sfTheoryContext_cons (ian zfcCorePair_member sfTheoryContext_nil))))))));
+
+pub theorem zfcCoreSmallContext_zfr: $ sfTheoryContext zfrAxioms zfcCoreSmallContext $ =
+'(ax_mp (ax_mp sfTheoryContext_mono zfcCoreAxioms_subset_zfr) zfcCoreSmallContext_core);
+
+pub theorem zfcCoreSmallContext_zfc: $ sfTheoryContext zfcAxioms zfcCoreSmallContext $ =
+'(ax_mp (ax_mp sfTheoryContext_mono zfcCoreAxioms_subset_zfc) zfcCoreSmallContext_core);
+
+pub theorem zfcCoreSmallContext_wf: $ sfContextWf zfcCoreSmallContext $ =
+'(ax_mp (ax_mp sfTheoryContext_wf zfcCoreAxioms_closed) zfcCoreSmallContext_core);
+
+pub theorem zfcCoreSmallContext_Refl: $ zfcRefl IN zfcCoreSmallContext $ =
+'sfContext_member_head;
+
+pub theorem zfcCoreSmallContext_EqElem: $ zfcEqElem IN zfcCoreSmallContext $ =
+'(ax_mp sfContext_member_tail sfContext_member_head);
+
+pub theorem zfcCoreSmallContext_Empty: $ zfcEmpty IN zfcCoreSmallContext $ =
+'(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head));
+
+pub theorem zfcCoreSmallContext_Pair: $ zfcPair IN zfcCoreSmallContext $ =
+'(ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));

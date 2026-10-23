@@ -1,0 +1,38 @@
+import "k230_freshness.mm0";
+import "k230_contextual_quantifiers.mm0";
+
+-- Structural induction for every number in the literal four-tag syntax.
+def kRawAtomicClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (kMem a b e. P /\ kEq a b e. P) $;
+def kRawImpClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (a e. P /\ b e. P -> kImp a b e. P) $;
+def kRawAllClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (b e. P -> kAll a b e. P) $;
+def kRawConstructionClosed (P: set): wff =
+$ 0 e. P /\ kRawAtomicClosed P /\ kRawImpClosed P /\ kRawAllClosed P $;
+
+theorem kRaw_reconstruct (c: nat):
+ $ 4 * (rawLeft c, rawRight c) + rawTag c = c $;
+theorem kRaw_rebuild (G: wff) (c k: nat) (ht: $ G -> rawTag c = k $):
+ $ G -> c = 4 * (rawLeft c, rawRight c) + k $;
+theorem kRaw_induction (P: set) (c: nat):
+ $ kRawConstructionClosed P -> c e. P $;
+
+def kVacuousClass (x .a: nat): set =
+$ {a | kFresh a x -> kProvable (kImp a (kAll x a))} $;
+theorem kVacuousClass_value (x a: nat):
+ $ a e. kVacuousClass x <-> (kFresh a x -> kProvable (kImp a (kAll x a))) $;
+theorem kVacuousClass_closed (x: nat): $ kRawConstructionClosed (kVacuousClass x) $;
+theorem kFresh_vacuity (a x: nat):
+ $ kFresh a x -> kProvable (kImp a (kAll x a)) $;
+
+def kContextFresh (G x .a: nat): wff = $ A. a (a IN G -> kFresh a x) $;
+theorem kContextFresh_member (G x a: nat):
+ $ kContextFresh G x -> a IN G -> kFresh a x $;
+theorem kContextFresh_nil (x: nat): $ kContextFresh 0 x $;
+theorem kContextFresh_cons (G x a: nat):
+ $ kContextFresh (a : G) x <-> kFresh a x /\ kContextFresh G x $;
+theorem kContextFresh_vacuous (G x: nat):
+ $ kContextFresh G x -> kContextVacuous G x $;
+theorem kHypProvable_gen_fresh (G x a: nat) (hf: $ kContextFresh G x $):
+ $ kHypProvable G a -> kHypProvable G (kAll x a) $;

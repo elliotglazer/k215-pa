@@ -1,0 +1,235 @@
+import "source_piece_pcf_rep_case_common.mm1";
+
+import "source_piece_pcf_definable_projection_use.mm1";
+
+import "source_piece_pcf_rep_cover_bridge_r46.mm1";
+
+import "source_l_separation_image_op5_extension.mm1";
+
+-- Ex case: eliminate R (for a at depth n+1), the environment cover X of A^n and the
+-- projection Y of R along A inside X; conclude Named n (E. a) Y A by renaming one closed
+-- derivation of sfPieceDefinableExistential_recipe.
+
+-- Carrier law instance (same pattern as sfPieceDefinableEmptySource_produce).
+theorem pcrx_carrier_exact:
+  $ sfPieceRepCoverCarrierLaw = sfAll (sfAll (sfAll
+      (sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfMem 2 0))))) $ = 'eqid;
+
+theorem pcrx_carrier_prefix:
+  $ sfAllPrefix 3 (sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfMem 2 0))) =
+    sfAll (sfAll (sfAll
+      (sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfMem 2 0))))) $ =
+'(eqtr sfAllPrefix_suc (sfAlleq
+  (eqtr sfAllPrefix_suc (sfAlleq
+    (eqtr sfAllPrefix_suc (sfAlleq sfAllPrefix_zero))))));
+
+theorem pcrx_c0 (A B C: nat):
+  $ sfCLBallEnv (sqEnvCons C (sqEnvCons B (sqEnvCons A sfIdentityMap))) 3 @ 0 = C $ =
+'(eqtr sfCLBallEnv_value (eqtr (ifpos lt01S) sqEnvCons_zero));
+theorem pcrx_c1 (A B C: nat):
+  $ sfCLBallEnv (sqEnvCons C (sqEnvCons B (sqEnvCons A sfIdentityMap))) 3 @ 1 = B $ =
+'(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc lt01S)) (eqtr sqEnvCons_suc sqEnvCons_zero)));
+theorem pcrx_c2 (A B C: nat):
+  $ sfCLBallEnv (sqEnvCons C (sqEnvCons B (sqEnvCons A sfIdentityMap))) 3 @ 2 = A $ =
+'(eqtr sfCLBallEnv_value (eqtr (ifpos (mpbi ltsuc (mpbi ltsuc lt01S)))
+  (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero))));
+
+theorem pcrx_carrier_open (A B C: nat):
+  $ sfRename (sfCLBallEnv (sqEnvCons C (sqEnvCons B (sqEnvCons A sfIdentityMap))) 3) 0
+      (sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfMem 2 0))) =
+    sfImp (sfPieceRepSuccessor A B) (sfImp (sfPieceRepClosure B C) (sfMem A C)) $ =
+'(eqtr sfRename_sfImp (sfImpeq
+  (eqtr sfPieceRepSuccessor_rename
+    (sfPieceRepSuccessor_eq (eqtr sfRenameIndex_zero pcrx_c2) (eqtr sfRenameIndex_zero pcrx_c1)))
+  (eqtr sfRename_sfImp (sfImpeq
+    (eqtr sfPieceRepClosure_rename
+      (sfPieceRepClosure_eq (eqtr sfRenameIndex_zero pcrx_c1) (eqtr sfRenameIndex_zero pcrx_c0)))
+    (eqtr sfRename_sfMem (sfMemeq (eqtr sfRenameIndex_zero pcrx_c2) (eqtr sfRenameIndex_zero pcrx_c0)))))));
+
+pub theorem sfPieceRepCase_carrier (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ nsLocal G (sfMem A C) $ =
+'(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+  (sfRQ_rewrite pcrx_carrier_open
+    (sfLReplacementPrefix_eliminate
+      (sfRQ_rewrite (eqcom pcrx_carrier_prefix)
+        (sfRQ_rewrite pcrx_carrier_exact
+          (ax_mp (ax_mp (ax_mp nsLocal_weaken hg) hbg) pcr41_carrier_local)))))) hs)) hc);
+
+-- The closed derivation: in the context [Named (n+1) a 2 1, Cover 1 3 n, Proj 2 3 1 0, Total].
+theorem pcrx_ctx_wf (n a: nat):
+  $ sfContextWf (sfPieceDefinableExistentialTotal :
+      (sfPieceDefinableExistentialProjection 2 3 1 0 :
+        (sfPieceRepEnvironmentCoverAt 1 3 n :
+          (sfPieceDefinableNamed (suc n) a 2 1 : 0)))) $ =
+'(mpbir sfContextWf_cons (ian sfPieceDefinableExistentialTotal_wf
+  (mpbir sfContextWf_cons (ian sfPieceDefinableExistentialProjection_wf
+    (mpbir sfContextWf_cons (ian sfPieceDefinableExistential_cover_wf
+      (mpbir sfContextWf_cons (ian sfORBinary_wf sfContextWf_nil))))))));
+
+theorem pcrx_pure (n a: nat) (hb: $ sfBound (suc n) a $):
+  $ nsLocal 0 (sfImp (sfPieceDefinableNamed (suc n) a 2 1)
+      (sfImp (sfPieceRepEnvironmentCoverAt 1 3 n)
+        (sfImp (sfPieceDefinableExistentialProjection 2 3 1 0)
+          (sfImp sfPieceDefinableExistentialTotal
+            (sfPieceDefinableNamed n (sfEx a) 0 1))))) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II
+  (sfRQ_rewrite (eqcom (sfPieceRepCase_named01 (mpbir sfBound_sfEx hb)))
+    (sfPieceDefinableExistential_recipe hb
+      (ax_mp (ax_mp nsLocal_hyp pcrx_ctx_wf) (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orl eqid)))))))))
+      (ax_mp (ax_mp nsLocal_hyp pcrx_ctx_wf) (mpbir lmemS (orr (mpbir lmemS (orr (mpbir lmemS (orl eqid)))))))
+      (ax_mp (ax_mp nsLocal_hyp pcrx_ctx_wf) (mpbir lmemS (orr (mpbir lmemS (orl eqid)))))
+      (ax_mp (ax_mp nsLocal_hyp pcrx_ctx_wf) (mpbir lmemS (orl eqid)))))))));
+
+-- The renaming 0 -> Y, 1 -> A, 2 -> R, 3 -> X.
+theorem pcrx_m0 (Y A R X: nat):
+  $ sqEnvCons Y (sqEnvCons A (sqEnvCons R (sqEnvCons X sfIdentityMap))) @ 0 = Y $ =
+'sqEnvCons_zero;
+theorem pcrx_m1 (Y A R X: nat):
+  $ sqEnvCons Y (sqEnvCons A (sqEnvCons R (sqEnvCons X sfIdentityMap))) @ 1 = A $ =
+'(eqtr sqEnvCons_suc sqEnvCons_zero);
+theorem pcrx_m2 (Y A R X: nat):
+  $ sqEnvCons Y (sqEnvCons A (sqEnvCons R (sqEnvCons X sfIdentityMap))) @ 2 = R $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero));
+theorem pcrx_m3 (Y A R X: nat):
+  $ sqEnvCons Y (sqEnvCons A (sqEnvCons R (sqEnvCons X sfIdentityMap))) @ 3 = X $ =
+'(eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc sqEnvCons_zero)));
+
+theorem pcrx_rename_eq (n a Y A R X: nat) (hb: $ sfBound (suc n) a $):
+  $ sfRename (sqEnvCons Y (sqEnvCons A (sqEnvCons R (sqEnvCons X sfIdentityMap)))) 0
+      (sfImp (sfPieceDefinableNamed (suc n) a 2 1)
+        (sfImp (sfPieceRepEnvironmentCoverAt 1 3 n)
+          (sfImp (sfPieceDefinableExistentialProjection 2 3 1 0)
+            (sfImp sfPieceDefinableExistentialTotal
+              (sfPieceDefinableNamed n (sfEx a) 0 1))))) =
+    sfImp (sfPieceDefinableNamed (suc n) a R A)
+      (sfImp (sfPieceRepEnvironmentCoverAt A X n)
+        (sfImp (sfPieceDefinableExistentialProjection R X A Y)
+          (sfImp sfPieceDefinableExistentialTotal
+            (sfPieceDefinableNamed n (sfEx a) Y A)))) $ =
+'(eqtr sfRename_sfImp (sfImpeq
+  (eqtr (sfPieceDefinableNamed_rename hb)
+    (sfPieceDefinableNamed_congr hb (eqtr sfRenameIndex_zero pcrx_m2) (eqtr sfRenameIndex_zero pcrx_m1)))
+  (eqtr sfRename_sfImp (sfImpeq
+    (eqtr sfPieceRepEnvironmentCoverAt_rename
+      (sfPieceDefinableExistential_cover_congr pcrx_m1 pcrx_m3))
+    (eqtr sfRename_sfImp (sfImpeq
+      (eqtr sfPieceDefinableExistentialProjection_rename
+        (sfPieceDefinableExistentialProjection_congr pcrx_m2 pcrx_m3 pcrx_m1 pcrx_m0))
+      (eqtr sfRename_sfImp (sfImpeq sfPieceDefinableExistentialTotal_rename
+        (eqtr (sfPieceDefinableNamed_rename (mpbir sfBound_sfEx hb))
+          (sfPieceDefinableNamed_congr (mpbir sfBound_sfEx hb)
+            (eqtr sfRenameIndex_zero pcrx_m0) (eqtr sfRenameIndex_zero pcrx_m1)))))))))));
+
+pub theorem sfPieceRepCaseEx_rule (G n a Y A R X: nat)
+  (hg: $ sfContextWf G $) (hb: $ sfBound (suc n) a $)
+  (hR: $ nsLocal G (sfPieceDefinableNamed (suc n) a R A) $)
+  (hC: $ nsLocal G (sfPieceRepEnvironmentCoverAt A X n) $)
+  (hP: $ nsLocal G (sfPieceDefinableExistentialProjection R X A Y) $)
+  (hT: $ nsLocal G sfPieceDefinableExistentialTotal $):
+  $ nsLocal G (sfPieceDefinableNamed n (sfEx a) Y A) $ =
+'(ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp
+  (ax_mp (ax_mp (ax_mp nsLocal_weaken hg) all0)
+    (sfRQ_rewrite (pcrx_rename_eq hb)
+      (mpbi (nsLocal_context_eq sfContextRename_nil)
+        (ax_mp sfSepLocal_rename (pcrx_pure hb)))))) hR)) hC)) hP)) hT);
+
+theorem pcrx_sshift (x y: nat):
+  $ sfShift 0 (sfPieceRepSuccessor x y) = sfPieceRepSuccessor (suc x) (suc y) $ =
+'(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepSuccessor_wf))
+  (eqtr sfPieceRepSuccessor_rename
+    (sfPieceRepSuccessor_eq (eqtr sfRenameIndex_zero sfSuccessorMap_value)
+      (eqtr sfRenameIndex_zero sfSuccessorMap_value))));
+
+-- Level 3: Y = 0, X = 1, R = 2.
+theorem pcrx_l3 (G2 A2 C2 n a: nat) (hb: $ sfBound (suc n) a $)
+  (hg2: $ sfContextWf G2 $) (hbg2: $ sfContextSub sfLBackground G2 $)
+  (hr: $ nsLocal G2 (sfPieceDefinableNamed (suc n) a 1 A2) $)
+  (hcv: $ nsLocal G2 (sfPieceRepEnvironmentCoverAt A2 0 n) $):
+  $ nsLocal (sfPieceDefinableProjectionWitnessBody 1 0 A2 C2 : sfContextShift G2)
+      (sfShift 0 (sfPieceDefinableWitness A2 C2 n (sfEx a))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfEx hb)))
+  (sfPieceDefinableWitness_intro (mpbir sfBound_sfEx hb)
+    (ax_mp nsLocal_CE1 (sfPieceRepCase_head sfPieceDefinableProjectionWitnessBody_wf))
+    (sfPieceRepCaseEx_rule (sfPieceRepCase_ctx sfPieceDefinableProjectionWitnessBody_wf) hb
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hb)
+        (sfPieceDefinableExistential_under sfPieceDefinableProjectionWitnessBody_wf hr))
+      (sfRQ_rewrite sfPieceDefinableExistential_cover_shift
+        (sfPieceDefinableExistential_under sfPieceDefinableProjectionWitnessBody_wf hcv))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head sfPieceDefinableProjectionWitnessBody_wf))
+      (ax_mp (ax_mp (ax_mp nsLocal_weaken (sfPieceRepCase_ctx sfPieceDefinableProjectionWitnessBody_wf))
+        (sfPieceRepCase_bg_under hg2 hbg2)) sfLSeparationOp5Extension_local))));
+
+-- Level 2: X = 0, R = 1; produce the projection.
+theorem pcrx_l2 (G1 A1 B1 C1 n a: nat)
+  (hg1: $ sfContextWf G1 $) (hbg1: $ sfContextSub sfLBackground G1 $)
+  (hs1: $ nsLocal G1 (sfPieceRepSuccessor A1 B1) $)
+  (hc1: $ nsLocal G1 (sfPieceRepClosure B1 C1) $)
+  (hb: $ sfBound (suc n) a $)
+  (hrm: $ nsLocal G1 (sfMem 0 C1) $)
+  (hr: $ nsLocal G1 (sfPieceDefinableNamed (suc n) a 0 A1) $):
+  $ nsLocal (sfPieceRepEnvironmentCoverBody A1 C1 n : sfContextShift G1)
+      (sfShift 0 (sfPieceDefinableWitness A1 C1 n (sfEx a))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfEx hb)))
+  (ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+    (sfPieceDefinableProjection_produce
+      (sfPieceRepCase_bg_under hg1 hbg1)
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hc1))
+      sfPieceRepCoverWitnessContext_member
+      (sfRQ_rewrite sfPieceRepCase_mshift
+        (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hrm))
+      (sfPieceRepCase_carrier
+        (sfPieceRepCase_ctx sfPieceRepEnvironmentCoverBody_wf)
+        (sfPieceRepCase_bg_under hg1 hbg1)
+        (sfRQ_rewrite pcrx_sshift
+          (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hs1))
+        (sfRQ_rewrite sfPieceRepClosure_shift
+          (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hc1)))))
+    (pcrx_l3 hb
+      (sfPieceRepCase_ctx sfPieceRepEnvironmentCoverBody_wf)
+      (sfPieceRepCase_bg_under hg1 hbg1)
+      (sfRQ_rewrite (sfPieceDefinableConjunction_named_shift_code hb)
+        (sfPieceDefinableExistential_under sfPieceRepEnvironmentCoverBody_wf hr))
+      sfPieceRepCoverWitnessContext_cover)));
+
+-- Level 1: R = 0; produce the environment cover X of A^n.
+theorem pcrx_l1 (G A B C n a: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hb: $ sfBound (suc n) a $):
+  $ nsLocal (sfAnd (sfMem 0 (suc C)) (sfPieceDefinableNamed (suc n) a 0 (suc A)) : sfContextShift G)
+      (sfShift 0 (sfPieceDefinableWitness A C n (sfEx a))) $ =
+'(sfRQ_rewrite (eqcom (sfPieceRepCase_wshift (mpbir sfBound_sfEx hb)))
+  (ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+    (sfPieceRepEnvironmentCover_background
+      (sfPieceRepCase_ctx (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))
+      (sfPieceRepCase_bg_under hg hbg)
+      (sfRQ_rewrite pcrx_sshift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hs))
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hc))))
+    (pcrx_l2
+      (sfPieceRepCase_ctx (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))
+      (sfPieceRepCase_bg_under hg hbg)
+      (sfRQ_rewrite pcrx_sshift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hs))
+      (sfRQ_rewrite sfPieceRepClosure_shift
+        (sfPieceDefinableExistential_under (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf) hc))
+      hb
+      (ax_mp nsLocal_CE1 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf)))
+      (ax_mp nsLocal_CE2 (sfPieceRepCase_head (ax_mp (ax_mp sfWf_and sfWf_mem) sfORBinary_wf))))));
+
+pub theorem sfPieceRepCaseEx (G A B C n a: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hb: $ sfBound (suc n) a $)
+  (hw: $ nsLocal G (sfPieceDefinableWitness A C (suc n) a) $):
+  $ nsLocal G (sfPieceDefinableWitness A C n (sfEx a)) $ =
+'(ax_mp (ax_mp (sfLocal_exE sfPieceDefinableWitness_wf)
+  (sfRQ_rewrite (sfPieceDefinableNamed_witness_eq hb) hw))
+  (pcrx_l1 hg hbg hs hc hb));

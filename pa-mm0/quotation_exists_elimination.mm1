@@ -1,0 +1,32 @@
+import "quotation_quantifiers.mm1";
+
+pub theorem sqLocal_exE_matrix (H: nat) (E: set) (t k a q: nat)
+ (ha: $ sfWf a $) (hf: $ kContextFresh H k $) (hq: $ kFresh q k $):
+ $ sqLocal H E t k 0 (sfEx a) ->
+   kHypProvable (sqScopeEx E t k a : H) q -> kHypProvable H q $ =
+'(exp @ sylc
+ (kHypProvable_exists_elim (ax_mp kContextFresh_vacuous hf) (kFresh_vacuity hq))
+ (syl (bi1 (kHypProvableeq2 (sqQuote_ex_cons ha))) anl)
+ (syl kHypProvable_deduction anr));
+
+theorem sqEE_matrix_member (H: nat) (E: set) (t k a: nat):
+ $ kHypProvable (sqScopeEx E t k a : H) (sqScopeEx E t k a) $ =
+'(kHypProvable_assumption lmemconsid);
+theorem sqEE_domain (H: nat) (E: set) (t k a: nat):
+ $ kHypProvable (sqScopeEx E t k a : H) (kMem t k) $ =
+'(kHypProvable_mp sqEE_matrix_member (kHypProvable_seed kPropAndLeft));
+theorem sqEE_body (H: nat) (E: set) (t k a: nat):
+ $ kHypProvable (sqScopeEx E t k a : H) (sqScopeBody E t k a) $ =
+'(kHypProvable_mp sqEE_matrix_member (kHypProvable_seed kPropAndRight));
+theorem sqEE_context_support (H: nat) (E: set) (t k a: nat):
+ $ kContextSupports (sqScopeEx E t k a : H) H $ =
+(named '(kContextSupports_inclusion (ax_gen (syl (bi2 lmemS) orr))));
+pub theorem sqExMatrix_support (H: nat) (E: set) (t k a: nat):
+ $ kContextSupports (sqScopeEx E t k a : H)
+     (sqScopeBody E t k a : (kMem t k : H)) $ =
+'(kContextSupports_cons (kContextSupports_cons sqEE_context_support sqEE_domain) sqEE_body);
+pub theorem sqLocal_exE_split (H: nat) (E: set) (t k a q: nat)
+ (ha: $ sfWf a $) (hf: $ kContextFresh H k $) (hq: $ kFresh q k $):
+ $ sqLocal H E t k 0 (sfEx a) ->
+   kHypProvable (sqScopeBody E t k a : (kMem t k : H)) q -> kHypProvable H q $ =
+'(syl5 (kHypProvable_refine sqExMatrix_support) (sqLocal_exE_matrix ha hf hq));

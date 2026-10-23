@@ -1,0 +1,66 @@
+import "source_l_separation_image_reflected_collection.mm1";
+import "source_l_common_level_zero_lift.mm1";
+
+@_ def sfLReplacementCommonProducerContext(count phi:nat):nat =
+ $ sfLReplacementLevelExtension : (sfLReplacementAboveLaw count phi :
+   (sfLReplacementLevelExistsLaw : (sfReflectionHierarchySubsetNormal sfCLHierarchy :
+     (sfCLRecipe 0 0 : 0)))) $;
+@_ def lrscmInput(params count phi:nat):nat =
+ $ sfCLPredicates sfLDomain 0 params : sfLReplacementCommonProducerContext count phi $;
+
+theorem lrscm_context_wf(count phi:nat)(hb:$ sfBound count phi $):
+ $ sfContextWf (sfLReplacementCommonProducerContext count phi) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp sfBound_wf sfLReplacementLevelExtension_bound)
+  (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf (slSepAboveLaw_bound hb))
+   (mpbir sfContextWf_cons (ian (ax_mp sfBound_wf sfLReplacementLevelExists_bound)
+    (mpbir sfContextWf_cons (ian rfmc_subnormal_wf
+     (mpbir sfContextWf_cons (ian sfCLRecipe_wf sfContextWf_nil))))))))));
+
+theorem lrscm_input_wf(params count phi:nat)(hb:$ sfBound count phi $):
+ $ sfContextWf (lrscmInput params count phi) $ =
+ '(mpbir sfContextWf_cons (ian sfCLPredicates_wf (lrscm_context_wf hb)));
+
+theorem lrscm_hypI(params count phi:nat)(hb:$ sfBound count phi $):
+ $ nsLocal (lrscmInput params count phi) (sfCLPredicates sfLDomain 0 params) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (lrscm_input_wf hb)) sfContext_member_head);
+
+theorem lrscm_hypE(params count phi:nat)(hb:$ sfBound count phi $):
+ $ nsLocal (lrscmInput params count phi) sfLReplacementLevelExtension $ =
+ '(ax_mp (ax_mp nsLocal_hyp (lrscm_input_wf hb)) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem lrscm_hypA(params count phi:nat)(hb:$ sfBound count phi $):
+ $ nsLocal (lrscmInput params count phi) (sfLReplacementAboveLaw count phi) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (lrscm_input_wf hb)) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+
+theorem lrscm_hypL(params count phi:nat)(hb:$ sfBound count phi $):
+ $ nsLocal (lrscmInput params count phi) sfLReplacementLevelExistsLaw $ =
+ '(ax_mp (ax_mp nsLocal_hyp (lrscm_input_wf hb)) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))));
+
+theorem lrscm_hypS(params count phi:nat)(hb:$ sfBound count phi $):
+ $ nsLocal (lrscmInput params count phi) (sfReflectionHierarchySubsetNormal sfCLHierarchy) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (lrscm_input_wf hb)) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+
+theorem lrscm_hyp0(params count phi:nat)(hb:$ sfBound count phi $):
+ $ nsLocal (lrscmInput params count phi) (sfCLRecipe 0 0) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (lrscm_input_wf hb)) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))));
+
+pub theorem sfLReplacementCommonReflected_local(params count phi:nat)(hb:$ sfBound count phi $):
+ $ nsLocal (sfLReplacementCommonProducerContext count phi) (sfCLCommonReflectedLaw 0 params count phi) $ =
+ '(ax_mp nsLocal_II
+  (sfLSeparationReflectedRecipe_from_collected hb (lrscm_hypA hb) (lrscm_hypL hb) (lrscm_hypS hb)
+   (sfLSeparationImage_collect_from_initial (lrscm_hypE hb) (lrscm_hyp0 hb) (lrscm_hypI hb))));
+
+pub theorem sfLReplacementCommonReflected_from_source_proofs(params count phi:nat)
+ (hb:$ sfBound count phi $)
+ (hE:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExtension $)
+ (hA:$ sfTheoryProvable zfrAxioms (sfLReplacementAboveLaw count phi) $)
+ (hL:$ sfTheoryProvable zfrAxioms sfLReplacementLevelExistsLaw $)
+ (hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $):
+ $ sfTheoryProvable zfrAxioms (sfCLCommonReflectedLaw 0 params count phi) $ =
+ '(ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed)
+  (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hE)
+   (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hA)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hL)
+     (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hS)
+      (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value sfCLZero_zfr) sfTheoryContext_nil)))))))))))
+   (sfLReplacementCommonReflected_local hb));

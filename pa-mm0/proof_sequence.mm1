@@ -1,0 +1,73 @@
+import "../lean-mm0/vendor/peano.mm1";
+
+@_ abstract def traceStep (R: set) (.n: nat): set =
+$ \ n, nat (true (pi22 n) /\ (fst n, pi21 n) e. R) $;
+
+@_ abstract def traceCheck (R: set) (p: nat): nat = $ lrec 1 (traceStep R) p $;
+
+@_ def traceValid (R: set) (p: nat): wff = $ true (traceCheck R p) $;
+
+@_ def traceDerives (R: set) (p a: nat): wff = $ traceValid R p /\ a IN p $;
+
+@_ def traceAppendStable (R: set) (.a .l .r: nat): wff =
+$ A. a A. l A. r ((a, l) e. R -> (a, l ++ r) e. R) $;
+
+theorem traceStep_apply (R: set) (a l v: nat):
+  $ traceStep R @ (a, l, v) = nat (true v /\ (a, l) e. R) $ =
+(named '(!! applame j @ nateqd @ aneqd
+  (trueeqd @ syl6eq pi22pr @ pi22eqd id)
+  (eleq1d @ preqd (syl6eq fstpr @ fsteqd id) (syl6eq pi21pr @ pi21eqd id))));
+pub theorem traceCheck_nil (R: set): $ traceCheck R 0 = 1 $ = (named 'lrec0);
+pub theorem traceCheck_cons (R: set) (a l: nat):
+  $ traceCheck R (a : l) = nat (traceValid R l /\ (a, l) e. R) $ =
+'(eqtr lrecS traceStep_apply);
+pub theorem traceValid_nil (R: set): $ traceValid R 0 $ =
+'(mpbir (trueeq traceCheck_nil) true1);
+pub theorem traceValid_cons (R: set) (a l: nat):
+  $ traceValid R (a : l) <-> traceValid R l /\ (a, l) e. R $ =
+'(bitr (trueeq traceCheck_cons) truenat);
+
+pub theorem traceDerives_head (R: set) (a l: nat):
+  $ traceValid R l /\ (a, l) e. R -> traceDerives R (a : l) a $ =
+'(iand (bi2 traceValid_cons) (a1i lmemconsid));
+pub theorem traceDerives_not_nil (R: set) (a: nat): $ ~traceDerives R 0 a $ =
+'(mt anr lmem0);
+
+theorem traceValid_monotone_step (R S: set) (a l: nat):
+  $ (R C_ S -> traceValid R l -> traceValid S l) ->
+    R C_ S -> traceValid R (a : l) -> traceValid S (a : l) $ =
+'(exp @ exp @ syl (bi2 traceValid_cons) @ iand
+  (mpd (anld @ syl (bi1 traceValid_cons) anr)
+    (mpd (syl anr anl) (syl anl anl)))
+  (sseld (syl anr anl) (anrd @ syl (bi1 traceValid_cons) anr)));
+pub theorem traceValid_monotone (R S: set) (p: nat):
+  $ R C_ S -> traceValid R p -> traceValid S p $ =
+(named @ induct '(listind) 'p
+  '(a1i @ a1i traceValid_nil)
+  'traceValid_monotone_step);
+pub theorem traceDerives_monotone (R S: set) (p a: nat):
+  $ R C_ S -> traceDerives R p a -> traceDerives S p a $ =
+'(exp @ iand (mpd (syl anl anr) (syl traceValid_monotone anl)) (syl anr anr));
+
+theorem traceAppendStable_step (R: set) (a l r: nat):
+  $ traceAppendStable R -> (a, l) e. R -> (a, l ++ r) e. R $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+
+theorem traceValid_append_step (R: set) (a l q: nat):
+  $ (traceAppendStable R /\ traceValid R q) /\
+    (traceValid R l -> traceValid R (l ++ q)) ->
+    traceValid R (a : l) -> traceValid R ((a : l) ++ q) $ =
+'(exp @ syl (bi2 (traceValideq2 appendS)) @ syl (bi2 traceValid_cons) @ iand
+  (mpd (anld @ syl (bi1 traceValid_cons) anr) (syl anr anl))
+  (mpd (anrd @ syl (bi1 traceValid_cons) anr)
+    (syl traceAppendStable_step (syl anl @ syl anl anl))));
+
+theorem traceValid_append_under (R: set) (p q: nat):
+  $ traceAppendStable R /\ traceValid R q -> traceValid R p -> traceValid R (p ++ q) $ =
+(named @ induct '(listindd) 'p
+  '(a1d @ syl (bi2 (traceValideq2 append0)) anr)
+  'traceValid_append_step);
+
+pub theorem traceValid_append (R: set) (p q: nat):
+  $ traceAppendStable R -> traceValid R p -> traceValid R q -> traceValid R (p ++ q) $ =
+'(com23 @ exp traceValid_append_under);

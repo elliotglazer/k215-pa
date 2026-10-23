@@ -1,0 +1,410 @@
+import "source_l_choice_core.mm1";
+import "source_k_upper_ex_logic.mm1";
+
+-- Templates for absoluteness of Delta0 / upward absoluteness of Sigma formulas for L
+-- (Rocq OldZFC/Z_rel.v D0_abs, Sg_up), used node by node by source_l_choice_up_ll.
+
+-- L is a transitive class.
+@_ def sfLTransC: nat = $ sfAll (sfImp sfLDomain (sfAll (sfImp (sfMem 0 1) sfLDomain))) $;
+
+theorem cu_trans_bound: $ sfBound 0 sfLTransC $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian sfLDomain_bound
+  (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian d0lt2 d1lt2))
+   (ax_mp (ax_mp sfBound_mono sfLDomain_bound) (mpbi lesuc le01))))))));
+
+------------------------------------------------------------------------
+-- Generic propositional helpers.
+
+theorem cu_cons_wf (G x: nat) (hx: $ sfWf x $) (hg: $ sfContextWf G $): $ sfContextWf (x : G) $ =
+'(mpbir sfContextWf_cons (ian hx hg));
+
+theorem cu_head (G x: nat) (hx: $ sfWf x $) (hg: $ sfContextWf G $): $ nsLocal (x : G) x $ =
+'(ax_mp (ax_mp nsLocal_hyp (cu_cons_wf hx hg)) sfContext_member_head);
+
+theorem cu_imp_refl (G c: nat) (hg: $ sfContextWf G $) (hc: $ sfWf c $): $ nsLocal G (sfImp c c) $ =
+'(ax_mp nsLocal_II (cu_head hc hg));
+
+theorem cu_mp_w (G x p q: nat) (hx: $ sfWf x $) (hg: $ sfContextWf G $)
+ (h: $ nsLocal G (sfImp p q) $) (hp: $ nsLocal (x : G) p $): $ nsLocal (x : G) q $ =
+'(ax_mp (ax_mp nsLocal_mp (cl2_wk hx hg h)) hp);
+
+theorem cu_and_map (G p q p2 q2: nat) (hg: $ sfContextWf G $) (hp: $ sfWf p $) (hq: $ sfWf q $)
+ (h1: $ nsLocal G (sfImp p p2) $) (h2: $ nsLocal G (sfImp q q2) $):
+ $ nsLocal G (sfImp (sfAnd p q) (sfAnd p2 q2)) $ =
+'(ax_mp nsLocal_II (ax_mp (ax_mp sfLocal_and
+  (cu_mp_w (ax_mp (ax_mp sfWf_and hp) hq) hg h1 (ax_mp nsLocal_CE1 (cu_head (ax_mp (ax_mp sfWf_and hp) hq) hg))))
+  (cu_mp_w (ax_mp (ax_mp sfWf_and hp) hq) hg h2 (ax_mp nsLocal_CE2 (cu_head (ax_mp (ax_mp sfWf_and hp) hq) hg)))));
+
+theorem cu_or_map (G p q p2 q2: nat) (hg: $ sfContextWf G $) (hp: $ sfWf p $) (hq: $ sfWf q $)
+ (hp2: $ sfWf p2 $) (hq2: $ sfWf q2 $)
+ (h1: $ nsLocal G (sfImp p p2) $) (h2: $ nsLocal G (sfImp q q2) $):
+ $ nsLocal G (sfImp (sfOr p q) (sfOr p2 q2)) $ =
+'(ax_mp nsLocal_II (ax_mp (ax_mp (ax_mp nsLocal_DE (cu_head (ax_mp (ax_mp sfWf_or hp) hq) hg))
+  (ax_mp (ax_mp nsLocal_DI1 hq2)
+   (cu_mp_w hp (cu_cons_wf (ax_mp (ax_mp sfWf_or hp) hq) hg) (cl2_wk (ax_mp (ax_mp sfWf_or hp) hq) hg h1)
+    (cu_head hp (cu_cons_wf (ax_mp (ax_mp sfWf_or hp) hq) hg)))))
+  (ax_mp (sfLocal_orR hp2)
+   (cu_mp_w hq (cu_cons_wf (ax_mp (ax_mp sfWf_or hp) hq) hg) (cl2_wk (ax_mp (ax_mp sfWf_or hp) hq) hg h2)
+    (cu_head hq (cu_cons_wf (ax_mp (ax_mp sfWf_or hp) hq) hg))))));
+
+theorem cu_imp_map (G p q p2 q2: nat) (hg: $ sfContextWf G $) (hp: $ sfWf p $) (hq: $ sfWf q $)
+ (hp2: $ sfWf p2 $)
+ (h1: $ nsLocal G (sfImp p2 p) $) (h2: $ nsLocal G (sfImp q q2) $):
+ $ nsLocal G (sfImp (sfImp p q) (sfImp p2 q2)) $ =
+'(ax_mp nsLocal_II (ax_mp nsLocal_II
+  (ax_mp (ax_mp nsLocal_mp
+    (cl2_wk hp2 (cu_cons_wf (ax_mp (ax_mp sfWf_imp hp) hq) hg) (cl2_wk (ax_mp (ax_mp sfWf_imp hp) hq) hg h2)))
+   (ax_mp (ax_mp nsLocal_mp
+     (ax_mp (ax_mp nsLocal_hyp (cu_cons_wf hp2 (cu_cons_wf (ax_mp (ax_mp sfWf_imp hp) hq) hg)))
+      (ax_mp sfContext_member_tail sfContext_member_head)))
+    (ax_mp (ax_mp nsLocal_mp
+      (cl2_wk hp2 (cu_cons_wf (ax_mp (ax_mp sfWf_imp hp) hq) hg) (cl2_wk (ax_mp (ax_mp sfWf_imp hp) hq) hg h1)))
+     (cu_head hp2 (cu_cons_wf (ax_mp (ax_mp sfWf_imp hp) hq) hg)))))));
+
+------------------------------------------------------------------------
+-- Atoms and connectives.
+
+theorem cu_mem_U (G a b: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfMem a b)) (sfMem a b)) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq sfRelativize_sfMem eqid)) (cu_imp_refl hg sfWf_mem));
+theorem cu_mem_D (G a b: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfImp (sfMem a b) (sfRelativize sfLDomain (sfMem a b))) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq eqid sfRelativize_sfMem)) (cu_imp_refl hg sfWf_mem));
+theorem cu_eq_U (G a b: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfEq a b)) (sfEq a b)) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq sfRelativize_sfEq eqid)) (cu_imp_refl hg sfWf_eq));
+theorem cu_eq_D (G a b: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfImp (sfEq a b) (sfRelativize sfLDomain (sfEq a b))) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq eqid sfRelativize_sfEq)) (cu_imp_refl hg sfWf_eq));
+theorem cu_bot_U (G: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain sfBot) sfBot) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq sfRelativize_bot eqid)) (cu_imp_refl hg sfWf_bot));
+theorem cu_bot_D (G: nat) (hg: $ sfContextWf G $):
+ $ nsLocal G (sfImp sfBot (sfRelativize sfLDomain sfBot)) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq eqid sfRelativize_bot)) (cu_imp_refl hg sfWf_bot));
+
+theorem cu_and_U (G a b: nat) (hg: $ sfContextWf G $)
+ (ha: $ nsLocal G (sfImp (sfRelativize sfLDomain a) a) $) (hb: $ nsLocal G (sfImp (sfRelativize sfLDomain b) b) $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfAnd a b)) (sfAnd a b)) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq sfRelativize_sfAnd eqid)) (cu_and_map hg chi_relwf chi_relwf ha hb));
+theorem cu_and_D (G a b: nat) (hg: $ sfContextWf G $) (wa: $ sfWf a $) (wb: $ sfWf b $)
+ (ha: $ nsLocal G (sfImp a (sfRelativize sfLDomain a)) $) (hb: $ nsLocal G (sfImp b (sfRelativize sfLDomain b)) $):
+ $ nsLocal G (sfImp (sfAnd a b) (sfRelativize sfLDomain (sfAnd a b))) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq eqid sfRelativize_sfAnd)) (cu_and_map hg wa wb ha hb));
+theorem cu_or_U (G a b: nat) (hg: $ sfContextWf G $) (wa: $ sfWf a $) (wb: $ sfWf b $)
+ (ha: $ nsLocal G (sfImp (sfRelativize sfLDomain a) a) $) (hb: $ nsLocal G (sfImp (sfRelativize sfLDomain b) b) $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfOr a b)) (sfOr a b)) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq sfRelativize_sfOr eqid)) (cu_or_map hg chi_relwf chi_relwf wa wb ha hb));
+theorem cu_or_D (G a b: nat) (hg: $ sfContextWf G $) (wa: $ sfWf a $) (wb: $ sfWf b $)
+ (ha: $ nsLocal G (sfImp a (sfRelativize sfLDomain a)) $) (hb: $ nsLocal G (sfImp b (sfRelativize sfLDomain b)) $):
+ $ nsLocal G (sfImp (sfOr a b) (sfRelativize sfLDomain (sfOr a b))) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq eqid sfRelativize_sfOr)) (cu_or_map hg wa wb chi_relwf chi_relwf ha hb));
+theorem cu_imp_U (G a b: nat) (hg: $ sfContextWf G $) (wa: $ sfWf a $)
+ (ha: $ nsLocal G (sfImp a (sfRelativize sfLDomain a)) $) (hb: $ nsLocal G (sfImp (sfRelativize sfLDomain b) b) $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfImp a b)) (sfImp a b)) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq sfRelativize_sfImp eqid)) (cu_imp_map hg chi_relwf chi_relwf wa ha hb));
+theorem cu_imp_D (G a b: nat) (hg: $ sfContextWf G $) (wa: $ sfWf a $) (wb: $ sfWf b $)
+ (ha: $ nsLocal G (sfImp (sfRelativize sfLDomain a) a) $) (hb: $ nsLocal G (sfImp b (sfRelativize sfLDomain b)) $):
+ $ nsLocal G (sfImp (sfImp a b) (sfRelativize sfLDomain (sfImp a b))) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq eqid sfRelativize_sfImp)) (cu_imp_map hg wa wb chi_relwf ha hb));
+
+------------------------------------------------------------------------
+-- Transitivity of L, used at a bound variable.
+
+theorem cu_agree0 (R: set) (i: nat): $ i = 0 -> R @ i = sfCLPairMap (R @ 0) (R @ 0) @ i $ =
+(named '(eqtrd (appeq2d id) (eqtrd (a1i (eqcom (eqtr sfCLPairMap_value (ifpos eqid)))) (eqcomd (appeq2d id)))));
+
+theorem cu_agree (R: set): $ sfRenameMapAgree R (sfCLPairMap (R @ 0) (R @ 0)) 1 $ =
+(named '(ax_gen (syl cu_agree0 (bi1 lt12))));
+
+theorem cu_dnorm (R: set): $ sfRename R 0 sfLDomain = sfLChoiceD (R @ 0) $ =
+'(ax_mp (ax_mp sfRename_bounded_agreement cu_agree) (mpbir (sfSchema_bound_index_eq add01) sfLDomain_bound));
+
+theorem cu_trans_body_wf: $ sfWf (sfImp sfLDomain (sfAll (sfImp (sfMem 0 1) sfLDomain))) $ =
+'(ax_mp (ax_mp sfWf_imp sfLDomain_wf) (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) sfLDomain_wf)));
+
+theorem cu_trans_eq1 (x: nat):
+ $ sfRename (sqEnvCons x sfIdentityMap) 0 (sfImp sfLDomain (sfAll (sfImp (sfMem 0 1) sfLDomain))) =
+   sfImp (sfLChoiceD x) (sfRename (sqEnvCons x sfIdentityMap) 0 (sfAll (sfImp (sfMem 0 1) sfLDomain))) $ =
+'(eqtr sfRename_sfImp (nsImp_eq (eqtr cu_dnorm (sfLChoiceDeq sqEnvCons_zero)) eqid));
+
+theorem cu_trans_eq2 (x y: nat):
+ $ sfRename (sqEnvCons y (sqEnvCons x sfIdentityMap)) 0 (sfImp (sfMem 0 1) sfLDomain) =
+   sfImp (sfMem y x) (sfLChoiceD y) $ =
+'(eqtr sfRename_sfImp (nsImp_eq
+  (eqtr sfRename_sfMem (nsMem_eq (eqtr sfRenameIndex_zero sqEnvCons_zero)
+    (eqtr sfRenameIndex_zero (eqtr sqEnvCons_suc sqEnvCons_zero))))
+  (eqtr cu_dnorm (sfLChoiceDeq sqEnvCons_zero))));
+
+pub theorem cu_trans_use (G x y: nat) (hT: $ nsLocal G sfLTransC $)
+ (hx: $ nsLocal G (sfLChoiceD x) $) (hm: $ nsLocal G (sfMem y x) $): $ nsLocal G (sfLChoiceD y) $ =
+'(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq cu_trans_eq2)
+  (ax_mp (cl2_all_cons (ax_mp (ax_mp sfWf_imp sfWf_mem) sfLDomain_wf))
+   (ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq cu_trans_eq1)
+     (ax_mp (cl2_all_cons cu_trans_body_wf)
+      (mpbir (nsLocal_formula_eq (ax_mp sfRename_identity (ax_mp sfWf_all cu_trans_body_wf))) hT))))
+    hx)))) hm);
+
+------------------------------------------------------------------------
+-- Moving facts into inner contexts (Y : shift (X : G)) and (Y : (Z : shift (X : G))).
+
+theorem cu_c2_wf (G X Y: nat) (hg: $ sfContextWf G $) (hX: $ sfWf X $) (hY: $ sfWf Y $):
+ $ sfContextWf (Y : sfContextShift (X : G)) $ =
+'(cu_cons_wf hY (ax_mp sfContextShift_preserves_wf (cu_cons_wf hX hg)));
+
+theorem cu_c2_shift (G X Y phi: nat) (hg: $ sfContextWf G $) (hX: $ sfWf X $) (hY: $ sfWf Y $)
+ (h: $ nsLocal G phi $): $ nsLocal (Y : sfContextShift (X : G)) (sfShift 0 phi) $ =
+'(cl2_wk hY (ax_mp sfContextShift_preserves_wf (cu_cons_wf hX hg)) (ax_mp sfSepLocal_shift (cl2_wk hX hg h)));
+
+theorem cu_c2_closed (G X Y phi: nat) (hg: $ sfContextWf G $) (hX: $ sfWf X $) (hY: $ sfWf Y $)
+ (hb: $ sfBound 0 phi $) (h: $ nsLocal G phi $): $ nsLocal (Y : sfContextShift (X : G)) phi $ =
+'(mpbi (nsLocal_formula_eq (ax_mp sfShift_closed_identity hb)) (cu_c2_shift hg hX hY h));
+
+theorem cu_c2_d (G X Y v: nat) (hg: $ sfContextWf G $) (hX: $ sfWf X $) (hY: $ sfWf Y $)
+ (h: $ nsLocal G (sfLChoiceD v) $): $ nsLocal (Y : sfContextShift (X : G)) (sfLChoiceD (suc v)) $ =
+'(mpbi (nsLocal_formula_eq chc_d_shift) (cu_c2_shift hg hX hY h));
+
+theorem cu_c3_wf (G X Y Z: nat) (hg: $ sfContextWf G $) (hX: $ sfWf X $) (hY: $ sfWf Y $) (hZ: $ sfWf Z $):
+ $ sfContextWf (Y : (Z : sfContextShift (X : G))) $ =
+'(cu_cons_wf hY (cu_c2_wf hg hX hZ));
+
+theorem cu_c3_shift (G X Y Z phi: nat) (hg: $ sfContextWf G $) (hX: $ sfWf X $) (hY: $ sfWf Y $) (hZ: $ sfWf Z $)
+ (h: $ nsLocal G phi $): $ nsLocal (Y : (Z : sfContextShift (X : G))) (sfShift 0 phi) $ =
+'(cl2_wk hY (cu_c2_wf hg hX hZ) (cu_c2_shift hg hX hZ h));
+
+theorem cu_c3_closed (G X Y Z phi: nat) (hg: $ sfContextWf G $) (hX: $ sfWf X $) (hY: $ sfWf Y $) (hZ: $ sfWf Z $)
+ (hb: $ sfBound 0 phi $) (h: $ nsLocal G phi $): $ nsLocal (Y : (Z : sfContextShift (X : G))) phi $ =
+'(mpbi (nsLocal_formula_eq (ax_mp sfShift_closed_identity hb)) (cu_c3_shift hg hX hY hZ h));
+
+theorem cu_c3_d (G X Y Z v: nat) (hg: $ sfContextWf G $) (hX: $ sfWf X $) (hY: $ sfWf Y $) (hZ: $ sfWf Z $)
+ (h: $ nsLocal G (sfLChoiceD v) $): $ nsLocal (Y : (Z : sfContextShift (X : G))) (sfLChoiceD (suc v)) $ =
+'(mpbi (nsLocal_formula_eq chc_d_shift) (cu_c3_shift hg hX hY hZ h));
+
+------------------------------------------------------------------------
+-- Bounded forall, upward.  RB = (forall x (x e. L -> x e. y_k -> psi^L)).
+
+theorem cu_rb_wf (k psi: nat):
+ $ sfWf (sfAll (sfImp sfLDomain (sfImp (sfMem 0 (suc k)) (sfRelativize sfLDomain psi)))) $ =
+'(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfLDomain_wf) (ax_mp (ax_mp sfWf_imp sfWf_mem) chi_relwf)));
+
+theorem cu_ub_w (G k psi: nat) (hg: $ sfContextWf G $):
+ $ sfContextWf (sfMem 0 (suc k) :
+   sfContextShift (sfAll (sfImp sfLDomain (sfImp (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G)) $ =
+'(cu_c2_wf hg cu_rb_wf sfWf_mem);
+
+theorem cu_ub_t (G k psi: nat) (hg: $ sfContextWf G $) (ht: $ nsLocal G sfLTransC $):
+ $ nsLocal (sfMem 0 (suc k) :
+   sfContextShift (sfAll (sfImp sfLDomain (sfImp (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G)) sfLTransC $ =
+'(cu_c2_closed hg cu_rb_wf sfWf_mem cu_trans_bound ht);
+
+theorem cu_ub_l (G k psi v: nat) (hg: $ sfContextWf G $) (h: $ nsLocal G (sfLChoiceD v) $):
+ $ nsLocal (sfMem 0 (suc k) :
+   sfContextShift (sfAll (sfImp sfLDomain (sfImp (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G))
+   (sfLChoiceD (suc v)) $ =
+'(cu_c2_d hg cu_rb_wf sfWf_mem h);
+
+theorem cu_ub_0 (G k psi: nat) (hg: $ sfContextWf G $) (ht: $ nsLocal G sfLTransC $)
+ (hk: $ nsLocal G (sfLChoiceD k) $):
+ $ nsLocal (sfMem 0 (suc k) :
+   sfContextShift (sfAll (sfImp sfLDomain (sfImp (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G))
+   (sfLChoiceD 0) $ =
+'(cu_trans_use (cu_ub_t hg ht) (cu_ub_l hg hk) (cu_head sfWf_mem (ax_mp sfContextShift_preserves_wf (cu_cons_wf cu_rb_wf hg))));
+
+theorem cu_rel_ball (k psi: nat):
+ $ sfRelativize sfLDomain (sfAll (sfImp (sfMem 0 (suc k)) psi)) =
+   sfAll (sfImp sfLDomain (sfImp (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) $ =
+'(eqtr sfRelativize_sfAll (nsAll_eq (nsImp_eq eqid (eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfMem eqid)))));
+
+pub theorem cu_ball_U (G k psi: nat) (hg: $ sfContextWf G $) (ht: $ nsLocal G sfLTransC $)
+ (hk: $ nsLocal G (sfLChoiceD k) $)
+ (hc: $ nsLocal (sfMem 0 (suc k) :
+   sfContextShift (sfAll (sfImp sfLDomain (sfImp (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G))
+   (sfImp (sfRelativize sfLDomain psi) psi) $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfAll (sfImp (sfMem 0 (suc k)) psi))) (sfAll (sfImp (sfMem 0 (suc k)) psi))) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq cu_rel_ball eqid))
+  (ax_mp nsLocal_II (ax_mp (sfLocal_allI (cu_cons_wf cu_rb_wf hg)) (ax_mp nsLocal_II
+   (ax_mp (ax_mp nsLocal_mp hc)
+    (ax_mp (ax_mp nsLocal_mp
+      (ax_mp (ax_mp nsLocal_mp
+        (cl2_wk sfWf_mem (ax_mp sfContextShift_preserves_wf (cu_cons_wf cu_rb_wf hg))
+          (ax_mp sfSepLocal_open (cu_head cu_rb_wf hg))))
+       (mpbi (nsLocal_formula_eq chc_d_zero) (cu_ub_0 hg ht hk))))
+     (cu_head sfWf_mem (ax_mp sfContextShift_preserves_wf (cu_cons_wf cu_rb_wf hg)))))))));
+
+------------------------------------------------------------------------
+-- Bounded forall, downward.
+
+theorem cu_bc_wf (k psi: nat) (hw: $ sfWf psi $): $ sfWf (sfAll (sfImp (sfMem 0 (suc k)) psi)) $ =
+'(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) hw));
+
+theorem cu_db_w (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $):
+ $ sfContextWf (sfMem 0 (suc k) : (sfLDomain : sfContextShift (sfAll (sfImp (sfMem 0 (suc k)) psi) : G))) $ =
+'(cu_c3_wf hg (cu_bc_wf hw) sfWf_mem sfLDomain_wf);
+
+theorem cu_db_t (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $) (ht: $ nsLocal G sfLTransC $):
+ $ nsLocal (sfMem 0 (suc k) : (sfLDomain : sfContextShift (sfAll (sfImp (sfMem 0 (suc k)) psi) : G))) sfLTransC $ =
+'(cu_c3_closed hg (cu_bc_wf hw) sfWf_mem sfLDomain_wf cu_trans_bound ht);
+
+theorem cu_db_l (G k psi v: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $) (h: $ nsLocal G (sfLChoiceD v) $):
+ $ nsLocal (sfMem 0 (suc k) : (sfLDomain : sfContextShift (sfAll (sfImp (sfMem 0 (suc k)) psi) : G)))
+   (sfLChoiceD (suc v)) $ =
+'(cu_c3_d hg (cu_bc_wf hw) sfWf_mem sfLDomain_wf h);
+
+theorem cu_db_0 (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $):
+ $ nsLocal (sfMem 0 (suc k) : (sfLDomain : sfContextShift (sfAll (sfImp (sfMem 0 (suc k)) psi) : G)))
+   (sfLChoiceD 0) $ =
+'(mpbir (nsLocal_formula_eq chc_d_zero)
+  (ax_mp (ax_mp nsLocal_hyp (cu_db_w hg hw)) (ax_mp sfContext_member_tail sfContext_member_head)));
+
+pub theorem cu_ball_D (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $)
+ (hc: $ nsLocal (sfMem 0 (suc k) : (sfLDomain : sfContextShift (sfAll (sfImp (sfMem 0 (suc k)) psi) : G)))
+   (sfImp psi (sfRelativize sfLDomain psi)) $):
+ $ nsLocal G (sfImp (sfAll (sfImp (sfMem 0 (suc k)) psi)) (sfRelativize sfLDomain (sfAll (sfImp (sfMem 0 (suc k)) psi)))) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq eqid cu_rel_ball))
+  (ax_mp nsLocal_II (ax_mp (sfLocal_allI (cu_cons_wf (cu_bc_wf hw) hg))
+   (ax_mp nsLocal_II (ax_mp nsLocal_II
+    (ax_mp (ax_mp nsLocal_mp hc)
+     (ax_mp (ax_mp nsLocal_mp
+       (cl2_wk sfWf_mem (cu_c2_wf hg (cu_bc_wf hw) sfLDomain_wf)
+        (cl2_wk sfLDomain_wf (ax_mp sfContextShift_preserves_wf (cu_cons_wf (cu_bc_wf hw) hg))
+         (ax_mp sfSepLocal_open (cu_head (cu_bc_wf hw) hg)))))
+      (cu_head sfWf_mem (cu_c2_wf hg (cu_bc_wf hw) sfLDomain_wf)))))))));
+
+------------------------------------------------------------------------
+-- Bounded exists, upward.  RE = exists x (x e. L /\ (x e. y_k /\ psi^L)).
+
+theorem cu_ra_wf (k psi: nat):
+ $ sfWf (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) $ =
+'(ax_mp (ax_mp sfWf_and sfLDomain_wf) (ax_mp (ax_mp sfWf_and sfWf_mem) chi_relwf));
+
+theorem cu_re_wf (k psi: nat):
+ $ sfWf (sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi)))) $ =
+'(ax_mp sfWf_ex cu_ra_wf);
+
+theorem cu_ue_w (G k psi: nat) (hg: $ sfContextWf G $):
+ $ sfContextWf (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi)) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G)) $ =
+'(cu_c2_wf hg cu_re_wf cu_ra_wf);
+
+theorem cu_ue_t (G k psi: nat) (hg: $ sfContextWf G $) (ht: $ nsLocal G sfLTransC $):
+ $ nsLocal (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi)) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G)) sfLTransC $ =
+'(cu_c2_closed hg cu_re_wf cu_ra_wf cu_trans_bound ht);
+
+theorem cu_ue_l (G k psi v: nat) (hg: $ sfContextWf G $) (h: $ nsLocal G (sfLChoiceD v) $):
+ $ nsLocal (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi)) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G))
+   (sfLChoiceD (suc v)) $ =
+'(cu_c2_d hg cu_re_wf cu_ra_wf h);
+
+theorem cu_ue_0 (G k psi: nat) (hg: $ sfContextWf G $):
+ $ nsLocal (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi)) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G))
+   (sfLChoiceD 0) $ =
+'(mpbir (nsLocal_formula_eq chc_d_zero) (ax_mp nsLocal_CE1 (cu_head cu_ra_wf
+  (ax_mp sfContextShift_preserves_wf (cu_cons_wf cu_re_wf hg)))));
+
+theorem cu_rel_bex (k psi: nat):
+ $ sfRelativize sfLDomain (sfEx (sfAnd (sfMem 0 (suc k)) psi)) =
+   sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) $ =
+'(eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid (eqtr sfRelativize_sfAnd (nsAnd_eq sfRelativize_sfMem eqid)))));
+
+pub theorem cu_bex_U (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $)
+ (hc: $ nsLocal (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi)) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfAnd (sfMem 0 (suc k)) (sfRelativize sfLDomain psi))) : G))
+   (sfImp (sfRelativize sfLDomain psi) psi) $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfEx (sfAnd (sfMem 0 (suc k)) psi))) (sfEx (sfAnd (sfMem 0 (suc k)) psi))) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq cu_rel_bex eqid))
+  (ax_mp nsLocal_II
+   (ax_mp (sfUpperLocal_ex_map (cu_cons_wf cu_re_wf hg) cu_ra_wf (ax_mp (ax_mp sfWf_and sfWf_mem) hw)
+     (ax_mp (ax_mp sfLocal_and
+       (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE2 (cu_head cu_ra_wf (ax_mp sfContextShift_preserves_wf (cu_cons_wf cu_re_wf hg))))))
+      (ax_mp (ax_mp nsLocal_mp hc)
+       (ax_mp nsLocal_CE2 (ax_mp nsLocal_CE2 (cu_head cu_ra_wf (ax_mp sfContextShift_preserves_wf (cu_cons_wf cu_re_wf hg))))))))
+    (cu_head cu_re_wf hg))));
+
+------------------------------------------------------------------------
+-- Bounded exists, downward.
+
+theorem cu_be_wf (k psi: nat) (hw: $ sfWf psi $): $ sfWf (sfEx (sfAnd (sfMem 0 (suc k)) psi)) $ =
+'(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) hw));
+
+theorem cu_de_w (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $):
+ $ sfContextWf (sfAnd (sfMem 0 (suc k)) psi : sfContextShift (sfEx (sfAnd (sfMem 0 (suc k)) psi) : G)) $ =
+'(cu_c2_wf hg (cu_be_wf hw) (ax_mp (ax_mp sfWf_and sfWf_mem) hw));
+
+theorem cu_de_t (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $) (ht: $ nsLocal G sfLTransC $):
+ $ nsLocal (sfAnd (sfMem 0 (suc k)) psi : sfContextShift (sfEx (sfAnd (sfMem 0 (suc k)) psi) : G)) sfLTransC $ =
+'(cu_c2_closed hg (cu_be_wf hw) (ax_mp (ax_mp sfWf_and sfWf_mem) hw) cu_trans_bound ht);
+
+theorem cu_de_l (G k psi v: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $) (h: $ nsLocal G (sfLChoiceD v) $):
+ $ nsLocal (sfAnd (sfMem 0 (suc k)) psi : sfContextShift (sfEx (sfAnd (sfMem 0 (suc k)) psi) : G))
+   (sfLChoiceD (suc v)) $ =
+'(cu_c2_d hg (cu_be_wf hw) (ax_mp (ax_mp sfWf_and sfWf_mem) hw) h);
+
+theorem cu_de_0 (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $) (ht: $ nsLocal G sfLTransC $)
+ (hk: $ nsLocal G (sfLChoiceD k) $):
+ $ nsLocal (sfAnd (sfMem 0 (suc k)) psi : sfContextShift (sfEx (sfAnd (sfMem 0 (suc k)) psi) : G))
+   (sfLChoiceD 0) $ =
+'(cu_trans_use (cu_de_t hg hw ht) (cu_de_l hg hw hk)
+  (ax_mp nsLocal_CE1 (cu_head (ax_mp (ax_mp sfWf_and sfWf_mem) hw)
+   (ax_mp sfContextShift_preserves_wf (cu_cons_wf (cu_be_wf hw) hg)))));
+
+pub theorem cu_bex_D (G k psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $) (ht: $ nsLocal G sfLTransC $)
+ (hk: $ nsLocal G (sfLChoiceD k) $)
+ (hc: $ nsLocal (sfAnd (sfMem 0 (suc k)) psi : sfContextShift (sfEx (sfAnd (sfMem 0 (suc k)) psi) : G))
+   (sfImp psi (sfRelativize sfLDomain psi)) $):
+ $ nsLocal G (sfImp (sfEx (sfAnd (sfMem 0 (suc k)) psi)) (sfRelativize sfLDomain (sfEx (sfAnd (sfMem 0 (suc k)) psi)))) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq eqid cu_rel_bex))
+  (ax_mp nsLocal_II
+   (ax_mp (sfUpperLocal_ex_map (cu_cons_wf (cu_be_wf hw) hg) (ax_mp (ax_mp sfWf_and sfWf_mem) hw) cu_ra_wf
+     (ax_mp (ax_mp sfLocal_and (mpbi (nsLocal_formula_eq chc_d_zero) (cu_de_0 hg hw ht hk)))
+      (ax_mp (ax_mp sfLocal_and
+        (ax_mp nsLocal_CE1 (cu_head (ax_mp (ax_mp sfWf_and sfWf_mem) hw)
+         (ax_mp sfContextShift_preserves_wf (cu_cons_wf (cu_be_wf hw) hg)))))
+       (ax_mp (ax_mp nsLocal_mp hc)
+        (ax_mp nsLocal_CE2 (cu_head (ax_mp (ax_mp sfWf_and sfWf_mem) hw)
+         (ax_mp sfContextShift_preserves_wf (cu_cons_wf (cu_be_wf hw) hg))))))))
+    (cu_head (cu_be_wf hw) hg))));
+
+------------------------------------------------------------------------
+-- Unbounded exists, upward.  RX = exists x (x e. L /\ psi^L).
+
+theorem cu_rxa_wf (psi: nat): $ sfWf (sfAnd sfLDomain (sfRelativize sfLDomain psi)) $ =
+'(ax_mp (ax_mp sfWf_and sfLDomain_wf) chi_relwf);
+
+theorem cu_rx_wf (psi: nat): $ sfWf (sfEx (sfAnd sfLDomain (sfRelativize sfLDomain psi))) $ =
+'(ax_mp sfWf_ex cu_rxa_wf);
+
+theorem cu_ux_w (G psi: nat) (hg: $ sfContextWf G $):
+ $ sfContextWf (sfAnd sfLDomain (sfRelativize sfLDomain psi) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfRelativize sfLDomain psi)) : G)) $ =
+'(cu_c2_wf hg cu_rx_wf cu_rxa_wf);
+
+theorem cu_ux_t (G psi: nat) (hg: $ sfContextWf G $) (ht: $ nsLocal G sfLTransC $):
+ $ nsLocal (sfAnd sfLDomain (sfRelativize sfLDomain psi) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfRelativize sfLDomain psi)) : G)) sfLTransC $ =
+'(cu_c2_closed hg cu_rx_wf cu_rxa_wf cu_trans_bound ht);
+
+theorem cu_ux_l (G psi v: nat) (hg: $ sfContextWf G $) (h: $ nsLocal G (sfLChoiceD v) $):
+ $ nsLocal (sfAnd sfLDomain (sfRelativize sfLDomain psi) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfRelativize sfLDomain psi)) : G)) (sfLChoiceD (suc v)) $ =
+'(cu_c2_d hg cu_rx_wf cu_rxa_wf h);
+
+theorem cu_ux_0 (G psi: nat) (hg: $ sfContextWf G $):
+ $ nsLocal (sfAnd sfLDomain (sfRelativize sfLDomain psi) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfRelativize sfLDomain psi)) : G)) (sfLChoiceD 0) $ =
+'(mpbir (nsLocal_formula_eq chc_d_zero) (ax_mp nsLocal_CE1 (cu_head cu_rxa_wf
+  (ax_mp sfContextShift_preserves_wf (cu_cons_wf cu_rx_wf hg)))));
+
+pub theorem cu_ex_U (G psi: nat) (hg: $ sfContextWf G $) (hw: $ sfWf psi $)
+ (hc: $ nsLocal (sfAnd sfLDomain (sfRelativize sfLDomain psi) :
+   sfContextShift (sfEx (sfAnd sfLDomain (sfRelativize sfLDomain psi)) : G))
+   (sfImp (sfRelativize sfLDomain psi) psi) $):
+ $ nsLocal G (sfImp (sfRelativize sfLDomain (sfEx psi)) (sfEx psi)) $ =
+'(mpbir (nsLocal_formula_eq (nsImp_eq sfRelativize_sfEx eqid))
+  (ax_mp nsLocal_II
+   (ax_mp (sfUpperLocal_ex_map (cu_cons_wf cu_rx_wf hg) cu_rxa_wf hw
+     (ax_mp (ax_mp nsLocal_mp hc)
+      (ax_mp nsLocal_CE2 (cu_head cu_rxa_wf (ax_mp sfContextShift_preserves_wf (cu_cons_wf cu_rx_wf hg))))))
+    (cu_head cu_rx_wf hg))));

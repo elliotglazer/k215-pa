@@ -1,0 +1,105 @@
+import "source_piece_pcf_definable_realization.mm1";
+import "source_piece_pcf_definable_membership.mm1";
+import "source_wf_separation_logic.mm1";
+
+@_ def sfLSeparationOp5SC(R s x:nat):nat =
+ $ sfEx (sfAnd (sfMem 0 (suc R)) (sfPieceRepExtension (suc s) (suc x) 0)) $;
+@_ def sfLSeparationOp5Point(R s A Y:nat):nat =
+ $ sfIff (sfMem 0 (suc Y))
+   (sfAnd (sfMem 0 (suc A)) (sfLSeparationOp5SC (suc R) (suc s) 0)) $;
+@_ def sfLSeparationOp5Profile(R s A Y:nat):nat =
+ $ sfAll (sfLSeparationOp5Point R s A Y) $;
+@_ def sfLSeparationOp5(R s A Y:nat):nat =
+ $ sfAnd
+  (sfAll (sfImp (sfMem 0 (suc Y))
+    (sfAnd (sfMem 0 (suc A)) (sfLSeparationOp5SC (suc R) (suc s) 0))))
+  (sfAll (sfImp (sfMem 0 (suc A))
+    (sfImp (sfLSeparationOp5SC (suc R) (suc s) 0) (sfMem 0 (suc Y))))) $;
+
+pub theorem sfLSeparationOp5SC_wf(R s x:nat): $ sfWf (sfLSeparationOp5SC R s x) $ =
+ '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceRepExtension_wf));
+pub theorem sfLSeparationOp5Point_wf(R s A Y:nat): $ sfWf (sfLSeparationOp5Point R s A Y) $ =
+ '(mpbir sfWf_iff (ian sfWf_mem (ax_mp (ax_mp sfWf_and sfWf_mem) sfLSeparationOp5SC_wf)));
+pub theorem sfLSeparationOp5SC_rename(T:set)(R s x:nat):
+ $ sfRename T 0 (sfLSeparationOp5SC R s x) = sfLSeparationOp5SC (T @ R) (T @ s) (T @ x) $ =
+ '(eqtr sfRename_sfEx (nsEx_eq (eqtr sfRename_sfAnd (nsAnd_eq
+  (eqtr sfRename_sfMem (nsMem_eq (ax_mp sfRenameIndex_bound lt01S)
+    (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))))
+  (eqtr sfPieceRepExtension_rename (sfPieceRepExtension_eq
+    (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))
+    (eqtr sfRenameIndex_lift (suceq sfRenameIndex_zero))
+    (ax_mp sfRenameIndex_bound lt01S)))))));
+pub theorem sfLSeparationOp5SC_eq(R s x R1 s1 x1:nat)(hr:$ R = R1 $)(hs:$ s = s1 $)(hx:$ x = x1 $):
+ $ sfLSeparationOp5SC R s x = sfLSeparationOp5SC R1 s1 x1 $ =
+ '(nsEx_eq (nsAnd_eq (nsMem_eq eqid (suceq hr)) (sfPieceRepExtension_eq (suceq hs) (suceq hx) eqid)));
+pub theorem sfLSeparationOp5SC_subst(d t R s x:nat):
+ $ sfSubst d t (sfLSeparationOp5SC R s x) =
+   sfLSeparationOp5SC (sfSubstIndex d t R) (sfSubstIndex d t s) (sfSubstIndex d t x) $ =
+ '(eqtr (ax_mp sfSubst_as_map sfLSeparationOp5SC_wf)
+   (eqtr sfLSeparationOp5SC_rename
+    (sfLSeparationOp5SC_eq sfSubstDepthMap_value sfSubstDepthMap_value sfSubstDepthMap_value)));
+pub theorem sfLSeparationOp5SC_shift(R s x:nat):
+ $ sfShift 0 (sfLSeparationOp5SC R s x) = sfLSeparationOp5SC (suc R) (suc s) (suc x) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfLSeparationOp5SC_wf))
+   (eqtr sfLSeparationOp5SC_rename
+    (sfLSeparationOp5SC_eq sfSuccessorMap_value sfSuccessorMap_value sfSuccessorMap_value)));
+pub theorem sfLSeparationOp5SC_open(R s x z:nat):
+ $ sfSubst 0 z (sfAnd (sfMem 0 (suc R)) (sfPieceRepExtension (suc s) (suc x) 0)) =
+   sfAnd (sfMem z R) (sfPieceRepExtension s x z) $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq
+   (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))
+   (eqtr sfPieceRepExtension_subst (sfPieceRepExtension_eq
+    sfSubstIndex_successor sfSubstIndex_successor sfSubstIndex_zero))));
+pub theorem sfLSeparationOp5SC_intro(G R s x z:nat)
+ (hr:$ nsLocal G (sfMem z R) $)(he:$ nsLocal G (sfPieceRepExtension s x z) $):
+ $ nsLocal G (sfLSeparationOp5SC R s x) $ =
+ '(ax_mp (nsLocal_ExI (ax_mp (ax_mp sfWf_and sfWf_mem) sfPieceRepExtension_wf))
+   (sfRQ_rewrite (eqcom sfLSeparationOp5SC_open) (sfLocal_and hr he)));
+
+pub theorem sfLSeparationOp5_realized_extension(T:set)(G n phi R A s x z:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hr:$ nsLocal G (sfPieceDefinableNamed (suc n) phi R A) $)
+ (hm:$ sfReflectionDnMembers T G A n $)
+ (hx:$ nsLocal G (sfMem x A) $)
+ (hs:$ nsLocal G (sfPieceEnv T n s) $)
+ (he:$ nsLocal G (sfPieceRepExtension s x z) $):
+ $ nsLocal G (sfIff (sfMem z R) (sfCLSetRel A (sfRename (sqEnvCons x T) 0 phi))) $ =
+ '(sfPieceDefinableRealization_local hb hr (sfPieceParameterMembers_cons hx hm)
+   (sfPieceEnv_cons_intro hs he));
+
+theorem slop5_andctx(G a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hg:$ sfContextWf G $):
+ $ sfContextWf ((sfAnd a b) : G) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and ha) hb) hg));
+theorem slop5_andhyp(G a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)(hg:$ sfContextWf G $):
+ $ nsLocal ((sfAnd a b) : G) (sfAnd a b) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (slop5_andctx ha hb hg)) sfContext_member_head);
+theorem slop5_uncurry(G a b c:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)
+ (hp:$ nsLocal G (sfImp a (sfImp b c)) $):
+ $ nsLocal G (sfImp (sfAnd a b) c) $ =
+ '(ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp (ax_mp nsLocal_weaken (slop5_andctx ha hb (ax_mp nsLocal_context_wf hp))) sfContextSub_cons) hp)) (ax_mp nsLocal_CE1 (slop5_andhyp ha hb (ax_mp nsLocal_context_wf hp))))) (ax_mp nsLocal_CE2 (slop5_andhyp ha hb (ax_mp nsLocal_context_wf hp)))));
+pub theorem sfLSeparationOp5_to_profile(G R s A Y:nat)
+ (hp:$ nsLocal G (sfLSeparationOp5 R s A Y) $):
+ $ nsLocal G (sfLSeparationOp5Profile R s A Y) $ =
+ '(ax_mp (sfLocal_allI (ax_mp nsLocal_context_wf hp))
+   (sfLocal_and (ax_mp sfSepLocal_open (ax_mp nsLocal_CE1 hp))
+    (slop5_uncurry sfWf_mem sfLSeparationOp5SC_wf
+      (ax_mp sfSepLocal_open (ax_mp nsLocal_CE2 hp)))));
+
+pub theorem sfLSeparationOp5Point_open(R s A Y x:nat):
+ $ sfSubst 0 x (sfLSeparationOp5Point R s A Y) =
+   sfIff (sfMem x Y) (sfAnd (sfMem x A) (sfLSeparationOp5SC R s x)) $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq
+  (eqtr sfSubst_sfImp (nsImp_eq
+   (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))
+   (eqtr sfSubst_sfAnd (nsAnd_eq
+    (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))
+    (eqtr sfLSeparationOp5SC_subst (sfLSeparationOp5SC_eq sfSubstIndex_successor sfSubstIndex_successor sfSubstIndex_zero))))))
+  (eqtr sfSubst_sfImp (nsImp_eq
+   (eqtr sfSubst_sfAnd (nsAnd_eq
+    (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))
+    (eqtr sfLSeparationOp5SC_subst (sfLSeparationOp5SC_eq sfSubstIndex_successor sfSubstIndex_successor sfSubstIndex_zero))))
+   (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor))))));
+pub theorem sfLSeparationOp5_member(G R s A Y x:nat)
+ (hp:$ nsLocal G (sfLSeparationOp5 R s A Y) $):
+ $ nsLocal G (sfIff (sfMem x Y) (sfAnd (sfMem x A) (sfLSeparationOp5SC R s x))) $ =
+ '(sfRQ_rewrite sfLSeparationOp5Point_open (ax_mp nsLocal_AllE (sfLSeparationOp5_to_profile hp)));

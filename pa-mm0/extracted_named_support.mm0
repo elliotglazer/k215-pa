@@ -1,0 +1,40 @@
+import "extracted_named_eigen.mm0";
+import "quotation_supported_eigenvariables.mm0";
+
+def exNamedSupport (H S k G .a: nat): wff =
+ $ A. a (a IN G -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a)) $;
+
+theorem exNamedSupport_member (H S k G a: nat):
+ $ exNamedSupport H S k G -> a IN G ->
+   kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $;
+theorem exNamedSupport_nil (H S k: nat): $ exNamedSupport H S k 0 $;
+theorem exNamedSupport_cons (H S k G a: nat):
+ $ exNamedSupport H S k G -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) ->
+   exNamedSupport H S k (a : G) $;
+theorem exNamedSupport_weaken (H S k G a: nat):
+ $ exNamedSupport H S k G -> exNamedSupport (a : H) S k G $;
+theorem exNamedSupport_under (H S k G a: nat):
+ $ exNamedSupport H S k G ->
+   exNamedSupport (sfNamedTemplate (sqNumericEnvironment S) k 0 a : H) S k (a : G) $;
+theorem exNamedSupport_subset (H S k G J: nat):
+ $ sfContextSub G J -> exNamedSupport H S k J -> exNamedSupport H S k G $;
+
+theorem exNamed_numeric_cons (S z k a: nat):
+ $ sfWf a -> sfNamedTemplate (sqNumericEnvironment (z : S)) k 0 a =
+   sfNamedTemplate (sqEnvCons z (sqNumericEnvironment S)) k 0 a $;
+theorem exNamed_numeric_shift (S z k a: nat):
+ $ sfWf a -> sfNamedTemplate (sqNumericEnvironment (z : S)) k 0 (sfShift 0 a) =
+   sfNamedTemplate (sqNumericEnvironment S) k 0 a $;
+theorem exNamedSupport_shift (H S z k G: nat):
+ $ sfContextWf G -> exNamedSupport H S k G ->
+   exNamedSupport H (z : S) k (sfContextShift G) $;
+theorem exNamedSupport_rebase (H S n k l G: nat):
+ $ sqSourceBound n G -> sqEnvironmentSafe S n 0 k -> sqEnvironmentSafe S n 0 l ->
+   exNamedSupport H S k G -> exNamedSupport H S l G $;
+
+def exNamedAt (p G a .n .S .k .H: nat): wff =
+ $ A. n A. S A. k A. H (p <= n -> sqEnvironmentSafe S n 0 k ->
+   exNamedSupport H S k G -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a)) $;
+theorem exNamedAt_use (p G a n S k H: nat):
+ $ exNamedAt p G a -> p <= n -> sqEnvironmentSafe S n 0 k ->
+   exNamedSupport H S k G -> kHypProvable H (sfNamedTemplate (sqNumericEnvironment S) k 0 a) $;

@@ -1,0 +1,31 @@
+import "k215_assembly_rep_hierarchy_family.mm0";
+
+-- G1 = sfZFCImageFamilies zfrAxioms sfLDomain, staged (L10). By definition G1 is
+-- Fixed /\ (Separation /\ Replacement). Replacement comes from
+-- k215AssemblyRepH_images_from_definable_laws (PASSED 00000-A-L10-011) with the same
+-- hierarchy hypotheses hE..hK. The remaining open inputs:
+--   hF   sfZFCFixedImages zfrAxioms sfLDomain: sfTVLFixedImages_from_actual_images
+--        (source_reflection_transfer_tv_images, 88k) from Transitivity^L, Pair^L, Union^L,
+--        Power^L, Omega^L, Choice^L (L01/L02/L03/L08; see lanes/L10.md)
+--   hSep sfZFCSeparationImages zfrAxioms sfLDomain (L01)
+--   the uniform definable Replacement law (antecedent; L02/L04).
+
+theorem k215AssemblyG1_from_parts {phi n: nat}
+ (hF: $ sfZFCFixedImages zfrAxioms sfLDomain $)
+ (hSep: $ sfZFCSeparationImages zfrAxioms sfLDomain $)
+ (hE: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyExists $)
+ (hU: $ sfTheoryProvable zfrAxioms sfLUniversalHierarchyUnique $)
+ (hS: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $)
+ (hL: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelLimit sfLUniversalHierarchyRelation) $)
+ (hM: $ sfTheoryProvable zfrAxioms (sfReflectionLimitLevelMono sfLUniversalHierarchyRelation) $)
+ (hK: $ sfTheoryProvable zfrAxioms
+   (sfImp sfLUniversalHierarchyExists (sfImp sfLPowerHierarchySubset sfLPowerLevelBound)) $):
+ $ (A. phi A. n (sfBound (suc (suc n)) phi ->
+     sfTheoryProvable zfrAxioms (sfLReplacementDefinableLaw (suc n) (sfLReplacementPsi phi)))) ->
+   sfZFCImageFamilies zfrAxioms sfLDomain $;
+
+-- Hypothesis-free last theorem: the unfolding of G1 used above.
+theorem k215AssemblyG1_unfold:
+ $ sfZFCImageFamilies zfrAxioms sfLDomain <->
+   (sfZFCFixedImages zfrAxioms sfLDomain /\
+    (sfZFCSeparationImages zfrAxioms sfLDomain /\ sfZFCReplacementImages zfrAxioms sfLDomain)) $;

@@ -1,0 +1,22 @@
+import "k230_quantifier_derived.mm0";
+
+-- The actual empty-object marker of BootstrapSpecializations.v.
+
+def kEmptyMarker: nat = $ kAll 2 (kImp (kMem 2 1) kF) $;
+
+def kEmptyObject: nat = $ kExists 1 kEmptyMarker $;
+
+theorem kImp_mono_right (a b c: nat)
+  (h: $ kProvable (kImp a b) $):
+  $ kProvable (kImp (kImp c a) (kImp c b)) $;
+
+theorem kExists_and_left (x a b: nat)
+  (hv: $ kProvable (kImp a (kAll x a)) $):
+  $ kProvable (kImp (kExists x (kAnd a b)) a) $;
+
+theorem kCore_empty (a b x: nat)
+  (hv: $ kProvable (kImp kF (kAll a kF)) $)
+  (hc: $ kProvable (kCore a b x kF) $):
+  $ kProvable (kExists x (kAll b (kImp (kMem b x) kF))) $;
+
+theorem kBootstrap_empty: $ kProvable kEmptyObject $;

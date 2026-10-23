@@ -1,0 +1,48 @@
+import "raw_source_image.mm0";
+import "source_renaming_laws.mm0";
+import "source_renaming_depth.mm0";
+import "source_renaming_extensional.mm0";
+import "source_substitution_renaming.mm0";
+import "source_theory_prefix.mm0";
+import "source_syntax_laws.mm0";
+import "zfc_schema_maps.mm0";
+
+-- The free indices of rawDecode c are below c.
+theorem k215RawDecode_bound (c: nat): $ sfBound c (rawDecode c) $;
+
+-- The parametric opaque atom: phi with index 0 placed at a, index 1 at b, and every index
+-- i >= 2 at p + (i - 2) (the parameters start at index p).
+def k215QPMap (a b p: nat) (.i: nat): set = $ \ i, if (i = 0) a (if (i = 1) b (p + (i - 2))) $;
+def k215QP (phi a b p: nat): nat = $ sfRename (k215QPMap a b p) 0 phi $;
+
+theorem k215QP_wf (phi a b p: nat): $ sfWf (k215QP phi a b p) $;
+
+theorem k215QP_rename (R: set) (d phi a b p a2 b2 p2: nat) {i: nat}
+  (hj: $ A. i (sfRenameIndex R d (p + (i - 2)) = p2 + (i - 2)) $)
+  (ha: $ sfRenameIndex R d a = a2 $) (hb: $ sfRenameIndex R d b = b2 $) (hf: $ sfWf phi $):
+  $ sfRename R d (k215QP phi a b p) = k215QP phi a2 b2 p2 $;
+
+theorem k215QP_shift (d phi a b p: nat) (hp: $ d <= p $) (hf: $ sfWf phi $):
+  $ sfShift d (k215QP phi a b p) =
+    k215QP phi (sfShiftIndex d a) (sfShiftIndex d b) (sfShiftIndex d p) $;
+
+theorem k215QP_subst (d t phi a b p: nat) (hp: $ d < p $) (hf: $ sfWf phi $):
+  $ sfSubst d t (k215QP phi a b p) =
+    k215QP phi (sfSubstIndex d t a) (sfSubstIndex d t b) (sfSubstIndex d t p) $;
+
+theorem k215QP_binder (x d e phi a b p a2 b2 p2: nat)
+  (hp: $ d <= p $) (he: $ p - d = e $) (hx: $ x < e $)
+  (ha: $ sfRenameIndex (rawBinderMap x) d a = a2 $)
+  (hb: $ sfRenameIndex (rawBinderMap x) d b = b2 $)
+  (hp2: $ sfRenameIndex (rawBinderMap x) d p = p2 $) (hf: $ sfWf phi $):
+  $ sfRename (rawBinderMap x) d (k215QP phi a b p) = k215QP phi a2 b2 p2 $;
+
+theorem k215QP_sep (d e phi a b p a2 b2 p2: nat)
+  (hp: $ d <= p $) (he: $ p - d = suc e $)
+  (ha: $ sfRenameIndex sfSepMap d a = a2 $) (hb: $ sfRenameIndex sfSepMap d b = b2 $)
+  (hp2: $ sfRenameIndex sfSepMap d p = p2 $) (hf: $ sfWf phi $):
+  $ sfRename sfSepMap d (k215QP phi a b p) = k215QP phi a2 b2 p2 $;
+
+theorem k215QP_bound (phi a b p m: nat)
+  (hf: $ sfBound (2 + m) phi $) (ha: $ a < p $) (hb: $ b < p $):
+  $ sfBound (p + m) (k215QP phi a b p) $;

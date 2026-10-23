@@ -1,0 +1,76 @@
+import "quotient_quotation.mm1";
+import "k230_contexts.mm1";
+import "k230_disjunction.mm1";
+
+@_ def sqLocal (H: nat) (E: set) (t k d c: nat): wff =
+ $ kHypProvable H (sqQuote E t k d c) $;
+
+pub theorem sqLocal_assumption (H: nat) (E: set) (t k d a: nat):
+ $ sqQuote E t k d a IN H -> sqLocal H E t k d a $ =
+'kHypProvable_assumption;
+
+pub theorem sqLocal_peirce (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d (sfImp (sfImp (sfImp a b) a) a) $ =
+'(mpbir (kHypProvableeq2 (eqtr sqQuote_sfImp
+  (kImpeq1 (eqtr sqQuote_sfImp (kImpeq1 sqQuote_sfImp)))))
+  (kHypProvable_seed kPropP));
+
+pub theorem sqLocal_impI (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal ((sqQuote E t k d a) : H) E t k d b ->
+   sqLocal H E t k d (sfImp a b) $ =
+'(syl (bi2 (kHypProvableeq2 sqQuote_sfImp)) kHypProvable_deduction);
+
+pub theorem sqLocal_impE (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d a -> sqLocal H E t k d (sfImp a b) ->
+   sqLocal H E t k d b $ =
+'(syl5bi (kHypProvableeq2 sqQuote_sfImp) kHypProvable_mp);
+
+pub theorem sqLocal_botE (H: nat) (E: set) (t k d a: nat):
+ $ sqLocal H E t k d sfBot -> sqLocal H E t k d a $ =
+'(syl (mpi (kHypProvable_seed kPropF) kHypProvable_mp)
+  (bi1 (kHypProvableeq2 sqQuote_bot)));
+
+theorem kHyp_andI (H a b: nat):
+ $ kHypProvable H a -> kHypProvable H b -> kHypProvable H (kAnd a b) $ =
+'(syl (com12 kHypProvable_mp)
+  (mpi (ax_mp kHypProvable_seed kPropAndIntro) kHypProvable_mp));
+
+pub theorem sqLocal_andI (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d a -> sqLocal H E t k d b ->
+   sqLocal H E t k d (sfAnd a b) $ =
+'(syl6 (bi2 (kHypProvableeq2 sqQuote_sfAnd)) kHyp_andI);
+
+pub theorem sqLocal_andE1 (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d (sfAnd a b) -> sqLocal H E t k d a $ =
+'(syl (mpi (kHypProvable_seed kPropAndLeft) kHypProvable_mp)
+  (bi1 (kHypProvableeq2 sqQuote_sfAnd)));
+
+pub theorem sqLocal_andE2 (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d (sfAnd a b) -> sqLocal H E t k d b $ =
+'(syl (mpi (kHypProvable_seed kPropAndRight) kHypProvable_mp)
+  (bi1 (kHypProvableeq2 sqQuote_sfAnd)));
+
+pub theorem sqLocal_orI1 (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d a -> sqLocal H E t k d (sfOr a b) $ =
+'(syl (bi2 (kHypProvableeq2 sqQuote_sfOr))
+  (mpi (kHypProvable_seed kPropB3) kHypProvable_mp));
+
+pub theorem sqLocal_orI2 (H: nat) (E: set) (t k d a b: nat):
+ $ sqLocal H E t k d b -> sqLocal H E t k d (sfOr a b) $ =
+'(syl (bi2 (kHypProvableeq2 sqQuote_sfOr))
+  (mpi (kHypProvable_seed kPropK) kHypProvable_mp));
+
+theorem kHyp_orE (H a b c: nat):
+ $ kHypProvable H (kImp (kNot a) b) ->
+   kHypProvable (a : H) c -> kHypProvable (b : H) c -> kHypProvable H c $ =
+'(exp @ exp @ sylc kHypProvable_mp (syl anl anl)
+  (sylc kHypProvable_mp (syl kHypProvable_deduction anr)
+    (sylc kHypProvable_mp (syl kHypProvable_deduction (syl anr anl))
+      (a1i (ax_mp kHypProvable_seed kPropOrElim)))));
+
+pub theorem sqLocal_orE (H: nat) (E: set) (t k d a b c: nat):
+ $ sqLocal H E t k d (sfOr a b) ->
+   sqLocal ((sqQuote E t k d a) : H) E t k d c ->
+   sqLocal ((sqQuote E t k d b) : H) E t k d c ->
+   sqLocal H E t k d c $ =
+'(sylbi (kHypProvableeq2 sqQuote_sfOr) kHyp_orE);

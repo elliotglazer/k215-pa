@@ -1,0 +1,25 @@
+import "source_renaming.mm0";
+
+def sfK218RequestMap (.i: nat): set = $ \ i, if (i = 0) 0 (suc i) $;
+theorem sfK218RequestMap_value (i: nat): $ sfK218RequestMap @ i = if (i = 0) 0 (suc i) $;
+
+def sfK218SupportMap (.i: nat): set = $ \ i, if (i = 0) 1 (if (i = 1) 0 (i + 2)) $;
+theorem sfK218SupportMap_value (i: nat): $ sfK218SupportMap @ i = if (i = 0) 1 (if (i = 1) 0 (i + 2)) $;
+
+def sfK218ClosureInputMap (.i: nat): set = $ \ i, if (i < 2) i (i + 4) $;
+theorem sfK218ClosureInputMap_value (i: nat): $ sfK218ClosureInputMap @ i = if (i < 2) i (i + 4) $;
+
+def sfK218ClosureOutputMap (.i: nat): set = $ \ i, if (i = 0) 0 (if (i = 1) 2 (i + 5)) $;
+theorem sfK218ClosureOutputMap_value (i: nat): $ sfK218ClosureOutputMap @ i = if (i = 0) 0 (if (i = 1) 2 (i + 5)) $;
+
+def sfK218KpRequestMap (.i: nat): set = $ \ i, if (i < 2) i (i + 2) $;
+theorem sfK218KpRequestMap_value (i: nat): $ sfK218KpRequestMap @ i = if (i < 2) i (i + 2) $;
+
+def sfK218EmittedClosure (phi: nat): nat = $ (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfRename sfK218SupportMap 0 phi) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5))))))))))) $;
+theorem sfK218EmittedClosure_wf (phi: nat): $ sfWf (sfK218EmittedClosure phi) $;
+
+def sfK218SeededCore (phi: nat): nat = $ (sfAll (sfEx (sfAnd (sfImp (sfEx (sfRename sfK218RequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 1) (sfRename sfK218RequestMap 0 phi)))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfAnd (sfRename sfK218SupportMap 0 phi) (sfAll (sfImp (sfAll (sfImp (sfMem 0 1) (sfMem 0 3))) (sfAll (sfImp (sfRename sfK218ClosureInputMap 0 phi) (sfEx (sfAnd (sfRename sfK218ClosureOutputMap 0 phi) (sfMem 0 5)))))))))))))) $;
+theorem sfK218SeededCore_wf (phi: nat): $ sfWf (sfK218SeededCore phi) $;
+
+def sfK218Kp0 (phi: nat): nat = $ (sfAll (sfEx (sfAnd (sfAll (sfImp (sfOr (sfEq 0 2) (sfEx (sfAnd (sfMem 0 2) (sfAll (sfImp (sfMem 0 2) (sfMem 0 1)))))) (sfImp (sfEx (sfRename sfK218KpRequestMap 0 phi)) (sfEx (sfAnd (sfMem 0 2) (sfRename sfK218KpRequestMap 0 phi)))))) (sfAll (sfImp (sfMem 0 1) (sfEx (sfRename sfK218SupportMap 0 phi))))))) $;
+theorem sfK218Kp0_wf (phi: nat): $ sfWf (sfK218Kp0 phi) $;

@@ -1,0 +1,121 @@
+import "k215_bundle_images_bcore.mm1";
+import "source_l_common_level_reflection_use.mm1";
+import "source_l_separation_image_rows.mm1";
+import "source_renaming_agreement.mm1";
+
+-- (lane L01, bound^L step 2) From the reflection of the selector formula c = k215BRefl q in the
+-- level Y = 0 (beta = 1), with the matrix parameter rows (index k + 5 in Y for k < n), to the ball
+-- hypothesis k215BBall q of the core: the parameter block of the reflection ball is split off and
+-- eliminated by the rows; the remaining nine arguments stay quantified over Y.
+
+-- Splitting a ball: the outer n arguments first, then the inner m (induction on n, for all y, body).
+@_ def k215BXSplitLaw (m n .y .body: nat): wff =
+ $ A. y A. body (sfCLBall (m + n) y body = sfCLBall n y (sfCLBall m (y + n) body)) $;
+
+theorem k215BX_split_at (m n y body: nat):
+  $ k215BXSplitLaw m n -> sfCLBall (m + n) y body = sfCLBall n y (sfCLBall m (y + n) body) $ =
+(named '(!! ealie z @ !! ealde c @ bi1d ,eqtac));
+
+theorem k215BX_split_base_each (m y body: nat):
+  $ sfCLBall (m + 0) y body = sfCLBall 0 y (sfCLBall m (y + 0) body) $ =
+'(eqtr (sfCLBalleq add0 eqid eqid) (eqcom (eqtr sfCLBall_zero (sfCLBalleq eqid add0 eqid))));
+
+theorem k215BX_split_base (m: nat): $ k215BXSplitLaw m 0 $ =
+(named '(ax_gen @ ax_gen k215BX_split_base_each));
+
+theorem k215BX_split_each (m n y body: nat):
+  $ k215BXSplitLaw m n -> sfCLBall (m + suc n) y body = sfCLBall (suc n) y (sfCLBall m (y + suc n) body) $ =
+'(syl (eqtrd (a1i (eqtr (sfCLBalleq addS eqid eqid) sfCLBall_suc))
+        (eqtrd (sfAll_congr (sfImp_congr eqidd id))
+          (eqtrd (a1i (nsAll_eq (nsImp_eq eqid (sfCLBalleq eqid eqid (sfCLBalleq eqid addSass eqid)))))
+            (a1i (eqcom sfCLBall_suc)))))
+   k215BX_split_at);
+
+theorem k215BX_split_step (m n: nat): $ k215BXSplitLaw m n -> k215BXSplitLaw m (suc n) $ =
+(named '(!! iald y @ !! iald body @ k215BX_split_each));
+
+theorem k215BX_split_all (m n: nat): $ k215BXSplitLaw m n $ =
+(named @ induct '(ind) 'n 'k215BX_split_base 'k215BX_split_step);
+
+pub theorem k215BX_split (m n y body: nat):
+  $ sfCLBall (m + n) y body = sfCLBall n y (sfCLBall m (y + n) body) $ =
+'(ax_mp k215BX_split_at k215BX_split_all);
+
+-- Index computations of the ball environment.
+theorem k215BX_be_top (R: set) (n: nat): $ sfCLBallEnv R n @ n = 0 $ =
+'(eqtr sfCLBallEnv_value (eqtr (ifneg ltirr) subid));
+
+theorem k215BX_ri0 (R: set) (n: nat): $ sfRenameIndex (sfCLBallEnv R n) 0 (0 + n) = 0 $ =
+'(eqtr sfRenameIndex_zero (eqtr (appeq2 add01) k215BX_be_top));
+
+theorem k215BX_ri9 (R: set) (n: nat): $ sfRenameIndex (sfCLBallEnv R n) 9 (0 + (9 + n)) = 9 $ =
+'(eqtr (ax_mp sfRenameIndex_free (mpbi lenlt (mpbir (leeq eqid add01) leaddid1)))
+   (eqtr (addeq2 (eqtr (appeq2 (eqtr (subeq1 add01) pncan2)) k215BX_be_top)) add0));
+
+-- On the parameter block the environment of the rows is the translation by 5.
+theorem k215BX_agree_pt (n i: nat):
+  $ i < n -> sfCLBallEnv (sfLSeparationImageParameterMap 4) n @ i = k215AddMap 5 @ i $ =
+'(eqtrd (a1i sfCLBallEnv_value)
+   (eqtrd ifpos (a1i (eqtr sfLSeparationImageParameterMap_at
+     (eqtr addS1 (eqcom (eqtr k215AddMap_value addS)))))));
+
+theorem k215BX_agree (n c: nat) (hb: $ sfBound (9 + n) c $):
+  $ sfRename (sfCLBallEnv (sfLSeparationImageParameterMap 4) n) 9 c = sfRename (k215AddMap 5) 9 c $ =
+(named '(ax_mp (ax_mp sfRename_agreement (ax_gen k215BX_agree_pt)) hb));
+
+-- Pushing substitution and renaming through the comparison.
+theorem k215BX_subst_iff (d t a b: nat):
+  $ sfSubst d t (sfIff a b) = sfIff (sfSubst d t a) (sfSubst d t b) $ =
+'(eqtr sfSubst_sfAnd (nsAnd_eq sfSubst_sfImp sfSubst_sfImp));
+
+theorem k215BX_rename_iff (R: set) (d a b: nat):
+  $ sfRename R d (sfIff a b) = sfIff (sfRename R d a) (sfRename R d b) $ =
+'(eqtr sfRename_sfAnd (nsAnd_eq sfRename_sfImp sfRename_sfImp));
+
+theorem k215BX_setrel_subst (k t d c: nat) (hc: $ sfWf c $):
+  $ sfSubst k t (sfCLSetRel d c) = sfCLSetRel (sfSubstIndex k t d) (sfSubst k t c) $ =
+'(eqtr (ax_mp sfSubst_as_map sfCLSetRel_wf)
+   (eqtr (ax_mp sfCLSetRel_rename hc)
+     (trud (sfCLSetRel_formula_congr (a1i (eqtr sfRenameIndex_zero sfSubstDepthMap_value))
+       (a1i (eqcom (ax_mp sfSubst_as_map hc)))))));
+
+theorem k215BX_body (n c: nat) (hb: $ sfBound (9 + n) c $):
+  $ sfSubst (9 + n) 0 (sfCLMatrixComparison sfLDomain (9 + n) c) =
+    sfIff (sfRelativize sfLDomain c) (sfCLSetRel (0 + (9 + n)) c) $ =
+'(eqtr k215BX_subst_iff (sfIffeq
+   (ax_mp sfSubst_bound_identity (ax_mp (ax_mp sfRelativize_bound sfLDomain_bound) hb))
+   (eqtr (k215BX_setrel_subst (ax_mp sfBound_wf hb))
+     (trud (sfCLSetRel_formula_congr (a1i sfSubstIndex_hit) (a1i (ax_mp sfSubst_bound_identity hb)))))));
+
+theorem k215BX_inner (n c: nat) (hb: $ sfBound (9 + n) c $):
+  $ sfRename (sfCLBallEnv (sfLSeparationImageParameterMap 4) n) 9
+      (sfIff (sfRelativize sfLDomain c) (sfCLSetRel (0 + (9 + n)) c)) =
+    sfIff (sfRelativize sfLDomain (sfRename (k215AddMap 5) 9 c)) (sfCLSetRel 9 (sfRename (k215AddMap 5) 9 c)) $ =
+'(eqtr k215BX_rename_iff (sfIffeq
+   (eqtr (ax_mp (ax_mp sfRelativize_rename sfLDomain_bound) (ax_mp sfBound_wf hb))
+     (trud (sfRelativizeeq2d (a1i (k215BX_agree hb)))))
+   (eqtr (ax_mp sfCLSetRel_rename (ax_mp sfBound_wf hb))
+     (trud (sfCLSetRel_formula_congr (a1i k215BX_ri9) (a1i (k215BX_agree hb)))))));
+
+-- The whole chain from the eliminated reflection ball to k215BBall q.
+theorem k215BX_eq (n q: nat) (hq: $ sfWf q $) (hb: $ sfBound (2 + n) q $):
+  $ sfRename (sfCLBallEnv (sfLSeparationImageParameterMap 4) n) 0
+      (sfCLBall 9 (0 + n) (sfSubst (9 + n) 0 (sfCLMatrixComparison sfLDomain (9 + n) (k215BRefl q)))) =
+    k215BBall q $ =
+'(eqtr sfCLBall_rename
+   (eqtr (sfCLBalleq eqid k215BX_ri0
+     (eqtr (sfRenameeq2 add0)
+       (eqtr (sfRenameeq3 (k215BX_body (k215BRefl_bound hb)))
+         (eqtr (k215BX_inner (k215BRefl_bound hb))
+           (sfIffeq (sfRelativizeeq2 (k215BRefl_shift5 hq))
+             (trud (sfCLSetRel_formula_congr eqidd (a1i (k215BRefl_shift5 hq)))))))))
+     (k215BRefl_ball hq)));
+
+pub theorem k215BX_ball (G n q: nat) (hq: $ sfWf q $) (hb: $ sfBound (2 + n) q $)
+  (hp: $ nsLocal G (sfCLReflection sfLDomain (9 + n) (k215BRefl q) 1) $)
+  (hl: $ nsLocal G (sfCLHierarchyAt 1 0) $)
+  (hr: $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageParameterMap 4) 0) G n $):
+  $ nsLocal G (k215BBall q) $ =
+'(sfRQ_rewrite (k215BX_eq hq hb)
+   (ax_mp (ax_mp sfCLBall_eliminate hr)
+     (sfRQ_rewrite k215BX_split (sfCLReflection_use_block hp hl))));

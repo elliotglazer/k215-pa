@@ -1,0 +1,18 @@
+import "k215_literal_actions.mm1";
+import "k215_literal_dispatch.mm1";
+
+do (apply (register-eqd 'k215TMReach) '(k215TMReacheqd));
+do (apply (register-eqd 'k215TmFile) '(k215TmFileeqd));
+
+pub theorem k215Sym_bit (b r: nat):
+ $ k215TmRepeat b 1 r = k215TmPush b r $ =
+ '(eqtr k215TmRepeat_succ (k215TmPusheq2 k215TmRepeat_zero));
+
+pub theorem k215Sym_blank (n: nat): $ k215TmRepeat 0 n 0 = 0 $ =
+ (named @ induct '(ind) 'n 'k215TmRepeat_zero
+  '(eqtrd (a1i k215TmRepeat_succ)
+    (eqtrd (k215TmPusheq2d id) (a1i k215TmPush_blank))));
+
+pub theorem k215Sym_repeat_merge (b m n r: nat):
+ $ k215TmRepeat b m (k215TmRepeat b n r) = k215TmRepeat b (m + n) r $ =
+ '(eqcom k215TmRepeat_add);

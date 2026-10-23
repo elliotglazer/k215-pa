@@ -1,0 +1,13 @@
+import "bb215_arithmetic_formula_pair.mm1";
+
+@_ abstract def bb215ArithmeticFormulaFiniteCell (m v k .x: nat): wff = $ 0 < m /\ 0 < v /\ A. x (0 < x /\ x <= k -> x || m) /\ suc (m * suc k) || v $;
+
+theorem bb215ArithmeticFormulaFiniteCell_pset (m v k: nat): $ bb215ArithmeticFormulaFiniteCell m v k <-> k e. pset (m, v) $ = (named '(bicom elpset));
+
+theorem bb215ArithmeticFormulaFiniteCell_pair (a k: nat): $ bb215ArithmeticFormulaFiniteCell (fst a) (snd a) k <-> k e. pset a $ = (named '(bitr bb215ArithmeticFormulaFiniteCell_pset (eleq2 (pseteq fstsnd))));
+
+theorem bb215ArithmeticFormulaFiniteGraph_literal (E: set) (n i y: nat) {x: nat}: $ (i, y) e. ((\ x, E @ x) |` {x | x < n}) <-> i < n /\ y = E @ i $ = (named '(bitr prelres (bitr (aneq (prellame appeq2) (elabe lteq1)) ancomb)));
+
+theorem bb215ArithmeticFormulaFiniteCell_codes (E: set) (n a: nat) {i y: nat}: $ pset a == ((\ x, E @ x) |` {x | x < n}) -> A. i A. y (bb215ArithmeticFormulaFiniteCell (fst a) (snd a) (i, y) <-> i < n /\ y = E @ i) $ = (named '(!! iald i @ !! iald y @ bitrd (a1i bb215ArithmeticFormulaFiniteCell_pair) (bitrd (eleq2d id) (a1i bb215ArithmeticFormulaFiniteGraph_literal))));
+
+pub theorem bb215ArithmeticFormulaFiniteCode_exists (E: set) (n: nat) {a i y: nat}: $ E. a A. i A. y (bb215ArithmeticFormulaFiniteCell (fst a) (snd a) (i, y) <-> i < n /\ y = E @ i) $ = (named '(ax_mp (!! eximi a bb215ArithmeticFormulaFiniteCell_codes) (mpbi expset (ax_mp finlamh ltfin))));

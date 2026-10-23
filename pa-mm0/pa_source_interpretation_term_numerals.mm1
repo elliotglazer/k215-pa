@@ -1,0 +1,17 @@
+import "pa_source_interpretation_term_source.mm1";
+
+import "pa_source_interpretation_numerals.mm1";
+
+@_ abstract def paTermNumeral (n .a: nat): nat = $ rec paTermZero (\ a, paTermSuccessor a) n $;
+
+pub theorem paTermNumeral_zero: $ paTermNumeral 0 = paTermZero $ = (named 'rec0);
+
+pub theorem paTermNumeral_succ (n: nat): $ paTermNumeral (suc n) = paTermSuccessor (paTermNumeral n) $ = (named '(eqtr recS @ ! applame $ paTermNumeral n $ _ a _ paTermSuccessoreq));
+
+pub theorem paTermNumeral_bound (n: nat): $ paTermBound 0 (paTermNumeral n) $ = (named @ induct '(ind) 'n '(mpbir (paTermBoundeq2 paTermNumeral_zero) paTermBound_zero) '(mpbird (paTermBoundeq2d (a1i paTermNumeral_succ)) (syl (bi2 paTermBound_successor) id)));
+
+pub theorem paTermNumeral_source_graph (n: nat): $ paTermSource (paTermNumeral n) = paSourceNumeralGraph n $ = (named @ induct '(ind) 'n '(eqtr (paTermSourceeq paTermNumeral_zero) (eqtr paTermSource_zero (eqcom paSourceNumeralGraph_zero))) '(eqtrd (a1i (eqtr (paTermSourceeq paTermNumeral_succ) paTermSource_successor)) (eqtrd (paSourceTermSuccessoreqd id) (a1i (eqcom paSourceNumeralGraph_succ)))));
+
+pub theorem paTermNumeral_source (n: nat): $ paTermSource (paTermNumeral n) = bb215SFNumeral n $ = (named '(eqtr paTermNumeral_source_graph paSourceNumeralGraph_exact));
+
+pub theorem paTermNumeral_source_instance (n a: nat): $ sfEx (sfAnd (paTermSource (paTermNumeral n)) a) = bb215SFNumeralInstance n a $ = (named '(sfExeq (sfAndeq1 paTermNumeral_source)));

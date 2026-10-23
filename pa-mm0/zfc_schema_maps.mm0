@@ -1,0 +1,36 @@
+import "zfc_schemas.mm0";
+
+-- Concrete variable maps from SchemaRenamingDescriptors.v and
+-- SetSchemaConstructors.v. These are numerical function classes.
+def sfSepIndex (i: nat): nat = $ if (i = 0) 0 (i + 2) $;
+def sfRepAIndex (i: nat): nat = $ if (i = 0) 2 (if (i = 1) 1 (i + 1)) $;
+def sfRepBIndex (i: nat): nat = $ if (i = 0) 2 (if (i = 1) 0 (i + 1)) $;
+def sfRepCIndex (i: nat): nat = $ if (i = 0) 0 (if (i = 1) 1 (i + 2)) $;
+def sfSepMap (.i: nat): set = $ \ i, sfSepIndex i $;
+def sfRepAMap (.i: nat): set = $ \ i, sfRepAIndex i $;
+def sfRepBMap (.i: nat): set = $ \ i, sfRepBIndex i $;
+def sfRepCMap (.i: nat): set = $ \ i, sfRepCIndex i $;
+
+theorem sfSepMap_value (i: nat): $ sfSepMap @ i = sfSepIndex i $;
+theorem sfRepAMap_value (i: nat): $ sfRepAMap @ i = sfRepAIndex i $;
+theorem sfRepBMap_value (i: nat): $ sfRepBMap @ i = sfRepBIndex i $;
+theorem sfRepCMap_value (i: nat): $ sfRepCMap @ i = sfRepCIndex i $;
+theorem sfSepMap_zero: $ sfSepMap @ 0 = 0 $;
+theorem sfSepMap_suc (i: nat): $ sfSepMap @ suc i = i + 3 $;
+theorem sfRepAMap_zero: $ sfRepAMap @ 0 = 2 $;
+theorem sfRepAMap_one: $ sfRepAMap @ 1 = 1 $;
+theorem sfRepAMap_tail (i: nat): $ sfRepAMap @ suc (suc i) = i + 3 $;
+theorem sfRepBMap_zero: $ sfRepBMap @ 0 = 2 $;
+theorem sfRepBMap_one: $ sfRepBMap @ 1 = 0 $;
+theorem sfRepBMap_tail (i: nat): $ sfRepBMap @ suc (suc i) = i + 3 $;
+theorem sfRepCMap_zero: $ sfRepCMap @ 0 = 0 $;
+theorem sfRepCMap_one: $ sfRepCMap @ 1 = 1 $;
+theorem sfRepCMap_tail (i: nat): $ sfRepCMap @ suc (suc i) = i + 4 $;
+theorem sfSepMap_bound (n i: nat):
+  $ i < suc n -> sfSepMap @ i < suc (suc (suc n)) $;
+theorem sfRepAMap_bound (n i: nat):
+  $ i < suc (suc n) -> sfRepAMap @ i < suc (suc (suc n)) $;
+theorem sfRepBMap_bound (n i: nat):
+  $ i < suc (suc n) -> sfRepBMap @ i < suc (suc (suc n)) $;
+theorem sfRepCMap_bound (n i: nat):
+  $ i < suc (suc n) -> sfRepCMap @ i < suc (suc (suc (suc n))) $;

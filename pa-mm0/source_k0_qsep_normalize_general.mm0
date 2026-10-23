@@ -1,0 +1,31 @@
+import "source_k0_qsep_domain_profile.mm0";
+
+import "source_k0_qsep_profile_general.mm0";
+
+def sfK0QSepGeneralWitnessConditions (t a b x: nat): nat = $ kAnd (kNot (kMem t t)) (kAnd (kNot (kMem t b)) (kAll x (sfK0QSepRawEnvelope t a b x))) $;
+
+def sfK0QSepGeneralWitnessProfile (E: set) (t a b c x K theta: nat): nat = $ kAll x (sfK0QSepRawProfile t a b c x (sfNamedTemplate (sqEnvCons x E) K 0 theta)) $;
+
+def sfK0QSepGeneralWitnessBody (E: set) (t a c x K theta: nat): nat = $ kAnd (kMem t c) (kAll x (kImp (kMem t x) (kAnd (kImp (kMem x c) (kAnd (kMem x a) (sfNamedTemplate (sqEnvCons x E) K 0 theta))) (kImp (kAnd (kMem x a) (sfNamedTemplate (sqEnvCons x E) K 0 theta)) (kMem x c))))) $;
+
+theorem sfK0QSepGeneral_exists_transport (h z p q: nat)
+ (hv: $ k218QProvable (kImp h (kAll z h)) $)
+ (hpq: $ k218QProvable (kImp h (kImp p q)) $):
+ $ k218QProvable (kImp h (kImp (kExists z p) (kExists z q))) $;
+
+theorem sfK0QSep_general_witness_normalize_at (E: set) (n t a b c x K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (hz: $ x != 0 $)
+ (ht: $ t != x $) (ha: $ a != x $) (hb: $ b != x $) (hc: $ c != x $)
+ (he: $ sqEnvAvoid E n x $) (hxK: $ x < K $) (htK: $ t < K $) (htx: $ t < x $):
+ $ k218QProvable (kImp (sfK0QSepGeneralWitnessConditions t a b x) (kImp (sfK0QSepGeneralWitnessProfile E t a b c x K theta) (sfK0QSepGeneralWitnessBody E t a c x K theta))) $;
+
+-- A conditional construction from the exact raw tagged witness. All
+-- existence/profile premises remain inside the displayed object formula.
+theorem sfK0QSep_general_witness_normalize (E: set) (n t a b c x K theta: nat)
+ (hf: $ sfBound (suc n) theta $) (hz: $ x != 0 $)
+ (ht: $ t != x $) (ha: $ a != x $) (hb: $ b != x $) (hc: $ c != x $)
+ (he: $ sqEnvAvoid E n x $) (hxK: $ x < K $) (htK: $ t < K $) (htx: $ t < x $) (hc0: $ c != 0 $) (hct: $ c != t $) (hca: $ c != a $)
+ (hcb: $ c != b $) (hcx: $ c != x $):
+ $ k218QProvable (kImp (sfK0QSepGeneralWitnessConditions t a b x)
+ (kImp (kExists c (sfK0QSepGeneralWitnessProfile E t a b c x K theta))
+   (kExists c (sfK0QSepGeneralWitnessBody E t a c x K theta)))) $;

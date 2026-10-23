@@ -1,0 +1,69 @@
+import "source_theory_prefix.mm1";
+
+import "source_substitution_renaming.mm1";
+
+import "source_renaming_extensional.mm1";
+
+import "zfc_schema_maps.mm1";
+
+def sfLeastParamMap (x y .i:nat):set = $ \ i, if (i = 0) x ((i - 1) + y) $;
+
+def sfLeastParam (phi x y:nat):nat = $ sfRename (sfLeastParamMap x y) 0 phi $;
+
+pub theorem sfLPM_value (x y i:nat): $ sfLeastParamMap x y @ i = if (i = 0) x ((i - 1) + y) $ = (named '(!! applame j ,eqtac));
+
+pub theorem sfLPM_zero (x y:nat): $ sfLeastParamMap x y @ 0 = x $ = (named '(eqtr sfLPM_value (ax_mp ifpos eqid)));
+
+pub theorem sfLPM_suc (x y i:nat): $ sfLeastParamMap x y @ suc i = i + y $ = (named '(eqtr sfLPM_value (eqtr (ax_mp ifneg peano1) (addeq1 sucsub1))));
+
+theorem sfLPM_app (R:set)(a b:nat)(h:$ a = b $): $ R @ a = R @ b $ = (named '(trud (appeq2d (a1i h))));
+
+theorem sfLPM_congr_zero (x y xx yy:nat)(hx:$ x = xx $)(hy:$ y = yy $): $ sfLeastParamMap x y @ 0 = sfLeastParamMap xx yy @ 0 $ = (named '(eqtr sfLPM_zero (eqtr hx (eqcom sfLPM_zero))));
+
+theorem sfLPM_congr_suc (x y xx yy i:nat)(hx:$ x = xx $)(hy:$ y = yy $): $ sfLeastParamMap x y @ suc i = sfLeastParamMap xx yy @ suc i $ = (named '(eqtr sfLPM_suc (eqtr (addeq2 hy) (eqcom sfLPM_suc))));
+
+theorem sfLPM_congr_each (x y xx yy i:nat)(hx:$ x = xx $)(hy:$ y = yy $): $ sfLeastParamMap x y @ i = sfLeastParamMap xx yy @ i $ = (named @ induct '(ind) 'i '(sfLPM_congr_zero hx hy) '(a1i (sfLPM_congr_suc hx hy)));
+
+pub theorem sfLeastParam_congr (phi x y xx yy:nat)(hf:$ sfWf phi $)(hx:$ x = xx $)(hy:$ y = yy $): $ sfLeastParam phi x y = sfLeastParam phi xx yy $ = (named '(ax_mp (sfRename_extensional (ax_gen (sfLPM_congr_each hx hy))) hf));
+
+pub theorem sfLeastParam_wf (phi x y:nat): $ sfWf (sfLeastParam phi x y) $ = (named 'sfRename_wf);
+
+theorem sfLPM_shift_zero (x y d:nat)(hd:$ d <= y $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfLeastParamMap x y) @ 0 = sfLeastParamMap (sfShiftIndex d x) (suc y) @ 0 $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLPM_zero) (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (eqcom sfLPM_zero))))));
+
+theorem sfLPM_shift_suc (x y d i:nat)(hd:$ d <= y $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfLeastParamMap x y) @ suc i = sfLeastParamMap (sfShiftIndex d x) (suc y) @ suc i $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLPM_suc) (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (eqtr (ax_mp sfShiftIndex_free (ax_mp (bi1 lenlt) (ax_mp (ax_mp letr hd) leaddid2))) (eqtr (eqcom addS2) (eqcom sfLPM_suc))))))));
+
+theorem sfLPM_shift_each (x y d i:nat)(hd:$ d <= y $): $ sfComposeMap (sfRenameDepthMap sfSuccessorMap d) (sfLeastParamMap x y) @ i = sfLeastParamMap (sfShiftIndex d x) (suc y) @ i $ = (named @ induct '(ind) 'i '(sfLPM_shift_zero hd) '(a1i (sfLPM_shift_suc hd)));
+
+pub theorem sfLeastParam_shift (phi x y d:nat)(hf:$ sfWf phi $)(hd:$ d <= y $): $ sfShift d (sfLeastParam phi x y) = sfLeastParam phi (sfShiftIndex d x) (suc y) $ = (named '(eqtr (eqcom (ax_mp sfRename_successor sfLeastParam_wf)) (eqtr (ax_mp sfRename_mixed_compose hf) (ax_mp (sfRename_extensional (ax_gen (sfLPM_shift_each hd))) hf))));
+
+theorem sfLPM_subst_zero (x y d t:nat)(hd:$ d < suc y $): $ sfComposeMap (sfSubstDepthMap d t) (sfLeastParamMap x (suc y)) @ 0 = sfLeastParamMap (sfSubstIndex d t x) y @ 0 $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLPM_zero) (eqtr sfSubstDepthMap_value (eqcom sfLPM_zero)))));
+
+theorem sfLPM_subst_suc (x y d t i:nat)(hd:$ d < suc y $): $ sfComposeMap (sfSubstDepthMap d t) (sfLeastParamMap x (suc y)) @ suc i = sfLeastParamMap (sfSubstIndex d t x) y @ suc i $ = (named '(eqtr sfComposeMap_value (eqtr (sfLPM_app sfLPM_suc) (eqtr sfSubstDepthMap_value (eqtr (ax_mp sfSubstIndex_above (ax_mp (ax_mp ltletr hd) leaddid2)) (eqtr (subeq1 addS2) (eqtr sucsub1 (eqcom sfLPM_suc))))))));
+
+theorem sfLPM_subst_each (x y d t i:nat)(hd:$ d < suc y $): $ sfComposeMap (sfSubstDepthMap d t) (sfLeastParamMap x (suc y)) @ i = sfLeastParamMap (sfSubstIndex d t x) y @ i $ = (named @ induct '(ind) 'i '(sfLPM_subst_zero hd) '(a1i (sfLPM_subst_suc hd)));
+
+pub theorem sfLeastParam_subst (phi x y d t:nat)(hf:$ sfWf phi $)(hd:$ d < suc y $): $ sfSubst d t (sfLeastParam phi x (suc y)) = sfLeastParam phi (sfSubstIndex d t x) y $ = (named '(eqtr (ax_mp sfSubst_rename_compose hf) (ax_mp (sfRename_extensional (ax_gen (sfLPM_subst_each hd))) hf)));
+
+theorem sfLPM_identity_zero : $ sfLeastParamMap 0 1 @ 0 = sfIdentityMap @ 0 $ = (named '(eqtr sfLPM_zero (eqcom sfIdentityMap_value)));
+
+theorem sfLPM_identity_suc (i:nat): $ sfLeastParamMap 0 1 @ suc i = sfIdentityMap @ suc i $ = (named '(eqtr sfLPM_suc (eqtr add12 (eqcom sfIdentityMap_value))));
+
+theorem sfLPM_identity_each (i:nat): $ sfLeastParamMap 0 1 @ i = sfIdentityMap @ i $ = (named @ induct '(ind) 'i 'sfLPM_identity_zero '(a1i sfLPM_identity_suc));
+
+pub theorem sfLeastParam_identity (phi:nat)(hf:$ sfWf phi $): $ sfLeastParam phi 0 1 = phi $ = (named '(eqtr (ax_mp (sfRename_extensional (ax_gen sfLPM_identity_each)) hf) (ax_mp sfRename_identity hf)));
+
+theorem sfLPM_sep_zero : $ sfLeastParamMap 0 3 @ 0 = sfSepMap @ 0 $ = (named '(eqtr sfLPM_zero (eqcom sfSepMap_zero)));
+
+theorem sfLPM_sep_suc (i:nat): $ sfLeastParamMap 0 3 @ suc i = sfSepMap @ suc i $ = (named '(eqtr sfLPM_suc (eqcom sfSepMap_suc)));
+
+theorem sfLPM_sep_each (i:nat): $ sfLeastParamMap 0 3 @ i = sfSepMap @ i $ = (named @ induct '(ind) 'i 'sfLPM_sep_zero '(a1i sfLPM_sep_suc));
+
+pub theorem sfLeastParam_separation (phi:nat)(hf:$ sfWf phi $): $ sfLeastParam phi 0 3 = sfRename sfSepMap 0 phi $ = (named '(ax_mp (sfRename_extensional (ax_gen sfLPM_sep_each)) hf));
+
+theorem sfLPM_shift_one_zero : $ sfLeastParamMap 0 2 @ 0 = sfRenameDepthMap sfSuccessorMap 1 @ 0 $ = (named '(eqtr sfLPM_zero (eqcom (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (ax_mp sfShiftIndex_bound d0lt1))))));
+
+theorem sfLPM_shift_one_suc (i:nat): $ sfLeastParamMap 0 2 @ suc i = sfRenameDepthMap sfSuccessorMap 1 @ suc i $ = (named '(eqtr (eqtr sfLPM_suc (eqtr addS2 (suceq add12))) (eqcom (eqtr sfRenameDepthMap_value (eqtr sfRenameIndex_successor (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02)))))));
+
+theorem sfLPM_shift_one_each (i:nat): $ sfLeastParamMap 0 2 @ i = sfRenameDepthMap sfSuccessorMap 1 @ i $ = (named @ induct '(ind) 'i 'sfLPM_shift_one_zero '(a1i sfLPM_shift_one_suc));
+
+pub theorem sfLeastParam_shift_one (phi:nat)(hf:$ sfWf phi $): $ sfLeastParam phi 0 2 = sfShift 1 phi $ = (named '(eqtr (ax_mp (sfRename_extensional (ax_gen sfLPM_shift_one_each)) hf) (eqtr (eqcom (ax_mp sfRename_as_map hf)) (ax_mp sfRename_successor hf))));

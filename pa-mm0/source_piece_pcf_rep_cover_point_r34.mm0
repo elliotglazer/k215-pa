@@ -1,0 +1,19 @@
+import "source_piece_pcf_rep_cover_step_rule_r33.mm0";
+
+def sfPieceRepCoverPointBody(T:set)(n X:nat):nat = $ sfImp (sfPieceEnv (sfComposeMap sfSuccessorMap T) n 0) (sfMem 0 (suc X)) $;
+
+def sfPieceRepCoverPoint(T:set)(n X:nat):nat = $ sfAll (sfPieceRepCoverPointBody T n X) $;
+
+theorem sfPieceRepCoverPoint_wf(T:set)(n X:nat): $ sfWf (sfPieceRepCoverPoint T n X) $;
+
+theorem sfPieceRepCoverPoint_rename(R T:set)(n X:nat): $ sfRename R 0 (sfPieceRepCoverPoint T n X) = sfPieceRepCoverPoint (sfComposeMap R T) n (R @ X) $;
+
+theorem sfPieceRepCoverPoint_parameter_eq(T:set)(n X Y:nat)(h:$ X = Y $): $ sfPieceRepCoverPoint T n X = sfPieceRepCoverPoint T n Y $;
+
+theorem sfPieceRepCoverPoint_shift(T:set)(n X:nat): $ sfShift 0 (sfPieceRepCoverPoint T n X) = sfPieceRepCoverPoint (sfComposeMap sfSuccessorMap T) n (suc X) $;
+
+theorem sfPieceRepCoverPoint_instance(T:set)(n X e:nat): $ sfSubst 0 e (sfPieceRepCoverPointBody T n X) = sfImp (sfPieceEnv T n e) (sfMem e X) $;
+
+theorem sfPieceRepCoverPoint_use(T:set)(G n X e:nat)(hq:$ nsLocal G (sfPieceRepCoverPoint T n X) $)(he:$ nsLocal G (sfPieceEnv T n e) $): $ nsLocal G (sfMem e X) $;
+
+theorem sfPieceRepCoverPoint_cons(T:set)(G n A X Y v:nat)(hq:$ nsLocal G (sfPieceRepCoverPoint T n X) $)(hs:$ nsLocal G (sfPieceRepEnvironmentCoverStep A X Y) $)(hv:$ nsLocal G (sfMem v A) $): $ nsLocal G (sfPieceRepCoverPoint (sqEnvCons v T) (suc n) Y) $;

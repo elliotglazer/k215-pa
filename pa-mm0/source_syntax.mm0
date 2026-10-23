@@ -1,0 +1,43 @@
+import "source_constructors.mm0";
+
+-- Exact eight-tag de Bruijn set-formula syntax. Atoms contain variable
+-- indices. Quantifiers have one formula child and a zero second payload.
+def sfAllowed (n h: nat): wff =
+$ n = 0 \/ ((sfTag n = 1 \/ sfTag n = 2) \/ (
+  ((sfTag n = 3 \/ sfTag n = 4 \/ sfTag n = 5) /\
+    sfLeft n e. h /\ sfRight n e. h) \/
+  ((sfTag n = 6 \/ sfTag n = 7) /\
+    sfRight n = 0 /\ sfLeft n e. h))) $;
+
+def sfSyntaxStep (.n .h: nat): set = $ S\ n, {h | sfAllowed n h} $;
+
+def sfWf (n: nat): wff = $ srecp sfSyntaxStep n $;
+
+def sfPrevious (n .i: nat): nat = $ sep (upto n) {i | sfWf i} $;
+
+theorem sfSyntaxStep_value (n h: nat):
+  $ (n, h) e. sfSyntaxStep <-> sfAllowed n h $;
+theorem sfPrevious_value (n a: nat):
+  $ a e. sfPrevious n <-> a < n /\ sfWf a $;
+theorem sfWf_unfold (n: nat):
+  $ sfWf n <-> sfAllowed n (sfPrevious n) $;
+
+theorem sfAllowed_zero (h: nat): $ sfAllowed 0 h $;
+theorem sfAllowed_atom (n h: nat):
+  $ sfTag n = 1 \/ sfTag n = 2 -> sfAllowed n h $;
+theorem sfAllowed_binary (n h: nat):
+  $ ((sfTag n = 3 \/ sfTag n = 4 \/ sfTag n = 5) /\
+    sfLeft n e. h /\ sfRight n e. h) -> sfAllowed n h $;
+theorem sfAllowed_quantifier (n h: nat):
+  $ ((sfTag n = 6 \/ sfTag n = 7) /\
+    sfRight n = 0 /\ sfLeft n e. h) -> sfAllowed n h $;
+
+theorem sfWf_bot: $ sfWf sfBot $;
+theorem sfWf_mem (i j: nat): $ sfWf (sfMem i j) $;
+theorem sfWf_eq (i j: nat): $ sfWf (sfEq i j) $;
+theorem sfPrevious_intro (n a: nat): $ a < n -> sfWf a -> a e. sfPrevious n $;
+theorem sfWf_and (a b: nat): $ sfWf a -> sfWf b -> sfWf (sfAnd a b) $;
+theorem sfWf_or (a b: nat): $ sfWf a -> sfWf b -> sfWf (sfOr a b) $;
+theorem sfWf_imp (a b: nat): $ sfWf a -> sfWf b -> sfWf (sfImp a b) $;
+theorem sfWf_all (a: nat): $ sfWf a -> sfWf (sfAll a) $;
+theorem sfWf_ex (a: nat): $ sfWf a -> sfWf (sfEx a) $;

@@ -1,0 +1,13 @@
+import "bb215_arithmetic_formula_rec_graph.mm1";
+
+import "bb215_tables.mm1";
+
+@_ abstract def bb215ArithmeticFormulaRunStep (T .x: nat): set = $ \ x, bb215Step T x $;
+
+@_ abstract def bb215ArithmeticFormulaRunGraph (T n v: nat): wff = $ bb215ArithmeticFormulaRecGraph k215TMInitial (bb215ArithmeticFormulaRunStep T) n v $;
+
+pub theorem bb215ArithmeticFormulaRunStep_at (T x: nat): $ bb215ArithmeticFormulaRunStep T @ x = bb215Step T x $ = (named '(!! applame y ,eqtac));
+
+pub theorem bb215ArithmeticFormulaRun_rec_exact (T n: nat): $ rec k215TMInitial (bb215ArithmeticFormulaRunStep T) n = bb215Run T n k215TMInitial $ = (named 'eqid);
+
+pub theorem bb215ArithmeticFormulaRunGraph_correct (T n v: nat): $ bb215ArithmeticFormulaRunGraph T n v <-> bb215Run T n k215TMInitial = v $ = (named '(bitr bb215ArithmeticFormulaRecGraph_correct (eqeq1 bb215ArithmeticFormulaRun_rec_exact)));

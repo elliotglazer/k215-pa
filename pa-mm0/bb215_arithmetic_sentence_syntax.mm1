@@ -1,0 +1,19 @@
+import "bb215_arithmetic_formula_value_code.mm1";
+
+import "pa_formula_substitution_bound.mm1";
+
+import "pa_source_interpretation_nat_qf_substitution_bound.mm1";
+
+@_ abstract def bb215ArithmeticSentencePA (b: nat): nat = $ paFormulaSubst 0 (paTermNumeral b) bb215ArithmeticFormulaValueCode $;
+
+@_ abstract def bb215ArithmeticSentenceSource (b: nat): nat = $ paFormulaSource (bb215ArithmeticSentencePA b) $;
+
+pub theorem bb215ArithmeticSentenceNumeralSubst_bound (b n c: nat): $ paFormulaBound (suc n) c -> paFormulaBound n (paFormulaSubst 0 (paTermNumeral b) c) $ = (named '(syl (bi1 (paFormulaBoundeq1 add01)) (syl (paFormulaSubst_bound paNatTermNumeral_bound) (bi2 (paFormulaBoundeq1 add01)))));
+
+pub theorem bb215ArithmeticSentencePA_bound (b: nat): $ paFormulaBound 0 (bb215ArithmeticSentencePA b) $ = (named '(ax_mp bb215ArithmeticSentenceNumeralSubst_bound bb215ArithmeticFormulaValueCode_bound));
+
+pub theorem bb215ArithmeticSentenceSource_exact (b: nat): $ paFormulaSource (bb215ArithmeticSentencePA b) = bb215ArithmeticSentenceSource b $ = (named 'eqid);
+
+pub theorem bb215ArithmeticSentenceSource_bound (b: nat): $ sfBound 0 (bb215ArithmeticSentenceSource b) $ = (named '(paFormulaSource_bound bb215ArithmeticSentencePA_bound));
+
+pub theorem bb215ArithmeticSentenceSource_wf (b: nat): $ sfWf (bb215ArithmeticSentenceSource b) $ = (named '(ax_mp sfBound_wf bb215ArithmeticSentenceSource_bound));

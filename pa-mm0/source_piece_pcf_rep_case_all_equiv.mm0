@@ -1,0 +1,23 @@
+import "source_piece_pcf_rep_case_common.mm0";
+
+import "source_piece_pcf_definable_dn.mm0";
+
+-- For the All case: a representation of  ~ E. ~ a  is a representation of  A. a.
+-- Pointwise this is  (A. x (x in A -> X)) <-> ~ E. x (x in A /\ ~ X)  (classical,
+-- sfLocal_peirce), pushed under the Dn prefix of the recipe (Dn intro / apply).
+
+theorem sfPieceRepAllEquiv_forward (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ nsLocal 0 (sfImp (sfAll (sfImp m X)) (sfImp (sfEx (sfAnd m (sfImp X sfBot))) sfBot)) $;
+
+theorem sfPieceRepAllEquiv_backward (m X: nat) (hm: $ sfWf m $) (hx: $ sfWf X $):
+  $ nsLocal 0 (sfImp (sfImp (sfEx (sfAnd m (sfImp X sfBot))) sfBot) (sfAll (sfImp m X))) $;
+
+theorem sfPieceRepAllEquiv_rule (G n a w A: nat)
+  (hg: $ sfContextWf G $) (hb: $ sfBound (suc n) a $)
+  (h: $ nsLocal G (sfPieceDefinableNamed n (sfImp (sfEx (sfImp a sfBot)) sfBot) w A) $):
+  $ nsLocal G (sfPieceDefinableNamed n (sfAll a) w A) $;
+
+theorem sfPieceRepAllEquiv_witness (G A C n a: nat)
+  (hg: $ sfContextWf G $) (hb: $ sfBound (suc n) a $)
+  (hw: $ nsLocal G (sfPieceDefinableWitness A C n (sfImp (sfEx (sfImp a sfBot)) sfBot)) $):
+  $ nsLocal G (sfPieceDefinableWitness A C n (sfAll a)) $;

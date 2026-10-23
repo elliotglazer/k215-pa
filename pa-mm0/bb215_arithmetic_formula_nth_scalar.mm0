@@ -1,0 +1,21 @@
+import "bb215_arithmetic_formula_nth_history.mm0";
+
+import "bb215_arithmetic_formula_history_cell.mm0";
+
+import "bb215_arithmetic_formula_head.mm0";
+
+theorem bb215ArithmeticFormulaNthScalarCell_packed (m c i y: nat): $ bb215ArithmeticFormulaHistoryPairGraph m c i y <-> bb215ArithmeticFormulaHistoryCell (m, c) i y $;
+
+def bb215ArithmeticFormulaNthScalarClosure (m c n .i .x .t: nat): wff = $ A. i (i < n -> A. x (bb215ArithmeticFormulaHistoryPairGraph m c i x -> A. t (bb215ArithmeticFormulaTailGraph x t -> bb215ArithmeticFormulaHistoryPairGraph m c (suc i) t))) $;
+
+theorem bb215ArithmeticFormulaNthScalarClosure_packed (m c n: nat) {i x: nat}: $ bb215ArithmeticFormulaNthScalarClosure m c n <-> bb215ArithmeticFormulaRecClosure (m, c) bb215ArithmeticFormulaListTailStep n $;
+
+def bb215ArithmeticFormulaNthScalarCertificate (m c l n v .y: nat): wff = $ bb215ArithmeticFormulaHistoryPairGraph m c 0 l /\ bb215ArithmeticFormulaNthScalarClosure m c n /\ A. y (bb215ArithmeticFormulaHistoryPairGraph m c n y -> bb215ArithmeticFormulaHeadGraph y v) $;
+
+theorem bb215ArithmeticFormulaNthScalarCertificate_packed (m c l n v: nat) {y: nat}: $ bb215ArithmeticFormulaNthScalarCertificate m c l n v <-> bb215ArithmeticFormulaNthHistoryCertificate (m, c) l n v $;
+
+def bb215ArithmeticFormulaNthScalarGraph (n l v .m .c: nat): wff = $ E. m E. c bb215ArithmeticFormulaNthScalarCertificate m c l n v $;
+
+theorem bb215ArithmeticFormulaNthScalarGraph_packed (n l v: nat) {m c a: nat}: $ bb215ArithmeticFormulaNthScalarGraph n l v <-> bb215ArithmeticFormulaNthHistoryGraph n l v $;
+
+theorem bb215ArithmeticFormulaNthScalarGraph_correct (n l v: nat): $ bb215ArithmeticFormulaNthScalarGraph n l v <-> nth n l = v $;

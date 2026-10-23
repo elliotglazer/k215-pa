@@ -1,0 +1,45 @@
+import "source_l_replacement_profile.mm1";
+
+theorem lrepWitness_profile_wf(T:set)(psi Y X:nat):
+ $ sfWf (sfPieceDefinableProfile T psi Y X) $ =
+ '(ax_mp sfWf_all (mpbir sfWf_iff (ian sfWf_mem (ax_mp (ax_mp sfWf_and sfWf_mem) sfCLSetRel_wf))));
+
+pub theorem sfLReplacementImageBody_wf(T:set)(D psi X:nat)(hd:$ sfBound 1 D $):
+ $ sfWf (sfLReplacementImageBody T D psi X) $ =
+ '(ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp (ax_mp sfBound_wf hd))
+  (mpbir sfWf_iff (ian sfWf_mem (ax_mp sfRelativize_wf (ax_mp sfBound_wf hd))))));
+
+pub theorem sfLReplacementImageWitness_wf(T:set)(D psi:nat)(hd:$ sfBound 1 D $):
+ $ sfWf (sfLReplacementImageWitness T D psi) $ =
+ '(ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) (sfLReplacementImageBody_wf hd)));
+
+theorem lrepWitness_env_shift(T:set)(psi:nat)(hf:$ sfWf psi $):
+ $ sfShift 1 (sfRename T 1 psi) = sfRename (sfComposeMap sfSuccessorMap T) 1 psi $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfRename_wf)) (ax_mp sfRename_compose hf));
+
+theorem lrepWitness_rel_shift(T:set)(D psi:nat)(hd:$ sfBound 1 D $)(hf:$ sfWf psi $):
+ $ sfShift 1 (sfRelativize D (sfRename T 1 psi)) =
+   sfRelativize D (sfRename (sfComposeMap sfSuccessorMap T) 1 psi) $ =
+ '(eqtr (ax_mp (ax_mp sfRelativize_shift hd) sfRename_wf) (sfRelativizeeq2 (lrepWitness_env_shift hf)));
+
+theorem lrepWitness_iff_shift(d a b:nat):
+ $ sfShift d (sfIff a b) = sfIff (sfShift d a) (sfShift d b) $ =
+ '(eqtr sfShift_sfAnd (nsAnd_eq sfShift_sfImp sfShift_sfImp));
+
+pub theorem sfLReplacementImageCoverage_shift(T:set)(D psi Y:nat)(hd:$ sfBound 1 D $)(hf:$ sfWf psi $):
+ $ sfShift 0 (sfLReplacementImageCoverage T D psi Y) =
+   sfLReplacementImageCoverage (sfComposeMap sfSuccessorMap T) D psi (suc Y) $ =
+ '(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfImp (nsImp_eq (ax_mp sfShift_bound_identity hd) (eqtr sfShift_sfImp (nsImp_eq (lrepWitness_rel_shift hd hf) (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02))))))))));
+
+pub theorem sfLReplacementImageComparison_shift(T:set)(D psi Y:nat)(hd:$ sfBound 1 D $)(hf:$ sfWf psi $):
+ $ sfShift 0 (sfLSeparationImageComparison T D psi Y) =
+   sfLSeparationImageComparison (sfComposeMap sfSuccessorMap T) D psi (suc Y) $ =
+ '(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02)))) (eqtr lrepWitness_iff_shift (sfIffeq (lrepWitness_rel_shift hd hf) (eqtr (sfCLSetRel_shift sfRename_wf) (trud (sfCLSetRel_formula_congr (a1i (ax_mp sfShiftIndex_free (mt (bi2 ltsuc) lt02))) (a1i (lrepWitness_env_shift hf)))))))))));
+
+pub theorem sfLReplacementImage_witness(T:set)(G D psi Y:nat)
+ (hd:$ sfBound 1 D $)(hf:$ sfWf psi $)
+ (he:$ nsLocal G (sfLReplacementImageDefinable T D psi Y) $)
+ (hs:$ nsLocal G (sfLReplacementImageCoverage T D psi Y) $)
+ (hr:$ nsLocal G (sfLSeparationImageComparison T D psi Y) $):
+ $ nsLocal G (sfLReplacementImageWitness T D psi) $ =
+ '(ax_mp (ax_mp (sfLocal_exE (sfLReplacementImageWitness_wf hd)) he) (sfRQ_rewrite (eqcom sfShift_sfEx) (ax_mp (ax_mp nsLocal_ExI sfShift_wf) (mpbir (nsLocal_formula_eq (ax_mp sfSubst_shift_up_identity (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) (sfLReplacementImageBody_wf hd)))) (ax_mp (ax_mp sfLocal_and (ax_mp nsLocal_CE1 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) lrepWitness_profile_wf) (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf he))))) sfContext_member_head))) (sfLReplacementImage_profile hd hf (ax_mp nsLocal_CE2 (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) lrepWitness_profile_wf) (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf he))))) sfContext_member_head)) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) lrepWitness_profile_wf) (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf he))))) sfContextSub_cons) (sfRQ_rewrite (sfLReplacementImageCoverage_shift hd hf) (ax_mp sfSepLocal_shift hs))) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) lrepWitness_profile_wf) (ax_mp sfContextShift_preserves_wf (ax_mp nsLocal_context_wf he))))) sfContextSub_cons) (sfRQ_rewrite (sfLReplacementImageComparison_shift hd hf) (ax_mp sfSepLocal_shift hr)))))))));

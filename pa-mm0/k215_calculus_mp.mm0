@@ -1,0 +1,32 @@
+import "k215_calculus_leaves.mm0";
+
+def k215MPPrefix (B r: nat): nat = $ k215CmdNIP (suc (k215CmdDROP (suc (k215CmdNIP (suc (k215CmdMP B (suc (k215CmdAX B 0 0 (k215NipPrefix 10 (suc (k215CmdDROP (k215NipPrefix 2 r)))))))))))) $;
+
+def k215MPTime: nat = $ suc (suc (suc (suc (suc (suc (suc (suc 10))))))) $;
+
+theorem k215MP_run_positive (A B r np w: nat):
+ $ A != 1 /\ B != 1 ->
+   k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = suc (k218EnumState r np B w 0 0) $;
+
+theorem k215MP_Ahalt_three (A B r np w: nat):
+ $ A = 1 -> k215EnumIter 3 (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $;
+
+theorem k215MP_run_Ahalt (A B r np w: nat):
+ $ A = 1 -> k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $;
+
+theorem k215MP_Bhalt_seventeen (A B r np w: nat):
+ $ A != 1 /\ B = 1 ->
+   k215EnumIter (suc (suc (suc (suc (suc (suc (suc 10))))))) (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $;
+
+theorem k215MP_run_Bhalt (A B r np w: nat):
+ $ A != 1 /\ B = 1 -> k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $;
+
+theorem k215MP_run_halt (A B r np w: nat):
+ $ A = 1 \/ B = 1 -> k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) = 0 $;
+
+theorem k215MP_run (A B r np w: nat):
+ $ k215EnumIter k215MPTime (k218EnumState (suc (k215MPPrefix B r)) np (kImp A B) (A, w) 0 0) =
+   if (A = 1 \/ B = 1) 0 (suc (k218EnumState r np B w 0 0)) $;
+
+theorem k215EnumIter_zero_next (n s: nat):
+ $ k215EnumIter n s = 0 -> k215EnumIter (suc n) s = 0 $;

@@ -1,0 +1,75 @@
+import "source_l_common_level_reflection.mm1";
+import "source_syntax_laws.mm1";
+
+@_ def sfCLBallBoundLaw (n body .y .k: nat): wff =
+ $ A. y A. k (sfBound (n + k) body -> y < k -> sfBound k (sfCLBall n y body)) $;
+
+theorem clbb_at (n body y k: nat):
+ $ sfCLBallBoundLaw n body -> sfBound (n + k) body -> y < k -> sfBound k (sfCLBall n y body) $ =
+(named '(!! ealie x @ !! ealde z @ bi1d ,eqtac));
+
+theorem clbb_base (body: nat): $ sfCLBallBoundLaw 0 body $ =
+(named '(ax_gen @ ax_gen @ a1d @ syl
+ (bi2 (sfSchema_bound_eq sfCLBall_zero)) (bi1 (sfSchema_bound_index_eq add01))));
+
+theorem clbb_step_each (n body y k: nat):
+ $ sfCLBallBoundLaw n body -> sfBound (suc n + k) body -> y < k ->
+   sfBound k (sfCLBall (suc n) y body) $ =
+(named '(exp @ exp @ syl (bi2 (sfSchema_bound_eq sfCLBall_suc)) @
+ syl (bi2 sfBound_sfAll) @ syl (bi2 sfBound_sfImp) @ iand
+  (syl (bi2 sfBound_sfMem) (iand (a1i lt01S) (syl (bi1 ltsuc) anr)))
+  (mpd (syl (bi1 ltsuc) anr)
+    (mpd (syl (bi1 (sfSchema_bound_index_eq addSass)) anlr) (syl clbb_at anll)))));
+
+theorem clbb_step (n body: nat):
+ $ sfCLBallBoundLaw n body -> sfCLBallBoundLaw (suc n) body $ =
+(named '(!! iald y @ !! iald k @ clbb_step_each));
+
+theorem clbb_all (n body: nat): $ sfCLBallBoundLaw n body $ =
+(named @ induct '(ind) 'n 'clbb_base 'clbb_step);
+
+pub theorem sfCLBall_bound (n y body k: nat):
+ $ sfBound (n + k) body -> y < k -> sfBound k (sfCLBall n y body) $ =
+'(ax_mp clbb_at clbb_all);
+
+@_ def sfCLBallShiftLaw (n body .k .y: nat): wff =
+ $ A. k A. y sfShift k (sfCLBall n y body) =
+   sfCLBall n (sfShiftIndex k y) (sfShift (n + k) body) $;
+
+theorem clbs_at (n body k y: nat):
+ $ sfCLBallShiftLaw n body -> sfShift k (sfCLBall n y body) =
+   sfCLBall n (sfShiftIndex k y) (sfShift (n + k) body) $ =
+(named '(!! ealie x @ !! ealde z @ bi1d ,eqtac));
+
+theorem clbs_index_lift (k y: nat):
+ $ sfShiftIndex (suc k) (suc y) = suc (sfShiftIndex k y) $ =
+'(eqtr (eqcom sfRenameIndex_successor) (eqtr sfRenameIndex_lift (suceq sfRenameIndex_successor)));
+
+theorem clbs_guard (k y: nat):
+ $ sfShift (suc k) (sfMem 0 (suc y)) = sfMem 0 (suc (sfShiftIndex k y)) $ =
+'(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) clbs_index_lift));
+
+theorem clbs_base (body: nat): $ sfCLBallShiftLaw 0 body $ =
+(named '(ax_gen @ ax_gen @ eqtr (sfShifteq2 sfCLBall_zero) @
+ eqtr (sfShifteq1 (eqcom add01)) (eqcom sfCLBall_zero)));
+
+theorem clbs_step_each (n body k y: nat):
+ $ sfCLBallShiftLaw n body -> sfShift k (sfCLBall (suc n) y body) =
+   sfCLBall (suc n) (sfShiftIndex k y) (sfShift (suc n + k) body) $ =
+(named '(eqtrd (a1i (sfShifteq2 sfCLBall_suc)) @
+ eqtrd (a1i sfShift_sfAll) @
+ eqtrd (a1i (nsAll_eq sfShift_sfImp)) @
+ eqtrd (sfAlleqd (sfImpeqd (a1i clbs_guard)
+  (eqtrd clbs_at (a1i (sfCLBalleq eqid clbs_index_lift (sfShifteq1 (eqcom addSass)))))))
+ (a1i (eqcom sfCLBall_suc))));
+
+theorem clbs_step (n body: nat):
+ $ sfCLBallShiftLaw n body -> sfCLBallShiftLaw (suc n) body $ =
+(named '(!! iald k @ !! iald y @ clbs_step_each));
+
+theorem clbs_all (n body: nat): $ sfCLBallShiftLaw n body $ =
+(named @ induct '(ind) 'n 'clbs_base 'clbs_step);
+
+pub theorem sfCLBall_shift (n y body k: nat):
+ $ sfShift k (sfCLBall n y body) = sfCLBall n (sfShiftIndex k y) (sfShift (n + k) body) $ =
+'(ax_mp clbs_at clbs_all);

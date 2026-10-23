@@ -1,0 +1,26 @@
+import "source_reflection_transfer_tv_existential.mm1";
+
+@_ def slSeedOuter(G A:nat):nat = $ sfEx (sfEx A) : G $;
+@_ def slSeedMiddle(G A:nat):nat = $ sfEx A : sfContextShift (slSeedOuter G A) $;
+@_ def slSeedInner(G A:nat):nat = $ A : sfContextShift (slSeedMiddle G A) $;
+
+pub theorem slSeedOuter_wf(G A:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $)(ha:$ sfWf A $): $ sfContextWf (slSeedOuter G A) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp sfWf_ex (ax_mp sfWf_ex ha)) (ax_mp (ax_mp sfTheoryContext_wf ssid) hG)));
+pub theorem slSeedMiddle_wf(G A:nat)(ha:$ sfWf A $): $ sfContextWf (slSeedMiddle G A) $ =
+ '(mpbir sfContextWf_cons (ian (ax_mp sfWf_ex ha) sfContextShift_wf));
+pub theorem slSeedInner_wf(G A:nat)(ha:$ sfWf A $): $ sfContextWf (slSeedInner G A) $ =
+ '(mpbir sfContextWf_cons (ian ha sfContextShift_wf));
+pub theorem slSeedInner_sub(G A:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $)(ha:$ sfWf A $): $ sfContextSub (A : G) (slSeedInner G A) $ =
+ '(sfTVContextSub_cons (sfTVClosedContext_sub_shift hG (slSeedMiddle_wf ha)
+   (ax_mp (ax_mp sfContextSub_trans (sfTVClosedContext_sub_shift hG (slSeedOuter_wf hG ha) sfContextSub_cons)) sfContextSub_cons)));
+
+pub theorem sfLSeparationEx2_project_shifted(G A Q:nat)
+ (hG:$ sfTheoryContext sfClosedFormulaClass G $)(ha:$ sfWf A $)(hq:$ sfWf Q $)
+ (hp:$ nsLocal (A : G) (sfShift 0 (sfShift 0 Q)) $):
+ $ nsLocal G (sfImp (sfEx (sfEx A)) Q) $ =
+ '(ax_mp nsLocal_II
+   (ax_mp (ax_mp (sfLocal_exE hq)
+     (ax_mp (ax_mp nsLocal_hyp (slSeedOuter_wf hG ha)) sfContext_member_head))
+    (ax_mp (ax_mp (sfLocal_exE sfShift_wf)
+      (ax_mp (ax_mp nsLocal_hyp (slSeedMiddle_wf ha)) sfContext_member_head))
+     (ax_mp (ax_mp nsLocal_weaken (slSeedInner_wf ha)) (slSeedInner_sub hG ha) hp))));

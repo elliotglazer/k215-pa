@@ -1,0 +1,44 @@
+import "source_piece_pcf_rep_uniform_connectives.mm0";
+
+import "source_piece_pcf_rep_case_imp.mm0";
+
+import "source_piece_pcf_rep_case_ex.mm0";
+
+import "source_piece_pcf_rep_case_all_equiv.mm0";
+
+-- All case (Rocq Z_cl.rep_ex, All branch, here via  A. a  ~  ~ E. ~ a), the Imp/Ex/All
+-- step laws, and the uniform representation theorem from the two atom laws alone.
+-- Closure over the stock mm0-c capacity (B1).
+
+theorem sfPieceRepCaseAll (G A B C n a: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hb: $ sfBound (suc n) a $)
+  (hw: $ nsLocal G (sfPieceDefinableWitness A C (suc n) a) $):
+  $ nsLocal G (sfPieceDefinableWitness A C n (sfAll a)) $;
+
+theorem sfPieceRepImpLaw_holds (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ sfPieceRepImpLaw G A C $;
+
+theorem sfPieceRepExLaw_holds (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ sfPieceRepExLaw G A C $;
+
+theorem sfPieceRepAllLaw_holds (G A B C: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $):
+  $ sfPieceRepAllLaw G A C $;
+
+theorem sfPieceRepUniform_from_atoms (G A B C n phi: nat)
+  (hg: $ sfContextWf G $) (hbg: $ sfContextSub sfLBackground G $)
+  (hs: $ nsLocal G (sfPieceRepSuccessor A B) $)
+  (hc: $ nsLocal G (sfPieceRepClosure B C) $)
+  (hm: $ sfPieceRepMemLaw G A C $) (he: $ sfPieceRepEqLaw G A C $):
+  $ sfBound n phi -> nsLocal G (sfPieceDefinableWitness A C n phi) $;

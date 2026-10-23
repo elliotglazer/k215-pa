@@ -1,0 +1,37 @@
+import "k215_calculus_source_ax_gen.mm1";
+import "k215_calculus_source_ax_stack.mm1";
+import "k215_calculus_source_ax_gate.mm1";
+import "k215_calculus_source_commands.mm1";
+
+theorem k215AXDispatch23 (u t w c d h fields: nat): $ k215PReach (k215PState k215Num23 (k215PVector u t w (suc (suc (suc c))) d h 0 0 fields)) (k215PState k215Num24 (k215PVector u t w (suc (suc c)) d h 0 0 fields)) $ = '(k215PReach_step (eqtr (eqtr (eqtr (k215PAtCD k215PLookupAXPrefix_23) (ifeq (eqeq1 k215PGet3_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet3_vector)) (eqtr k215PSet3_vector (k215PVectoreq4 (eqtr subSS sub02)))))));
+
+theorem k215AXDispatch24 (u t w c d h fields: nat): $ k215PReach (k215PState k215Num24 (k215PVector u t w (suc (suc c)) d h 0 0 fields)) (k215PState k215Num25 (k215PVector u t w (suc c) d h 0 0 fields)) $ = '(k215PReach_step (eqtr (eqtr (eqtr (k215PAtCD k215PLookupAXPrefix_24) (ifeq (eqeq1 k215PGet3_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet3_vector)) (eqtr k215PSet3_vector (k215PVectoreq4 (eqtr subSS sub02)))))));
+
+theorem k215AXDispatch25 (u t w c d h fields: nat): $ k215PReach (k215PState k215Num25 (k215PVector u t w (suc c) d h 0 0 fields)) (k215PState k215Num26 (k215PVector u t w c d h 0 0 fields)) $ = '(k215PReach_step (eqtr (eqtr (eqtr (k215PAtCD k215PLookupAXPrefix_25) (ifeq (eqeq1 k215PGet3_vector) eqid eqid)) (ifneg peano1)) (k215PStateeq2 (eqtr (k215PSeteq2 (subeq1 k215PGet3_vector)) (eqtr k215PSet3_vector (k215PVectoreq4 (eqtr subSS sub02)))))));
+
+
+pub theorem k215AXFrom26 (u t w c d h fields: nat):
+ $ k215PReach (k215PState k215Num26 (k215PVector u t w c d h 0 0 fields))
+   (k215PState 0 (k215PVector u
+      (k218Gate (d + fst (snd fields)) (h + fst fields) c)
+      (k215AxStack (d + fst (snd fields)) h (h + fst fields) c d t w)
+      0 0 0 0 0 (snd (snd fields)))) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215AXGenSourceInterval)
+   (ax_mp (ax_mp k215PReach_trans k215AXStackSourceInterval) k215GateSourceInterval));
+
+pub theorem k215AXSourceInterval (u t w c d h fields: nat):
+ $ k215PReach
+   (k215PState k215Num23 (k215PVector u t w (suc (suc (suc c))) d h 0 0 fields))
+   (k215PState 0 (k215PVector u
+      (k218Gate (d + fst (snd fields)) (h + fst fields) c)
+      (k215AxStack (d + fst (snd fields)) h (h + fst fields) c d t w)
+      0 0 0 0 0 (snd (snd fields)))) $ =
+ '(ax_mp (ax_mp k215PReach_trans k215AXDispatch23)
+   (ax_mp (ax_mp k215PReach_trans k215AXDispatch24)
+     (ax_mp (ax_mp k215PReach_trans k215AXDispatch25) k215AXFrom26)));
+
+pub theorem k215PCommandAX (s c fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s (suc (suc (suc c))) fields next)
+     (k215EnumCommand s (suc (suc (suc c))) fields next) $ =
+ '(mpbir (k215PCommandResulteq2 k215EnumCommand_ax)
+   (k215PCommandResult_vector k215AXSourceInterval));

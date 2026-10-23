@@ -1,0 +1,25 @@
+import "source_l_replacement_reflected_image.mm0";
+
+import "source_l_replacement_prefix_elimination.mm0";
+
+def sfLReplacementDefinableAntecedent(m:nat):nat =
+ $ sfAnd (sfCLOrdinalAt 1) (sfAnd (sfCLHierarchyAt 1 0) (sfCLMembership 2 0 m)) $;
+
+def sfLReplacementDefinableBody(m psi:nat):nat =
+ $ sfImp (sfLReplacementDefinableAntecedent m)
+   (sfLReplacementImageDefinable (sfLReplacementStartMap 2) sfLDomain psi 0) $;
+
+-- The production proof of this closed formula is a separate obligation.
+def sfLReplacementDefinableLaw(m psi:nat):nat =
+ $ sfAllPrefix (m + 2) (sfLReplacementDefinableBody m psi) $;
+
+theorem sfLReplacementDefinableLaw_wf(m psi:nat):
+ $ sfWf (sfLReplacementDefinableLaw m psi) $;
+
+theorem sfLReplacementDefinableLaw_nested(m psi:nat):
+ $ sfLReplacementDefinableLaw m psi =
+   sfAllPrefix m (sfAll (sfAll (sfLReplacementDefinableBody m psi))) $;
+
+theorem sfLReplacementDefinableLaw_eliminate(T:set)(G m psi:nat)
+ (hp:$ nsLocal G (sfLReplacementDefinableLaw m psi) $):
+ $ nsLocal G (sfRename (sfCLBallEnv T (m + 2)) 0 (sfLReplacementDefinableBody m psi)) $;

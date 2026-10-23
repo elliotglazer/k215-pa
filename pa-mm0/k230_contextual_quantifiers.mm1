@@ -1,0 +1,76 @@
+import "k230_deduction.mm1";
+import "k230_quantifier_macros.mm1";
+
+def kContextVacuous (G x .a: nat): wff =
+$ A. a (a IN G -> kProvable (kImp a (kAll x a))) $;
+def kContextUniversalClass (G x .a: nat): set =
+$ {a | kHypProvable G (kAll x a)} $;
+
+pub theorem kContextVacuous_member (G x a: nat):
+  $ kContextVacuous G x -> a IN G -> kProvable (kImp a (kAll x a)) $ =
+(named '(!! eale b ,eqtac));
+pub theorem kContextVacuous_nil (x: nat): $ kContextVacuous 0 x $ =
+(named '(ax_gen @ absurd lmem0));
+pub theorem kContextVacuous_cons (G x a: nat):
+  $ kContextVacuous (a : G) x <-> kProvable (kImp a (kAll x a)) /\ kContextVacuous G x $ =
+(named '(ibii
+  (iand (mpi lmemconsid kContextVacuous_member)
+    (iald @ syl5 (syl (bi2 lmemS) orr) kContextVacuous_member))
+  (iald @ syl5bi lmemS @ eord
+    (exp @ mpbird (kProvableeqd (kImp_congr anr (kAll_congr_right anr))) anll)
+    (syl kContextVacuous_member anr))));
+pub theorem kContextUniversalClass_value (G x a: nat):
+  $ a e. kContextUniversalClass G x <-> kHypProvable G (kAll x a) $ =
+(named '(elabe ,eqtac));
+
+theorem kCQ_assumption (G x a: nat) (hv: $ kContextVacuous G x $):
+  $ a IN G -> a e. kContextUniversalClass G x $ =
+'(syl (bi2 kContextUniversalClass_value) @
+  sylc kHypProvable_mp kHypProvable_assumption
+    (syl kHypProvable_seed (ax_mp kContextVacuous_member hv)));
+theorem kCQ_seed (G x a: nat):
+  $ a e. kTheorems -> a e. kContextUniversalClass G x $ =
+'(syl (bi2 kContextUniversalClass_value) @ syl kHypProvable_seed @
+  syl kProvable_gen (bi1 kTheorems_value));
+theorem kCQ_trace_get (G x l a: nat):
+  $ traceClassAll (kContextUniversalClass G x) l -> a IN l ->
+    kHypProvable G (kAll x a) $ =
+'(syl6 (bi1 kContextUniversalClass_value) traceClassAll_get);
+theorem kCQ_distribute (G x a b: nat):
+  $ kHypProvable G (kAll x a) -> kHypProvable G (kAll x (kImp a b)) ->
+    kHypProvable G (kAll x b) $ =
+'(exp @ mpd (syl (mpi (ax_mp kHypProvable_seed (ax_mp kProvable_axiom kAxioms_rho2)) kHypProvable_mp) anr)
+  (syl kHypProvable_mp anl));
+theorem kCQ_mp_payload (G x l a b: nat):
+  $ traceClassAll (kContextUniversalClass G x) l ->
+    (b IN l /\ kImp b a IN l) -> a e. kContextUniversalClass G x $ =
+'(exp @ syl (bi2 kContextUniversalClass_value) @
+  sylc kCQ_distribute
+    (mpd (syl anl anr) (syl kCQ_trace_get anl))
+    (mpd (syl anr anr) (syl kCQ_trace_get anl)));
+theorem kCQ_mp_exists {b: nat} (G x l a: nat):
+  $ traceClassAll (kContextUniversalClass G x) l ->
+    E. b (b IN l /\ kImp b a IN l) -> a e. kContextUniversalClass G x $ =
+(named '(eexd kCQ_mp_payload));
+theorem kCQ_rule (G x l a: nat) (hv: $ kContextVacuous G x $):
+  $ traceClassAll (kContextUniversalClass G x) l ->
+    (a, l) e. kHypRules G -> a e. kContextUniversalClass G x $ =
+(named '(syl5bi kHypRules_value @ eord
+  (a1i (kCQ_assumption hv)) (eord (a1i kCQ_seed) kCQ_mp_exists)));
+pub theorem kHypRules_generalization_sound (G x: nat) (hv: $ kContextVacuous G x $):
+  $ traceRuleSound (kHypRules G) (kContextUniversalClass G x) $ =
+(named '(ax_gen @ ax_gen (kCQ_rule hv)));
+pub theorem kHypDerives_gen (G x p a: nat) (hv: $ kContextVacuous G x $):
+  $ kHypDerives G p a -> kHypProvable G (kAll x a) $ =
+'(syl (bi1 kContextUniversalClass_value) (ax_mp traceDerives_class (kHypRules_generalization_sound hv)));
+pub theorem kHypProvable_gen (G x a: nat) (hv: $ kContextVacuous G x $):
+  $ kHypProvable G a -> kHypProvable G (kAll x a) $ =
+(named '(eex (kHypDerives_gen hv)));
+pub theorem kHypProvable_exists_elim (G x p q: nat)
+  (hv: $ kContextVacuous G x $)
+  (hq: $ kProvable (kImp q (kAll x q)) $):
+  $ kHypProvable G (kExists x p) -> kHypProvable G (kImp p q) -> kHypProvable G q $ =
+'(exp @ mpd
+  (syl (mpi (ax_mp kHypProvable_seed (kExists_elimination hq)) kHypProvable_mp)
+    (syl (kHypProvable_gen hv) anr))
+  (syl kHypProvable_mp anl));

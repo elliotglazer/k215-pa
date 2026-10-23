@@ -1,0 +1,26 @@
+import "k215_calculus_source_nip.mm0";
+import "k215_calculus_source_drop.mm0";
+import "k215_literal_runtime_progress.mm0";
+
+def k215PCommandInput (s ac fields next: nat): nat =
+ $ k215PState k215Num23 (k215PVector next (k218EnumTW s) (k218EnumWS s)
+    ac (k218EnumD s) (k218EnumH s) 0 0 fields) $;
+
+def k215PCommandResult (p r: nat): wff =
+ $ ifp (r = 0) (k215PHaltsFrom p) (k215PReach p (k215PEnumConfig (r - 1))) $;
+
+theorem k215PCommandResult_none (p: nat):
+ $ k215PCommandResult p 0 <-> k215PHaltsFrom p $;
+
+theorem k215PCommandResult_some (p t: nat):
+ $ k215PCommandResult p (suc t) <-> k215PReach p (k215PEnumConfig t) $;
+
+theorem k215PCommandResult_vector (p pl u t w d h: nat):
+ $ k215PReach p (k215PState 0 (k215PVector u t w 0 d h 0 0 pl)) ->
+   k215PCommandResult p (suc (k218EnumState pl u t w d h)) $;
+
+theorem k215PCommandNIP (s fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s 0 fields next) (k215EnumCommand s 0 fields next) $;
+
+theorem k215PCommandDROP (s fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s 1 fields next) (k215EnumCommand s 1 fields next) $;

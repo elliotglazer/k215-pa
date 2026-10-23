@@ -1,0 +1,41 @@
+import "k215_calculus_source_ax.mm1";
+import "k215_calculus_source_mp.mm1";
+import "k215_calculus_source_cycle_iteration.mm1";
+
+
+theorem k215PCommandAtTwo (s c fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s (suc (suc c)) fields next)
+     (k215EnumCommand s (suc (suc c)) fields next) $ =
+ (named @ induct '(ind) 'c 'k215PCommandMP '(a1i k215PCommandAX));
+theorem k215PCommandAtOne (s c fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s (suc c) fields next)
+     (k215EnumCommand s (suc c) fields next) $ =
+ (named @ induct '(ind) 'c 'k215PCommandDROP '(a1i k215PCommandAtTwo));
+pub theorem k215PCommandAll (s ac fields next: nat):
+ $ k215PCommandResult (k215PCommandInput s ac fields next)
+     (k215EnumCommand s ac fields next) $ =
+ (named @ induct '(ind) 'ac 'k215PCommandNIP '(a1i k215PCommandAtOne));
+pub theorem k215PEnumCycle (s: nat):
+ $ k215PProgressResult (k215PEnumConfig s) (k215EnumStep s) $ =
+ '(ax_mp (ax_mp k215PProgressResult_comp k215PDecodeEnum_positive) k215PCommandAll);
+pub theorem k215PEnumCycle_halt (s: nat):
+ $ k215EnumStep s = 0 -> k215PHaltsFrom (k215PEnumConfig s) $ =
+ '(syl (bi1 k215PProgressResult_none) (mpbii k215PEnumCycle (k215PProgressResulteq2d id)));
+pub theorem k215PEnumCycle_some (s t: nat):
+ $ k215EnumStep s = suc t -> k215PProgress (k215PEnumConfig s) (k215PEnumConfig t) $ =
+ '(syl (bi1 k215PProgressResult_some) (mpbii k215PEnumCycle (k215PProgressResulteq2d id)));
+pub theorem k215PEnumCycle_option_halts (s: nat):
+ $ k215POptionHalts (k215EnumStep s) -> k215PHaltsFrom (k215PEnumConfig s) $ =
+ '(ax_mp k215PProgressResult_halts k215PEnumCycle);
+
+pub theorem k215PActualCycleLaw: $ k215PCycleLaw $ =
+ (named '(ax_gen k215PEnumCycle));
+pub theorem k215PSource_enum_halting (s: nat):
+ $ k215PHaltsFrom (k215PEnumConfig s) <-> k215EnumHaltsFrom s $ =
+ '(ax_mp k215PSource_enum_equivalence k215PActualCycleLaw);
+theorem k215PExactSeed_halting:
+ $ k215EnumHaltsFrom k215EnumInitial <-> k215EnumHalts $ = (named 'biid);
+pub theorem k215PInitialHalts_iff_EnumHalts:
+ $ k215PInitialHalts <-> k215EnumHalts $ =
+ '(bitr (k215PHaltsFromeq k215PInitial_enum_config)
+   (bitr k215PSource_enum_halting k215PExactSeed_halting));

@@ -1,0 +1,15 @@
+import "source_reflection_transfer_tv_row_guard.mm1";
+
+def sfTVFunctionRowLaws(D level:nat)(E:set)(n .i:nat):set = $ \ i, sfTVRowBallLaw D level (sfPieceFunctionBinary D (sfReflectionPCLevel level) E n) (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) $;
+
+def sfTVFunctionRowLawConjunction(D level:nat)(E:set)(n:nat):nat = $ sfCLFold (sfTVFunctionRowLaws D level E n) n $;
+
+pub theorem sfTVFunctionRowLaws_at(D level:nat)(E:set)(n i:nat): $ sfTVFunctionRowLaws D level E n @ i = sfTVRowBallLaw D level (sfPieceFunctionBinary D (sfReflectionPCLevel level) E n) (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) $ = (named '(applame (sfImpeqd eqidd (sfImpeqd eqidd (sfTVRowBalleqd eqidd (sfPieceFunctionCounteqd eqsidd id) (sfPieceFunctionMatrixeqd eqsidd id) eqidd)))));
+
+pub theorem sfTVFunctionRowLaws_proofs(D level:nat)(E:set)(n:nat)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 level $)(hv:$ sfPieceFunctionTableValid E n $): $ sfCLRowProofs (sfTVFunctionRowLaws D level E n) (sfReflectionPHProducerContext level) n $ = (named '(ax_gen @ syl (bi2 (nsLocal_formula_eq sfTVFunctionRowLaws_at)) (sfTVFunctionRowBall_guarded hd hl hv)));
+
+pub theorem sfTVFunctionRowLawConjunction_local(D level:nat)(E:set)(n:nat)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 level $)(hv:$ sfPieceFunctionTableValid E n $): $ nsLocal (sfReflectionPHProducerContext level) (sfTVFunctionRowLawConjunction D level E n) $ = (named '(ax_mp (sfCLFold_proof (rfpp_context_wf hl)) (sfTVFunctionRowLaws_proofs hd hl hv)));
+
+pub theorem sfTVFunctionRowLawConjunction_zfr(D level:nat)(E:set)(n:nat)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 level $)(hv:$ sfPieceFunctionTableValid E n $)(hE:$ sfTheoryProvable zfrAxioms (sfReflectionCondLevelExists level) $)(hS:$ sfTheoryProvable zfrAxioms (sfReflectionHierarchySubsetNormal level) $)(hC:$ sfTheoryProvable zfrAxioms (sfReflectionLimitCoverageLaw level) $): $ sfTheoryProvable zfrAxioms (sfTVFunctionRowLawConjunction D level E n) $ = (named '(ax_mp (ax_mp (sfTheory_lemma_context zfrAxioms_closed) (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hS) (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value sfReflectionOrdinalSubsetCompare_zfr) (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hE) (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hC) sfTheoryContext_nil))))))))) (sfTVFunctionRowLawConjunction_local hd hl hv)));
+
+pub theorem sfTVFunctionRowLawConjunction_member(D level:nat)(E:set)(n G i:nat)(hf:$ nsLocal G (sfTVFunctionRowLawConjunction D level E n) $)(hp:$ nsLocal G (sfReflectionLimitProfile level (sfPieceFunctionBinary D (sfReflectionPCLevel level) E n)) $)(hl:$ nsLocal G (sfORBinary level 0 3) $): $ i < n -> nsLocal G (sfTVRowBall D (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) 3) $ = (named '(syl (ax_mp (com12 nsLocal_mp) hl) (syl (ax_mp (com12 nsLocal_mp) hp) (syl (bi1 (nsLocal_formula_eq sfTVFunctionRowLaws_at)) (ax_mp (syl sfCLRowProofs_at sfPieceFold_project) hf)))));

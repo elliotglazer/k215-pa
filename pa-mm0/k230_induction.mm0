@@ -1,0 +1,30 @@
+import "k230_proofs.mm0";
+import "trace_soundness.mm0";
+
+-- P is a formula abstraction over numbers, not a quantified set object.
+def kMPClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (a e. P /\ kImp a b e. P -> b e. P) $;
+def kGenClosed (P: set) (.a .b: nat): wff =
+  $ A. a A. b (b e. P -> kAll a b e. P) $;
+def kClosed (P: set): wff =
+  $ kAxioms C_ P /\ kMPClosed P /\ kGenClosed P $;
+def kProvable (a: nat) (.p: nat): wff = $ E. p kDerives p a $;
+def kTheorems (.a: nat): set = $ {a | kProvable a} $;
+
+theorem kMPClosed_apply (P: set) (a b: nat):
+  $ kMPClosed P -> a e. P /\ kImp a b e. P -> b e. P $;
+theorem kGenClosed_apply (P: set) (a b: nat):
+  $ kGenClosed P -> b e. P -> kAll a b e. P $;
+theorem kClosed_ruleSound (P: set): $ kClosed P -> traceRuleSound kRules P $;
+theorem kDerives_induction (P: set) (p a: nat):
+  $ kClosed P -> kDerives p a -> a e. P $;
+theorem kProvable_intro (p a: nat): $ kDerives p a -> kProvable a $;
+theorem kProvable_induction (P: set) (a: nat):
+  $ kClosed P -> kProvable a -> a e. P $;
+theorem kProvable_axiom (a: nat): $ a e. kAxioms -> kProvable a $;
+theorem kProvable_mp (a b: nat):
+  $ kProvable a -> kProvable (kImp a b) -> kProvable b $;
+theorem kProvable_gen (a b: nat): $ kProvable b -> kProvable (kAll a b) $;
+theorem kTheorems_value (a: nat): $ a e. kTheorems <-> kProvable a $;
+theorem kTheorems_closed: $ kClosed kTheorems $;
+theorem kTheorems_least (P: set): $ kClosed P -> kTheorems C_ P $;

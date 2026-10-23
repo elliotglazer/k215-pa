@@ -1,0 +1,46 @@
+import "proof_sequence.mm1";
+
+@_ def fImp (a b: nat): nat = $ suc (3, a, b) $;
+
+@_ def mpRules (A: set) (.c .l .b: nat): set =
+$ S\ c, {l | c e. A \/ E. b (b IN l /\ fImp b c IN l)} $;
+
+pub theorem mpRules_value {b: nat} (A: set) (c l: nat):
+  $ (c, l) e. mpRules A <-> c e. A \/ E. b (b IN l /\ fImp b c IN l) $ =
+(named '(elsabe @ elabed ,eqtac));
+
+theorem lmem_append_left (a p q: nat): $ a IN p -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orl);
+theorem lmem_append_right (a p q: nat): $ a IN q -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orr);
+
+theorem mpRules_extend (A: set) (c l r: nat):
+  $ (c, l) e. mpRules A -> (c, l ++ r) e. mpRules A $ =
+(named '(syl (bi2 mpRules_value) @ syl
+  (orim2 @ eximi @ iand (syl lmem_append_left anl) (syl lmem_append_left anr))
+  (bi1 mpRules_value)));
+pub theorem mpRules_stable (A: set): $ traceAppendStable (mpRules A) $ =
+(named '(ax_gen @ ax_gen @ ax_gen mpRules_extend));
+
+theorem mpRules_axiom (A: set) (a l: nat): $ a e. A -> (a, l) e. mpRules A $ =
+(named '(syl (bi2 mpRules_value) orl));
+theorem mpRules_mp (A: set) (a b l: nat):
+  $ a IN l /\ fImp a b IN l -> (b, l) e. mpRules A $ =
+(named '(syl (bi2 mpRules_value) @ syl orr (iexe ,eqtac)));
+pub theorem mpDerives_axiom (A: set) (a: nat):
+  $ a e. A -> traceDerives (mpRules A) (a : 0) a $ =
+'(syl traceDerives_head @ iand (a1i traceValid_nil) mpRules_axiom);
+
+theorem mpValid_append (A: set) (p q: nat):
+  $ traceValid (mpRules A) p -> traceValid (mpRules A) q ->
+    traceValid (mpRules A) (p ++ q) $ =
+'(traceValid_append mpRules_stable);
+
+pub theorem mpDerives_mp (A: set) (p q a b: nat):
+  $ traceDerives (mpRules A) p a -> traceDerives (mpRules A) q (fImp a b) ->
+    traceDerives (mpRules A) (b : (p ++ q)) b $ =
+'(exp @ syl traceDerives_head @ iand
+  (mpd (syl anl anr) (syl mpValid_append (syl anl anl)))
+  (syl mpRules_mp @ iand
+    (syl lmem_append_left (syl anr anl))
+    (syl lmem_append_right (syl anr anr))));

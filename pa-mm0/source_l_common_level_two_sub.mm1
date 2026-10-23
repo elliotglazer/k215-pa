@@ -1,0 +1,38 @@
+import "source_l_common_level_two_wf.mm1";
+import "source_piece_pcf_subset_normal.mm1";
+
+-- The two renaming maps agree on the two free slots of the level relation
+-- (same argument as sfTVCLHierarchy_relation in source_reflection_transfer_tv_canonical_inputs).
+theorem cl2s_map_zero (a y: nat): $ sfCLPairMap a y @ 0 = sfORBinaryMap a y @ 0 $ =
+'(eqtr (eqtr sfCLPairMap_value (ifpos eqid)) (eqcom (eqtr sfORBinaryMap_value (ifneg (ltnei d0lt1)))));
+
+theorem cl2s_map_one (a y: nat): $ sfCLPairMap a y @ 1 = sfORBinaryMap a y @ 1 $ =
+'(eqtr (eqtr sfCLPairMap_value (ifneg peano1)) (eqcom (eqtr sfORBinaryMap_value (ifpos eqid))));
+
+theorem cl2s_map_zero_if (a y i: nat): $ i = 0 -> sfCLPairMap a y @ i = sfORBinaryMap a y @ i $ =
+(named '(eqtrd (appeq2d id) (eqtrd (a1i cl2s_map_zero) (eqcomd (appeq2d id)))));
+
+theorem cl2s_map_one_if (a y i: nat): $ i = 1 -> sfCLPairMap a y @ i = sfORBinaryMap a y @ i $ =
+(named '(eqtrd (appeq2d id) (eqtrd (a1i cl2s_map_one) (eqcomd (appeq2d id)))));
+
+theorem cl2s_map_agree (a y: nat): $ sfRenameMapAgree (sfCLPairMap a y) (sfORBinaryMap a y) 2 $ =
+(named '(ax_gen (syl (eor cl2s_map_zero_if cl2s_map_one_if) (bi1 bool01))));
+
+pub theorem sfCL2_hierarchy_relation (a y: nat):
+ $ sfCLHierarchyAt a y = sfORBinary sfLUniversalHierarchyRelation a y $ =
+(named '(ax_mp (ax_mp sfRename_bounded_agreement cl2s_map_agree)
+  (mpbir (sfSchema_bound_index_eq add01) sfCLHierarchy_bound)));
+
+theorem cl2s_code: $ sfCLOrdinal = sfLeastOrdinalPredicate $ = 'eqid;
+
+theorem cl2s_ordinal (d: nat): $ sfCLOrdinalAt d = sfSubst 0 d sfLeastOrdinalPredicate $ =
+'(eqtr sfCLOrdinalAt_subst (sfSubsteq eqid eqid cl2s_code));
+
+pub theorem sfCL2Sub_eq: $ sfCL2Sub = sfPieceHierarchySubsetNormal sfLUniversalHierarchyRelation $ =
+'(nsAll_eq (nsAll_eq (nsAll_eq (nsAll_eq
+  (nsImp_eq cl2s_ordinal (nsImp_eq cl2s_ordinal (nsImp_eq eqid
+   (nsImp_eq sfCL2_hierarchy_relation (nsImp_eq sfCL2_hierarchy_relation eqid)))))))));
+
+pub theorem sfCL2Sub_from_hierarchy (h: $ sfTheoryProvable zfrAxioms sfLPowerHierarchySubset $):
+ $ sfTheoryProvable zfrAxioms sfCL2Sub $ =
+'(mpbir (sfTheoryProvableeq2 (eqtr sfCL2Sub_eq (eqcom sfPieceHierarchySubset_normal_eq))) h);

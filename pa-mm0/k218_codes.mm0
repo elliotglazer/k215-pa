@@ -1,0 +1,16 @@
+import "k230_codes.mm0";
+
+-- Exact inherited SeedG definitions, pinned to Codes222.v; no axiom is added here.
+def k218RhoG (a b c: nat): nat = $ (kImp (kEq c a) (kImp (kEq c b) (kAll (kMem a b) (kEq a b)))) $;
+
+def k218NegSeed (a b c: nat): nat = $ (kAll c (kImp (kAll b (kImp (kMem b c) (kImp (kAll a (kImp c (kImp (kAll a (kImp (kAll c (kImp (kMem c a) (kMem c b))) (kAll b (kImp c (kImp (kAll b (kImp c (kImp (kMem b c) kF))) kF))))) kF))) kF))) (kImp (kAll b (kImp c (kImp (kAll b (kImp c (kImp (kMem b c) kF))) kF))) kF))) $;
+
+def k218Vrel (a b c: nat): nat = $ (kImp (kMem a b) (kAll c (kMem a b))) $;
+
+def k218Bundle (a b c: nat): nat = $ (kNot (kImp (k218Vrel a b c) (k218NegSeed a b c))) $;
+
+def k218Gate (a b c: nat): nat = $ if (c = a \/ c = b) 0 (k218Bundle a b c) $;
+
+theorem k218Gate_disabled (a b c: nat): $ c = a \/ c = b -> k218Gate a b c = 0 $;
+
+theorem k218Gate_enabled (a b c: nat): $ c != a /\ c != b -> k218Gate a b c = k218Bundle a b c $;

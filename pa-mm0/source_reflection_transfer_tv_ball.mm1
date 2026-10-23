@@ -1,0 +1,39 @@
+import "source_reflection_transfer_tv_induction.mm1";
+
+import "source_l_common_level_ball_use.mm1";
+
+import "source_l_common_level_ball_transport.mm1";
+
+@_ def sfTVRowBall(D k matrix y:nat):nat = $ sfCLBall k y (sfReflectionEwAt D matrix (k + y)) $;
+
+pub theorem sfTVRowBall_wf(D k matrix y:nat)(hd:$ sfBound 1 D $)(hm:$ sfWf matrix $): $ sfWf (sfTVRowBall D k matrix y) $ = (named '(sfCLBall_wf (ax_mp (ax_mp sfWf_imp (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and (ax_mp sfBound_wf hd)) hm))) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) hm)))));
+
+theorem sftvb_env_agree(k:nat): $ sfRenameMapAgree (sfCLBallEnv sfIdentityMap k) sfIdentityMap k $ = (named '(ax_gen (eqtrd (a1i sfCLBallEnv_value) ifpos)));
+
+pub theorem sfTVBallEnv_matrix(k matrix:nat)(hb:$ sfBound (suc k) matrix $): $ sfRename (sfCLBallEnv sfIdentityMap k) 1 matrix = matrix $ = (named '(eqtr (ax_mp (ax_mp sfRename_bounded_agreement sftvb_env_agree) (mpbir (sfBoundeq1 add11) hb)) (ax_mp sfRename_identity (ax_mp sfBound_wf hb))));
+
+pub theorem sfTVBallEnv_carrier(k y:nat): $ sfCLBallEnv sfIdentityMap k @ (k + y) = y $ = (named '(eqtr sfCLBallEnv_value (eqtr (ifneg (mpbi lenlt leaddid1)) pncan2)));
+
+theorem sftvb_ew_congr(D m n y z:nat)(hm:$ m = n $)(hy:$ y = z $): $ sfReflectionEwAt D m y = sfReflectionEwAt D n z $ = (named '(nsImp_eq (nsEx_eq (nsAnd_eq eqid hm)) (nsEx_eq (nsAnd_eq (nsMem_eq eqid (suceq hy)) hm))));
+
+pub theorem sfTVRowBall_open_formula(D k matrix y:nat)(hd:$ sfBound 1 D $)(hb:$ sfBound (suc k) matrix $): $ sfRename (sfCLBallEnv sfIdentityMap k) 0 (sfReflectionEwAt D matrix (k + y)) = sfReflectionEwAt D matrix y $ = (named '(eqtr (sfReflectionEwAt_rename hd) (sftvb_ew_congr (sfTVBallEnv_matrix hb) sfTVBallEnv_carrier)));
+
+theorem sftvb_rows(G k y:nat)(hm:$ sfReflectionDnMembers sfIdentityMap G y k $): $ sfCLRowProofs (sfCLBallMemberRows sfIdentityMap y) G k $ = (named '(ax_gen (mpbird (a1i (nsLocal_formula_eq sfCLBallMemberRows_value)) (ax_mp sfReflectionDnMembers_at hm))));
+
+pub theorem sfTVRowBall_eliminate(D G k matrix y:nat)(hd:$ sfBound 1 D $)(hb:$ sfBound (suc k) matrix $)(hm:$ sfReflectionDnMembers sfIdentityMap G y k $)(hr:$ nsLocal G (sfTVRowBall D k matrix y) $): $ nsLocal G (sfReflectionEwAt D matrix y) $ = (named '(mpbi (nsLocal_formula_eq (sfTVRowBall_open_formula hd hb)) (ax_mp (ax_mp sfCLBall_eliminate (sftvb_rows hm)) hr)));
+
+theorem sftvb_ew_shift(D k matrix y:nat)(hd:$ sfBound 1 D $)(hb:$ sfBound (suc k) matrix $): $ sfShift k (sfReflectionEwAt D matrix (k + y)) = sfReflectionEwAt D matrix (suc (k + y)) $ = (named '(eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq (ax_mp sfShift_bound_identity (ax_mp (ax_mp sfBound_mono_le (mpbi lesuc le01)) hd)) (ax_mp sfShift_bound_identity hb))))) (eqtr sfShift_sfEx (nsEx_eq (eqtr sfShift_sfAnd (nsAnd_eq (eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_bound lt01S) (ax_mp sfShiftIndex_free (mpbi lenlt (mpbi lesuc leaddid1))))) (ax_mp sfShift_bound_identity hb))))))));
+
+pub theorem sfTVRowBall_shift(D k matrix y:nat)(hd:$ sfBound 1 D $)(hb:$ sfBound (suc k) matrix $): $ sfShift 0 (sfTVRowBall D k matrix y) = sfTVRowBall D k matrix (suc y) $ = (named '(eqtr sfCLBall_shift (sfCLBalleq eqid sfShiftIndex_zero (eqtr (sfShifteq1 add0) (eqtr (sftvb_ew_shift hd hb) (sftvb_ew_congr eqid (eqcom addS)))))));
+
+theorem sftvb_guard_bound(k matrix:nat): $ sfBound (suc k) (if (sfBound (suc k) matrix) matrix sfBot) $ = (named '(cases (mpbird (sfBoundeq2d ifpos) id) (mpbird (sfBoundeq2d ifneg) (a1i sfBound_bot))));
+
+pub theorem sfTVRowBall_shift_if(D k matrix y:nat)(hd:$ sfBound 1 D $): $ sfBound (suc k) matrix -> sfShift 0 (sfTVRowBall D k matrix y) = sfTVRowBall D k matrix (suc y) $ = (named '(eqtrd (eqcomd (sfShifteq2d (sfTVRowBalleqd eqidd eqidd ifpos eqidd))) (eqtrd (a1i (sfTVRowBall_shift hd sftvb_guard_bound)) (sfTVRowBalleqd eqidd eqidd ifpos eqidd))));
+
+pub theorem sfTVBallEnv_matrix_if(k matrix:nat): $ sfBound (suc k) matrix -> sfRename (sfCLBallEnv sfIdentityMap k) 1 matrix = matrix $ = (named '(eqtrd (syl (ax_mp sfRename_bounded_agreement sftvb_env_agree) (bi2 (sfBoundeq1 add11))) (syl sfRename_identity (syl sfBound_wf id))));
+
+pub theorem sfTVRowBall_open_if(D k matrix y:nat)(hd:$ sfBound 1 D $): $ sfBound (suc k) matrix -> sfRename (sfCLBallEnv sfIdentityMap k) 0 (sfReflectionEwAt D matrix (k + y)) = sfReflectionEwAt D matrix y $ = (named '(eqtrd (a1i (sfReflectionEwAt_rename hd)) (sfImpeqd (sfExeqd (sfAndeqd eqidd sfTVBallEnv_matrix_if)) (sfExeqd (sfAndeqd (sfMemeqd eqidd (a1i (suceq sfTVBallEnv_carrier))) sfTVBallEnv_matrix_if)))));
+
+theorem sftvb_rows_rule(G k y:nat): $ sfReflectionDnMembers sfIdentityMap G y k -> sfCLRowProofs (sfCLBallMemberRows sfIdentityMap y) G k $ = (named '(alimi (imim2i (bi2 (nsLocal_formula_eq sfCLBallMemberRows_value)))));
+
+pub theorem sfTVRowBall_eliminate_if(H:wff)(D G k matrix y:nat)(hd:$ sfBound 1 D $)(hb:$ H -> sfBound (suc k) matrix $)(hm:$ H -> sfReflectionDnMembers sfIdentityMap G y k $)(hr:$ H -> nsLocal G (sfTVRowBall D k matrix y) $): $ H -> nsLocal G (sfReflectionEwAt D matrix y) $ = (named '(mpbid (nsLocaleq2d (syl (sfTVRowBall_open_if hd) hb)) (mpd hr (syl sfCLBall_eliminate (syl sftvb_rows_rule hm)))));

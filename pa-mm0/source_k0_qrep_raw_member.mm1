@@ -1,0 +1,243 @@
+import "source_k0_qrep_reflexive.mm1";
+
+import "source_k0_qsep_member_unfold.mm1";
+
+import "quotation_substitution.mm1";
+
+import "quotation_binders_absent.mm1";
+
+theorem qrepRawMember_subst (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ kSubst (kAnd (kAnd (kMem 1 M) (kMem M a)) (sqEqual 1 x M (suc M))) M x = (kAnd (kAnd (kMem 1 x) (kMem x a)) (sqEqual 1 x x (suc M))) $ =
+'(eqtr (qsSubst_kAnd (ltner (lttr lt01S hM))) (kAndeq (eqtr (qsSubst_kAnd (ltner (lttr lt01S hM))) (kAndeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss (ltne hM)) kReplace_hit)) (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss (ltne ha)))))) (eqtr (sqEqual_substitution ltsucid (ltner (lttr lt01S hM))) (sqEqualeq (ax_mp kReplace_miss (ltne hM)) (ax_mp kReplace_miss (ltne hx)) kReplace_hit eqid))));
+
+theorem qrepRawMember_absent_M (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ kBinderAbsent (kAnd (kAnd (kMem 1 M) (kMem M a)) (sqEqual 1 x M (suc M))) M $ =
+'(ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) kBinderAbsent_kMem)) (sqEqual_binder_absent ltsucid));
+
+theorem qrepRawMember_absent_x (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ kBinderAbsent (kAnd (kAnd (kMem 1 M) (kMem M a)) (sqEqual 1 x M (suc M))) x $ =
+'(ax_mp (ax_mp kBinderAbsent_and_intro (ax_mp (ax_mp kBinderAbsent_and_intro kBinderAbsent_kMem) kBinderAbsent_kMem)) (sqEqual_binder_absent (lttr hx ltsucid)));
+
+theorem qrepRawMember_intro (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kAnd (kAnd (kMem 1 x) (kMem x a)) (sqEqual 1 x x (suc M))) (sqMember 1 x a M)) $ =
+'(mpbi (k218QProvableeq (kImpeq (! qrepRawMember_subst $ M $ $ x $ $ a $ hM hx ha) (eqcom sfK0QSepMember_unfold))) (ax_mp (ax_mp (ax_mp k218INamed_exists_intro (ltner hx)) (! qrepRawMember_absent_M $ M $ $ x $ $ a $ hM hx ha)) (! qrepRawMember_absent_x $ M $ $ x $ $ a $ hM hx ha)));
+
+theorem qrepRawMemberStep0 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (kImp (kMem 1 x) (kMem 1 x))) (kImp (kMem 1 x) (kMem 1 x))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kImp (kMem 1 x) (kMem 1 x)) (kMem 1 x))) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem 1 x) (kMem 1 x))) (kImp (kMem 1 x) (kMem 1 x))) $ (! k218IPropK $ (kMem 1 x) $ $ (kImp (kMem 1 x) (kMem 1 x)) $) (! k218IPropS $ (kMem 1 x) $ $ (kImp (kMem 1 x) (kMem 1 x)) $ $ (kMem 1 x) $));
+
+theorem qrepRawMemberStep1 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kMem 1 x)) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kMem 1 x) (kMem 1 x))) $ $ (kImp (kMem 1 x) (kMem 1 x)) $ (! k218IPropK $ (kMem 1 x) $ $ (kMem 1 x) $) (! qrepRawMemberStep0 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep2 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kMem 1 x) (kMem 1 x))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kMem 1 x)) $ $ (kImp kEmptyMarker (kImp (kMem 1 x) (kMem 1 x))) $ (! qrepRawMemberStep1 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropK $ (kImp (kMem 1 x) (kMem 1 x)) $ $ kEmptyMarker $));
+
+theorem qrepRawMemberStep3 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp kEmptyMarker (kImp kEmptyMarker kEmptyMarker)) (kImp kEmptyMarker kEmptyMarker)) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kImp kEmptyMarker kEmptyMarker) kEmptyMarker)) $ $ (kImp (kImp kEmptyMarker (kImp kEmptyMarker kEmptyMarker)) (kImp kEmptyMarker kEmptyMarker)) $ (! k218IPropK $ kEmptyMarker $ $ (kImp kEmptyMarker kEmptyMarker) $) (! k218IPropS $ kEmptyMarker $ $ (kImp kEmptyMarker kEmptyMarker) $ $ kEmptyMarker $));
+
+theorem qrepRawMemberStep4 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker kEmptyMarker) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp kEmptyMarker kEmptyMarker)) $ $ (kImp kEmptyMarker kEmptyMarker) $ (! k218IPropK $ kEmptyMarker $ $ kEmptyMarker $) (! qrepRawMemberStep3 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep5 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $ $ (kImp kEmptyMarker (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ (! sfK0QRep_reflexive $ M $ $ x $ hM hx) (! k218IPropK $ (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $ $ kEmptyMarker $));
+
+theorem qrepRawMemberStep6 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp kEmptyMarker kEmptyMarker) (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ $ (kImp (kImp kEmptyMarker kEmptyMarker) (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ (! qrepRawMemberStep5 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ kEmptyMarker $ $ kEmptyMarker $ $ (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) $));
+
+theorem qrepRawMemberStep7 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker kEmptyMarker) $ $ (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $ (! qrepRawMemberStep4 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep6 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep8 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ (! k218IPropK $ (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) $ $ (kMem 1 x) $) (! k218IPropK $ (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ $ kEmptyMarker $));
+
+theorem qrepRawMemberStep9 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ $ (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ (! qrepRawMemberStep8 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ kEmptyMarker $ $ (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) $ $ (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $));
+
+theorem qrepRawMemberStep10 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $ $ (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ (! qrepRawMemberStep7 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep9 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep11 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ (! k218IPropS $ (kMem 1 x) $ $ (kMem 1 x) $ $ (sqEqual 1 x x (suc M)) $) (! k218IPropK $ (kImp (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ $ kEmptyMarker $));
+
+theorem qrepRawMemberStep12 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ $ (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))))) $ (! qrepRawMemberStep11 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ kEmptyMarker $ $ (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $ $ (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $));
+
+theorem qrepRawMemberStep13 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ (! qrepRawMemberStep10 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep12 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep14 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (kMem 1 x))) (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ $ (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (kMem 1 x))) (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M))))) $ (! qrepRawMemberStep13 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ kEmptyMarker $ $ (kImp (kMem 1 x) (kMem 1 x)) $ $ (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) $));
+
+theorem qrepRawMemberStep15 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kMem 1 x) (kMem 1 x))) $ $ (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $ (! qrepRawMemberStep2 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep14 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep16 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (sqEqual 1 x x (suc M)) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ =
+'(! k218QProvable_mp $ (kImp (sqEqual 1 x x (suc M)) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) $ $ (kImp (kMem 1 x) (kImp (sqEqual 1 x x (suc M)) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ (! k218IPropK $ (sqEqual 1 x x (suc M)) $ $ (kMem x a) $) (! k218IPropK $ (kImp (sqEqual 1 x x (suc M)) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) $ $ (kMem 1 x) $));
+
+theorem qrepRawMemberStep17 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (sqEqual 1 x x (suc M)) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ $ (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ (! qrepRawMemberStep16 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem 1 x) $ $ (sqEqual 1 x x (suc M)) $ $ (kImp (kMem x a) (sqEqual 1 x x (suc M))) $));
+
+theorem qrepRawMemberStep18 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))))) $ (! qrepRawMemberStep17 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropK $ (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ $ kEmptyMarker $));
+
+theorem qrepRawMemberStep19 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))))) $ $ (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))))) $ (! qrepRawMemberStep18 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ kEmptyMarker $ $ (kImp (kMem 1 x) (sqEqual 1 x x (suc M))) $ $ (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) $));
+
+theorem qrepRawMemberStep20 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kMem 1 x) (sqEqual 1 x x (suc M)))) $ $ (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ (! qrepRawMemberStep15 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep19 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep21 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem x a) (kImp (kMem x a) (kMem x a))) (kImp (kMem x a) (kMem x a))) $ =
+'(! k218QProvable_mp $ (kImp (kMem x a) (kImp (kImp (kMem x a) (kMem x a)) (kMem x a))) $ $ (kImp (kImp (kMem x a) (kImp (kMem x a) (kMem x a))) (kImp (kMem x a) (kMem x a))) $ (! k218IPropK $ (kMem x a) $ $ (kImp (kMem x a) (kMem x a)) $) (! k218IPropS $ (kMem x a) $ $ (kImp (kMem x a) (kMem x a)) $ $ (kMem x a) $));
+
+theorem qrepRawMemberStep22 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem x a) (kMem x a)) $ =
+'(! k218QProvable_mp $ (kImp (kMem x a) (kImp (kMem x a) (kMem x a))) $ $ (kImp (kMem x a) (kMem x a)) $ (! k218IPropK $ (kMem x a) $ $ (kMem x a) $) (! qrepRawMemberStep21 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep23 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kMem x a) (kMem x a))) $ =
+'(! k218QProvable_mp $ (kImp (kMem x a) (kMem x a)) $ $ (kImp (kMem 1 x) (kImp (kMem x a) (kMem x a))) $ (! qrepRawMemberStep22 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropK $ (kImp (kMem x a) (kMem x a)) $ $ (kMem 1 x) $));
+
+theorem qrepRawMemberStep24 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $ $ (kImp (kMem 1 x) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ (! k218IPropAndIntro $ (kMem 1 x) $ $ (kMem x a) $) (! k218IPropK $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $ $ (kMem 1 x) $));
+
+theorem qrepRawMemberStep25 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ $ (kImp (kImp (kMem 1 x) (kMem 1 x)) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ (! qrepRawMemberStep24 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem 1 x) $ $ (kMem 1 x) $ $ (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) $));
+
+theorem qrepRawMemberStep26 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kMem 1 x)) $ $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $ (! qrepRawMemberStep1 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep25 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep27 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ (! k218IPropK $ (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) $ $ (kMem x a) $) (! k218IPropK $ (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ $ (kMem 1 x) $));
+
+theorem qrepRawMemberStep28 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ (! qrepRawMemberStep27 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem 1 x) $ $ (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) $ $ (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $));
+
+theorem qrepRawMemberStep29 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $ $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ (! qrepRawMemberStep26 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep28 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep30 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ (! k218IPropS $ (kMem x a) $ $ (kMem x a) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) $) (! k218IPropK $ (kImp (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ $ (kMem 1 x) $));
+
+theorem qrepRawMemberStep31 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))))) $ (! qrepRawMemberStep30 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem 1 x) $ $ (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $ $ (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $));
+
+theorem qrepRawMemberStep32 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ (! qrepRawMemberStep29 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep31 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep33 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kMem x a))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kMem x a)) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kMem x a))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)))) $ (! qrepRawMemberStep32 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem 1 x) $ $ (kImp (kMem x a) (kMem x a)) $ $ (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) $));
+
+theorem qrepRawMemberStep34 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kMem x a) (kMem x a))) $ $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $ (! qrepRawMemberStep23 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep33 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep35 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem x a) (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) $ $ (kImp (kMem x a) (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ (! k218IPropAndIntro $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) $ $ (sqEqual 1 x x (suc M)) $) (! k218IPropK $ (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) $ $ (kMem x a) $));
+
+theorem qrepRawMemberStep36 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem x a) (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ (! qrepRawMemberStep35 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem x a) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) $ $ (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) $));
+
+theorem qrepRawMemberStep37 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ (! qrepRawMemberStep36 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropK $ (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ (kMem 1 x) $));
+
+theorem qrepRawMemberStep38 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ (! qrepRawMemberStep37 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem 1 x) $ $ (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF)) $ $ (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) $));
+
+theorem qrepRawMemberStep39 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF))) $ $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ (! qrepRawMemberStep34 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep38 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep40 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ (! k218IPropS $ (kMem x a) $ $ (sqEqual 1 x x (suc M)) $ $ (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF) $) (! k218IPropK $ (kImp (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ (kMem 1 x) $));
+
+theorem qrepRawMemberStep41 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) (kImp (kMem 1 x) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) (kImp (kMem 1 x) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ (! qrepRawMemberStep40 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem 1 x) $ $ (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) $ $ (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) $));
+
+theorem qrepRawMemberStep42 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (sqEqual 1 x x (suc M)) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ (! qrepRawMemberStep39 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep41 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep43 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (sqEqual 1 x x (suc M))) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ (! qrepRawMemberStep42 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem 1 x) $ $ (kImp (kMem x a) (sqEqual 1 x x (suc M))) $ $ (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) $));
+
+theorem qrepRawMemberStep44 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ (! qrepRawMemberStep43 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropK $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ kEmptyMarker $));
+
+theorem qrepRawMemberStep45 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ $ (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))))) $ (! qrepRawMemberStep44 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ kEmptyMarker $ $ (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M)))) $ $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) $));
+
+theorem qrepRawMemberStep46 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqEqual 1 x x (suc M))))) $ $ (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ (! qrepRawMemberStep20 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep45 $ M $ $ x $ $ a $ hM hx ha));
+
+theorem qrepRawMemberStep47 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem x a) (kImp (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF) (sqMember 1 x a M))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF) (sqMember 1 x a M)) $ $ (kImp (kMem x a) (kImp (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF) (sqMember 1 x a M))) $ (! qrepRawMember_intro $ M $ $ x $ $ a $ hM hx ha) (! k218IPropK $ (kImp (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF) (sqMember 1 x a M)) $ $ (kMem x a) $));
+
+theorem qrepRawMemberStep48 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) (kImp (kMem x a) (sqMember 1 x a M))) $ =
+'(! k218QProvable_mp $ (kImp (kMem x a) (kImp (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF) (sqMember 1 x a M))) $ $ (kImp (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) (kImp (kMem x a) (sqMember 1 x a M))) $ (! qrepRawMemberStep47 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem x a) $ $ (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF) $ $ (sqMember 1 x a M) $));
+
+theorem qrepRawMemberStep49 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) (kImp (kMem x a) (sqMember 1 x a M)))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) (kImp (kMem x a) (sqMember 1 x a M))) $ $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) (kImp (kMem x a) (sqMember 1 x a M)))) $ (! qrepRawMemberStep48 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropK $ (kImp (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) (kImp (kMem x a) (sqMember 1 x a M))) $ $ (kMem 1 x) $));
+
+theorem qrepRawMemberStep50 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M)))) $ =
+'(! k218QProvable_mp $ (kImp (kMem 1 x) (kImp (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) (kImp (kMem x a) (sqMember 1 x a M)))) $ $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M)))) $ (! qrepRawMemberStep49 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ (kMem 1 x) $ $ (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)) $ $ (kImp (kMem x a) (sqMember 1 x a M)) $));
+
+theorem qrepRawMemberStep51 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M))))) $ =
+'(! k218QProvable_mp $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M)))) $ $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M))))) $ (! qrepRawMemberStep50 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropK $ (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M)))) $ $ kEmptyMarker $));
+
+theorem qrepRawMemberStep52 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M))))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M))))) $ $ (kImp (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M))))) $ (! qrepRawMemberStep51 $ M $ $ x $ $ a $ hM hx ha) (! k218IPropS $ kEmptyMarker $ $ (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF))) $ $ (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M))) $));
+
+theorem qrepRawMemberStep53 (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M)))) $ =
+'(! k218QProvable_mp $ (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (kImp (kImp (kImp (kImp (kMem 1 x) (kImp (kMem x a) kF)) kF) (kImp (sqEqual 1 x x (suc M)) kF)) kF)))) $ $ (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M)))) $ (! qrepRawMemberStep46 $ M $ $ x $ $ a $ hM hx ha) (! qrepRawMemberStep52 $ M $ $ x $ $ a $ hM hx ha));
+
+pub theorem sfK0QRep_raw_member (M x a: nat) (hM: $ 1 < M $) (hx: $ x < M $) (ha: $ a < M $):
+ $ k218QProvable (kImp kEmptyMarker (kImp (kMem 1 x) (kImp (kMem x a) (sqMember 1 x a M)))) $ =
+'(! qrepRawMemberStep53 $ M $ $ x $ $ a $ hM hx ha);

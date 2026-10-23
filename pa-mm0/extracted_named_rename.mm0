@@ -1,0 +1,19 @@
+import "quotation_binders.mm0";
+import "source_renaming_laws.mm0";
+
+theorem exNamedIndex_rename (E R: set) (k d i: nat):
+ $ sfNamedIndex E k d (sfRenameIndex R d i) =
+   sfNamedIndex (sfComposeMap E R) k d i $;
+
+def exNamedRenameClass (E R: set) (k .c .d: nat): set =
+$ {c | A. d (sfNamedTemplate E k d (sfRename R d c) =
+              sfNamedTemplate (sfComposeMap E R) k d c)} $;
+
+theorem exNamedRename_value {d: nat} (E R: set) (k c: nat):
+ $ c e. exNamedRenameClass E R k <->
+   A. d (sfNamedTemplate E k d (sfRename R d c) =
+         sfNamedTemplate (sfComposeMap E R) k d c) $;
+
+theorem exNamedTemplate_rename (E R: set) (k d c: nat):
+ $ sfWf c -> sfNamedTemplate E k d (sfRename R d c) =
+   sfNamedTemplate (sfComposeMap E R) k d c $;

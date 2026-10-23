@@ -1,0 +1,77 @@
+import "source_piece_pcf_rep_cover_point_r34.mm1";
+
+import "source_piece_pcf_opening.mm1";
+
+@_ abstract def sfPieceRepCoverTail(k .i:nat):set = $ \ i, k + i $;
+
+pub theorem sfPieceRepCoverTail_at(k i:nat): $ sfPieceRepCoverTail k @ i = k + i $ = (named '(applame ,eqtac));
+
+@_ abstract def sfPieceRepCoverMatrix(n:nat):nat = $ sfAll (sfImp (sfPieceDefinableRecipeEnvironment n) (sfMem 0 1)) $;
+
+@_ abstract def sfPieceRepCoverCore(n:nat):nat = $ sfPieceRepImplicationRecipeCover n 1 $;
+
+@_ abstract def sfPieceRepCoverNamed(n X A:nat):nat = $ sfORBinary (sfPieceRepCoverCore n) X A $;
+
+@_ abstract def sfPieceRepCoverProtected(n X:nat):nat = $ sfPieceRepDn3Core n (sfPieceRepCoverPoint (sfPieceRepCoverTail 3) n X) $;
+
+pub theorem sfPieceRepCoverMatrix_bound(n:nat): $ sfBound (suc (suc n)) (sfPieceRepCoverMatrix n) $ = (named '(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian sfPieceDefinableRecipe_environment_bound (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))))));
+
+theorem pcr35_plus2(n:nat): $ n + 2 = suc (suc n) $ = (named '(eqtr addS (suceq add12)));
+
+pub theorem sfPieceRepCoverCore_bound(n:nat): $ sfBound 2 (sfPieceRepCoverCore n) $ = (named '(ax_mp sfPieceDn_bound (mpbir (sfSchema_bound_index_eq pcr35_plus2) sfPieceRepCoverMatrix_bound)));
+
+pub theorem sfPieceRepCoverCore_wf(n:nat): $ sfWf (sfPieceRepCoverCore n) $ = (named '(ax_mp sfBound_wf sfPieceRepCoverCore_bound));
+
+pub theorem sfPieceRepCoverNamed_wf(n X A:nat): $ sfWf (sfPieceRepCoverNamed n X A) $ = (named 'sfORBinary_wf);
+
+pub theorem sfPieceRepCoverNamed_open(n X A:nat): $ sfPieceRepCoverNamed n X A = sfPieceRepEnvironmentCoverAt A X n $ = (named '(ax_mp (ax_mp sfRename_bounded_agreement sfPieceOpenMap_binary_agree) (mpbir (sfSchema_bound_index_eq add01) sfPieceRepCoverCore_bound)));
+
+pub theorem sfPieceRepCoverNamed_rename(R:set)(n X A:nat): $ sfRename R 0 (sfPieceRepCoverNamed n X A) = sfPieceRepCoverNamed n (R @ X) (R @ A) $ = (named '(sfORBinary_rename sfPieceRepCoverCore_wf));
+
+pub theorem sfPieceRepCoverNamed_congr(n X A Y B:nat)(hx:$ X = Y $)(ha:$ A = B $): $ sfPieceRepCoverNamed n X A = sfPieceRepCoverNamed n Y B $ = (named '(sfORBinary_congr sfPieceRepCoverCore_wf hx ha));
+
+pub theorem sfPieceRepEnvironmentCoverAt_rename(R:set)(n X A:nat): $ sfRename R 0 (sfPieceRepEnvironmentCoverAt A X n) = sfPieceRepEnvironmentCoverAt (R @ A) (R @ X) n $ = (named '(eqtr (trud (sfRename_congr_formula (a1i (eqcom sfPieceRepCoverNamed_open)))) (eqtr sfPieceRepCoverNamed_rename sfPieceRepCoverNamed_open)));
+
+theorem pcr35_mapspec{j:nat}(T U:set)(i:nat): $ (A. j T @ j = U @ j) -> T @ i = U @ i $ = (named '(!! eale j ,eqtac));
+
+theorem pcr35_map_at{j:nat}(T U:set)(i:nat)(h:$ A. j T @ j = U @ j $): $ T @ i = U @ i $ = (named '(ax_mp pcr35_mapspec h));
+
+pub theorem sfPieceRepCoverPoint_map_eq{j:nat}(T U:set)(n X:nat)(h:$ A. j T @ j = U @ j $): $ sfPieceRepCoverPoint T n X = sfPieceRepCoverPoint U n X $ = (named '(nsAll_eq (nsImp_eq (sfPieceEnv_eq eqid (ax_gen (eqtr sfComposeMap_value (eqtr (appeq2 (pcr35_map_at h)) (eqcom sfComposeMap_value))))) eqid)));
+
+theorem pcr35_ordinary_map(i:nat): $ sfComposeMap sfSuccessorMap (sfPieceRepCoverTail 2) @ i = sfPieceDefinableRecipeMap @ i $ = (named '(eqtr sfComposeMap_value (eqtr sfSuccessorMap_value (eqtr (suceq sfPieceRepCoverTail_at) (eqtr (eqcom addS1) (eqcom sfPieceDefinableRecipeMap_at))))));
+
+pub theorem sfPieceRepCoverMatrix_point(n:nat): $ sfPieceRepCoverMatrix n = sfPieceRepCoverPoint (sfPieceRepCoverTail 2) n 0 $ = (named '(nsAll_eq (nsImp_eq (sfPieceEnv_eq eqid (ax_gen (eqcom pcr35_ordinary_map))) eqid)));
+
+theorem pcr35_insert_tail(r i:nat): $ sfComposeMap (sfLCBinaryMap r 1 3) (sfPieceRepCoverTail 2) @ i = sfPieceRepCoverTail 3 @ i $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 sfPieceRepCoverTail_at) (eqtr (appeq2 (eqtr addS1 (suceq (eqtr addS1 (suceq add01))))) (eqtr sfLCB_tail (eqtr addcom (eqcom sfPieceRepCoverTail_at)))))));
+
+theorem pcr35_matrix_insert(n r:nat): $ sfRename (sfLCBinaryMap r 1 3) 0 (sfPieceRepCoverMatrix n) = sfPieceRepCoverPoint (sfPieceRepCoverTail 3) n r $ = (named '(eqtr (trud (sfRename_congr_formula (a1i sfPieceRepCoverMatrix_point))) (eqtr sfPieceRepCoverPoint_rename (eqtr (sfPieceRepCoverPoint_map_eq (ax_gen pcr35_insert_tail)) (sfPieceRepCoverPoint_parameter_eq sfLCB_zero)))));
+
+theorem pcr35_or_zero(r:nat): $ sfORBinaryMap r 1 @ 0 = r $ = (named '(eqtr sfORBinaryMap_value (ax_mp ifneg (ax_mp necom d1ne0))));
+
+theorem pcr35_or_one(r:nat): $ sfORBinaryMap r 1 @ 1 = 1 $ = (named '(eqtr sfORBinaryMap_value (ax_mp ifpos eqid)));
+
+theorem pcr35_agree_zero(r i:nat): $ i = 0 -> sfORBinaryMap r 1 @ i = sfLCBinaryMap r 1 3 @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i (eqtr pcr35_or_zero (eqcom sfLCB_zero))) (eqcomd (appeq2d id)))));
+
+theorem pcr35_agree_one(r i:nat): $ i = 1 -> sfORBinaryMap r 1 @ i = sfLCBinaryMap r 1 3 @ i $ = (named '(eqtrd (appeq2d id) (eqtrd (a1i (eqtr pcr35_or_one (eqcom sfLCB_one))) (eqcomd (appeq2d id)))));
+
+theorem pcr35_agree(r:nat): $ sfRenameMapAgree (sfORBinaryMap r 1) (sfLCBinaryMap r 1 3) 2 $ = (named '(ax_gen (syl (eor pcr35_agree_zero pcr35_agree_one) (bi1 bool01))));
+
+theorem pcr35_named_insert(r n:nat): $ sfPieceRepCoverNamed n r 1 = sfRename (sfLCBinaryMap r 1 3) 0 (sfPieceRepCoverCore n) $ = (named '(ax_mp (ax_mp sfRename_bounded_agreement pcr35_agree) (mpbir (sfSchema_bound_index_eq add01) sfPieceRepCoverCore_bound)));
+
+pub theorem sfPieceRepCoverNamed_protected(r n:nat)(hr:$ sfPieceRepRotate3 @ r = suc r $): $ sfPieceRepCoverNamed n r 1 = sfPieceRepCoverProtected n r $ = (named '(eqtr pcr35_named_insert (eqtr (sfPieceRepPrefix_insert hr (ax_mp sfBound_wf sfPieceRepCoverMatrix_bound)) (trud (sfPieceRepDn3Coreeqd (a1i eqid) (a1i pcr35_matrix_insert))))));
+
+theorem pcr35_rotate_after3(i:nat): $ sfPieceRepRotate3 @ suc (3 + i) = suc (3 + i) $ = (named '(eqtr (appeq2 (suceq (eqtr addS1 (suceq (eqtr addS1 (suceq (eqtr addS1 (suceq add01)))))))) (eqtr pcr30_rotate_tail (eqcom (suceq (eqtr addS1 (suceq (eqtr addS1 (suceq (eqtr addS1 (suceq add01)))))))))));
+
+theorem pcr35_rotate_tail_zero: $ sfComposeMap sfPieceRepRotate3 (sfPieceRepCoverTail 3) @ 0 = sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfPieceRepCoverTail 3)) @ 0 $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 (eqtr sfPieceRepCoverTail_at add02)) (eqtr pcr30_rotate3 (eqcom sqEnvCons_zero)))));
+
+theorem pcr35_rotate_tail_suc(i:nat): $ sfComposeMap sfPieceRepRotate3 (sfPieceRepCoverTail 3) @ suc i = sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfPieceRepCoverTail 3)) @ suc i $ = (named '(eqtr sfComposeMap_value (eqtr (appeq2 (eqtr sfPieceRepCoverTail_at addS2)) (eqtr pcr35_rotate_after3 (eqcom (eqtr sqEnvCons_suc (eqtr sfComposeMap_value (eqtr sfSuccessorMap_value (suceq sfPieceRepCoverTail_at)))))))));
+
+theorem pcr35_rotate_tail(i:nat): $ sfComposeMap sfPieceRepRotate3 (sfPieceRepCoverTail 3) @ i = sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfPieceRepCoverTail 3)) @ i $ = (named @ induct '(ind) 'i 'pcr35_rotate_tail_zero '(a1i pcr35_rotate_tail_suc));
+
+pub theorem sfPieceRepCoverPoint_rotate(n:nat): $ sfRename sfPieceRepRotate3 0 (sfPieceRepCoverPoint (sfPieceRepCoverTail 3) n 2) = sfPieceRepCoverPoint (sqEnvCons 0 (sfComposeMap sfSuccessorMap (sfPieceRepCoverTail 3))) n 3 $ = (named '(eqtr sfPieceRepCoverPoint_rename (eqtr (sfPieceRepCoverPoint_map_eq (ax_gen pcr35_rotate_tail)) (sfPieceRepCoverPoint_parameter_eq pcr30_rotate2))));
+
+theorem pcr35_iter_zero(a:nat): $ sfPieceRepDn3Core 0 (sfPieceRepDn3Box a) = sfPieceRepDn3Core 1 a $ = (named '(eqtr sfPieceRepDn3Core_zero (eqcom (eqtr sfPieceRepDn3Core_suc (trud (sfPieceRepDn3Boxeqd (a1i sfPieceRepDn3Core_zero)))))));
+
+theorem pcr35_iter_step(n a:nat): $ sfPieceRepDn3Core n (sfPieceRepDn3Box a) = sfPieceRepDn3Core (suc n) a -> sfPieceRepDn3Core (suc n) (sfPieceRepDn3Box a) = sfPieceRepDn3Core (suc (suc n)) a $ = (named '(eqtrd (eqtrd (a1i sfPieceRepDn3Core_suc) (sfPieceRepDn3Boxeqd id)) (a1i (eqcom sfPieceRepDn3Core_suc))));
+
+pub theorem sfPieceRepDn3_box_iterate(n a:nat): $ sfPieceRepDn3Core n (sfPieceRepDn3Box a) = sfPieceRepDn3Core (suc n) a $ = (named @ induct '(ind) 'n 'pcr35_iter_zero 'pcr35_iter_step);

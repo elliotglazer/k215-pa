@@ -1,0 +1,74 @@
+import "source_l_level_member_names.mm1";
+import "source_l_common_level_witness_rules.mm1";
+
+@_ def sfLReplacementLevelExtendedAt (y x:nat):nat =
+ $ sfEx (sfEx (sfAnd (sfAnd (sfCLOrdinalAt 1) (sfCLHierarchyAt 1 0))
+  (sfAnd (sfCLSubset (suc (suc y)) 0) (sfMem (suc (suc x)) 0)))) $;
+@_ def sfLReplacementLevelOpen(a y x:nat):nat =
+ $ sfImp (sfCLOrdinalAt a) (sfImp (sfCLHierarchyAt a y)
+  (sfImp (sfSubst 0 x sfLDomain) (sfLReplacementLevelExtendedAt y x))) $;
+@_ def sfLReplacementLevelExtension:nat =
+ $ sfAll (sfAll (sfAll (sfLReplacementLevelOpen 2 1 0))) $;
+pub theorem sfLReplacementLevelExtension_canonical:
+ $ sfLReplacementLevelExtension = sfAll (sfAll (sfAll (sfLReplacementLevelOpen 2 1 0))) $ = 'eqid;
+pub theorem sfLReplacementLevelExtension_bound:
+ $ sfBound 0 sfLReplacementLevelExtension $ =
+ '(mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (sfCLOrdinalAt_bound (mpbi ltsuc (mpbi ltsuc lt01S))) (mpbir sfBound_sfImp (ian (sfCLHierarchyAt_bound (mpbi ltsuc (mpbi ltsuc lt01S)) (mpbi ltsuc lt01S)) (mpbir sfBound_sfImp (ian (ax_mp (sfCLUnary_bound sfLDomain_bound) lt01S) (mpbir sfBound_sfEx (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (sfCLOrdinalAt_bound (mpbi ltsuc lt01S)) (sfCLHierarchyAt_bound (mpbi ltsuc lt01S) lt01S))) (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)))))) (mpbir sfBound_sfMem (ian (mpbi ltsuc (mpbi ltsuc lt01S)) lt01S)))))))))))))))));
+theorem lrcSmall_zero (k t: nat): $ sfSubstIndex (suc (suc k)) t 0 = 0 $ = '(ax_mp sfSubstIndex_bound lt01S);
+theorem lrcSmall_one (k t: nat): $ sfSubstIndex (suc (suc k)) t 1 = 1 $ = '(ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S));
+theorem lrcSmall_two (k t x: nat): $ sfSubstIndex (suc (suc k)) t (suc (suc x)) = suc (suc (sfSubstIndex k t x)) $ = '(eqtr sfSubstIndex_lift (suceq sfSubstIndex_lift));
+
+pub theorem sfLReplacementLevelExtendedAt_subst (k t y x: nat):
+ $ sfSubst k t (sfLReplacementLevelExtendedAt y x) = sfLReplacementLevelExtendedAt (sfSubstIndex k t y) (sfSubstIndex k t x) $ =
+ '(eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfEx (nsEx_eq
+   (eqtr sfSubst_sfAnd (nsAnd_eq
+     (eqtr sfSubst_sfAnd (nsAnd_eq
+       (eqtr sfLOrdinalAt_subst (sfCLOrdinalAteq lrcSmall_one))
+       (eqtr sfLHierarchyAt_subst (sfCLHierarchyAteq lrcSmall_one lrcSmall_zero))))
+     (eqtr sfSubst_sfAnd (nsAnd_eq
+       (eqtr sfLSubset_subst (sfCLSubseteq lrcSmall_two lrcSmall_zero))
+       (eqtr sfSubst_sfMem (nsMem_eq lrcSmall_two lrcSmall_zero))))))))));
+
+pub theorem sfLReplacementLevelOpen_subst (k t a y x: nat):
+ $ sfSubst k t (sfLReplacementLevelOpen a y x) =
+   sfLReplacementLevelOpen (sfSubstIndex k t a) (sfSubstIndex k t y) (sfSubstIndex k t x) $ =
+ '(eqtr sfSubst_sfImp (nsImp_eq sfLOrdinalAt_subst
+   (eqtr sfSubst_sfImp (nsImp_eq sfLHierarchyAt_subst
+     (eqtr sfSubst_sfImp (nsImp_eq sfLDomainAt_subst sfLReplacementLevelExtendedAt_subst))))));
+
+theorem lrcSmall_addtwo (a: nat): $ a + 2 = suc (suc a) $ = '(eqtr addS2 (suceq (eqtr addS2 (suceq add02))));
+theorem lrcSmall_first (a: nat):
+ $ sfSubst 0 a (sfAll (sfAll (sfLReplacementLevelOpen 2 1 0))) =
+   sfAll (sfAll (sfLReplacementLevelOpen (suc (suc a)) 1 0)) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfAll (nsAll_eq
+   (eqtr sfLReplacementLevelOpen_subst (sfLReplacementLevelOpeneq
+     (eqtr sfSubstIndex_hit lrcSmall_addtwo)
+     (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S))
+     (ax_mp sfSubstIndex_bound lt01S)))))));
+
+theorem lrcSmall_second (a y: nat):
+ $ sfSubst 0 y (sfAll (sfLReplacementLevelOpen (suc (suc a)) 1 0)) =
+   sfAll (sfLReplacementLevelOpen (suc a) (suc y) 0) $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq
+   (eqtr sfLReplacementLevelOpen_subst (sfLReplacementLevelOpeneq
+     (eqtr sfSubstIndex_lift (suceq sfSubstIndex_successor))
+     (eqtr sfSubstIndex_hit add12)
+     (ax_mp sfSubstIndex_bound lt01S)))));
+
+theorem lrcSmall_third (a y x: nat):
+ $ sfSubst 0 x (sfLReplacementLevelOpen (suc a) (suc y) 0) = sfLReplacementLevelOpen a y x $ =
+ '(eqtr sfLReplacementLevelOpen_subst (sfLReplacementLevelOpeneq sfSubstIndex_successor sfSubstIndex_successor sfSubstIndex_zero));
+
+pub theorem sfLReplacementLevelExtension_use (G a y x: nat)
+ (he: $ nsLocal G sfLReplacementLevelExtension $)
+ (ha: $ nsLocal G (sfCLOrdinalAt a) $)
+ (hl: $ nsLocal G (sfCLHierarchyAt a y) $)
+ (hx: $ nsLocal G (sfSubst 0 x sfLDomain) $):
+ $ nsLocal G (sfLReplacementLevelExtendedAt y x) $ =
+ '(ax_mp (ax_mp nsLocal_mp
+   (ax_mp (ax_mp nsLocal_mp
+     (ax_mp (ax_mp nsLocal_mp
+       (sfRQ_rewrite lrcSmall_third (ax_mp nsLocal_AllE
+         (sfRQ_rewrite lrcSmall_second (ax_mp nsLocal_AllE
+           (sfRQ_rewrite lrcSmall_first (ax_mp nsLocal_AllE
+             (sfRQ_rewrite sfLReplacementLevelExtension_canonical he)))))))) ha)) hl)) hx);

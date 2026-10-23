@@ -1,0 +1,130 @@
+import "source_renaming_laws.mm1";
+
+@_ abstract def sfAtomicClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (sfMem a b e. P /\ sfEq a b e. P) $;
+@_ abstract def sfBinaryClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (a e. P /\ b e. P ->
+  sfAnd a b e. P /\ sfOr a b e. P /\ sfImp a b e. P) $;
+@_ abstract def sfQuantifierClosed (P: set) (.a: nat): wff =
+$ A. a (a e. P -> sfAll a e. P /\ sfEx a e. P) $;
+@_ def sfConstructionClosed (P: set): wff =
+$ sfBot e. P /\ sfAtomicClosed P /\ sfBinaryClosed P /\ sfQuantifierClosed P $;
+
+theorem sfSI_atomic_at (P: set) (a b: nat):
+  $ sfAtomicClosed P -> sfMem a b e. P /\ sfEq a b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+theorem sfSI_binary_at (P: set) (a b: nat):
+  $ sfBinaryClosed P -> a e. P /\ b e. P ->
+    sfAnd a b e. P /\ sfOr a b e. P /\ sfImp a b e. P $ =
+(named '(!! ealie x @ !! ealde y @ bi1d ,eqtac));
+theorem sfSI_quantifier_at (P: set) (a: nat):
+  $ sfQuantifierClosed P -> a e. P -> sfAll a e. P /\ sfEx a e. P $ =
+(named '(!! ealie x @ bi1d ,eqtac));
+
+theorem sfSI_transport (P: set) (G: wff) (a b: nat)
+  (he: $ G -> a = b $) (hp: $ G -> b e. P $):
+  $ G -> a e. P $ = '(mpbird (eleq1d he) hp);
+
+theorem sfSI_ind_at (P: set) (c a: nat):
+  $ A. j (j < c -> sfWf j -> j e. P) ->
+    a < c -> sfWf a -> a e. P $ =
+(named '(!! eale j ,eqtac));
+theorem sfSI_child {j: nat} (P: set) (G: wff j) (c a: nat)
+  (hi: $ G -> A. j (j < c -> sfWf j -> j e. P) $)
+  (ha: $ G -> a e. sfPrevious c $):
+  $ G -> a e. P $ =
+'(mpd (syl anr (syl (bi1 sfPrevious_value) ha))
+  (mpd (syl anl (syl (bi1 sfPrevious_value) ha)) (syl sfSI_ind_at hi)));
+
+theorem sfSI_bot (P: set) (G: wff) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $) (hz: $ G -> c = 0 $):
+  $ G -> c e. P $ =
+'(sfSI_transport hz (syl anl (syl anl (syl anl hc))));
+theorem sfSI_mem (P: set) (G: wff) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $) (ht: $ G -> sfTag c = 1 $):
+  $ G -> c e. P $ =
+'(sfSI_transport (sfRL_rebuild ht)
+  (syl anl (syl sfSI_atomic_at (syl anr (syl anl (syl anl hc))))));
+theorem sfSI_eq (P: set) (G: wff) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $) (ht: $ G -> sfTag c = 2 $):
+  $ G -> c e. P $ =
+'(sfSI_transport (sfRL_rebuild ht)
+  (syl anr (syl sfSI_atomic_at (syl anr (syl anl (syl anl hc))))));
+
+theorem sfSI_and (P: set) (G: wff) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $) (ht: $ G -> sfTag c = 3 $)
+  (hl: $ G -> sfLeft c e. P $) (hr: $ G -> sfRight c e. P $):
+  $ G -> c e. P $ =
+'(sfSI_transport (sfRL_rebuild ht)
+  (syl anl (syl anl (mpd (iand hl hr)
+    (syl sfSI_binary_at (syl anr (syl anl hc)))))));
+theorem sfSI_or (P: set) (G: wff) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $) (ht: $ G -> sfTag c = 4 $)
+  (hl: $ G -> sfLeft c e. P $) (hr: $ G -> sfRight c e. P $):
+  $ G -> c e. P $ =
+'(sfSI_transport (sfRL_rebuild ht)
+  (syl anr (syl anl (mpd (iand hl hr)
+    (syl sfSI_binary_at (syl anr (syl anl hc)))))));
+theorem sfSI_imp (P: set) (G: wff) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $) (ht: $ G -> sfTag c = 5 $)
+  (hl: $ G -> sfLeft c e. P $) (hr: $ G -> sfRight c e. P $):
+  $ G -> c e. P $ =
+'(sfSI_transport (sfRL_rebuild ht)
+  (syl anr (mpd (iand hl hr)
+    (syl sfSI_binary_at (syl anr (syl anl hc))))));
+theorem sfSI_all (P: set) (G: wff) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $) (ht: $ G -> sfTag c = 6 $)
+  (hz: $ G -> sfRight c = 0 $) (hl: $ G -> sfLeft c e. P $):
+  $ G -> c e. P $ =
+'(sfSI_transport (sfRL_rebuild_quantifier ht hz)
+  (syl anl (mpd hl (syl sfSI_quantifier_at (syl anr hc)))));
+theorem sfSI_ex (P: set) (G: wff) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $) (ht: $ G -> sfTag c = 7 $)
+  (hz: $ G -> sfRight c = 0 $) (hl: $ G -> sfLeft c e. P $):
+  $ G -> c e. P $ =
+'(sfSI_transport (sfRL_rebuild_quantifier ht hz)
+  (syl anr (mpd hl (syl sfSI_quantifier_at (syl anr hc)))));
+
+theorem sfSI_binary {j: nat} (P: set) (G: wff j) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $)
+  (hi: $ G -> A. j (j < c -> sfWf j -> j e. P) $)
+  (ht: $ G -> sfTag c = 3 \/ sfTag c = 4 \/ sfTag c = 5 $)
+  (hl: $ G -> sfLeft c e. sfPrevious c $)
+  (hr: $ G -> sfRight c e. sfPrevious c $):
+  $ G -> c e. P $ =
+'(mpd ht (eord
+  (eord
+    (exp @ sfSI_and (syl hc anl) anr (sfSI_child (syl hi anl) (syl hl anl)) (sfSI_child (syl hi anl) (syl hr anl)))
+    (exp @ sfSI_or (syl hc anl) anr (sfSI_child (syl hi anl) (syl hl anl)) (sfSI_child (syl hi anl) (syl hr anl))))
+  (exp @ sfSI_imp (syl hc anl) anr (sfSI_child (syl hi anl) (syl hl anl)) (sfSI_child (syl hi anl) (syl hr anl)))));
+theorem sfSI_quantifier {j: nat} (P: set) (G: wff j) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $)
+  (hi: $ G -> A. j (j < c -> sfWf j -> j e. P) $)
+  (ht: $ G -> sfTag c = 6 \/ sfTag c = 7 $)
+  (hz: $ G -> sfRight c = 0 $) (hl: $ G -> sfLeft c e. sfPrevious c $):
+  $ G -> c e. P $ =
+'(mpd ht (eord
+  (exp @ sfSI_all (syl hc anl) anr (syl hz anl) (sfSI_child (syl hi anl) (syl hl anl)))
+  (exp @ sfSI_ex (syl hc anl) anr (syl hz anl) (sfSI_child (syl hi anl) (syl hl anl)))));
+theorem sfSI_allowed {j: nat} (P: set) (G: wff j) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $)
+  (hi: $ G -> A. j (j < c -> sfWf j -> j e. P) $):
+  $ G -> sfAllowed c (sfPrevious c) -> c e. P $ =
+'(eord (exp @ sfSI_bot (syl hc anl) anr)
+  (eord (eord (exp @ sfSI_mem (syl hc anl) anr) (exp @ sfSI_eq (syl hc anl) anr))
+    (eord
+      (exp @ sfSI_binary (syl hc anl) (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr))
+      (exp @ sfSI_quantifier (syl hc anl) (syl hi anl)
+        (syl anl (syl anl anr)) (syl anr (syl anl anr)) (syl anr anr)))));
+theorem sfSI_step {j: nat} (P: set) (G: wff j) (c: nat)
+  (hc: $ G -> sfConstructionClosed P $)
+  (hi: $ G -> A. j (j < c -> sfWf j -> j e. P) $):
+  $ G -> sfWf c -> c e. P $ =
+'(syl5bi sfWf_unfold (sfSI_allowed hc hi));
+
+pub theorem sfWf_induction (P: set) (c: nat):
+  $ sfConstructionClosed P -> sfWf c -> c e. P $ =
+(named '(!! indstr j y
+  {,eqtac : $ j = c -> ((sfWf j -> j e. P) <-> (sfWf c -> c e. P)) $}
+  ,eqtac (sfSI_step anl anr)));

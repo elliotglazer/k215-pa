@@ -1,0 +1,25 @@
+import "source_renaming_laws.mm0";
+
+theorem sfRenameIndex_shift_cutoff (R: set) (e d i: nat):
+  $ sfRenameIndex R (suc (e + d)) (sfShiftIndex e i) = sfShiftIndex e (sfRenameIndex R (e + d) i) $;
+
+theorem sfRenameIndex_subst_cutoff (R: set) (e d t i: nat):
+  $ sfRenameIndex R (e + d) (sfSubstIndex e t i) = sfSubstIndex e (sfRenameIndex R d t) (sfRenameIndex R (suc (e + d)) i) $;
+
+theorem sfRename_shift_cutoff (R: set) (k d c: nat):
+  $ sfWf c -> sfRename R (suc (d + k)) (sfShift d c) = sfShift d (sfRename R (d + k) c) $;
+
+theorem sfRename_subst_cutoff (R: set) (k d t c: nat):
+  $ sfWf c -> sfRename R (d + k) (sfSubst d t c) = sfSubst d (sfRenameIndex R k t) (sfRename R (suc (d + k)) c) $;
+
+theorem sfRename_shift_zero (R: set) (d c: nat):
+  $ sfWf c -> sfRename R (suc d) (sfShift 0 c) = sfShift 0 (sfRename R d c) $;
+
+theorem sfRename_subst_zero (R: set) (d t c: nat):
+  $ sfWf c -> sfRename R d (sfSubst 0 t c) = sfSubst 0 (sfRenameIndex R d t) (sfRename R (suc d) c) $;
+
+theorem sfRename_shift_bounded (R: set) (e d c: nat):
+  $ e <= d -> sfWf c -> sfRename R (suc d) (sfShift e c) = sfShift e (sfRename R d c) $;
+
+theorem sfRename_subst_bounded (R: set) (e d t c: nat):
+  $ e <= d -> sfWf c -> sfRename R d (sfSubst e t c) = sfSubst e (sfRenameIndex R (d - e) t) (sfRename R (suc d) c) $;

@@ -1,0 +1,200 @@
+import "quotation_supported_transport.mm1";
+import "quotation_supported_contexts.mm1";
+import "k230_fresh_allocation.mm1";
+import "quotation_exists_elimination.mm1";
+
+pub theorem sqEnvironmentSafe_raise (S n t k l: nat):
+ $ k < l -> sqEnvironmentSafe S n t k -> sqEnvironmentSafe S n t l $ =
+'(exp @ iand (syl sqEnvironmentSafe_length anr)
+ (iand (ltletrd (syl sqEnvironmentSafe_positive anr) (ltled anl))
+ (iand (ltletrd (syl sqEnvironmentSafe_tag anr) (ltled anl))
+ (mpd (syl sqEnvironmentSafe_below anr) (syl sqEnvironmentBelow_mono (ltled anl))))));
+
+@_ def sqEigenName (H S t k c: nat): nat =
+ $ kFreshAllocate H (sqQuote (sqNumericEnvironment S) t k 0 c) 0 k $;
+@_ def sqEigenContext (H S t k c: nat): nat = $ kMem t (sqEigenName H S t k c) : H $;
+pub theorem sqEigenName_above_base (H S t k c: nat): $ k < sqEigenName H S t k c $ =
+'kFreshAllocate_above_reserved;
+pub theorem sqEigenName_context (H S t k c: nat): $ kContextFresh H (sqEigenName H S t k c) $ =
+'kFreshAllocate_context;
+pub theorem sqEigenName_formula (H S t k c: nat):
+ $ kFresh (sqQuote (sqNumericEnvironment S) t k 0 c) (sqEigenName H S t k c) $ =
+'kFreshAllocate_left;
+pub theorem sqEigenName_positive (H S t k c: nat): $ 0 < sqEigenName H S t k c $ =
+'(mpbir lt01 kFreshAllocate_nonzero);
+pub theorem sqEigen_safe (H S n t k c: nat):
+ $ sqEnvironmentSafe S n t k -> sqEnvironmentSafe S n t (sqEigenName H S t k c) $ =
+'(ax_mp sqEnvironmentSafe_raise sqEigenName_above_base);
+pub theorem sqEigen_safe_body (H S n t k c: nat):
+ $ sqEnvironmentSafe S n t k ->
+ sqEnvironmentSafe ((sqEigenName H S t k c) : S) (suc n) t (suc (sqEigenName H S t k c)) $ =
+'(syl (ax_mp sqEnvironmentSafe_cons ltsucid)
+ (ax_mp sqEnvironmentSafe_raise (ltletr sqEigenName_above_base lesucid)));
+pub theorem sqEigen_domain (H S t k c: nat):
+ $ sqDomainSupport H S t ->
+ sqDomainSupport (sqEigenContext H S t k c) ((sqEigenName H S t k c) : S) t $ =
+'(syl (ax_mp sqDomainSupport_cons (kHypProvable_assumption lmemconsid)) sqDomainSupport_weaken);
+
+theorem sqEV_bound_member (n G a: nat):
+ $ sfContextWf G -> G <= n -> a IN G -> sfBound n a $ =
+'(exp @ exp @ mpd (letrd (ltled (syl lmemlt anr)) anlr) @
+ syl sfBound_mono @ syl sfWf_code_bound @ mpd anr (syl sfContextWf_member anll));
+pub theorem sqSourceBound_from_code (n G: nat):
+ $ sfContextWf G -> G <= n -> sqSourceBound n G $ =
+(named '(exp @ !! iald a @ mpd anr (syl sqEV_bound_member anl)));
+
+theorem sqEV_rebase_support (F: wff) (H S n t k l G: nat)
+ (hb: $ F -> sqSourceBound n G $) (hk: $ F -> sqEnvironmentSafe S n t k $)
+ (hl: $ F -> sqEnvironmentSafe S n t l $) (hs: $ F -> sqSourceSupport H S t k G $):
+ $ F -> sqSourceSupport H S t l G $ =
+'(mpd hs (mpd hl (mpd hk (syl sqSourceSupport_rebase hb))));
+theorem sqEV_source_core (F: wff) (H S n t k G c: nat)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (hk: $ F -> sqEnvironmentSafe S n t k $) (hs: $ F -> sqSourceSupport H S t k G $):
+ $ F -> sqSourceSupport (sqEigenContext H S t k c) ((sqEigenName H S t k c) : S) t
+ (suc (sqEigenName H S t k c)) (sfContextShift G) $ =
+'(mpd (syl sqSourceSupport_weaken (sqEV_rebase_support hb hk
+ (syl (ax_mp sqEnvironmentSafe_raise (ltletr sqEigenName_above_base lesucid)) hk) hs))
+ (syl sqSourceSupport_shift hw));
+pub theorem sqEigen_source_support (H S n t k G c: nat):
+ $ sfContextWf G -> sqSourceBound n G -> sqEnvironmentSafe S n t k ->
+ sqSourceSupport H S t k G ->
+ sqSourceSupport (sqEigenContext H S t k c) ((sqEigenName H S t k c) : S) t
+ (suc (sqEigenName H S t k c)) (sfContextShift G) $ =
+'(exp @ exp @ exp @ sqEV_source_core (syl anl (syl anl anl)) (syl anr (syl anl anl)) anlr anr);
+
+theorem sqEV_premise (F: wff) (H S n m t k G a: nat)
+ (hp: $ F -> sqSupportedAt m (sfSequent (sfContextShift G) a) $)
+ (hm: $ F -> m <= suc n $) (hw: $ F -> sfContextWf G $)
+ (hb: $ F -> sqSourceBound n G $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> sqDomainSupport H S t $) (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> kHypProvable (sqEigenContext H S t k (sfAll a))
+ (sqQuote (sqNumericEnvironment (sqEigenName H S t k (sfAll a) : S)) t
+  (suc (sqEigenName H S t k (sfAll a))) 0 a) $ =
+'(mpd (sqEV_source_core hw hb hs hg) @ mpd (syl sqEigen_domain hd) @
+ mpd (mpd (syl sqEigen_safe_body hs) (syl sqEnvironmentSafe_cutoff hm)) @
+ syl sqSupportedAt_sequent hp);
+theorem sqEV_equiv_backward (F: wff) (H a b: nat)
+ (he: $ F -> kEquivalent a b $) (hb: $ F -> kHypProvable H b $):
+ $ F -> kHypProvable H a $ =
+'(sylc kHypProvable_mp hb (syl kHypProvable_seed (syl anr he)));
+pub theorem sqSupported_AllI_core (F: wff) (H S n m t k G a: nat)
+ (hp: $ F -> sqSupportedAt m (sfSequent (sfContextShift G) a) $)
+ (hm: $ F -> m <= suc n $) (hw: $ F -> sfContextWf G $)
+ (hb: $ F -> sqSourceBound n G $) (ha: $ F -> sfBound n (sfAll a) $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> sqDomainSupport H S t $) (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 (sfAll a)) $ =
+'(sqEV_equiv_backward
+ (mpd (syl sqEnvironmentSafe_hygiene (syl sqEigen_safe hs)) @
+  mpd (syl sqEnvironmentSafe_hygiene hs) @ syl sqQuote_fresh_base_equivalent ha)
+ (mpbird (kHypProvableeq2d (syl sqQuote_all_cons (syl sfBound_wf (syl (bi1 sfBound_sfAll) ha)))) @
+  syl (kHypProvable_gen_fresh sqEigenName_context) @ syl kHypProvable_deduction @
+  mpbid (kHypProvableeq2d (syl sqNumeric_quote_cons (syl sfBound_wf (syl (bi1 sfBound_sfAll) ha)))) @
+  sqEV_premise hp hm hw hb hs hd hg));
+
+theorem sqEV_sequent_context_le (G a: nat): $ G <= sfSequent G a $ =
+'(letr leprid1 leprid2);
+theorem sqEV_sequent_formula_le (G a: nat): $ a <= sfSequent G a $ =
+'(letr leprid2 leprid2);
+pub theorem sqRowWf_sequent_source_bound (n G a: nat):
+ $ sfRowWf (sfSequent G a) -> sfSequent G a <= n -> sqSourceBound n G $ =
+'(exp @ mpd (syl (letr sqEV_sequent_context_le) anr)
+ (syl sqSourceBound_from_code (syl anl (syl (bi1 sfRowWf_sequent) anl))));
+pub theorem sqRowWf_sequent_formula_bound (n G a: nat):
+ $ sfRowWf (sfSequent G a) -> sfSequent G a <= n -> sfBound n a $ =
+'(exp @ mpd (syl (letr sqEV_sequent_formula_le) anr) @
+ syl sfBound_mono @ syl sfWf_code_bound @ syl anr (syl (bi1 sfRowWf_sequent) anl));
+
+theorem sqEV_AllI_property (F: wff) (m G a: nat)
+ (hw: $ F -> sfRowWf (sfSequent G (sfAll a)) $)
+ (hp: $ F -> sqSupportedAt m (sfSequent (sfContextShift G) a) $):
+ $ F -> sqSupportedProperty (sfSequent G (sfAll a) + m) (sfSequent G (sfAll a)) $ =
+(named '(!! iald S @ !! iald t @ !! iald k @ !! iald H @ exp @ exp @ exp @
+ syl (bi2 sqSupportedRowGoal_sequent) @
+ sqSupported_AllI_core
+ (syl hp (syl anl (syl anl anl)))
+ (a1i (letr leaddid2 lesucid))
+ (syl anl (syl (bi1 sfRowWf_sequent) (syl hw (syl anl (syl anl anl)))))
+ (mpd (a1i leaddid1) (syl sqRowWf_sequent_source_bound (syl hw (syl anl (syl anl anl)))))
+ (mpd (a1i leaddid1) (syl sqRowWf_sequent_formula_bound (syl hw (syl anl (syl anl anl)))))
+ (syl anr (syl anl anl)) (syl anr anl)
+ (syl (bi1 (sqSourceSupporteq5 sfSequent_context)) anr)));
+pub theorem sqSupported_AllI_at (m G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> sqSupportedAt m (sfSequent (sfContextShift G) a) ->
+ sqSupportedAt (sfSequent G (sfAll a) + m) (sfSequent G (sfAll a)) $ =
+'(exp @ mpd (sqEV_AllI_property anl anr)
+ (mpd (a1i leaddid1) (syl sqSupportedAt_intro anl)));
+pub theorem sqSupported_AllI (G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> sqSupportedGood (sfSequent (sfContextShift G) a) ->
+ sqSupportedGood (sfSequent G (sfAll a)) $ =
+(named '(eexd (syl6 sqSupportedGood_intro sqSupported_AllI_at)));
+
+@_ def sqEigenMinorContext (H S t k c a: nat): nat =
+ $ sqScopeBody (sqNumericEnvironment S) t (sqEigenName H S t k c) a : sqEigenContext H S t k c $;
+theorem sqEV_ordinary_premise (F: wff) (H S n m t k G a: nat)
+ (hp: $ F -> sqSupportedAt m (sfSequent G a) $) (hm: $ F -> m <= n $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $) (hd: $ F -> sqDomainSupport H S t $)
+ (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 a) $ =
+'(mpd hg (mpd hd (mpd (mpd hs (syl sqEnvironmentSafe_cutoff hm)) (syl sqSupportedAt_sequent hp))));
+theorem sqEV_equiv_forward (F: wff) (H a b: nat)
+ (he: $ F -> kEquivalent a b $) (ha: $ F -> kHypProvable H a $):
+ $ F -> kHypProvable H b $ =
+'(sylc kHypProvable_mp ha (syl kHypProvable_seed (syl anl he)));
+theorem sqEV_minor_support (F: wff) (H S n t k G a c: nat)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (ha: $ F -> sfWf a $) (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> sqSourceSupport (sqEigenMinorContext H S t k c a)
+ ((sqEigenName H S t k c) : S) t (suc (sqEigenName H S t k c)) (a : sfContextShift G) $ =
+'(mpd (mpbird (kHypProvableeq2d (syl sqNumeric_quote_cons ha))
+    (a1i (kHypProvable_assumption lmemconsid))) @
+ syl sqSourceSupport_cons @ syl sqSourceSupport_weaken @ sqEV_source_core hw hb hs hg);
+theorem sqEV_ExE_minor (F: wff) (H S n m t k G a c: nat)
+ (hp: $ F -> sqSupportedAt m (sfSequent (a : sfContextShift G) (sfShift 0 c)) $)
+ (hm: $ F -> m <= suc n $) (hw: $ F -> sfContextWf G $)
+ (hb: $ F -> sqSourceBound n G $) (ha: $ F -> sfWf a $) (hc: $ F -> sfBound n c $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> sqDomainSupport H S t $) (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> kHypProvable (sqEigenMinorContext H S t k c a)
+ (sqQuote (sqNumericEnvironment S) t k 0 c) $ =
+'(sqEV_equiv_backward
+ (mpd (syl sqEnvironmentSafe_hygiene
+     (syl (ax_mp sqEnvironmentSafe_raise (ltletr sqEigenName_above_base lesucid)) hs)) @
+  mpd (syl sqEnvironmentSafe_hygiene hs) @ syl sqQuote_fresh_base_equivalent hc) @
+ mpbid (kHypProvableeq2d (syl sqNumeric_quote_shift (syl sfBound_wf hc))) @
+ mpd (sqEV_minor_support hw hb ha hs hg) @
+ mpd (syl sqDomainSupport_weaken (syl sqEigen_domain hd)) @
+ mpd (mpd (syl sqEigen_safe_body hs) (syl sqEnvironmentSafe_cutoff hm)) @
+ syl sqSupportedAt_sequent hp);
+theorem sqEV_ExE_major (F: wff) (H S n m t k G a c: nat)
+ (hp: $ F -> sqSupportedAt m (sfSequent G (sfEx a)) $)
+ (hm: $ F -> m <= n $) (ha: $ F -> sfBound n (sfEx a) $)
+ (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> sqDomainSupport H S t $) (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> kHypProvable H (kExists (sqEigenName H S t k c)
+ (sqScopeEx (sqNumericEnvironment S) t (sqEigenName H S t k c) a)) $ =
+'(mpbid (kHypProvableeq2d (syl sqQuote_ex_cons (syl sfBound_wf (syl (bi1 sfBound_sfEx) ha)))) @
+ sqEV_equiv_forward
+ (mpd (syl sqEnvironmentSafe_hygiene (syl sqEigen_safe hs)) @
+  mpd (syl sqEnvironmentSafe_hygiene hs) @ syl sqQuote_fresh_base_equivalent ha)
+ (sqEV_ordinary_premise hp hm hs hd hg));
+pub theorem sqSupported_ExE_core (F: wff) (H S n m j t k G a c: nat)
+ (hp: $ F -> sqSupportedAt m (sfSequent G (sfEx a)) $)
+ (hq: $ F -> sqSupportedAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) $)
+ (hm: $ F -> m <= n $) (hj: $ F -> j <= suc n $)
+ (hw: $ F -> sfContextWf G $) (hb: $ F -> sqSourceBound n G $)
+ (hc: $ F -> sfBound n c $) (hs: $ F -> sqEnvironmentSafe S n t k $)
+ (hd: $ F -> sqDomainSupport H S t $) (hg: $ F -> sqSourceSupport H S t k G $):
+ $ F -> kHypProvable H (sqQuote (sqNumericEnvironment S) t k 0 c) $ =
+'(sylc
+ (kHypProvable_exists_elim (ax_mp kContextFresh_vacuous sqEigenName_context)
+   (ax_mp kFresh_vacuity sqEigenName_formula))
+ (sqEV_ExE_major hp hm
+    (mpd hm (syl sfBound_mono (syl sqSupportedAt_formula_bound hp))) hs hd hg)
+ (syl kHypProvable_deduction @ syl (kHypProvable_refine sqExMatrix_support) @
+  sqEV_ExE_minor hq hj hw hb
+   (syl sfBound_wf (syl (bi1 sfBound_sfEx) (syl sqSupportedAt_formula_bound hp)))
+   hc hs hd hg));

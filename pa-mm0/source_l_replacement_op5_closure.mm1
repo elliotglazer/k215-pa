@@ -1,0 +1,93 @@
+import "source_l_replacement_core_assembly.mm1";
+import "source_piece_pcf_rep_r37_kernel_cl_carrier.mm1";
+
+@_ def sfLClOp5Body: nat =
+ $ sfImp (sfPieceRepClosure 3 2) (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfImp (sfMem 4 2)
+   (sfEx (sfAnd (sfMem 0 3) (sfLSeparationOp5 2 1 5 0)))))) $;
+
+@_ def sfLClOp5Law: nat = $ sfAll (sfAll (sfAll (sfAll (sfAll sfLClOp5Body)))) $;
+
+-- The carrier law (r37 kernel) at A = 4, S = 3, C = 2.
+theorem lro_carrier_shape: $ sfPieceRepR37KernelClCarrierFormula = sfPieceRepCoverCarrierLaw $ = 'eqid;
+
+theorem lro_carrier_zfr: $ sfTheoryProvable zfrAxioms sfPieceRepCoverCarrierLaw $ =
+ '(mpbi (sfTheoryProvableeq2 lro_carrier_shape) sfPieceRepR37KernelClCarrier_zfr);
+
+theorem lro_co_zfr:
+ $ sfTheoryProvable zfrAxioms (sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfMem 2 0))) $ =
+ '(ax_mp (ax_mp sfTheoryProvable_all_open zfrAxioms_closed)
+   (ax_mp (ax_mp sfTheoryProvable_all_open zfrAxioms_closed)
+    (ax_mp (ax_mp sfTheoryProvable_all_open zfrAxioms_closed) lro_carrier_zfr)));
+
+theorem lro_succ0(i:nat): $ sfRenameIndex sfSuccessorMap 0 i = suc i $ =
+ '(eqtr sfRenameIndex_zero sfSuccessorMap_value);
+
+theorem lro_succ_shift0(x y:nat):
+ $ sfShift 0 (sfPieceRepSuccessor x y) = sfPieceRepSuccessor (suc x) (suc y) $ =
+ '(eqtr (eqcom (ax_mp sfRename_successor sfPieceRepSuccessor_wf))
+   (eqtr sfPieceRepSuccessor_rename (sfPieceRepSuccessor_eq lro_succ0 lro_succ0)));
+
+theorem lro_mem_shift0(a b:nat): $ sfShift 0 (sfMem a b) = sfMem (suc a) (suc b) $ =
+ '(eqtr sfShift_sfMem (nsMem_eq (ax_mp sfShiftIndex_free lt02) (ax_mp sfShiftIndex_free lt02)));
+
+theorem lro_co_shift:
+ $ sfShift 0 (sfImp (sfPieceRepSuccessor 2 1) (sfImp (sfPieceRepClosure 1 0) (sfMem 2 0))) =
+   sfImp (sfPieceRepSuccessor 3 2) (sfImp (sfPieceRepClosure 2 1) (sfMem 3 1)) $ =
+ '(eqtr sfShift_sfImp (nsImp_eq lro_succ_shift0
+   (eqtr sfShift_sfImp (nsImp_eq sfPieceRepClosure_shift lro_mem_shift0))));
+
+theorem lro_co_shift2:
+ $ sfShift 0 (sfImp (sfPieceRepSuccessor 3 2) (sfImp (sfPieceRepClosure 2 1) (sfMem 3 1))) =
+   sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2) (sfMem 4 2)) $ =
+ '(eqtr sfShift_sfImp (nsImp_eq lro_succ_shift0
+   (eqtr sfShift_sfImp (nsImp_eq sfPieceRepClosure_shift lro_mem_shift0))));
+
+theorem lro_co2_zfr:
+ $ sfTheoryProvable zfrAxioms (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2) (sfMem 4 2))) $ =
+ '(mpbi (sfTheoryProvableeq2 lro_co_shift2)
+   (ax_mp (ax_mp sfTheoryProvable_shift zfrAxioms_closed)
+    (mpbi (sfTheoryProvableeq2 lro_co_shift)
+     (ax_mp (ax_mp sfTheoryProvable_shift zfrAxioms_closed) lro_co_zfr))));
+
+-- Well-formedness.
+theorem lro_op5_wf: $ sfWf (sfLSeparationOp5 2 1 5 0) $ =
+ '(ax_mp (ax_mp sfWf_and
+   (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_and sfWf_mem) sfLSeparationOp5SC_wf))))
+   (ax_mp sfWf_all (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfLSeparationOp5SC_wf) sfWf_mem))));
+
+theorem lro_body_wf: $ sfWf sfLClOp5Body $ =
+ '(ax_mp (ax_mp sfWf_imp sfPieceRepClosure_wf) (ax_mp (ax_mp sfWf_imp sfWf_mem)
+   (ax_mp (ax_mp sfWf_imp sfWf_mem) (ax_mp (ax_mp sfWf_imp sfWf_mem)
+    (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfWf_mem) lro_op5_wf))))));
+
+theorem lro_co2_wf: $ sfWf (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2) (sfMem 4 2))) $ =
+ '(ax_mp (ax_mp sfWf_imp sfPieceRepSuccessor_wf) (ax_mp (ax_mp sfWf_imp sfPieceRepClosure_wf) sfWf_mem));
+
+theorem lro_gc_wf:
+ $ sfContextWf (sfMem 0 2 : (sfMem 1 2 : (sfPieceRepClosure 3 2 : (sfPieceRepSuccessor 4 3 :
+   (sfLClOp5Body : (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2) (sfMem 4 2)) :
+    sfLBackground)))))) $ =
+ '(mpbir sfContextWf_cons (ian sfWf_mem (mpbir sfContextWf_cons (ian sfWf_mem
+   (mpbir sfContextWf_cons (ian sfPieceRepClosure_wf (mpbir sfContextWf_cons (ian sfPieceRepSuccessor_wf
+    (mpbir sfContextWf_cons (ian lro_body_wf (mpbir sfContextWf_cons (ian lro_co2_wf
+     sfLBackground_wf))))))))))));
+
+-- Propositional assembly: A in C from the carrier law, then cl_op_g.
+theorem lro_local:
+ $ nsLocal sfLBackground (sfImp (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2) (sfMem 4 2)))
+   (sfImp sfLClOp5Body (sfImp (sfPieceRepSuccessor 4 3) (sfImp (sfPieceRepClosure 3 2)
+    (sfImp (sfMem 1 2) (sfImp (sfMem 0 2) (sfEx (sfAnd (sfMem 0 3) (sfLSeparationOp5 2 1 5 0))))))))) $ =
+ '(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp lro_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))))) (ax_mp (ax_mp nsLocal_hyp lro_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))) (ax_mp (ax_mp nsLocal_hyp lro_gc_wf) (ax_mp sfContext_member_tail sfContext_member_head)))) (ax_mp (ax_mp nsLocal_hyp lro_gc_wf) sfContext_member_head))) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp lro_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))))) (ax_mp (ax_mp nsLocal_hyp lro_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))))) (ax_mp (ax_mp nsLocal_hyp lro_gc_wf) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))))))))));
+
+pub theorem sfLOp5Law_from_cl_op5(hO:$ sfTheoryProvable zfrAxioms sfLClOp5Law $):
+ $ sfTheoryProvable zfrAxioms sfLOp5Law $ =
+ '(ax_mp (ax_mp sfTheoryProvable_prefix_intro zfrAxioms_closed)
+   (ax_mp (ax_mp sfTheoryProvable_gen zfrAxioms_closed)
+    (ax_mp (ax_mp sfTheoryProvable_gen zfrAxioms_closed)
+     (ax_mp (ax_mp sfTheoryProvable_mp
+       (ax_mp (ax_mp sfTheoryProvable_mp (ax_mp (sfTheory_local sfLBackground_zfr) lro_local)) lro_co2_zfr))
+      (ax_mp (ax_mp sfTheoryProvable_all_open zfrAxioms_closed)
+       (ax_mp (ax_mp sfTheoryProvable_all_open zfrAxioms_closed)
+        (ax_mp (ax_mp sfTheoryProvable_all_open zfrAxioms_closed)
+         (ax_mp (ax_mp sfTheoryProvable_all_open zfrAxioms_closed)
+          (ax_mp (ax_mp sfTheoryProvable_all_open zfrAxioms_closed) hO)))))))));

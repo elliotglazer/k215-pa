@@ -1,0 +1,93 @@
+import "source_bounds.mm1";
+
+@_ def sfWFNode0: nat = $ sfMem 0 1 $;
+
+@_ def sfWFNode1: nat = $ sfMem 0 2 $;
+
+@_ def sfWFNode2: nat = $ sfImp sfWFNode0 sfWFNode1 $;
+
+@_ def sfWFNode3: nat = $ sfAll sfWFNode2 $;
+
+@_ def sfWFNode4: nat = $ sfImp sfWFNode0 sfWFNode3 $;
+
+@_ def sfWFNode5: nat = $ sfAll sfWFNode4 $;
+
+@_ def sfWFNode6: nat = $ sfEx sfWFNode0 $;
+
+@_ def sfWFNode7: nat = $ sfBot $;
+
+@_ def sfWFNode8: nat = $ sfImp sfWFNode1 sfWFNode7 $;
+
+@_ def sfWFNode9: nat = $ sfImp sfWFNode0 sfWFNode8 $;
+
+@_ def sfWFNode10: nat = $ sfAll sfWFNode9 $;
+
+@_ def sfWFNode11: nat = $ sfAnd sfWFNode0 sfWFNode10 $;
+
+@_ def sfWFNode12: nat = $ sfEx sfWFNode11 $;
+
+@_ def sfWFNode13: nat = $ sfImp sfWFNode6 sfWFNode12 $;
+
+@_ def sfWFNode14: nat = $ sfImp sfWFNode3 sfWFNode13 $;
+
+@_ def sfWFNode15: nat = $ sfAll sfWFNode14 $;
+
+@_ def sfWFNode16: nat = $ sfAnd sfWFNode5 sfWFNode15 $;
+
+@_ def sfWFNode17: nat = $ sfMem 1 0 $;
+
+@_ def sfWFNode18: nat = $ sfAnd sfWFNode16 sfWFNode17 $;
+
+@_ def sfWFNode19: nat = $ sfEx sfWFNode18 $;
+
+@_ def sfWFDomain: nat = $ sfWFNode19 $;
+
+theorem sfWFBound0: $ sfBound 3 sfWFNode0 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem sfWFBound1: $ sfBound 4 sfWFNode0 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem sfWFBound2: $ sfBound 4 sfWFNode1 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+theorem sfWFBound3: $ sfBound 4 sfWFNode2 $ = '(mpbir sfBound_sfImp (ian sfWFBound1 sfWFBound2));
+
+theorem sfWFBound4: $ sfBound 3 sfWFNode3 $ = '(mpbir sfBound_sfAll sfWFBound3);
+
+theorem sfWFBound5: $ sfBound 3 sfWFNode4 $ = '(mpbir sfBound_sfImp (ian sfWFBound0 sfWFBound4));
+
+theorem sfWFBound6: $ sfBound 2 sfWFNode5 $ = '(mpbir sfBound_sfAll sfWFBound5);
+
+theorem sfWFBound7: $ sfBound 3 sfWFNode6 $ = '(mpbir sfBound_sfEx sfWFBound1);
+
+theorem sfWFBound8: $ sfBound 5 sfWFNode0 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S)));
+
+theorem sfWFBound9: $ sfBound 5 sfWFNode1 $ = '(mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))));
+
+theorem sfWFBound10: $ sfBound 5 sfWFNode7 $ = 'sfBound_bot;
+
+theorem sfWFBound11: $ sfBound 5 sfWFNode8 $ = '(mpbir sfBound_sfImp (ian sfWFBound9 sfWFBound10));
+
+theorem sfWFBound12: $ sfBound 5 sfWFNode9 $ = '(mpbir sfBound_sfImp (ian sfWFBound8 sfWFBound11));
+
+theorem sfWFBound13: $ sfBound 4 sfWFNode10 $ = '(mpbir sfBound_sfAll sfWFBound12);
+
+theorem sfWFBound14: $ sfBound 4 sfWFNode11 $ = '(mpbir sfBound_sfAnd (ian sfWFBound1 sfWFBound13));
+
+theorem sfWFBound15: $ sfBound 3 sfWFNode12 $ = '(mpbir sfBound_sfEx sfWFBound14);
+
+theorem sfWFBound16: $ sfBound 3 sfWFNode13 $ = '(mpbir sfBound_sfImp (ian sfWFBound7 sfWFBound15));
+
+theorem sfWFBound17: $ sfBound 3 sfWFNode14 $ = '(mpbir sfBound_sfImp (ian sfWFBound4 sfWFBound16));
+
+theorem sfWFBound18: $ sfBound 2 sfWFNode15 $ = '(mpbir sfBound_sfAll sfWFBound17);
+
+theorem sfWFBound19: $ sfBound 2 sfWFNode16 $ = '(mpbir sfBound_sfAnd (ian sfWFBound6 sfWFBound18));
+
+theorem sfWFBound20: $ sfBound 2 sfWFNode17 $ = '(mpbir sfBound_sfMem (ian (mpbi ltsuc lt01S) lt01S));
+
+theorem sfWFBound21: $ sfBound 2 sfWFNode18 $ = '(mpbir sfBound_sfAnd (ian sfWFBound19 sfWFBound20));
+
+theorem sfWFBound22: $ sfBound 1 sfWFNode19 $ = '(mpbir sfBound_sfEx sfWFBound21);
+
+pub theorem sfWFDomain_bound: $ sfBound 1 sfWFDomain $ = 'sfWFBound22;
+
+pub theorem sfWFDomain_wf: $ sfWf sfWFDomain $ = '(ax_mp sfBound_wf sfWFDomain_bound);

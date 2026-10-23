@@ -1,0 +1,29 @@
+import "bb215_arithmetic_formula_nth_history.mm1";
+
+import "bb215_arithmetic_formula_history_cell.mm1";
+
+import "bb215_arithmetic_formula_head.mm1";
+
+pub theorem bb215ArithmeticFormulaNthScalarCell_packed (m c i y: nat): $ bb215ArithmeticFormulaHistoryPairGraph m c i y <-> bb215ArithmeticFormulaHistoryCell (m, c) i y $ = (named '(bitr bb215ArithmeticFormulaHistoryPairGraph_correct (bicom (bb215ArithmeticFormulaFiniteCelleq fstpr sndpr eqid))));
+
+@_ abstract def bb215ArithmeticFormulaNthScalarClosure (m c n .i .x .t: nat): wff = $ A. i (i < n -> A. x (bb215ArithmeticFormulaHistoryPairGraph m c i x -> A. t (bb215ArithmeticFormulaTailGraph x t -> bb215ArithmeticFormulaHistoryPairGraph m c (suc i) t))) $;
+
+theorem bb215ArithmeticFormulaNthScalarClosure_next (m c i x: nat) {t: nat}: $ (A. t (bb215ArithmeticFormulaTailGraph x t -> bb215ArithmeticFormulaHistoryPairGraph m c (suc i) t)) <-> bb215ArithmeticFormulaHistoryCell (m, c) (suc i) (bb215ArithmeticFormulaListTailStep @ x) $ = (named '(bitr (!! aleqi t (imeqi (bitr bb215ArithmeticFormulaTailGraph_correct eqcomb) bb215ArithmeticFormulaNthScalarCell_packed)) (bitr (!! aleqe t (bb215ArithmeticFormulaHistoryCelleq3d id)) (bb215ArithmeticFormulaHistoryCelleq3 (eqcom bb215ArithmeticFormulaListTailStep_at)))));
+
+pub theorem bb215ArithmeticFormulaNthScalarClosure_packed (m c n: nat) {i x: nat}: $ bb215ArithmeticFormulaNthScalarClosure m c n <-> bb215ArithmeticFormulaRecClosure (m, c) bb215ArithmeticFormulaListTailStep n $ = (named '(!! aleqi i @ imeq2i @ !! aleqi x @ imeqi bb215ArithmeticFormulaNthScalarCell_packed bb215ArithmeticFormulaNthScalarClosure_next));
+
+@_ abstract def bb215ArithmeticFormulaNthScalarCertificate (m c l n v .y: nat): wff = $ bb215ArithmeticFormulaHistoryPairGraph m c 0 l /\ bb215ArithmeticFormulaNthScalarClosure m c n /\ A. y (bb215ArithmeticFormulaHistoryPairGraph m c n y -> bb215ArithmeticFormulaHeadGraph y v) $;
+
+pub theorem bb215ArithmeticFormulaNthScalarCertificate_packed (m c l n v: nat) {y: nat}: $ bb215ArithmeticFormulaNthScalarCertificate m c l n v <-> bb215ArithmeticFormulaNthHistoryCertificate (m, c) l n v $ = (named '(aneq (aneq bb215ArithmeticFormulaNthScalarCell_packed bb215ArithmeticFormulaNthScalarClosure_packed) (!! aleqi y (imeqi bb215ArithmeticFormulaNthScalarCell_packed bb215ArithmeticFormulaHeadGraph_correct))));
+
+@_ abstract def bb215ArithmeticFormulaNthScalarGraph (n l v .m .c: nat): wff = $ E. m E. c bb215ArithmeticFormulaNthScalarCertificate m c l n v $;
+
+theorem bb215ArithmeticFormulaNthScalarCertificate_introduce (m c l n v: nat) {p q: nat}: $ bb215ArithmeticFormulaNthScalarCertificate m c l n v -> bb215ArithmeticFormulaNthScalarGraph n l v $ = (named '(syl (!! iexe p @ !! exeqd q (bb215ArithmeticFormulaNthScalarCertificateeq1d id)) (!! iexe q (bb215ArithmeticFormulaNthScalarCertificateeq2d id))));
+
+theorem bb215ArithmeticFormulaNthScalarCertificate_unpacked (a l n v: nat) {y: nat}: $ bb215ArithmeticFormulaNthHistoryCertificate a l n v <-> bb215ArithmeticFormulaNthScalarCertificate (fst a) (snd a) l n v $ = (named '(bicom (bitr bb215ArithmeticFormulaNthScalarCertificate_packed (bb215ArithmeticFormulaNthHistoryCertificateeq1 fstsnd))));
+
+theorem bb215ArithmeticFormulaNthScalarCertificate_into_packed (m c l n v: nat) {a: nat}: $ bb215ArithmeticFormulaNthScalarCertificate m c l n v -> bb215ArithmeticFormulaNthHistoryGraph n l v $ = (named '(syl (!! iexe a (bb215ArithmeticFormulaNthHistoryCertificateeq1d id)) (bi1 bb215ArithmeticFormulaNthScalarCertificate_packed)));
+
+pub theorem bb215ArithmeticFormulaNthScalarGraph_packed (n l v: nat) {m c a: nat}: $ bb215ArithmeticFormulaNthScalarGraph n l v <-> bb215ArithmeticFormulaNthHistoryGraph n l v $ = (named '(ibii (!! eex m @ !! eex c bb215ArithmeticFormulaNthScalarCertificate_into_packed) (!! eex a @ syl bb215ArithmeticFormulaNthScalarCertificate_introduce (bi1 bb215ArithmeticFormulaNthScalarCertificate_unpacked))));
+
+pub theorem bb215ArithmeticFormulaNthScalarGraph_correct (n l v: nat): $ bb215ArithmeticFormulaNthScalarGraph n l v <-> nth n l = v $ = (named '(bitr bb215ArithmeticFormulaNthScalarGraph_packed bb215ArithmeticFormulaNthHistoryGraph_correct));

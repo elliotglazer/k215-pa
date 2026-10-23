@@ -1,0 +1,19 @@
+import "source_k0_qrep_request.mm1";
+
+theorem qrepSelectedSwap_tail (i: nat): $ sfK0QRepSwapMap @ suc (suc i) = suc (suc i) $ = '(eqtr sfK0QRepSwapMap_value (eqtr (ifneg peano1) (ifneg (mpbir (noteqi peano2) peano1))));
+
+theorem qrepSelectedEnv_zero (E: set) (x y: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y E)) sfK0QRepSwapMap @ 0 = (sqEnvCons y (sqEnvCons x E)) @ 0 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfK0QRepSwapMap_zero) (eqtr sqEnvCons_suc (eqtr sqEnvCons_zero (eqcom sqEnvCons_zero)))));
+
+theorem qrepSelectedEnv_one (E: set) (x y: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y E)) sfK0QRepSwapMap @ 1 = (sqEnvCons y (sqEnvCons x E)) @ 1 $ = '(eqtr sfComposeMap_value (eqtr (appeq2 sfK0QRepSwapMap_one) (eqtr sqEnvCons_zero (eqcom (eqtr sqEnvCons_suc sqEnvCons_zero)))));
+
+theorem qrepSelectedEnv_tail (E: set) (x y i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y E)) sfK0QRepSwapMap @ suc (suc i) = (sqEnvCons y (sqEnvCons x E)) @ suc (suc i) $ = '(eqtr sfComposeMap_value (eqtr (appeq2 qrepSelectedSwap_tail) (eqtr sqEnvCons_suc (eqtr sqEnvCons_suc (eqcom (eqtr sqEnvCons_suc sqEnvCons_suc))))));
+
+theorem qrepSelectedEnv_suc (E: set) (x y i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y E)) sfK0QRepSwapMap @ suc i = (sqEnvCons y (sqEnvCons x E)) @ suc i $ = (named @ induct '(ind) 'i 'qrepSelectedEnv_one '(a1i qrepSelectedEnv_tail));
+
+theorem qrepSelectedEnv_point (E: set) (x y i: nat): $ sfComposeMap (sqEnvCons x (sqEnvCons y E)) sfK0QRepSwapMap @ i = (sqEnvCons y (sqEnvCons x E)) @ i $ = (named @ induct '(ind) 'i 'qrepSelectedEnv_zero '(a1i qrepSelectedEnv_suc));
+
+theorem qrepSelectedEnv_agree (E: set) (x y n: nat): $ sqEnvAgree (sfComposeMap (sqEnvCons x (sqEnvCons y E)) sfK0QRepSwapMap) (sqEnvCons y (sqEnvCons x E)) n $ = (named '(ax_gen (a1i qrepSelectedEnv_point)));
+
+pub theorem sfK0QRepSwap_quote (E: set) (n x y t k phi: nat): $ sfBound (suc (suc n)) phi -> sqQuote (sqEnvCons x (sqEnvCons y E)) t k 0 (sfK0QRepSwap phi) = sqQuote (sqEnvCons y (sqEnvCons x E)) t k 0 phi $ = '(eqtrd (syl sqQuote_source_renaming sfBound_wf) (syl (sqQuote_environment qrepSelectedEnv_agree) (bi2 (sfBoundeq1 add01))));
+
+pub theorem sfK0QRepSelected_named (E: set) (n x y t k phi: nat): $ sfBound (suc (suc n)) phi -> sfNamedTemplate (sqEnvCons x (sqEnvCons y (sqEnvCons t E))) k 0 (sfK0QRepSelectedPredicate phi) = sqQuote (sqEnvCons y (sqEnvCons x E)) t k 0 phi $ = '(eqtrd (syl sfK0QRepPredicate_named sfK0QRepSwap_bound_internal) sfK0QRepSwap_quote);

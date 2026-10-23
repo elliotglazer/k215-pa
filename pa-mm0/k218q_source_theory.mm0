@@ -1,0 +1,44 @@
+import "k218q_source_trace.mm0";
+import "k218q_closed_core_uniform.mm0";
+import "source_theory.mm0";
+
+def k218QClosedImageClass (.a: nat): set =
+ $ {a | sfBound 0 a /\ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a)} $;
+
+theorem k218QClosedImageClass_value (a: nat):
+ $ a e. k218QClosedImageClass <->
+   (sfBound 0 a /\ k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a)) $;
+theorem k218QClosedImageClass_closed: $ sfTheoryClosed k218QClosedImageClass $;
+
+theorem k218QClosedQuotation_transport (E F: set) (k l a: nat):
+ $ sfBound 0 a -> 0 < k -> 0 < l ->
+   k218QProvable (sfNamedTemplate E k 0 a) ->
+   k218QProvable (sfNamedTemplate F l 0 a) $;
+
+theorem k218QClosedImage_rebase (E: set) (k a: nat):
+ $ sfBound 0 a -> 0 < k ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) ->
+   k218QProvable (sfNamedTemplate E k 0 a) $;
+theorem k218QClosedImage_support (G H S k: nat):
+ $ sfTheoryContext k218QClosedImageClass G -> 0 < k -> k218INamedSupport H S k G $;
+theorem k218QParameterNames_safe (n: nat):
+ $ sqEnvironmentSafe (k218ParameterNames n) n 0 (4 + n) $;
+
+theorem k218QClosedImage_proof_named (G n a: nat):
+ $ sfBound 0 a -> sfTheoryContext k218QClosedImageClass G ->
+   k218INamedAt n G a ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $;
+theorem k218QClosedImage_proof_trace (G p a: nat):
+ $ sfBound 0 a -> sfTheoryContext k218QClosedImageClass G ->
+   sfNDFullDerives p (sfSequent G a) ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $;
+theorem k218QClosedImage_proof (a: nat):
+ $ sfBound 0 a -> sfTheoryProvable k218QClosedImageClass a ->
+   k218QProvable (sfNamedTemplate (sqNumericEnvironment 0) 4 0 a) $;
+
+theorem k218QClosedImage_refutation_named (G n: nat):
+ $ sfTheoryContext k218QClosedImageClass G -> k218INamedAt n G sfBot -> k218QProvable kF $;
+theorem k218QClosedImage_refutation_trace (G p: nat):
+ $ sfTheoryContext k218QClosedImageClass G -> sfNDFullDerives p (sfSequent G sfBot) -> k218QProvable kF $;
+theorem k218QClosedImage_refutation:
+ $ sfTheoryProvable k218QClosedImageClass sfBot -> k218QProvable kF $;

@@ -1,0 +1,49 @@
+import "k218q_source_trace_propositional.mm0";
+
+theorem k218QRowAt_formula_bound (n G a: nat):
+ $ k218QRowAt n (sfSequent G a) -> sfBound n a $;
+
+theorem k218QRowAt_source_bound (n G a: nat):
+ $ k218QRowAt n (sfSequent G a) -> sqSourceBound n G $;
+
+theorem k218QRow_AllI_at (m G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> k218QRowAt m (sfSequent (sfContextShift G) a) -> k218QRowAt (sfSequent G (sfAll a) + m) (sfSequent G (sfAll a)) $;
+
+theorem k218QRow_AllI (G a: nat):
+ $ sfRowWf (sfSequent G (sfAll a)) -> k218QRowGood (sfSequent (sfContextShift G) a) -> k218QRowGood (sfSequent G (sfAll a)) $;
+
+theorem k218QRow_AllE_at (m G a i: nat):
+ $ sfRowWf (sfSequent G (sfSubst 0 i a)) -> k218QRowAt m (sfSequent G (sfAll a)) -> k218QRowAt (sfSequent G (sfSubst 0 i a) + m + suc i) (sfSequent G (sfSubst 0 i a)) $;
+
+theorem k218QRow_AllE_good (G a i: nat):
+ $ sfRowWf (sfSequent G (sfSubst 0 i a)) -> k218QRowGood (sfSequent G (sfAll a)) -> k218QRowGood (sfSequent G (sfSubst 0 i a)) $;
+
+theorem k218QRow_ExI_at (m G a i: nat):
+ $ sfRowWf (sfSequent G (sfEx a)) -> k218QRowAt m (sfSequent G (sfSubst 0 i a)) -> k218QRowAt (sfSequent G (sfEx a) + m + suc i) (sfSequent G (sfEx a)) $;
+
+theorem k218QRow_ExI_good (G a i: nat):
+ $ sfRowWf (sfSequent G (sfEx a)) -> k218QRowGood (sfSequent G (sfSubst 0 i a)) -> k218QRowGood (sfSequent G (sfEx a)) $;
+
+theorem k218QRow_ExE_at (m j G a c: nat):
+ $ sfRowWf (sfSequent G c) -> k218QRowAt m (sfSequent G (sfEx a)) -> k218QRowAt j (sfSequent (a : sfContextShift G) (sfShift 0 c)) -> k218QRowAt (sfSequent G c + m + j) (sfSequent G c) $;
+
+theorem k218QRow_ExE (G a c: nat):
+ $ sfRowWf (sfSequent G c) -> k218QRowGood (sfSequent G (sfEx a)) -> k218QRowGood (sfSequent (a : sfContextShift G) (sfShift 0 c)) -> k218QRowGood (sfSequent G c) $;
+
+theorem k218QRowCase_AllI (r p: nat):
+ $ sfRowWf r -> sfNDCaseAllI r p -> k218QRowGood p -> k218QRowGood r $;
+
+theorem k218QRowCase_AllE (r p: nat):
+ $ sfRowWf r -> sfNDCaseAllE r p -> k218QRowGood p -> k218QRowGood r $;
+
+theorem k218QRowCase_ExI (r p: nat):
+ $ sfRowWf r -> sfNDCaseExI r p -> k218QRowGood p -> k218QRowGood r $;
+
+theorem k218QRowCase_ExE (r p q: nat):
+ $ sfRowWf r -> sfNDCaseExE r p q -> k218QRowGood p -> k218QRowGood q -> k218QRowGood r $;
+
+theorem k218QRow_quant_unary (r p: nat):
+ $ sfNDQuantUnary r p -> k218QRowGood p -> k218QRowGood r $;
+
+theorem k218QRow_quant_binary (r p q: nat):
+ $ sfNDQuantBinary r p q -> k218QRowGood p -> k218QRowGood q -> k218QRowGood r $;

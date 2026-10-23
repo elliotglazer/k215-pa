@@ -1,0 +1,295 @@
+import "source_l_domain.mm1";
+import "source_relative_contexts.mm1";
+import "source_wf_separation_logic.mm1";
+
+@_ def lrepRangeF0(c:nat):nat = $ sfImp (sfDomainAt sfLDomain 0) (sfMem 0 1) $;
+
+@_ def lrepRangeF1(c:nat):nat = $ sfImp (sfMem 0 2) (lrepRangeF0 c) $;
+
+@_ def lrepRangeF2(c:nat):nat = $ sfAll (lrepRangeF1 c) $;
+
+@_ def lrepRangeF3(c:nat):nat = $ sfAnd (sfDomainAt sfLDomain 0) (sfDomainAt sfLDomain 1) $;
+
+@_ def lrepRangeF4(c:nat):nat = $ sfAnd (lrepRangeF3 c) c $;
+
+@_ def lrepRangeF5(c:nat):nat = $ sfAnd (sfMem 0 4) (lrepRangeF4 c) $;
+
+@_ def lrepRangeF6(c:nat):nat = $ sfEx (lrepRangeF5 c) $;
+
+@_ def lrepRangeF7(c:nat):nat = $ sfImp (sfMem 0 2) (lrepRangeF6 c) $;
+
+@_ def lrepRangeF8(c:nat):nat = $ sfImp (lrepRangeF6 c) (sfMem 0 2) $;
+
+@_ def lrepRangeF9(c:nat):nat = $ sfAnd (lrepRangeF7 c) (lrepRangeF8 c) $;
+
+@_ def lrepRangeF10(c:nat):nat = $ sfAll (lrepRangeF9 c) $;
+
+@_ def lrepRangeG11(c:nat):nat = $ (lrepRangeF10 c) : 0 $;
+
+@_ def lrepRangeG12(c:nat):nat = $ (lrepRangeF2 c) : (lrepRangeG11 c) $;
+
+@_ def lrepRangeG13(c:nat):nat = $ sfContextShift (lrepRangeG12 c) $;
+
+@_ def lrepRangeG14(c:nat):nat = $ (sfDomainAt sfLDomain 0) : (lrepRangeG13 c) $;
+
+@_ def lrepRangeF15(c:nat):nat = $ sfAnd (sfMem 0 4) c $;
+
+@_ def lrepRangeF16(c:nat):nat = $ sfAnd (sfDomainAt sfLDomain 0) (lrepRangeF15 c) $;
+
+@_ def lrepRangeF17(c:nat):nat = $ sfEx (lrepRangeF16 c) $;
+
+@_ def lrepRangeG18(c:nat):nat = $ (lrepRangeF17 c) : (lrepRangeG14 c) $;
+
+@_ def lrepRangeG19(c:nat):nat = $ sfContextShift (lrepRangeG18 c) $;
+
+@_ def lrepRangeG20(c:nat):nat = $ (lrepRangeF16 c) : (lrepRangeG19 c) $;
+
+@_ def lrepRangeF21(c:nat):nat = $ sfShift 0 (sfDomainAt sfLDomain 0) $;
+
+@_ def lrepRangeF22(c:nat):nat = $ sfShift 1 (lrepRangeF5 c) $;
+
+@_ def lrepRangeF23(c:nat):nat = $ sfEx (lrepRangeF22 c) $;
+
+@_ def lrepRangeF24(c:nat):nat = $ sfShift 0 (lrepRangeF6 c) $;
+
+@_ def lrepRangeF25(c:nat):nat = $ sfShift 0 (lrepRangeF9 c) $;
+
+@_ def lrepRangeF26(c:nat):nat = $ sfShift 0 (sfMem 0 2) $;
+
+@_ def lrepRangeF27(c:nat):nat = $ sfImp (lrepRangeF26 c) (lrepRangeF24 c) $;
+
+@_ def lrepRangeF28(c:nat):nat = $ sfImp (lrepRangeF24 c) (lrepRangeF26 c) $;
+
+@_ def lrepRangeF29(c:nat):nat = $ sfAnd (lrepRangeF27 c) (lrepRangeF28 c) $;
+
+@_ def lrepRangeF30(c:nat):nat = $ sfImp (lrepRangeF17 c) (sfMem 0 1) $;
+
+@_ def lrepRangeF31(c:nat):nat = $ sfImp (sfDomainAt sfLDomain 0) (lrepRangeF30 c) $;
+
+@_ def lrepRangeF32(c:nat):nat = $ sfAll (lrepRangeF31 c) $;
+
+@_ def lrepRangeF33(c:nat):nat = $ sfImp (lrepRangeF2 c) (lrepRangeF32 c) $;
+
+@_ def lrepRangeF34(c:nat):nat = $ sfImp (lrepRangeF10 c) (lrepRangeF33 c) $;
+
+@_ def sfLReplacementAmbientProfile(c:nat):nat = $ (lrepRangeF10 c) $;
+
+@_ def sfLReplacementIntersectionBound(c:nat):nat = $ (lrepRangeF2 c) $;
+
+@_ def sfLReplacementRangeCoverage(c:nat):nat = $ (lrepRangeF32 c) $;
+
+theorem lrepRangeWf1(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF0 c) $ =
+ '(ax_mp (ax_mp sfWf_imp sfDomainAt_wf) sfWf_mem);
+
+theorem lrepRangeWf2(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF1 c) $ =
+ '(ax_mp (ax_mp sfWf_imp sfWf_mem) (lrepRangeWf1 hc));
+
+theorem lrepRangeWf3(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF2 c) $ =
+ '(ax_mp sfWf_all (lrepRangeWf2 hc));
+
+theorem lrepRangeWf4(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF3 c) $ =
+ '(ax_mp (ax_mp sfWf_and sfDomainAt_wf) sfDomainAt_wf);
+
+theorem lrepRangeWf5(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF4 c) $ =
+ '(ax_mp (ax_mp sfWf_and (lrepRangeWf4 hc)) hc);
+
+theorem lrepRangeWf6(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF5 c) $ =
+ '(ax_mp (ax_mp sfWf_and sfWf_mem) (lrepRangeWf5 hc));
+
+theorem lrepRangeWf7(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF6 c) $ =
+ '(ax_mp sfWf_ex (lrepRangeWf6 hc));
+
+theorem lrepRangeWf8(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF7 c) $ =
+ '(ax_mp (ax_mp sfWf_imp sfWf_mem) (lrepRangeWf7 hc));
+
+theorem lrepRangeWf9(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF8 c) $ =
+ '(ax_mp (ax_mp sfWf_imp (lrepRangeWf7 hc)) sfWf_mem);
+
+theorem lrepRangeWf10(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF9 c) $ =
+ '(ax_mp (ax_mp sfWf_and (lrepRangeWf8 hc)) (lrepRangeWf9 hc));
+
+theorem lrepRangeWf11(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF10 c) $ =
+ '(ax_mp sfWf_all (lrepRangeWf10 hc));
+
+theorem lrepRangeP12(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG12 c) (lrepRangeF10 c) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (lrepRangeWf3 hc) (mpbir sfContextWf_cons (ian (lrepRangeWf11 hc) sfContextWf_nil))))) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem lrepRangeP13(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG13 c) (lrepRangeF9 c) $ =
+ '(ax_mp sfSepLocal_open (lrepRangeP12 hc));
+
+theorem lrepRangeP14(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG12 c) (lrepRangeF2 c) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (lrepRangeWf3 hc) (mpbir sfContextWf_cons (ian (lrepRangeWf11 hc) sfContextWf_nil))))) sfContext_member_head);
+
+theorem lrepRangeP15(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG13 c) (lrepRangeF1 c) $ =
+ '(ax_mp sfSepLocal_open (lrepRangeP14 hc));
+
+theorem lrepRangeP16(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG14 c) (lrepRangeF9 c) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))) sfContextSub_cons) (lrepRangeP13 hc));
+
+theorem lrepRangeWf17(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF15 c) $ =
+ '(ax_mp (ax_mp sfWf_and sfWf_mem) hc);
+
+theorem lrepRangeWf18(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF16 c) $ =
+ '(ax_mp (ax_mp sfWf_and sfDomainAt_wf) (lrepRangeWf17 hc));
+
+theorem lrepRangeWf19(c:nat)(hc:$ sfWf c $):
+ $ sfWf (lrepRangeF17 c) $ =
+ '(ax_mp sfWf_ex (lrepRangeWf18 hc));
+
+theorem lrepRangeP20(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG18 c) (lrepRangeF9 c) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (lrepRangeWf19 hc) (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))))) sfContextSub_cons) (lrepRangeP16 hc));
+
+theorem lrepRangeP21(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG14 c) (lrepRangeF1 c) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))) sfContextSub_cons) (lrepRangeP15 hc));
+
+theorem lrepRangeP22(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG18 c) (lrepRangeF1 c) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (lrepRangeWf19 hc) (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))))) sfContextSub_cons) (lrepRangeP21 hc));
+
+theorem lrepRangeP23(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG18 c) (lrepRangeF17 c) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (lrepRangeWf19 hc) (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))))) sfContext_member_head);
+
+theorem lrepRangeP24(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF16 c) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (lrepRangeWf18 hc) sfContextShift_wf))) sfContext_member_head);
+
+theorem lrepRangeP25(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG18 c) (sfDomainAt sfLDomain 0) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (lrepRangeWf19 hc) (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))))) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem lrepRangeP26(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG19 c) (lrepRangeF21 c) $ =
+ '(ax_mp sfSepLocal_shift (lrepRangeP25 hc));
+
+theorem lrepRangeP27(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF21 c) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (lrepRangeWf18 hc) sfContextShift_wf))) sfContextSub_cons) (lrepRangeP26 hc));
+
+theorem lrepRangeP28(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (sfDomainAt sfLDomain 1) $ =
+ '(mpbi (nsLocal_formula_eq (ax_mp sfDomainAt_shift sfLDomain_bound)) (lrepRangeP27 hc));
+
+theorem lrepRangeP29(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF15 c) $ =
+ '(ax_mp nsLocal_CE2 (lrepRangeP24 hc));
+
+theorem lrepRangeP30(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (sfMem 0 4) $ =
+ '(ax_mp nsLocal_CE1 (lrepRangeP29 hc));
+
+theorem lrepRangeP31(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (sfDomainAt sfLDomain 0) $ =
+ '(ax_mp nsLocal_CE1 (lrepRangeP24 hc));
+
+theorem lrepRangeP32(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF3 c) $ =
+ '(ax_mp (ax_mp sfLocal_and (lrepRangeP31 hc)) (lrepRangeP28 hc));
+
+theorem lrepRangeP33(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF15 c) $ =
+ '(ax_mp nsLocal_CE2 (lrepRangeP24 hc));
+
+theorem lrepRangeP34(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) c $ =
+ '(ax_mp nsLocal_CE2 (lrepRangeP33 hc));
+
+theorem lrepRangeP35(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF4 c) $ =
+ '(ax_mp (ax_mp sfLocal_and (lrepRangeP32 hc)) (lrepRangeP34 hc));
+
+theorem lrepRangeP36(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF5 c) $ =
+ '(ax_mp (ax_mp sfLocal_and (lrepRangeP30 hc)) (lrepRangeP35 hc));
+
+theorem lrepRangeCancel37(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (sfSubst 0 0 (lrepRangeF22 c)) $ =
+ '(mpbir (nsLocal_formula_eq (ax_mp sfSubst_shift_up_identity (lrepRangeWf6 hc))) (lrepRangeP36 hc));
+
+theorem lrepRangeP38(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF23 c) $ =
+ '(ax_mp (ax_mp nsLocal_ExI sfShift_wf) (lrepRangeCancel37 hc));
+
+theorem lrepRangeP39(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF24 c) $ =
+ '(mpbir (nsLocal_formula_eq sfShift_sfEx) (lrepRangeP38 hc));
+
+theorem lrepRangeP40(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG19 c) (lrepRangeF25 c) $ =
+ '(ax_mp sfSepLocal_shift (lrepRangeP20 hc));
+
+theorem lrepRangeP41(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF25 c) $ =
+ '(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (lrepRangeWf18 hc) sfContextShift_wf))) sfContextSub_cons) (lrepRangeP40 hc));
+
+theorem lrepRangeP42(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF29 c) $ =
+ '(mpbi (nsLocal_formula_eq (eqtr sfShift_sfAnd (nsAnd_eq sfShift_sfImp sfShift_sfImp))) (lrepRangeP41 hc));
+
+theorem lrepRangeP43(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF28 c) $ =
+ '(ax_mp nsLocal_CE2 (lrepRangeP42 hc));
+
+theorem lrepRangeP44(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG20 c) (lrepRangeF26 c) $ =
+ '(ax_mp (ax_mp nsLocal_mp (lrepRangeP43 hc)) (lrepRangeP39 hc));
+
+theorem lrepRangeP45(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG18 c) (sfMem 0 2) $ =
+ '(ax_mp (ax_mp (sfLocal_exE sfWf_mem) (lrepRangeP23 hc)) (lrepRangeP44 hc));
+
+theorem lrepRangeP46(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG18 c) (lrepRangeF0 c) $ =
+ '(ax_mp (ax_mp nsLocal_mp (lrepRangeP22 hc)) (lrepRangeP45 hc));
+
+theorem lrepRangeP47(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG18 c) (sfDomainAt sfLDomain 0) $ =
+ '(ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (lrepRangeWf19 hc) (mpbir sfContextWf_cons (ian sfDomainAt_wf sfContextShift_wf))))) (ax_mp sfContext_member_tail sfContext_member_head));
+
+theorem lrepRangeP48(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG18 c) (sfMem 0 1) $ =
+ '(ax_mp (ax_mp nsLocal_mp (lrepRangeP46 hc)) (lrepRangeP47 hc));
+
+theorem lrepRangeP49(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG14 c) (lrepRangeF30 c) $ =
+ '(ax_mp nsLocal_II (lrepRangeP48 hc));
+
+theorem lrepRangeP50(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG13 c) (lrepRangeF31 c) $ =
+ '(ax_mp nsLocal_II (lrepRangeP49 hc));
+
+theorem lrepRangeP51(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG12 c) (lrepRangeF32 c) $ =
+ '(ax_mp (ax_mp sfSepLocal_allI (mpbir sfContextWf_cons (ian (lrepRangeWf3 hc) (mpbir sfContextWf_cons (ian (lrepRangeWf11 hc) sfContextWf_nil))))) (lrepRangeP50 hc));
+
+theorem lrepRangeP52(c:nat)(hc:$ sfWf c $):
+ $ nsLocal (lrepRangeG11 c) (lrepRangeF33 c) $ =
+ '(ax_mp nsLocal_II (lrepRangeP51 hc));
+
+theorem lrepRangeP53(c:nat)(hc:$ sfWf c $):
+ $ nsLocal 0 (lrepRangeF34 c) $ =
+ '(ax_mp nsLocal_II (lrepRangeP52 hc));
+
+pub theorem sfLReplacement_range_coverage_pure(c:nat)(hc:$ sfWf c $):
+ $ nsLocal 0 (sfImp (sfLReplacementAmbientProfile c)
+  (sfImp (sfLReplacementIntersectionBound c) (sfLReplacementRangeCoverage c))) $ = '(lrepRangeP53 hc);

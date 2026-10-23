@@ -1,0 +1,14 @@
+import "source_renaming_laws.mm0";
+
+def sfAtomicClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (sfMem a b e. P /\ sfEq a b e. P) $;
+def sfBinaryClosed (P: set) (.a .b: nat): wff =
+$ A. a A. b (a e. P /\ b e. P ->
+  sfAnd a b e. P /\ sfOr a b e. P /\ sfImp a b e. P) $;
+def sfQuantifierClosed (P: set) (.a: nat): wff =
+$ A. a (a e. P -> sfAll a e. P /\ sfEx a e. P) $;
+def sfConstructionClosed (P: set): wff =
+$ sfBot e. P /\ sfAtomicClosed P /\ sfBinaryClosed P /\ sfQuantifierClosed P $;
+
+theorem sfWf_induction (P: set) (c: nat):
+  $ sfConstructionClosed P -> sfWf c -> c e. P $;

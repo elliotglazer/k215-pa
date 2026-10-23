@@ -1,0 +1,15 @@
+import "proof_sequence.mm0";
+
+def fImp (a b: nat): nat = $ suc (3, a, b) $;
+
+def mpRules (A: set) (.c .l .b: nat): set =
+$ S\ c, {l | c e. A \/ E. b (b IN l /\ fImp b c IN l)} $;
+
+theorem mpRules_value {b: nat} (A: set) (c l: nat):
+  $ (c, l) e. mpRules A <-> c e. A \/ E. b (b IN l /\ fImp b c IN l) $;
+theorem mpRules_stable (A: set): $ traceAppendStable (mpRules A) $;
+theorem mpDerives_axiom (A: set) (a: nat):
+  $ a e. A -> traceDerives (mpRules A) (a : 0) a $;
+theorem mpDerives_mp (A: set) (p q a b: nat):
+  $ traceDerives (mpRules A) p a -> traceDerives (mpRules A) q (fImp a b) ->
+    traceDerives (mpRules A) (b : (p ++ q)) b $;

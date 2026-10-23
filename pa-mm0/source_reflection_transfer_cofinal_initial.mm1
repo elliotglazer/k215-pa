@@ -1,0 +1,25 @@
+import "source_reflection_transfer_cofinal_induction.mm1";
+
+import "source_reflection_cond_kernel.mm1";
+
+def sfReflectionCofinalOrdinals(K:nat):nat = $ sfAll (sfImp (sfMem 0 (suc K)) sfLeastOrdinalPredicate) $;
+
+theorem rfcs_ord_instance(K a:nat): $ sfSubst 0 a (sfImp (sfMem 0 (suc K)) sfLeastOrdinalPredicate) = sfImp (sfMem a K) (sfSubst 0 a sfLeastOrdinalPredicate) $ = (named '(eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq sfSubstIndex_zero sfSubstIndex_successor)) eqid)));
+
+pub theorem sfReflectionCofinalOrdinals_use(G K a:nat)(hO:$ nsLocal G (sfReflectionCofinalOrdinals K) $)(ha:$ nsLocal G (sfMem a K) $): $ nsLocal G (sfSubst 0 a sfLeastOrdinalPredicate) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq rfcs_ord_instance) (ax_mp nsLocal_AllE hO))) ha));
+
+theorem rfcs_exists_instance(level a:nat)(hl:$ sfBound 2 level $): $ sfSubst 0 a (sfImp sfLeastOrdinalPredicate (sfEx (sfORBinary level 1 0))) = sfImp (sfSubst 0 a sfLeastOrdinalPredicate) (sfEx (sfORBinary level (suc a) 0)) $ = (named '(eqtr sfSubst_sfImp (nsImp_eq eqid (eqtr sfSubst_sfEx (nsEx_eq (eqtr (sfORBinary_subst (ax_mp sfBound_wf hl)) (sfORBinary_congr (ax_mp sfBound_wf hl) rfc_subst_hit1 (ax_mp sfSubstIndex_bound d0lt1))))))));
+
+pub theorem sfReflectionCofinalLevelExists_use(G level a:nat)(hl:$ sfBound 2 level $)(hE:$ nsLocal G (sfReflectionCondLevelExists level) $)(hO:$ nsLocal G (sfSubst 0 a sfLeastOrdinalPredicate) $): $ nsLocal G (sfEx (sfORBinary level (suc a) 0)) $ = (named '(ax_mp (ax_mp nsLocal_mp (mpbi (nsLocal_formula_eq (rfcs_exists_instance hl)) (ax_mp nsLocal_AllE hE))) hO));
+
+theorem rfcs_initial_branch(T:set)(G start level K a:nat)(hl:$ sfBound 2 level $)(ha:$ nsLocal G (sfMem a K) $)(hE:$ nsLocal G (sfEx (sfORBinary level (suc a) 0)) $): $ nsLocal ((sfORBinary level (suc a) 0) : sfContextShift G) (sfShift 0 (sfReflectionCofinalCommon T start 0 level K)) $ = (named '(mpbir (nsLocal_formula_eq (sfReflectionCofinalCommon_shift hl)) (sfReflectionCofinalCommon_intro hl (ax_mp (ax_mp sfLocal_and (mpbi (nsLocal_formula_eq rfcstep_mem_shift) (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfORBinary_wf sfContextShift_wf))) sfContextSub_cons) (ax_mp sfSepLocal_shift ha)))) (ax_mp (ax_mp sfLocal_and (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfORBinary_wf sfContextShift_wf))) sfContext_member_head)) (mpbir (nsLocal_formula_eq sfReflectionTuple_zero) (sfCLTrue_proof (mpbir sfContextWf_cons (ian sfORBinary_wf sfContextShift_wf)))))))));
+
+pub theorem sfReflectionCofinal_initial_level(T:set)(G start level K a:nat)(hl:$ sfBound 2 level $)(ha:$ nsLocal G (sfMem a K) $)(hE:$ nsLocal G (sfEx (sfORBinary level (suc a) 0)) $): $ nsLocal G (sfReflectionCofinalCommon T start 0 level K) $ = (named '(ax_mp (ax_mp (sfLocal_exE (sfReflectionCofinalCommon_wf hl)) hE) (rfcs_initial_branch hl ha hE)));
+
+theorem rfcs_initial_base(T:set)(G start level K Y n:nat)(hl:$ sfBound 2 level $)(hi:$ nsLocal G (sfReflectionCofinalCommon T start 0 level K) $)(hc:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(hm:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $): $ sfReflectionCofinalBuildLaw T G start level K Y 0 $ = (named '(a1i hi));
+
+theorem rfcs_initial_step(T:set)(G start level K Y n:nat)(hl:$ sfBound 2 level $)(hi:$ nsLocal G (sfReflectionCofinalCommon T start 0 level K) $)(hc:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(hm:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $): $ sfReflectionCofinalBuildLaw T G start level K Y n -> sfReflectionCofinalBuildLaw T G start level K Y (suc n) $ = (named '(exp @ sfReflectionCofinal_extend_conditional hl (mpd (syl sfReflectionTuple_prefix anr) anl) (syl (rfci_cover_rule hl hc) (syl sfReflectionTuple_last anr)) (a1i hm)));
+
+pub theorem sfReflectionCofinal_build_initial(T:set)(G start level K Y n:nat)(hl:$ sfBound 2 level $)(hi:$ nsLocal G (sfReflectionCofinalCommon T start 0 level K) $)(hc:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(hm:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $): $ sfReflectionCofinalBuildLaw T G start level K Y n $ = (named @ induct '(ind) 'n '(rfcs_initial_base hl hi hc hm) '(rfcs_initial_step hl hi hc hm));
+
+pub theorem sfReflectionCofinal_build_from_level(T:set)(G start level K Y a n:nat)(hl:$ sfBound 2 level $)(ha:$ nsLocal G (sfMem a K) $)(hO:$ nsLocal G (sfReflectionCofinalOrdinals K) $)(hE:$ nsLocal G (sfReflectionCondLevelExists level) $)(hC:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(hM:$ nsLocal G (sfReflectionCofinalMergeLaw level K) $)(hT:$ nsLocal G (sfReflectionTuple T start Y n) $): $ nsLocal G (sfReflectionCofinalCommon T start n level K) $ = (named '(ax_mp (sfReflectionCofinal_build_initial hl (sfReflectionCofinal_initial_level hl ha (sfReflectionCofinalLevelExists_use hl hE (sfReflectionCofinalOrdinals_use hO ha))) hC hM) hT));

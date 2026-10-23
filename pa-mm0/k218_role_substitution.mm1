@@ -1,0 +1,78 @@
+import "quotation_substitution.mm1";
+
+theorem k218RoleAvoid_zero (E: set) (n x y: nat):
+ $ x != y -> sqEnvAvoid E n x -> 0 < suc n ->
+   x != sqEnvCons y E @ 0 $ =
+'(a1d @ a1d @ mpbird (a1i (noteqi (eqeq2 sqEnvCons_zero))) id);
+
+theorem k218RoleAvoid_suc (E: set) (n x y i: nat):
+ $ x != y -> sqEnvAvoid E n x -> suc i < suc n ->
+   x != sqEnvCons y E @ suc i $ =
+'(a1i @ syl6 (bi2 (noteqi (eqeq2 sqEnvCons_suc))) @
+  syl5 (bi2 ltsuc) sqEnvAvoid_at);
+
+theorem k218RoleAvoid_at (E: set) (n x y i: nat):
+ $ x != y -> sqEnvAvoid E n x -> i < suc n ->
+   x != sqEnvCons y E @ i $ =
+(named @ induct '(ind) 'i 'k218RoleAvoid_zero '(a1i k218RoleAvoid_suc));
+
+pub theorem k218RoleAvoid_cons (E: set) (n x y: nat):
+ $ x != y -> sqEnvAvoid E n x -> sqEnvAvoid (sqEnvCons y E) (suc n) x $ =
+(named '(exp @ !! iald i @ mpd anr (syl k218RoleAvoid_at anl)));
+
+pub theorem k218RoleHead_substitution (E: set) (n k x y f: nat)
+ (hx: $ x < k $) (hz: $ x != 0 $) (he: $ sqEnvAvoid E n x $)
+ (hf: $ sfBound (suc n) f $):
+ $ kSubst (sfNamedTemplate (sqEnvCons x E) k 0 f) x y =
+   sfNamedTemplate (sqEnvCons y E) k 0 f $ =
+'(eqtr (ax_mp (sfNamedTemplate_substitution hx hz) (ax_mp sfBound_wf hf))
+  (ax_mp (sfNamedTemplate_environment (ax_mp kReplaceEnvironment_cons_agree he))
+    (mpbir (sfBoundeq1 add01) hf)));
+
+pub theorem k218RoleOutput_substitution (E: set) (n k b a y f: nat)
+ (hb: $ b < k $) (hz: $ b != 0 $) (ha: $ b != a $)
+ (he: $ sqEnvAvoid E n b $) (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) k 0 f) b y =
+   sfNamedTemplate (sqEnvCons y (sqEnvCons a E)) k 0 f $ =
+'(k218RoleHead_substitution hb hz (ax_mp (ax_mp k218RoleAvoid_cons ha) he) hf);
+
+theorem k218RoleFixed_zero (E F: set) (n x y z: nat)
+ (hz: $ x != z $):
+ $ kReplaceEnvironment x y (sqEnvCons z E) @ 0 = sqEnvCons z F @ 0 $ =
+'(eqtr kReplaceEnvironment_value @ eqtr (qsReplace_eq sqEnvCons_zero) @
+  eqtr (ax_mp kReplace_miss (ax_mp necom hz)) (eqcom sqEnvCons_zero));
+
+theorem k218RoleFixed_suc (E F: set) (n x y z i: nat)
+ (he: $ sqEnvAgree (kReplaceEnvironment x y E) F n $):
+ $ suc i < suc n ->
+   kReplaceEnvironment x y (sqEnvCons z E) @ suc i = sqEnvCons z F @ suc i $ =
+'(eqtrd (a1i kReplaceEnvironment_value) @
+  eqtrd (a1i (qsReplace_eq sqEnvCons_suc)) @
+  eqtrd (a1i (eqcom kReplaceEnvironment_value)) @
+  eqtrd (syl (ax_mp sqEnvAgree_at he) (bi2 ltsuc))
+    (a1i (eqcom sqEnvCons_suc)));
+
+theorem k218RoleFixed_at (E F: set) (n x y z i: nat)
+ (hz: $ x != z $)
+ (he: $ sqEnvAgree (kReplaceEnvironment x y E) F n $):
+ $ i < suc n ->
+   kReplaceEnvironment x y (sqEnvCons z E) @ i = sqEnvCons z F @ i $ =
+(named @ induct '(ind) 'i '(a1i (k218RoleFixed_zero hz))
+  '(a1i (k218RoleFixed_suc he)));
+
+pub theorem k218RoleReplace_fixed_cons (E F: set) (n x y z: nat)
+ (hz: $ x != z $)
+ (he: $ sqEnvAgree (kReplaceEnvironment x y E) F n $):
+ $ sqEnvAgree (kReplaceEnvironment x y (sqEnvCons z E))
+     (sqEnvCons z F) (suc n) $ =
+(named '(ax_gen (k218RoleFixed_at hz he)));
+
+pub theorem k218RoleInput_substitution (E: set) (n k b a y f: nat)
+ (ha: $ a < k $) (hz: $ a != 0 $) (hb: $ a != b $)
+ (he: $ sqEnvAvoid E n a $) (hf: $ sfBound (suc (suc n)) f $):
+ $ kSubst (sfNamedTemplate (sqEnvCons b (sqEnvCons a E)) k 0 f) a y =
+   sfNamedTemplate (sqEnvCons b (sqEnvCons y E)) k 0 f $ =
+'(eqtr (ax_mp (sfNamedTemplate_substitution ha hz) (ax_mp sfBound_wf hf))
+  (ax_mp (sfNamedTemplate_environment
+    (k218RoleReplace_fixed_cons hb (ax_mp kReplaceEnvironment_cons_agree he)))
+    (mpbir (sfBoundeq1 add01) hf)));

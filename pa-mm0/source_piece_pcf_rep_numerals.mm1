@@ -1,0 +1,50 @@
+
+import "source_l_common_level_members.mm1";
+import "source_syntax_laws.mm1";
+
+@_ def sfPieceRepEmpty(x:nat):nat = $ sfAll (sfImp (sfMem 0 (suc x)) sfBot) $;
+@_ def sfPieceRepSuccessor(x s:nat):nat =
+ $ sfAnd (sfAnd (sfMem x s) (sfCLSubset x s))
+    (sfAll (sfImp (sfMem 0 (suc s)) (sfOr (sfMem 0 (suc x)) (sfEq 0 (suc x))))) $;
+@_ def sfPieceNumeralStep(.previous:nat):set =
+ $ \ previous, sfEx (sfAnd previous (sfPieceRepSuccessor 0 1)) $;
+@_ def sfPieceNumeralCore(k:nat):nat = $ rec (sfPieceRepEmpty 0) sfPieceNumeralStep k $;
+@_ def sfPieceNumeral(k x:nat):nat = $ sfSubst 0 x (sfPieceNumeralCore k) $;
+
+pub theorem sfPieceNumeralCore_zero: $ sfPieceNumeralCore 0 = sfPieceRepEmpty 0 $ = 'rec0;
+pub theorem sfPieceNumeralStep_value(previous:nat):
+ $ sfPieceNumeralStep @ previous = sfEx (sfAnd previous (sfPieceRepSuccessor 0 1)) $ =
+ (named '(applame ,eqtac));
+pub theorem sfPieceNumeralCore_suc(k:nat):
+ $ sfPieceNumeralCore (suc k) = sfEx (sfAnd (sfPieceNumeralCore k) (sfPieceRepSuccessor 0 1)) $ =
+ '(eqtr recS sfPieceNumeralStep_value);
+
+pub theorem sfPieceRepEmpty_open(x:nat):
+ $ sfSubst 0 x (sfPieceRepEmpty 0) = sfPieceRepEmpty x $ =
+ '(eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_hit (eqtr addS (suceq add02))))) sfSubst_bot))));
+
+pub theorem sfPieceRepSuccessor_open(x:nat):
+ $ sfSubst 1 x (sfPieceRepSuccessor 0 1) = sfPieceRepSuccessor 0 (suc x) $ =
+ '(eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfAnd (nsAnd_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_hit (eqtr addS (suceq add02))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_hit (eqtr addS (suceq (eqtr addS (suceq add02))))))))))))) (eqtr sfSubst_sfAll (nsAll_eq (eqtr sfSubst_sfImp (nsImp_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (eqtr sfSubstIndex_hit (eqtr addS (suceq (eqtr addS (suceq add02))))))) (eqtr sfSubst_sfOr (nsOr_eq (eqtr sfSubst_sfMem (nsMem_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S)))) (eqtr sfSubst_sfEq (nsEq_eq (ax_mp sfSubstIndex_bound lt01S) (ax_mp sfSubstIndex_bound (mpbi ltsuc lt01S))))))))))));
+
+theorem pcrn_empty_bound: $ sfBound 1 (sfPieceRepEmpty 0) $ = '(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) sfBound_bot)));
+
+theorem pcrn_succ_bound: $ sfBound 2 (sfPieceRepSuccessor 0 1) $ = '(mpbir sfBound_sfAnd (ian (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S))))))))) (mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc lt01S)))) (mpbir sfBound_sfOr (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEq (ian lt01S (mpbi ltsuc lt01S))))))))));
+
+theorem pcrn_bound_zero: $ sfBound 1 (sfPieceNumeralCore 0) $ =
+ '(mpbir (sfSchema_bound_eq sfPieceNumeralCore_zero) pcrn_empty_bound);
+theorem pcrn_bound_step(k:nat):
+ $ sfBound 1 (sfPieceNumeralCore k) -> sfBound 1 (sfPieceNumeralCore (suc k)) $ =
+ '(mpbird (a1i (sfSchema_bound_eq sfPieceNumeralCore_suc))
+   (syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd)
+    (iand (ax_mp sfBound_mono_le lesucid) (a1i pcrn_succ_bound)))));
+pub theorem sfPieceNumeralCore_bound(k:nat): $ sfBound 1 (sfPieceNumeralCore k) $ =
+ (named @ induct '(ind) 'k 'pcrn_bound_zero 'pcrn_bound_step);
+pub theorem sfPieceNumeral_zero(x:nat): $ sfPieceNumeral 0 x = sfPieceRepEmpty x $ =
+ '(eqtr (trud (sfSubst_congr (a1i eqid) (a1i eqid) (a1i sfPieceNumeralCore_zero))) sfPieceRepEmpty_open);
+pub theorem sfPieceNumeral_suc(k x:nat):
+ $ sfPieceNumeral (suc k) x = sfEx (sfAnd (sfPieceNumeralCore k) (sfPieceRepSuccessor 0 (suc x))) $ =
+ '(eqtr (trud (sfSubst_congr (a1i eqid) (a1i eqid) (a1i sfPieceNumeralCore_suc)))
+   (eqtr sfSubst_sfEx (nsEx_eq (eqtr sfSubst_sfAnd
+    (nsAnd_eq (ax_mp sfSubst_bound_identity sfPieceNumeralCore_bound) sfPieceRepSuccessor_open)))));
+pub theorem sfPieceNumeral_wf(k x:nat): $ sfWf (sfPieceNumeral k x) $ = 'sfSubst_wf;

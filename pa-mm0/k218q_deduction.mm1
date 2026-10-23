@@ -1,0 +1,150 @@
+-- Interpreted raw-code logical replay. The only global predicate is
+-- k218QProvable(c) = k218Provable(k218Translate(c)); no core image is assumed.
+import "k218q_derived.mm1";
+
+
+@_ abstract def k218IHypRules (G: nat) (.c .l .b: nat): set =
+$ S\ c, {l | c IN G \/ (c e. k218QTheorems \/
+    E. b (b IN l /\ kImp b c IN l))} $;
+@_ def k218IHypDerives (G p a: nat): wff = $ traceDerives (k218IHypRules G) p a $;
+@_ abstract def k218IHypProvable (G a: nat) (.p: nat): wff = $ E. p k218IHypDerives G p a $;
+
+pub theorem k218IHypRules_value {b: nat} (G c l: nat):
+  $ (c, l) e. k218IHypRules G <-> c IN G \/
+    (c e. k218QTheorems \/ E. b (b IN l /\ kImp b c IN l)) $ =
+(named '(elsabe @ elabed ,eqtac));
+
+theorem k218IHypMember_left (a p q: nat): $ a IN p -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orl);
+theorem k218IHypMember_right (a p q: nat): $ a IN q -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orr);
+theorem k218IHypRules_extend (G c l r: nat):
+  $ (c, l) e. k218IHypRules G -> (c, l ++ r) e. k218IHypRules G $ =
+(named '(syl (bi2 k218IHypRules_value) @ syl
+  (orim2 (orim2 (eximi @ iand
+    (syl k218IHypMember_left anl) (syl k218IHypMember_left anr))))
+  (bi1 k218IHypRules_value)));
+pub theorem k218IHypRules_stable (G: nat): $ traceAppendStable (k218IHypRules G) $ =
+(named '(ax_gen @ ax_gen @ ax_gen k218IHypRules_extend));
+pub theorem k218IHypProvable_intro (G p a: nat): $ k218IHypDerives G p a -> k218IHypProvable G a $ =
+(named '(iexe ,eqtac));
+
+theorem k218IHypRules_assumption (G a l: nat): $ a IN G -> (a, l) e. k218IHypRules G $ =
+(named '(syl (bi2 k218IHypRules_value) orl));
+theorem k218IHypRules_seed (G a l: nat): $ k218QProvable a -> (a, l) e. k218IHypRules G $ =
+(named '(syl (bi2 k218IHypRules_value) @ syl orr @ syl orl (bi2 k218QTheorems_value)));
+pub theorem k218IHypProvable_assumption (G a: nat): $ a IN G -> k218IHypProvable G a $ =
+'(syl k218IHypProvable_intro @ syl traceDerives_head @
+  iand (a1i traceValid_nil) k218IHypRules_assumption);
+pub theorem k218IHypProvable_seed (G a: nat): $ k218QProvable a -> k218IHypProvable G a $ =
+'(syl k218IHypProvable_intro @ syl traceDerives_head @
+  iand (a1i traceValid_nil) k218IHypRules_seed);
+
+theorem k218IHypRules_mp (G a b l: nat):
+  $ a IN l /\ kImp a b IN l -> (b, l) e. k218IHypRules G $ =
+(named '(syl (bi2 k218IHypRules_value) @ syl orr @ syl orr (iexe ,eqtac)));
+theorem k218IHypValid_append (G p q: nat):
+  $ traceValid (k218IHypRules G) p -> traceValid (k218IHypRules G) q ->
+    traceValid (k218IHypRules G) (p ++ q) $ = '(traceValid_append k218IHypRules_stable);
+pub theorem k218IHypDerives_mp (G p q a b: nat):
+  $ k218IHypDerives G p a -> k218IHypDerives G q (kImp a b) ->
+    k218IHypDerives G (b : (p ++ q)) b $ =
+'(exp @ syl traceDerives_head @ iand
+  (sylc k218IHypValid_append (syl anl anl) (syl anl anr))
+  (syl k218IHypRules_mp @ iand
+    (syl k218IHypMember_left (syl anr anl))
+    (syl k218IHypMember_right (syl anr anr))));
+theorem k218IHypProvable_mp_witnesses (G p q a b: nat):
+  $ k218IHypDerives G p a -> k218IHypDerives G q (kImp a b) -> k218IHypProvable G b $ =
+'(syl6 k218IHypProvable_intro k218IHypDerives_mp);
+pub theorem k218IHypProvable_mp (G a b: nat):
+  $ k218IHypProvable G a -> k218IHypProvable G (kImp a b) -> k218IHypProvable G b $ =
+(named '(eex @ eexd k218IHypProvable_mp_witnesses));
+
+pub theorem k218IHypProvable_imp_weaken (G h a: nat):
+  $ k218IHypProvable G a -> k218IHypProvable G (kImp h a) $ =
+'(mpi (k218IHypProvable_seed k218IPropK) k218IHypProvable_mp);
+pub theorem k218IHypProvable_imp_mp (G h a b: nat):
+  $ k218IHypProvable G (kImp h a) -> k218IHypProvable G (kImp h (kImp a b)) ->
+    k218IHypProvable G (kImp h b) $ =
+'(exp @ mpd
+  (syl (mpi (k218IHypProvable_seed k218IPropS) k218IHypProvable_mp) anr)
+  (syl k218IHypProvable_mp anl));
+
+@_ abstract def k218IDeductionClass (G h: nat) (.a: nat): set =
+$ {a | k218IHypProvable G (kImp h a)} $;
+pub theorem k218IDeductionClass_value (G h a: nat):
+  $ a e. k218IDeductionClass G h <-> k218IHypProvable G (kImp h a) $ =
+(named '(elabe ,eqtac));
+
+theorem k218IDeduction_assumption_equal (G h a: nat):
+  $ a = h -> k218IHypProvable G (kImp h a) $ =
+'(mpbiri (k218IHypProvable_seed k218IPropI) (k218IHypProvableeq2d (kImp_congr_right id)));
+theorem k218IDeduction_assumption (G h a: nat):
+  $ a IN (h : G) -> a e. k218IDeductionClass G h $ =
+'(syl (bi2 k218IDeductionClass_value) @
+  syl (eori k218IDeduction_assumption_equal
+    (syl k218IHypProvable_imp_weaken k218IHypProvable_assumption)) (bi1 lmemS));
+theorem k218IDeduction_seed (G h a: nat):
+  $ a e. k218QTheorems -> a e. k218IDeductionClass G h $ =
+'(syl (bi2 k218IDeductionClass_value) @ syl k218IHypProvable_imp_weaken @
+  syl k218IHypProvable_seed (bi1 k218QTheorems_value));
+theorem k218IDeduction_trace_get (G h l a: nat):
+  $ traceClassAll (k218IDeductionClass G h) l -> a IN l ->
+    k218IHypProvable G (kImp h a) $ =
+'(syl6 (bi1 k218IDeductionClass_value) traceClassAll_get);
+theorem k218IDeduction_mp_payload (G h l a b: nat):
+  $ traceClassAll (k218IDeductionClass G h) l ->
+    (b IN l /\ kImp b a IN l) -> a e. k218IDeductionClass G h $ =
+'(exp @ syl (bi2 k218IDeductionClass_value) @
+  sylc k218IHypProvable_imp_mp
+    (mpd (syl anl anr) (syl k218IDeduction_trace_get anl))
+    (mpd (syl anr anr) (syl k218IDeduction_trace_get anl)));
+theorem k218IDeduction_mp_exists {b: nat} (G h l a: nat):
+  $ traceClassAll (k218IDeductionClass G h) l ->
+    E. b (b IN l /\ kImp b a IN l) -> a e. k218IDeductionClass G h $ =
+(named '(eexd k218IDeduction_mp_payload));
+theorem k218IDeduction_rule (G h l a: nat):
+  $ traceClassAll (k218IDeductionClass G h) l ->
+    (a, l) e. k218IHypRules (h : G) -> a e. k218IDeductionClass G h $ =
+(named '(syl5bi k218IHypRules_value @ eord
+  (a1i k218IDeduction_assumption)
+  (eord (a1i k218IDeduction_seed) k218IDeduction_mp_exists)));
+pub theorem k218IHypRules_deduction_sound (G h: nat):
+  $ traceRuleSound (k218IHypRules (h : G)) (k218IDeductionClass G h) $ =
+(named '(ax_gen @ ax_gen k218IDeduction_rule));
+pub theorem k218IHypDerives_deduction (G h p a: nat):
+  $ k218IHypDerives (h : G) p a -> k218IHypProvable G (kImp h a) $ =
+'(syl (bi1 k218IDeductionClass_value) (traceDerives_class k218IHypRules_deduction_sound));
+pub theorem k218IHypProvable_deduction (G h a: nat):
+  $ k218IHypProvable (h : G) a -> k218IHypProvable G (kImp h a) $ =
+(named '(eex k218IHypDerives_deduction));
+
+theorem k218IHyp_theorem_get (l a: nat):
+  $ traceClassAll k218QTheorems l -> a IN l -> k218QProvable a $ =
+'(syl6 (bi1 k218QTheorems_value) traceClassAll_get);
+theorem k218IHyp_empty_mp_payload (l a b: nat):
+  $ traceClassAll k218QTheorems l ->
+    (b IN l /\ kImp b a IN l) -> a e. k218QTheorems $ =
+'(exp @ syl (bi2 k218QTheorems_value) @ sylc k218QProvable_mp
+  (mpd (syl anl anr) (syl k218IHyp_theorem_get anl))
+  (mpd (syl anr anr) (syl k218IHyp_theorem_get anl)));
+theorem k218IHyp_empty_mp_exists {b: nat} (l a: nat):
+  $ traceClassAll k218QTheorems l ->
+    E. b (b IN l /\ kImp b a IN l) -> a e. k218QTheorems $ =
+(named '(eexd k218IHyp_empty_mp_payload));
+theorem k218IHyp_empty_rule (l a: nat):
+  $ traceClassAll k218QTheorems l -> (a, l) e. k218IHypRules 0 -> a e. k218QTheorems $ =
+(named '(syl5bi k218IHypRules_value @ eord
+  (a1i (absurd lmem0)) (eord (a1i id) k218IHyp_empty_mp_exists)));
+pub theorem k218IHypRules_empty_sound: $ traceRuleSound (k218IHypRules 0) k218QTheorems $ =
+(named '(ax_gen @ ax_gen k218IHyp_empty_rule));
+pub theorem k218IHypDerives_empty (p a: nat): $ k218IHypDerives 0 p a -> k218QProvable a $ =
+'(syl (bi1 k218QTheorems_value) (traceDerives_class k218IHypRules_empty_sound));
+pub theorem k218IHypProvable_empty (a: nat): $ k218IHypProvable 0 a -> k218QProvable a $ =
+(named '(eex k218IHypDerives_empty));
+pub theorem k218IHypProvable_empty_iff (a: nat): $ k218IHypProvable 0 a <-> k218QProvable a $ =
+'(ibii k218IHypProvable_empty k218IHypProvable_seed);
+pub theorem k218IHypProvable_discharge (h a: nat):
+  $ k218IHypProvable (h : 0) a -> k218QProvable (kImp h a) $ =
+'(syl k218IHypProvable_empty k218IHypProvable_deduction);

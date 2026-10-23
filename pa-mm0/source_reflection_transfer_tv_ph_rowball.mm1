@@ -1,0 +1,13 @@
+import "source_reflection_transfer_tv_ph_context.mm1";
+
+def sfTVPHBase(G L P:nat):nat = $ (sfORBinary L 0 3) : ((sfReflectionLimitProfile L P) : G) $;
+
+def sfTVRowBallLaw(D L P k matrix:nat):nat = $ sfImp (sfReflectionLimitProfile L P) (sfImp (sfORBinary L 0 3) (sfTVRowBall D k matrix 3)) $;
+
+theorem sftvrp_base_wf(A:set)(G D L P k matrix:nat)(ht:$ sfTheoryClosed A $)(hG:$ sfTheoryContext A G $)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 L $)(hp:$ sfBound 2 P $)(hm:$ sfWf matrix $)(hPH:$ nsLocal G (sfTVPHPoint D L P k matrix) $): $ sfContextWf (sfTVPHBase G L P) $ = (named '(mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian (rflWf2769 hl hp) (ax_mp (ax_mp sfTheoryContext_wf ht) hG))))));
+
+theorem sftvrp_point(A:set)(G D L P k matrix:nat)(ht:$ sfTheoryClosed A $)(hG:$ sfTheoryContext A G $)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 L $)(hp:$ sfBound 2 P $)(hm:$ sfWf matrix $)(hPH:$ nsLocal G (sfTVPHPoint D L P k matrix) $): $ nsLocal (sfTVBallContext (sfTVPHBase G L P) 3 k) (sfTVPHPointLift D L P k k matrix) $ = (named '(sfTVPHPoint_in_context ht hG (sftvrp_base_wf ht hG hd hl hp hm hPH) (ax_mp (ax_mp sfContextSub_trans sfContextSub_cons) sfContextSub_cons) hd hl hp hm hPH));
+
+theorem sftvrp_body(A:set)(G D L P k matrix:nat)(ht:$ sfTheoryClosed A $)(hG:$ sfTheoryContext A G $)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 L $)(hp:$ sfBound 2 P $)(hm:$ sfWf matrix $)(hPH:$ nsLocal G (sfTVPHPoint D L P k matrix) $): $ nsLocal (sfTVBallContext (sfTVPHBase G L P) 3 k) (sfReflectionEwAt D matrix (k + 3)) $ = (named '(mpbi (nsLocal_formula_eq (sftvb_ew_congr eqid addcom)) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_mp (sftvrp_point ht hG hd hl hp hm hPH)) (sfTVBallContext_lift (rflWf2769 hl hp) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian (rflWf2769 hl hp) (ax_mp (ax_mp sfTheoryContext_wf ht) hG)))))) (ax_mp sfContext_member_tail sfContext_member_head))))) (sfTVBallContext_lift sfORBinary_wf (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian sfORBinary_wf (mpbir sfContextWf_cons (ian (rflWf2769 hl hp) (ax_mp (ax_mp sfTheoryContext_wf ht) hG)))))) sfContext_member_head)))) (sfTVBallContext_tuple (sftvrp_base_wf ht hG hd hl hp hm hPH)))));
+
+pub theorem sfTVRowBall_from_PH_local(A:set)(G D L P k matrix:nat)(ht:$ sfTheoryClosed A $)(hG:$ sfTheoryContext A G $)(hd:$ sfBound 1 D $)(hl:$ sfBound 2 L $)(hp:$ sfBound 2 P $)(hm:$ sfWf matrix $)(hPH:$ nsLocal G (sfTVPHPoint D L P k matrix) $): $ nsLocal G (sfTVRowBallLaw D L P k matrix) $ = (named '(ax_mp nsLocal_II (ax_mp nsLocal_II (ax_mp (sfTVBall_introduce (sftvrp_base_wf ht hG hd hl hp hm hPH)) (sftvrp_body ht hG hd hl hp hm hPH)))));

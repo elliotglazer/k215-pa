@@ -1,0 +1,95 @@
+
+import "source_piece_pcf_join.mm1";
+import "source_piece_pcf_function_syntax.mm1";
+
+def sfPieceFunctionRowWitnesses(domain level:nat)(E:set)(n .i:nat):wff =
+ $ A. i (i < n ->
+   (sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPiecePC domain level (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) 0 1)) /\
+    sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfPiecePC domain level (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) 0 1)))) $;
+def sfPieceFunctionTableWitnesses(domain level:nat)(E:set)(n:nat):wff =
+ $ sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPieceFunctionBinary domain level E n)) /\
+   sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfPieceFunctionBinary domain level E n)) $;
+def sfPieceFunctionTableWitnessLaw(domain level:nat)(E:set)(n:nat):wff =
+ $ sfPieceFunctionRowWitnesses domain level E n -> sfPieceFunctionTableWitnesses domain level E n $;
+
+theorem pcfj_rows_congr(domain level:nat)(E:set)(a b:nat):
+ $ a = b -> (sfPieceFunctionRowWitnesses domain level E a <-> sfPieceFunctionRowWitnesses domain level E b) $ =
+(named '(!! aleqd i @ imeq1d (lteq2d id)));
+theorem pcfj_result_congr(domain level:nat)(E:set)(a b:nat):
+ $ a = b -> (sfPieceFunctionTableWitnesses domain level E a <-> sfPieceFunctionTableWitnesses domain level E b) $ =
+'(aneqd
+ (sfTheoryProvable_congr (pcjMonoCodeCongeqd pcfF_binary_n_eqd))
+ (sfTheoryProvable_congr (sfPieceHasOrdinaleqd pcfF_binary_n_eqd)));
+theorem pcfj_count_congr(domain level:nat)(E:set)(a b:nat):
+ $ a = b -> (sfPieceFunctionTableWitnessLaw domain level E a <-> sfPieceFunctionTableWitnessLaw domain level E b) $ =
+'(imeqd pcfj_rows_congr pcfj_result_congr);
+
+theorem pcfj_row_at(domain level:nat)(E:set)(n i:nat):
+ $ sfPieceFunctionRowWitnesses domain level E n -> i < n ->
+   (sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPiecePC domain level (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) 0 1)) /\
+    sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfPiecePC domain level (sfPieceFunctionCount E i) (sfPieceFunctionMatrix E i) 0 1))) $ =
+(named '(!! eale j ,eqtac));
+theorem pcfj_row_prefix(domain level:nat)(E:set)(n:nat):
+ $ sfPieceFunctionRowWitnesses domain level E (suc n) -> sfPieceFunctionRowWitnesses domain level E n $ =
+(named '(alimi (imim1i (ax_mp (com12 ltletr) lesucid))));
+theorem pcfj_row_last(domain level:nat)(E:set)(n:nat):
+ $ sfPieceFunctionRowWitnesses domain level E (suc n) ->
+   (sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfPiecePC domain level (sfPieceFunctionCount E n) (sfPieceFunctionMatrix E n) 0 1)) /\
+    sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfPiecePC domain level (sfPieceFunctionCount E n) (sfPieceFunctionMatrix E n) 0 1))) $ =
+'(mpd (a1i ltsucid) pcfj_row_at);
+
+theorem pcfj_join(H:wff)(a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)
+ (ma:$ H -> sfTheoryProvable zfrAxioms (sfPieceMonoCode a) $)
+ (mb:$ H -> sfTheoryProvable zfrAxioms (sfPieceMonoCode b) $)
+ (ea:$ H -> sfTheoryProvable zfrAxioms (sfPieceHasOrdinal a) $)
+ (eb:$ H -> sfTheoryProvable zfrAxioms (sfPieceHasOrdinal b) $):
+ $ H -> sfTheoryProvable zfrAxioms (sfPieceHasOrdinal (sfAnd a b)) $ =
+'(mpd eb (syl sfTheoryProvable_mp
+ (mpd ea (syl sfTheoryProvable_mp
+ (mpd (syl (ax_mp sfTheoryProvable_shift zfrAxioms_closed) mb) (syl sfTheoryProvable_mp
+ (mpd (syl (ax_mp sfTheoryProvable_shift zfrAxioms_closed) ma)
+ (a1i (ax_mp sfTheoryProvable_mp (sfPieceJoin_zfr ha hb))))))))));
+theorem pcfj_mono(H:wff)(a b:nat)(ha:$ sfWf a $)(hb:$ sfWf b $)
+ (ma:$ H -> sfTheoryProvable zfrAxioms (sfPieceMonoCode a) $)
+ (mb:$ H -> sfTheoryProvable zfrAxioms (sfPieceMonoCode b) $):
+ $ H -> sfTheoryProvable zfrAxioms (sfPieceMonoCode (sfAnd a b)) $ =
+'(mpd mb (syl sfTheoryProvable_mp
+ (mpd ma (a1i (ax_mp sfTheoryProvable_mp (sfPieceMonoAnd_pure ha hb))))));
+
+theorem pcfj_zero(domain level:nat)(E:set)
+ (ho:$ sfTheoryProvable zfrAxioms (sfEx sfLeastOrdinalPredicate) $):
+ $ sfPieceFunctionTableWitnessLaw domain level E 0 $ =
+'(a1i (ian
+ (mpbir (trud (sfTheoryProvable_congr (a1i (sfPieceMonoCode_eq sfPieceFunctionConjunction_zero)))) sfPieceMono_true)
+ (mpbir (trud (sfTheoryProvable_congr (sfPieceHasOrdinaleqd (a1i sfPieceFunctionConjunction_zero)))) (sfPieceWitness_true ho))));
+
+theorem pcfj_step_cond(H:wff)(domain level:nat)(E:set)(n:nat)
+ (hi:$ H -> sfPieceFunctionTableWitnessLaw domain level E n $)
+ (hr:$ H -> sfPieceFunctionRowWitnesses domain level E (suc n) $):
+ $ H -> sfPieceFunctionTableWitnesses domain level E (suc n) $ =
+'(iand
+ (syl (bi2 (trud (sfTheoryProvable_congr (a1i (sfPieceMonoCode_eq sfPieceFunctionConjunction_suc)))))
+  (pcfj_mono sfPieceFunctionBinary_wf sfPiecePC_wf
+   (syl anl (mpd (syl pcfj_row_prefix hr) hi))
+   (syl anl (syl pcfj_row_last hr))))
+ (syl (bi2 (trud (sfTheoryProvable_congr (sfPieceHasOrdinaleqd (a1i sfPieceFunctionConjunction_suc)))))
+  (pcfj_join sfPieceFunctionBinary_wf sfPiecePC_wf
+   (syl anl (mpd (syl pcfj_row_prefix hr) hi))
+   (syl anl (syl pcfj_row_last hr))
+   (syl anr (mpd (syl pcfj_row_prefix hr) hi))
+   (syl anr (syl pcfj_row_last hr)))));
+theorem pcfj_step(domain level:nat)(E:set)(n:nat):
+ $ sfPieceFunctionTableWitnessLaw domain level E n -> sfPieceFunctionTableWitnessLaw domain level E (suc n) $ =
+(named '(exp @ pcfj_step_cond anl anr));
+
+pub theorem sfPieceFunctionTable_join_induction(domain level:nat)(E:set)(n:nat)
+ (ho:$ sfTheoryProvable zfrAxioms (sfEx sfLeastOrdinalPredicate) $):
+ $ sfPieceFunctionTableWitnessLaw domain level E n $ =
+(named '(! ind jf ji n
+ $ sfPieceFunctionTableWitnessLaw domain level E jf $
+ $ sfPieceFunctionTableWitnessLaw domain level E 0 $
+ $ sfPieceFunctionTableWitnessLaw domain level E n $
+ $ sfPieceFunctionTableWitnessLaw domain level E ji $
+ $ sfPieceFunctionTableWitnessLaw domain level E (suc ji) $
+ pcfj_count_congr pcfj_count_congr pcfj_count_congr pcfj_count_congr
+ (pcfj_zero ho) pcfj_step));

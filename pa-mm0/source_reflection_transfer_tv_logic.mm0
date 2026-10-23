@@ -1,0 +1,97 @@
+import "source_reflection_transfer_tv_step.mm0";
+
+def rftlF0(a ap b bp:nat):nat = $ sfImp a ap $;
+
+def rftlF1(a ap b bp:nat):nat = $ sfImp ap a $;
+
+def rftlF2(a ap b bp:nat):nat = $ sfAnd (rftlF0 a ap b bp) (rftlF1 a ap b bp) $;
+
+def rftlF3(a ap b bp:nat):nat = $ sfImp b bp $;
+
+def rftlF4(a ap b bp:nat):nat = $ sfImp bp b $;
+
+def rftlF5(a ap b bp:nat):nat = $ sfAnd (rftlF3 a ap b bp) (rftlF4 a ap b bp) $;
+
+def rftlF6(a ap b bp:nat):nat = $ sfAnd a b $;
+
+def rftlF7(a ap b bp:nat):nat = $ sfAnd ap bp $;
+
+def rftlF8(a ap b bp:nat):nat = $ sfImp (rftlF6 a ap b bp) (rftlF7 a ap b bp) $;
+
+def rftlF9(a ap b bp:nat):nat = $ sfImp (rftlF7 a ap b bp) (rftlF6 a ap b bp) $;
+
+def rftlF10(a ap b bp:nat):nat = $ sfAnd (rftlF8 a ap b bp) (rftlF9 a ap b bp) $;
+
+def rftlF11(a ap b bp:nat):nat = $ sfImp (rftlF5 a ap b bp) (rftlF10 a ap b bp) $;
+
+def rftlF12(a ap b bp:nat):nat = $ sfImp (rftlF2 a ap b bp) (rftlF11 a ap b bp) $;
+
+def rftlG13(a ap b bp:nat):nat = $ (rftlF2 a ap b bp) : 0 $;
+
+def rftlG14(a ap b bp:nat):nat = $ (rftlF5 a ap b bp) : (rftlG13 a ap b bp) $;
+
+def rftlG15(a ap b bp:nat):nat = $ (rftlF6 a ap b bp) : (rftlG14 a ap b bp) $;
+
+def rftlG16(a ap b bp:nat):nat = $ (rftlF7 a ap b bp) : (rftlG14 a ap b bp) $;
+
+def rftlF17(a ap b bp:nat):nat = $ sfOr a b $;
+
+def rftlF18(a ap b bp:nat):nat = $ sfOr ap bp $;
+
+def rftlF19(a ap b bp:nat):nat = $ sfImp (rftlF17 a ap b bp) (rftlF18 a ap b bp) $;
+
+def rftlF20(a ap b bp:nat):nat = $ sfImp (rftlF18 a ap b bp) (rftlF17 a ap b bp) $;
+
+def rftlF21(a ap b bp:nat):nat = $ sfAnd (rftlF19 a ap b bp) (rftlF20 a ap b bp) $;
+
+def rftlF22(a ap b bp:nat):nat = $ sfImp (rftlF5 a ap b bp) (rftlF21 a ap b bp) $;
+
+def rftlF23(a ap b bp:nat):nat = $ sfImp (rftlF2 a ap b bp) (rftlF22 a ap b bp) $;
+
+def rftlG24(a ap b bp:nat):nat = $ (rftlF17 a ap b bp) : (rftlG14 a ap b bp) $;
+
+def rftlG25(a ap b bp:nat):nat = $ a : (rftlG24 a ap b bp) $;
+
+def rftlG26(a ap b bp:nat):nat = $ b : (rftlG24 a ap b bp) $;
+
+def rftlG27(a ap b bp:nat):nat = $ (rftlF18 a ap b bp) : (rftlG14 a ap b bp) $;
+
+def rftlG28(a ap b bp:nat):nat = $ ap : (rftlG27 a ap b bp) $;
+
+def rftlG29(a ap b bp:nat):nat = $ bp : (rftlG27 a ap b bp) $;
+
+def rftlF30(a ap b bp:nat):nat = $ sfImp a b $;
+
+def rftlF31(a ap b bp:nat):nat = $ sfImp ap bp $;
+
+def rftlF32(a ap b bp:nat):nat = $ sfImp (rftlF30 a ap b bp) (rftlF31 a ap b bp) $;
+
+def rftlF33(a ap b bp:nat):nat = $ sfImp (rftlF31 a ap b bp) (rftlF30 a ap b bp) $;
+
+def rftlF34(a ap b bp:nat):nat = $ sfAnd (rftlF32 a ap b bp) (rftlF33 a ap b bp) $;
+
+def rftlF35(a ap b bp:nat):nat = $ sfImp (rftlF5 a ap b bp) (rftlF34 a ap b bp) $;
+
+def rftlF36(a ap b bp:nat):nat = $ sfImp (rftlF2 a ap b bp) (rftlF35 a ap b bp) $;
+
+def rftlG37(a ap b bp:nat):nat = $ (rftlF30 a ap b bp) : (rftlG14 a ap b bp) $;
+
+def rftlG38(a ap b bp:nat):nat = $ ap : (rftlG37 a ap b bp) $;
+
+def rftlG39(a ap b bp:nat):nat = $ (rftlF31 a ap b bp) : (rftlG14 a ap b bp) $;
+
+def rftlG40(a ap b bp:nat):nat = $ a : (rftlG39 a ap b bp) $;
+
+theorem sfTVAnd_pure(a ap b bp:nat)(ha:$ sfWf a $)(hap:$ sfWf ap $)(hb:$ sfWf b $)(hbp:$ sfWf bp $): $ nsLocal 0 (sfImp (sfIff a ap) (sfImp (sfIff b bp) (sfIff (sfAnd a b) (sfAnd ap bp)))) $;
+
+theorem sfTVAnd_local(G a ap b bp:nat)(ha:$ sfWf a $)(hap:$ sfWf ap $)(hb:$ sfWf b $)(hbp:$ sfWf bp $)(hA:$ nsLocal G (sfIff a ap) $)(hB:$ nsLocal G (sfIff b bp) $): $ nsLocal G (sfIff (sfAnd a b) (sfAnd ap bp)) $;
+
+theorem sfTVOr_pure(a ap b bp:nat)(ha:$ sfWf a $)(hap:$ sfWf ap $)(hb:$ sfWf b $)(hbp:$ sfWf bp $): $ nsLocal 0 (sfImp (sfIff a ap) (sfImp (sfIff b bp) (sfIff (sfOr a b) (sfOr ap bp)))) $;
+
+theorem sfTVOr_local(G a ap b bp:nat)(ha:$ sfWf a $)(hap:$ sfWf ap $)(hb:$ sfWf b $)(hbp:$ sfWf bp $)(hA:$ nsLocal G (sfIff a ap) $)(hB:$ nsLocal G (sfIff b bp) $): $ nsLocal G (sfIff (sfOr a b) (sfOr ap bp)) $;
+
+theorem sfTVImp_pure(a ap b bp:nat)(ha:$ sfWf a $)(hap:$ sfWf ap $)(hb:$ sfWf b $)(hbp:$ sfWf bp $): $ nsLocal 0 (sfImp (sfIff a ap) (sfImp (sfIff b bp) (sfIff (sfImp a b) (sfImp ap bp)))) $;
+
+theorem sfTVImp_local(G a ap b bp:nat)(ha:$ sfWf a $)(hap:$ sfWf ap $)(hb:$ sfWf b $)(hbp:$ sfWf bp $)(hA:$ nsLocal G (sfIff a ap) $)(hB:$ nsLocal G (sfIff b bp) $): $ nsLocal G (sfIff (sfImp a b) (sfImp ap bp)) $;
+
+theorem sfTVRefl_local(G a:nat)(hg:$ sfContextWf G $)(ha:$ sfWf a $): $ nsLocal G (sfIff a a) $;

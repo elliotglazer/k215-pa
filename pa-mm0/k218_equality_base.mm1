@@ -1,0 +1,44 @@
+import "k218_seed_normalize.mm1";
+import "k218_contextual_quantifiers.mm1";
+import "k218_contexts.mm1";
+
+@_ def k218Iff (p q: nat): nat = $ kAnd (kImp p q) (kImp q p) $;
+@_ def k218EqIn (v x y: nat): nat = $ kAll v (k218Iff (kMem v x) (kMem v y)) $;
+@_ def k218EqOut (v x y: nat): nat = $ kAll v (k218Iff (kMem x v) (kMem y v)) $;
+@_ def k218EqEv (v x y: nat): nat = $ kAnd (k218EqIn v x y) (k218EqOut v x y) $;
+@_ def k218EqAux (x y: nat): nat = $ suc (x + y) $;
+@_ def k218EqInd (x y: nat): nat = $ k218EqEv (k218EqAux x y) x y $;
+
+pub theorem k218Imp_apply_right (a b c: nat)
+  (hb: $ k218Provable b $) (h: $ k218Provable (kImp a (kImp b c)) $):
+  $ k218Provable (kImp a c) $ =
+'(k218Provable_mp (k218Provable_mp hb k218PropK) (k218Provable_mp h k218PropS));
+
+pub theorem k218Equality_symmetric (a b: nat):
+  $ k218Provable (kImp (kEq a b) (kEq b a)) $ =
+'(k218Imp_apply_right k218Equality_reflexive k218Rho7_recovered);
+pub theorem k218Equality_transitive (a b c: nat):
+  $ k218Provable (kImp (kEq a b) (kImp (kEq b c) (kEq a c))) $ =
+'(k218Provable_syl k218Equality_symmetric k218Rho7_recovered);
+
+pub theorem k218Equality_iff_in (r x y: nat):
+  $ k218Provable (kImp (kEq x y) (k218Iff (kMem r x) (kMem r y))) $ =
+'(k218Bundle_conjoin (k218Provable_axiom k218Axioms_rho3)
+  (k218Provable_syl k218Equality_symmetric (k218Provable_axiom k218Axioms_rho3)));
+pub theorem k218Equality_iff_out (r x y: nat):
+  $ k218Provable (kImp (kEq x y) (k218Iff (kMem x r) (kMem y r))) $ =
+'(k218Bundle_conjoin (k218Provable_axiom k218Axioms_rho5)
+  (k218Provable_syl k218Equality_symmetric (k218Provable_axiom k218Axioms_rho5)));
+
+pub theorem k218Equality_all_ev (r x y: nat):
+  $ k218Provable (kImp (kAll r (kEq x y)) (k218EqEv r x y)) $ =
+'(k218Bundle_conjoin (k218All_mono k218Equality_iff_in)
+  (k218All_mono k218Equality_iff_out));
+pub theorem k218Equality_helper_ev (x y: nat):
+  $ k218Provable (kImp (kEq x y) (k218EqEv (kMem x y) x y)) $ =
+'(k218Provable_syl k218Equality_helper k218Equality_all_ev);
+
+pub theorem k218EqAux_gt_left (x y: nat): $ x < k218EqAux x y $ =
+'(lelttr leaddid1 ltsucid);
+pub theorem k218EqAux_gt_right (x y: nat): $ y < k218EqAux x y $ =
+'(lelttr leaddid2 ltsucid);

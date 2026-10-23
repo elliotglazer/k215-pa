@@ -1,0 +1,25 @@
+import "source_theory_local.mm0";
+import "source_theory_prefix.mm0";
+import "source_relativization_laws.mm0";
+
+-- Internally finite, possibly nonstandard, blocks of guarded quantifiers.
+def sfGuardPrefix (D n a .b: nat): nat =
+  $ rec a (\ b, sfAll (sfImp D b)) n $;
+
+theorem sfGuardPrefix_zero (D a: nat): $ sfGuardPrefix D 0 a = a $;
+theorem sfGuardPrefix_suc (D n a: nat):
+  $ sfGuardPrefix D (suc n) a = sfAll (sfImp D (sfGuardPrefix D n a)) $;
+theorem sfRelativize_prefix (D n a: nat):
+  $ sfRelativize D (sfAllPrefix n a) = sfGuardPrefix D n (sfRelativize D a) $;
+
+theorem sfTheory_imp_weaken (T: set) (a b: nat) (ha: $ sfWf a $):
+  $ sfTheoryProvable T b -> sfTheoryProvable T (sfImp a b) $;
+
+theorem sfTheory_guarded_prefix (T: set) (D n a: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfWf D $):
+  $ sfTheoryProvable T a -> sfTheoryProvable T (sfGuardPrefix D n a) $;
+
+theorem sfTheory_relative_prefix (T: set) (D n a: nat)
+  (ht: $ sfTheoryClosed T $) (hd: $ sfWf D $):
+  $ sfTheoryProvable T (sfRelativize D a) ->
+    sfTheoryProvable T (sfRelativize D (sfAllPrefix n a)) $;

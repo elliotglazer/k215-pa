@@ -1,0 +1,35 @@
+import "bb215_arithmetic_formula_move.mm0";
+
+import "bb215_arithmetic_formula_nth_scalar.mm0";
+
+import "bb215_table_arithmetic_valid_graph.mm0";
+
+import "bb215_table_arithmetic_guards.mm0";
+
+def bb215ArithmeticFormulaStepLookup (T q b a .i .v: nat): wff = $ E. i E. v (bb215ArithmeticFormulaPairGraph q b i /\ bb215ArithmeticFormulaNthScalarGraph i T v /\ bb215ArithmeticFormulaPredecessorGraph v a) $;
+
+theorem bb215ArithmeticFormulaStepLookup_correct (T q b a: nat) {i v: nat}: $ bb215ArithmeticFormulaStepLookup T q b a <-> bb215Action T q b = a $;
+
+def bb215ArithmeticFormulaStepActionMove (a l r u .w .d .q: nat): wff = $ E. w E. d E. q (bb215ArithmeticFormulaStateGraph w d q a /\ bb215ArithmeticFormulaMoveGraph w d q l r u) $;
+
+theorem bb215ArithmeticFormulaStepActionMove_correct (a l r u: nat) {w d q: nat}: $ bb215ArithmeticFormulaStepActionMove a l r u <-> k215TMMove a l r = u $;
+
+def bb215ArithmeticFormulaStepReadAction (T q b l r u .a: nat): wff = $ E. a (bb215ArithmeticFormulaStepLookup T q b a /\ bb215ArithmeticFormulaStepActionMove a l r u) $;
+
+theorem bb215ArithmeticFormulaStepReadAction_correct (T q b l r u: nat) {a: nat}: $ bb215ArithmeticFormulaStepReadAction T q b l r u <-> k215TMMove (bb215Action T q b) l r = u $;
+
+def bb215ArithmeticFormulaStepRead (T q l r u .rq .b: nat): wff = $ E. rq E. b (bb215ArithmeticFormulaHalvingGraph r rq b /\ bb215ArithmeticFormulaStepReadAction T q b l r u) $;
+
+theorem bb215ArithmeticFormulaStepRead_correct (T q l r u: nat) {rq b: nat}: $ bb215ArithmeticFormulaStepRead T q l r u <-> k215TMMove (bb215Action T q (r % 2)) l r = u $;
+
+def bb215ArithmeticFormulaStepScalar (T q l r u: nat): wff = $ bb215ArithmeticFormulaConditional (bb215TableArithmeticWorkingGraph q) (bb215ArithmeticFormulaStepRead T q l r u) (bb215ArithmeticFormulaStateGraph q l r u) $;
+
+def bb215ArithmeticFormulaStepScalarValue (T q l r: nat): nat = $ if (q < k215Num215) (k215TMMove (bb215Action T q (r % 2)) l r) (k215TMState q l r) $;
+
+theorem bb215ArithmeticFormulaStepScalar_correct (T q l r u: nat): $ bb215ArithmeticFormulaStepScalar T q l r u <-> bb215ArithmeticFormulaStepScalarValue T q l r = u $;
+
+theorem bb215ArithmeticFormulaStepScalarValue_actual (T s: nat): $ bb215ArithmeticFormulaStepScalarValue T (k215TMQ s) (k215TML s) (k215TMR s) = bb215Step T s $;
+
+def bb215ArithmeticFormulaStepGraph (T s u .q .l .r: nat): wff = $ E. q E. l E. r (bb215ArithmeticFormulaStateGraph q l r s /\ bb215ArithmeticFormulaStepScalar T q l r u) $;
+
+theorem bb215ArithmeticFormulaStepGraph_correct (T s u: nat) {q l r: nat}: $ bb215ArithmeticFormulaStepGraph T s u <-> bb215Step T s = u $;

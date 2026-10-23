@@ -1,0 +1,37 @@
+-- Named proof compiler over interpreted equality. No old core image is assumed.
+import "k218q_fresh_context.mm1";
+import "k218q_rebase.mm1";
+import "k218q_named_quantifiers.mm1";
+
+pub theorem k218INamed_child_rebase (E: set) (n k y a: nat)
+ (hk: $ 0 < k $) (hy: $ y < k $) (he: $ sqEnvBelow E n k $)
+ (ha: $ sfBound (suc n) a $):
+ $ k218IEquivalent (sfNamedTemplate (sqEnvCons y E) k 0 a)
+     (sfNamedTemplate (sqEnvCons y E) (suc k) 0 a) $ =
+'(ax_mp (ax_mp (ax_mp k218IsfNamedTemplate_fresh_base_equivalent ha)
+ (ian (sqAllocAvoid_below hk)
+  (ax_mp sqSQ_range_below (ax_mp (ax_mp sqEnvBelow_cons hy) he))))
+ (ian (sqAllocAvoid_below lt01S)
+  (ax_mp sqSQ_range_below (ax_mp sqEnvBelow_successor (ax_mp (ax_mp sqEnvBelow_cons hy) he)))));
+
+pub theorem k218INamed_allE (H: nat) (E: set) (n k i a: nat)
+ (hk: $ 0 < k $) (he: $ sqEnvBelow E n k $) (hi: $ i < n $)
+ (ha: $ sfBound (suc n) a $):
+ $ k218IHypProvable H (sfNamedTemplate E k 0 (sfAll a)) ->
+   k218IHypProvable H (sfNamedTemplate E k 0 (sfSubst 0 i a)) $ =
+'(syl (bi2 (k218IHypProvableeq2 (ax_mp sfNamedTemplate_source_substitution (ax_mp sfBound_wf ha))))
+ (syl (mpi (k218IHypProvable_seed (anr (k218INamed_child_rebase hk
+   (ax_mp (ax_mp sqSQ_below_at he) hi) he ha))) k218IHypProvable_mp)
+ (k218INamed_allE_scoped (mpbi lt01 hk) (ax_mp (ax_mp sqSQ_below_at he) hi)
+  (ax_mp sqEnvBelow_avoid he) ha)));
+
+pub theorem k218INamed_exI (H: nat) (E: set) (n k i a: nat)
+ (hk: $ 0 < k $) (he: $ sqEnvBelow E n k $) (hi: $ i < n $)
+ (ha: $ sfBound (suc n) a $):
+ $ k218IHypProvable H (sfNamedTemplate E k 0 (sfSubst 0 i a)) ->
+   k218IHypProvable H (sfNamedTemplate E k 0 (sfEx a)) $ =
+'(syl (k218INamed_exI_scoped (mpbi lt01 hk) (ax_mp (ax_mp sqSQ_below_at he) hi)
+  (ax_mp sqEnvBelow_avoid he) ha)
+ (syl (mpi (k218IHypProvable_seed (anl (k218INamed_child_rebase hk
+   (ax_mp (ax_mp sqSQ_below_at he) hi) he ha))) k218IHypProvable_mp)
+  (bi1 (k218IHypProvableeq2 (ax_mp sfNamedTemplate_source_substitution (ax_mp sfBound_wf ha))))));

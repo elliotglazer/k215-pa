@@ -1,0 +1,43 @@
+import "k218_quantifier_macros.mm1";
+
+pub theorem k218NegImp_left (p q: nat):
+  $ k218Provable (kImp (kNot (kImp p q)) p) $ =
+'(k218Provable_syl (k218Not_mono k218PropNegativeImplication) k218PropDNE);
+pub theorem k218NegImp_right (p q: nat):
+  $ k218Provable (kImp (kNot (kImp p q)) (kNot q)) $ =
+'(k218Not_mono k218PropK);
+
+theorem k218Bundle_conjoin (h p q: nat)
+  (hp: $ k218Provable (kImp h p) $)
+  (hq: $ k218Provable (kImp h q) $):
+  $ k218Provable (kImp h (kAnd p q)) $ =
+'(k218Provable_mp hq
+  (k218Provable_mp (k218Provable_syl hp k218PropAndIntro) k218PropS));
+
+pub theorem k218Bundle_to_conjunction (a b c: nat):
+  $ k218Provable (kImp (k218Bundle a b c)
+    (kAnd (k218Vrel a b c) (kNot (k218NegSeed a b c)))) $ =
+'(k218Bundle_conjoin k218NegImp_left k218NegImp_right);
+
+pub theorem k218Bundle_from_conjunction (a b c: nat):
+  $ k218Provable (kImp
+    (kAnd (k218Vrel a b c) (kNot (k218NegSeed a b c))) (k218Bundle a b c)) $ =
+'(k218Not_mono (k218Imp_mono_right k218PropB3));
+
+pub theorem k218Bundle_vacuity (a b c: nat):
+  $ c != a /\ c != b -> k218Provable (k218Vrel a b c) $ =
+'(syl (mpi k218NegImp_left k218Provable_mp)
+  (syl k218Provable_axiom k218Axioms_bundle));
+pub theorem k218Bundle_seed (a b c: nat):
+  $ c != a /\ c != b -> k218Provable (kNot (k218NegSeed a b c)) $ =
+'(syl (mpi k218NegImp_right k218Provable_mp)
+  (syl k218Provable_axiom k218Axioms_bundle));
+
+pub theorem k218Membership_vacuity (a b x: nat):
+  $ x != a /\ x != b ->
+    k218Provable (kImp (kMem a b) (kAll x (kMem a b))) $ =
+'k218Bundle_vacuity;
+pub theorem k218False_vacuity (x: nat):
+  $ x != 0 -> k218Provable (kImp kF (kAll x kF)) $ =
+'(mpbid (a1i (k218Provableeq (kImpeq kMem_zero (kAlleq2 kMem_zero))))
+  (syl k218Membership_vacuity (iand id id)));

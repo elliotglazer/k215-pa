@@ -1,0 +1,19 @@
+import "source_k0_qrep_functional_allocated.mm1";
+
+@_ def sfK0QRepOpenOutput (phi: nat): nat = $ sfEx (sfAll (sfIff (sfMem 0 1) (sfEx (sfAnd (sfMem 0 3) (sfRename sfRepCMap 0 phi))))) $;
+
+pub theorem sfK0QRepOutput_bound (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $):
+ $ sfBound (suc n) (sfK0QRepOpenOutput phi) $ =
+'(mpbir sfBound_sfEx (mpbir sfBound_sfAll (mpbir sfBound_iff (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc lt01S))) (mpbir sfBound_sfEx (mpbir sfBound_sfAnd (ian (mpbir sfBound_sfMem (ian lt01S (mpbi ltsuc (mpbi ltsuc (mpbi ltsuc lt01S))))) (ax_mp zfcReplacementBodyC_bound hf))))))));
+
+pub theorem sfK0QRepFunctionality_bound (n phi: nat) (hf: $ sfBound (suc (suc n)) phi $):
+ $ sfBound n (sfFunctionality (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi)) $ =
+'(mpbir sfBound_functionality (ian (ax_mp zfcReplacementBodyA_bound hf) (ax_mp zfcReplacementBodyB_bound hf)));
+
+pub theorem sfK0QRepCanonicalFunctional_rebase (E: set) (n t k l phi: nat) (hf: $ sfBound (suc (suc n)) phi $) (hk: $ 0 < k $) (hl: $ 0 < l $) (htk: $ t < k $) (htl: $ t < l $) (hek: $ sqEnvBelow E n k $) (hel: $ sqEnvBelow E n l $):
+ $ k218QProvable (kImp (sfK0QRepCanonicalFunctional E t k phi) (sfK0QRepCanonicalFunctional E t l phi)) $ =
+'(mpbi (k218QProvableeq (kImpeq (ax_mp (! sfK0QRep_functionality_quote $ E $ $ n $ $ t $ $ k $ $ phi $) hf) (ax_mp (! sfK0QRep_functionality_quote $ E $ $ n $ $ t $ $ l $ $ phi $) hf))) (ax_mp anl (ax_mp (! k218QM_quote_rebase $ 0 = 0 $ $ E $ $ n $ $ t $ $ k $ $ l $ $ (sfFunctionality (sfRename sfRepAMap 0 phi) (sfRename sfRepBMap 0 phi)) $ (a1i (sfK0QRepFunctionality_bound hf)) (a1i hk) (a1i hl) (a1i htk) (a1i htl) (a1i hek) (a1i hel)) eqid)));
+
+pub theorem sfK0QRepOutput_rebase (E: set) (n t a k l phi: nat) (hf: $ sfBound (suc (suc n)) phi $) (hk: $ 0 < k $) (hl: $ 0 < l $) (htk: $ t < k $) (htl: $ t < l $) (hek: $ sqEnvBelow E n k $) (hel: $ sqEnvBelow E n l $) (hak: $ a < k $) (hal: $ a < l $):
+ $ k218IEquivalent (sqQuote (sqEnvCons a E) t k 0 (sfK0QRepOpenOutput phi)) (sqQuote (sqEnvCons a E) t l 0 (sfK0QRepOpenOutput phi)) $ =
+'(ax_mp (! k218QM_quote_rebase $ 0 = 0 $ $ (sqEnvCons a E) $ $ (suc n) $ $ t $ $ k $ $ l $ $ (sfK0QRepOpenOutput phi) $ (a1i (sfK0QRepOutput_bound hf)) (a1i hk) (a1i hl) (a1i htk) (a1i htl) (a1i (ax_mp (ax_mp sqEnvBelow_cons hak) hek)) (a1i (ax_mp (ax_mp sqEnvBelow_cons hal) hel))) eqid);

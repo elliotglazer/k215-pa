@@ -1,0 +1,19 @@
+import "source_reflection_transfer_tv_context.mm1";
+
+theorem sftvo_rows_congr(D G J y z N C:nat)(hg:$ G = J $)(hy:$ y = z $): $ sfTVRowInputs D G y N C <-> sfTVRowInputs D J z N C $ = (named '(aleqi (aleqi (imeq2i (aneq (trud (nsLocaleqd (a1i hg) (sfTVRowBalleqd eqidd eqidd eqidd (a1i hy)))) (trud (nsLocaleqd (a1i hg) (sfTVRowBalleqd eqidd eqidd eqidd (a1i hy)))))))));
+
+theorem sftvo_rows_zero(D G y N C:nat)(hr:$ sfTVRowInputs D G y N C $): $ sfTVRowInputs D (sfTVBallContext G y 0) (y + 0) N C $ = (named '(mpbir (sftvo_rows_congr sfTVBallContext_zero add0) hr));
+
+theorem sftvo_rows_step(D G y N C n:nat)(hd:$ sfBound 1 D $): $ sfTVRowInputs D (sfTVBallContext G y n) (y + n) N C -> sfTVRowInputs D (sfTVBallContext G y (suc n)) (y + suc n) N C $ = (named '(syl (bi2 (sftvo_rows_congr sftvbc_context_suc_canon addS)) (sfTVRowInputs_weaken_if (a1i (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) (a1i sfContextSub_cons) (sfTVRowInputs_shift_if hd id))));
+
+pub theorem sfTVBallContext_rows(D G y N C n:nat)(hd:$ sfBound 1 D $)(hr:$ sfTVRowInputs D G y N C $): $ sfTVRowInputs D (sfTVBallContext G y n) (y + n) N C $ = (named @ induct '(ind) 'n '(sftvo_rows_zero hr) '(sftvo_rows_step hd));
+
+theorem sftvo_containment_congr(D G J y z:nat)(hg:$ G = J $)(hy:$ y = z $): $ nsLocal G (sfAll (sfImp (sfMem 0 (suc y)) D)) <-> nsLocal J (sfAll (sfImp (sfMem 0 (suc z)) D)) $ = (named '(trud (nsLocaleqd (a1i hg) (a1i (nsAll_eq (nsImp_eq (nsMem_eq eqid (suceq hy)) eqid))))));
+
+theorem sftvo_containment_zero(D G y:nat)(hc:$ nsLocal G (sfAll (sfImp (sfMem 0 (suc y)) D)) $): $ nsLocal (sfTVBallContext G y 0) (sfAll (sfImp (sfMem 0 (suc (y + 0))) D)) $ = (named '(mpbir (sftvo_containment_congr sfTVBallContext_zero add0) hc));
+
+theorem sftvo_containment_step(D G y n:nat)(hd:$ sfBound 1 D $): $ nsLocal (sfTVBallContext G y n) (sfAll (sfImp (sfMem 0 (suc (y + n))) D)) -> nsLocal (sfTVBallContext G y (suc n)) (sfAll (sfImp (sfMem 0 (suc (y + suc n))) D)) $ = (named '(syl (bi2 (sftvo_containment_congr sftvbc_context_suc_canon addS)) (syl (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian sfWf_mem sfContextShift_wf))) sfContextSub_cons) (syl (bi1 (nsLocal_formula_eq (sfTVContainment_shift hd))) sfSepLocal_shift))));
+
+pub theorem sfTVBallContext_containment(D G y n:nat)(hd:$ sfBound 1 D $)(hc:$ nsLocal G (sfAll (sfImp (sfMem 0 (suc y)) D)) $): $ nsLocal (sfTVBallContext G y n) (sfAll (sfImp (sfMem 0 (suc (y + n))) D)) $ = (named @ induct '(ind) 'n '(sftvo_containment_zero hc) '(sftvo_containment_step hd));
+
+pub theorem sfTV_outer_from_rows(D G y N C n c:nat)(hd:$ sfBound 1 D $)(hg:$ sfContextWf G $)(hn:$ n + c <= N $)(hc:$ c <= C $)(hb:$ sfBound n c $)(he:$ nsLocal G zfcRefl $)(hr:$ sfTVRowInputs D G y N C $)(hy:$ nsLocal G (sfAll (sfImp (sfMem 0 (suc y)) D)) $): $ nsLocal G (sfCLBall n y (sfIff (sfRelativize D c) (sfCLSetRel (y + n) c))) $ = (named '(ax_mp (sfTVBall_introduce hg) (sfTV_uniform hd (ax_mp sfBound_wf hb) (sfTVBallContext_wf hg) (sfTVRequirements_from_rows hd (sfTVBallContext_wf hg) hn hc hb sfTVBallContext_members (sfTVBallContext_closed_lift sftvbuild_refl_closed he) (sfTVBallContext_rows hd hr)) (sfTVBallContext_containment hd hy))));

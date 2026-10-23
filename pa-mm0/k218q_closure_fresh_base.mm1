@@ -1,0 +1,68 @@
+import "k218q_closure_rebase.mm1";
+
+@_ def k218ClosureSourceBase (E: set) (B a b c f: nat): nat = $ suc (k218ClosureChosen_u E B a b c f) $;
+
+@_ def k218ClosureMatrixBase (E: set) (B a b c f: nat): nat = $ k218ClosureSourceBase E B a b c f + 10 $;
+
+theorem k218CRB_upper (E: set) (B a b c f: nat): $ (k218ClosureChosen_u E B a b c f) < (k218ClosureMatrixBase E B a b c f) $ =
+'(ltletr ltsucid leaddid1);
+
+theorem k218CRB_y_above (E: set) (B a b c f: nat): $ B + suc f < (k218ClosureChosen_y E B a b c f) $ =
+'k218ClosureChosen_range;
+
+theorem k218CRB_y_below (E: set) (B a b c f: nat): $ (k218ClosureChosen_y E B a b c f) < (k218ClosureMatrixBase E B a b c f) $ =
+'(lttr (lttr (lttr (lttr (lttr k218CR_chosen_above1 k218CR_chosen_above2) k218CR_chosen_above3) k218CR_chosen_above4) k218CR_chosen_above5) k218CRB_upper);
+
+theorem k218CRB_x_above (E: set) (B a b c f: nat): $ B + suc f < (k218ClosureChosen_x E B a b c f) $ =
+'(lttr k218ClosureChosen_range k218CR_chosen_above1);
+
+theorem k218CRB_x_below (E: set) (B a b c f: nat): $ (k218ClosureChosen_x E B a b c f) < (k218ClosureMatrixBase E B a b c f) $ =
+'(lttr (lttr (lttr (lttr k218CR_chosen_above2 k218CR_chosen_above3) k218CR_chosen_above4) k218CR_chosen_above5) k218CRB_upper);
+
+theorem k218CRB_w_above (E: set) (B a b c f: nat): $ B + suc f < (k218ClosureChosen_w E B a b c f) $ =
+'(lttr (lttr k218ClosureChosen_range k218CR_chosen_above1) k218CR_chosen_above2);
+
+theorem k218CRB_w_below (E: set) (B a b c f: nat): $ (k218ClosureChosen_w E B a b c f) < (k218ClosureMatrixBase E B a b c f) $ =
+'(lttr (lttr (lttr k218CR_chosen_above3 k218CR_chosen_above4) k218CR_chosen_above5) k218CRB_upper);
+
+theorem k218CRB_p_above (E: set) (B a b c f: nat): $ B + suc f < (k218ClosureChosen_p E B a b c f) $ =
+'(lttr (lttr (lttr k218ClosureChosen_range k218CR_chosen_above1) k218CR_chosen_above2) k218CR_chosen_above3);
+
+theorem k218CRB_p_below (E: set) (B a b c f: nat): $ (k218ClosureChosen_p E B a b c f) < (k218ClosureMatrixBase E B a b c f) $ =
+'(lttr (lttr k218CR_chosen_above4 k218CR_chosen_above5) k218CRB_upper);
+
+theorem k218CRB_v_above (E: set) (B a b c f: nat): $ B + suc f < (k218ClosureChosen_v E B a b c f) $ =
+'(lttr (lttr (lttr (lttr k218ClosureChosen_range k218CR_chosen_above1) k218CR_chosen_above2) k218CR_chosen_above3) k218CR_chosen_above4);
+
+theorem k218CRB_v_below (E: set) (B a b c f: nat): $ (k218ClosureChosen_v E B a b c f) < (k218ClosureMatrixBase E B a b c f) $ =
+'(lttr k218CR_chosen_above5 k218CRB_upper);
+
+theorem k218CRB_u_above (E: set) (B a b c f: nat): $ B + suc f < (k218ClosureChosen_u E B a b c f) $ =
+'(lttr (lttr (lttr (lttr (lttr k218ClosureChosen_range k218CR_chosen_above1) k218CR_chosen_above2) k218CR_chosen_above3) k218CR_chosen_above4) k218CR_chosen_above5);
+
+theorem k218CRB_u_below (E: set) (B a b c f: nat): $ (k218ClosureChosen_u E B a b c f) < (k218ClosureMatrixBase E B a b c f) $ =
+'k218CRB_upper;
+
+theorem k218CRB_base_lt (E: set) (B a b c f: nat): $ B < (k218ClosureMatrixBase E B a b c f) $ =
+'(lttr (lelttr leaddid1 k218ClosureChosen_range) k218CRB_y_below);
+
+
+theorem k218CRB_env_read (E: set) (n B i: nat):
+ $ (A. j (j < n -> E @ j < B)) -> i < n -> E @ i < B $ =
+(named '(!! eale j ,eqtac));
+
+theorem k218CRB_env_mono (E: set) (n B L: nat)
+ (hBL: $ B < L $) (he: $ A. j (j < n -> E @ j < B) $):
+ $ A. i (i < n -> E @ i < L) $ =
+(named '(ax_gen (syl (lttrd id (a1i hBL)) (ax_mp k218CRB_env_read he))));
+
+@_ def k218ClosureRebased (E: set) (n B a b c f: nat): nat =
+ $ k218ClosureSeparated E n (k218ClosureMatrixBase E B a b c f) a b c (k218ClosureChosen_u E B a b c f) (k218ClosureChosen_v E B a b c f) (k218ClosureChosen_p E B a b c f) (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_x E B a b c f) (k218ClosureChosen_y E B a b c f) f $;
+
+pub theorem k218QClosure_chosen_rebase {i j: nat} (E: set) (n B a b c f: nat)
+ (hB: $ 0 < B $) (he: $ A. j (j < n -> E @ j < B) $)
+ (hf: $ sfBound (suc (suc n)) f $):
+ $ k218IEquivalent
+     (k218ClosureSeparated E n B a b c (k218ClosureChosen_u E B a b c f) (k218ClosureChosen_v E B a b c f) (k218ClosureChosen_p E B a b c f) (k218ClosureChosen_w E B a b c f) (k218ClosureChosen_x E B a b c f) (k218ClosureChosen_y E B a b c f) f)
+     (k218ClosureRebased E n B a b c f) $ =
+(named '(k218QClosure_matrix_rebase hf (sqRebaseHygiene_below hB he) (sqRebaseHygiene_below (lttr hB k218CRB_base_lt) {(k218CRB_env_mono k218CRB_base_lt he) : $ A. i (i < n -> E @ i < (k218ClosureMatrixBase E B a b c f)) $}) (sqAllocAvoid_above (ltle k218CRB_u_above)) (sqAllocAvoid_below k218CRB_u_below) (sqAllocAvoid_above (ltle k218CRB_v_above)) (sqAllocAvoid_below k218CRB_v_below) (sqAllocAvoid_above (ltle k218CRB_p_above)) (sqAllocAvoid_below k218CRB_p_below) (sqAllocAvoid_above (ltle k218CRB_x_above)) (sqAllocAvoid_below k218CRB_x_below) (sqAllocAvoid_above (ltle k218CRB_y_above)) (sqAllocAvoid_below k218CRB_y_below)));

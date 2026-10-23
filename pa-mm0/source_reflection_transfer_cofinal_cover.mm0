@@ -1,0 +1,21 @@
+import "source_reflection_transfer_cofinal_laws.mm0";
+
+def sfReflectionCofinalHitPoint(level K a k y:nat):nat = $ sfAnd (sfMem k K) (sfAnd (sfORBinary level k y) (sfMem a y)) $;
+
+def sfReflectionCofinalHit(level K a:nat):nat = $ sfEx (sfEx (sfReflectionCofinalHitPoint level (suc (suc K)) (suc (suc a)) 1 0)) $;
+
+def sfReflectionCofinalCover(level K Y:nat):nat = $ sfAll (sfImp (sfMem 0 (suc Y)) (sfReflectionCofinalHit level (suc K) 0)) $;
+
+def sfReflectionCofinalSeedPoint(level K k y:nat):nat = $ sfAnd (sfMem k K) (sfORBinary level k y) $;
+
+def sfReflectionCofinalSeed(level K:nat):nat = $ sfEx (sfEx (sfReflectionCofinalSeedPoint level (suc (suc K)) 1 0)) $;
+
+theorem sfReflectionCofinalHit_rename(R:set)(level K a:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionCofinalHit level K a) = sfReflectionCofinalHit level (R @ K) (R @ a) $;
+
+theorem sfReflectionCofinalHit_shift(level K a:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionCofinalHit level K a) = sfReflectionCofinalHit level (suc K) (suc a) $;
+
+theorem sfReflectionCofinalCover_use(G level K Y a:nat)(hl:$ sfBound 2 level $)(hC:$ nsLocal G (sfReflectionCofinalCover level K Y) $)(ha:$ nsLocal G (sfMem a Y) $): $ nsLocal G (sfReflectionCofinalHit level K a) $;
+
+theorem sfReflectionCofinalPoint_shift2(T:set)(start n level K k y:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfShift 0 (sfReflectionCofinalPoint T start n level K k y)) = sfReflectionCofinalPoint T (suc (suc start)) n level (suc (suc K)) (suc (suc k)) (suc (suc y)) $;
+
+theorem sfReflectionCofinal_seed_tuple(T:set)(G start level K:nat)(hl:$ sfBound 2 level $)(hSeed:$ nsLocal G (sfReflectionCofinalSeed level K) $): $ nsLocal G (sfReflectionCofinalCommon T start 0 level K) $;

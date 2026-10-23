@@ -1,0 +1,299 @@
+import "k215_bundle_images_bexpl.mm1";
+import "k215_bundle_images_bzfc.mm1";
+import "source_l_separation_image_producer_context.mm1";
+import "source_l_separation_image_reflected_collection.mm1";
+import "source_l_separation_image_transitive_api.mm1";
+import "source_l_replacement_prefix_elimination.mm1";
+
+-- (lane L01, bound^L step 4) The bound principle in L for the matrix q with N parameters.
+-- Contexts: G0 (closed premises) -> IC (N parameters and x, guarded) -> IC1 (e0 with L(e0)) ->
+-- IC2 (e1 with L(e1) and e0 != e1) -> GR (beta = 1, Y = 0, the reflected point).
+-- Layout in GR: Y = 0, beta = 1, e1 = 2, e0 = 3, x = 4, parameters from 5.
+
+@_ def k215BSA1: nat = $ sfAnd sfLDomain (sfEx (sfAnd sfLDomain (sfImp (sfEq 1 0) sfBot))) $;
+@_ def k215BSA2: nat = $ sfAnd sfLDomain (sfImp (sfEq 1 0) sfBot) $;
+@_ def k215BSBc (q N: nat): nat = $ sfAllPrefix (5 + N) (k215BCoreF q) $;
+@_ def k215BSG0 (q N: nat): nat =
+ $ k215BSBc q N : (k215BPowL : (sfRelativize sfLDomain k215BE2 : (k215BLvl :
+   (sfLReplacementLevelExtension : (sfLReplacementAboveLaw (9 + N) (k215BRefl q) :
+   (sfLReplacementLevelExistsLaw : (sfReflectionHierarchySubsetNormal sfCLHierarchy :
+   (sfLSeparationStageTransNormal : (sfCLRecipe 0 0 : 0))))))))) $;
+@_ def k215BSIC (q N: nat): nat = $ sfLSeparationImageInputContext (k215BSG0 q N) N $;
+@_ def k215BSIC1 (q N: nat): nat = $ k215BSA1 : sfContextShift (k215BSIC q N) $;
+@_ def k215BSIC2 (q N: nat): nat = $ k215BSA2 : sfContextShift (k215BSIC1 q N) $;
+@_ def k215BSPt (q N: nat): nat = $ sfCLReflectedPoint 2 (suc (suc (suc N))) (9 + N) (k215BRefl q) 1 0 $;
+@_ def k215BSGR (q N: nat): nat = $ sfCLWitnessContext (k215BSIC2 q N) (k215BSPt q N) $;
+
+-- Generic lifts.
+theorem k215SC_clift (G A f: nat) (hA: $ sfWf A $) (hf: $ sfBound 0 f $) (h: $ nsLocal G f $):
+  $ nsLocal (A : sfContextShift G) f $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (iani hA sfContextShift_wf))) sfContextSub_cons)
+   (sfRQ_rewrite (ax_mp sfShift_closed_identity hf) (ax_mp sfSepLocal_shift h)));
+
+theorem k215SC_slift (G A f g: nat) (hA: $ sfWf A $) (he: $ sfShift 0 f = g $) (h: $ nsLocal G f $):
+  $ nsLocal (A : sfContextShift G) g $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (iani hA sfContextShift_wf))) sfContextSub_cons)
+   (sfRQ_rewrite he (ax_mp sfSepLocal_shift h)));
+
+theorem k215SC_wlift (G P f: nat) (hp: $ sfWf P $) (h: $ nsLocal G f $):
+  $ nsLocal (sfCLWitnessContext G P) (sfShift 0 (sfShift 0 f)) $ =
+'(ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (iani hp sfContextShift_wf))) sfContextSub_cons)
+   (ax_mp sfSepLocal_shift
+     (ax_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (iani (ax_mp sfWf_ex hp) sfContextShift_wf)))
+       sfContextSub_cons) (ax_mp sfSepLocal_shift h))));
+
+theorem k215SC_hd (G a: nat) (hg: $ sfContextWf (a : G) $): $ nsLocal (a : G) a $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) sfContext_member_head);
+
+-- Well-formedness and closedness.
+theorem k215SC_A1_wf: $ sfWf k215BSA1 $ =
+'(ax_mp (ax_mp sfWf_and sfLDomain_wf) (ax_mp sfWf_ex (ax_mp (ax_mp sfWf_and sfLDomain_wf)
+   (ax_mp (ax_mp sfWf_imp sfWf_eq) sfWf_bot))));
+theorem k215SC_A2_wf: $ sfWf k215BSA2 $ =
+'(ax_mp (ax_mp sfWf_and sfLDomain_wf) (ax_mp (ax_mp sfWf_imp sfWf_eq) sfWf_bot));
+
+theorem k215SC_IC_wf (q N: nat): $ sfContextWf (k215BSIC q N) $ =
+'(mpbir sfContextWf_cons (iani sfLDomain_wf sfContextShift_wf));
+theorem k215SC_IC1_wf (q N: nat): $ sfContextWf (k215BSIC1 q N) $ =
+'(mpbir sfContextWf_cons (iani k215SC_A1_wf sfContextShift_wf));
+theorem k215SC_IC2_wf (q N: nat): $ sfContextWf (k215BSIC2 q N) $ =
+'(mpbir sfContextWf_cons (iani k215SC_A2_wf sfContextShift_wf));
+theorem k215SC_GR_wf (q N: nat): $ sfContextWf (k215BSGR q N) $ =
+'(mpbir sfContextWf_cons (iani sfCLReflectedPoint_wf sfContextShift_wf));
+
+theorem k215SC_E2_closed: $ sfBound 0 k215BE2 $ =
+'(mpbir sfBound_sfEx (mpbir sfBound_sfEx (mpbir sfBound_sfImp
+   (ian (mpbir sfBound_sfEq (ian (mpbi ltsuc lt01S) lt01S)) sfBound_bot))));
+theorem k215SC_E2L_closed: $ sfBound 0 (sfRelativize sfLDomain k215BE2) $ =
+'(ax_mp (ax_mp sfRelativize_closed sfLDomain_bound) k215SC_E2_closed);
+theorem k215SC_E2L_eq: $ sfRelativize sfLDomain k215BE2 = sfEx k215BSA1 $ =
+'(eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid (eqtr sfRelativize_sfEx (nsEx_eq (nsAnd_eq eqid
+   (eqtr sfRelativize_sfImp (nsImp_eq sfRelativize_sfEq sfRelativize_bot))))))));
+
+theorem k215SC_Pow_closed (q: nat) (hq: $ sfWf q $): $ sfBound 0 k215BPowL $ =
+'(mpbi (trud (sfLaw_bound_congr eqidd (a1i (k215BPow_rel hq))))
+   (ax_mp (ax_mp sfRelativize_closed sfLDomain_bound)
+     (ax_mp (ax_mp sfTheoryClosed_member zfrAxioms_closed) zfrPower_member)));
+
+theorem k215SC_Rec_closed: $ sfBound 0 (sfCLRecipe 0 0) $ =
+(named '(ax_mp sfCLRecipe_bound (ax_gen (absurd lt02))));
+
+theorem k215SC_Bc_closed (q N: nat) (hb: $ sfBound (2 + N) q $): $ sfBound 0 (k215BSBc q N) $ =
+'(mpbir sfBound_allPrefix_closed (k215BCoreF_bound hb));
+
+theorem k215SC_Bc (q N: nat) (hq: $ sfWf q $): $ sfTheoryProvable zfcAxioms (k215BSBc q N) $ =
+'(ax_mp (sfTheoryProvable_prefix_intro sfTheoryClosed_zfc)
+   (ax_mp (sfTheoryProvable_mono zfrAxioms_subset_zfc) (k215BCore_zfr hq)));
+
+-- Lifting a closed premise of G0 to IC2 and to GR.
+theorem k215SC_slift0 (G A f: nat) (hA: $ sfWf A $) (hf: $ sfShift 0 f = f $) (h: $ nsLocal G f $):
+  $ nsLocal (A : sfContextShift G) f $ = '(k215SC_slift hA hf h);
+
+theorem k215SC_up2s (q N f: nat) (hf: $ sfShift 0 f = f $) (h: $ nsLocal (k215BSG0 q N) f $):
+  $ nsLocal (k215BSIC2 q N) f $ =
+'(k215SC_slift0 k215SC_A2_wf hf (k215SC_slift0 k215SC_A1_wf hf (sfLSeparationImageInput_lift hf h)));
+
+theorem k215SC_up2 (q N f: nat) (hb0: $ sfBound 0 f $) (h: $ nsLocal (k215BSG0 q N) f $):
+  $ nsLocal (k215BSIC2 q N) f $ = '(k215SC_up2s (ax_mp sfShift_closed_identity hb0) h);
+
+theorem k215SC_up (q N f: nat) (hb0: $ sfBound 0 f $) (h: $ nsLocal (k215BSG0 q N) f $):
+  $ nsLocal (k215BSGR q N) f $ =
+'(slSepWitnessClosed sfCLReflectedPoint_wf hb0 (k215SC_up2 hb0 h));
+
+-- The premises in G0 (member k of the list).
+theorem k215SC_g0 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $): $ nsLocal (k215BSG0 q N) (k215BSBc q N) $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) sfContext_member_head);
+theorem k215SC_g1 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $): $ nsLocal (k215BSG0 q N) k215BPowL $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail sfContext_member_head));
+theorem k215SC_g2 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSG0 q N) (sfRelativize sfLDomain k215BE2) $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)));
+theorem k215SC_g3 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $): $ nsLocal (k215BSG0 q N) k215BLvl $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail sfContext_member_head))));
+theorem k215SC_g4 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSG0 q N) sfLReplacementLevelExtension $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))));
+theorem k215SC_g5 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSG0 q N) (sfLReplacementAboveLaw (9 + N) (k215BRefl q)) $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   sfContext_member_head))))));
+theorem k215SC_g6 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSG0 q N) sfLReplacementLevelExistsLaw $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail sfContext_member_head)))))));
+theorem k215SC_g7 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSG0 q N) (sfReflectionHierarchySubsetNormal sfCLHierarchy) $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head))))))));
+theorem k215SC_g8 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSG0 q N) sfLSeparationStageTransNormal $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   sfContext_member_head)))))))));
+theorem k215SC_g9 (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSG0 q N) (sfCLRecipe 0 0) $ =
+'(ax_mp (ax_mp nsLocal_hyp hg) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail
+   (ax_mp sfContext_member_tail sfContext_member_head))))))))));
+
+-- Predicates of e1, e0, x and the parameters in IC2.
+theorem k215SC_pred (q N: nat) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSIC2 q N) (sfCLPredicates sfLDomain 0 (suc (suc (suc N)))) $ =
+'(ax_mp (sfLSeparationImagePredicate_cons k215SC_IC2_wf
+     (sfRQ_rewrite (eqcom k215LD_subst00) (ax_mp nsLocal_CE1 (k215SC_hd k215SC_IC2_wf))))
+   (ax_mp (sfLSeparationImagePredicate_cons k215SC_IC2_wf
+       (k215SC_slift k215SC_A2_wf k215LD_shift0 (ax_mp nsLocal_CE1 (k215SC_hd k215SC_IC1_wf))))
+     (k215SC_slift k215SC_A2_wf (sfCLPredicates_shift sfLDomain_bound)
+       (k215SC_slift k215SC_A1_wf (sfCLPredicates_shift sfLDomain_bound)
+         (sfLSeparationImageAllInputPredicates sfLDomain_bound hg)))));
+
+-- The reflected recipe in IC2.
+theorem k215SC_recipe (q N: nat) (hb: $ sfBound (2 + N) q $) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSIC2 q N) (sfCLReflectedRecipe 0 (suc (suc (suc N))) (9 + N) (k215BRefl q)) $ =
+'(sfLSeparationReflectedRecipe_from_collected (k215BRefl_bound hb)
+   (k215SC_up2 (slSepAboveLaw_bound (k215BRefl_bound hb)) (k215SC_g5 hg))
+   (k215SC_up2 sfLReplacementLevelExists_bound (k215SC_g6 hg))
+   (k215SC_up2s (rfmc_subnormal_shift sfCLHierarchy_bound) (k215SC_g7 hg))
+   (sfLSeparationImage_collect_from_initial
+     (k215SC_up2 sfLReplacementLevelExtension_bound (k215SC_g4 hg))
+     (k215SC_up2 k215SC_Rec_closed (k215SC_g9 hg))
+     (k215SC_pred hg)));
+
+-- Facts at the reflected point.
+theorem k215SC_pt (q N: nat): $ nsLocal (k215BSGR q N) (k215BSPt q N) $ = '(k215SC_hd k215SC_GR_wf);
+
+theorem k215SC_rows2 (q N: nat):
+  $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageParameterMap 2) 0) (k215BSGR q N) (suc (suc N)) $ =
+'(sfLSeparationImageReflected_rows k215SC_pt);
+
+theorem k215SC_row_val (G Y s i k n: nat) (he: $ suc i + s = k $) (hi: $ i < n $)
+  (h: $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageParameterMap s) Y) G n $):
+  $ nsLocal G (sfMem k Y) $ =
+'(mpbi (nsLocal_formula_eq (eqtr sfCLBallMemberRows_value
+     (nsMem_eq (eqtr sfLSeparationImageParameterMap_at he) eqid)))
+   (ax_mp (ax_mp sfCLRowProofs_at h) hi));
+
+theorem k215SC_drop_pt (G Y s n i: nat)
+  (h: $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageParameterMap s) Y) G (suc (suc n)) $):
+  $ i < n -> nsLocal G (sfCLBallMemberRows (sfLSeparationImageParameterMap (suc (suc s))) Y @ i) $ =
+'(syl (bi1 (nsLocal_formula_eq (eqtr sfCLBallMemberRows_value (eqtr (nsMem_eq (eqtr sfLSeparationImageParameterMap_at
+        (eqtr addS1 (suceq (eqtr addS1 (suceq addS1))))) eqid)
+      (eqcom (eqtr sfCLBallMemberRows_value (nsMem_eq (eqtr sfLSeparationImageParameterMap_at
+        (eqtr addS1 (suceq (eqtr addS (suceq addS))))) eqid)))))))
+   (syl (ax_mp sfCLRowProofs_at h) (syl (bi1 ltsuc) (bi1 ltsuc))));
+
+theorem k215SC_drop (G Y s n: nat)
+  (h: $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageParameterMap s) Y) G (suc (suc n)) $):
+  $ sfCLRowProofs (sfCLBallMemberRows (sfLSeparationImageParameterMap (suc (suc s))) Y) G n $ =
+(named '(ax_gen (k215SC_drop_pt h)));
+
+theorem k215SC_ne_shift: $ sfShift 0 (sfShift 0 (sfImp (sfEq 1 0) sfBot)) = sfImp (sfEq 3 2) sfBot $ =
+'(eqtr (sfShifteq2 (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfEq
+     (nsEq_eq (ax_mp sfShiftIndex_free (mpbi lenlt le01)) (ax_mp sfShiftIndex_free (mpbi lenlt le01)))) sfShift_bot)))
+   (eqtr sfShift_sfImp (nsImp_eq (eqtr sfShift_sfEq
+     (nsEq_eq (ax_mp sfShiftIndex_free (mpbi lenlt le01)) (ax_mp sfShiftIndex_free (mpbi lenlt le01)))) sfShift_bot)));
+
+theorem k215SC_id_pt (n i: nat): $ i < n -> sfCLBallEnv sfIdentityMap n @ i = sfIdentityMap @ i $ =
+'(eqtrd (a1i sfCLBallEnv_value) ifpos);
+
+theorem k215SC_id_rename (n c: nat) (hb: $ sfBound n c $):
+  $ sfRename (sfCLBallEnv sfIdentityMap n) 0 c = c $ =
+(named '(eqtr (ax_mp (ax_mp sfRename_agreement (ax_gen k215SC_id_pt))
+     (mpbir (trud (sfLaw_bound_congr (a1i add01) eqidd)) hb))
+   (ax_mp sfRename_identity (ax_mp sfBound_wf hb))));
+
+-- The core at the reflected point gives the conclusion there.
+theorem k215SC_mp (G a b: nat) (h1: $ nsLocal G (sfImp a b) $) (h2: $ nsLocal G a $): $ nsLocal G b $ =
+'(ax_mp (ax_mp nsLocal_mp h1) h2);
+
+theorem k215SC_F (q N: nat) (hb: $ sfBound (2 + N) q $) (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSGR q N) (k215BCoreF q) $ =
+'(sfRQ_rewrite (k215SC_id_rename (k215BCoreF_bound hb))
+   (sfLReplacementPrefix_eliminate (k215SC_up (k215SC_Bc_closed hb) (k215SC_g0 hg))));
+
+theorem k215SC_ord (q N: nat): $ nsLocal (k215BSGR q N) (sfCLOrdinalAt 1) $ =
+'(ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 k215SC_pt)));
+theorem k215SC_hier (q N: nat): $ nsLocal (k215BSGR q N) (sfCLHierarchyAt 1 0) $ =
+'(ax_mp nsLocal_CE2 (ax_mp nsLocal_CE1 (ax_mp nsLocal_CE1 k215SC_pt)));
+
+theorem k215SC_core (q N: nat) (hq: $ sfWf q $) (hb: $ sfBound (2 + N) q $)
+  (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSGR q N) (k215BC4 q) $ =
+'(k215SC_mp (k215SC_mp (k215SC_mp (k215SC_mp (k215SC_mp
+  (k215SC_mp (k215SC_mp (k215SC_mp (k215SC_mp (k215SC_mp
+    (k215SC_F hb hg)
+    (sfLSeparationStageTrans_use (k215SC_up sfLSeparationStageTransNormal_bound (k215SC_g8 hg))
+      k215SC_ord k215SC_hier))
+    k215SC_ord)
+    k215SC_hier)
+    (k215SC_up (k215BLvl_closed hq) (k215SC_g3 hg)))
+    (k215SC_row_val (eqtr addS1 (suceq (eqtr addS (suceq (eqtr addS (suceq add0)))))) (mpbi ltsuc lt01S)
+      k215SC_rows2))
+    (k215BX_ball hq hb (ax_mp nsLocal_CE2 k215SC_pt) k215SC_hier (k215SC_drop k215SC_rows2)))
+    (k215SC_row_val (eqtr addS1 (suceq add01)) lt01S k215SC_rows2))
+    (sfLSeparationImageReflected_target k215SC_pt))
+    (sfRQ_rewrite k215SC_ne_shift
+      (k215SC_wlift sfCLReflectedPoint_wf (ax_mp nsLocal_CE2 (k215SC_hd k215SC_IC2_wf)))))
+    (k215SC_up (k215SC_Pow_closed hq) (k215SC_g1 hg)));
+
+-- Back down: the reflected point, then e1, e0, then x.
+theorem k215SC_atIC (q N: nat) (hq: $ sfWf q $) (hb: $ sfBound (2 + N) q $)
+  (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSIC q N) (k215BC0 q) $ =
+'(ax_mp (ax_mp (sfLocal_exE (k215BC_wf0 hq))
+    (sfRQ_rewrite k215SC_E2L_eq (sfLSeparationImageInput_lift (ax_mp sfShift_closed_identity k215SC_E2L_closed) (k215SC_g2 hg))))
+  (sfRQ_rewrite (eqcom (k215BCoreC_shift0 hq))
+   (ax_mp (ax_mp (sfLocal_exE (k215BC_wf1 hq)) (ax_mp nsLocal_CE2 (k215SC_hd k215SC_IC1_wf)))
+    (sfRQ_rewrite (eqcom (k215BCoreC_shift1 hq))
+     (ax_mp (sfCLReflectedRecipe_eliminate k215SC_IC2_wf (k215BC_wf2 hq) (k215SC_recipe hb hg))
+      (sfRQ_rewrite (eqcom (eqtr (sfShifteq2 (k215BCoreC_shift2 hq)) (k215BCoreC_shift3 hq)))
+       (k215SC_core hq hb hg)))))));
+
+theorem k215SC_local (q N: nat) (hq: $ sfWf q $) (hb: $ sfBound (2 + N) q $)
+  (hg: $ sfContextWf (k215BSG0 q N) $):
+  $ nsLocal (k215BSG0 q N) (sfGuardPrefix sfLDomain N (k215BoundFL q)) $ =
+'(sfLSeparationImage_guard_prefix sfLDomain_wf hg
+   (ax_mp (sfLocal_allI (sfLSeparationImageParameterContext_wf sfLDomain_wf hg))
+     (ax_mp nsLocal_II (k215SC_atIC hq hb hg))));
+
+pub theorem k215SC_schema (q N: nat) (hq: $ sfWf q $) (hb: $ sfBound (2 + N) q $)
+  (hE: $ sfTheoryProvable zfcAxioms sfLReplacementLevelExtension $)
+  (hA: $ sfTheoryProvable zfcAxioms (sfLReplacementAboveLaw (9 + N) (k215BRefl q)) $)
+  (hL: $ sfTheoryProvable zfcAxioms sfLReplacementLevelExistsLaw $)
+  (hS: $ sfTheoryProvable zfcAxioms (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+  (hT: $ sfTheoryProvable zfcAxioms sfLSeparationStageTransNormal $)
+  (hZ: $ sfTheoryProvable zfcAxioms (sfCLRecipe 0 0) $)
+  (hlv: $ sfTheoryProvable zfcAxioms k215BLvl $)
+  (hpw: $ sfTheoryProvable zfcAxioms k215BPowL $)
+  (he2: $ sfTheoryProvable zfcAxioms (sfRelativize sfLDomain k215BE2) $):
+  $ sfTheoryProvable zfcAxioms (sfRelativize sfLDomain (sfAllPrefix N (k215BoundF q))) $ =
+'(mpbir (trud (sfTheoryProvable_congr (a1i (eqtr sfRelativize_prefix (sfGuardPrefixeq eqid eqid (k215BoundF_rel hq))))))
+  (ax_mp (ax_mp (sfTheory_lemma_context sfTheoryClosed_zfc)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value (k215SC_Bc hq))
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hpw)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value he2)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hlv)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hE)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hA)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hL)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hS)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hT)
+    (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hZ) sfTheoryContext_nil)))))))))))))))))))))
+   (k215SC_local hq hb
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf (k215SC_Bc hq))
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hpw)
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf he2)
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hlv)
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hE)
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hA)
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hL)
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hS)
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hT)
+    (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hZ) sfContextWf_nil)))))))))))))))))))))));

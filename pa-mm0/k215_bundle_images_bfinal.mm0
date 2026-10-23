@@ -1,0 +1,26 @@
+import "k215_bundle_images_bschema.mm0";
+import "k215_bundle_images_corel.mm0";
+
+-- (lane L01, bound^L step 5) bound^L from G1, L nonempty, the levels-in-L premise k215BLvl
+-- (ZFC |- A. a A. y (Ord a -> LL(a,y) -> y e. L)) and the stage facts of the Separation chain
+-- (stated here as premises; k215_bundle_images_bfinal_pc discharges them by the ZFR theorems of
+-- producer_closed, transitive_producer and zero_lift).  The power axiom and two distinct sets are
+-- relativized to L by G1 (relfree).
+
+-- Reflection above every ordinal, for every bounded formula.
+def k215BAboveAll (.c .n: nat): wff =
+ $ A. c A. n (sfBound n c -> zfcProvable (sfLReplacementAboveLaw n c)) $;
+
+def k215BFq (q N: nat): nat = $ if (sfBound (2 + N) q) q 0 $;
+
+theorem k215BoundL_from_stages
+  (hz:$ sfZFCImageFamilies zfrAxioms sfLDomain $)
+  (hn:$ sfTheoryProvable zfrAxioms (sfEx sfLDomain) $)
+  (hlv:$ zfcProvable k215BLvl $)
+  (hE:$ zfcProvable sfLReplacementLevelExtension $)
+  (hA:$ k215BAboveAll $)
+  (hL:$ zfcProvable sfLReplacementLevelExistsLaw $)
+  (hS:$ zfcProvable (sfReflectionHierarchySubsetNormal sfCLHierarchy) $)
+  (hT:$ zfcProvable sfLSeparationStageTransNormal $)
+  (hZ:$ zfcProvable (sfCLRecipe 0 0) $):
+  $ k215BoundL $;

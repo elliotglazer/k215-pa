@@ -1,0 +1,53 @@
+import "k218_codes.mm1";
+import "k215_calculus_source_ax_gate_comparisons.mm1";
+import "k215_calculus_source_ax_clear4570.mm1";
+import "k215_calculus_source_ax_clear4588.mm1";
+import "k215_calculus_source_ax_gate_loops.mm1";
+
+
+theorem k215GateOrLeft (p q: wff) (t: nat):
+ $ p -> if p 0 (if q 0 t) = if (p \/ q) 0 t $ =
+ '(eqtrd ifpos (eqcomd (syl ifpos orl)));
+theorem k215GateOrRight (p q: wff) (t: nat):
+ $ ~p /\ q -> if p 0 (if q 0 t) = if (p \/ q) 0 t $ =
+ '(eqtrd (syl ifneg anl) (eqtrd (syl ifpos anr) (eqcomd (syl ifpos (syl orr anr)))));
+theorem k215GateOrNeither (p q: wff) (t: nat):
+ $ ~p /\ ~q -> if p 0 (if q 0 t) = if (p \/ q) 0 t $ =
+ '(eqtrd (syl ifneg anl) (eqtrd (syl ifneg anr) (eqcomd (syl ifneg (bi2 notor)))));
+theorem k215GateOr (p q: wff) (t: nat):
+ $ if p 0 (if q 0 t) = if (p \/ q) 0 t $ =
+ '(cases k215GateOrLeft (casesda k215GateOrRight k215GateOrNeither));
+theorem k215GateNormalize (t a b c: nat): $ if (a = c) 0 (if (b = c) 0 t) = if (c = a \/ c = b) 0 t $ =
+ '(eqtr k215GateOr (ifeq (oreqi eqcomb eqcomb) eqid eqid));
+
+
+theorem k215GateCmp1Equal (u t w c a b v: nat): $ b = c -> k215PReach (k215PState k215PNum4560 (k215PVector u t w 0 a b c c v)) (k215PState k215PNum4572 (k215PVector u 0 w 0 a 0 0 c v)) $ = '(mpd (a1i k215Clear4570Vector) (syl k215PReach_trans k215Comparison4560Equal));
+
+theorem k215GateCmp1Different (u t w c a b v: nat): $ b != c -> k215PReach (k215PState k215PNum4560 (k215PVector u t w 0 a b c c v)) (k215PState k215PNum4572 (k215PVector u t w 0 a 0 0 c v)) $ = 'k215Comparison4560Different;
+
+theorem k215GateCmp1All (u t w c a b v: nat): $ k215PReach (k215PState k215PNum4560 (k215PVector u t w 0 a b c c v)) (k215PState k215PNum4572 (k215PVector u (if (b = c) 0 t) w 0 a 0 0 c v)) $ = '(cases (mpbid (k215PReacheq2d (k215PStateeq2d (k215PVectoreq2d (eqcomd ifpos)))) k215GateCmp1Equal) (mpbid (k215PReacheq2d (k215PStateeq2d (k215PVectoreq2d (eqcomd ifneg)))) k215GateCmp1Different));
+
+theorem k215GateCmp2Equal (u t w c a v: nat): $ a = c -> k215PReach (k215PState k215PNum4578 (k215PVector u t w 0 0 a c 0 v)) (k215PState k215PNum4590 (k215PVector u 0 w 0 0 0 0 0 v)) $ = '(mpd (a1i k215Clear4588Vector) (syl k215PReach_trans k215Comparison4578Equal));
+
+theorem k215GateCmp2Different (u t w c a v: nat): $ a != c -> k215PReach (k215PState k215PNum4578 (k215PVector u t w 0 0 a c 0 v)) (k215PState k215PNum4590 (k215PVector u t w 0 0 0 0 0 v)) $ = 'k215Comparison4578Different;
+
+theorem k215GateCmp2All (u t w c a v: nat): $ k215PReach (k215PState k215PNum4578 (k215PVector u t w 0 0 a c 0 v)) (k215PState k215PNum4590 (k215PVector u (if (a = c) 0 t) w 0 0 0 0 0 v)) $ = '(cases (mpbid (k215PReacheq2d (k215PStateeq2d (k215PVectoreq2d (eqcomd ifpos)))) k215GateCmp2Equal) (mpbid (k215PReacheq2d (k215PStateeq2d (k215PVectoreq2d (eqcomd ifneg)))) k215GateCmp2Different));
+
+theorem k215GateCopy (u t w c a b v: nat): $ k215PReach (k215PState k215PNum4556 (k215PVector u t w c a b 0 0 v)) (k215PState k215PNum4560 (k215PVector u t w 0 a b c c v)) $ = '(k215PReach_intro (eqtr k215Loop4556Vector (k215PStateeq2 (k215PVectoreq eqid eqid eqid eqid eqid eqid add0 add0 eqid))));
+
+theorem k215GateMoveC (u t w c a v: nat): $ k215PReach (k215PState k215PNum4572 (k215PVector u t w 0 a 0 0 c v)) (k215PState k215PNum4575 (k215PVector u t w 0 a 0 c 0 v)) $ = '(k215PReach_intro (eqtr k215Loop4572Vector (k215PStateeq2 (k215PVectoreq7 add0))));
+
+theorem k215GateMoveA (u t w c a v: nat): $ k215PReach (k215PState k215PNum4575 (k215PVector u t w 0 a 0 c 0 v)) (k215PState k215PNum4578 (k215PVector u t w 0 0 a c 0 v)) $ = '(k215PReach_intro (eqtr k215Loop4575Vector (k215PStateeq2 (k215PVectoreq6 add0))));
+
+theorem k215GateReturn4590 (u t w v: nat): $ k215PReach (k215PState k215PNum4590 (k215PVector u t w 0 0 0 0 0 v)) (k215PState k215PNum4697 (k215PVector u t w 0 0 0 0 0 v)) $ = '(k215PReach_step (k215PAtCB k215PLookupGate_4590));
+
+theorem k215GateReturn4697 (u t w v: nat): $ k215PReach (k215PState k215PNum4697 (k215PVector u t w 0 0 0 0 0 v)) (k215PState k215PNum4724 (k215PVector u t w 0 0 0 0 0 v)) $ = '(k215PReach_step (k215PAtCB k215PLookupGate_4697));
+
+theorem k215GateReturn4724 (u t w v: nat): $ k215PReach (k215PState k215PNum4724 (k215PVector u t w 0 0 0 0 0 v)) (k215PState 0 (k215PVector u t w 0 0 0 0 0 v)) $ = '(k215PReach_step (k215PAtCB k215PLookupGate_4724));
+
+theorem k215GateNested (u t w c a b v: nat): $ k215PReach (k215PState k215PNum4556 (k215PVector u t w c a b 0 0 v)) (k215PState 0 (k215PVector u (if (a = c) 0 (if (b = c) 0 t)) w 0 0 0 0 0 v)) $ = '(ax_mp (ax_mp k215PReach_trans k215GateCopy) (ax_mp (ax_mp k215PReach_trans k215GateCmp1All) (ax_mp (ax_mp k215PReach_trans k215GateMoveC) (ax_mp (ax_mp k215PReach_trans k215GateMoveA) (ax_mp (ax_mp k215PReach_trans k215GateCmp2All) (ax_mp (ax_mp k215PReach_trans k215GateReturn4590) (ax_mp (ax_mp k215PReach_trans k215GateReturn4697) k215GateReturn4724)))))));
+
+pub theorem k215GateSourceValue (u t w c a b v: nat): $ k215PReach (k215PState k215PNum4556 (k215PVector u t w c a b 0 0 v)) (k215PState 0 (k215PVector u (if (c = a \/ c = b) 0 t) w 0 0 0 0 0 v)) $ = '(mpbi (k215PReacheq2 (k215PStateeq2 (k215PVectoreq2 k215GateNormalize))) k215GateNested);
+
+pub theorem k215GateSourceInterval (u w c a b v: nat): $ k215PReach (k215PState k215PNum4556 (k215PVector u (k218Bundle a b c) w c a b 0 0 v)) (k215PState 0 (k215PVector u (k218Gate a b c) w 0 0 0 0 0 v)) $ = 'k215GateSourceValue;
+

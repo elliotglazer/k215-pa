@@ -1,0 +1,50 @@
+import "k215_bundle_images_boundf.mm0";
+import "source_l_level_member_names.mm0";
+import "source_l_common_level_setrel_renaming.mm0";
+import "source_relativization_laws.mm0";
+import "source_l_common_level_setrel_bounds.mm0";
+
+-- (lane L01, bound^L) The matrix atom relativized to L and to a set Y, as opaque emitter atoms.
+def k215QL (phi a b p: nat): nat = $ sfRelativize sfLDomain (k215QP phi a b p) $;
+def k215QY (phi a b p y: nat): nat = $ sfCLSetRel y (k215QP phi a b p) $;
+
+theorem k215QL_wf (phi a b p: nat): $ sfWf (k215QL phi a b p) $;
+theorem k215QY_wf (phi a b p y: nat): $ sfWf (k215QY phi a b p y) $;
+
+theorem k215QL_shift (d phi a b p: nat) (hp: $ d <= p $) (hf: $ sfWf phi $):
+  $ sfShift d (k215QL phi a b p) =
+    k215QL phi (sfShiftIndex d a) (sfShiftIndex d b) (sfShiftIndex d p) $;
+theorem k215QL_subst (d t phi a b p: nat) (hp: $ d < p $) (hf: $ sfWf phi $):
+  $ sfSubst d t (k215QL phi a b p) =
+    k215QL phi (sfSubstIndex d t a) (sfSubstIndex d t b) (sfSubstIndex d t p) $;
+theorem k215QY_shift (d phi a b p y: nat) (hp: $ d <= p $) (hf: $ sfWf phi $):
+  $ sfShift d (k215QY phi a b p y) =
+    k215QY phi (sfShiftIndex d a) (sfShiftIndex d b) (sfShiftIndex d p) (sfShiftIndex d y) $;
+theorem k215QY_subst (d t phi a b p y: nat) (hp: $ d < p $) (hf: $ sfWf phi $):
+  $ sfSubst d t (k215QY phi a b p y) =
+    k215QY phi (sfSubstIndex d t a) (sfSubstIndex d t b) (sfSubstIndex d t p) (sfSubstIndex d t y) $;
+
+-- The L-guard atom: sfLDomain for index 0, sfSubst 0 i sfLDomain for i >= 1.
+theorem k215LD_shift_hi (d: nat) (h: $ 1 <= d $): $ sfShift d sfLDomain = sfLDomain $;
+theorem k215LD_shift0: $ sfShift 0 sfLDomain = sfSubst 0 1 sfLDomain $;
+theorem k215LD_shiftS (d i: nat):
+  $ sfShift d (sfSubst 0 i sfLDomain) = sfSubst 0 (sfShiftIndex d i) sfLDomain $;
+theorem k215LD_subst_hi (d t: nat) (h: $ 1 <= d $): $ sfSubst d t sfLDomain = sfLDomain $;
+theorem k215LD_subst00: $ sfSubst 0 0 sfLDomain = sfLDomain $;
+
+-- Translating the parameter block of the matrix atom by c at depth d (start index d).
+theorem k215AM_at (c d t: nat): $ sfRenameIndex (k215AddMap c) d (d + t) = (d + c) + t $;
+theorem k215QP_am (c d phi a b: nat)
+  (ha: $ sfRenameIndex (k215AddMap c) d a = a $) (hb: $ sfRenameIndex (k215AddMap c) d b = b $)
+  (hf: $ sfWf phi $):
+  $ sfRename (k215AddMap c) d (k215QP phi a b d) = k215QP phi a b (d + c) $;
+
+-- Bounds of the atoms.
+theorem k215QL_bound (phi a b p m: nat) (hf: $ sfBound (2 + m) phi $) (ha: $ a < p $) (hb: $ b < p $):
+  $ sfBound (p + m) (k215QL phi a b p) $;
+theorem k215QY_bound (phi a b p m y: nat) (hf: $ sfBound (2 + m) phi $) (ha: $ a < p $) (hb: $ b < p $)
+  (hy: $ y < p + m $): $ sfBound (p + m) (k215QY phi a b p y) $;
+theorem k215LD_bound0 (n: nat) (h: $ 0 < n $): $ sfBound n sfLDomain $;
+theorem k215LD_boundS (i n: nat) (h: $ i < n $): $ sfBound n (sfSubst 0 i sfLDomain) $;
+
+theorem k215QL_value (phi a b p: nat): $ k215QL phi a b p = sfRelativize sfLDomain (k215QP phi a b p) $;

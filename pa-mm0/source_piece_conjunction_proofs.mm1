@@ -1,0 +1,80 @@
+import "source_piece_pcf_syntax.mm1";
+
+@_ def sfPieceRowProofs (domain level sb sc n d X G: nat): wff =
+ $ sfCLRowProofs (sfPieceRows domain level sb sc d X) G n $;
+
+pub theorem sfPieceConjunction_intro (domain level sb sc n d X G: nat)
+ (hg: $ sfContextWf G $):
+ $ sfPieceRowProofs domain level sb sc n d X G ->
+   nsLocal G (sfPieceConjunction domain level sb sc n d X) $ =
+'(sfCLFold_proof hg);
+
+theorem pcpj_succ_cases (i n: nat): $ i < suc n -> i < n \/ i = n $ =
+'(syl (bi1 leloe) (bi2 leltsuc));
+
+theorem pcpj_extend_lt (F: set) (H: wff) (G n i: nat)
+ (hr: $ H -> sfCLRowProofs F G n $):
+ $ H -> i < n -> nsLocal G (F @ i) $ =
+'(syl sfCLRowProofs_at hr);
+
+theorem pcpj_extend_eq (F: set) (H: wff) (G n i: nat)
+ (hl: $ H -> nsLocal G (F @ n) $):
+ $ H -> i = n -> nsLocal G (F @ i) $ =
+(named '(exp @ mpbird (nsLocaleq2d (appeq2d anr)) (syl hl anl)));
+
+theorem pcpj_extend_point (F: set) (H: wff) (G n i: nat)
+ (hr: $ H -> sfCLRowProofs F G n $) (hl: $ H -> nsLocal G (F @ n) $):
+ $ H -> i < suc n -> nsLocal G (F @ i) $ =
+'(syl5 pcpj_succ_cases (eord (pcpj_extend_lt hr) (pcpj_extend_eq hl)));
+
+theorem pcpj_extend (F: set) (H: wff) (G n: nat)
+ (hr: $ H -> sfCLRowProofs F G n $) (hl: $ H -> nsLocal G (F @ n) $):
+ $ H -> sfCLRowProofs F G (suc n) $ =
+(named '(!! iald i @ pcpj_extend_point hr hl));
+
+@_ def sfPieceFoldProjectionLaw (F: set) (n .G: nat): wff =
+ $ A. G (nsLocal G (sfCLFold F n) -> sfCLRowProofs F G n) $;
+
+theorem pcpj_at (F: set) (n G: nat):
+ $ sfPieceFoldProjectionLaw F n -> nsLocal G (sfCLFold F n) -> sfCLRowProofs F G n $ =
+(named '(!! eale g ,eqtac));
+
+theorem pcpj_base_each (F: set) (G: nat):
+ $ nsLocal G (sfCLFold F 0) -> sfCLRowProofs F G 0 $ =
+(named '(a1i (ax_gen (absurd lt02))));
+
+theorem pcpj_base (F: set): $ sfPieceFoldProjectionLaw F 0 $ =
+(named '(ax_gen pcpj_base_each));
+
+theorem pcpj_step_cond (F: set) (H: wff) (n G: nat)
+ (hi: $ H -> sfPieceFoldProjectionLaw F n $)
+ (hp: $ H -> nsLocal G (sfCLFold F (suc n)) $):
+ $ H -> sfCLRowProofs F G (suc n) $ =
+'(pcpj_extend (mpd (syl sfCLFold_prefix_proof hp) (syl pcpj_at hi))
+ (syl sfCLFold_last_proof hp));
+
+theorem pcpj_step_each (F: set) (n G: nat):
+ $ sfPieceFoldProjectionLaw F n -> nsLocal G (sfCLFold F (suc n)) -> sfCLRowProofs F G (suc n) $ =
+(named '(exp @ pcpj_step_cond anl anr));
+
+theorem pcpj_step (F: set) (n: nat):
+ $ sfPieceFoldProjectionLaw F n -> sfPieceFoldProjectionLaw F (suc n) $ =
+(named '(!! iald G @ pcpj_step_each));
+
+theorem pcpj_all (F: set) (n: nat): $ sfPieceFoldProjectionLaw F n $ =
+(named @ induct '(ind) 'n 'pcpj_base 'pcpj_step);
+
+pub theorem sfPieceFold_project (F: set) (G n: nat):
+ $ nsLocal G (sfCLFold F n) -> sfCLRowProofs F G n $ =
+'(ax_mp pcpj_at pcpj_all);
+
+pub theorem sfPieceConjunction_project (domain level sb sc n d X G: nat):
+ $ nsLocal G (sfPieceConjunction domain level sb sc n d X) ->
+   sfPieceRowProofs domain level sb sc n d X G $ =
+'sfPieceFold_project;
+
+pub theorem sfPieceConjunction_member (domain level sb sc n d X G i: nat):
+ $ nsLocal G (sfPieceConjunction domain level sb sc n d X) -> i < n ->
+   nsLocal G (sfPiecePC domain level (sfPieceCount sb sc i) (sfPieceMatrix sb sc i) d X) $ =
+'(syl6 (bi1 (nsLocal_formula_eq sfPieceRows_value))
+ (syl sfCLRowProofs_at sfPieceConjunction_project));

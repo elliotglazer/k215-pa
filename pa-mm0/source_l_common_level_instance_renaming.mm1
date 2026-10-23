@@ -1,0 +1,42 @@
+import "source_l_common_level_transport.mm1";
+import "source_renaming_depth.mm1";
+
+theorem clir_pair_value (R: set) (k d y i: nat):
+ $ sfComposeMap (sfRenameDepthMap R k) (sfCLPairMap d y) @ i =
+   sfCLPairMap (sfRenameIndex R k d) (sfRenameIndex R k y) @ i $ =
+(named '(eqtr sfComposeMap_value (eqtr sfRenameDepthMap_value
+ (eqtr (trud (sfRenameIndex_congr_index (a1i sfCLPairMap_value)))
+  (cases
+   (eqtr4d (sfRenameIndex_congr_index ifpos) (eqtrd (a1i sfCLPairMap_value) ifpos))
+   (eqtr4d (sfRenameIndex_congr_index ifneg) (eqtrd (a1i sfCLPairMap_value) ifneg)))))));
+
+theorem clir_pair_agree (R: set) (k d y n: nat):
+ $ sfRenameMapAgree (sfComposeMap (sfRenameDepthMap R k) (sfCLPairMap d y))
+   (sfCLPairMap (sfRenameIndex R k d) (sfRenameIndex R k y)) n $ =
+(named '(ax_gen (a1i clir_pair_value)));
+
+pub theorem sfCLInstance_rename (R: set) (k c n d y: nat) (hc: $ sfBound n c $):
+ $ sfRename R k (sfRename (sfCLPairMap d y) 0 c) =
+   sfRename (sfCLPairMap (sfRenameIndex R k d) (sfRenameIndex R k y)) 0 c $ =
+'(eqtr (ax_mp sfRename_mixed_compose (ax_mp sfBound_wf hc))
+ (ax_mp (ax_mp sfCLRename_agreement_zero clir_pair_agree) hc));
+
+pub theorem sfCLOrdinalAt_rename (R: set) (k d: nat):
+ $ sfRename R k (sfCLOrdinalAt d) = sfCLOrdinalAt (sfRenameIndex R k d) $ =
+'(sfCLInstance_rename sfCLOrdinal_bound);
+
+pub theorem sfCLHierarchyAt_rename (R: set) (k d y: nat):
+ $ sfRename R k (sfCLHierarchyAt d y) =
+   sfCLHierarchyAt (sfRenameIndex R k d) (sfRenameIndex R k y) $ =
+'(sfCLInstance_rename sfCLHierarchy_bound);
+
+pub theorem sfCLOrdinalAt_shift_cutoff (k d: nat):
+ $ sfShift k (sfCLOrdinalAt d) = sfCLOrdinalAt (sfShiftIndex k d) $ =
+'(eqtr (eqcom (ax_mp sfRename_successor sfCLOrdinalAt_wf))
+ (eqtr sfCLOrdinalAt_rename (sfCLOrdinalAteq sfRenameIndex_successor)));
+
+pub theorem sfCLHierarchyAt_shift_cutoff (k d y: nat):
+ $ sfShift k (sfCLHierarchyAt d y) =
+   sfCLHierarchyAt (sfShiftIndex k d) (sfShiftIndex k y) $ =
+'(eqtr (eqcom (ax_mp sfRename_successor sfCLHierarchyAt_wf))
+ (eqtr sfCLHierarchyAt_rename (sfCLHierarchyAteq sfRenameIndex_successor sfRenameIndex_successor)));

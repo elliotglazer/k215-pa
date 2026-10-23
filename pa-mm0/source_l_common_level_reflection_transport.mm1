@@ -1,0 +1,56 @@
+import "source_l_common_level_setrel_bounds.mm1";
+import "source_l_common_level_ball_transport.mm1";
+import "source_l_common_level_instance_renaming.mm1";
+import "source_relativization_bounds.mm1";
+
+theorem clrf_matrix_bound (D count phi: nat) (hd: $ sfBound 1 D $) (hp: $ sfBound count phi $):
+ $ sfBound (suc count) (sfIff (sfRelativize D phi) (sfCLSetRel count phi)) $ =
+'(mpbir sfBound_iff (ian
+ (ax_mp (ax_mp sfBound_mono (ax_mp (ax_mp sfRelativize_bound hd) hp)) lesucid)
+ (sfCLSetRel_reflection_bound hp)));
+
+pub theorem sfCLReflection_body_bound (D count phi: nat) (hd: $ sfBound 1 D $) (hp: $ sfBound count phi $):
+ $ sfBound 1 (sfCLBall count 0 (sfIff (sfRelativize D phi) (sfCLSetRel count phi))) $ =
+'(ax_mp (ax_mp sfCLBall_bound
+ (mpbir (sfSchema_bound_index_eq add12) (clrf_matrix_bound hd hp))) lt01S);
+
+pub theorem sfCLReflection_bound (D count phi beta k: nat)
+ (hd: $ sfBound 1 D $) (hp: $ sfBound count phi $) (hb: $ beta < k $):
+ $ sfBound k (sfCLReflection D count phi beta) $ =
+'(mpbir sfBound_sfAll (mpbir sfBound_sfImp (ian
+ (sfCLHierarchyAt_bound (ax_mp (bi1 ltsuc) hb) lt01S)
+ (ax_mp (ax_mp sfBound_mono (sfCLReflection_body_bound hd hp)) (mpbi lesuc le01)))));
+
+pub theorem sfCLReflection_shift (D count phi beta: nat)
+ (hd: $ sfBound 1 D $) (hp: $ sfBound count phi $):
+ $ sfShift 0 (sfCLReflection D count phi beta) = sfCLReflection D count phi (suc beta) $ =
+'(eqtr sfShift_sfAll (nsAll_eq (eqtr sfShift_sfImp (nsImp_eq
+ (eqtr sfCLHierarchyAt_shift_cutoff
+  (sfCLHierarchyAteq (eqtr clbs_index_lift (suceq sfShiftIndex_zero))
+   (ax_mp sfShiftIndex_bound lt01S)))
+ (ax_mp sfShift_bound_identity (sfCLReflection_body_bound hd hp))))));
+
+pub theorem sfCLReflectedPoint_shift (start params count phi beta y: nat)
+ (hp: $ sfBound count phi $):
+ $ sfShift 0 (sfCLReflectedPoint start params count phi beta y) =
+   sfCLReflectedPoint (suc start) params count phi (suc beta) (suc y) $ =
+'(eqtr sfShift_sfAnd (nsAnd_eq sfCLPoint_shift (sfCLReflection_shift sfLDomain_bound hp)));
+
+pub theorem sfCLReflectedPoint_bound (start params count phi beta y k: nat)
+ (hp: $ sfBound count phi $) (hb: $ beta < k $) (hy: $ y < k $):
+ $ sfCLNamesBound start params k -> sfBound k (sfCLReflectedPoint start params count phi beta y) $ =
+'(syl (bi2 sfBound_sfAnd) (iand (sfCLPoint_bound hb hy)
+ (a1i (sfCLReflection_bound sfLDomain_bound hp hb))));
+
+pub theorem sfCLReflectedRecipe_bound (start params count phi k: nat)
+ (hp: $ sfBound count phi $):
+ $ sfCLNamesBound start params k -> sfBound k (sfCLReflectedRecipe start params count phi) $ =
+'(syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfEx)
+ (syl (sfCLReflectedPoint_bound hp (mpbi ltsuc lt01S) lt01S)
+  (syl sfCLNamesBound_shift sfCLNamesBound_shift))));
+
+pub theorem sfCLCommonReflectedLaw_bound (start params count phi k: nat)
+ (hp: $ sfBound count phi $):
+ $ sfCLNamesBound start params k -> sfBound k (sfCLCommonReflectedLaw start params count phi) $ =
+'(syl (bi2 sfBound_sfImp) (iand
+ (sfCLPredicates_bound sfLDomain_bound) (sfCLReflectedRecipe_bound hp)));

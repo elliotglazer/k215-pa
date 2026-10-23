@@ -1,0 +1,138 @@
+import "source_theory.mm0";
+
+def zfcCoreFixed (z: nat): wff = $ z = zfcRefl \/ (z = zfcSym \/ (z = zfcTrans \/ (z = zfcEqElem \/ (z = zfcExt \/ (z = zfcEmpty \/ (z = zfcPair \/ (z = zfcUnion \/ (z = zfcPower \/ (z = zfcOmega))))))))) $;
+
+def zfcCoreAxioms (.z: nat): set =
+$ {z | zfcCoreFixed z \/ (zfcClosedSeparation z \/ zfcClosedReplacement z)} $;
+
+def zfrAxioms (.z: nat): set =
+$ {z | z e. zfcCoreAxioms \/ z = zfcFoundation} $;
+
+def zfcCoreSmallContext: nat =
+$ zfcRefl : (zfcEqElem : (zfcEmpty : (zfcPair : 0))) $;
+
+theorem zfcCoreAxioms_value (z: nat): $ z e. zfcCoreAxioms <-> zfcCoreFixed z \/ (zfcClosedSeparation z \/ zfcClosedReplacement z) $;
+
+theorem zfrAxioms_value (z: nat): $ z e. zfrAxioms <-> z e. zfcCoreAxioms \/ z = zfcFoundation $;
+
+theorem zfcCoreRefl_fixed: $ zfcCoreFixed zfcRefl $;
+
+theorem zfcCoreSym_fixed: $ zfcCoreFixed zfcSym $;
+
+theorem zfcCoreTrans_fixed: $ zfcCoreFixed zfcTrans $;
+
+theorem zfcCoreEqElem_fixed: $ zfcCoreFixed zfcEqElem $;
+
+theorem zfcCoreExt_fixed: $ zfcCoreFixed zfcExt $;
+
+theorem zfcCoreEmpty_fixed: $ zfcCoreFixed zfcEmpty $;
+
+theorem zfcCorePair_fixed: $ zfcCoreFixed zfcPair $;
+
+theorem zfcCoreUnion_fixed: $ zfcCoreFixed zfcUnion $;
+
+theorem zfcCorePower_fixed: $ zfcCoreFixed zfcPower $;
+
+theorem zfcCoreOmega_fixed: $ zfcCoreFixed zfcOmega $;
+
+theorem zfcCoreFixed_zfcFixed (z: nat): $ zfcCoreFixed z -> zfcFixed z $;
+
+theorem zfcCoreFixed_member (z: nat): $ zfcCoreFixed z -> z e. zfcCoreAxioms $;
+
+theorem zfcCoreClosedSeparation_member (z: nat): $ zfcClosedSeparation z -> z e. zfcCoreAxioms $;
+
+theorem zfcCoreClosedReplacement_member (z: nat): $ zfcClosedReplacement z -> z e. zfcCoreAxioms $;
+
+theorem zfcCoreSeparationCode_member (phi n: nat): $ sfBound (suc n) phi -> zfcSeparationCode phi n e. zfcCoreAxioms $;
+
+theorem zfcCoreReplacementCode_member (phi n: nat): $ sfBound (suc (suc n)) phi -> zfcReplacementCode phi n e. zfcCoreAxioms $;
+
+theorem zfcCoreAxioms_zfcAxioms_member (z: nat): $ z e. zfcCoreAxioms -> z e. zfcAxioms $;
+
+theorem zfcCoreAxioms_subset_zfc: $ zfcCoreAxioms C_ zfcAxioms $;
+
+theorem zfcCoreAxioms_zfr_member (z: nat): $ z e. zfcCoreAxioms -> z e. zfrAxioms $;
+
+theorem zfcCoreAxioms_subset_zfr: $ zfcCoreAxioms C_ zfrAxioms $;
+
+theorem zfrSeparationCode_member (phi n: nat): $ sfBound (suc n) phi -> zfcSeparationCode phi n e. zfrAxioms $;
+
+theorem zfrReplacementCode_member (phi n: nat): $ sfBound (suc (suc n)) phi -> zfcReplacementCode phi n e. zfrAxioms $;
+
+theorem zfrFoundation_member: $ zfcFoundation e. zfrAxioms $;
+
+theorem zfrAxioms_zfcAxioms_member (z: nat): $ z e. zfrAxioms -> z e. zfcAxioms $;
+
+theorem zfrAxioms_subset_zfc: $ zfrAxioms C_ zfcAxioms $;
+
+theorem zfcCoreAxioms_formula_closed (z: nat): $ z e. zfcCoreAxioms -> sfBound 0 z $;
+
+theorem zfcCoreAxioms_closed: $ sfTheoryClosed zfcCoreAxioms $;
+
+theorem zfcCoreAxioms_wf (z: nat): $ z e. zfcCoreAxioms -> sfWf z $;
+
+theorem zfrAxioms_formula_closed (z: nat): $ z e. zfrAxioms -> sfBound 0 z $;
+
+theorem zfrAxioms_closed: $ sfTheoryClosed zfrAxioms $;
+
+theorem zfrAxioms_wf (z: nat): $ z e. zfrAxioms -> sfWf z $;
+
+theorem zfcCoreRefl_member: $ zfcRefl e. zfcCoreAxioms $;
+
+theorem zfrRefl_member: $ zfcRefl e. zfrAxioms $;
+
+theorem zfcCoreSym_member: $ zfcSym e. zfcCoreAxioms $;
+
+theorem zfrSym_member: $ zfcSym e. zfrAxioms $;
+
+theorem zfcCoreTrans_member: $ zfcTrans e. zfcCoreAxioms $;
+
+theorem zfrTrans_member: $ zfcTrans e. zfrAxioms $;
+
+theorem zfcCoreEqElem_member: $ zfcEqElem e. zfcCoreAxioms $;
+
+theorem zfrEqElem_member: $ zfcEqElem e. zfrAxioms $;
+
+theorem zfcCoreExt_member: $ zfcExt e. zfcCoreAxioms $;
+
+theorem zfrExt_member: $ zfcExt e. zfrAxioms $;
+
+theorem zfcCoreEmpty_member: $ zfcEmpty e. zfcCoreAxioms $;
+
+theorem zfrEmpty_member: $ zfcEmpty e. zfrAxioms $;
+
+theorem zfcCorePair_member: $ zfcPair e. zfcCoreAxioms $;
+
+theorem zfrPair_member: $ zfcPair e. zfrAxioms $;
+
+theorem zfcCoreUnion_member: $ zfcUnion e. zfcCoreAxioms $;
+
+theorem zfrUnion_member: $ zfcUnion e. zfrAxioms $;
+
+theorem zfcCorePower_member: $ zfcPower e. zfcCoreAxioms $;
+
+theorem zfrPower_member: $ zfcPower e. zfrAxioms $;
+
+theorem zfcCoreOmega_member: $ zfcOmega e. zfcCoreAxioms $;
+
+theorem zfrOmega_member: $ zfcOmega e. zfrAxioms $;
+
+theorem zfcCoreFixed_provable (z: nat): $ zfcCoreFixed z -> sfTheoryProvable zfcCoreAxioms z $;
+
+theorem zfrFoundation_provable: $ sfTheoryProvable zfrAxioms zfcFoundation $;
+
+theorem zfcCoreSmallContext_core: $ sfTheoryContext zfcCoreAxioms zfcCoreSmallContext $;
+
+theorem zfcCoreSmallContext_zfr: $ sfTheoryContext zfrAxioms zfcCoreSmallContext $;
+
+theorem zfcCoreSmallContext_zfc: $ sfTheoryContext zfcAxioms zfcCoreSmallContext $;
+
+theorem zfcCoreSmallContext_wf: $ sfContextWf zfcCoreSmallContext $;
+
+theorem zfcCoreSmallContext_Refl: $ zfcRefl IN zfcCoreSmallContext $;
+
+theorem zfcCoreSmallContext_EqElem: $ zfcEqElem IN zfcCoreSmallContext $;
+
+theorem zfcCoreSmallContext_Empty: $ zfcEmpty IN zfcCoreSmallContext $;
+
+theorem zfcCoreSmallContext_Pair: $ zfcPair IN zfcCoreSmallContext $;

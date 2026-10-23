@@ -1,0 +1,61 @@
+import "pa_source_interpretation_terms.mm1";
+
+import "source_renaming.mm1";
+
+@_ abstract def paTermRenameBody (R: set) (c h: nat): nat = $ if (c = 0) paTermZero
+ (if (sfTag c = 1) (paTermVariable (R @ (sfLeft c)))
+ (if (sfTag c = 2) (paTermSuccessor (h @ (sfLeft c)))
+ (if (sfTag c = 3) (paTermAddition (h @ (sfLeft c)) (h @ (sfRight c)))
+ (if (sfTag c = 4) (paTermMultiplication (h @ (sfLeft c)) (h @ (sfRight c))) paTermZero)))) $;
+
+@_ abstract def paTermRenameStep (R: set) (.h: nat): set = $ \ h, paTermRenameBody R (sfHistoryLength h) h $;
+
+@_ abstract def paTermRename (R: set) (c: nat): nat = $ srec (paTermRenameStep R) c $;
+
+@_ abstract def paTermRenameHistory (R: set) (c .i: nat): nat = $ \. i e. upto c, srec (paTermRenameStep R) i $;
+
+pub theorem paTermRenameStep_apply (R: set) (h: nat): $ paTermRenameStep R @ h = paTermRenameBody R (sfHistoryLength h) h $ = (named '(!! applame j ,eqtac));
+
+pub theorem paTermRenameHistory_size (R: set) (c: nat): $ sfHistoryLength (paTermRenameHistory R c) = c $ = (named '(sreclem eqid));
+
+pub theorem paTermRenameHistory_lookup (R: set) (c a: nat): $ a < c -> paTermRenameHistory R c @ a = paTermRename R a $ = (named '(syl (apprlame sreceq2) (bi2 elupto)));
+
+pub theorem paTermRename_unfold (R: set) (c: nat): $ paTermRename R c = paTermRenameBody R c (paTermRenameHistory R c) $ = (named '(eqtr srecval (eqtr paTermRenameStep_apply (paTermRenameBodyeq eqsid paTermRenameHistory_size eqid))));
+
+theorem paTermRenameHistory_child (R: set) (c a: nat) (hl: $ sfLeft c = a $) (ha: $ a < c $): $ paTermRenameHistory R c @ (sfLeft c) = paTermRename R a $ = (named '(eqtr (appeq2 hl) (paTermRenameHistory_lookup ha)));
+
+theorem paTermRenameHistory_right (R: set) (c a: nat) (hr: $ sfRight c = a $) (ha: $ a < c $): $ paTermRenameHistory R c @ (sfRight c) = paTermRename R a $ = (named '(eqtr (appeq2 hr) (paTermRenameHistory_lookup ha)));
+
+theorem paTermRenameBody_sfMem (R: set) (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 1 $): $ paTermRenameBody R c h = paTermVariable (R @ (sfLeft c)) $ = (named '(eqtr (ifneg h0) (ifpos ht)));
+
+theorem paTermRenameBody_sfEq (R: set) (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 2 $): $ paTermRenameBody R c h = paTermSuccessor (h @ (sfLeft c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))));
+
+theorem paTermRenameBody_sfAnd (R: set) (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 3 $): $ paTermRenameBody R c h = paTermAddition (h @ (sfLeft c)) (h @ (sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht)))));
+
+theorem paTermRenameBody_sfOr (R: set) (c h: nat) (h0: $ c != 0 $) (ht: $ sfTag c = 4 $): $ paTermRenameBody R c h = paTermMultiplication (h @ (sfLeft c)) (h @ (sfRight c)) $ = (named '(eqtr (ifneg h0) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr (ltletr ltsucid lesucid) lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri (ltletr ltsucid lesucid)))) (eqtr (ifneg (mpbir (noteq (eqeq1 ht)) (ltneri ltsucid))) (ifpos ht))))));
+
+pub theorem paTermRename_zero (R: set): $ paTermRename R paTermZero = paTermZero $ = (named '(eqtr paTermRename_unfold (ifpos eqid)));
+
+pub theorem paTermRename_variable (R: set) (i: nat): $ paTermRename R (paTermVariable i) = paTermVariable (R @ i) $ = (named '(eqtr paTermRename_unfold (eqtr (paTermRenameBody_sfMem sfMem_ne_sfBot sfMem_tag) (paTermVariableeq (appeq2 sfMem_left)))));
+
+pub theorem paTermRename_successor (R: set) (a: nat): $ paTermRename R (paTermSuccessor a) = paTermSuccessor (paTermRename R a) $ = (named '(eqtr paTermRename_unfold (eqtr (paTermRenameBody_sfEq sfEq_ne_sfBot sfEq_tag) (paTermSuccessoreq (paTermRenameHistory_child sfEq_left sfEq_left_lt)))));
+
+pub theorem paTermRename_addition (R: set) (a b: nat): $ paTermRename R (paTermAddition a b) = paTermAddition (paTermRename R a) (paTermRename R b) $ = (named '(eqtr paTermRename_unfold (eqtr (paTermRenameBody_sfAnd sfAnd_ne_sfBot sfAnd_tag) (paTermAdditioneq (paTermRenameHistory_child sfAnd_left sfAnd_left_lt) (paTermRenameHistory_right sfAnd_right sfAnd_right_lt)))));
+
+pub theorem paTermRename_multiplication (R: set) (a b: nat): $ paTermRename R (paTermMultiplication a b) = paTermMultiplication (paTermRename R a) (paTermRename R b) $ = (named '(eqtr paTermRename_unfold (eqtr (paTermRenameBody_sfOr sfOr_ne_sfBot sfOr_tag) (paTermMultiplicationeq (paTermRenameHistory_child sfOr_left sfOr_left_lt) (paTermRenameHistory_right sfOr_right sfOr_right_lt)))));
+
+@_ abstract def paTermLiftMap (k .i: nat): set = $ \ i, k + i $;
+
+@_ abstract def paTermLift (k c: nat): nat = $ paTermRename (paTermLiftMap k) c $;
+
+@_ abstract def paTermShiftMap (d .i: nat): set = $ \ i, sfShiftIndex d i $;
+
+@_ abstract def paTermShift (d c: nat): nat = $ paTermRename (paTermShiftMap d) c $;
+
+pub theorem paTermLiftMap_value (k i: nat): $ paTermLiftMap k @ i = k + i $ = (named '(!! applame j ,eqtac));
+
+pub theorem paTermShiftMap_value (d i: nat): $ paTermShiftMap d @ i = sfShiftIndex d i $ = (named '(!! applame j ,eqtac));
+
+pub theorem paTermLift_variable (k i: nat): $ paTermLift k (paTermVariable i) = paTermVariable (k + i) $ = (named '(eqtr paTermRename_variable (paTermVariableeq paTermLiftMap_value)));
+
+pub theorem paTermShift_variable (d i: nat): $ paTermShift d (paTermVariable i) = paTermVariable (sfShiftIndex d i) $ = (named '(eqtr paTermRename_variable (paTermVariableeq paTermShiftMap_value)));

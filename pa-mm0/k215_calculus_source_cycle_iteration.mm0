@@ -1,0 +1,42 @@
+import "k215_calculus_source_cycle_result.mm0";
+
+def k215PCycleLaw (.s: nat): wff =
+ $ A. s k215PProgressResult (k215PEnumConfig s) (k215EnumStep s) $;
+
+def k215PBudget (n: nat) (.s: nat): wff =
+ $ A. s (k215PStatus (k215PIter n (k215PEnumConfig s)) = 4 -> k215EnumIter n s = 0) $;
+
+def k215EnumHaltsFrom (s: nat) (.n: nat): wff =
+ $ E. n k215EnumIter n s = 0 $;
+
+theorem k215PCycleLaw_at (s: nat):
+ $ k215PCycleLaw -> k215PProgressResult (k215PEnumConfig s) (k215EnumStep s) $;
+
+theorem k215PCycleLaw_some (s t: nat):
+ $ k215PCycleLaw -> k215EnumStep s = suc t -> k215PProgress (k215PEnumConfig s) (k215PEnumConfig t) $;
+
+theorem k215PBudget_at (n s: nat):
+ $ k215PBudget n -> k215PStatus (k215PIter n (k215PEnumConfig s)) = 4 -> k215EnumIter n s = 0 $;
+
+theorem k215PBudget_all (n: nat): $ k215PCycleLaw -> k215PBudget n $;
+
+theorem k215EnumHaltsFrom_intro (n s: nat):
+ $ k215EnumIter n s = 0 -> k215EnumHaltsFrom s $;
+
+theorem k215PSource_halts_enum (s: nat):
+ $ k215PCycleLaw -> k215PHaltsFrom (k215PEnumConfig s) -> k215EnumHaltsFrom s $;
+
+theorem k215PCycleLaw_halts (s: nat):
+ $ k215PCycleLaw -> k215POptionHalts (k215EnumStep s) -> k215PHaltsFrom (k215PEnumConfig s) $;
+
+theorem k215POptionHalts_advance (r: nat):
+ $ k215PCycleLaw -> k215POptionHalts (k215EnumAdvance r) -> k215POptionHalts r $;
+
+theorem k215POptionHalts_iter (n r: nat):
+ $ k215PCycleLaw -> k215POptionHalts (k215EnumOptionIter n r) -> k215POptionHalts r $;
+
+theorem k215PEnum_halts_source (s: nat):
+ $ k215PCycleLaw -> k215EnumHaltsFrom s -> k215PHaltsFrom (k215PEnumConfig s) $;
+
+theorem k215PSource_enum_equivalence (s: nat):
+ $ k215PCycleLaw -> (k215PHaltsFrom (k215PEnumConfig s) <-> k215EnumHaltsFrom s) $;

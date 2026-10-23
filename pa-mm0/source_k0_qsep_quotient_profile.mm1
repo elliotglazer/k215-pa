@@ -1,0 +1,31 @@
+import "quotation_substitution.mm1";
+
+import "quotation_binders_absent.mm1";
+
+import "k218q_specialization.mm1";
+
+@_ def sfK0QSepQuotientRawProfile (E: set) (t a c x R phi: nat): nat = $ (kImp (kMem t x) (kImp (kImp (kImp (kMem x c) (kImp (kImp (kMem x a) (kImp (sqQuote (sqEnvCons x E) t R 0 phi) kF)) kF)) (kImp (kImp (kImp (kImp (kMem x a) (kImp (sqQuote (sqEnvCons x E) t R 0 phi) kF)) kF) (kMem x c)) kF)) kF)) $;
+
+pub theorem sfK0QSepQuote_head_substitution (E: set) (n t a c x w R phi: nat) (hf: $ sfBound (suc n) phi $) (hx0: $ x != 0 $)
+ (hxR: $ x < R $) (hwR: $ w < R $)
+ (htx: $ t != x $) (hax: $ a != x $) (hcx: $ c != x $)
+ (hex: $ sqEnvAvoid E n x $):
+ $ kSubst (sqQuote (sqEnvCons x E) t R 0 phi) x w = sqQuote (sqEnvCons w E) t R 0 phi $ =
+'(eqtr (ax_mp (sqQuote_substitution hxR hx0) (ax_mp sfBound_wf hf))
+ (eqtr (sqQuoteeq2 (ax_mp kReplace_miss htx))
+ (ax_mp (sqQuote_environment (ax_mp kReplaceEnvironment_cons_agree hex)) (mpbir (sfBoundeq1 add01) hf))));
+
+pub theorem sfK0QSepQuotient_profile_substitution (E: set) (n t a c x w R phi: nat) (hf: $ sfBound (suc n) phi $) (hx0: $ x != 0 $)
+ (hxR: $ x < R $) (hwR: $ w < R $)
+ (htx: $ t != x $) (hax: $ a != x $) (hcx: $ c != x $)
+ (hex: $ sqEnvAvoid E n x $):
+ $ kSubst (sfK0QSepQuotientRawProfile E t a c x R phi) x w = sfK0QSepQuotientRawProfile E t a c w R phi $ =
+(named '(eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq (ax_mp kReplace_miss htx) kReplace_hit)) (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss hcx))) (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss hax))) (eqtr kSubst_kImp (kImpeq (sfK0QSepQuote_head_substitution hf hx0 hxR hwR htx hax hcx hex) (qsSubst_kF hx0))))) (qsSubst_kF hx0))))) (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kImp (kImpeq (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss hax))) (eqtr kSubst_kImp (kImpeq (sfK0QSepQuote_head_substitution hf hx0 hxR hwR htx hax hcx hex) (qsSubst_kF hx0))))) (qsSubst_kF hx0))) (eqtr kSubst_kMem (kMemeq kReplace_hit (ax_mp kReplace_miss hcx))))) (qsSubst_kF hx0))))) (qsSubst_kF hx0))))));
+
+pub theorem sfK0QSepQuotient_profile_specialization (E: set) (n t a c x w R phi: nat) (hf: $ sfBound (suc n) phi $) (hx0: $ x != 0 $)
+ (hxR: $ x < R $) (hwR: $ w < R $)
+ (htx: $ t != x $) (hax: $ a != x $) (hcx: $ c != x $)
+ (hex: $ sqEnvAvoid E n x $) (hxw: $ x != w $):
+ $ k218QProvable (kImp (kAll x (sfK0QSepQuotientRawProfile E t a c x R phi)) (sfK0QSepQuotientRawProfile E t a c w R phi)) $ =
+'(mpbi (k218QProvableeq (kImpeq2 (sfK0QSepQuotient_profile_substitution hf hx0 hxR hwR htx hax hcx hex)))
+ (ax_mp (ax_mp (ax_mp k218INamed_specialization hxw) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (mpbir kBinderAbsent_kImp (ian (ax_mp (sqQuote_binder_absent hxR) (ax_mp sfBound_wf hf)) kBinderAbsent_kF)))) kBinderAbsent_kF)))) (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (mpbir kBinderAbsent_kImp (ian (ax_mp (sqQuote_binder_absent hxR) (ax_mp sfBound_wf hf)) kBinderAbsent_kF)))) kBinderAbsent_kF)) kBinderAbsent_kMem)) kBinderAbsent_kF)))) kBinderAbsent_kF))))) (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (mpbir kBinderAbsent_kImp (ian (ax_mp (sqQuote_binder_absent hwR) (ax_mp sfBound_wf hf)) kBinderAbsent_kF)))) kBinderAbsent_kF)))) (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian (mpbir kBinderAbsent_kImp (ian kBinderAbsent_kMem (mpbir kBinderAbsent_kImp (ian (ax_mp (sqQuote_binder_absent hwR) (ax_mp sfBound_wf hf)) kBinderAbsent_kF)))) kBinderAbsent_kF)) kBinderAbsent_kMem)) kBinderAbsent_kF)))) kBinderAbsent_kF))))));

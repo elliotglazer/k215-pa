@@ -1,0 +1,33 @@
+import "k218q_quotient_atom_laws.mm0";
+
+def k218QAGuardName (p: wff) (x: nat): nat = $ if p x 0 $;
+
+def k218QAGuardBase (p: wff) (k: nat): nat = $ if p k 1 $;
+
+theorem k218QAGuardBase_positive (p: wff) (k: nat) (hk: $ p -> 0 < k $): $ 0 < k218QAGuardBase p k $;
+
+theorem k218QAGuardName_below (p: wff) (k x: nat) (hx: $ p -> x < k $): $ k218QAGuardName p x < k218QAGuardBase p k $;
+
+def k218QASymLaw (k t x y: nat): nat = $ (kImp (k218QAEmpty t k) (kImp (sqEqual t x y k) (sqEqual t y x k))) $;
+
+def k218QASymBounds (k t x y: nat): wff = $ (0 < k /\ (t < k /\ (x < k /\ y < k))) $;
+
+theorem k218QA_sym_uniform (k t x y: nat): $ k218QASymBounds k t x y -> k218QProvable (k218QASymLaw k t x y) $;
+
+def k218QATransLaw (k t x y z: nat): nat = $ (kImp (k218QAEmpty t k) (kImp (sqEqual t x y k) (kImp (sqEqual t y z k) (sqEqual t x z k)))) $;
+
+def k218QATransBounds (k t x y z: nat): wff = $ (0 < k /\ (t < k /\ (x < k /\ (y < k /\ z < k)))) $;
+
+theorem k218QA_trans_uniform (k t x y z: nat): $ k218QATransBounds k t x y z -> k218QProvable (k218QATransLaw k t x y z) $;
+
+def k218QAMemberLeftLaw (k t x xp y: nat): nat = $ (kImp (k218QAEmpty t k) (kImp (sqEqual t x xp k) (kImp (sqMember t x y k) (sqMember t xp y k)))) $;
+
+def k218QAMemberLeftBounds (k t x xp y: nat): wff = $ (0 < k /\ (t < k /\ (x < k /\ (xp < k /\ y < k)))) $;
+
+theorem k218QA_member_left_uniform (k t x xp y: nat): $ k218QAMemberLeftBounds k t x xp y -> k218QProvable (k218QAMemberLeftLaw k t x xp y) $;
+
+def k218QAMemberRightLaw (k t x y yp: nat): nat = $ (kImp (k218QAEmpty t k) (kImp (sqEqual t y yp k) (kImp (sqMember t x y k) (sqMember t x yp k)))) $;
+
+def k218QAMemberRightBounds (k t x y yp: nat): wff = $ (0 < k /\ (t < k /\ (x < k /\ (y < k /\ yp < k)))) $;
+
+theorem k218QA_member_right_uniform (k t x y yp: nat): $ k218QAMemberRightBounds k t x y yp -> k218QProvable (k218QAMemberRightLaw k t x y yp) $;

@@ -1,0 +1,62 @@
+import "source_reflection_transfer_tv_existential.mm1";
+
+import "source_domain_discharge.mm1";
+
+-- Private deduction of selected PA premises. The generated proofs use only
+-- modus ponens, a1i and the existing freshness-checked generalization rule.
+do {
+ (def tvExistDedCache (atom-map!))
+ (def tvExistDedLift @ letrec ([(go t mask)
+  (def key (atom-app 'tvExistDed_ t "_" (apply string-append (map (fn (m) (if m "1" "0")) mask))))
+  @ if (def? (lookup tvExistDedCache key)) key @ begin
+  (def decl (get-decl t))
+  @ match decl @ ('theorem _ bis hs ret _ pf)
+  (insert! tvExistDedCache key key)
+  (def G 'tvDG)
+  (def hmap (apply atom-map! (map (fn (h m) (list (hd h) m)) hs mask)))
+  (def newhs (map (fn (h m) (if m (list (hd h) '(im ,G ,(nth 1 h))) h)) hs mask))
+  (def out (pf))
+  (def (liftConst p ty) '(a1i ,G ,ty ,p))
+  (def trans @ letrec ([(rec p)
+   @ match p
+   [(? atom? h) (list h (lookup hmap h))]
+   [(':conv ty cv pr)
+    @ match (rec pr) @ (pr2 dep)
+    @ if dep (list '(:conv (im ,G ,ty) (im ,G ,cv) ,pr2) #t) (list p #f)]
+   [(f . args)
+    @ match (get-decl f) @ (_ _ bs phs pret ...)
+    (def nargs (len bs))
+    (def tas (map (fn (i) (nth i args)) (range 0 nargs)))
+    (def pas (map (fn (i) (nth i args)) (range nargs (len args))))
+    (def prs (map rec pas))
+    (def deps (map (fn (x) (nth 1 x)) prs))
+    @ if (not (apply or deps)) (list p #f) @ begin
+    (def aps (map hd prs))
+    @ if {f == 'ax_mp} (begin
+      (def a (nth 0 tas)) (def b (nth 1 tas))
+      (list '(mpd ,G ,a ,b
+        ,(if (nth 1 deps) (nth 1 aps) (liftConst (nth 1 aps) a))
+        ,(if (nth 0 deps) (nth 0 aps) (liftConst (nth 0 aps) '(im ,a ,b)))) #t))
+    @ if {f == 'ax_gen}
+      (list '(iald ,(nth 0 tas) ,G ,(nth 1 tas) ,(hd aps)) #t)
+      (list (cons (go f deps) (cons G (append tas aps))) #t)]] ) rec)
+  (def result (trans (nth 1 out)))
+  (def resultProof (if (nth 1 result) (hd result) (liftConst (hd result) ret)))
+  (add-thm! key (cons '(,G wff ()) bis) newhs '(im ,G ,ret) ()
+    (fn () (list (hd out) resultProof)))
+  key] ) go)
+};
+
+
+
+pub theorem sfTVEx_project_closed(G A Q:nat)(hG:$ sfTheoryContext sfClosedFormulaClass G $)(ha:$ sfWf A $)(hq:$ sfBound 0 Q $)(hp:$ nsLocal (A : G) Q $): $ nsLocal G (sfImp (sfEx A) Q) $ = (named '(ax_mp nsLocal_II (ax_mp (ax_mp (sfLocal_exE (ax_mp sfBound_wf hq)) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex ha) (ax_mp (ax_mp sfTheoryContext_wf ssid) hG)))) sfContext_member_head)) (mpbir (nsLocal_formula_eq (ax_mp sfShift_closed_identity hq)) (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian ha sfContextShift_wf))) (sfTVContextSub_cons (sfTVClosedContext_sub_shift hG (mpbir sfContextWf_cons (ian (ax_mp sfWf_ex ha) (ax_mp (ax_mp sfTheoryContext_wf ssid) hG))) sfContextSub_cons)) hp)))));
+
+theorem sftvexist_support_local(T:set)(G A Q:nat)(ht:$ sfTheoryClosed T $)(hq:$ sfBound 0 Q $)(hG:$ sfTheoryContext T G $)(hi:$ nsLocal G (sfImp A Q) $): $ sfTheoryProvable T (sfImp (sfEx A) Q) $ = (named '(ax_mp (sfTheory_local hG) (sfTVEx_project_closed (ax_mp (ax_mp sfTheoryContext_mono ht) hG) (ax_mp anl (ax_mp (bi1 sfWf_imp_iff) (ax_mp nsLocal_wf hi))) hq (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_weaken (mpbir sfContextWf_cons (ian (ax_mp anl (ax_mp (bi1 sfWf_imp_iff) (ax_mp nsLocal_wf hi))) (ax_mp (ax_mp sfTheoryContext_wf ht) hG)))) sfContextSub_cons hi)) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp anl (ax_mp (bi1 sfWf_imp_iff) (ax_mp nsLocal_wf hi))) (ax_mp (ax_mp sfTheoryContext_wf ht) hG)))) sfContext_member_head)))));
+
+do (tvExistDedLift 'sftvexist_support_local '(#f #f #t #t));
+
+theorem sftvexist_support(T:set)(G A Q:nat)(ht:$ sfTheoryClosed T $)(hq:$ sfBound 0 Q $): $ (sfTheoryContext T G /\ nsLocal G (sfImp A Q)) -> sfTheoryProvable T (sfImp (sfEx A) Q) $ = (named '(tvExistDed_sftvexist_support_local_0011 ht hq anl anr));
+
+pub theorem sfTVTheory_exists_closed(T:set)(A Q:nat)(ht:$ sfTheoryClosed T $)(hq:$ sfBound 0 Q $)(hi:$ sfTheoryProvable T (sfImp A Q) $)(he:$ sfTheoryProvable T (sfEx A) $): $ sfTheoryProvable T Q $ = (named '(ax_mp (ax_mp sfTheoryProvable_mp (ax_mp (eex (sftvexist_support ht hq)) (ax_mp sfTheoryProvable_support hi))) he));
+
+pub theorem sfTVTheory_syllogism(T:set)(A B C:nat)(ht:$ sfTheoryClosed T $)(hAB:$ sfTheoryProvable T (sfImp A B) $)(hBC:$ sfTheoryProvable T (sfImp B C) $): $ sfTheoryProvable T (sfImp A C) $ = (named '(ax_mp (ax_mp (sfTheory_lemma_context ht) (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hAB) (mpbir sfTheoryContext_cons (ian (mpbir sfTheoryProofClass_value hBC) sfTheoryContext_nil))))) (ax_mp nsLocal_II (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp anl (ax_mp (bi1 sfWf_imp_iff) (ax_mp sfTheoryProvable_wf hAB))) (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hAB) (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hBC) sfContextWf_nil))))))) (ax_mp sfContext_member_tail (ax_mp sfContext_member_tail sfContext_member_head)))) (ax_mp (ax_mp nsLocal_mp (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp anl (ax_mp (bi1 sfWf_imp_iff) (ax_mp sfTheoryProvable_wf hAB))) (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hAB) (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hBC) sfContextWf_nil))))))) (ax_mp sfContext_member_tail sfContext_member_head))) (ax_mp (ax_mp nsLocal_hyp (mpbir sfContextWf_cons (ian (ax_mp anl (ax_mp (bi1 sfWf_imp_iff) (ax_mp sfTheoryProvable_wf hAB))) (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hAB) (mpbir sfContextWf_cons (ian (ax_mp sfTheoryProvable_wf hBC) sfContextWf_nil))))))) sfContext_member_head))))));

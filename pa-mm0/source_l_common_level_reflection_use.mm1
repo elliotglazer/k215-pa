@@ -1,0 +1,47 @@
+import "source_l_common_level_ball_use.mm1";
+import "source_l_common_level_instance_renaming.mm1";
+
+@_ def sfCLMatrixComparison (D count phi: nat): nat =
+ $ sfIff (sfRelativize D phi) (sfCLSetRel count phi) $;
+
+@_ def sfCLReflectedInstance (R: set) (D count phi y: nat): nat =
+ $ sfRename (sfCLBallEnv R count) 0 (sfSubst count y (sfCLMatrixComparison D count phi)) $;
+
+theorem clru_subst_index (k t i: nat):
+ $ sfRenameIndex (sfSubstDepthMap k t) 0 i = sfSubstIndex k t i $ =
+'(eqtr sfRenameIndex_zero sfSubstDepthMap_value);
+
+theorem clru_hierarchy_subst (beta y: nat):
+ $ sfSubst 0 y (sfCLHierarchyAt (suc beta) 0) = sfCLHierarchyAt beta y $ =
+'(eqtr (ax_mp sfSubst_as_map sfCLHierarchyAt_wf)
+ (eqtr sfCLHierarchyAt_rename
+  (sfCLHierarchyAteq (eqtr clru_subst_index sfSubstIndex_successor)
+   (eqtr clru_subst_index sfSubstIndex_zero))));
+
+theorem clru_ball_subst (D count phi y: nat):
+ $ sfSubst 0 y (sfCLBall count 0 (sfCLMatrixComparison D count phi)) =
+   sfCLBall count y (sfSubst count y (sfCLMatrixComparison D count phi)) $ =
+'(eqtr sfCLBall_subst
+ (sfCLBalleq eqid sfSubstIndex_zero (sfSubsteq1 add02)));
+
+theorem clru_reflection_subst (D count phi beta y: nat):
+ $ sfSubst 0 y (sfImp (sfCLHierarchyAt (suc beta) 0)
+    (sfCLBall count 0 (sfCLMatrixComparison D count phi))) =
+   sfImp (sfCLHierarchyAt beta y)
+    (sfCLBall count y (sfSubst count y (sfCLMatrixComparison D count phi))) $ =
+'(eqtr sfSubst_sfImp
+ (trud (sfImpeqd (a1i clru_hierarchy_subst) (a1i clru_ball_subst))));
+
+pub theorem sfCLReflection_use_block (D G count phi beta y: nat)
+ (hp: $ nsLocal G (sfCLReflection D count phi beta) $)
+ (hl: $ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ nsLocal G (sfCLBall count y (sfSubst count y (sfCLMatrixComparison D count phi))) $ =
+'(ax_mp (ax_mp nsLocal_mp
+ (mpbi (nsLocal_formula_eq clru_reflection_subst) (ax_mp nsLocal_AllE hp))) hl);
+
+pub theorem sfCLReflection_use_instance (R: set) (D G count phi beta y: nat)
+ (hp: $ nsLocal G (sfCLReflection D count phi beta) $)
+ (hl: $ nsLocal G (sfCLHierarchyAt beta y) $):
+ $ sfCLRowProofs (sfCLBallMemberRows R y) G count ->
+   nsLocal G (sfCLReflectedInstance R D count phi y) $ =
+'(mpd (a1i (sfCLReflection_use_block hp hl)) sfCLBall_eliminate);

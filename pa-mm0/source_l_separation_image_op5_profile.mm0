@@ -1,0 +1,65 @@
+import "source_l_separation_image_op5.mm0";
+
+def sfLSeparationOp5Value(T:set)(phi A x:nat):nat =
+ $ sfCLSetRel A (sfRename (sqEnvCons x T) 0 phi) $;
+
+def sfLSeparationOp5ExtensionSome(s x:nat):nat =
+ $ sfEx (sfPieceRepExtension (suc s) (suc x) 0) $;
+
+def sfLSeparationOp5Extensions(s:nat):nat =
+ $ sfAll (sfLSeparationOp5ExtensionSome (suc s) 0) $;
+
+theorem sfLSeparationOp5Value_shift(T:set)(phi A x:nat)(hf:$ sfWf phi $):
+ $ sfShift 0 (sfLSeparationOp5Value T phi A x) =
+   sfLSeparationOp5Value (sfComposeMap sfSuccessorMap T) phi (suc A) (suc x) $;
+
+theorem sfLSeparationOp5Named_shift(n phi R A:nat)(hb:$ sfBound n phi $):
+ $ sfShift 0 (sfPieceDefinableNamed n phi R A) = sfPieceDefinableNamed n phi (suc R) (suc A) $;
+
+theorem sfLSeparationOp5Env_shift(T:set)(n s:nat):
+ $ sfShift 0 (sfPieceEnv T n s) = sfPieceEnv (sfComposeMap sfSuccessorMap T) n (suc s) $;
+
+theorem sfLSeparationOp5Members_shift(T:set)(G A n:nat)
+ (hm:$ sfReflectionDnMembers T G A n $):
+ $ sfReflectionDnMembers (sfComposeMap sfSuccessorMap T) (sfContextShift G) (suc A) n $;
+
+theorem sfLSeparationOp5SC_realize(T:set)(G n phi R A s x:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hr:$ nsLocal G (sfPieceDefinableNamed (suc n) phi R A) $)
+ (hm:$ sfReflectionDnMembers T G A n $)
+ (hx:$ nsLocal G (sfMem x A) $)
+ (hs:$ nsLocal G (sfPieceEnv T n s) $)
+ (hsc:$ nsLocal G (sfLSeparationOp5SC R s x) $):
+ $ nsLocal G (sfLSeparationOp5Value T phi A x) $;
+
+theorem sfLSeparationOp5SC_from_realization(T:set)(G n phi R A s x:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hr:$ nsLocal G (sfPieceDefinableNamed (suc n) phi R A) $)
+ (hm:$ sfReflectionDnMembers T G A n $)
+ (hx:$ nsLocal G (sfMem x A) $)
+ (hs:$ nsLocal G (sfPieceEnv T n s) $)
+ (he:$ nsLocal G (sfLSeparationOp5ExtensionSome s x) $)
+ (hv:$ nsLocal G (sfLSeparationOp5Value T phi A x) $):
+ $ nsLocal G (sfLSeparationOp5SC R s x) $;
+
+theorem sfLSeparationOp5_realization_point(T:set)(G n phi R A s x Y:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hr:$ nsLocal G (sfPieceDefinableNamed (suc n) phi R A) $)
+ (hm:$ sfReflectionDnMembers T G A n $)
+ (hs:$ nsLocal G (sfPieceEnv T n s) $)
+ (ho:$ nsLocal G (sfIff (sfMem x Y) (sfAnd (sfMem x A) (sfLSeparationOp5SC R s x))) $)
+ (he:$ nsLocal G (sfLSeparationOp5ExtensionSome s x) $):
+ $ nsLocal G (sfIff (sfMem x Y) (sfAnd (sfMem x A) (sfLSeparationOp5Value T phi A x))) $;
+
+theorem sfLSeparationOp5Value_binder(T:set)(phi A:nat)(hf:$ sfWf phi $):
+ $ sfLSeparationOp5Value (sfComposeMap sfSuccessorMap T) phi (suc A) 0 =
+   sfCLSetRel (suc A) (sfRename T 1 phi) $;
+
+theorem sfLSeparationOp5_to_definable_profile(T:set)(G n phi R A s Y:nat)
+ (hb:$ sfBound (suc n) phi $)
+ (hr:$ nsLocal G (sfPieceDefinableNamed (suc n) phi R A) $)
+ (hm:$ sfReflectionDnMembers T G A n $)
+ (hs:$ nsLocal G (sfPieceEnv T n s) $)
+ (ho:$ nsLocal G (sfLSeparationOp5 R s A Y) $)
+ (he:$ nsLocal G (sfLSeparationOp5Extensions s) $):
+ $ nsLocal G (sfPieceDefinableProfile T phi A Y) $;

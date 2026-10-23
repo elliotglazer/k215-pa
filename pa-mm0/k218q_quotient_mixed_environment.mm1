@@ -1,0 +1,27 @@
+import "k218q_quotient_mixed_rebase.mm1";
+
+@_ abstract def k218QMixedEnv (H S T n t k .i: nat): wff = $ A. i (i < n -> k218QMixed H t k (sqNumericEnvironment S @ i) (sqNumericEnvironment T @ i)) $;
+
+pub theorem k218QMixedEnv_at (H S T n t k i: nat): $ k218QMixedEnv H S T n t k -> i < n -> k218QMixed H t k (sqNumericEnvironment S @ i) (sqNumericEnvironment T @ i) $ = (named '(!! eale j ,eqtac));
+
+pub theorem k218QMixed_same (H t k x: nat): $ k218QMixed H t k x x $ = '(ax_mp orl eqid);
+
+pub theorem k218QMixedEnv_same (H S n t k: nat): $ k218QMixedEnv H S S n t k $ = (named '(ax_gen (a1i k218QMixed_same)));
+
+pub theorem k218QMixed_refine (G: wff) (H J t k x y: nat) (hs: $ G -> k218IContextSupports J H $) (hr: $ G -> k218QMixed H t k x y $): $ G -> k218QMixed J t k x y $ = '(mpd hr (eorda (syl orl anr) (syl orr (mpd anr (syl k218IHypProvable_refine_d (syl hs anl))))));
+
+pub theorem k218QMixedEnv_refine (G: wff) (H J S T n t k: nat) (hs: $ G -> k218IContextSupports J H $) (hr: $ G -> k218QMixedEnv H S T n t k $): $ G -> k218QMixedEnv J S T n t k $ = (named '(!! iald i @ exp @ k218QMixed_refine (syl hs anl) (mpd anr (syl k218QMixedEnv_at (syl hr anl)))));
+
+pub theorem k218QMixedEnv_weaken (H a S T n t k: nat): $ k218QMixedEnv H S T n t k -> k218QMixedEnv (a : H) S T n t k $ = '(k218QMixedEnv_refine (a1i k218IContextSupports_weaken) id);
+
+pub theorem k218QMixedEnv_sym (G: wff) (H S T n t k: nat) (hs: $ G -> sqEnvironmentSafe S n t k $) (ht: $ G -> sqEnvironmentSafe T n t k $) (he: $ G -> k218IHypProvable H (k218QAEmpty t k) $) (hr: $ G -> k218QMixedEnv H S T n t k $): $ G -> k218QMixedEnv H T S n t k $ = (named '(!! iald i @ exp @ k218QM_sym (iand (syl sqEnvironmentSafe_positive (syl hs anl)) (iand (syl sqEnvironmentSafe_tag (syl hs anl)) (iand (mpd anr (syl sqEnvironmentSafe_index (syl hs anl))) (mpd anr (syl sqEnvironmentSafe_index (syl ht anl)))))) (syl he anl) (mpd anr (syl k218QMixedEnv_at (syl hr anl)))));
+
+pub theorem k218QMixedEnv_rebase (G: wff) (H S T n t k l: nat) (hsk: $ G -> sqEnvironmentSafe S n t k $) (htk: $ G -> sqEnvironmentSafe T n t k $) (hsl: $ G -> sqEnvironmentSafe S n t l $) (htl: $ G -> sqEnvironmentSafe T n t l $) (hr: $ G -> k218QMixedEnv H S T n t k $): $ G -> k218QMixedEnv H S T n t l $ = (named '(!! iald i @ exp @ k218QM_mixed_rebase (syl sqEnvironmentSafe_positive (syl hsk anl)) (syl sqEnvironmentSafe_positive (syl hsl anl)) (syl sqEnvironmentSafe_tag (syl hsk anl)) (syl sqEnvironmentSafe_tag (syl hsl anl)) (mpd anr (syl sqEnvironmentSafe_index (syl hsk anl))) (mpd anr (syl sqEnvironmentSafe_index (syl hsl anl))) (mpd anr (syl sqEnvironmentSafe_index (syl htk anl))) (mpd anr (syl sqEnvironmentSafe_index (syl htl anl))) (mpd anr (syl k218QMixedEnv_at (syl hr anl)))));
+
+theorem k218QM_env_cons_zero (H S T n t k z: nat): $ k218QMixedEnv H S T n t k -> 0 < suc n -> k218QMixed H t k (sqNumericEnvironment (z : S) @ 0) (sqNumericEnvironment (z : T) @ 0) $ = '(a1i (a1i (mpbir (k218QMixedeq eqid eqid eqid sqNumericEnvironment_cons_zero sqNumericEnvironment_cons_zero) k218QMixed_same)));
+
+theorem k218QM_env_cons_suc (H S T n t k z i: nat): $ k218QMixedEnv H S T n t k -> suc i < suc n -> k218QMixed H t k (sqNumericEnvironment (z : S) @ suc i) (sqNumericEnvironment (z : T) @ suc i) $ = '(syl6 (bi2 (k218QMixedeq eqid eqid eqid sqNumericEnvironment_cons_suc sqNumericEnvironment_cons_suc)) (syl5 (bi2 ltsuc) k218QMixedEnv_at));
+
+theorem k218QM_env_cons_at (H S T n t k z i: nat): $ k218QMixedEnv H S T n t k -> i < suc n -> k218QMixed H t k (sqNumericEnvironment (z : S) @ i) (sqNumericEnvironment (z : T) @ i) $ = (named @ induct '(ind) 'i 'k218QM_env_cons_zero '(a1i k218QM_env_cons_suc));
+
+pub theorem k218QMixedEnv_cons (H S T n t k z: nat): $ k218QMixedEnv H S T n t k -> k218QMixedEnv H (z : S) (z : T) (suc n) t k $ = (named '(!! iald i @ k218QM_env_cons_at));

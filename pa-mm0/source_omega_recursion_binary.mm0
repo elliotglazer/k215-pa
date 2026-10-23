@@ -1,0 +1,27 @@
+import "source_theory_prefix.mm0";
+
+import "source_substitution_renaming.mm0";
+
+import "source_renaming_extensional.mm0";
+
+def sfORBinaryMap (x y .i: nat): set = $ \ i, if (i = 1) y x $;
+
+def sfORBinary (phi x y: nat): nat = $ sfRename (sfORBinaryMap x y) 0 phi $;
+
+theorem sfORBinaryMap_value (x y i: nat): $ sfORBinaryMap x y @ i = if (i = 1) y x $;
+
+theorem sfORBinaryMap_compose (R: set) (x y i: nat): $ sfComposeMap R (sfORBinaryMap x y) @ i = sfORBinaryMap (R @ x) (R @ y) @ i $;
+
+theorem sfORBinary_congr (phi x y xx yy: nat) (hf: $ sfWf phi $) (hx: $ x = xx $) (hy: $ y = yy $): $ sfORBinary phi x y = sfORBinary phi xx yy $;
+
+theorem sfORBinary_wf (phi x y: nat): $ sfWf (sfORBinary phi x y) $;
+
+theorem sfORBinary_rename (R: set) (phi x y: nat) (hf: $ sfWf phi $): $ sfRename R 0 (sfORBinary phi x y) = sfORBinary phi (R @ x) (R @ y) $;
+
+theorem sfORBinary_rename_depth (R: set) (k phi x y: nat) (hf: $ sfWf phi $): $ sfRename R k (sfORBinary phi x y) = sfORBinary phi (sfRenameDepthMap R k @ x) (sfRenameDepthMap R k @ y) $;
+
+theorem sfORBinary_shift (phi k x y: nat) (hf: $ sfWf phi $): $ sfShift k (sfORBinary phi x y) = sfORBinary phi (sfShiftIndex k x) (sfShiftIndex k y) $;
+
+theorem sfORBinary_subst (phi k t x y: nat) (hf: $ sfWf phi $): $ sfSubst k t (sfORBinary phi x y) = sfORBinary phi (sfSubstIndex k t x) (sfSubstIndex k t y) $;
+
+theorem sfORBinary_bound (phi x y m: nat) (hb: $ sfBound 2 phi $) (hx: $ x < m $) (hy: $ y < m $): $ sfBound m (sfORBinary phi x y) $;

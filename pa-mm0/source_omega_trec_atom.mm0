@@ -1,0 +1,28 @@
+-- Four-place instance of a step formula S for transfinite recursion (lane L08).
+-- sfTRS S a b c d renames the free variables 0, 1, 2 of S to a, b, c and every other free
+-- variable to d: the Rocq Z_trec convention SR S f xi v p = S[f .: xi .: v .: p .: (fun _ => p)].
+import "source_theory_prefix.mm0";
+
+import "source_substitution_renaming.mm0";
+
+import "source_renaming_extensional.mm0";
+
+def sfTRMap (a b c d .i: nat): set = $ \ i, if (i = 0) a (if (i = 1) b (if (i = 2) c d)) $;
+
+def sfTRS (phi a b c d: nat): nat = $ sfRename (sfTRMap a b c d) 0 phi $;
+
+theorem sfTRMap_value (a b c d i: nat): $ sfTRMap a b c d @ i = if (i = 0) a (if (i = 1) b (if (i = 2) c d)) $;
+
+theorem sfTRMap_compose (R: set) (a b c d i: nat): $ sfComposeMap R (sfTRMap a b c d) @ i = sfTRMap (R @ a) (R @ b) (R @ c) (R @ d) @ i $;
+
+theorem sfTRS_congr (phi a b c d aP bP cP dP: nat) (hf: $ sfWf phi $) (ha: $ a = aP $) (hb: $ b = bP $) (hc: $ c = cP $) (hd: $ d = dP $): $ sfTRS phi a b c d = sfTRS phi aP bP cP dP $;
+
+theorem sfTRS_wf (phi a b c d: nat): $ sfWf (sfTRS phi a b c d) $;
+
+theorem sfTRS_rename_depth (R: set) (k phi a b c d: nat) (hf: $ sfWf phi $): $ sfRename R k (sfTRS phi a b c d) = sfTRS phi (sfRenameDepthMap R k @ a) (sfRenameDepthMap R k @ b) (sfRenameDepthMap R k @ c) (sfRenameDepthMap R k @ d) $;
+
+theorem sfTRS_shift (phi k a b c d: nat) (hf: $ sfWf phi $): $ sfShift k (sfTRS phi a b c d) = sfTRS phi (sfShiftIndex k a) (sfShiftIndex k b) (sfShiftIndex k c) (sfShiftIndex k d) $;
+
+theorem sfTRS_subst (phi k t a b c d: nat) (hf: $ sfWf phi $): $ sfSubst k t (sfTRS phi a b c d) = sfTRS phi (sfSubstIndex k t a) (sfSubstIndex k t b) (sfSubstIndex k t c) (sfSubstIndex k t d) $;
+
+theorem sfTRS_bound (phi a b c d m: nat) (hb4: $ sfBound 4 phi $) (ha: $ a < m $) (hb: $ b < m $) (hc: $ c < m $) (hd: $ d < m $): $ sfBound m (sfTRS phi a b c d) $;

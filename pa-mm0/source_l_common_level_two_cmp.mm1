@@ -1,0 +1,15 @@
+import "source_l_common_level_two_wf.mm1";
+import "source_reflection_transfer_ordinal_comparison.mm1";
+
+-- The common-level ordinal predicate is literally the least-ordinal predicate.
+theorem cl2c_code: $ sfCLOrdinal = sfLeastOrdinalPredicate $ = 'eqid;
+
+pub theorem sfCL2_reflection_ordinal (d: nat): $ sfReflectionOrdinalAt d = sfCLOrdinalAt d $ =
+'(eqcom (eqtr sfCLOrdinalAt_subst (sfSubsteq eqid eqid cl2c_code)));
+
+pub theorem sfCL2Cmp_eq: $ sfCL2Cmp = sfReflectionOrdinalSubsetCompare $ =
+'(nsAll_eq (nsAll_eq (nsImp_eq (eqcom sfCL2_reflection_ordinal)
+  (nsImp_eq (eqcom sfCL2_reflection_ordinal) eqid))));
+
+pub theorem sfCL2Cmp_zfr: $ sfTheoryProvable zfrAxioms sfCL2Cmp $ =
+'(mpbir (sfTheoryProvableeq2 sfCL2Cmp_eq) sfReflectionOrdinalSubsetCompare_zfr);

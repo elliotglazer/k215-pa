@@ -1,0 +1,374 @@
+import "quotation_binders.mm1";
+import "source_substitution.mm1";
+
+theorem qSS_shift_below (E: set) (z k d j: nat):
+ $ j < d -> sfNamedIndex (sqEnvCons z E) k d (sfShiftIndex d j) = sfNamedIndex E k d j $ =
+'(eqtrd (sfNamedIndexeq4d sfShiftIndex_bound) @
+ eqtrd sfNamedIndex_bound (eqcomd sfNamedIndex_bound));
+theorem qSS_suc_free (d j: nat): $ ~j < d -> ~suc j < d $ =
+'(syl (bi1 lenlt) (syl (mpi lesucid letr) (bi2 lenlt)));
+theorem qSS_shift_free (E: set) (z k d j: nat):
+ $ ~j < d -> sfNamedIndex (sqEnvCons z E) k d (sfShiftIndex d j) = sfNamedIndex E k d j $ =
+'(eqtrd (sfNamedIndexeq4d sfShiftIndex_free) @
+ eqtrd (syl sfNamedIndex_free qSS_suc_free) @
+ eqtrd (appeq2d (syl sucsub (bi2 lenlt))) @
+ eqtrd (a1i sqEnvCons_suc) (eqcomd sfNamedIndex_free));
+pub theorem sfNamedIndex_source_shift (E: set) (z k d j: nat):
+ $ sfNamedIndex (sqEnvCons z E) k d (sfShiftIndex d j) = sfNamedIndex E k d j $ =
+'(cases qSS_shift_below qSS_shift_free);
+
+theorem qSS_subst_below (E: set) (i k d j: nat):
+ $ j < d -> sfNamedIndex E k d (sfSubstIndex d i j) =
+   sfNamedIndex (sqEnvCons (E @ i) E) k d j $ =
+'(eqtrd (sfNamedIndexeq4d sfSubstIndex_bound) @
+ eqtrd sfNamedIndex_bound (eqcomd sfNamedIndex_bound));
+theorem qSS_subst_hit (E: set) (i k d: nat):
+ $ sfNamedIndex E k d (sfSubstIndex d i d) =
+   sfNamedIndex (sqEnvCons (E @ i) E) k d d $ =
+'(eqtr (sfNamedIndexeq4 sfSubstIndex_hit) @
+ eqtr (sfNamedIndex_free (mpbi lenlt leaddid2)) @
+ eqtr (appeq2 pncan) @ eqcom @
+ eqtr (sfNamedIndex_free (mpbi lenlt leid)) @
+ eqtr (appeq2 subid) sqEnvCons_zero);
+theorem qSS_subst_equal (E: set) (i k d j: nat):
+ $ j = d -> sfNamedIndex E k d (sfSubstIndex d i j) =
+   sfNamedIndex (sqEnvCons (E @ i) E) k d j $ =
+'(eqtrd (sfNamedIndexeq4d (sfSubstIndexeq3d id)) @
+ eqtrd (a1i qSS_subst_hit) (eqcomd (sfNamedIndexeq4d id)));
+theorem qSS_pred_free (d j: nat): $ d < j -> ~j - 1 < d $ =
+'(syl (bi1 lenlt) (syl (bi1 (leeq1 sucsub1)) lesub1i));
+theorem qSS_sub_swap (d j: nat): $ j - 1 - d = j - d - 1 $ =
+'(eqtr subsub (eqtr (subeq2 addcom) (eqcom subsub)));
+theorem qSS_cons_nonzero (E: set) (x j: nat):
+ $ j != 0 -> sqEnvCons x E @ j = E @ (j - 1) $ =
+'(eqtrd (a1i sqEnvCons_value) ifneg);
+theorem qSS_subst_above (E: set) (i k d j: nat):
+ $ d < j -> sfNamedIndex E k d (sfSubstIndex d i j) =
+   sfNamedIndex (sqEnvCons (E @ i) E) k d j $ =
+'(eqtrd (sfNamedIndexeq4d sfSubstIndex_above) @
+ eqtrd (syl sfNamedIndex_free qSS_pred_free) @
+ eqtrd (a1i (appeq2 qSS_sub_swap)) @ eqcomd @
+ eqtrd (syl sfNamedIndex_free (syl (bi1 lenlt) ltle)) @
+ syl qSS_cons_nonzero (syl (bi1 lt01) (bi1 subpos)));
+pub theorem sfNamedIndex_source_subst (E: set) (i k d j: nat):
+ $ sfNamedIndex E k d (sfSubstIndex d i j) =
+   sfNamedIndex (sqEnvCons (E @ i) E) k d j $ =
+'(cases qSS_subst_equal (syl (eor qSS_subst_below qSS_subst_above) (bi1 neltlt)));
+
+-- BEGIN GENERATED SOURCE OPERATIONS
+
+@_ abstract def ntSourceShiftClass (E: set) (k z .c .d: nat): set =
+$ {c | A. d (sfNamedTemplate (sqEnvCons z E) k d (sfShift d c) = sfNamedTemplate E k d (c))} $;
+
+pub theorem ntSourceShift_value {d: nat} (E: set) (k z: nat) (c: nat):
+ $ c e. ntSourceShiftClass E k z <-> A. d (sfNamedTemplate (sqEnvCons z E) k d (sfShift d c) = sfNamedTemplate E k d (c)) $ =
+(named '(elabe ,eqtac));
+
+theorem ntSourceShift_depth (E: set) (k z: nat) (d c: nat):
+ $ A. j (sfNamedTemplate (sqEnvCons z E) k j (sfShift j c) = sfNamedTemplate E k j (c)) -> sfNamedTemplate (sqEnvCons z E) k d (sfShift d c) = sfNamedTemplate E k d (c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem ntSourceShift_at (E: set) (k z: nat) (d c: nat):
+ $ c e. ntSourceShiftClass E k z -> sfNamedTemplate (sqEnvCons z E) k d (sfShift d c) = sfNamedTemplate E k d (c) $ =
+(named '(syl ntSourceShift_depth {(bi1 ntSourceShift_value) :
+ $ c e. ntSourceShiftClass E k z -> A. j (sfNamedTemplate (sqEnvCons z E) k j (sfShift j c) = sfNamedTemplate E k j (c)) $}));
+
+theorem ntSourceShift_bot (E: set) (k z: nat): $ sfBot e. ntSourceShiftClass E k z $ =
+(named '(mpbir ntSourceShift_value @ ax_gen @ eqtr (sfNamedTemplateeq4 sfShift_bot) @
+ eqtr sfNamedTemplate_bot (eqcom sfNamedTemplate_bot)));
+
+theorem ntSourceShift_mem (E: set) (k z: nat) (a b: nat):
+ $ sfMem a b e. ntSourceShiftClass E k z $ =
+(named '(mpbir ntSourceShift_value @ ax_gen @ eqtr (sfNamedTemplateeq4 sfShift_sfMem) @
+ eqtr sfNamedTemplate_sfMem (eqtr (kMemeq sfNamedIndex_source_shift sfNamedIndex_source_shift) (eqcom sfNamedTemplate_sfMem))));
+
+theorem ntSourceShift_eq (E: set) (k z: nat) (a b: nat):
+ $ sfEq a b e. ntSourceShiftClass E k z $ =
+(named '(mpbir ntSourceShift_value @ ax_gen @ eqtr (sfNamedTemplateeq4 sfShift_sfEq) @
+ eqtr sfNamedTemplate_sfEq (eqtr (kEqeq sfNamedIndex_source_shift sfNamedIndex_source_shift) (eqcom sfNamedTemplate_sfEq))));
+
+theorem ntSourceShift_atomic (E: set) (k z: nat): $ sfAtomicClosed (ntSourceShiftClass E k z) $ =
+(named '(ax_gen @ ax_gen @ ian ntSourceShift_mem ntSourceShift_eq));
+
+theorem ntSourceShift_and (E: set) (k z: nat) (a b: nat):
+ $ a e. ntSourceShiftClass E k z /\ b e. ntSourceShiftClass E k z -> sfAnd a b e. ntSourceShiftClass E k z $ =
+(named '(mpbird (a1i ntSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfShift_sfAnd)) @ eqtrd (a1i sfNamedTemplate_sfAnd) @
+ eqtrd (kAndeqd (syl ntSourceShift_at anl) (syl ntSourceShift_at anr))
+ (a1i (eqcom sfNamedTemplate_sfAnd))));
+
+theorem ntSourceShift_or (E: set) (k z: nat) (a b: nat):
+ $ a e. ntSourceShiftClass E k z /\ b e. ntSourceShiftClass E k z -> sfOr a b e. ntSourceShiftClass E k z $ =
+(named '(mpbird (a1i ntSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfShift_sfOr)) @ eqtrd (a1i sfNamedTemplate_sfOr) @
+ eqtrd (kDisjeqd (syl ntSourceShift_at anl) (syl ntSourceShift_at anr))
+ (a1i (eqcom sfNamedTemplate_sfOr))));
+
+theorem ntSourceShift_imp (E: set) (k z: nat) (a b: nat):
+ $ a e. ntSourceShiftClass E k z /\ b e. ntSourceShiftClass E k z -> sfImp a b e. ntSourceShiftClass E k z $ =
+(named '(mpbird (a1i ntSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfShift_sfImp)) @ eqtrd (a1i sfNamedTemplate_sfImp) @
+ eqtrd (kImpeqd (syl ntSourceShift_at anl) (syl ntSourceShift_at anr))
+ (a1i (eqcom sfNamedTemplate_sfImp))));
+
+theorem ntSourceShift_binary (E: set) (k z: nat): $ sfBinaryClosed (ntSourceShiftClass E k z) $ =
+(named '(ax_gen @ ax_gen @ iand (iand ntSourceShift_and ntSourceShift_or) ntSourceShift_imp));
+
+theorem ntSourceShift_all (E: set) (k z: nat) (a: nat):
+ $ a e. ntSourceShiftClass E k z -> sfAll a e. ntSourceShiftClass E k z $ =
+(named '(mpbird (a1i ntSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfShift_sfAll)) @ eqtrd (a1i sfNamedTemplate_sfAll) @
+ eqtrd (kAlleqd eqidd ntSourceShift_at) (a1i (eqcom sfNamedTemplate_sfAll))));
+
+theorem ntSourceShift_ex (E: set) (k z: nat) (a: nat):
+ $ a e. ntSourceShiftClass E k z -> sfEx a e. ntSourceShiftClass E k z $ =
+(named '(mpbird (a1i ntSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfShift_sfEx)) @ eqtrd (a1i sfNamedTemplate_sfEx) @
+ eqtrd (kExistseqd eqidd ntSourceShift_at) (a1i (eqcom sfNamedTemplate_sfEx))));
+
+theorem ntSourceShift_quantifier (E: set) (k z: nat): $ sfQuantifierClosed (ntSourceShiftClass E k z) $ =
+(named '(ax_gen @ iand ntSourceShift_all ntSourceShift_ex));
+
+theorem ntSourceShift_closed (E: set) (k z: nat): $ sfConstructionClosed (ntSourceShiftClass E k z) $ =
+'(ian (ian (ian ntSourceShift_bot ntSourceShift_atomic) ntSourceShift_binary) ntSourceShift_quantifier);
+
+pub theorem sfNamedTemplate_source_shift (E: set) (k z d c: nat):
+ $ sfWf c -> sfNamedTemplate (sqEnvCons z E) k d (sfShift d c) = sfNamedTemplate E k d (c) $ =
+'(syl ntSourceShift_at (ax_mp sfWf_induction ntSourceShift_closed));
+
+@_ abstract def ntSourceSubstClass (E: set) (k i .c .d: nat): set =
+$ {c | A. d (sfNamedTemplate E k d (sfSubst d i c) = sfNamedTemplate (sqEnvCons (E @ i) E) k d (c))} $;
+
+pub theorem ntSourceSubst_value {d: nat} (E: set) (k i: nat) (c: nat):
+ $ c e. ntSourceSubstClass E k i <-> A. d (sfNamedTemplate E k d (sfSubst d i c) = sfNamedTemplate (sqEnvCons (E @ i) E) k d (c)) $ =
+(named '(elabe ,eqtac));
+
+theorem ntSourceSubst_depth (E: set) (k i: nat) (d c: nat):
+ $ A. j (sfNamedTemplate E k j (sfSubst j i c) = sfNamedTemplate (sqEnvCons (E @ i) E) k j (c)) -> sfNamedTemplate E k d (sfSubst d i c) = sfNamedTemplate (sqEnvCons (E @ i) E) k d (c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem ntSourceSubst_at (E: set) (k i: nat) (d c: nat):
+ $ c e. ntSourceSubstClass E k i -> sfNamedTemplate E k d (sfSubst d i c) = sfNamedTemplate (sqEnvCons (E @ i) E) k d (c) $ =
+(named '(syl ntSourceSubst_depth {(bi1 ntSourceSubst_value) :
+ $ c e. ntSourceSubstClass E k i -> A. j (sfNamedTemplate E k j (sfSubst j i c) = sfNamedTemplate (sqEnvCons (E @ i) E) k j (c)) $}));
+
+theorem ntSourceSubst_bot (E: set) (k i: nat): $ sfBot e. ntSourceSubstClass E k i $ =
+(named '(mpbir ntSourceSubst_value @ ax_gen @ eqtr (sfNamedTemplateeq4 sfSubst_bot) @
+ eqtr sfNamedTemplate_bot (eqcom sfNamedTemplate_bot)));
+
+theorem ntSourceSubst_mem (E: set) (k i: nat) (a b: nat):
+ $ sfMem a b e. ntSourceSubstClass E k i $ =
+(named '(mpbir ntSourceSubst_value @ ax_gen @ eqtr (sfNamedTemplateeq4 sfSubst_sfMem) @
+ eqtr sfNamedTemplate_sfMem (eqtr (kMemeq sfNamedIndex_source_subst sfNamedIndex_source_subst) (eqcom sfNamedTemplate_sfMem))));
+
+theorem ntSourceSubst_eq (E: set) (k i: nat) (a b: nat):
+ $ sfEq a b e. ntSourceSubstClass E k i $ =
+(named '(mpbir ntSourceSubst_value @ ax_gen @ eqtr (sfNamedTemplateeq4 sfSubst_sfEq) @
+ eqtr sfNamedTemplate_sfEq (eqtr (kEqeq sfNamedIndex_source_subst sfNamedIndex_source_subst) (eqcom sfNamedTemplate_sfEq))));
+
+theorem ntSourceSubst_atomic (E: set) (k i: nat): $ sfAtomicClosed (ntSourceSubstClass E k i) $ =
+(named '(ax_gen @ ax_gen @ ian ntSourceSubst_mem ntSourceSubst_eq));
+
+theorem ntSourceSubst_and (E: set) (k i: nat) (a b: nat):
+ $ a e. ntSourceSubstClass E k i /\ b e. ntSourceSubstClass E k i -> sfAnd a b e. ntSourceSubstClass E k i $ =
+(named '(mpbird (a1i ntSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfSubst_sfAnd)) @ eqtrd (a1i sfNamedTemplate_sfAnd) @
+ eqtrd (kAndeqd (syl ntSourceSubst_at anl) (syl ntSourceSubst_at anr))
+ (a1i (eqcom sfNamedTemplate_sfAnd))));
+
+theorem ntSourceSubst_or (E: set) (k i: nat) (a b: nat):
+ $ a e. ntSourceSubstClass E k i /\ b e. ntSourceSubstClass E k i -> sfOr a b e. ntSourceSubstClass E k i $ =
+(named '(mpbird (a1i ntSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfSubst_sfOr)) @ eqtrd (a1i sfNamedTemplate_sfOr) @
+ eqtrd (kDisjeqd (syl ntSourceSubst_at anl) (syl ntSourceSubst_at anr))
+ (a1i (eqcom sfNamedTemplate_sfOr))));
+
+theorem ntSourceSubst_imp (E: set) (k i: nat) (a b: nat):
+ $ a e. ntSourceSubstClass E k i /\ b e. ntSourceSubstClass E k i -> sfImp a b e. ntSourceSubstClass E k i $ =
+(named '(mpbird (a1i ntSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfSubst_sfImp)) @ eqtrd (a1i sfNamedTemplate_sfImp) @
+ eqtrd (kImpeqd (syl ntSourceSubst_at anl) (syl ntSourceSubst_at anr))
+ (a1i (eqcom sfNamedTemplate_sfImp))));
+
+theorem ntSourceSubst_binary (E: set) (k i: nat): $ sfBinaryClosed (ntSourceSubstClass E k i) $ =
+(named '(ax_gen @ ax_gen @ iand (iand ntSourceSubst_and ntSourceSubst_or) ntSourceSubst_imp));
+
+theorem ntSourceSubst_all (E: set) (k i: nat) (a: nat):
+ $ a e. ntSourceSubstClass E k i -> sfAll a e. ntSourceSubstClass E k i $ =
+(named '(mpbird (a1i ntSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfSubst_sfAll)) @ eqtrd (a1i sfNamedTemplate_sfAll) @
+ eqtrd (kAlleqd eqidd ntSourceSubst_at) (a1i (eqcom sfNamedTemplate_sfAll))));
+
+theorem ntSourceSubst_ex (E: set) (k i: nat) (a: nat):
+ $ a e. ntSourceSubstClass E k i -> sfEx a e. ntSourceSubstClass E k i $ =
+(named '(mpbird (a1i ntSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sfNamedTemplateeq4 sfSubst_sfEx)) @ eqtrd (a1i sfNamedTemplate_sfEx) @
+ eqtrd (kExistseqd eqidd ntSourceSubst_at) (a1i (eqcom sfNamedTemplate_sfEx))));
+
+theorem ntSourceSubst_quantifier (E: set) (k i: nat): $ sfQuantifierClosed (ntSourceSubstClass E k i) $ =
+(named '(ax_gen @ iand ntSourceSubst_all ntSourceSubst_ex));
+
+theorem ntSourceSubst_closed (E: set) (k i: nat): $ sfConstructionClosed (ntSourceSubstClass E k i) $ =
+'(ian (ian (ian ntSourceSubst_bot ntSourceSubst_atomic) ntSourceSubst_binary) ntSourceSubst_quantifier);
+
+pub theorem sfNamedTemplate_source_substitution (E: set) (k i d c: nat):
+ $ sfWf c -> sfNamedTemplate E k d (sfSubst d i c) = sfNamedTemplate (sqEnvCons (E @ i) E) k d (c) $ =
+'(syl ntSourceSubst_at (ax_mp sfWf_induction ntSourceSubst_closed));
+
+@_ abstract def qqSourceShiftClass (E: set) (t k z .c .d: nat): set =
+$ {c | A. d (sqQuote (sqEnvCons z E) t k d (sfShift d c) = sqQuote E t k d (c))} $;
+
+pub theorem qqSourceShift_value {d: nat} (E: set) (t k z: nat) (c: nat):
+ $ c e. qqSourceShiftClass E t k z <-> A. d (sqQuote (sqEnvCons z E) t k d (sfShift d c) = sqQuote E t k d (c)) $ =
+(named '(elabe ,eqtac));
+
+theorem qqSourceShift_depth (E: set) (t k z: nat) (d c: nat):
+ $ A. j (sqQuote (sqEnvCons z E) t k j (sfShift j c) = sqQuote E t k j (c)) -> sqQuote (sqEnvCons z E) t k d (sfShift d c) = sqQuote E t k d (c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem qqSourceShift_at (E: set) (t k z: nat) (d c: nat):
+ $ c e. qqSourceShiftClass E t k z -> sqQuote (sqEnvCons z E) t k d (sfShift d c) = sqQuote E t k d (c) $ =
+(named '(syl qqSourceShift_depth {(bi1 qqSourceShift_value) :
+ $ c e. qqSourceShiftClass E t k z -> A. j (sqQuote (sqEnvCons z E) t k j (sfShift j c) = sqQuote E t k j (c)) $}));
+
+theorem qqSourceShift_bot (E: set) (t k z: nat): $ sfBot e. qqSourceShiftClass E t k z $ =
+(named '(mpbir qqSourceShift_value @ ax_gen @ eqtr (sqQuoteeq5 sfShift_bot) @
+ eqtr sqQuote_bot (eqcom sqQuote_bot)));
+
+theorem qqSourceShift_mem (E: set) (t k z: nat) (a b: nat):
+ $ sfMem a b e. qqSourceShiftClass E t k z $ =
+(named '(mpbir qqSourceShift_value @ ax_gen @ eqtr (sqQuoteeq5 sfShift_sfMem) @
+ eqtr sqQuote_sfMem (eqtr (sqMembereq eqid sfNamedIndex_source_shift sfNamedIndex_source_shift eqid) (eqcom sqQuote_sfMem))));
+
+theorem qqSourceShift_eq (E: set) (t k z: nat) (a b: nat):
+ $ sfEq a b e. qqSourceShiftClass E t k z $ =
+(named '(mpbir qqSourceShift_value @ ax_gen @ eqtr (sqQuoteeq5 sfShift_sfEq) @
+ eqtr sqQuote_sfEq (eqtr (sqEqualeq eqid sfNamedIndex_source_shift sfNamedIndex_source_shift eqid) (eqcom sqQuote_sfEq))));
+
+theorem qqSourceShift_atomic (E: set) (t k z: nat): $ sfAtomicClosed (qqSourceShiftClass E t k z) $ =
+(named '(ax_gen @ ax_gen @ ian qqSourceShift_mem qqSourceShift_eq));
+
+theorem qqSourceShift_and (E: set) (t k z: nat) (a b: nat):
+ $ a e. qqSourceShiftClass E t k z /\ b e. qqSourceShiftClass E t k z -> sfAnd a b e. qqSourceShiftClass E t k z $ =
+(named '(mpbird (a1i qqSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfShift_sfAnd)) @ eqtrd (a1i sqQuote_sfAnd) @
+ eqtrd (kAndeqd (syl qqSourceShift_at anl) (syl qqSourceShift_at anr))
+ (a1i (eqcom sqQuote_sfAnd))));
+
+theorem qqSourceShift_or (E: set) (t k z: nat) (a b: nat):
+ $ a e. qqSourceShiftClass E t k z /\ b e. qqSourceShiftClass E t k z -> sfOr a b e. qqSourceShiftClass E t k z $ =
+(named '(mpbird (a1i qqSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfShift_sfOr)) @ eqtrd (a1i sqQuote_sfOr) @
+ eqtrd (kDisjeqd (syl qqSourceShift_at anl) (syl qqSourceShift_at anr))
+ (a1i (eqcom sqQuote_sfOr))));
+
+theorem qqSourceShift_imp (E: set) (t k z: nat) (a b: nat):
+ $ a e. qqSourceShiftClass E t k z /\ b e. qqSourceShiftClass E t k z -> sfImp a b e. qqSourceShiftClass E t k z $ =
+(named '(mpbird (a1i qqSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfShift_sfImp)) @ eqtrd (a1i sqQuote_sfImp) @
+ eqtrd (kImpeqd (syl qqSourceShift_at anl) (syl qqSourceShift_at anr))
+ (a1i (eqcom sqQuote_sfImp))));
+
+theorem qqSourceShift_binary (E: set) (t k z: nat): $ sfBinaryClosed (qqSourceShiftClass E t k z) $ =
+(named '(ax_gen @ ax_gen @ iand (iand qqSourceShift_and qqSourceShift_or) qqSourceShift_imp));
+
+theorem qqSourceShift_all (E: set) (t k z: nat) (a: nat):
+ $ a e. qqSourceShiftClass E t k z -> sfAll a e. qqSourceShiftClass E t k z $ =
+(named '(mpbird (a1i qqSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfShift_sfAll)) @ eqtrd (a1i sqQuote_sfAll) @
+ eqtrd (kAlleqd eqidd (kImpeqd eqidd qqSourceShift_at)) (a1i (eqcom sqQuote_sfAll))));
+
+theorem qqSourceShift_ex (E: set) (t k z: nat) (a: nat):
+ $ a e. qqSourceShiftClass E t k z -> sfEx a e. qqSourceShiftClass E t k z $ =
+(named '(mpbird (a1i qqSourceShift_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfShift_sfEx)) @ eqtrd (a1i sqQuote_sfEx) @
+ eqtrd (kExistseqd eqidd (kAndeqd eqidd qqSourceShift_at)) (a1i (eqcom sqQuote_sfEx))));
+
+theorem qqSourceShift_quantifier (E: set) (t k z: nat): $ sfQuantifierClosed (qqSourceShiftClass E t k z) $ =
+(named '(ax_gen @ iand qqSourceShift_all qqSourceShift_ex));
+
+theorem qqSourceShift_closed (E: set) (t k z: nat): $ sfConstructionClosed (qqSourceShiftClass E t k z) $ =
+'(ian (ian (ian qqSourceShift_bot qqSourceShift_atomic) qqSourceShift_binary) qqSourceShift_quantifier);
+
+pub theorem sqQuote_source_shift (E: set) (t k z d c: nat):
+ $ sfWf c -> sqQuote (sqEnvCons z E) t k d (sfShift d c) = sqQuote E t k d (c) $ =
+'(syl qqSourceShift_at (ax_mp sfWf_induction qqSourceShift_closed));
+
+@_ abstract def qqSourceSubstClass (E: set) (t k i .c .d: nat): set =
+$ {c | A. d (sqQuote E t k d (sfSubst d i c) = sqQuote (sqEnvCons (E @ i) E) t k d (c))} $;
+
+pub theorem qqSourceSubst_value {d: nat} (E: set) (t k i: nat) (c: nat):
+ $ c e. qqSourceSubstClass E t k i <-> A. d (sqQuote E t k d (sfSubst d i c) = sqQuote (sqEnvCons (E @ i) E) t k d (c)) $ =
+(named '(elabe ,eqtac));
+
+theorem qqSourceSubst_depth (E: set) (t k i: nat) (d c: nat):
+ $ A. j (sqQuote E t k j (sfSubst j i c) = sqQuote (sqEnvCons (E @ i) E) t k j (c)) -> sqQuote E t k d (sfSubst d i c) = sqQuote (sqEnvCons (E @ i) E) t k d (c) $ =
+(named '(!! eale j ,eqtac));
+
+theorem qqSourceSubst_at (E: set) (t k i: nat) (d c: nat):
+ $ c e. qqSourceSubstClass E t k i -> sqQuote E t k d (sfSubst d i c) = sqQuote (sqEnvCons (E @ i) E) t k d (c) $ =
+(named '(syl qqSourceSubst_depth {(bi1 qqSourceSubst_value) :
+ $ c e. qqSourceSubstClass E t k i -> A. j (sqQuote E t k j (sfSubst j i c) = sqQuote (sqEnvCons (E @ i) E) t k j (c)) $}));
+
+theorem qqSourceSubst_bot (E: set) (t k i: nat): $ sfBot e. qqSourceSubstClass E t k i $ =
+(named '(mpbir qqSourceSubst_value @ ax_gen @ eqtr (sqQuoteeq5 sfSubst_bot) @
+ eqtr sqQuote_bot (eqcom sqQuote_bot)));
+
+theorem qqSourceSubst_mem (E: set) (t k i: nat) (a b: nat):
+ $ sfMem a b e. qqSourceSubstClass E t k i $ =
+(named '(mpbir qqSourceSubst_value @ ax_gen @ eqtr (sqQuoteeq5 sfSubst_sfMem) @
+ eqtr sqQuote_sfMem (eqtr (sqMembereq eqid sfNamedIndex_source_subst sfNamedIndex_source_subst eqid) (eqcom sqQuote_sfMem))));
+
+theorem qqSourceSubst_eq (E: set) (t k i: nat) (a b: nat):
+ $ sfEq a b e. qqSourceSubstClass E t k i $ =
+(named '(mpbir qqSourceSubst_value @ ax_gen @ eqtr (sqQuoteeq5 sfSubst_sfEq) @
+ eqtr sqQuote_sfEq (eqtr (sqEqualeq eqid sfNamedIndex_source_subst sfNamedIndex_source_subst eqid) (eqcom sqQuote_sfEq))));
+
+theorem qqSourceSubst_atomic (E: set) (t k i: nat): $ sfAtomicClosed (qqSourceSubstClass E t k i) $ =
+(named '(ax_gen @ ax_gen @ ian qqSourceSubst_mem qqSourceSubst_eq));
+
+theorem qqSourceSubst_and (E: set) (t k i: nat) (a b: nat):
+ $ a e. qqSourceSubstClass E t k i /\ b e. qqSourceSubstClass E t k i -> sfAnd a b e. qqSourceSubstClass E t k i $ =
+(named '(mpbird (a1i qqSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfSubst_sfAnd)) @ eqtrd (a1i sqQuote_sfAnd) @
+ eqtrd (kAndeqd (syl qqSourceSubst_at anl) (syl qqSourceSubst_at anr))
+ (a1i (eqcom sqQuote_sfAnd))));
+
+theorem qqSourceSubst_or (E: set) (t k i: nat) (a b: nat):
+ $ a e. qqSourceSubstClass E t k i /\ b e. qqSourceSubstClass E t k i -> sfOr a b e. qqSourceSubstClass E t k i $ =
+(named '(mpbird (a1i qqSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfSubst_sfOr)) @ eqtrd (a1i sqQuote_sfOr) @
+ eqtrd (kDisjeqd (syl qqSourceSubst_at anl) (syl qqSourceSubst_at anr))
+ (a1i (eqcom sqQuote_sfOr))));
+
+theorem qqSourceSubst_imp (E: set) (t k i: nat) (a b: nat):
+ $ a e. qqSourceSubstClass E t k i /\ b e. qqSourceSubstClass E t k i -> sfImp a b e. qqSourceSubstClass E t k i $ =
+(named '(mpbird (a1i qqSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfSubst_sfImp)) @ eqtrd (a1i sqQuote_sfImp) @
+ eqtrd (kImpeqd (syl qqSourceSubst_at anl) (syl qqSourceSubst_at anr))
+ (a1i (eqcom sqQuote_sfImp))));
+
+theorem qqSourceSubst_binary (E: set) (t k i: nat): $ sfBinaryClosed (qqSourceSubstClass E t k i) $ =
+(named '(ax_gen @ ax_gen @ iand (iand qqSourceSubst_and qqSourceSubst_or) qqSourceSubst_imp));
+
+theorem qqSourceSubst_all (E: set) (t k i: nat) (a: nat):
+ $ a e. qqSourceSubstClass E t k i -> sfAll a e. qqSourceSubstClass E t k i $ =
+(named '(mpbird (a1i qqSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfSubst_sfAll)) @ eqtrd (a1i sqQuote_sfAll) @
+ eqtrd (kAlleqd eqidd (kImpeqd eqidd qqSourceSubst_at)) (a1i (eqcom sqQuote_sfAll))));
+
+theorem qqSourceSubst_ex (E: set) (t k i: nat) (a: nat):
+ $ a e. qqSourceSubstClass E t k i -> sfEx a e. qqSourceSubstClass E t k i $ =
+(named '(mpbird (a1i qqSourceSubst_value) @ !! iald d @
+ eqtrd (a1i (sqQuoteeq5 sfSubst_sfEx)) @ eqtrd (a1i sqQuote_sfEx) @
+ eqtrd (kExistseqd eqidd (kAndeqd eqidd qqSourceSubst_at)) (a1i (eqcom sqQuote_sfEx))));
+
+theorem qqSourceSubst_quantifier (E: set) (t k i: nat): $ sfQuantifierClosed (qqSourceSubstClass E t k i) $ =
+(named '(ax_gen @ iand qqSourceSubst_all qqSourceSubst_ex));
+
+theorem qqSourceSubst_closed (E: set) (t k i: nat): $ sfConstructionClosed (qqSourceSubstClass E t k i) $ =
+'(ian (ian (ian qqSourceSubst_bot qqSourceSubst_atomic) qqSourceSubst_binary) qqSourceSubst_quantifier);
+
+pub theorem sqQuote_source_substitution (E: set) (t k i d c: nat):
+ $ sfWf c -> sqQuote E t k d (sfSubst d i c) = sqQuote (sqEnvCons (E @ i) E) t k d (c) $ =
+'(syl qqSourceSubst_at (ax_mp sfWf_induction qqSourceSubst_closed));

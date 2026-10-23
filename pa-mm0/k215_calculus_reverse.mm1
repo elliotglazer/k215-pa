@@ -1,0 +1,111 @@
+-- Distinct SeedG abstract search. Explicit replay, independently checked; no literal-TM correspondence is assumed.
+import "k215_calculus_compile.mm1";
+import "k215_calculus_search.mm1";
+
+do (apply (register-eqd 'k218EnumState) '(k218EnumStateeqd));
+do (apply (register-eqd 'k215EnumStep) '(k215EnumStepeqd));
+do (apply (register-eqd 'k215EnumIter) '(k215EnumItereqd));
+do (apply (register-eqd 'k215AXResult) '(k215AXResulteqd));
+do (apply (register-eqd 'k215ProgramPrefix) '(k215ProgramPrefixeqd));
+do (apply (register-eqd 'k215NipPrefix) '(k215NipPrefixeqd));
+do (apply (register-eqd 'k215CmdNIP) '(k215CmdNIPeqd));
+do (apply (register-eqd 'k215CmdDROP) '(k215CmdDROPeqd));
+
+-- The source SUFFIX is DROP; NIP; NIP.
+@_ def k215TerminalProgram: nat = $ k215CmdDROP 0 : k215NipsProgram 2 $;
+@_ def k215TerminalPrefix (r: nat): nat = $ k215CmdDROP (k215NipPrefix 2 r) $;
+pub theorem k215TerminalProgram_prefix (r: nat):
+ $ k215ProgramPrefix k215TerminalProgram r = suc (k215TerminalPrefix r) $ =
+ '(eqtr k215CompilePrefix_DROP (suceq (k215CmdDROPeq k215NipsProgram_prefix)));
+pub theorem k215TerminalProgram_len: $ len k215TerminalProgram = 3 $ =
+ '(eqtr lenS (suceq k215NipsProgram_len));
+
+theorem k215Terminal_last_step (r np w: nat):
+ $ k215EnumStep (k218EnumState (k215NipPrefix 1 r) np 0 w 0 1) = 0 $ =
+ '(eqtr (k215EnumStepeq (k218EnumStateeq1
+    (eqtr k215NipPrefix_succ (suceq (k215CmdNIPeq k215NipPrefix_zero)))))
+   (eqtr k215StepNIP_continue (ifpos eqid)));
+pub theorem k215Terminal_halts (r np w: nat):
+ $ k215EnumIter 3 (k218EnumState (k215ProgramPrefix k215TerminalProgram r) np 1 w 0 0) = 0 $ =
+ '(eqtr (k215Iter_after_step (eqtr (k215EnumStepeq (k218EnumStateeq1 k215TerminalProgram_prefix)) k215StepDROP_continue))
+   (eqtr (k215Iter_after_step (k215StepNips_pair (necom d1ne0)))
+     (eqtr k215MP_iter_one k215Terminal_last_step)));
+
+theorem k215RunsTo_then_halt (n m s t: nat) (ht: $ k215EnumIter m t = 0 $):
+ $ k215RunsTo n s t -> k215EnumIter (n + m) s = 0 $ =
+ '(eori k215EnumIter_halted (eqtrd k215EnumIter_splice (a1i ht)));
+pub theorem k215Realizes_terminal_halts (L t w np: nat):
+ $ k215Realizes L 1 ->
+   k215EnumIter (len L + 3)
+    (k218EnumState (k215ProgramPrefix (L ++ k215TerminalProgram) 0) np t w 0 0) = 0 $ =
+ '(eqtrd (a1i (k215EnumItereq2 (k218EnumStateeq1 k215ProgramPrefix_append)))
+   (syl (k215RunsTo_then_halt k215Terminal_halts) k215Realizes_run));
+
+-- START is AX(c=1,y=1,x=1). It resets D and H for every input.
+-- This candidate is the raw first command; its subsequent commands are
+-- successor-wrapped by k215ProgramPrefix.
+@_ def k215WitnessProgram (L: nat): nat =
+ $ k215CmdAX 1 1 1 0 : (L ++ k215TerminalProgram) $;
+@_ def k215WitnessCandidate (L: nat): nat =
+ $ k215CmdAX 1 1 1 (k215ProgramPrefix (L ++ k215TerminalProgram) 0) $;
+@_ def k215WitnessTime (L: nat): nat = $ suc (len L + 3) $;
+pub theorem k215WitnessProgram_prefix (L: nat):
+ $ k215ProgramPrefix (k215WitnessProgram L) 0 = suc (k215WitnessCandidate L) $ = 'k215CompilePrefix_AX;
+pub theorem k215WitnessProgram_len (L: nat):
+ $ len (k215WitnessProgram L) = k215WitnessTime L $ =
+ '(eqtr lenS (suceq (eqtr appendlen (addeq2 k215TerminalProgram_len))));
+
+pub theorem k215Witness_first_step (L t w d h: nat):
+ $ k215EnumStep (k218EnumState 0 (k215WitnessCandidate L) t w d h) =
+   suc (k218EnumState (k215ProgramPrefix (L ++ k215TerminalProgram) 0) (suc (k215WitnessCandidate L))
+     (k218Gate (d + 1) (h + 1) 1) (k215AxStack (d + 1) h (h + 1) 1 d t w) 0 0) $ =
+ '(eqtr (ax_mp (ax_mp k215ReadAX_first k218EnumState_PL) k218EnumState_NP)
+   (eqtr (k215AXResulteq3 (suceq k218EnumState_NP)) k215AXResult_state));
+pub theorem k215Witness_halts_state (L t w d h: nat):
+ $ k215Realizes L 1 ->
+   k215EnumIter (k215WitnessTime L) (k218EnumState 0 (k215WitnessCandidate L) t w d h) = 0 $ =
+ '(eqtrd (a1i (k215Iter_after_step k215Witness_first_step)) k215Realizes_terminal_halts);
+
+theorem k215Witness_boundary_state (s k: nat):
+ $ k218EnumPL s = 0 /\ k218EnumNP s = k ->
+   s = k218EnumState 0 k (k218EnumTW s) (k218EnumWS s) (k218EnumD s) (k218EnumH s) $ =
+ '(eqtrd (a1i (eqcom k218EnumState_rebuild))
+   (k218EnumStateeqd anl anr eqidd eqidd eqidd eqidd));
+pub theorem k215Witness_halts_boundary (L s: nat):
+ $ k215Realizes L 1 -> k218EnumPL s = 0 /\ k218EnumNP s = k215WitnessCandidate L ->
+   k215EnumIter (k215WitnessTime L) s = 0 $ =
+ '(exp @ eqtrd (k215EnumItereq2d (syl k215Witness_boundary_state anr))
+   (syl k215Witness_halts_state anl));
+
+pub theorem k215EnumHalts_intro (n: nat): $ k215EnumIter n k215EnumInitial = 0 -> k215EnumHalts $ =
+ (named '(iexe ,eqtac));
+theorem k215EnumReach_halts_witness (m n s: nat):
+ $ k215EnumIter m k215EnumInitial = suc s -> k215EnumIter n s = 0 -> k215EnumHalts $ =
+ '(exp @ syl k215EnumHalts_intro (eqtrd (syl k215EnumIter_splice anl) anr));
+pub theorem k215EnumReach_halts (n s: nat):
+ $ k215EnumReach k215EnumInitial s -> k215EnumIter n s = 0 -> k215EnumHalts $ =
+ (named '(eex k215EnumReach_halts_witness));
+
+theorem k215Witness_search_halts_at (L s: nat):
+ $ k215Realizes L 1 ->
+   k215EnumReach k215EnumInitial s /\ (k218EnumPL s = 0 /\ k218EnumNP s = k215WitnessCandidate L) -> k215EnumHalts $ =
+ '(exp @ mpd
+   (mpd (syl anr anr) (syl k215Witness_halts_boundary anl))
+   (syl k215EnumReach_halts (syl anl anr)));
+pub theorem k215Witness_search_halts (L: nat):
+ $ k215Realizes L 1 -> k215SearchAt k215EnumInitial (k215WitnessCandidate L) -> k215EnumHalts $ =
+ (named '(eexd k215Witness_search_halts_at));
+pub theorem k215WitnessCandidate_ge_four (L: nat):
+ $ 4 <= k215WitnessCandidate L $ = 'leprid1;
+theorem k215Witness_search_cofinal (L: nat):
+ $ ~k215EnumHalts -> k215SearchAt k215EnumInitial (k215WitnessCandidate L) $ =
+ '(mpd (a1i k215WitnessCandidate_ge_four) k215Enum_nonhalt_reaches_candidate);
+pub theorem k215Realizes_enum_halts (L: nat): $ k215Realizes L 1 -> k215EnumHalts $ =
+ '(syl contra (com12 (syl (com12 k215Witness_search_halts) k215Witness_search_cofinal)));
+pub theorem k215Realizable_enum_halts: $ k215Realizable 1 -> k215EnumHalts $ =
+ (named '(eex k215Realizes_enum_halts));
+theorem k215Inconsistent_provable: $ k215Inconsistent -> k215Provable 1 $ = (named 'id);
+pub theorem k215Inconsistent_enum_halts: $ k215Inconsistent -> k215EnumHalts $ =
+ '(syl k215Realizable_enum_halts (syl {k215Provable_realizable : $ k215Provable 1 -> k215Realizable 1 $} k215Inconsistent_provable));
+pub theorem k215EnumHalts_iff_kInconsistent: $ k215EnumHalts <-> k215Inconsistent $ =
+ '(ibii k215EnumHalts_sound k215Inconsistent_enum_halts);

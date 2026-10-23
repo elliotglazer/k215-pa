@@ -1,0 +1,84 @@
+import "k215_literal_runtime_native_interface.mm1";
+import "k215_literal_runtime_pc_bound.mm1";
+
+@_ abstract def k215PNativeLaw (.g .s .w .r: nat): wff =
+ $ A. g A. s A. w A. r (k215PInRange s -> k215PNativeOutcome g s w r) $;
+@_ abstract def k215PNativeFuture (s w: nat) (.h .q: nat): wff =
+ $ A. h A. q k215TMHaltsFrom (k215PConfigFrame h (k215PStep s) w q) $;
+@_ abstract def k215PNativeForwardClaim (n: nat) (.s .g .w .r: nat): wff =
+ $ A. s A. g A. w A. r
+   (k215PInRange s -> k215PStatus (k215PIter n s) = 4 ->
+    k215TMHaltsFrom (k215PConfigFrame g s w r)) $;
+
+pub theorem k215PNativeLaw_at (g s w r: nat):
+ $ k215PNativeLaw -> k215PInRange s -> k215PNativeOutcome g s w r $ =
+ (named '(!! ealie a @ !! ealde b @ !! ealde c @ !! ealde d @ bi1d ,eqtac));
+theorem k215PNativeFuture_at (s w h q: nat):
+ $ k215PNativeFuture s w -> k215TMHaltsFrom (k215PConfigFrame h (k215PStep s) w q) $ =
+ (named '(!! ealie a @ !! ealde b @ bi1d ,eqtac));
+theorem k215PNativeForward_at (n s g w r: nat):
+ $ k215PNativeForwardClaim n -> k215PInRange s -> k215PStatus (k215PIter n s) = 4 ->
+   k215TMHaltsFrom (k215PConfigFrame g s w r) $ =
+ (named '(!! ealie a @ !! ealde b @ !! ealde c @ !! ealde d @ bi1d ,eqtac));
+theorem k215PNativeOutcome_halted (g s w r: nat):
+ $ k215PNativeOutcome g s w r -> k215PStatus s = 4 -> k215TMHaltsFrom (k215PConfigFrame g s w r) $ =
+ '(com12 (bi1d ifppos));
+theorem k215PNativeOutcome_running (g s w r: nat):
+ $ k215PNativeOutcome g s w r -> k215PStatus s != 4 -> k215PNativeProgress g s w r $ =
+ '(com12 (bi1d ifpneg));
+theorem k215PNativeProgress_future_at (g s w r h q: nat):
+ $ k215TmControlProgress (k215PConfigFrame g s w r) (k215PConfigFrame h (k215PStep s) w q) ->
+   k215PNativeFuture s w -> k215TMHaltsFrom (k215PConfigFrame g s w r) $ =
+ '(syl5 k215PNativeFuture_at (syl k215TMReach_halts k215TmControlProgress_reach));
+theorem k215PNativeProgress_future (g s w r: nat):
+ $ k215PNativeProgress g s w r -> k215PNativeFuture s w -> k215TMHaltsFrom (k215PConfigFrame g s w r) $ =
+ (named '(eex @ eex k215PNativeProgress_future_at));
+theorem k215PNativeOutcome_future (g s w r: nat):
+ $ k215PNativeOutcome g s w r -> k215PNativeFuture s w -> k215TMHaltsFrom (k215PConfigFrame g s w r) $ =
+ '(exp @ casesda
+   (mpd anr (syl k215PNativeOutcome_halted (syl anl anl)))
+   (mpd (syl anr anl)
+     (syl k215PNativeProgress_future (mpd anr (syl k215PNativeOutcome_running (syl anl anl))))));
+theorem k215PNativeSourceTime (n s: nat):
+ $ k215PIter (suc n) s = k215PIter n (k215PStep s) $ =
+ '(ax_mp k215PIter_after_step eqid);
+theorem k215PNativeSourceHaltTime (n s: nat):
+ $ k215PStatus (k215PIter (suc n) s) = 4 -> k215PStatus (k215PIter n (k215PStep s)) = 4 $ =
+ '(eqtrd (a1i (eqcom (k215PStatuseq k215PNativeSourceTime))) id);
+theorem k215PNativeFuture_derive_at (n s w h q: nat):
+ $ k215PNativeForwardClaim n -> k215PInRange s -> k215PStatus (k215PIter (suc n) s) = 4 ->
+   k215TMHaltsFrom (k215PConfigFrame h (k215PStep s) w q) $ =
+ '(exp @ exp @ mpd (syl k215PNativeSourceHaltTime anr)
+   (mpd (syl k215PStep_bound (syl anr anl)) (syl k215PNativeForward_at (syl anl anl))));
+theorem k215PNativeFuture_derive (n s w: nat):
+ $ k215PNativeForwardClaim n -> k215PInRange s -> k215PStatus (k215PIter (suc n) s) = 4 -> k215PNativeFuture s w $ =
+ (named '(exp @ exp @ iald @ iald @ imp @ imp k215PNativeFuture_derive_at));
+theorem k215PNativeForward_zero_at (s g w r: nat):
+ $ k215PNativeLaw -> k215PInRange s -> k215PStatus (k215PIter 0 s) = 4 ->
+   k215TMHaltsFrom (k215PConfigFrame g s w r) $ =
+ '(exp @ exp @ mpd
+   (eqtrd (a1i (eqcom (k215PStatuseq k215PIter_zero))) anr)
+   (syl k215PNativeOutcome_halted (mpd (syl anr anl) (syl k215PNativeLaw_at (syl anl anl)))));
+theorem k215PNativeForward_zero: $ k215PNativeLaw -> k215PNativeForwardClaim 0 $ =
+ (named '(iald @ iald @ iald @ iald k215PNativeForward_zero_at));
+theorem k215PNativeForward_step_at (n s g w r: nat):
+ $ k215PNativeLaw /\ k215PNativeForwardClaim n -> k215PInRange s ->
+   k215PStatus (k215PIter (suc n) s) = 4 -> k215TMHaltsFrom (k215PConfigFrame g s w r) $ =
+ '(exp @ exp @ mpd
+   (mpd anr (mpd (syl anr anl) (syl k215PNativeFuture_derive (syl anr (syl anl anl)))))
+   (syl k215PNativeOutcome_future
+     (mpd (syl anr anl) (syl k215PNativeLaw_at (syl anl (syl anl anl))))));
+theorem k215PNativeForward_step (n: nat):
+ $ k215PNativeLaw /\ k215PNativeForwardClaim n -> k215PNativeForwardClaim (suc n) $ =
+ (named '(iald @ iald @ iald @ iald k215PNativeForward_step_at));
+pub theorem k215PNativeForward_all (n: nat):
+ $ k215PNativeLaw -> k215PNativeForwardClaim n $ =
+ (named @ induct '(indd) 'n 'k215PNativeForward_zero 'k215PNativeForward_step);
+theorem k215PNativeForward_halt_at (n s g w r: nat):
+ $ k215PNativeLaw -> k215PInRange s -> k215PStatus (k215PIter n s) = 4 ->
+   k215TMHaltsFrom (k215PConfigFrame g s w r) $ =
+ '(syl k215PNativeForward_at k215PNativeForward_all);
+pub theorem k215PNative_source_halts (s g w r: nat):
+ $ k215PNativeLaw -> k215PInRange s -> k215PHaltsFrom s ->
+   k215TMHaltsFrom (k215PConfigFrame g s w r) $ =
+ (named '(exp @ eexd @ imp k215PNativeForward_halt_at));

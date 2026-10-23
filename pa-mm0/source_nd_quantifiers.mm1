@@ -1,0 +1,149 @@
+import "source_context_shift.mm1";
+import "source_substitution.mm1";
+import "source_nd_prop.mm1";
+
+do (apply (register-eqd 'sfShift) '(sfShift_formula_congr));
+do (apply (register-eqd 'sfContextShift) '(sfContextShift_congr));
+do (apply (register-eqd 'sfSubst) '(sfSubst_congr));
+do (apply (register-eqd 'sfSequent) '(sfSequent_congr sfSequent_congr_context sfSequent_congr_formula));
+do (apply (register-eqd 'sfAll) '(sfAll_congr));
+do (apply (register-eqd 'sfEx) '(sfEx_congr));
+do (apply (register-eqd 'sfRowWf) '(sfRowWf_congr));
+
+@_ abstract def sfNDCaseAllI (r p: nat) (.g .a: nat): wff = $ E. g E. a (r = sfSequent g (sfAll a) /\ p = sfSequent (sfContextShift g) a) $;
+@_ abstract def sfNDCaseAllE (r p: nat) (.g .a .t: nat): wff = $ E. g E. a E. t (r = sfSequent g (sfSubst 0 t a) /\ p = sfSequent g (sfAll a)) $;
+@_ abstract def sfNDCaseExI (r p: nat) (.g .a .t: nat): wff = $ E. g E. a E. t (r = sfSequent g (sfEx a) /\ p = sfSequent g (sfSubst 0 t a)) $;
+@_ abstract def sfNDCaseExE (r p q: nat) (.g .a .c: nat): wff = $ E. g E. a E. c (r = sfSequent g c /\ (p = sfSequent g (sfEx a) /\ q = sfSequent (a : sfContextShift g) (sfShift 0 c))) $;
+pub theorem sfNDCaseAllI_intro (g a: nat): $ sfNDCaseAllI (sfSequent g (sfAll a)) (sfSequent (sfContextShift g) a) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (iexe ,eqtac)) (iani eqid eqid)));
+pub theorem sfNDCaseAllE_intro (g a t: nat): $ sfNDCaseAllE (sfSequent g (sfSubst 0 t a)) (sfSequent g (sfAll a)) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid eqid)));
+pub theorem sfNDCaseExI_intro (g a t: nat): $ sfNDCaseExI (sfSequent g (sfEx a)) (sfSequent g (sfSubst 0 t a)) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid eqid)));
+pub theorem sfNDCaseExE_intro (g a c: nat): $ sfNDCaseExE (sfSequent g c) (sfSequent g (sfEx a)) (sfSequent (a : sfContextShift g) (sfShift 0 c)) $ =
+(named '(ax_mp (syl (iexe ,eqtac) (syl (iexe ,eqtac) (iexe ,eqtac))) (iani eqid (iani eqid eqid))));
+
+@_ abstract def sfNDQuantUnary (r p: nat): wff =
+$ sfRowWf r /\ (sfNDCaseAllI r p \/ (sfNDCaseAllE r p \/ sfNDCaseExI r p)) $;
+@_ abstract def sfNDQuantBinary (r p q: nat): wff = $ sfRowWf r /\ sfNDCaseExE r p q $;
+@_ abstract def sfNDQuantRules (.r .l .p .q: nat): set =
+$ S\ r, {l | (E. p (p IN l /\ sfNDQuantUnary r p)) \/
+    E. p E. q (p IN l /\ (q IN l /\ sfNDQuantBinary r p q))} $;
+@_ abstract def sfNDFullRules: set = $ sfNDPropRules u. sfNDQuantRules $;
+@_ abstract def sfNDFullDerives (p r: nat): wff = $ traceDerives sfNDFullRules p r $;
+
+pub theorem sfNDQuantRules_value {p q: nat} (r l: nat):
+  $ (r, l) e. sfNDQuantRules <->
+    (E. p (p IN l /\ sfNDQuantUnary r p)) \/
+    E. p E. q (p IN l /\ (q IN l /\ sfNDQuantBinary r p q)) $ =
+(named '(elsabe @ elabed ,eqtac));
+pub theorem sfNDQuantRules_unary (r p l: nat):
+  $ p IN l /\ sfNDQuantUnary r p -> (r, l) e. sfNDQuantRules $ =
+(named '(syl (bi2 sfNDQuantRules_value) @ syl orl (iexe ,eqtac)));
+pub theorem sfNDQuantRules_binary (r p q l: nat):
+  $ p IN l /\ (q IN l /\ sfNDQuantBinary r p q) -> (r, l) e. sfNDQuantRules $ =
+(named '(syl (bi2 sfNDQuantRules_value) @ syl orr @
+  syl (iexe ,eqtac) (iexe ,eqtac)));
+
+theorem sfNDQMember_left (a p q: nat): $ a IN p -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orl);
+theorem sfNDQMember_right (a p q: nat): $ a IN q -> a IN p ++ q $ =
+'(syl (bi2 lmemappend) orr);
+theorem sfNDQuantRules_extend (r l k: nat):
+  $ (r, l) e. sfNDQuantRules -> (r, l ++ k) e. sfNDQuantRules $ =
+(named '(syl (bi2 sfNDQuantRules_value) @ syl
+  (orim
+    (eximi (iand (syl sfNDQMember_left anl) anr))
+    (eximi (eximi (iand (syl sfNDQMember_left anl)
+      (iand (syl sfNDQMember_left anrl) anrr)))))
+  (bi1 sfNDQuantRules_value)));
+pub theorem sfNDQuantRules_stable: $ traceAppendStable sfNDQuantRules $ =
+(named '(ax_gen @ ax_gen @ ax_gen sfNDQuantRules_extend));
+pub theorem sfNDQuantRules_guard (r l: nat): $ (r, l) e. sfNDQuantRules -> sfRowWf r $ =
+(named '(syl (eori (eex (syl anl anr)) (eex (eex (syl anl anrr))))
+  (bi1 sfNDQuantRules_value)));
+
+theorem sfNDQStable_apply (R: set) (r l k: nat):
+  $ traceAppendStable R -> (r, l) e. R -> (r, l ++ k) e. R $ =
+(named '(!! ealie x @ !! ealde y @ !! ealde z @ bi1d ,eqtac));
+theorem sfNDFullRules_extend (r l k: nat):
+  $ (r, l) e. sfNDFullRules -> (r, l ++ k) e. sfNDFullRules $ =
+'(syl (bi2 elun) @ syl
+  (orim (sfNDQStable_apply sfNDPropRules_stable) sfNDQuantRules_extend)
+  (bi1 elun));
+pub theorem sfNDFullRules_stable: $ traceAppendStable sfNDFullRules $ =
+(named '(ax_gen @ ax_gen @ ax_gen sfNDFullRules_extend));
+pub theorem sfNDFullRules_guard (r l: nat): $ (r, l) e. sfNDFullRules -> sfRowWf r $ =
+'(syl (eori sfNDPropRules_guard sfNDQuantRules_guard) (bi1 elun));
+theorem sfNDFullRows_sound: $ traceRuleSound sfNDFullRules sfNDRows $ =
+(named '(ax_gen @ ax_gen @ a1i @ syl (bi2 sfNDRows_value) sfNDFullRules_guard));
+pub theorem sfNDFullDerives_wf (p r: nat): $ sfNDFullDerives p r -> sfRowWf r $ =
+'(syl (bi1 sfNDRows_value) (traceDerives_class sfNDFullRows_sound));
+pub theorem sfNDFullDerives_from_prop (p r: nat): $ sfNDPropDerives p r -> sfNDFullDerives p r $ =
+'(traceDerives_monotone ssun1);
+pub theorem sfNDFullDerives_unary (p r a: nat):
+  $ sfNDQuantUnary r a -> sfNDFullDerives p a -> sfNDFullDerives (r : p) r $ =
+'(exp @ syl traceDerives_head @ iand (syl anl anr)
+  (syl elun2 (syl sfNDQuantRules_unary (iand (syl anr anr) anl))));
+pub theorem sfNDFullDerives_binary (p q r a b: nat):
+  $ sfNDQuantBinary r a b -> sfNDFullDerives p a -> sfNDFullDerives q b ->
+    sfNDFullDerives (r : (p ++ q)) r $ =
+'(exp @ exp @ syl traceDerives_head @ iand
+  (sylc (traceValid_append sfNDFullRules_stable) (syl anl anlr) (syl anl anr))
+  (syl elun2 @ syl sfNDQuantRules_binary @ iand
+    (syl sfNDQMember_left (syl anr anlr))
+    (iand (syl sfNDQMember_right (syl anr anr)) anll)));
+
+pub theorem sfNDQuantUnary_AllI (g a: nat):
+  $ sfRowWf (sfSequent g (sfAll a)) -> sfNDQuantUnary (sfSequent g (sfAll a)) (sfSequent (sfContextShift g) a) $ =
+'(iand id (a1i (ax_mp orl sfNDCaseAllI_intro)));
+
+pub theorem sfNDFullDerives_AllI (u: nat) (g a: nat):
+  $ sfRowWf (sfSequent g (sfAll a)) -> sfNDFullDerives u (sfSequent (sfContextShift g) a) ->
+    sfNDFullDerives ((sfSequent g (sfAll a)) : u) (sfSequent g (sfAll a)) $ =
+'(syl sfNDFullDerives_unary sfNDQuantUnary_AllI);
+
+pub theorem sfNDQuantUnary_AllE (g a t: nat):
+  $ sfRowWf (sfSequent g (sfSubst 0 t a)) -> sfNDQuantUnary (sfSequent g (sfSubst 0 t a)) (sfSequent g (sfAll a)) $ =
+'(iand id (a1i (ax_mp (syl orr orl) sfNDCaseAllE_intro)));
+
+pub theorem sfNDFullDerives_AllE (u: nat) (g a t: nat):
+  $ sfRowWf (sfSequent g (sfSubst 0 t a)) -> sfNDFullDerives u (sfSequent g (sfAll a)) ->
+    sfNDFullDerives ((sfSequent g (sfSubst 0 t a)) : u) (sfSequent g (sfSubst 0 t a)) $ =
+'(syl sfNDFullDerives_unary sfNDQuantUnary_AllE);
+
+pub theorem sfNDQuantUnary_ExI (g a t: nat):
+  $ sfRowWf (sfSequent g (sfEx a)) -> sfNDQuantUnary (sfSequent g (sfEx a)) (sfSequent g (sfSubst 0 t a)) $ =
+'(iand id (a1i (ax_mp (syl orr orr) sfNDCaseExI_intro)));
+
+pub theorem sfNDFullDerives_ExI (u: nat) (g a t: nat):
+  $ sfRowWf (sfSequent g (sfEx a)) -> sfNDFullDerives u (sfSequent g (sfSubst 0 t a)) ->
+    sfNDFullDerives ((sfSequent g (sfEx a)) : u) (sfSequent g (sfEx a)) $ =
+'(syl sfNDFullDerives_unary sfNDQuantUnary_ExI);
+
+pub theorem sfNDQuantBinary_ExE (g a c: nat):
+  $ sfRowWf (sfSequent g c) -> sfNDQuantBinary (sfSequent g c)
+    (sfSequent g (sfEx a)) (sfSequent (a : sfContextShift g) (sfShift 0 c)) $ =
+'(iand id (a1i sfNDCaseExE_intro));
+
+pub theorem sfNDFullDerives_ExE (u v g a c: nat):
+  $ sfRowWf (sfSequent g c) -> sfNDFullDerives u (sfSequent g (sfEx a)) ->
+    sfNDFullDerives v (sfSequent (a : sfContextShift g) (sfShift 0 c)) ->
+    sfNDFullDerives ((sfSequent g c) : (u ++ v)) (sfSequent g c) $ =
+'(syl sfNDFullDerives_binary sfNDQuantBinary_ExE);
+
+pub theorem sfNDFullDerives_prop_base (r: nat):
+  $ sfNDPropBase r -> sfNDFullDerives (r : 0) r $ =
+'(syl sfNDFullDerives_from_prop sfNDPropDerives_base);
+pub theorem sfNDFullDerives_prop_unary (p r a: nat):
+  $ sfNDPropUnary r a -> sfNDFullDerives p a -> sfNDFullDerives (r : p) r $ =
+'(exp @ syl traceDerives_head @ iand (syl anl anr)
+  (syl elun1 (syl sfNDPropRules_unary (iand (syl anr anr) anl))));
+pub theorem sfNDFullDerives_prop_binary (p q r a b: nat):
+  $ sfNDPropBinary r a b -> sfNDFullDerives p a -> sfNDFullDerives q b ->
+    sfNDFullDerives (r : (p ++ q)) r $ =
+'(exp @ exp @ syl traceDerives_head @ iand
+  (sylc (traceValid_append sfNDFullRules_stable) (syl anl anlr) (syl anl anr))
+  (syl elun1 @ syl sfNDPropRules_binary @ iand
+    (syl sfNDQMember_left (syl anr anlr))
+    (iand (syl sfNDQMember_right (syl anr anr)) anll)));

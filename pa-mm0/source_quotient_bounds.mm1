@@ -1,0 +1,57 @@
+import "source_quotient_syntax.mm1";
+
+import "source_syntax_laws.mm1";
+
+theorem sfQB_if (G p: wff) (a b n: nat) (ha: $ G -> a < n $) (hb: $ G -> b < n $): $ G -> if p a b < n $ = '(ifbothd lteq1 lteq1 (syl ha anl) (syl hb anl));
+
+theorem sfQB_map_eval (z a b i: nat): $ sqAtomEnvironment z a b @ i = if (i = 0) z (if (i = 1) a b) $ = (named '(!! applame j ,eqtac));
+
+theorem sfQB_map_value (G: wff) (z a b n i: nat) (hz: $ G -> z < n $) (ha: $ G -> a < n $) (hb: $ G -> b < n $): $ G -> sqAtomEnvironment z a b @ i < n $ = (named '(mpbird (a1i (lteq1 sfQB_map_eval)) (sfQB_if hz (sfQB_if ha hb))));
+
+theorem sfQB_rename_zero (G: wff) (R: set) (n m c: nat) (hi: $ G -> A. i (i < n -> R @ i < m) $) (hb: $ G -> sfBound n c $): $ G -> sfBound m (sfRename R 0 c) $ = (named '(mpbid (a1i (srecpeq2 (preq1 add01))) (mpd (mpbird (a1i (srecpeq2 (preq1 add01))) hb) (syl sfRename_bound hi))));
+
+theorem sfQB_map_bound (G: wff) (z a b n: nat) (hz: $ G -> z < n $) (ha: $ G -> a < n $) (hb: $ G -> b < n $): $ G -> A. i (i < 3 -> sqAtomEnvironment z a b @ i < n) $ = (named '(!! iald i @ a1d @ sfQB_map_value hz ha hb));
+
+theorem sfQB_atom_mem (G: wff) (z a b n: nat) (hz: $ G -> z < n $) (ha: $ G -> a < n $) (hb: $ G -> b < n $): $ G -> sfBound n (sfQuotientMem z a b) $ = (named '(sfQB_rename_zero (sfQB_map_bound hz ha hb) (a1i sqMemberSource_bound)));
+
+theorem sfQB_atom_eq (G: wff) (z a b n: nat) (hz: $ G -> z < n $) (ha: $ G -> a < n $) (hb: $ G -> b < n $): $ G -> sfBound n (sfQuotientEq z a b) $ = (named '(sfQB_rename_zero (sfQB_map_bound hz ha hb) (a1i sqEqualSource_bound)));
+
+@_ abstract def sfQuotientBoundClass (.c .n .z: nat): set = $ {c | A. n A. z (sfBound n c -> z < n -> sfBound n (sfQuotient z c))} $;
+
+pub theorem sfQB_value {n z: nat} (c: nat): $ c e. sfQuotientBoundClass <-> A. n A. z (sfBound n c -> z < n -> sfBound n (sfQuotient z c)) $ = (named '(elabe ,eqtac));
+
+theorem sfQB_depth (n c: nat): $ (A. m A. w (sfBound m c -> w < m -> sfBound m (sfQuotient w c))) -> A. w (sfBound n c -> w < n -> sfBound n (sfQuotient w c)) $ = (named '(!! eale m ,eqtac));
+
+theorem sfQB_marker (n z c: nat): $ (A. w (sfBound n c -> w < n -> sfBound n (sfQuotient w c))) -> sfBound n c -> z < n -> sfBound n (sfQuotient z c) $ = (named '(!! eale w ,eqtac));
+
+theorem sfQB_specialize (n z c: nat): $ (A. m A. w (sfBound m c -> w < m -> sfBound m (sfQuotient w c))) -> sfBound n c -> z < n -> sfBound n (sfQuotient z c) $ = (named '(syl sfQB_marker sfQB_depth));
+
+theorem sfQB_at (n z c: nat): $ c e. sfQuotientBoundClass -> sfBound n c -> z < n -> sfBound n (sfQuotient z c) $ = (named '(syl sfQB_specialize {(bi1 sfQB_value) : $ c e. sfQuotientBoundClass -> A. m A. w (sfBound m c -> w < m -> sfBound m (sfQuotient w c)) $}));
+
+theorem sfQB_use (G: wff) (n z c: nat) (hc: $ G -> c e. sfQuotientBoundClass $) (hb: $ G -> sfBound n c $) (hz: $ G -> z < n $): $ G -> sfBound n (sfQuotient z c) $ = '(mpd hz (mpd hb (syl sfQB_at hc)));
+
+theorem sfQB_bot: $ sfBot e. sfQuotientBoundClass $ = (named '(mpbir sfQB_value @ ax_gen @ ax_gen @ a1i @ a1i @ mpbir (srecpeq2 (preq2 sfQuotient_bot)) sfBound_bot));
+
+theorem sfQB_mem (a b: nat): $ sfMem a b e. sfQuotientBoundClass $ = (named '(mpbir sfQB_value @ !! ax_gen n @ !! ax_gen z @ exp @ mpbird (a1i (srecpeq2 (preq2 sfQuotient_sfMem))) (sfQB_atom_mem anr (syl anl (syl (bi1 sfBound_sfMem) anl)) (syl anr (syl (bi1 sfBound_sfMem) anl)))));
+
+theorem sfQB_eq (a b: nat): $ sfEq a b e. sfQuotientBoundClass $ = (named '(mpbir sfQB_value @ !! ax_gen n @ !! ax_gen z @ exp @ mpbird (a1i (srecpeq2 (preq2 sfQuotient_sfEq))) (sfQB_atom_eq anr (syl anl (syl (bi1 sfBound_sfEq) anl)) (syl anr (syl (bi1 sfBound_sfEq) anl)))));
+
+theorem sfQB_atomic: $ sfAtomicClosed sfQuotientBoundClass $ = (named '(ax_gen @ ax_gen @ ian sfQB_mem sfQB_eq));
+
+theorem sfQB_and (a b: nat): $ a e. sfQuotientBoundClass /\ b e. sfQuotientBoundClass -> sfAnd a b e. sfQuotientBoundClass $ = (named '(mpbird (a1i sfQB_value) @ !! iald n @ !! iald z @ exp @ exp @ mpbird (a1i (srecpeq2 (preq2 sfQuotient_sfAnd))) (syl (bi2 sfBound_sfAnd) (iand (sfQB_use (syl anl anll) (syl anl (syl (bi1 sfBound_sfAnd) anlr)) anr) (sfQB_use (syl anr anll) (syl anr (syl (bi1 sfBound_sfAnd) anlr)) anr)))));
+
+theorem sfQB_or (a b: nat): $ a e. sfQuotientBoundClass /\ b e. sfQuotientBoundClass -> sfOr a b e. sfQuotientBoundClass $ = (named '(mpbird (a1i sfQB_value) @ !! iald n @ !! iald z @ exp @ exp @ mpbird (a1i (srecpeq2 (preq2 sfQuotient_sfOr))) (syl (bi2 sfBound_sfOr) (iand (sfQB_use (syl anl anll) (syl anl (syl (bi1 sfBound_sfOr) anlr)) anr) (sfQB_use (syl anr anll) (syl anr (syl (bi1 sfBound_sfOr) anlr)) anr)))));
+
+theorem sfQB_imp (a b: nat): $ a e. sfQuotientBoundClass /\ b e. sfQuotientBoundClass -> sfImp a b e. sfQuotientBoundClass $ = (named '(mpbird (a1i sfQB_value) @ !! iald n @ !! iald z @ exp @ exp @ mpbird (a1i (srecpeq2 (preq2 sfQuotient_sfImp))) (syl (bi2 sfBound_sfImp) (iand (sfQB_use (syl anl anll) (syl anl (syl (bi1 sfBound_sfImp) anlr)) anr) (sfQB_use (syl anr anll) (syl anr (syl (bi1 sfBound_sfImp) anlr)) anr)))));
+
+theorem sfQB_binary: $ sfBinaryClosed sfQuotientBoundClass $ = (named '(ax_gen @ ax_gen @ iand (iand sfQB_and sfQB_or) sfQB_imp));
+
+theorem sfQB_all (a: nat): $ a e. sfQuotientBoundClass -> sfAll a e. sfQuotientBoundClass $ = (named '(mpbird (a1i sfQB_value) @ !! iald n @ !! iald z @ exp @ exp @ mpbird (a1i (srecpeq2 (preq2 sfQuotient_sfAll))) (syl (bi2 sfBound_sfAll) (syl (bi2 sfBound_sfImp) (iand (syl (bi2 sfBound_sfMem) (iand (syl (bi1 ltsuc) anr) (a1i lt01S))) (sfQB_use anll (syl (bi1 sfBound_sfAll) anlr) (syl (bi1 ltsuc) anr)))))));
+
+theorem sfQB_ex (a: nat): $ a e. sfQuotientBoundClass -> sfEx a e. sfQuotientBoundClass $ = (named '(mpbird (a1i sfQB_value) @ !! iald n @ !! iald z @ exp @ exp @ mpbird (a1i (srecpeq2 (preq2 sfQuotient_sfEx))) (syl (bi2 sfBound_sfEx) (syl (bi2 sfBound_sfAnd) (iand (syl (bi2 sfBound_sfMem) (iand (syl (bi1 ltsuc) anr) (a1i lt01S))) (sfQB_use anll (syl (bi1 sfBound_sfEx) anlr) (syl (bi1 ltsuc) anr)))))));
+
+theorem sfQB_quantifier: $ sfQuantifierClosed sfQuotientBoundClass $ = (named '(ax_gen @ iand sfQB_all sfQB_ex));
+
+pub theorem sfQB_closed: $ sfConstructionClosed sfQuotientBoundClass $ = '(ian (ian (ian sfQB_bot sfQB_atomic) sfQB_binary) sfQB_quantifier);
+
+pub theorem sfQuotient_bound (n z c: nat): $ sfBound n c -> z < n -> sfBound n (sfQuotient z c) $ = '(exp (sfQB_use (syl (ax_mp sfWf_induction sfQB_closed) (syl sfBound_wf anl)) anl anr));

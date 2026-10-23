@@ -1,0 +1,43 @@
+import "source_reflection_transfer_witness_level.mm0";
+
+def sfReflectionPHExistsAt(level d:nat):nat = $ sfEx (sfORBinary level (suc d) 0) $;
+
+def sfReflectionPHExistsOnBody(level K d:nat):nat = $ sfImp (sfMem d K) (sfReflectionPHExistsAt level d) $;
+
+def sfReflectionPHExistsOn(level K:nat):nat = $ sfAll (sfReflectionPHExistsOnBody level (suc K) 0) $;
+
+theorem sfReflectionPHExistsOn_rename(R:set)(level K:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionPHExistsOn level K) = sfReflectionPHExistsOn level (R @ K) $;
+
+theorem sfReflectionPHExistsOn_shift(level K:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionPHExistsOn level K) = sfReflectionPHExistsOn level (suc K) $;
+
+theorem sfReflectionPHExistsOn_use(G level K d:nat)(hl:$ sfBound 2 level $)(hLaw:$ nsLocal G (sfReflectionPHExistsOn level K) $)(hd:$ nsLocal G (sfMem d K) $): $ nsLocal G (sfReflectionPHExistsAt level d) $;
+
+def sfReflectionPHSubsetOnBody(level K z d:nat):nat = $ sfImp (sfMem d K) (sfReflectionPHSubsetAt level d z) $;
+
+def sfReflectionPHSubsetOn(level K z:nat):nat = $ sfAll (sfReflectionPHSubsetOnBody level (suc K) (suc z) 0) $;
+
+theorem sfReflectionPHSubsetOn_rename(R:set)(level K z:nat)(hl:$ sfBound 2 level $): $ sfRename R 0 (sfReflectionPHSubsetOn level K z) = sfReflectionPHSubsetOn level (R @ K) (R @ z) $;
+
+theorem sfReflectionPHSubsetOn_shift(level K z:nat)(hl:$ sfBound 2 level $): $ sfShift 0 (sfReflectionPHSubsetOn level K z) = sfReflectionPHSubsetOn level (suc K) (suc z) $;
+
+theorem sfReflectionPHSubsetOn_use(G level K z d:nat)(hl:$ sfBound 2 level $)(hLaw:$ nsLocal G (sfReflectionPHSubsetOn level K z) $)(hd:$ nsLocal G (sfMem d K) $): $ nsLocal G (sfReflectionPHSubsetAt level d z) $;
+
+def sfReflectionPHNextGate(level P k w X:nat):nat = $ sfImp (sfORBinary level k X) (sfORBinary P w X) $;
+
+def sfReflectionPHNextWitness(level P K k w:nat):nat = $ sfAnd (sfMem w K) (sfAnd (sfMem k w) (sfAll (sfReflectionPHNextGate level P (suc k) (suc w) 0))) $;
+
+def sfReflectionPHNextAt(level P K k:nat):nat = $ sfEx (sfReflectionPHNextWitness level P (suc K) (suc k) 0) $;
+
+theorem sfReflectionPHNextAt_rename(R:set)(level P K k:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfRename R 0 (sfReflectionPHNextAt level P K k) = sfReflectionPHNextAt level P (R @ K) (R @ k) $;
+
+def sfReflectionPHNextOnBody(level P K k:nat):nat = $ sfImp (sfMem k K) (sfReflectionPHNextAt level P K k) $;
+
+def sfReflectionPHNextOn(level P K:nat):nat = $ sfAll (sfReflectionPHNextOnBody level P (suc K) 0) $;
+
+theorem sfReflectionPHNextOn_rename(R:set)(level P K:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfRename R 0 (sfReflectionPHNextOn level P K) = sfReflectionPHNextOn level P (R @ K) $;
+
+theorem sfReflectionPHNextOn_shift(level P K:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $): $ sfShift 0 (sfReflectionPHNextOn level P K) = sfReflectionPHNextOn level P (suc K) $;
+
+theorem sfReflectionPHNextOn_use(G level P K k:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hN:$ nsLocal G (sfReflectionPHNextOn level P K) $)(hk:$ nsLocal G (sfMem k K) $): $ nsLocal G (sfReflectionPHNextAt level P K k) $;
+
+theorem sfReflectionPHNextWitness_use(G level P K k w X:nat)(hl:$ sfBound 2 level $)(hp:$ sfBound 2 P $)(hN:$ nsLocal G (sfReflectionPHNextWitness level P K k w) $)(hL:$ nsLocal G (sfORBinary level k X) $): $ nsLocal G (sfORBinary P w X) $;

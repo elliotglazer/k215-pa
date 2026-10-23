@@ -1,0 +1,104 @@
+import "k218_source_core_bounds.mm1";
+import "source_renaming_laws.mm1";
+
+@_ abstract def sfK218SupportInverse (.i: nat): set =
+ $ \ i, if (i = 0) 1 (if (i = 1) 0 (i - 2)) $;
+pub theorem sfK218SupportInverse_value (i: nat):
+ $ sfK218SupportInverse @ i = if (i = 0) 1 (if (i = 1) 0 (i - 2)) $ =
+(named '(!! applame j ,eqtac));
+
+theorem k218SBR_inverse_zero: $ sfK218SupportInverse @ 0 = 1 $ =
+'(eqtr sfK218SupportInverse_value (ifpos eqid));
+theorem k218SBR_inverse_one: $ sfK218SupportInverse @ 1 = 0 $ =
+'(eqtr sfK218SupportInverse_value (eqtr (ifneg peano1) (ifpos eqid)));
+theorem k218SBR_plus_two (i: nat): $ i + 2 = suc (suc i) $ =
+'(eqtr addS (suceq (eqtr addS (suceq add0))));
+theorem k218SBR_inverse_tail (i: nat):
+ $ sfK218SupportInverse @ suc (suc i) = i $ =
+'(eqtr sfK218SupportInverse_value @ eqtr (ifneg peano1) @
+ eqtr (ifneg (ltneri (mpbi ltsuc lt01S))) @
+ eqtr (subeq1 (eqcom k218SBR_plus_two)) pncan);
+
+theorem k218SBR_support_zero: $ sfK218SupportMap @ 0 = 1 $ =
+'(eqtr sfK218SupportMap_value (ifpos eqid));
+theorem k218SBR_support_one: $ sfK218SupportMap @ 1 = 0 $ =
+'(eqtr sfK218SupportMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+theorem k218SBR_support_tail (i: nat):
+ $ sfK218SupportMap @ suc (suc i) = suc (suc (suc (suc i))) $ =
+'(eqtr sfK218SupportMap_value @ eqtr (ifneg peano1) @
+ eqtr (ifneg (ltneri (mpbi ltsuc lt01S))) k218SBR_plus_two);
+
+theorem k218SBR_left_zero:
+ $ sfK218SupportInverse @ (sfK218SupportMap @ 0) = 0 $ =
+'(eqtr (appeq2 k218SBR_support_zero) k218SBR_inverse_one);
+theorem k218SBR_left_one:
+ $ sfK218SupportInverse @ (sfK218SupportMap @ 1) = 1 $ =
+'(eqtr (appeq2 k218SBR_support_one) k218SBR_inverse_zero);
+theorem k218SBR_left_tail (i: nat):
+ $ sfK218SupportInverse @ (sfK218SupportMap @ suc (suc i)) = suc (suc i) $ =
+'(eqtr (appeq2 k218SBR_support_tail) k218SBR_inverse_tail);
+theorem k218SBR_left_suc (i: nat):
+ $ sfK218SupportInverse @ (sfK218SupportMap @ suc i) = suc i $ =
+(named @ induct '(ind) 'i 'k218SBR_left_one '(a1i k218SBR_left_tail));
+pub theorem sfK218SupportInverse_left (i: nat):
+ $ sfK218SupportInverse @ (sfK218SupportMap @ i) = i $ =
+(named @ induct '(ind) 'i 'k218SBR_left_zero '(a1i k218SBR_left_suc));
+theorem k218SBR_inverse_composition:
+ $ sfComposeMap sfK218SupportInverse sfK218SupportMap == sfIdentityMap $ =
+(named '(lameq @ ax_gen @ sfK218SupportInverse_left));
+
+pub theorem sfK218SupportInverse_roundtrip (f: nat):
+ $ sfWf f -> sfRename sfK218SupportInverse 0 (sfRename sfK218SupportMap 0 f) = f $ =
+'(eqtrd sfRename_compose @
+ eqtrd (sfRename_congr_graph (a1i k218SBR_inverse_composition)) sfRename_identity);
+
+theorem k218SBR_range_zero (n: nat):
+ $ 0 < suc (suc (suc (suc n))) -> sfK218SupportInverse @ 0 < suc (suc n) $ =
+'(a1i (mpbir (lteq1 k218SBR_inverse_zero) (mpbi ltsuc lt01S)));
+theorem k218SBR_range_one (n: nat):
+ $ 1 < suc (suc (suc (suc n))) -> sfK218SupportInverse @ 1 < suc (suc n) $ =
+'(a1i (mpbir (lteq1 k218SBR_inverse_one) lt01S));
+theorem k218SBR_range_tail (n i: nat):
+ $ suc (suc i) < suc (suc (suc (suc n))) ->
+ sfK218SupportInverse @ suc (suc i) < suc (suc n) $ =
+'(mpbird (a1i (lteq1 k218SBR_inverse_tail)) (syl (bi2 ltsuc) (bi2 ltsuc)));
+theorem k218SBR_range_suc (n i: nat):
+ $ suc i < suc (suc (suc (suc n))) -> sfK218SupportInverse @ suc i < suc (suc n) $ =
+(named @ induct '(ind) 'i 'k218SBR_range_one '(a1i k218SBR_range_tail));
+theorem k218SBR_range_at (n i: nat):
+ $ i < suc (suc (suc (suc n))) -> sfK218SupportInverse @ i < suc (suc n) $ =
+(named @ induct '(ind) 'i 'k218SBR_range_zero '(a1i k218SBR_range_suc));
+theorem k218SBR_range (n: nat):
+ $ A. i (i < suc (suc (suc (suc n))) -> sfK218SupportInverse @ i < suc (suc n)) $ =
+(named '(ax_gen {k218SBR_range_at :
+ $ i < suc (suc (suc (suc n))) -> sfK218SupportInverse @ i < suc (suc n) $}));
+
+theorem k218SBR_inverse_bound (G: wff) (n f: nat)
+ (hb: $ G -> sfBound (suc (suc (suc (suc n)))) (sfRename sfK218SupportMap 0 f) $):
+ $ G -> sfBound (suc (suc n)) (sfRename sfK218SupportInverse 0 (sfRename sfK218SupportMap 0 f)) $ =
+(named '(mpbid (a1i (sfBoundeq1 add01)) @
+ mpd (mpbird (a1i (sfBoundeq1 add01)) hb)
+ (a1i (ax_mp sfRename_bound {k218SBR_range :
+ $ A. i (i < suc (suc (suc (suc n))) -> sfK218SupportInverse @ i < suc (suc n)) $}))));
+
+pub theorem sfK218Kp0_support_bound (n f: nat):
+ $ sfBound n (sfK218Kp0 f) -> sfBound (suc (suc (suc (suc n)))) (sfRename sfK218SupportMap 0 f) $ =
+'(syl (bi1 sfBound_sfEx) (syl (syl anr (bi1 sfBound_sfImp)) (syl (bi1 sfBound_sfAll) (syl (syl anr (bi1 sfBound_sfAnd)) (syl (bi1 sfBound_sfEx) (syl (bi1 sfBound_sfAll) id))))));
+pub theorem sfK218Kp0_bound_reflection (n f: nat):
+ $ sfWf f -> sfBound n (sfK218Kp0 f) -> sfBound (suc (suc n)) f $ =
+'(exp @ mpbid (sfRL_bound_congr eqidd (syl sfK218SupportInverse_roundtrip anl))
+ (k218SBR_inverse_bound (syl sfK218Kp0_support_bound anr)));
+pub theorem sfK218Kp0_closed_reflection (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218Kp0 f)) -> sfBound (suc (suc n)) f $ =
+'(exp @ mpd (syl (bi1 sfBound_allPrefix_closed) anr) (syl sfK218Kp0_bound_reflection anl));
+
+pub theorem sfK218SeededCore_support_bound (n f: nat):
+ $ sfBound n (sfK218SeededCore f) -> sfBound (suc (suc (suc (suc n)))) (sfRename sfK218SupportMap 0 f) $ =
+'(syl (syl anl (bi1 sfBound_sfAnd)) (syl (bi1 sfBound_sfEx) (syl (syl anr (bi1 sfBound_sfImp)) (syl (bi1 sfBound_sfAll) (syl (syl anr (bi1 sfBound_sfAnd)) (syl (bi1 sfBound_sfEx) (syl (bi1 sfBound_sfAll) id)))))));
+pub theorem sfK218SeededCore_bound_reflection (n f: nat):
+ $ sfWf f -> sfBound n (sfK218SeededCore f) -> sfBound (suc (suc n)) f $ =
+'(exp @ mpbid (sfRL_bound_congr eqidd (syl sfK218SupportInverse_roundtrip anl))
+ (k218SBR_inverse_bound (syl sfK218SeededCore_support_bound anr)));
+pub theorem sfK218SeededCore_closed_reflection (n f: nat):
+ $ sfWf f -> sfBound 0 (sfAllPrefix n (sfK218SeededCore f)) -> sfBound (suc (suc n)) f $ =
+'(exp @ mpd (syl (bi1 sfBound_allPrefix_closed) anr) (syl sfK218SeededCore_bound_reflection anl));

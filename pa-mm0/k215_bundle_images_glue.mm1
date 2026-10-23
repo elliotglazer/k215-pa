@@ -1,0 +1,151 @@
+import "k215_bundle_images_boundf.mm1";
+import "k215_bundle_images_rename.mm1";
+import "source_renaming_agreement.mm1";
+
+-- (lane L01, glue step 3) From a concrete template back to the symbolic labels a, b, k.
+-- S sends the labels a, b, k to 0, 1, 2 (a first) and every other index i to i + 3;
+-- T is a left inverse of S; S0 normalises the matrix so that a, b become its indices 0, 1.
+
+@_ def k215GS (a b k: nat) (.i: nat): set = $ \ i, if (i = a) 0 (if (i = b) 1 (if (i = k) 2 (i + 3))) $;
+@_ def k215GT (a b k: nat) (.j: nat): set = $ \ j, if (j = 0) a (if (j = 1) b (if (j = 2) k (j - 3))) $;
+@_ def k215GS0 (a b: nat) (.i: nat): set = $ \ i, if (i = a) 0 (if (i = b) 1 (i + 2)) $;
+@_ def k215GPhi (a b q: nat): nat = $ sfRename (k215GS0 a b) 0 (rawDecode q) $;
+@_ def k215GX (phi B Z: nat): nat =
+ $ sfImp (sfRename (k215AddMap 3) 0 (k215BoundF phi)) (k215DecBundleGz 0 B 2 Z (k215QP phi 0 B 3)) $;
+
+theorem k215GS_value (a b k i: nat): $ k215GS a b k @ i = if (i = a) 0 (if (i = b) 1 (if (i = k) 2 (i + 3))) $ =
+(named '(applame ,eqtac));
+theorem k215GT_value (a b k j: nat): $ k215GT a b k @ j = if (j = 0) a (if (j = 1) b (if (j = 2) k (j - 3))) $ =
+(named '(applame ,eqtac));
+theorem k215GS0_value (a b i: nat): $ k215GS0 a b @ i = if (i = a) 0 (if (i = b) 1 (i + 2)) $ =
+(named '(applame ,eqtac));
+
+pub theorem k215GX_congrB (phi B1 B2 Z: nat): $ B1 = B2 -> k215GX phi B1 Z = k215GX phi B2 Z $ =
+'{,eqtac : $ B1 = B2 -> k215GX phi B1 Z = k215GX phi B2 Z $};
+pub theorem k215GX_congrZ (phi B Z1 Z2: nat): $ Z1 = Z2 -> k215GX phi B Z1 = k215GX phi B Z2 $ =
+'{,eqtac : $ Z1 = Z2 -> k215GX phi B Z1 = k215GX phi B Z2 $};
+
+-- Values of T.
+theorem k215GT_0 (a b k: nat): $ k215GT a b k @ 0 = a $ = '(eqtr k215GT_value (ifpos eqid));
+theorem k215GT_1 (a b k: nat): $ k215GT a b k @ 1 = b $ =
+'(eqtr k215GT_value (eqtr (ifneg peano1) (ifpos eqid)));
+theorem k215GT_2 (a b k: nat): $ k215GT a b k @ 2 = k $ =
+'(eqtr k215GT_value (eqtr (ifneg peano1) (eqtr (ifneg (ltner (mpbi ltsuc lt01S))) (ifpos eqid))));
+theorem k215GT_add (a b k i: nat): $ k215GT a b k @ (i + 3) = i $ =
+'(eqtr k215GT_value
+  (eqtr (ifneg (ltner (ltletr lt01S leaddid2)))
+  (eqtr (ifneg (ltner (ltletr (mpbi ltsuc lt01S) leaddid2)))
+  (eqtr (ifneg (ltner (ltletr (mpbi ltsuc (mpbi ltsuc lt01S)) leaddid2))) pncan))));
+
+-- T is a left inverse of S.
+theorem k215GT_S (a b k i: nat): $ k215GT a b k @ (k215GS a b k @ i) = i $ =
+'(cases
+   (eqtrd (appeq2d (eqtrd (a1i k215GS_value) ifpos)) (eqtrd (a1i k215GT_0) (eqcomd id)))
+   (casesda
+     (eqtrd (appeq2d (eqtrd (a1i k215GS_value) (eqtrd (syl ifneg anl) (syl ifpos anr))))
+        (eqtrd (a1i k215GT_1) (eqcomd anr)))
+     (casesda
+       (eqtrd (appeq2d (eqtrd (a1i k215GS_value)
+           (eqtrd (syl ifneg anll) (eqtrd (syl ifneg anlr) (syl ifpos anr)))))
+         (eqtrd (a1i k215GT_2) (eqcomd anr)))
+       (eqtrd (appeq2d (eqtrd (a1i k215GS_value)
+           (eqtrd (syl ifneg anll) (eqtrd (syl ifneg anlr) (syl ifneg anr)))))
+         (a1i k215GT_add)))));
+
+theorem k215GS_inj (a b k x: nat) {i: nat}: $ A. i (k215GS a b k @ i = k215GS a b k @ x -> i = x) $ =
+'(!! ax_gen i (eqtr3d (a1i k215GT_S) (eqtrd (appeq2d id) (a1i k215GT_S))));
+
+theorem k215GS_a (a b k: nat): $ k215GS a b k @ a = 0 $ = '(eqtr k215GS_value (ifpos eqid));
+theorem k215GS_k (a b k: nat) (hka: $ k != a $) (hkb: $ k != b $): $ k215GS a b k @ k = 2 $ =
+'(eqtr k215GS_value (eqtr (ifneg hka) (eqtr (ifneg hkb) (ifpos eqid))));
+
+-- The matrix: S agrees below q with the atom map after S0.
+theorem k215QPMap_zero (A B p: nat): $ k215QPMap A B p @ 0 = A $ = '(eqtr k215QPMap_value (ifpos eqid));
+theorem k215QPMap_one (A B p: nat): $ k215QPMap A B p @ 1 = B $ =
+'(eqtr k215QPMap_value (eqtr (ifneg peano1) (ifpos eqid)));
+theorem k215QPMap_tail (A B p i: nat): $ k215QPMap A B p @ (i + 2) = p + i $ =
+'(eqtr k215QPMap_value (eqtr (ifneg (ltner (ltletr lt01S leaddid2)))
+   (eqtr (ifneg (ltner (ltletr (mpbi ltsuc lt01S) leaddid2))) (addeq2 pncan))));
+
+theorem k215GS_agree (a b k q i: nat) (hqk: $ q <= k $):
+  $ i < q -> k215GS a b k @ i = k215QPMap 0 (k215GS a b k @ b) 3 @ (k215GS0 a b @ i) $ =
+'(cases
+   (a1d (eqtr4d (eqtrd (a1i k215GS_value) ifpos)
+     (eqtrd (appeq2d (eqtrd (a1i k215GS0_value) ifpos)) (a1i k215QPMap_zero))))
+   (casesda
+     (a1d (eqtr4d (appeq2d anr)
+       (eqtrd (appeq2d (eqtrd (a1i k215GS0_value) (eqtrd (syl ifneg anl) (syl ifpos anr))))
+         (a1i k215QPMap_one))))
+     (exp (eqtrd
+       (eqtrd (a1i k215GS_value) (eqtrd (syl ifneg anll) (eqtrd (syl ifneg anlr)
+         (syl ifneg (syl ltne (mpi hqk (syl ltletr anr)))))))
+       (eqtrd (a1i addcom) (eqcomd (eqtrd
+         (appeq2d (eqtrd (a1i k215GS0_value) (eqtrd (syl ifneg anll) (syl ifneg anlr))))
+         (a1i k215QPMap_tail))))))));
+
+theorem k215GS_agree_compose (a b k q i: nat) (hqk: $ q <= k $):
+  $ i < q -> k215GS a b k @ i = sfComposeMap (k215QPMap 0 (k215GS a b k @ b) 3) (k215GS0 a b) @ i $ =
+'(syl6eqr sfComposeMap_value (k215GS_agree hqk));
+
+theorem k215G_Qeq (a b k q: nat) (hqk: $ q <= k $):
+  $ sfRename (k215GS a b k) 0 (rawDecode q) = k215QP (k215GPhi a b q) 0 (k215GS a b k @ b) 3 $ =
+(named '(eqtr (ax_mp (ax_mp sfRename_agreement (ax_gen @ k215GS_agree_compose hqk))
+          (mpbir (trud (sfLaw_bound_congr (a1i add01) eqidd)) k215RawDecode_bound))
+   (eqcom (ax_mp sfRename_compose rawDecode_wf))));
+
+-- Bound of the normalised matrix.
+theorem k215GS0_lt (a b q i: nat): $ i < q -> k215GS0 a b @ i < 2 + q $ =
+'(cases
+   (a1d (mpbird (lteq1d (eqtrd (a1i k215GS0_value) ifpos)) (a1i (ltletr lt01S leaddid1))))
+   (casesda
+     (a1d (mpbird (lteq1d (eqtrd (a1i k215GS0_value) (eqtrd (syl ifneg anl) (syl ifpos anr))))
+        (a1i (ltletr (mpbi ltsuc lt01S) leaddid1))))
+     (sylibrd (a1i (syl (bi1 (lteq2 addcom)) (bi1 ltadd1)))
+       (lteq1d (eqtrd (a1i k215GS0_value) (eqtrd (syl ifneg anl) (syl ifneg anr)))))));
+
+pub theorem k215GPhi_bound (a b q: nat): $ sfBound (2 + q) (k215GPhi a b q) $ =
+(named '(mpbi (trud (sfLaw_bound_congr (a1i add01) eqidd))
+   (ax_mp (ax_mp sfRename_bound (ax_gen @ k215GS0_lt))
+     (mpbir (trud (sfLaw_bound_congr (a1i add01) eqidd)) k215RawDecode_bound))));
+
+pub theorem k215GPhi_wf (a b q: nat): $ sfWf (k215GPhi a b q) $ = 'sfRename_wf;
+
+-- The decoded bundle is well formed.
+theorem k215G_Dwf (a b k q: nat): $ sfWf (k215DecBundleGz a b k 0 (rawDecode q)) $ =
+'(mpbi (trud (rawWf_congr (a1i (eqtr k215BundleG_decode k215DecBundleG_z)))) rawDecode_wf);
+
+theorem k215G_TS_point (a b k i: nat): $ sfComposeMap (k215GT a b k) (k215GS a b k) @ i = sfIdentityMap @ i $ =
+'(eqtr sfComposeMap_value (eqtr k215GT_S (eqcom sfIdentityMap_value)));
+
+theorem k215G_TA_point (a b k i: nat): $ sfComposeMap (k215GT a b k) (k215AddMap 3) @ i = sfIdentityMap @ i $ =
+'(eqtr sfComposeMap_value (eqtr (appeq2 k215AddMap_value) (eqtr k215GT_add (eqcom sfIdentityMap_value))));
+
+theorem k215G_EQX (a b k phi: nat) (hf: $ sfWf phi $):
+  $ sfRename (k215GT a b k) 0 (sfRename (k215AddMap 3) 0 (k215BoundF phi)) = k215BoundF phi $ =
+(named '(eqtr (ax_mp sfRename_compose (k215BoundF_wf hf))
+   (eqtr (ax_mp (sfRename_extensional (ax_gen @ k215G_TA_point)) (k215BoundF_wf hf))
+     (ax_mp sfRename_identity (k215BoundF_wf hf)))));
+
+theorem k215G_SD (a b k q: nat) (hka: $ k != a $) (hkb: $ k != b $) (hqk: $ q <= k $):
+  $ sfRename (k215GS a b k) 0 (k215DecBundleGz a b k 0 (rawDecode q)) =
+    k215DecBundleGz 0 (k215GS a b k @ b) 2 (k215GS a b k @ 0) (k215QP (k215GPhi a b q) 0 (k215GS a b k @ b) 3) $ =
+(named '(eqtr (k215DecBundleGz_rename k215GS_inj k215GS_inj k215GS_inj rawDecode_wf)
+   (k215DecBundleGzeq k215GS_a eqid (k215GS_k hka hkb) eqid (k215G_Qeq hqk))));
+
+theorem k215G_EQY (a b k q: nat) (hka: $ k != a $) (hkb: $ k != b $) (hqk: $ q <= k $):
+  $ sfRename (k215GT a b k) 0
+      (k215DecBundleGz 0 (k215GS a b k @ b) 2 (k215GS a b k @ 0) (k215QP (k215GPhi a b q) 0 (k215GS a b k @ b) 3)) =
+    k215DecBundleGz a b k 0 (rawDecode q) $ =
+(named '(eqtr (sfRenameeq3 (eqcom (k215G_SD hka hkb hqk)))
+  (eqtr (ax_mp sfRename_compose k215G_Dwf)
+  (eqtr (ax_mp (sfRename_extensional (ax_gen @ k215G_TS_point)) k215G_Dwf)
+    (ax_mp sfRename_identity k215G_Dwf)))));
+
+-- Glue from the template instance at the symbolic labels.
+pub theorem k215Glue_generic (a b k q: nat) (hka: $ k != a $) (hkb: $ k != b $) (hqk: $ q <= k $):
+  $ sfTheoryProvable zfrAxioms (k215GX (k215GPhi a b q) (k215GS a b k @ b) (k215GS a b k @ 0)) ->
+    zfcProvable (sfImp (k215BoundF (k215GPhi a b q)) (k215DecBundleGz a b k 0 (rawDecode q))) $ =
+'(syl (bi1 sfTheoryProvable_zfc) @ syl (sfTheoryProvable_mono zfrAxioms_subset_zfc) @
+  syl (bi1 (trud (sfTheoryProvable_congr (a1i
+    (eqtr sfRename_sfImp (nsImp_eq (k215G_EQX k215GPhi_wf) (k215G_EQY hka hkb hqk)))))))
+  (sfTheoryProvable_rename zfrAxioms_closed));
