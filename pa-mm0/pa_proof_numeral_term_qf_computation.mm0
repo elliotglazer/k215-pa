@@ -1,0 +1,55 @@
+import "pa_proof_numeral_term_qf_constructors.mm0";
+
+def paProofNumeralTermQFStateBody (c h: nat): nat = $ if (c = 0) paProofNumeralTermQFFalseState
+ (if (sfTag c = 1) (paProofNumeralTermQFEqualState (sfLeft c) (sfRight c))
+ (if (sfTag c = 3) (paProofNumeralTermQFAndState (sfLeft c) (sfRight c) (h @ (sfLeft c)) (h @ (sfRight c)))
+ (if (sfTag c = 4) (paProofNumeralTermQFOrState (sfLeft c) (sfRight c) (h @ (sfLeft c)) (h @ (sfRight c)))
+ (if (sfTag c = 5) (paProofNumeralTermQFImpState (sfLeft c) (sfRight c) (h @ (sfLeft c)) (h @ (sfRight c))) paProofNumeralTermQFFalseState)))) $;
+
+def paProofNumeralTermQFStateStep (.h: nat): set = $ \ h, paProofNumeralTermQFStateBody (sfHistoryLength h) h $;
+
+def paProofNumeralTermQFState (c: nat): nat = $ srec paProofNumeralTermQFStateStep c $;
+
+def paProofNumeralTermQFHistory (c .i: nat): nat = $ \. i e. upto c, srec paProofNumeralTermQFStateStep i $;
+
+theorem paProofNumeralTermQFStateStep_apply (h: nat): $ paProofNumeralTermQFStateStep @ h = paProofNumeralTermQFStateBody (sfHistoryLength h) h $;
+
+theorem paProofNumeralTermQFHistory_size (c: nat): $ sfHistoryLength (paProofNumeralTermQFHistory c) = c $;
+
+theorem paProofNumeralTermQFHistory_lookup (c a: nat): $ a < c -> paProofNumeralTermQFHistory c @ a = paProofNumeralTermQFState a $;
+
+theorem paProofNumeralTermQFState_unfold (c: nat): $ paProofNumeralTermQFState c = paProofNumeralTermQFStateBody c (paProofNumeralTermQFHistory c) $;
+
+theorem paProofNumeralTermQFState_false: $ paProofNumeralTermQFState paFormulaFalse = paProofNumeralTermQFFalseState $;
+
+theorem paProofNumeralTermQFState_equal (a b: nat): $ paProofNumeralTermQFState (paFormulaEqual a b) = paProofNumeralTermQFEqualState a b $;
+
+theorem paProofNumeralTermQFState_and (a b: nat): $ paProofNumeralTermQFState (paFormulaAnd a b) = paProofNumeralTermQFAndState a b (paProofNumeralTermQFState a) (paProofNumeralTermQFState b) $;
+
+theorem paProofNumeralTermQFState_or (a b: nat): $ paProofNumeralTermQFState (paFormulaOr a b) = paProofNumeralTermQFOrState a b (paProofNumeralTermQFState a) (paProofNumeralTermQFState b) $;
+
+theorem paProofNumeralTermQFState_imp (a b: nat): $ paProofNumeralTermQFState (paFormulaImp a b) = paProofNumeralTermQFImpState a b (paProofNumeralTermQFState a) (paProofNumeralTermQFState b) $;
+
+def paProofNumeralTermQFComputationClass (.c: nat): set = $ {c | paNatQFBound 0 c /\ paProofNumeralTermQFStateDerives c (paProofNumeralTermQFState c)} $;
+
+def paProofNumeralTermQFProof (c: nat): nat = $ fst (paProofNumeralTermQFState c) $;
+
+def paProofNumeralTermQFAnnotation (c: nat): nat = $ snd (paProofNumeralTermQFState c) $;
+
+def paProofNumeralTermQFRow (c: nat): nat = $ paProofRow 0 (paProofNumeralTermQFSignedFormula c) (paProofNumeralTermQFAnnotation c) $;
+
+theorem paProofNumeralTermQF_derives (c: nat): $ paNatQFBound 0 c -> paProofDerives (paProofNumeralTermQFProof c) (paProofNumeralTermQFRow c) $;
+
+theorem paProofNumeralTermQF_valid (c: nat): $ paNatQFBound 0 c -> paProofValid (paProofNumeralTermQFProof c) $;
+
+theorem paProofNumeralTermQF_signed_provable (c: nat): $ paNatQFBound 0 c -> paProvable 0 (paProofNumeralTermQFSignedFormula c) $;
+
+theorem paProofNumeralTermQF_true_derives (c: nat): $ paNatQFBound 0 c /\ paProofNumeralTermQFTruth c -> paProofDerives (paProofNumeralTermQFProof c) (paProofRow 0 c (paProofNumeralTermQFAnnotation c)) $;
+
+theorem paProofNumeralTermQF_true_provable (c: nat): $ paNatQFBound 0 c /\ paProofNumeralTermQFTruth c -> paProvable 0 c $;
+
+theorem paProofNumeralTermQF_false_derives (c: nat): $ paNatQFBound 0 c /\ ~ paProofNumeralTermQFTruth c -> paProofDerives (paProofNumeralTermQFProof c) (paProofRow 0 (paFormulaImp c paFormulaFalse) (paProofNumeralTermQFAnnotation c)) $;
+
+theorem paProofNumeralTermQF_false_provable (c: nat): $ paNatQFBound 0 c /\ ~ paProofNumeralTermQFTruth c -> paProvable 0 (paFormulaImp c paFormulaFalse) $;
+
+theorem paProofNumeralTermQFBit_range (c: nat): $ paProofNumeralTermQFBit c = 0 \/ paProofNumeralTermQFBit c = 1 $;

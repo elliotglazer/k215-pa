@@ -1,0 +1,73 @@
+import "zfc_proof_arithmetic_bounded_cell.mm0";
+
+import "zfc_proof_arithmetic_history_domain_bounds.mm0";
+
+theorem zfcProofArithmeticBoundedPayload_le (p t: nat): $ p <= 8 * p + t $;
+
+theorem zfcProofArithmeticBoundedPair_left_le (a b p: nat): $ bb215ArithmeticFormulaPairGraph a b p -> a <= p $;
+
+theorem zfcProofArithmeticBoundedPair_right_le (a b p: nat): $ bb215ArithmeticFormulaPairGraph a b p -> b <= p $;
+
+def zfcProofArithmeticBoundedKeyUpper (d f K .k: nat): wff = $ E. k (k <= K /\ bb215ArithmeticFormulaPairGraph d f k) $;
+
+theorem zfcProofArithmeticBoundedKeyUpper_correct (d f K: nat): $ zfcProofArithmeticBoundedKeyUpper d f K <-> zfcProofArithmeticQuantifierHistoryCodeKeyUpper d f K $;
+
+theorem zfcProofArithmeticBoundedKeyUpper_value_bound (d f K: nat): $ zfcProofArithmeticQuantifierHistoryCodeKeyUpper d f K -> f <= K $;
+
+def zfcProofArithmeticBoundedCell (m c d f v .k: nat): wff = $ E. k (k < c /\ (bb215ArithmeticFormulaPairGraph d f k /\ zfcProofArithmeticBoundedHistoryPair m c k v)) $;
+
+theorem zfcProofArithmeticBoundedCell_point (m c d f v k: nat): $ k < c /\ (bb215ArithmeticFormulaPairGraph d f k /\ zfcProofArithmeticBoundedHistoryPair m c k v) <-> bb215ArithmeticFormulaPairGraph d f k /\ bb215ArithmeticFormulaHistoryPairGraph m c k v $;
+
+theorem zfcProofArithmeticBoundedCell_correct (m c d f v: nat): $ zfcProofArithmeticBoundedCell m c d f v <-> zfcProofArithmeticQuantifierHistoryCodeCell m c d f v $;
+
+def zfcProofArithmeticBoundedNodeUpper (d t a b K .p: nat): wff = $ E. p (p <= K /\ (bb215ArithmeticFormulaPairGraph a b p /\ zfcProofArithmeticBoundedKeyUpper d (8 * p + t) K)) $;
+
+theorem zfcProofArithmeticBoundedNodeUpper_point (d t a b K p: nat): $ p <= K /\ (bb215ArithmeticFormulaPairGraph a b p /\ zfcProofArithmeticBoundedKeyUpper d (8 * p + t) K) <-> bb215ArithmeticFormulaPairGraph a b p /\ zfcProofArithmeticQuantifierHistoryCodeKeyUpper d (8 * p + t) K $;
+
+theorem zfcProofArithmeticBoundedNodeUpper_correct (d t a b K: nat): $ zfcProofArithmeticBoundedNodeUpper d t a b K <-> zfcProofArithmeticQuantifierHistoryCodeNodeUpper d t a b K $;
+
+def zfcProofArithmeticBoundedNodeCell (m c d t a b v .p: nat): wff = $ E. p (p < c /\ (bb215ArithmeticFormulaPairGraph a b p /\ zfcProofArithmeticBoundedCell m c d (8 * p + t) v)) $;
+
+theorem zfcProofArithmeticBoundedNodeCell_point (m c d t a b v p: nat): $ p < c /\ (bb215ArithmeticFormulaPairGraph a b p /\ zfcProofArithmeticBoundedCell m c d (8 * p + t) v) <-> bb215ArithmeticFormulaPairGraph a b p /\ zfcProofArithmeticQuantifierHistoryCodeCell m c d (8 * p + t) v $;
+
+theorem zfcProofArithmeticBoundedNodeCell_correct (m c d t a b v: nat): $ zfcProofArithmeticBoundedNodeCell m c d t a b v <-> zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d t a b v $;
+
+theorem zfcProofArithmeticBoundedNodeCell_value_bound (m c d t a b v: nat): $ zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d t a b v -> v < c $;
+
+def zfcProofArithmeticBoundedNodeNodeCell (m c d t a b u x y .p: nat): wff = $ E. p (p < c /\ (bb215ArithmeticFormulaPairGraph x y p /\ zfcProofArithmeticBoundedNodeCell m c d t a b (8 * p + u))) $;
+
+theorem zfcProofArithmeticBoundedNodeNodeCell_point (m c d t a b u x y p: nat): $ p < c /\ (bb215ArithmeticFormulaPairGraph x y p /\ zfcProofArithmeticBoundedNodeCell m c d t a b (8 * p + u)) <-> bb215ArithmeticFormulaPairGraph x y p /\ zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d t a b (8 * p + u) $;
+
+theorem zfcProofArithmeticBoundedNodeNodeCell_correct (m c d t a b u x y: nat): $ zfcProofArithmeticBoundedNodeNodeCell m c d t a b u x y <-> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d t a b u x y $;
+
+theorem zfcProofArithmeticBoundedNodeNodeCell_left_bound (m c d t a b u x y: nat): $ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d t a b u x y -> x < c $;
+
+theorem zfcProofArithmeticBoundedNodeNodeCell_right_bound (m c d t a b u x y: nat): $ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d t a b u x y -> y < c $;
+
+def zfcProofArithmeticBoundedShiftAtomY (m c d tag a b x .y: nat): wff = $ E. y (y < c /\ (zfcProofArithmeticQuantifierShiftIndexGraph d b y /\ zfcProofArithmeticBoundedNodeNodeCell m c d tag a b tag x y)) $;
+
+theorem zfcProofArithmeticBoundedShiftAtomY_point (m c d tag a b x y: nat): $ y < c /\ (zfcProofArithmeticQuantifierShiftIndexGraph d b y /\ zfcProofArithmeticBoundedNodeNodeCell m c d tag a b tag x y) <-> zfcProofArithmeticQuantifierShiftIndexGraph d b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y $;
+
+theorem zfcProofArithmeticBoundedShiftAtomY_correct (m c d tag a b x: nat) {y: nat}: $ zfcProofArithmeticBoundedShiftAtomY m c d tag a b x <-> E. y (zfcProofArithmeticQuantifierShiftIndexGraph d b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y) $;
+
+theorem zfcProofArithmeticBoundedShiftAtomY_left_bound (m c d tag a b x: nat) {y: nat}: $ (E. y (zfcProofArithmeticQuantifierShiftIndexGraph d b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y)) -> x < c $;
+
+def zfcProofArithmeticBoundedShiftAtomCell (m c d tag a b .x: nat): wff = $ E. x (x < c /\ (zfcProofArithmeticQuantifierShiftIndexGraph d a x /\ zfcProofArithmeticBoundedShiftAtomY m c d tag a b x)) $;
+
+theorem zfcProofArithmeticBoundedShiftAtomCell_point (m c d tag a b x: nat) {y: nat}: $ x < c /\ (zfcProofArithmeticQuantifierShiftIndexGraph d a x /\ zfcProofArithmeticBoundedShiftAtomY m c d tag a b x) <-> zfcProofArithmeticQuantifierShiftIndexGraph d a x /\ (E. y (zfcProofArithmeticQuantifierShiftIndexGraph d b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y)) $;
+
+theorem zfcProofArithmeticBoundedShiftAtomCell_correct (m c d tag a b: nat): $ zfcProofArithmeticBoundedShiftAtomCell m c d tag a b <-> zfcProofArithmeticQuantifierHistoryCodeShiftAtomCell m c d tag a b $;
+
+def zfcProofArithmeticBoundedSubstAtomY (t m c d tag a b x .y: nat): wff = $ E. y (y < c /\ (zfcProofArithmeticQuantifierSubstIndexGraph d t b y /\ zfcProofArithmeticBoundedNodeNodeCell m c d tag a b tag x y)) $;
+
+theorem zfcProofArithmeticBoundedSubstAtomY_point (t m c d tag a b x y: nat): $ y < c /\ (zfcProofArithmeticQuantifierSubstIndexGraph d t b y /\ zfcProofArithmeticBoundedNodeNodeCell m c d tag a b tag x y) <-> zfcProofArithmeticQuantifierSubstIndexGraph d t b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y $;
+
+theorem zfcProofArithmeticBoundedSubstAtomY_correct (t m c d tag a b x: nat) {y: nat}: $ zfcProofArithmeticBoundedSubstAtomY t m c d tag a b x <-> E. y (zfcProofArithmeticQuantifierSubstIndexGraph d t b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y) $;
+
+theorem zfcProofArithmeticBoundedSubstAtomY_left_bound (t m c d tag a b x: nat) {y: nat}: $ (E. y (zfcProofArithmeticQuantifierSubstIndexGraph d t b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y)) -> x < c $;
+
+def zfcProofArithmeticBoundedSubstAtomCell (t m c d tag a b .x: nat): wff = $ E. x (x < c /\ (zfcProofArithmeticQuantifierSubstIndexGraph d t a x /\ zfcProofArithmeticBoundedSubstAtomY t m c d tag a b x)) $;
+
+theorem zfcProofArithmeticBoundedSubstAtomCell_point (t m c d tag a b x: nat) {y: nat}: $ x < c /\ (zfcProofArithmeticQuantifierSubstIndexGraph d t a x /\ zfcProofArithmeticBoundedSubstAtomY t m c d tag a b x) <-> zfcProofArithmeticQuantifierSubstIndexGraph d t a x /\ (E. y (zfcProofArithmeticQuantifierSubstIndexGraph d t b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y)) $;
+
+theorem zfcProofArithmeticBoundedSubstAtomCell_correct (t m c d tag a b: nat): $ zfcProofArithmeticBoundedSubstAtomCell t m c d tag a b <-> zfcProofArithmeticQuantifierHistoryCodeSubstAtomCell t m c d tag a b $;

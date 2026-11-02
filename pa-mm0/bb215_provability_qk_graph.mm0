@@ -1,0 +1,87 @@
+import "bb215_arithmetic_formula_head.mm0";
+
+import "bb215_arithmetic_formula_finite_code.mm0";
+
+import "k215_induction.mm0";
+
+-- K215 provability Q (lane L07): meta-level graph of the PA code bb215ProvabilityQKCode.
+
+def bb215ProvabilityQKImp (a b: nat): nat = $ (suc (suc 0) * (((a + b) * suc (a + b)) + (suc (suc 0) * b))) $;
+
+def bb215ProvabilityQKMem (a b: nat): nat = $ suc (bb215ProvabilityQKImp a b) $;
+
+def bb215ProvabilityQKAll (a b: nat): nat = $ suc (suc (bb215ProvabilityQKImp a b)) $;
+
+def bb215ProvabilityQKEq (a b: nat): nat = $ suc (suc (suc (bb215ProvabilityQKImp a b))) $;
+
+def bb215ProvabilityQKAxRho1Graph (r a b .q1: nat): wff = $ E. q1 ((q1 = (bb215ProvabilityQKAll a (bb215ProvabilityQKImp (bb215ProvabilityQKEq a b) (suc 0)))) /\ ((q1 <= r) /\ (r = (bb215ProvabilityQKImp q1 (suc 0))))) $;
+
+def bb215ProvabilityQKAxRho1 (r .a .b: nat): wff = $ E. a (E. b ((a <= r) /\ ((b <= r) /\ (bb215ProvabilityQKAxRho1Graph r a b)))) $;
+
+def bb215ProvabilityQKAxRho2Graph (r a b c .q1: nat): wff = $ E. q1 ((q1 = (bb215ProvabilityQKImp (bb215ProvabilityQKAll a b) (bb215ProvabilityQKAll a c))) /\ ((q1 <= r) /\ (r = (bb215ProvabilityQKImp (bb215ProvabilityQKAll a (bb215ProvabilityQKImp b c)) q1)))) $;
+
+def bb215ProvabilityQKAxRho2 (r .a .b .c: nat): wff = $ E. a (E. b (E. c ((a <= r) /\ ((b <= r) /\ ((c <= r) /\ (bb215ProvabilityQKAxRho2Graph r a b c)))))) $;
+
+def bb215ProvabilityQKAxRho3Graph (r a b c .q1: nat): wff = $ E. q1 ((q1 = (bb215ProvabilityQKImp (bb215ProvabilityQKMem c a) (bb215ProvabilityQKMem c b))) /\ ((q1 <= r) /\ (r = (bb215ProvabilityQKImp (bb215ProvabilityQKEq a b) q1)))) $;
+
+def bb215ProvabilityQKAxRho3 (r .a .b .c: nat): wff = $ E. a (E. b (E. c ((a <= r) /\ ((b <= r) /\ ((c <= r) /\ (bb215ProvabilityQKAxRho3Graph r a b c)))))) $;
+
+def bb215ProvabilityQKAxRho4Graph (r a b c: nat): wff = $ r = (bb215ProvabilityQKImp (bb215ProvabilityQKAll a (bb215ProvabilityQKAll b c)) (bb215ProvabilityQKAll b (bb215ProvabilityQKAll a c))) $;
+
+def bb215ProvabilityQKAxRho4 (r .a .b .c: nat): wff = $ E. a (E. b (E. c ((a <= r) /\ ((b <= r) /\ ((c <= r) /\ (bb215ProvabilityQKAxRho4Graph r a b c)))))) $;
+
+def bb215ProvabilityQKAxRho5Graph (r a b c .q1: nat): wff = $ E. q1 ((q1 = (bb215ProvabilityQKImp (bb215ProvabilityQKMem c b) (bb215ProvabilityQKMem a b))) /\ ((q1 <= r) /\ (r = (bb215ProvabilityQKImp (bb215ProvabilityQKEq c a) q1)))) $;
+
+def bb215ProvabilityQKAxRho5 (r .a .b .c: nat): wff = $ E. a (E. b (E. c ((a <= r) /\ ((b <= r) /\ ((c <= r) /\ (bb215ProvabilityQKAxRho5Graph r a b c)))))) $;
+
+def bb215ProvabilityQKAxRho6Graph (r a b .q1: nat): wff = $ E. q1 ((q1 = (bb215ProvabilityQKAll a (bb215ProvabilityQKImp (bb215ProvabilityQKAll a b) (suc 0)))) /\ ((q1 <= r) /\ (r = (bb215ProvabilityQKImp (bb215ProvabilityQKImp q1 (suc 0)) b)))) $;
+
+def bb215ProvabilityQKAxRho6 (r .a .b: nat): wff = $ E. a (E. b ((a <= r) /\ ((b <= r) /\ (bb215ProvabilityQKAxRho6Graph r a b)))) $;
+
+def bb215ProvabilityQKAxGGraph (r a b c .q1: nat): wff = $ E. q1 ((q1 = (bb215ProvabilityQKAll (bb215ProvabilityQKMem a b) (bb215ProvabilityQKEq a b))) /\ ((q1 <= r) /\ (r = (bb215ProvabilityQKImp (bb215ProvabilityQKEq c a) (bb215ProvabilityQKImp (bb215ProvabilityQKEq c b) q1))))) $;
+
+def bb215ProvabilityQKAxG (r .a .b .c: nat): wff = $ E. a (E. b (E. c ((a <= r) /\ ((b <= r) /\ ((c <= r) /\ (bb215ProvabilityQKAxGGraph r a b c)))))) $;
+
+def bb215ProvabilityQKAxRho8Graph (r a b c u .q1: nat): wff = $ E. q1 ((q1 = (bb215ProvabilityQKImp (bb215ProvabilityQKImp a c) (bb215ProvabilityQKImp b c))) /\ ((q1 <= r) /\ (r = (bb215ProvabilityQKImp (bb215ProvabilityQKImp (bb215ProvabilityQKImp c u) a) q1)))) $;
+
+def bb215ProvabilityQKAxRho8 (r .a .b .c .u: nat): wff = $ E. a (E. b (E. c (E. u ((a <= r) /\ ((b <= r) /\ ((c <= r) /\ ((u <= r) /\ ((u <= a) /\ (bb215ProvabilityQKAxRho8Graph r a b c u))))))))) $;
+
+def bb215ProvabilityQKAxBundleGraph (r a b c .q1 .q2 .q3 .q4 .q5 .q6 .q7 .q8: nat): wff = $ E. q1 ((q1 = (bb215ProvabilityQKImp (bb215ProvabilityQKMem a b) (bb215ProvabilityQKAll c (bb215ProvabilityQKMem a b)))) /\ ((q1 <= r) /\ (E. q2 ((q2 = (bb215ProvabilityQKImp (bb215ProvabilityQKMem c a) (bb215ProvabilityQKMem c b))) /\ ((q2 <= r) /\ (E. q3 ((q3 = (bb215ProvabilityQKImp c (bb215ProvabilityQKImp (bb215ProvabilityQKMem b c) (suc 0)))) /\ ((q3 <= r) /\ (E. q4 ((q4 = (bb215ProvabilityQKImp c (bb215ProvabilityQKImp (bb215ProvabilityQKAll b q3) (suc 0)))) /\ ((q4 <= r) /\ (E. q5 ((q5 = (bb215ProvabilityQKImp (bb215ProvabilityQKAll c q2) (bb215ProvabilityQKAll b q4))) /\ ((q5 <= r) /\ (E. q6 ((q6 = (bb215ProvabilityQKImp c (bb215ProvabilityQKImp (bb215ProvabilityQKAll a q5) (suc 0)))) /\ ((q6 <= r) /\ (E. q7 ((q7 = (bb215ProvabilityQKImp (bb215ProvabilityQKMem b c) (bb215ProvabilityQKImp (bb215ProvabilityQKAll a q6) (suc 0)))) /\ ((q7 <= r) /\ (E. q8 ((q8 = (bb215ProvabilityQKImp (bb215ProvabilityQKAll b q7) (bb215ProvabilityQKImp (bb215ProvabilityQKAll b q4) (suc 0)))) /\ ((q8 <= r) /\ (r = (bb215ProvabilityQKImp (bb215ProvabilityQKImp q1 (bb215ProvabilityQKAll c q8)) (suc 0)))))))))))))))))))))))))) $;
+
+def bb215ProvabilityQKAxBundle (r .a .b .c: nat): wff = $ E. a (E. b (E. c ((a <= r) /\ ((b <= r) /\ ((c <= r) /\ (((c = a) -> (0 != 0)) /\ (((c = b) -> (0 != 0)) /\ (bb215ProvabilityQKAxBundleGraph r a b c)))))))) $;
+
+def bb215ProvabilityQKAxiom (r: nat): wff = $ (r = 0) \/ ((bb215ProvabilityQKAxRho1 r) \/ ((bb215ProvabilityQKAxRho2 r) \/ ((bb215ProvabilityQKAxRho3 r) \/ ((bb215ProvabilityQKAxRho4 r) \/ ((bb215ProvabilityQKAxRho5 r) \/ ((bb215ProvabilityQKAxRho6 r) \/ ((bb215ProvabilityQKAxG r) \/ ((bb215ProvabilityQKAxRho8 r) \/ (bb215ProvabilityQKAxBundle r))))))))) $;
+
+def bb215ProvabilityQKCell (m c k .x .w .v: nat): wff = $ (((0 < m) /\ (0 < c)) /\ (A. x (((0 < x) /\ (x <= k)) -> (E. w ((w <= m) /\ ((w * x) = m)))))) /\ (E. v ((v <= c) /\ ((v * suc (m * suc k)) = c))) $;
+
+def bb215ProvabilityQKD (m c i s .q: nat): wff = $ E. q ((q <= c) /\ ((bb215ArithmeticFormulaPairGraph i s q) /\ (bb215ProvabilityQKCell m c q))) $;
+
+def bb215ProvabilityQKRow (m c j b .s .t: nat): wff = $ E. s (E. t ((s <= c) /\ ((t <= c) /\ ((bb215ProvabilityQKD m c j s) /\ (bb215ArithmeticFormulaConsGraph b t s))))) $;
+
+def bb215ProvabilityQKMP (m c n i r .j .k .b: nat): wff = $ E. j (E. k (E. b ((j < n) /\ ((k < n) /\ ((b <= c) /\ ((i < j) /\ ((i < k) /\ ((bb215ProvabilityQKRow m c j b) /\ (bb215ProvabilityQKRow m c k (bb215ProvabilityQKImp b r)))))))))) $;
+
+def bb215ProvabilityQKGen (m c n i r .j .a .b: nat): wff = $ E. j (E. a (E. b ((j < n) /\ ((a <= r) /\ ((b <= r) /\ ((i < j) /\ ((bb215ProvabilityQKRow m c j b) /\ (r = (bb215ProvabilityQKAll a b))))))))) $;
+
+def bb215ProvabilityQKRule (m c n i r: nat): wff = $ (bb215ProvabilityQKAxiom r) \/ ((bb215ProvabilityQKMP m c n i r) \/ (bb215ProvabilityQKGen m c n i r)) $;
+
+def bb215ProvabilityQKFunctional (m c .i .s .t: nat): wff = $ A. i (A. s (A. t (((i <= c) /\ ((s <= c) /\ ((t <= c) /\ ((bb215ProvabilityQKD m c i s) /\ (bb215ProvabilityQKD m c i t))))) -> (s = t)))) $;
+
+def bb215ProvabilityQKSteps (m c n .i .s .r .t: nat): wff = $ A. i (A. s (((i < n) /\ ((s <= c) /\ (bb215ProvabilityQKD m c i s))) -> (E. r (E. t ((r <= c) /\ ((t <= c) /\ ((bb215ArithmeticFormulaConsGraph r t s) /\ ((bb215ProvabilityQKD m c (suc i) t) /\ (bb215ProvabilityQKRule m c n i r))))))))) $;
+
+def bb215ProvabilityQKEntry (m c n y .i: nat): wff = $ E. i ((i < n) /\ (bb215ProvabilityQKRow m c i y)) $;
+
+def bb215ProvabilityQKMatrix (m c n p y: nat): wff = $ (bb215ProvabilityQKD m c 0 p) /\ ((bb215ProvabilityQKD m c n 0) /\ ((bb215ProvabilityQKFunctional m c) /\ ((bb215ProvabilityQKSteps m c n) /\ (bb215ProvabilityQKEntry m c n y)))) $;
+
+def bb215ProvabilityQKGraph (y .m .c .n .p: nat): wff = $ E. m (E. c (E. n (E. p (bb215ProvabilityQKMatrix m c n p y)))) $;
+
+def bb215ProvabilityQRMP (m c k f .k1 .k2 .b: nat): wff = $ E. k1 (E. k2 (E. b ((k1 < k) /\ ((k2 < k) /\ ((b <= c) /\ ((bb215ProvabilityQKD m c k1 b) /\ (bb215ProvabilityQKD m c k2 (bb215ProvabilityQKImp b f)))))))) $;
+
+def bb215ProvabilityQRGen (m c k f .k1 .a .b: nat): wff = $ E. k1 (E. a (E. b ((k1 < k) /\ ((a <= f) /\ ((b <= f) /\ ((bb215ProvabilityQKD m c k1 b) /\ (f = (bb215ProvabilityQKAll a b)))))))) $;
+
+def bb215ProvabilityQRRule (m c k f: nat): wff = $ (bb215ProvabilityQKAxiom f) \/ ((bb215ProvabilityQRMP m c k f) \/ (bb215ProvabilityQRGen m c k f)) $;
+
+def bb215ProvabilityQROk (m c .k .f: nat): wff = $ A. k (A. f (((k <= c) /\ ((f <= c) /\ (bb215ProvabilityQKD m c k f))) -> (bb215ProvabilityQRRule m c k f))) $;
+
+def bb215ProvabilityQRGraph (y .m .c .k: nat): wff = $ E. m (E. c ((bb215ProvabilityQROk m c) /\ (E. k ((k <= c) /\ (bb215ProvabilityQKD m c k y))))) $;
+
+theorem bb215ProvabilityQKImp_unfold (a b: nat): $ bb215ProvabilityQKImp a b = 2 * ((a + b) * suc (a + b) + 2 * b) $;

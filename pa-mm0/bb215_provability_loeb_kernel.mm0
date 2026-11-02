@@ -1,0 +1,21 @@
+import "bb215_provability_numeral_template.mm0";
+
+def bb215ProvabilityLoebBounds (a g pg pgg pa pga pfix: nat): wff = $ sfBound 0 a /\ sfBound 0 g /\ sfBound 0 pg /\ sfBound 0 pgg /\ sfBound 0 pa /\ sfBound 0 pga /\ sfBound 0 pfix $;
+
+def bb215ProvabilityLoebFixedPointForward (a g pg: nat): nat = $ sfImp g (sfImp pg a) $;
+
+def bb215ProvabilityLoebFixedPointBackward (a g pg: nat): nat = $ sfImp (sfImp pg a) g $;
+
+def bb215ProvabilityLoebDerivability (a g pg pgg pa pga pfix: nat): wff = $ zfcProvable (bb215ProvabilityLoebFixedPointForward a g pg) /\ zfcProvable (bb215ProvabilityLoebFixedPointBackward a g pg) /\ (zfcProvable (bb215ProvabilityLoebFixedPointForward a g pg) -> zfcProvable pfix) /\ zfcProvable (sfImp pfix (sfImp pg pga)) /\ zfcProvable (sfImp pga (sfImp pgg pa)) /\ zfcProvable (sfImp pg pgg) /\ (zfcProvable g -> zfcProvable pg) $;
+
+def bb215ProvabilityLoebConditions (a g pg pgg pa pga pfix: nat): wff = $ bb215ProvabilityLoebBounds a g pg pgg pa pga pfix /\ bb215ProvabilityLoebDerivability a g pg pgg pa pga pfix $;
+
+theorem bb215ProvabilityLoeb_kernel (a g pg pgg pa pga pfix: nat): $ bb215ProvabilityLoebConditions a g pg pgg pa pga pfix -> zfcProvable (sfImp pa a) -> zfcProvable a $;
+
+def bb215ProvabilityConsistencySentence (boxFalsity: nat): nat = $ sfImp boxFalsity sfBot $;
+
+theorem bb215ProvabilityConsistencySentence_closed (boxFalsity: nat): $ sfBound 0 boxFalsity -> sfBound 0 (bb215ProvabilityConsistencySentence boxFalsity) $;
+
+theorem bb215ProvabilityG2_kernel (g pg pgg boxFalsity pga pfix: nat): $ bb215ProvabilityLoebConditions sfBot g pg pgg boxFalsity pga pfix -> zfcProvable (bb215ProvabilityConsistencySentence boxFalsity) -> zfcInconsistent $;
+
+theorem bb215ProvabilityG2_consistency_kernel (g pg pgg boxFalsity pga pfix: nat): $ bb215ProvabilityLoebConditions sfBot g pg pgg boxFalsity pga pfix -> ~zfcInconsistent -> ~zfcProvable (bb215ProvabilityConsistencySentence boxFalsity) $;

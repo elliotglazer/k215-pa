@@ -1,0 +1,81 @@
+import "pa_source_interpretation_equality_axiom_substitution_template.mm0";
+
+import "source_formula_equality_transport.mm0";
+
+import "pa_source_interpretation_term_role_shifts.mm0";
+
+import "pa_source_interpretation_natural.mm0";
+
+import "pa_source_interpretation_rebase.mm0";
+
+import "source_renaming_agreement.mm0";
+
+import "source_theory_local.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def paSIEQGLMapCons (a: nat) (R: set) (.i: nat): set = $ \ i, if (i = 0) a (R @ (i - 1)) $;
+
+def paSIEQGLMapAdd (t .i: nat): set = $ \ i, i + t $;
+
+def paSourceEqualityGraphEvaluation (phi graph p: nat): nat = $ sfAll (sfImp graph (sfAnd (sfImp (sfShift 0 p) phi) (sfImp phi (sfShift 0 p)))) $;
+
+def paSIEQGLMap1: set = $ paSIEQGLMapAdd 1 $;
+
+def paSIEqGraphLawF0 (phi graph p guard: nat): nat = $ sfRename paSIEQGLMap1 0 p $;
+
+def paSIEqGraphLawF1 (phi graph p guard: nat): nat = $ sfImp (paSIEqGraphLawF0 phi graph p guard) phi $;
+
+def paSIEqGraphLawF2 (phi graph p guard: nat): nat = $ sfImp phi (paSIEqGraphLawF0 phi graph p guard) $;
+
+def paSIEqGraphLawF3 (phi graph p guard: nat): nat = $ sfAnd (paSIEqGraphLawF1 phi graph p guard) (paSIEqGraphLawF2 phi graph p guard) $;
+
+def paSIEqGraphLawF4 (phi graph p guard: nat): nat = $ sfImp graph (paSIEqGraphLawF3 phi graph p guard) $;
+
+def paSIEqGraphLawF5 (phi graph p guard: nat): nat = $ sfAll (paSIEqGraphLawF4 phi graph p guard) $;
+
+def paSIEQGLMap3: set = $ paSIEQGLMapAdd 2 $;
+
+def paSIEQGLMap2: set = $ paSIEQGLMapCons 0 paSIEQGLMap3 $;
+
+def paSIEqGraphLawF6 (phi graph p guard: nat): nat = $ sfRename paSIEQGLMap2 0 graph $;
+
+def paSIEqGraphLawF7 (phi graph p guard: nat): nat = $ sfRename paSIEQGLMap3 0 p $;
+
+def paSIEqGraphLawF8 (phi graph p guard: nat): nat = $ sfRename paSIEQGLMap2 0 phi $;
+
+def paSIEqGraphLawF9 (phi graph p guard: nat): nat = $ sfImp (paSIEqGraphLawF7 phi graph p guard) (paSIEqGraphLawF8 phi graph p guard) $;
+
+def paSIEqGraphLawF10 (phi graph p guard: nat): nat = $ sfImp (paSIEqGraphLawF8 phi graph p guard) (paSIEqGraphLawF7 phi graph p guard) $;
+
+def paSIEqGraphLawF11 (phi graph p guard: nat): nat = $ sfAnd (paSIEqGraphLawF9 phi graph p guard) (paSIEqGraphLawF10 phi graph p guard) $;
+
+def paSIEqGraphLawF12 (phi graph p guard: nat): nat = $ sfImp (paSIEqGraphLawF6 phi graph p guard) (paSIEqGraphLawF11 phi graph p guard) $;
+
+def paSIEqGraphLawF13 (phi graph p guard: nat): nat = $ sfAll (paSIEqGraphLawF12 phi graph p guard) $;
+
+def paSIEqGraphLawF14 (phi graph p guard: nat): nat = $ sfRename paSIEQGLMap1 0 guard $;
+
+def paSIEqGraphLawF15 (phi graph p guard: nat): nat = $ sfImp graph (paSIEqGraphLawF1 phi graph p guard) $;
+
+def paSIEqGraphLawF16 (phi graph p guard: nat): nat = $ sfImp (paSIEqGraphLawF14 phi graph p guard) (paSIEqGraphLawF15 phi graph p guard) $;
+
+def paSIEqGraphLawF17 (phi graph p guard: nat): nat = $ sfAll (paSIEqGraphLawF16 phi graph p guard) $;
+
+def paSIEqGraphLawF18 (phi graph p guard: nat): nat = $ sfImp (paSIEqGraphLawF5 phi graph p guard) (paSIEqGraphLawF17 phi graph p guard) $;
+
+theorem paSourceEqualityGraphEvaluation_forward_implication (phi graph p guard n: nat) (h0: $ sfBound (suc n) phi $) (h1: $ sfBound (suc n) graph $) (h2: $ sfBound (suc n) p $) (h3: $ sfBound (suc n) guard $): $ zfcProvable (sfImp (paSourceEqualityGraphEvaluation phi graph p) (paSourceEqualityGraphForward phi graph p guard)) $;
+
+theorem paSourceEqualityGraphEvaluation_forward (phi graph p guard n: nat) (h0: $ sfBound (suc n) phi $) (h1: $ sfBound (suc n) graph $) (h2: $ sfBound (suc n) p $) (h3: $ sfBound (suc n) guard $): $ zfcProvable (paSourceEqualityGraphEvaluation phi graph p) -> zfcProvable (paSourceEqualityGraphForward phi graph p guard) $;
+
+def paSIEqGraphLawF19 (phi graph p guard: nat): nat = $ sfImp graph (paSIEqGraphLawF2 phi graph p guard) $;
+
+def paSIEqGraphLawF20 (phi graph p guard: nat): nat = $ sfImp (paSIEqGraphLawF14 phi graph p guard) (paSIEqGraphLawF19 phi graph p guard) $;
+
+def paSIEqGraphLawF21 (phi graph p guard: nat): nat = $ sfAll (paSIEqGraphLawF20 phi graph p guard) $;
+
+def paSIEqGraphLawF22 (phi graph p guard: nat): nat = $ sfImp (paSIEqGraphLawF5 phi graph p guard) (paSIEqGraphLawF21 phi graph p guard) $;
+
+theorem paSourceEqualityGraphEvaluation_backward_implication (phi graph p guard n: nat) (h0: $ sfBound (suc n) phi $) (h1: $ sfBound (suc n) graph $) (h2: $ sfBound (suc n) p $) (h3: $ sfBound (suc n) guard $): $ zfcProvable (sfImp (paSourceEqualityGraphEvaluation phi graph p) (paSourceEqualityGraphBackward phi graph p guard)) $;
+
+theorem paSourceEqualityGraphEvaluation_backward (phi graph p guard n: nat) (h0: $ sfBound (suc n) phi $) (h1: $ sfBound (suc n) graph $) (h2: $ sfBound (suc n) p $) (h3: $ sfBound (suc n) guard $): $ zfcProvable (paSourceEqualityGraphEvaluation phi graph p) -> zfcProvable (paSourceEqualityGraphBackward phi graph p guard) $;

@@ -1,0 +1,29 @@
+import "pa_proof_numeral_all_elim.mm0";
+
+import "pa_source_interpretation_term_rename_agreement.mm0";
+
+def paProofNumeralMultiplicationZeroBody: nat = $ paFormulaEqual (paTermMultiplication (paTermVariable 0) paTermZero) paTermZero $;
+
+def paProofNumeralMultiplicationZeroAxiomWitness: nat = $ paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))))) 0 0 0 $;
+
+def paProofNumeralMultiplicationZeroAxiomRow: nat = $ paProofNumeralAxiomRow 0 paAxiomMultiplicationZero paProofNumeralMultiplicationZeroAxiomWitness $;
+
+def paProofNumeralMultiplicationZeroAxiomProof: nat = $ paProofNumeralAxiomProof 0 paAxiomMultiplicationZero paProofNumeralMultiplicationZeroAxiomWitness $;
+
+theorem paProofNumeralMultiplicationZero_axiom: $ paProofDerives paProofNumeralMultiplicationZeroAxiomProof paProofNumeralMultiplicationZeroAxiomRow $;
+
+def paProofNumeralMultiplicationZeroFormula (n: nat): nat = $ paFormulaEqual (paTermMultiplication (paTermNumeral n) paTermZero) paTermZero $;
+
+theorem paProofNumeralMultiplicationZero_substitution (n: nat): $ paFormulaSubst 0 (paTermNumeral n) paProofNumeralMultiplicationZeroBody = paProofNumeralMultiplicationZeroFormula n $;
+
+def paProofNumeralMultiplicationZeroRawRow (n: nat): nat = $ paProofNumeralAllElimRow 0 paProofNumeralMultiplicationZeroBody (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralMultiplicationZeroAxiomWitness) $;
+
+def paProofNumeralMultiplicationZeroProof (n: nat): nat = $ paProofNumeralAllElimProof 0 paProofNumeralMultiplicationZeroBody (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralMultiplicationZeroAxiomWitness) paProofNumeralMultiplicationZeroAxiomProof $;
+
+def paProofNumeralMultiplicationZeroRow (n: nat): nat = $ paProofRow 0 (paProofNumeralMultiplicationZeroFormula n) (paProofMPAnnotation paProofNumeralMultiplicationZeroAxiomRow (paProofNumeralAllElimAxiomRow 0 paProofNumeralMultiplicationZeroBody (paTermNumeral n))) $;
+
+theorem paProofNumeralMultiplicationZero_row_exact (n: nat): $ paProofNumeralMultiplicationZeroRawRow n = paProofNumeralMultiplicationZeroRow n $;
+
+theorem paProofNumeralMultiplicationZero_derives (n: nat): $ paProofDerives (paProofNumeralMultiplicationZeroProof n) (paProofNumeralMultiplicationZeroRow n) $;
+
+theorem paProofNumeralMultiplicationZero_provable (n: nat): $ paProvable 0 (paFormulaEqual (paTermMultiplication (paTermNumeral n) paTermZero) paTermZero) $;

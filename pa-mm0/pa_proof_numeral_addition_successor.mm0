@@ -1,0 +1,41 @@
+import "pa_proof_numeral_closed.mm0";
+
+def paProofNumeralAdditionSuccessorBody: nat = $ paFormulaEqual (paTermAddition (paTermVariable 1) (paTermSuccessor (paTermVariable 0))) (paTermSuccessor (paTermAddition (paTermVariable 1) (paTermVariable 0))) $;
+
+def paProofNumeralAdditionSuccessorAxiomWitness: nat = $ paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))))) 0 0 0 $;
+
+def paProofNumeralAdditionSuccessorAxiomRow: nat = $ paProofNumeralAxiomRow 0 paAxiomAdditionSuccessor paProofNumeralAdditionSuccessorAxiomWitness $;
+
+def paProofNumeralAdditionSuccessorAxiomProof: nat = $ paProofNumeralAxiomProof 0 paAxiomAdditionSuccessor paProofNumeralAdditionSuccessorAxiomWitness $;
+
+theorem paProofNumeralAdditionSuccessor_axiom: $ paProofDerives paProofNumeralAdditionSuccessorAxiomProof paProofNumeralAdditionSuccessorAxiomRow $;
+
+def paProofNumeralAdditionSuccessorFirstBody (n: nat): nat = $ paFormulaEqual (paTermAddition (paTermNumeral n) (paTermSuccessor (paTermVariable 0))) (paTermSuccessor (paTermAddition (paTermNumeral n) (paTermVariable 0))) $;
+
+theorem paProofNumeralAdditionSuccessor_first_substitution (n: nat): $ paFormulaSubst 0 (paTermNumeral n) (paFormulaAll paProofNumeralAdditionSuccessorBody) = paFormulaAll (paProofNumeralAdditionSuccessorFirstBody n) $;
+
+def paProofNumeralAdditionSuccessorFirstAnnotation (n: nat): nat = $ paProofMPAnnotation paProofNumeralAdditionSuccessorAxiomRow (paProofNumeralAllElimAxiomRow 0 (paFormulaAll paProofNumeralAdditionSuccessorBody) (paTermNumeral n)) $;
+
+def paProofNumeralAdditionSuccessorFirstRawRow (n: nat): nat = $ paProofNumeralAllElimRow 0 (paFormulaAll paProofNumeralAdditionSuccessorBody) (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralAdditionSuccessorAxiomWitness) $;
+
+def paProofNumeralAdditionSuccessorFirstRow (n: nat): nat = $ paProofRow 0 (paFormulaAll (paProofNumeralAdditionSuccessorFirstBody n)) (paProofNumeralAdditionSuccessorFirstAnnotation n) $;
+
+def paProofNumeralAdditionSuccessorFirstProof (n: nat): nat = $ paProofNumeralAllElimProof 0 (paFormulaAll paProofNumeralAdditionSuccessorBody) (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralAdditionSuccessorAxiomWitness) paProofNumeralAdditionSuccessorAxiomProof $;
+
+theorem paProofNumeralAdditionSuccessor_first_derives (n: nat): $ paProofDerives (paProofNumeralAdditionSuccessorFirstProof n) (paProofNumeralAdditionSuccessorFirstRow n) $;
+
+def paProofNumeralAdditionSuccessorFormula (n m: nat): nat = $ paFormulaEqual (paTermAddition (paTermNumeral n) (paTermSuccessor (paTermNumeral m))) (paTermSuccessor (paTermAddition (paTermNumeral n) (paTermNumeral m))) $;
+
+theorem paProofNumeralAdditionSuccessor_second_substitution (n m: nat): $ paFormulaSubst 0 (paTermNumeral m) (paProofNumeralAdditionSuccessorFirstBody n) = paProofNumeralAdditionSuccessorFormula n m $;
+
+def paProofNumeralAdditionSuccessorRawRow (n m: nat): nat = $ paProofNumeralAllElimRow 0 (paProofNumeralAdditionSuccessorFirstBody n) (paTermNumeral m) (paProofNumeralAdditionSuccessorFirstAnnotation n) $;
+
+def paProofNumeralAdditionSuccessorRow (n m: nat): nat = $ paProofRow 0 (paProofNumeralAdditionSuccessorFormula n m) (paProofMPAnnotation (paProofNumeralAdditionSuccessorFirstRow n) (paProofNumeralAllElimAxiomRow 0 (paProofNumeralAdditionSuccessorFirstBody n) (paTermNumeral m))) $;
+
+def paProofNumeralAdditionSuccessorProof (n m: nat): nat = $ paProofNumeralAllElimProof 0 (paProofNumeralAdditionSuccessorFirstBody n) (paTermNumeral m) (paProofNumeralAdditionSuccessorFirstAnnotation n) (paProofNumeralAdditionSuccessorFirstProof n) $;
+
+theorem paProofNumeralAdditionSuccessor_row_exact (n m: nat): $ paProofNumeralAdditionSuccessorRawRow n m = paProofNumeralAdditionSuccessorRow n m $;
+
+theorem paProofNumeralAdditionSuccessor_derives (n m: nat): $ paProofDerives (paProofNumeralAdditionSuccessorProof n m) (paProofNumeralAdditionSuccessorRow n m) $;
+
+theorem paProofNumeralAdditionSuccessor_provable (n m: nat): $ paProvable 0 (paProofNumeralAdditionSuccessorFormula n m) $;

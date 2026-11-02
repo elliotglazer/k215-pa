@@ -1,0 +1,51 @@
+import "pa_proof_numeral_term_qf_induction.mm0";
+
+import "pa_source_interpretation_nat_qf_formula.mm0";
+
+def paProofNumeralTermQFTruth (c: nat): wff = $ bb215ArithmeticFormulaQFSat paProofNumeralTermEnvironment c $;
+
+def paProofNumeralTermQFBit (c: nat): nat = $ if (paProofNumeralTermQFTruth c) 1 0 $;
+
+def paProofNumeralTermQFSignedFormula (c: nat): nat = $ if (paProofNumeralTermQFTruth c) c (paFormulaImp c paFormulaFalse) $;
+
+def paProofNumeralTermQFStateDerives (c s: nat): wff = $ paProofDerives (fst s) (paProofRow 0 (paProofNumeralTermQFSignedFormula c) (snd s)) $;
+
+theorem paProofNumeralTermQFBit_true (c: nat): $ paProofNumeralTermQFTruth c -> paProofNumeralTermQFBit c = 1 $;
+
+theorem paProofNumeralTermQFBit_false (c: nat): $ ~ paProofNumeralTermQFTruth c -> paProofNumeralTermQFBit c = 0 $;
+
+theorem paProofNumeralTermQFSignedFormula_true (c: nat): $ paProofNumeralTermQFTruth c -> paProofNumeralTermQFSignedFormula c = c $;
+
+theorem paProofNumeralTermQFSignedFormula_false (c: nat): $ ~ paProofNumeralTermQFTruth c -> paProofNumeralTermQFSignedFormula c = paFormulaImp c paFormulaFalse $;
+
+theorem paProofNumeralTermQFTruth_false: $ ~ paProofNumeralTermQFTruth paFormulaFalse $;
+
+theorem paProofNumeralTermQFTruth_equal (a b: nat): $ paProofNumeralTermQFTruth (paFormulaEqual a b) <-> paProofNumeralTermValue a = paProofNumeralTermValue b $;
+
+theorem paProofNumeralTermQFTruth_and (a b: nat): $ paProofNumeralTermQFTruth (paFormulaAnd a b) <-> (paProofNumeralTermQFTruth a /\ paProofNumeralTermQFTruth b) $;
+
+theorem paProofNumeralTermQFTruth_or (a b: nat): $ paProofNumeralTermQFTruth (paFormulaOr a b) <-> (paProofNumeralTermQFTruth a \/ paProofNumeralTermQFTruth b) $;
+
+theorem paProofNumeralTermQFTruth_imp (a b: nat): $ paProofNumeralTermQFTruth (paFormulaImp a b) <-> (paProofNumeralTermQFTruth a -> paProofNumeralTermQFTruth b) $;
+
+theorem paProofNumeralTermQFChoose_derives (G p: wff) (c s t: nat) (hs: $ G /\ p -> paProofNumeralTermQFStateDerives c s $) (ht: $ G /\ ~p -> paProofNumeralTermQFStateDerives c t $): $ G -> paProofNumeralTermQFStateDerives c (if p s t) $;
+
+def paProofNumeralTermQFFalseState: nat = $ (paProofNumeralTermQFIdentityProof paFormulaFalse, paProofNumeralTermQFIdentityAnnotation paFormulaFalse) $;
+
+theorem paProofNumeralTermQFFalseState_derives: $ paProofNumeralTermQFStateDerives paFormulaFalse paProofNumeralTermQFFalseState $;
+
+def paProofNumeralTermQFEqualState (a b: nat): nat = $ if (paProofNumeralTermValue a = paProofNumeralTermValue b) (paProofNumeralTermEqualityProof a b, paProofNumeralTermEqualityAnnotation a b) (paProofNumeralTermInequalityProof a b, paProofNumeralTermInequalityAnnotation a b) $;
+
+theorem paProofNumeralTermQFEqualState_derives (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b -> paProofNumeralTermQFStateDerives (paFormulaEqual a b) (paProofNumeralTermQFEqualState a b) $;
+
+def paProofNumeralTermQFAndState (a b s t: nat): nat = $ (if (paProofNumeralTermQFTruth a) (if (paProofNumeralTermQFTruth b) ((paProofNumeralTermQFAndTrueProof a b (snd s) (snd t) (fst s) (fst t)), (paProofNumeralTermQFAndTrueAnnotation a b (snd s) (snd t) (fst s) (fst t))) ((paProofNumeralTermQFAndFalseRightProof a b (snd t) (fst t)), (paProofNumeralTermQFAndFalseRightAnnotation a b (snd t) (fst t)))) ((paProofNumeralTermQFAndFalseLeftProof a b (snd s) (fst s)), (paProofNumeralTermQFAndFalseLeftAnnotation a b (snd s) (fst s)))) $;
+
+theorem paProofNumeralTermQFAndState_derives (a b s t: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofNumeralTermQFStateDerives a s /\ paProofNumeralTermQFStateDerives b t -> paProofNumeralTermQFStateDerives (paFormulaAnd a b) (paProofNumeralTermQFAndState a b s t) $;
+
+def paProofNumeralTermQFOrState (a b s t: nat): nat = $ (if (paProofNumeralTermQFTruth a) ((paProofNumeralTermQFOrTrueLeftProof a b (snd s) (fst s)), (paProofNumeralTermQFOrTrueLeftAnnotation a b (snd s) (fst s))) (if (paProofNumeralTermQFTruth b) ((paProofNumeralTermQFOrTrueRightProof a b (snd t) (fst t)), (paProofNumeralTermQFOrTrueRightAnnotation a b (snd t) (fst t))) ((paProofNumeralTermQFOrFalseProof a b (snd s) (snd t) (fst s) (fst t)), (paProofNumeralTermQFOrFalseAnnotation a b (snd s) (snd t) (fst s) (fst t))))) $;
+
+theorem paProofNumeralTermQFOrState_derives (a b s t: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofNumeralTermQFStateDerives a s /\ paProofNumeralTermQFStateDerives b t -> paProofNumeralTermQFStateDerives (paFormulaOr a b) (paProofNumeralTermQFOrState a b s t) $;
+
+def paProofNumeralTermQFImpState (a b s t: nat): nat = $ (if (paProofNumeralTermQFTruth b) ((paProofNumeralTermQFImpTrueRightProof a b (snd t) (fst t)), (paProofNumeralTermQFImpTrueRightAnnotation a b (snd t) (fst t))) (if (paProofNumeralTermQFTruth a) ((paProofNumeralTermQFImpFalseProof a b (snd s) (snd t) (fst s) (fst t)), (paProofNumeralTermQFImpFalseAnnotation a b (snd s) (snd t) (fst s) (fst t))) ((paProofNumeralTermQFImpTrueLeftProof a b (snd s) (fst s)), (paProofNumeralTermQFImpTrueLeftAnnotation a b (snd s) (fst s))))) $;
+
+theorem paProofNumeralTermQFImpState_derives (a b s t: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofNumeralTermQFStateDerives a s /\ paProofNumeralTermQFStateDerives b t -> paProofNumeralTermQFStateDerives (paFormulaImp a b) (paProofNumeralTermQFImpState a b s t) $;

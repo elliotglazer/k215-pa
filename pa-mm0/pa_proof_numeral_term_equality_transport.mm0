@@ -1,0 +1,29 @@
+import "pa_proof_numeral_term_numeral_refutation.mm0";
+
+def paProofNumeralTermEqualityLeftTransportPhi (c: nat): nat = $ (paFormulaEqual (paTermVariable 0) c) $;
+
+def paProofNumeralTermEqualityLeftTransportFormula (a b c: nat): nat = $ paFormulaImp (paFormulaEqual a c) (paFormulaEqual b c) $;
+
+def paProofNumeralTermEqualityLeftTransportAxiomAnnotation (a b c: nat): nat = $ paProofAxiomAnnotation (paProofNumeralEqSubstWitness (paProofNumeralTermEqualityLeftTransportPhi c) a b) $;
+
+def paProofNumeralTermEqualityLeftTransportAnnotation (a b c h: nat): nat = $ paProofNumeralMPAnnotation (paFormulaEqual a b) (paProofNumeralTermEqualityLeftTransportFormula a b c) h (paProofNumeralTermEqualityLeftTransportAxiomAnnotation a b c) $;
+
+def paProofNumeralTermEqualityLeftTransportRow (a b c h: nat): nat = $ paProofRow 0 (paProofNumeralTermEqualityLeftTransportFormula a b c) (paProofNumeralTermEqualityLeftTransportAnnotation a b c h) $;
+
+def paProofNumeralTermEqualityLeftTransportProof (a b c h p: nat): nat = $ paProofNumeralMPProof (paFormulaEqual a b) (paProofNumeralTermEqualityLeftTransportFormula a b c) h (paProofNumeralTermEqualityLeftTransportAxiomAnnotation a b c) p (paProofNumeralEqSubstProof (paProofNumeralTermEqualityLeftTransportPhi c) a b) $;
+
+theorem paProofNumeralTermEqualityLeftTransport_derives (a b c h p: nat): $ paTermBound 0 c -> paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paProofDerives (paProofNumeralTermEqualityLeftTransportProof a b c h p) (paProofNumeralTermEqualityLeftTransportRow a b c h) $;
+
+def paProofNumeralTermEqualityRightTransportPhi (c: nat): nat = $ (paFormulaEqual c (paTermVariable 0)) $;
+
+def paProofNumeralTermEqualityRightTransportFormula (a b c: nat): nat = $ paFormulaImp (paFormulaEqual c a) (paFormulaEqual c b) $;
+
+def paProofNumeralTermEqualityRightTransportAxiomAnnotation (a b c: nat): nat = $ paProofAxiomAnnotation (paProofNumeralEqSubstWitness (paProofNumeralTermEqualityRightTransportPhi c) a b) $;
+
+def paProofNumeralTermEqualityRightTransportAnnotation (a b c h: nat): nat = $ paProofNumeralMPAnnotation (paFormulaEqual a b) (paProofNumeralTermEqualityRightTransportFormula a b c) h (paProofNumeralTermEqualityRightTransportAxiomAnnotation a b c) $;
+
+def paProofNumeralTermEqualityRightTransportRow (a b c h: nat): nat = $ paProofRow 0 (paProofNumeralTermEqualityRightTransportFormula a b c) (paProofNumeralTermEqualityRightTransportAnnotation a b c h) $;
+
+def paProofNumeralTermEqualityRightTransportProof (a b c h p: nat): nat = $ paProofNumeralMPProof (paFormulaEqual a b) (paProofNumeralTermEqualityRightTransportFormula a b c) h (paProofNumeralTermEqualityRightTransportAxiomAnnotation a b c) p (paProofNumeralEqSubstProof (paProofNumeralTermEqualityRightTransportPhi c) a b) $;
+
+theorem paProofNumeralTermEqualityRightTransport_derives (a b c h p: nat): $ paTermBound 0 c -> paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paProofDerives (paProofNumeralTermEqualityRightTransportProof a b c h p) (paProofNumeralTermEqualityRightTransportRow a b c h) $;

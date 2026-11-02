@@ -1,0 +1,27 @@
+import "pa_proof_numeral_bounded_exists_at.mm0";
+
+def paProofNumeralBoundedReflexivityWitness (c: nat): nat = $ paAxiomWitness (suc (suc (suc (suc (suc 10))))) c 0 0 $;
+
+def paProofNumeralBoundedReflexivityProof (n c: nat): nat = $ paProofNumeralAxiomProof n (paFormulaEqual c c) (paProofNumeralBoundedReflexivityWitness c) $;
+
+def paProofNumeralBoundedReflexivityRow (n c: nat): nat = $ paProofNumeralAxiomRow n (paFormulaEqual c c) (paProofNumeralBoundedReflexivityWitness c) $;
+
+theorem paProofNumeralBoundedReflexivity_derives (n c: nat): $ paTermBound n c -> paProofDerives (paProofNumeralBoundedReflexivityProof n c) (paProofNumeralBoundedReflexivityRow n c) $;
+
+def paProofNumeralBoundedInductionWitness (c: nat): nat = $ paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))))))) c 0 0 $;
+
+def paProofNumeralBoundedInductionProof (n c: nat): nat = $ paProofNumeralAxiomProof n (paAxiomInduction c) (paProofNumeralBoundedInductionWitness c) $;
+
+def paProofNumeralBoundedInductionRow (n c: nat): nat = $ paProofNumeralAxiomRow n (paAxiomInduction c) (paProofNumeralBoundedInductionWitness c) $;
+
+theorem paProofNumeralBoundedInduction_derives (n c: nat): $ paFormulaBound (suc n) c -> paProofDerives (paProofNumeralBoundedInductionProof n c) (paProofNumeralBoundedInductionRow n c) $;
+
+def paProofNumeralBoundedGenAnnotation (n c h: nat): nat = $ paProofGenAnnotation (paProofRow (suc n) c h) $;
+
+def paProofNumeralBoundedGenRow (n c h: nat): nat = $ paProofRow n (paFormulaAll c) (paProofNumeralBoundedGenAnnotation n c h) $;
+
+def paProofNumeralBoundedGenProof (n c h p: nat): nat = $ paProofNumeralBoundedGenRow n c h : p $;
+
+theorem paProofNumeralBoundedGen_derives (n c h p: nat): $ paProofDerives p (paProofRow (suc n) c h) -> paProofDerives (paProofNumeralBoundedGenProof n c h p) (paProofNumeralBoundedGenRow n c h) $;
+
+theorem paProofNumeralBoundedGen_length (n c h p: nat): $ len (paProofNumeralBoundedGenProof n c h p) = suc (len p) $;

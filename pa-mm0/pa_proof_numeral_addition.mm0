@@ -1,0 +1,41 @@
+import "pa_proof_numeral_addition_step.mm0";
+
+def paProofNumeralAdditionInitialState (n: nat): nat = $ (0, (paProofNumeralAdditionZeroProof n, paProofNumeralAdditionBaseAnnotation n)) $;
+
+def paProofNumeralAdditionStepState (n m p h: nat): nat = $ (suc m, (paProofNumeralAdditionStepProof n m h p, paProofNumeralAdditionStepAnnotation n m h)) $;
+
+def paProofNumeralAdditionStateStep (n s: nat): nat = $ paProofNumeralAdditionStepState n (fst s) (fst (snd s)) (snd (snd s)) $;
+
+def paProofNumeralAdditionStateStepSet (n .s: nat): set = $ \ s, paProofNumeralAdditionStateStep n s $;
+
+def paProofNumeralAdditionState (n m: nat): nat = $ rec (paProofNumeralAdditionInitialState n) (paProofNumeralAdditionStateStepSet n) m $;
+
+def paProofNumeralAdditionProof (n m: nat): nat = $ fst (snd (paProofNumeralAdditionState n m)) $;
+
+def paProofNumeralAdditionAnnotation (n m: nat): nat = $ snd (snd (paProofNumeralAdditionState n m)) $;
+
+def paProofNumeralAdditionRow (n m: nat): nat = $ paProofRow 0 (paProofNumeralAdditionFormula n m) (paProofNumeralAdditionAnnotation n m) $;
+
+theorem paProofNumeralAdditionStateStepSet_apply (n s: nat): $ paProofNumeralAdditionStateStepSet n @ s = paProofNumeralAdditionStateStep n s $;
+
+theorem paProofNumeralAdditionState_zero (n: nat): $ paProofNumeralAdditionState n 0 = paProofNumeralAdditionInitialState n $;
+
+theorem paProofNumeralAdditionState_succ (n m: nat): $ paProofNumeralAdditionState n (suc m) = paProofNumeralAdditionStateStep n (paProofNumeralAdditionState n m) $;
+
+theorem paProofNumeralAdditionState_index (n m: nat): $ fst (paProofNumeralAdditionState n m) = m $;
+
+theorem paProofNumeralAdditionState_succ_canonical (n m: nat): $ paProofNumeralAdditionState n (suc m) = paProofNumeralAdditionStepState n m (paProofNumeralAdditionProof n m) (paProofNumeralAdditionAnnotation n m) $;
+
+theorem paProofNumeralAdditionProof_zero (n: nat): $ paProofNumeralAdditionProof n 0 = paProofNumeralAdditionZeroProof n $;
+
+theorem paProofNumeralAdditionAnnotation_zero (n: nat): $ paProofNumeralAdditionAnnotation n 0 = paProofNumeralAdditionBaseAnnotation n $;
+
+theorem paProofNumeralAdditionProof_succ (n m: nat): $ paProofNumeralAdditionProof n (suc m) = paProofNumeralAdditionStepProof n m (paProofNumeralAdditionAnnotation n m) (paProofNumeralAdditionProof n m) $;
+
+theorem paProofNumeralAdditionAnnotation_succ (n m: nat): $ paProofNumeralAdditionAnnotation n (suc m) = paProofNumeralAdditionStepAnnotation n m (paProofNumeralAdditionAnnotation n m) $;
+
+theorem paProofNumeralAddition_derives (n m: nat): $ paProofDerives (paProofNumeralAdditionProof n m) (paProofNumeralAdditionRow n m) $;
+
+theorem paProofNumeralAddition_provable (n m: nat): $ paProvable 0 (paFormulaEqual (paTermAddition (paTermNumeral n) (paTermNumeral m)) (paTermNumeral (n + m))) $;
+
+theorem paProofNumeralAddition_valid (n m: nat): $ paProofValid (paProofNumeralAdditionProof n m) $;

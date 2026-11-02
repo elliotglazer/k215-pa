@@ -1,0 +1,23 @@
+import "pa_proof_numeral_closed_terms.mm0";
+
+def paProofNumeralTermReflexivityWitness (a: nat): nat = $ paAxiomWitness (suc (suc (suc (suc (suc 10))))) a 0 0 $;
+
+def paProofNumeralTermReflexivityRow (a: nat): nat = $ paProofNumeralAxiomRow 0 (paFormulaEqual a a) (paProofNumeralTermReflexivityWitness a) $;
+
+def paProofNumeralTermReflexivityProof (a: nat): nat = $ paProofNumeralAxiomProof 0 (paFormulaEqual a a) (paProofNumeralTermReflexivityWitness a) $;
+
+theorem paProofNumeralTermReflexivity_derives (a: nat): $ paTermBound 0 a -> paProofDerives (paProofNumeralTermReflexivityProof a) (paProofNumeralTermReflexivityRow a) $;
+
+def paProofNumeralEqSubstWitness (phi a b: nat): nat = $ paAxiomWitness (suc (suc (suc (suc (suc (suc 10)))))) phi a b $;
+
+def paProofNumeralEqSubstRow (phi a b: nat): nat = $ paProofNumeralAxiomRow 0 (paAxiomEqSubst phi a b) (paProofNumeralEqSubstWitness phi a b) $;
+
+def paProofNumeralEqSubstProof (phi a b: nat): nat = $ paProofNumeralAxiomProof 0 (paAxiomEqSubst phi a b) (paProofNumeralEqSubstWitness phi a b) $;
+
+theorem paProofNumeralEqSubst_derives (phi a b: nat): $ paFormulaBound 1 phi /\ paTermBound 0 a /\ paTermBound 0 b -> paProofDerives (paProofNumeralEqSubstProof phi a b) (paProofNumeralEqSubstRow phi a b) $;
+
+theorem paProofNumeralEquality_bounds (a b h p: nat): $ paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paTermBound 0 a /\ paTermBound 0 b $;
+
+theorem paProofNumeralTermReflexivity_length (a: nat): $ len (paProofNumeralTermReflexivityProof a) = 1 $;
+
+theorem paProofNumeralEqSubst_length (phi a b: nat): $ len (paProofNumeralEqSubstProof phi a b) = 1 $;

@@ -1,0 +1,87 @@
+import "pa_axiom_syntax.mm0";
+
+import "trace_soundness.mm0";
+
+def paProofFormulaClass (n .c: nat): set = $ {c | paFormulaBound n c} $;
+
+def paProofContextBound (n G: nat): wff = $ all (paProofFormulaClass n) G $;
+
+theorem paProofFormulaClass_value (n c: nat): $ c e. paProofFormulaClass n <-> paFormulaBound n c $;
+
+theorem paProofContextBound_nil (n: nat): $ paProofContextBound n 0 $;
+
+theorem paProofContextBound_cons (n c G: nat): $ paProofContextBound n (c : G) <-> paFormulaBound n c /\ paProofContextBound n G $;
+
+theorem paProofContextBound_append (n G D: nat): $ paProofContextBound n (G ++ D) <-> paProofContextBound n G /\ paProofContextBound n D $;
+
+theorem paProofContextBound_member (n G c: nat): $ paProofContextBound n G -> c IN G -> paFormulaBound n c $;
+
+def paProofRow (n c h: nat): nat = $ (n, (c, h)) $;
+
+def paProofLevel (r: nat): nat = $ fst r $;
+
+def paProofFormula (r: nat): nat = $ fst (snd r) $;
+
+def paProofAnnotation (r: nat): nat = $ snd (snd r) $;
+
+def paProofAxiomAnnotation (w: nat): nat = $ (0, w) $;
+
+def paProofMPAnnotation (p q: nat): nat = $ (1, (p, q)) $;
+
+def paProofGenAnnotation (p: nat): nat = $ (2, p) $;
+
+def paProofRowWf (r: nat): wff = $ paFormulaBound (paProofLevel r) (paProofFormula r) $;
+
+def paProofAxiom (r: nat): wff = $ fst (paProofAnnotation r) = 0 /\ paAxiomSyntax (paProofLevel r) (paProofFormula r) (snd (paProofAnnotation r)) $;
+
+def paProofMP (r p q: nat): wff = $ paProofAnnotation r = paProofMPAnnotation p q /\ paProofLevel p = paProofLevel r /\ paProofLevel q = paProofLevel r /\ paProofFormula q = paFormulaImp (paProofFormula p) (paProofFormula r) $;
+
+def paProofGen (r p: nat): wff = $ paProofAnnotation r = paProofGenAnnotation p /\ paProofLevel p = suc (paProofLevel r) /\ paProofFormula r = paFormulaAll (paProofFormula p) $;
+
+def paProofLeftPremise (r: nat): nat = $ fst (snd (paProofAnnotation r)) $;
+
+def paProofRightPremise (r: nat): nat = $ snd (snd (paProofAnnotation r)) $;
+
+def paProofGenPremise (r: nat): nat = $ snd (paProofAnnotation r) $;
+
+def paProofCase (r l: nat): wff = $ paProofRowWf r /\ (paProofAxiom r \/ ((paProofLeftPremise r IN l /\ paProofRightPremise r IN l /\ paProofMP r (paProofLeftPremise r) (paProofRightPremise r)) \/ (paProofGenPremise r IN l /\ paProofGen r (paProofGenPremise r)))) $;
+
+def paProofRules (.r .l: nat): set = $ S\ r, {l | paProofCase r l} $;
+
+def paProofValid (p: nat): wff = $ traceValid paProofRules p $;
+
+def paProofDerives (p r: nat): wff = $ traceDerives paProofRules p r $;
+
+def paProvable (n c .p .h: nat): wff = $ E. p E. h paProofDerives p (paProofRow n c h) $;
+
+theorem paProofRow_level (n c h: nat): $ paProofLevel (paProofRow n c h) = n $;
+
+theorem paProofRow_formula (n c h: nat): $ paProofFormula (paProofRow n c h) = c $;
+
+theorem paProofRow_annotation (n c h: nat): $ paProofAnnotation (paProofRow n c h) = h $;
+
+theorem paProofRow_bound (n c h: nat): $ paProofRowWf (paProofRow n c h) <-> paFormulaBound n c $;
+
+theorem paProofRules_value (r l: nat): $ (r, l) e. paProofRules <-> paProofCase r l $;
+
+theorem paProofRules_guard (r l: nat): $ (r, l) e. paProofRules -> paProofRowWf r $;
+
+def paProofAxiomClosed (P: set) (.r: nat): wff = $ A. r (paProofRowWf r -> paProofAxiom r -> r e. P) $;
+
+def paProofMPClosed (P: set) (.r .p .q: nat): wff = $ A. r A. p A. q (paProofRowWf r -> paProofMP r p q -> p e. P -> q e. P -> r e. P) $;
+
+def paProofGenClosed (P: set) (.r .p: nat): wff = $ A. r A. p (paProofRowWf r -> paProofGen r p -> p e. P -> r e. P) $;
+
+def paProofConstructionClosed (P: set): wff = $ paProofAxiomClosed P /\ paProofMPClosed P /\ paProofGenClosed P $;
+
+theorem paProofRules_sound (P: set): $ paProofConstructionClosed P -> traceRuleSound paProofRules P $;
+
+theorem paProofValid_induction (P: set) (p: nat): $ paProofConstructionClosed P -> paProofValid p -> traceClassAll P p $;
+
+theorem paProofDerives_induction (P: set) (p r: nat): $ paProofConstructionClosed P -> paProofDerives p r -> r e. P $;
+
+def paProofRowClass (.r: nat): set = $ {r | paProofRowWf r} $;
+
+theorem paProofRowClass_value (r: nat): $ r e. paProofRowClass <-> paProofRowWf r $;
+
+theorem paProofDerives_bound (p r: nat): $ paProofDerives p r -> paProofRowWf r $;

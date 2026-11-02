@@ -1,0 +1,19 @@
+import "pa_source_interpretation_builders.mm0";
+
+import "raw_source_equality.mm0";
+
+import "source_theory_local.mm0";
+
+def paSourceTermFunctional (a: nat): nat = $ sfAll (sfAll (sfImp (sfRename paSIFormulaLeftMap 0 a) (sfImp (sfRename paSITermSuccMap 0 a) (sfEq 1 0)))) $;
+
+theorem paSourceTermFunctional_wf (a: nat): $ sfWf (paSourceTermFunctional a) $;
+
+def paTFShareContext (a b c: nat): nat = $ ((sfEq b c) : ((sfEq a c) : ((sfImp (sfEq a c) (sfImp (sfEq c b) (sfEq a b))) : ((sfImp (sfEq b c) (sfEq c b)) : 0)))) $;
+
+theorem paSourceEquality_common_right (a b c: nat): $ zfcProvable (sfImp (sfEq a c) (sfImp (sfEq b c) (sfEq a b))) $;
+
+def paSourceTermVariableFunctionalLiteral (i: nat): nat = $ sfAll (sfAll (sfImp (sfEq 1 (suc (suc i))) (sfImp (sfEq 0 (suc (suc i))) (sfEq 1 0)))) $;
+
+theorem paSourceTermVariableFunctional_exact (i: nat): $ paSourceTermFunctional (paSourceTermVariable i) = paSourceTermVariableFunctionalLiteral i $;
+
+theorem paSourceTermVariableFunctional_provable (i: nat): $ zfcProvable (paSourceTermFunctional (paSourceTermVariable i)) $;

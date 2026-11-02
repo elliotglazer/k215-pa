@@ -1,0 +1,25 @@
+import "pa_proof_numeral_functional_exists.mm0";
+
+import "pa_numeral_diagonal_array_code.mm0";
+
+def paProofNumeralDiagonalEliminationInput (b: nat): nat = $ paFormulaSubst 0 (paTermNumeral b) paNumeralDiagonalArrayCode $;
+
+def paProofNumeralDiagonalEliminationValue (b: nat): nat = $ paTermNumeral (paNumeralDiagonal b) $;
+
+def paProofNumeralDiagonalEliminationFunctionality (b: nat): nat = $ paFormulaImp (paProofNumeralDiagonalEliminationInput b) (paFormulaEqual (paTermVariable 0) (paProofNumeralDiagonalEliminationValue b)) $;
+
+def paProofNumeralDiagonalEliminationBody (b a: nat): nat = $ paFormulaAnd (paProofNumeralDiagonalEliminationInput b) a $;
+
+def paProofNumeralDiagonalEliminationConclusion (b a: nat): nat = $ paFormulaSubst 0 (paProofNumeralDiagonalEliminationValue b) a $;
+
+def paProofNumeralDiagonalEliminationFormula (b a: nat): nat = $ paFormulaImp (paFormulaEx (paProofNumeralDiagonalEliminationBody b a)) (paProofNumeralDiagonalEliminationConclusion b a) $;
+
+theorem paProofNumeralDiagonalEliminationInput_bound (b: nat): $ paFormulaBound 1 (paProofNumeralDiagonalEliminationInput b) $;
+
+theorem paProofNumeralDiagonalEliminationConclusion_bound (b a: nat): $ paFormulaBound 1 a -> paFormulaBound 0 (paProofNumeralDiagonalEliminationConclusion b a) $;
+
+def paProofNumeralDiagonalEliminationAnnotation (b a h p: nat): nat = $ paProofNumeralFunctionalExistsAnnotation (paNumeralDiagonal b) (paProofNumeralDiagonalEliminationInput b) a h p $;
+
+def paProofNumeralDiagonalEliminationProof (b a h p: nat): nat = $ paProofNumeralFunctionalExistsProof (paNumeralDiagonal b) (paProofNumeralDiagonalEliminationInput b) a h p $;
+
+theorem paProofNumeralDiagonalElimination_derives (b a h p: nat): $ paFormulaBound 1 a /\ paProofDerives p (paProofRow 1 (paProofNumeralDiagonalEliminationFunctionality b) h) -> paProofDerives (paProofNumeralDiagonalEliminationProof b a h p) (paProofRow 0 (paProofNumeralDiagonalEliminationFormula b a) (paProofNumeralDiagonalEliminationAnnotation b a h p)) $;

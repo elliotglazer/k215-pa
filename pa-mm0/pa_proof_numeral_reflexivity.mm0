@@ -1,0 +1,27 @@
+import "pa_source_interpretation_formula_eqd_support.mm0";
+
+import "pa_proof_syntax_constructors.mm0";
+
+import "pa_source_interpretation_term_numerals.mm0";
+
+def paProofNumeralAxiomRow (n c w: nat): nat = $ paProofRow n c (paProofAxiomAnnotation w) $;
+
+def paProofNumeralAxiomProof (n c w: nat): nat = $ paProofNumeralAxiomRow n c w : 0 $;
+
+theorem paProofNumeralAxiom_derives (n c w: nat): $ paAxiomSyntax n c w -> paProofDerives (paProofNumeralAxiomProof n c w) (paProofNumeralAxiomRow n c w) $;
+
+theorem paProofNumeralAxiom_provable (n c w: nat): $ paAxiomSyntax n c w -> paProvable n c $;
+
+def paProofNumeralReflexivityFormula (n: nat): nat = $ paFormulaEqual (paTermNumeral n) (paTermNumeral n) $;
+
+def paProofNumeralReflexivityWitness (n: nat): nat = $ paAxiomWitness (suc (suc (suc (suc (suc 10))))) (paTermNumeral n) 0 0 $;
+
+def paProofNumeralReflexivityRow (n: nat): nat = $ paProofNumeralAxiomRow 0 (paProofNumeralReflexivityFormula n) (paProofNumeralReflexivityWitness n) $;
+
+def paProofNumeralReflexivityProof (n: nat): nat = $ paProofNumeralAxiomProof 0 (paProofNumeralReflexivityFormula n) (paProofNumeralReflexivityWitness n) $;
+
+theorem paProofNumeralReflexivity_axiom (n: nat): $ paAxiomSyntax 0 (paProofNumeralReflexivityFormula n) (paProofNumeralReflexivityWitness n) $;
+
+theorem paProofNumeralReflexivity_derives (n: nat): $ paProofDerives (paProofNumeralReflexivityProof n) (paProofNumeralReflexivityRow n) $;
+
+theorem paProofNumeralReflexivity_provable (n: nat): $ paProvable 0 (paFormulaEqual (paTermNumeral n) (paTermNumeral n)) $;

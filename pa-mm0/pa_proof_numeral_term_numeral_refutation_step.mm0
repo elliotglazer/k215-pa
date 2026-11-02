@@ -1,0 +1,35 @@
+import "pa_proof_numeral_term_injective.mm0";
+
+def paProofNumeralTermSymmetryImplicationAnnotation (a b: nat): nat = $ paProofNumeralTermImpApplyAnnotation (paFormulaEqual a b) (paFormulaEqual a a) (paFormulaEqual b a) (paProofNumeralTermImpLiftAnnotation (paFormulaEqual a b) (paFormulaEqual a a) (paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness a))) (paProofNumeralTermSymmetryAxiomAnnotation a b) $;
+
+def paProofNumeralTermSymmetryImplicationRow (a b: nat): nat = $ paProofRow 0 (paFormulaImp (paFormulaEqual a b) (paFormulaEqual b a)) (paProofNumeralTermSymmetryImplicationAnnotation a b) $;
+
+def paProofNumeralTermSymmetryImplicationProof (a b: nat): nat = $ paProofNumeralTermImpApplyProof (paFormulaEqual a b) (paFormulaEqual a a) (paFormulaEqual b a) (paProofNumeralTermImpLiftAnnotation (paFormulaEqual a b) (paFormulaEqual a a) (paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness a))) (paProofNumeralTermSymmetryAxiomAnnotation a b) (paProofNumeralTermImpLiftProof (paFormulaEqual a b) (paFormulaEqual a a) (paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness a)) (paProofNumeralTermReflexivityProof a)) (paProofNumeralEqSubstProof (paProofNumeralTermSymmetryPhi a) a b) $;
+
+theorem paProofNumeralTermSymmetryImplication_derives (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b -> paProofDerives (paProofNumeralTermSymmetryImplicationProof a b) (paProofNumeralTermSymmetryImplicationRow a b) $;
+
+def paProofNumeralTermNumeralRefutationFormula (n m: nat): nat = $ paFormulaImp (paFormulaEqual (paTermNumeral n) (paTermNumeral m)) paFormulaFalse $;
+
+def paProofNumeralTermNumeralRefutationSuccessorZeroAnnotation (n: nat): nat = $ paProofMPAnnotation paProofNumeralTermNonzeroAxiomRow (paProofNumeralAllElimAxiomRow 0 paProofNumeralTermNonzeroBody (paTermNumeral n)) $;
+
+theorem paProofNumeralTermNumeralRefutation_successor_zero_formula (n: nat): $ paProofNumeralTermNonzeroFormula n = paProofNumeralTermNumeralRefutationFormula (suc n) 0 $;
+
+theorem paProofNumeralTermNumeralRefutation_successor_zero_derives (n: nat): $ paProofDerives (paProofNumeralTermNonzeroProof n) (paProofRow 0 (paProofNumeralTermNumeralRefutationFormula (suc n) 0) (paProofNumeralTermNumeralRefutationSuccessorZeroAnnotation n)) $;
+
+def paProofNumeralTermNumeralRefutationZeroSuccessorAnnotation (n: nat): nat = $ paProofNumeralTermImpComposeAnnotation (paFormulaEqual (paTermNumeral 0) (paTermNumeral (suc n))) (paFormulaEqual (paTermNumeral (suc n)) (paTermNumeral 0)) paFormulaFalse (paProofNumeralTermSymmetryImplicationAnnotation (paTermNumeral 0) (paTermNumeral (suc n))) (paProofNumeralTermNumeralRefutationSuccessorZeroAnnotation n) $;
+
+def paProofNumeralTermNumeralRefutationZeroSuccessorProof (n: nat): nat = $ paProofNumeralTermImpComposeProof (paFormulaEqual (paTermNumeral 0) (paTermNumeral (suc n))) (paFormulaEqual (paTermNumeral (suc n)) (paTermNumeral 0)) paFormulaFalse (paProofNumeralTermSymmetryImplicationAnnotation (paTermNumeral 0) (paTermNumeral (suc n))) (paProofNumeralTermNumeralRefutationSuccessorZeroAnnotation n) (paProofNumeralTermSymmetryImplicationProof (paTermNumeral 0) (paTermNumeral (suc n))) (paProofNumeralTermNonzeroProof n) $;
+
+theorem paProofNumeralTermNumeralRefutation_zero_successor_derives (n: nat): $ paProofDerives (paProofNumeralTermNumeralRefutationZeroSuccessorProof n) (paProofRow 0 (paProofNumeralTermNumeralRefutationFormula 0 (suc n)) (paProofNumeralTermNumeralRefutationZeroSuccessorAnnotation n)) $;
+
+def paProofNumeralTermNumeralRefutationInjectivityAnnotation (n m: nat): nat = $ paProofMPAnnotation (paProofNumeralTermInjectiveFirstRow n) (paProofNumeralAllElimAxiomRow 0 (paProofNumeralTermInjectiveFirstBody n) (paTermNumeral m)) $;
+
+theorem paProofNumeralTermNumeralRefutation_injectivity_formula (n m: nat): $ paProofNumeralTermInjectiveFormula n m = paFormulaImp (paFormulaEqual (paTermNumeral (suc n)) (paTermNumeral (suc m))) (paFormulaEqual (paTermNumeral n) (paTermNumeral m)) $;
+
+theorem paProofNumeralTermNumeralRefutation_injectivity_derives (n m: nat): $ paProofDerives (paProofNumeralTermInjectiveProof n m) (paProofRow 0 (paFormulaImp (paFormulaEqual (paTermNumeral (suc n)) (paTermNumeral (suc m))) (paFormulaEqual (paTermNumeral n) (paTermNumeral m))) (paProofNumeralTermNumeralRefutationInjectivityAnnotation n m)) $;
+
+def paProofNumeralTermNumeralRefutationStepAnnotation (n m h: nat): nat = $ paProofNumeralTermImpComposeAnnotation (paFormulaEqual (paTermNumeral (suc n)) (paTermNumeral (suc m))) (paFormulaEqual (paTermNumeral n) (paTermNumeral m)) paFormulaFalse (paProofNumeralTermNumeralRefutationInjectivityAnnotation n m) h $;
+
+def paProofNumeralTermNumeralRefutationStepProof (n m h p: nat): nat = $ paProofNumeralTermImpComposeProof (paFormulaEqual (paTermNumeral (suc n)) (paTermNumeral (suc m))) (paFormulaEqual (paTermNumeral n) (paTermNumeral m)) paFormulaFalse (paProofNumeralTermNumeralRefutationInjectivityAnnotation n m) h (paProofNumeralTermInjectiveProof n m) p $;
+
+theorem paProofNumeralTermNumeralRefutation_step_derives (n m h p: nat): $ paProofDerives p (paProofRow 0 (paProofNumeralTermNumeralRefutationFormula n m) h) -> paProofDerives (paProofNumeralTermNumeralRefutationStepProof n m h p) (paProofRow 0 (paProofNumeralTermNumeralRefutationFormula (suc n) (suc m)) (paProofNumeralTermNumeralRefutationStepAnnotation n m h)) $;

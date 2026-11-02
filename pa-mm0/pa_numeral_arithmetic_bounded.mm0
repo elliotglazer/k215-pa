@@ -1,0 +1,25 @@
+import "pa_numeral_arithmetic_graph.mm0";
+
+import "zfc_proof_arithmetic_bounded_history_nodes.mm0";
+
+def paNumeralArithmeticBoundedNextCell (m v i x .p: nat): wff = $ E. p (p < v /\ (bb215ArithmeticFormulaPairGraph x 0 p /\ zfcProofArithmeticBoundedHistoryPair m v (suc i) (8 * p + 2))) $;
+
+theorem paNumeralArithmeticBoundedNextCell_correct (m v i x: nat) {p: nat}: $ paNumeralArithmeticBoundedNextCell m v i x <-> paNumeralArithmeticNextCell m v i x $;
+
+def paNumeralArithmeticBoundedClosure (m v n .i .x: nat): wff = $ A. i A. x ((i < n /\ x < v) -> (i < n /\ zfcProofArithmeticBoundedHistoryPair m v i x) -> paNumeralArithmeticBoundedNextCell m v i x) $;
+
+theorem paNumeralArithmeticBoundedClosure_correct (m v n: nat) {i x: nat}: $ paNumeralArithmeticBoundedClosure m v n <-> paNumeralArithmeticClosure m v n $;
+
+def paNumeralArithmeticBoundedFinal (m v n t .y: nat): wff = $ A. y (y < v -> zfcProofArithmeticBoundedHistoryPair m v n y -> y = t) $;
+
+theorem paNumeralArithmeticBoundedFinal_correct (m v n t: nat) {y: nat}: $ paNumeralArithmeticBoundedFinal m v n t <-> A. y (bb215ArithmeticFormulaHistoryPairGraph m v n y -> y = t) $;
+
+def paNumeralArithmeticBoundedCertificate (m v n t: nat): wff = $ zfcProofArithmeticBoundedHistoryPair m v 0 0 /\ paNumeralArithmeticBoundedClosure m v n /\ paNumeralArithmeticBoundedFinal m v n t $;
+
+theorem paNumeralArithmeticBoundedCertificate_correct (m v n t: nat): $ paNumeralArithmeticBoundedCertificate m v n t <-> paNumeralArithmeticCertificate m v n t $;
+
+def paNumeralArithmeticBoundedGraph (n t .m .v: nat): wff = $ E. m E. v paNumeralArithmeticBoundedCertificate m v n t $;
+
+theorem paNumeralArithmeticBoundedGraph_correct (n t: nat) {m v: nat}: $ paNumeralArithmeticBoundedGraph n t <-> paNumeralArithmeticGraph n t $;
+
+theorem paNumeralArithmeticBoundedGraph_represents (n t: nat): $ paNumeralArithmeticBoundedGraph n t <-> t = paTermNumeral n $;

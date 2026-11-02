@@ -1,0 +1,37 @@
+import "pa_numeral_term_subst_graph.mm0";
+
+def paNumeralTermSubstScalarNodeCell (m v c j a b .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph a b p /\ bb215ArithmeticFormulaHistoryPairGraph m v c (8 * p + j)) $;
+
+theorem paNumeralTermSubstScalarNodeCell_packed (m v c j a b: nat) {p: nat}: $ paNumeralTermSubstScalarNodeCell m v c j a b <-> paNumeralTermSubstNodeCell (m, v) c j a b $;
+
+def paNumeralTermSubstScalarLocalVariable (d n m v K .i .c .t: nat): wff = $ A. i A. c A. t (paNumeralTermSubstNodeGraph 1 i 0 c -> c <= K -> paNumeralSubstVariableGraph d n i t -> bb215ArithmeticFormulaHistoryPairGraph m v c t) $;
+
+theorem paNumeralTermSubstScalarLocalVariable_packed (d n m v K: nat) {i c t: nat}: $ paNumeralTermSubstScalarLocalVariable d n m v K <-> paNumeralTermSubstLocalVariable d n (m, v) K $;
+
+def paNumeralTermSubstScalarLocalSuccessor (m v K .a .c .u: nat): wff = $ A. a A. c A. u (paNumeralTermSubstNodeGraph 2 a 0 c -> c <= K -> bb215ArithmeticFormulaHistoryPairGraph m v a u -> paNumeralTermSubstScalarNodeCell m v c 2 u 0) $;
+
+theorem paNumeralTermSubstScalarLocalSuccessor_packed (m v K: nat) {a c u: nat}: $ paNumeralTermSubstScalarLocalSuccessor m v K <-> paNumeralTermSubstLocalSuccessor (m, v) K $;
+
+def paNumeralTermSubstScalarLocalAddition (m v K .a .b .c .u .w: nat): wff = $ A. a A. b A. c A. u A. w (paNumeralTermSubstNodeGraph 3 a b c -> c <= K -> bb215ArithmeticFormulaHistoryPairGraph m v a u -> bb215ArithmeticFormulaHistoryPairGraph m v b w -> paNumeralTermSubstScalarNodeCell m v c 3 u w) $;
+
+theorem paNumeralTermSubstScalarLocalAddition_packed (m v K: nat) {a b c u w: nat}: $ paNumeralTermSubstScalarLocalAddition m v K <-> paNumeralTermSubstLocalAddition (m, v) K $;
+
+def paNumeralTermSubstScalarLocalMultiplication (m v K .a .b .c .u .w: nat): wff = $ A. a A. b A. c A. u A. w (paNumeralTermSubstNodeGraph 4 a b c -> c <= K -> bb215ArithmeticFormulaHistoryPairGraph m v a u -> bb215ArithmeticFormulaHistoryPairGraph m v b w -> paNumeralTermSubstScalarNodeCell m v c 4 u w) $;
+
+theorem paNumeralTermSubstScalarLocalMultiplication_packed (m v K: nat) {a b c u w: nat}: $ paNumeralTermSubstScalarLocalMultiplication m v K <-> paNumeralTermSubstLocalMultiplication (m, v) K $;
+
+def paNumeralTermSubstScalarLocal (d n m v K: nat): wff = $ bb215ArithmeticFormulaHistoryPairGraph m v 0 0 /\ paNumeralTermSubstScalarLocalVariable d n m v K /\ paNumeralTermSubstScalarLocalSuccessor m v K /\ paNumeralTermSubstScalarLocalAddition m v K /\ paNumeralTermSubstScalarLocalMultiplication m v K $;
+
+theorem paNumeralTermSubstScalarLocal_packed (d n m v K: nat): $ paNumeralTermSubstScalarLocal d n m v K <-> paNumeralTermSubstLocal d n (m, v) K $;
+
+def paNumeralTermSubstScalarCertificate (d n m v c t .y: nat): wff = $ paNumeralTermSubstScalarLocal d n m v c /\ A. y (bb215ArithmeticFormulaHistoryPairGraph m v c y -> y = t) $;
+
+theorem paNumeralTermSubstScalarCertificate_packed (d n m v c t: nat) {y: nat}: $ paNumeralTermSubstScalarCertificate d n m v c t <-> paNumeralTermSubstCertificate d n (m, v) c t $;
+
+def paNumeralTermSubstScalarGraph (d n c t .m .v: nat): wff = $ E. m E. v paNumeralTermSubstScalarCertificate d n m v c t $;
+
+theorem paNumeralTermSubstScalarGraph_packed (d n c t: nat) {m v A: nat}: $ paNumeralTermSubstScalarGraph d n c t <-> paNumeralTermSubstGraph d n c t $;
+
+theorem paNumeralTermSubstScalarGraph_correct (d n c t m: nat): $ paTermBound m c -> (paNumeralTermSubstScalarGraph d n c t <-> t = paTermSubst d (paTermNumeral n) c) $;
+
+theorem paNumeralTermSubstScalarGraph_total (d n c: nat): $ paNumeralTermSubstScalarGraph d n c (paTermSubst d (paTermNumeral n) c) $;

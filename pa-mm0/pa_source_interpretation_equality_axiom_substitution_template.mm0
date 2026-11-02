@@ -1,0 +1,193 @@
+import "source_formula_equality_transport.mm0";
+
+import "pa_source_interpretation_term_role_shifts.mm0";
+
+import "pa_source_interpretation_natural.mm0";
+
+import "pa_source_interpretation_rebase.mm0";
+
+import "source_renaming_agreement.mm0";
+
+import "source_theory_local.mm0";
+
+import "source_wf_separation_logic.mm0";
+
+def paSIEQSMapCons (a: nat) (R: set) (.i: nat): set = $ \ i, if (i = 0) a (R @ (i - 1)) $;
+
+def paSIEQSMapAdd (t .i: nat): set = $ \ i, i + t $;
+
+def paSIEQSMap1: set = $ paSIEQSMapAdd 1 $;
+
+def paSIEqSubstF0 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap1 0 guard $;
+
+def paSIEqSubstF1 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap1 0 q $;
+
+def paSIEqSubstF2 (phi tgraph ugraph p q guard: nat): nat = $ sfImp phi (paSIEqSubstF1 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF3 (phi tgraph ugraph p q guard: nat): nat = $ sfImp ugraph (paSIEqSubstF2 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF4 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF0 phi tgraph ugraph p q guard) (paSIEqSubstF3 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF5 (phi tgraph ugraph p q guard: nat): nat = $ sfAll (paSIEqSubstF4 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF6 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap1 0 p $;
+
+def paSIEqSubstF7 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF6 phi tgraph ugraph p q guard) phi $;
+
+def paSIEqSubstF8 (phi tgraph ugraph p q guard: nat): nat = $ sfImp tgraph (paSIEqSubstF7 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF9 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF0 phi tgraph ugraph p q guard) (paSIEqSubstF8 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF10 (phi tgraph ugraph p q guard: nat): nat = $ sfAll (paSIEqSubstF9 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF11 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap1 0 tgraph $;
+
+def paSIEQSMap3: set = $ paSIEQSMapAdd 2 $;
+
+def paSIEQSMap2: set = $ paSIEQSMapCons 0 paSIEQSMap3 $;
+
+def paSIEqSubstF12 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap2 0 ugraph $;
+
+def paSIEqSubstF13 (phi tgraph ugraph p q guard: nat): nat = $ sfEq 1 0 $;
+
+def paSIEqSubstF14 (phi tgraph ugraph p q guard: nat): nat = $ sfAnd (paSIEqSubstF12 phi tgraph ugraph p q guard) (paSIEqSubstF13 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF15 (phi tgraph ugraph p q guard: nat): nat = $ sfAnd (paSIEqSubstF11 phi tgraph ugraph p q guard) (paSIEqSubstF14 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF16 (phi tgraph ugraph p q guard: nat): nat = $ sfEx (paSIEqSubstF15 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF17 (phi tgraph ugraph p q guard: nat): nat = $ sfEx (paSIEqSubstF16 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF18 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap3 0 guard $;
+
+def paSIEqSubstF19 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap2 0 phi $;
+
+def paSIEqSubstF20 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap3 0 q $;
+
+def paSIEqSubstF21 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF19 phi tgraph ugraph p q guard) (paSIEqSubstF20 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF22 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF12 phi tgraph ugraph p q guard) (paSIEqSubstF21 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF23 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF18 phi tgraph ugraph p q guard) (paSIEqSubstF22 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF24 (phi tgraph ugraph p q guard: nat): nat = $ sfAll (paSIEqSubstF23 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF25 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap2 0 tgraph $;
+
+def paSIEqSubstF26 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap3 0 p $;
+
+def paSIEqSubstF27 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF26 phi tgraph ugraph p q guard) (paSIEqSubstF19 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF28 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF25 phi tgraph ugraph p q guard) (paSIEqSubstF27 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF29 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF18 phi tgraph ugraph p q guard) (paSIEqSubstF28 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF30 (phi tgraph ugraph p q guard: nat): nat = $ sfAll (paSIEqSubstF29 phi tgraph ugraph p q guard) $;
+
+def paSIEQSMap5: set = $ paSIEQSMapAdd 3 $;
+
+def paSIEQSMap4: set = $ paSIEQSMapCons 1 paSIEQSMap5 $;
+
+def paSIEqSubstF31 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap4 0 tgraph $;
+
+def paSIEQSMap6: set = $ paSIEQSMapCons 0 paSIEQSMap5 $;
+
+def paSIEqSubstF32 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap6 0 ugraph $;
+
+def paSIEqSubstF33 (phi tgraph ugraph p q guard: nat): nat = $ sfAnd (paSIEqSubstF32 phi tgraph ugraph p q guard) (paSIEqSubstF13 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF34 (phi tgraph ugraph p q guard: nat): nat = $ sfAnd (paSIEqSubstF31 phi tgraph ugraph p q guard) (paSIEqSubstF33 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF35 (phi tgraph ugraph p q guard: nat): nat = $ sfEx (paSIEqSubstF34 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF36 (phi tgraph ugraph p q guard: nat): nat = $ sfEx (paSIEqSubstF35 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF37 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap5 0 guard $;
+
+def paSIEqSubstF38 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap6 0 phi $;
+
+def paSIEqSubstF39 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap5 0 q $;
+
+def paSIEqSubstF40 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF38 phi tgraph ugraph p q guard) (paSIEqSubstF39 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF41 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF32 phi tgraph ugraph p q guard) (paSIEqSubstF40 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF42 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF37 phi tgraph ugraph p q guard) (paSIEqSubstF41 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF43 (phi tgraph ugraph p q guard: nat): nat = $ sfAll (paSIEqSubstF42 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF44 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap6 0 tgraph $;
+
+def paSIEqSubstF45 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap5 0 p $;
+
+def paSIEqSubstF46 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF45 phi tgraph ugraph p q guard) (paSIEqSubstF38 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF47 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF44 phi tgraph ugraph p q guard) (paSIEqSubstF46 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF48 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF37 phi tgraph ugraph p q guard) (paSIEqSubstF47 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF49 (phi tgraph ugraph p q guard: nat): nat = $ sfAll (paSIEqSubstF48 phi tgraph ugraph p q guard) $;
+
+def paSIEQSMap8: set = $ paSIEQSMapAdd 4 $;
+
+def paSIEQSMap7: set = $ paSIEQSMapCons 1 paSIEQSMap8 $;
+
+def paSIEqSubstF50 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap7 0 tgraph $;
+
+def paSIEQSMap9: set = $ paSIEQSMapCons 0 paSIEQSMap8 $;
+
+def paSIEqSubstF51 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap9 0 ugraph $;
+
+def paSIEqSubstF52 (phi tgraph ugraph p q guard: nat): nat = $ sfAnd (paSIEqSubstF51 phi tgraph ugraph p q guard) (paSIEqSubstF13 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF53 (phi tgraph ugraph p q guard: nat): nat = $ sfAnd (paSIEqSubstF50 phi tgraph ugraph p q guard) (paSIEqSubstF52 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF54 (phi tgraph ugraph p q guard: nat): nat = $ sfEx (paSIEqSubstF53 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF55 (phi tgraph ugraph p q guard: nat): nat = $ sfEx (paSIEqSubstF54 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF56 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap3 0 tgraph $;
+
+def paSIEqSubstF57 (phi tgraph ugraph p q guard: nat): nat = $ sfEq 2 0 $;
+
+def paSIEqSubstF58 (phi tgraph ugraph p q guard: nat): nat = $ sfAnd (paSIEqSubstF32 phi tgraph ugraph p q guard) (paSIEqSubstF57 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF59 (phi tgraph ugraph p q guard: nat): nat = $ sfAnd (paSIEqSubstF56 phi tgraph ugraph p q guard) (paSIEqSubstF58 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF60 (phi tgraph ugraph p q guard: nat): nat = $ sfEx (paSIEqSubstF59 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF61 (phi tgraph ugraph p q guard: nat): nat = $ sfRename paSIEQSMap1 0 phi $;
+
+def paSIEqSubstF62 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF26 phi tgraph ugraph p q guard) (paSIEqSubstF61 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF63 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF11 phi tgraph ugraph p q guard) (paSIEqSubstF62 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF64 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF18 phi tgraph ugraph p q guard) (paSIEqSubstF63 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF65 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF61 phi tgraph ugraph p q guard) (paSIEqSubstF19 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF66 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF13 phi tgraph ugraph p q guard) (paSIEqSubstF65 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF67 (phi tgraph ugraph p q guard: nat): nat = $ sfImp p q $;
+
+def paSIEqSubstF68 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF17 phi tgraph ugraph p q guard) (paSIEqSubstF67 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF69 (phi tgraph ugraph p q guard: nat): nat = $ sfImp guard (paSIEqSubstF68 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF70 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF10 phi tgraph ugraph p q guard) (paSIEqSubstF69 phi tgraph ugraph p q guard) $;
+
+def paSIEqSubstF71 (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF5 phi tgraph ugraph p q guard) (paSIEqSubstF70 phi tgraph ugraph p q guard) $;
+
+def paSourceEqualitySubstitutionValueLiteral (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSIEqSubstF5 phi tgraph ugraph p q guard) (paSIEqSubstF70 phi tgraph ugraph p q guard) $;
+
+theorem paSourceEqualitySubstitutionValue_local (phi tgraph ugraph p q guard n: nat) (h0: $ sfBound (suc n) phi $) (h1: $ sfBound (suc n) tgraph $) (h2: $ sfBound (suc n) ugraph $) (h3: $ sfBound (suc n) p $) (h4: $ sfBound (suc n) q $) (h5: $ sfBound (suc n) guard $): $ nsLocal sfFormulaEqualityContext (paSourceEqualitySubstitutionValueLiteral phi tgraph ugraph p q guard) $;
+
+def paSourceEqualityGraphForward (phi tgraph p guard: nat): nat = $ sfAll (sfImp (sfShift 0 guard) (sfImp tgraph (sfImp (sfShift 0 p) phi))) $;
+
+def paSourceEqualityGraphBackward (phi ugraph q guard: nat): nat = $ sfAll (sfImp (sfShift 0 guard) (sfImp ugraph (sfImp phi (sfShift 0 q)))) $;
+
+def paSourceEqualitySubstitutionValue (phi tgraph ugraph p q guard: nat): nat = $ sfImp (paSourceEqualityGraphBackward phi ugraph q guard) (sfImp (paSourceEqualityGraphForward phi tgraph p guard) (sfImp guard (sfImp (paSourceFormulaEqual tgraph ugraph) (sfImp p q)))) $;
+
+theorem paSourceEqualitySubstitutionValue_exact (phi tgraph ugraph p q guard n: nat) (h0: $ sfBound (suc n) phi $) (h1: $ sfBound (suc n) tgraph $) (h2: $ sfBound (suc n) ugraph $) (h3: $ sfBound (suc n) p $) (h4: $ sfBound (suc n) q $) (h5: $ sfBound (suc n) guard $): $ paSourceEqualitySubstitutionValue phi tgraph ugraph p q guard = (paSourceEqualitySubstitutionValueLiteral phi tgraph ugraph p q guard) $;
+
+theorem paSourceEqualitySubstitutionValue_provable (phi tgraph ugraph p q guard n: nat) (h0: $ sfBound (suc n) phi $) (h1: $ sfBound (suc n) tgraph $) (h2: $ sfBound (suc n) ugraph $) (h3: $ sfBound (suc n) p $) (h4: $ sfBound (suc n) q $) (h5: $ sfBound (suc n) guard $): $ zfcProvable (paSourceEqualitySubstitutionValue phi tgraph ugraph p q guard) $;

@@ -1,0 +1,29 @@
+import "bb215_sigma1_atom.mm0";
+
+-- L04, formalized Sigma1 completeness: k-ary formula parameters ("atoms"),
+-- paFormulaRename M 0 X with paFormulaBound k X and M a finite environment (paNatTermConsEnvironment).
+
+def bb215S1AGClass (R Q: set) (m: nat) (.n .c .d: nat): set = $ S\ n, {c | A. d
+  (n <= d + m -> paFormulaRename R d c = paFormulaRename Q d c)} $;
+
+theorem bb215S1_rename_agree {j: nat} (R Q: set) (m n d c: nat) (h: $ A. j (j < m -> R @ j = Q @ j) $):
+  $ paFormulaBound n c -> n <= d + m -> paFormulaRename R d c = paFormulaRename Q d c $;
+
+theorem bb215S1_rename_agree0 {j: nat} (R Q: set) (m c: nat) (h: $ A. j (j < m -> R @ j = Q @ j) $):
+  $ paFormulaBound m c -> paFormulaRename R 0 c = paFormulaRename Q 0 c $;
+
+theorem bb215S1_cons_compose0 {j: nat} (G E E2: set): $ A. j (j < 0 -> sfComposeMap G E @ j = E2 @ j) $;
+
+theorem bb215S1_cons_compose {i j: nat} (G E E2: set) (m v v2: nat)
+  (hE: $ A. i (i < m -> sfComposeMap G E @ i = E2 @ i) $) (hv: $ G @ v = v2 $):
+  $ A. j (j < suc m -> sfComposeMap G (paNatTermConsEnvironment E v) @ j = paNatTermConsEnvironment E2 v2 @ j) $;
+
+theorem bb215S1_cons_bound0 {j: nat} (E: set) (n: nat): $ A. j (j < 0 -> E @ j < n) $;
+
+theorem bb215S1_cons_bound {i j: nat} (E: set) (m n v: nat) (hE: $ A. i (i < m -> E @ i < n) $) (hv: $ v < n $):
+  $ A. j (j < suc m -> paNatTermConsEnvironment E v @ j < n) $;
+
+theorem bb215S1_atomk_example (X: nat) (hX: $ paFormulaBound 2 X $):
+  $ paFormulaBound 6 (paFormulaRename (paNatTermConsEnvironment (paNatTermConsEnvironment (bb215S1Arg 0) 5) 3) 0 X) $;
+
+theorem bb215S1_atomk_done: $ 0 = 0 $;

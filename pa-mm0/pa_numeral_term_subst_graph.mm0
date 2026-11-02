@@ -1,0 +1,47 @@
+import "pa_numeral_subst_variable_graph.mm0";
+
+import "pa_source_interpretation_term_induction.mm0";
+
+def paNumeralTermSubstNodeGraph (j a b c .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph a b p /\ c = 8 * p + j) $;
+
+theorem paNumeralTermSubstNodeGraph_correct (j a b c: nat): $ paNumeralTermSubstNodeGraph j a b c <-> c = sfNode j a b $;
+
+theorem paNumeralTermSubstNodeGraph_total (j a b: nat): $ paNumeralTermSubstNodeGraph j a b (sfNode j a b) $;
+
+def paNumeralTermSubstNodeCell (A c j a b .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph a b p /\ bb215ArithmeticFormulaHistoryCell A c (8 * p + j)) $;
+
+theorem paNumeralTermSubstNodeCell_correct (A c j a b: nat): $ paNumeralTermSubstNodeCell A c j a b <-> bb215ArithmeticFormulaHistoryCell A c (sfNode j a b) $;
+
+def paNumeralTermSubstLocalVariable (d n A K .i .c .t: nat): wff = $ A. i A. c A. t (paNumeralTermSubstNodeGraph 1 i 0 c -> c <= K -> paNumeralSubstVariableGraph d n i t -> bb215ArithmeticFormulaHistoryCell A c t) $;
+
+def paNumeralTermSubstLocalSuccessor (A K .a .c .u: nat): wff = $ A. a A. c A. u (paNumeralTermSubstNodeGraph 2 a 0 c -> c <= K -> bb215ArithmeticFormulaHistoryCell A a u -> paNumeralTermSubstNodeCell A c 2 u 0) $;
+
+def paNumeralTermSubstLocalAddition (A K .a .b .c .u .v: nat): wff = $ A. a A. b A. c A. u A. v (paNumeralTermSubstNodeGraph 3 a b c -> c <= K -> bb215ArithmeticFormulaHistoryCell A a u -> bb215ArithmeticFormulaHistoryCell A b v -> paNumeralTermSubstNodeCell A c 3 u v) $;
+
+def paNumeralTermSubstLocalMultiplication (A K .a .b .c .u .v: nat): wff = $ A. a A. b A. c A. u A. v (paNumeralTermSubstNodeGraph 4 a b c -> c <= K -> bb215ArithmeticFormulaHistoryCell A a u -> bb215ArithmeticFormulaHistoryCell A b v -> paNumeralTermSubstNodeCell A c 4 u v) $;
+
+def paNumeralTermSubstLocal (d n A K: nat): wff = $ bb215ArithmeticFormulaHistoryCell A 0 0 /\ paNumeralTermSubstLocalVariable d n A K /\ paNumeralTermSubstLocalSuccessor A K /\ paNumeralTermSubstLocalAddition A K /\ paNumeralTermSubstLocalMultiplication A K $;
+
+def paNumeralTermSubstValues (d n .i: nat): set = $ \ i, paTermSubst d (paTermNumeral n) i $;
+
+theorem paNumeralTermSubstValues_at (d n i: nat): $ paNumeralTermSubstValues d n @ i = paTermSubst d (paTermNumeral n) i $;
+
+def paNumeralTermSubstCharacterization (d n A K .i .y: nat): wff = $ A. i A. y (bb215ArithmeticFormulaHistoryCell A i y <-> i <= K /\ y = paTermSubst d (paTermNumeral n) i) $;
+
+theorem paNumeralTermSubstCharacterization_exists (d n K: nat) {A: nat}: $ E. A paNumeralTermSubstCharacterization d n A K $;
+
+theorem paNumeralTermSubstCharacterization_local (d n A K: nat): $ paNumeralTermSubstCharacterization d n A K -> paNumeralTermSubstLocal d n A K $;
+
+def paNumeralTermSubstGood (d n A K .c: nat): set = $ {c | c <= K -> bb215ArithmeticFormulaHistoryCell A c (paTermSubst d (paTermNumeral n) c)} $;
+
+theorem paNumeralTermSubstLocal_runs (d n A K m c: nat): $ paNumeralTermSubstLocal d n A K -> paTermBound m c -> c <= K -> bb215ArithmeticFormulaHistoryCell A c (paTermSubst d (paTermNumeral n) c) $;
+
+def paNumeralTermSubstCertificate (d n A c t .y: nat): wff = $ paNumeralTermSubstLocal d n A c /\ A. y (bb215ArithmeticFormulaHistoryCell A c y -> y = t) $;
+
+def paNumeralTermSubstGraph (d n c t .A: nat): wff = $ E. A paNumeralTermSubstCertificate d n A c t $;
+
+theorem paNumeralTermSubstGraph_sound (d n c t m: nat): $ paNumeralTermSubstGraph d n c t -> paTermBound m c -> t = paTermSubst d (paTermNumeral n) c $;
+
+theorem paNumeralTermSubstGraph_total (d n c: nat): $ paNumeralTermSubstGraph d n c (paTermSubst d (paTermNumeral n) c) $;
+
+theorem paNumeralTermSubstGraph_correct (d n c t m: nat): $ paTermBound m c -> (paNumeralTermSubstGraph d n c t <-> t = paTermSubst d (paTermNumeral n) c) $;

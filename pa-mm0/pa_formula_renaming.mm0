@@ -1,0 +1,35 @@
+import "pa_formula_syntax.mm0";
+
+import "pa_source_interpretation_term_rename_bound.mm0";
+
+import "source_renaming_depth.mm0";
+
+def paFormulaRenameBody (R: set) (d c h: nat): nat = $ if (c = 0) 0 (if (sfTag c = 1) (paFormulaEqual (paTermRename (sfRenameDepthMap R d) (sfLeft c)) (paTermRename (sfRenameDepthMap R d) (sfRight c))) (if (sfTag c = 3) (paFormulaAnd (h @ (d, sfLeft c)) (h @ (d, sfRight c))) (if (sfTag c = 4) (paFormulaOr (h @ (d, sfLeft c)) (h @ (d, sfRight c))) (if (sfTag c = 5) (paFormulaImp (h @ (d, sfLeft c)) (h @ (d, sfRight c))) (if (sfTag c = 6 /\ sfRight c = 0) (paFormulaAll (h @ (suc d, sfLeft c))) (if (sfTag c = 7 /\ sfRight c = 0) (paFormulaEx (h @ (suc d, sfLeft c))) 0)))))) $;
+
+def paFormulaRenameStep (R: set) (.h: nat): set = $ \ h, paFormulaRenameBody R (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+def paFormulaRename (R: set) (d c: nat): nat = $ srec (paFormulaRenameStep R) (d, c) $;
+
+def paFormulaRenameHistory (R: set) (d c .i: nat): nat = $ \. i e. upto (d, c), srec (paFormulaRenameStep R) i $;
+
+theorem paFormulaRenameStep_apply (R: set) (h: nat): $ paFormulaRenameStep R @ h = paFormulaRenameBody R (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+theorem paFormulaRenameHistory_size (R: set) (d c: nat): $ sfHistoryLength (paFormulaRenameHistory R d c) = (d, c) $;
+
+theorem paFormulaRenameHistory_lookup (R: set) (d c e b: nat): $ (e, b) < (d, c) -> paFormulaRenameHistory R d c @ (e, b) = paFormulaRename R e b $;
+
+theorem paFormulaRename_unfold (R: set) (d c: nat): $ paFormulaRename R d c = paFormulaRenameBody R d c (paFormulaRenameHistory R d c) $;
+
+theorem paFormulaRename_false (R: set) (d: nat): $ paFormulaRename R d paFormulaFalse = 0 $;
+
+theorem paFormulaRename_equal (R: set) (d b c: nat): $ paFormulaRename R d (paFormulaEqual b c) = paFormulaEqual (paTermRename (sfRenameDepthMap R d) b) (paTermRename (sfRenameDepthMap R d) c) $;
+
+theorem paFormulaRename_and (R: set) (d b c: nat): $ paFormulaRename R d (paFormulaAnd b c) = paFormulaAnd (paFormulaRename R d b) (paFormulaRename R d c) $;
+
+theorem paFormulaRename_or (R: set) (d b c: nat): $ paFormulaRename R d (paFormulaOr b c) = paFormulaOr (paFormulaRename R d b) (paFormulaRename R d c) $;
+
+theorem paFormulaRename_imp (R: set) (d b c: nat): $ paFormulaRename R d (paFormulaImp b c) = paFormulaImp (paFormulaRename R d b) (paFormulaRename R d c) $;
+
+theorem paFormulaRename_all (R: set) (d b: nat): $ paFormulaRename R d (paFormulaAll b) = paFormulaAll (paFormulaRename R (suc d) b) $;
+
+theorem paFormulaRename_ex (R: set) (d b: nat): $ paFormulaRename R d (paFormulaEx b) = paFormulaEx (paFormulaRename R (suc d) b) $;

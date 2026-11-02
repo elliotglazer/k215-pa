@@ -1,0 +1,45 @@
+import "pa_proof_numeral_addition_right_congruence.mm0";
+
+import "pa_proof_numeral_multiplication_zero.mm0";
+
+import "pa_proof_numeral_multiplication_successor.mm0";
+
+def paProofNumeralMultiplicationFormula (n m: nat): nat = $ paFormulaEqual (paTermMultiplication (paTermNumeral n) (paTermNumeral m)) (paTermNumeral (n * m)) $;
+
+def paProofNumeralMultiplicationBaseAnnotation (n: nat): nat = $ paProofAnnotation (paProofNumeralMultiplicationZeroRow n) $;
+
+theorem paProofNumeralMultiplication_base_formula (n: nat): $ paProofNumeralMultiplicationFormula n 0 = paProofNumeralMultiplicationZeroFormula n $;
+
+theorem paProofNumeralMultiplication_base_derives (n: nat): $ paProofDerives (paProofNumeralMultiplicationZeroProof n) (paProofRow 0 (paProofNumeralMultiplicationFormula n 0) (paProofNumeralMultiplicationBaseAnnotation n)) $;
+
+def paProofNumeralMultiplicationRecursionAnnotation (n m: nat): nat = $ paProofMPAnnotation (paProofNumeralMultiplicationSuccessorFirstRow n) (paProofNumeralAllElimAxiomRow 0 (paProofNumeralMultiplicationSuccessorFirstBody n) (paTermNumeral m)) $;
+
+def paProofNumeralMultiplicationPreviousTerm (n m: nat): nat = $ paTermMultiplication (paTermNumeral n) (paTermNumeral m) $;
+
+def paProofNumeralMultiplicationNextTerm (n m: nat): nat = $ paTermMultiplication (paTermNumeral n) (paTermSuccessor (paTermNumeral m)) $;
+
+def paProofNumeralMultiplicationExpandedTerm (n m: nat): nat = $ paTermAddition (paProofNumeralMultiplicationPreviousTerm n m) (paTermNumeral n) $;
+
+def paProofNumeralMultiplicationComputedAdditionTerm (n m: nat): nat = $ paTermAddition (paTermNumeral (n * m)) (paTermNumeral n) $;
+
+def paProofNumeralMultiplicationSumTerm (n m: nat): nat = $ paTermNumeral (n * m + n) $;
+
+def paProofNumeralMultiplicationExpandedAnnotation (n m h: nat): nat = $ paProofNumeralTransitivityAnnotation (paProofNumeralMultiplicationExpandedTerm n m) (paProofNumeralMultiplicationComputedAdditionTerm n m) (paProofNumeralMultiplicationSumTerm n m) (paProofNumeralAdditionRightCongruenceAnnotation (paProofNumeralMultiplicationPreviousTerm n m) (paTermNumeral (n * m)) n h) (paProofNumeralAdditionAnnotation (n * m) n) $;
+
+def paProofNumeralMultiplicationExpandedProof (n m h p: nat): nat = $ paProofNumeralTransitivityProof (paProofNumeralMultiplicationExpandedTerm n m) (paProofNumeralMultiplicationComputedAdditionTerm n m) (paProofNumeralMultiplicationSumTerm n m) (paProofNumeralAdditionRightCongruenceAnnotation (paProofNumeralMultiplicationPreviousTerm n m) (paTermNumeral (n * m)) n h) (paProofNumeralAdditionAnnotation (n * m) n) (paProofNumeralAdditionRightCongruenceProof (paProofNumeralMultiplicationPreviousTerm n m) (paTermNumeral (n * m)) n h p) (paProofNumeralAdditionProof (n * m) n) $;
+
+def paProofNumeralMultiplicationStepAnnotation (n m h: nat): nat = $ paProofNumeralTransitivityAnnotation (paProofNumeralMultiplicationNextTerm n m) (paProofNumeralMultiplicationExpandedTerm n m) (paProofNumeralMultiplicationSumTerm n m) (paProofNumeralMultiplicationRecursionAnnotation n m) (paProofNumeralMultiplicationExpandedAnnotation n m h) $;
+
+def paProofNumeralMultiplicationStepProof (n m h p: nat): nat = $ paProofNumeralTransitivityProof (paProofNumeralMultiplicationNextTerm n m) (paProofNumeralMultiplicationExpandedTerm n m) (paProofNumeralMultiplicationSumTerm n m) (paProofNumeralMultiplicationRecursionAnnotation n m) (paProofNumeralMultiplicationExpandedAnnotation n m h) (paProofNumeralMultiplicationSuccessorProof n m) (paProofNumeralMultiplicationExpandedProof n m h p) $;
+
+theorem paProofNumeralMultiplication_step_formula (n m: nat): $ paFormulaEqual (paProofNumeralMultiplicationNextTerm n m) (paProofNumeralMultiplicationSumTerm n m) = paProofNumeralMultiplicationFormula n (suc m) $;
+
+theorem paProofNumeralMultiplication_step_derives (n m h p: nat): $ paProofDerives p (paProofRow 0 (paProofNumeralMultiplicationFormula n m) h) -> paProofDerives (paProofNumeralMultiplicationStepProof n m h p) (paProofRow 0 (paProofNumeralMultiplicationFormula n (suc m)) (paProofNumeralMultiplicationStepAnnotation n m h)) $;
+
+theorem paProofNumeralMultiplicationZero_length (n: nat): $ len (paProofNumeralMultiplicationZeroProof n) = 3 $;
+
+theorem paProofNumeralMultiplicationSuccessorFirst_length (n: nat): $ len (paProofNumeralMultiplicationSuccessorFirstProof n) = 3 $;
+
+theorem paProofNumeralMultiplicationSuccessor_length (n m: nat): $ len (paProofNumeralMultiplicationSuccessorProof n m) = 5 $;
+
+theorem paProofNumeralMultiplication_expanded_length (n m h p: nat): $ len (paProofNumeralMultiplicationExpandedProof n m h p) = suc (suc (suc (suc (suc (suc (suc (len p)))) + len (paProofNumeralAdditionProof (n * m) n)))) $;

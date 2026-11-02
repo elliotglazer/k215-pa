@@ -22,6 +22,128 @@ It is proved, with no hypotheses, as `K215_halts_iff_ZFC_inconsistent_final` in
 [`pa-mm0/k215_final_thm1.mm0`](pa-mm0/k215_final_thm1.mm0); its binders and statement text are exactly the ones
 above.
 
+## What is proved
+
+Every theorem below is stated in a `.mm0` file in git and was checked by `mm0-c` against the joined specification
+of its module over the 26 axioms of `peano.mm0` (PA) or of `hpeano.mm0` (HA). Theorem 1 is described in detail
+above; the rest of this README (trust base, receipt, verification) is written for it, and the same steps apply to
+the other receipts with the files named here.
+
+| receipt | module | what it checked |
+| --- | --- | --- |
+| [`receipt/thm1/`](receipt/thm1/) | `k215_final_thm1` | Theorem 1 (PA), compiled and checked in one run |
+| [`receipt/thm23-g2/pa/`](receipt/thm23-g2/pa/) | `b4b_final` | Theorems 1, 2, 3 and G2 in PA and their Pi2 forms (6,176 sources, joined spec `6d79aac0...`, binary `25b7a4d5...` = the Zenodo PA binary) |
+| [`receipt/thm23-g2/pa-g2/`](receipt/thm23-g2/pa-g2/) | `zfc_incompleteness_root` | the G2 theorems below (6,056 sources, a subset of `b4b_final`'s, joined spec `f02b3e62...`) |
+| [`receipt/thm23-g2/ha/`](receipt/thm23-g2/ha/) | `b6-out.mm0` | the 7 Pi2 statements in HA (binary `636804b4...` = the Zenodo HA binary, translated from the PA binary above) |
+
+The `b4b_final` and `zfc_incompleteness_root` runs used the separate-link mode (each module compiled to its own
+`.mmb`, then linked into one binary and checked against the joined spec); the false-conclusion control of each
+run replaces the last theorem by `F.` and is rejected.
+
+### In PA (classical, `peano.mm0`)
+
+**Theorem 1** ([`pa-mm0/targets/final.mm0`](pa-mm0/targets/final.mm0); proved in
+[`pa-mm0/k215_final_thm1.mm0`](pa-mm0/k215_final_thm1.mm0)):
+
+```
+theorem K215_halts_iff_ZFC_inconsistent_final:
+ $ k215LiteralHalts <-> zfcInconsistent $;
+```
+
+**Theorems 2 and 3** ([`pa-mm0/targets/thm23.mm0`](pa-mm0/targets/thm23.mm0), text verbatim from the frozen target
+specification; proved, with no hypotheses, in [`pa-mm0/k215_final_root.mm0`](pa-mm0/k215_final_root.mm0)).
+`bb215ArithmeticSentenceSource b` is the set-theoretic translation of the PA sentence "BB(215) = b"
+([`pa-mm0/bb215_arithmetic_sentence_syntax.mm0`](pa-mm0/bb215_arithmetic_sentence_syntax.mm0)):
+
+```
+theorem ZFC_consistent_iff_BB215_no_value_provable_final {b: nat}:
+ $ ~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b) $;
+
+theorem K215_full_consistency_BB215_nonprovability_final {b: nat}:
+ $ (~zfcInconsistent <-> ~k215LiteralHalts) /\ (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) $;
+```
+
+**G2, the second incompleteness theorem for ZFC** ([`pa-mm0/targets/incompleteness.mm0`](pa-mm0/targets/incompleteness.mm0),
+sha256 `3b1e616fecf77fdc854fece70d17b32622f983bd058576683e70ba98229f7f6d`, frozen; each theorem is restated verbatim
+as `<name>_inc` and proved in [`pa-mm0/zfc_incompleteness_root.mm0`](pa-mm0/zfc_incompleteness_root.mm0)). Read the
+comment at the top of `incompleteness.mm0` first: `zfcPr(x)` is "K215 proves F(x)" for a fixed translation F of ZFC
+formulas into K215, not the standard proof predicate of ZFC; theorems (D1)-(D5) state how it relates to ZFC
+provability. The headline statements:
+
+```
+theorem ZFC_second_incompleteness_K215Pr_inc:
+  $ ~zfcInconsistent -> ~zfcProvable (paFormulaSource zfcConPA) $;
+
+theorem G2_abstract_inc (T tau: set) (P G: nat) {c a b u v: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hI: $ A. u A. v tau @ paFormulaImp u v = sfImp (tau @ u) (tau @ v) $)
+  (hF: $ tau @ paFormulaFalse = sfBot $)
+  (hB: $ A. c (paFormulaBound 0 c -> sfBound 0 (tau @ c)) $)
+  (hT: $ A. c (paProvable 0 c -> sfTheoryProvable T (tau @ c)) $)
+  (h1: $ A. c bb215ProvabilityD1T T tau P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $):
+  $ ~sfTheoryProvable T sfBot -> ~sfTheoryProvable T (tau @ bb215ProvabilityConsistencyPA P) $;
+```
+
+and, with the same statements as in `incompleteness.mm0`: `zfcPr_formula_inc`, `zfcConPA_sentence_inc`,
+`zfcPr_PA_transfer_inc`, `zfcPr_D1_inc`, `zfcPr_D2_inc`, `zfcPr_D3_inc`, `zfcPr_fixed_point_inc`, `zfcPr_to_K215_inc`,
+`zfcPr_from_K215_inc`, `zfcProvK215_defines_inc`, `zfcToK215_complete_inc`, `zfcToK215_false_faithful_inc`,
+`zfcConPA_true_iff_consistent_inc` and `ZFC_second_incompleteness_K215Pr_end_inc` (16 in all; the full text is in
+`zfc_incompleteness_root.mm0`).
+
+**The Pi2 forms** (proved, with no hypotheses, in [`pa-mm0/b4_final.mm0`](pa-mm0/b4_final.mm0),
+[`pa-mm0/b4b_final.mm0`](pa-mm0/b4b_final.mm0) and [`pa-mm0/b4b_bb.mm0`](pa-mm0/b4b_bb.mm0)). The `bd*` predicates are
+bounded (Delta0) definitions in [`pa-mm0/bd_certs.mm0`](pa-mm0/bd_certs.mm0) and
+[`pa-mm0/bd_certs_b4b.mm0`](pa-mm0/bd_certs_b4b.mm0); the theorems `bdK215Halt_iff`
+([`b4_k215_halt.mm0`](pa-mm0/b4_k215_halt.mm0)), `bdZfcBot_iff` ([`b4_zfc_final.mm0`](pa-mm0/b4_zfc_final.mm0)),
+`bdBB215Prf_iff` ([`b4b_bb.mm0`](pa-mm0/b4b_bb.mm0)) and `bdZfcConPrf_iff` ([`b4g2_final.mm0`](pa-mm0/b4g2_final.mm0))
+prove in PA that `E. h bdK215Halt h`, `E. w bdZfcBot w`, `E. u bdBB215Prf u` and `E. u bdZfcConPrf u` are equivalent
+to `k215LiteralHalts`, `zfcInconsistent`, "ZFC proves BB(215) = b for some b" and "ZFC proves Con(ZFC)" (`zfcConPA`):
+
+```
+theorem K215_sigma1 {h w: nat}: $ A. h (bdK215Halt h -> E. w bdZfcBot w) $;
+theorem K215_sigma2 {h w: nat}: $ A. w (bdZfcBot w -> E. h bdK215Halt h) $;
+theorem K215_thm2_pi2a {u w: nat}: $ A. u (bdBB215Prf u -> E. w bdZfcBot w) $;
+theorem K215_thm2_pi2b {w u: nat}: $ A. w (bdZfcBot w -> E. u bdBB215Prf u) $;
+theorem K215_thm3_pi2a {h u: nat}: $ A. h (bdK215Halt h -> E. u bdBB215Prf u) $;
+theorem K215_thm3_pi2b {u h: nat}: $ A. u (bdBB215Prf u -> E. h bdK215Halt h) $;
+theorem K215_G2_pi2 {u w: nat}: $ A. u (bdZfcConPrf u -> E. w bdZfcBot w) $;
+```
+
+### In HA (intuitionistic, `hpeano.mm0`)
+
+The same 7 Pi2 statements, verbatim, are the theorems of [`receipt/thm23-g2/ha/b6-out.mm0`](receipt/thm23-g2/ha/b6-out.mm0)
+(sha256 `29b8a7c405c180afd21cd04ed40295a11975c45346ceb87a609590cf97176e26`, 976,658 bytes). That file is the whole
+HA specification: the Heyting arithmetic foundation `hpeano.mm0` verbatim (sha256 `625beda4...`, also in
+[`routeb/src/foundation/`](routeb/src/foundation/)), the `bd*` definitions of `bd_certs.mm0` and `bd_certs_b4b.mm0` verbatim (import lines dropped; the copies in
+`pa-mm0/` and `routeb/src/b4/` differ only in the import path of `peano.mm0`), and the 7 theorems; nothing else is assumed. The HA proof (`b6-out.mmb` on Zenodo) was produced from the PA binary of
+`b4b_final` by the certifying translator in [`routeb/`](routeb/README.md) and checked by `mm0-c` (the `capacity3`
+build) against `b6-out.mm0`; the control, `K215_G2_pi2` replaced by `F.`, is rejected
+([`control.log`](receipt/thm23-g2/ha/control.log)).
+
+### The files
+
+- Statements and the definitions behind them: the `.mm0` files listed with their sha256 in
+  [`manifests/final-spec-closure.sha256`](manifests/final-spec-closure.sha256) (Theorem 1) and
+  [`manifests/thm23-g2-spec-closure.sha256`](manifests/thm23-g2-spec-closure.sha256) (Theorems 2, 3, G2 and the Pi2
+  forms: the import closures of `targets/thm23.mm0`, `targets/incompleteness.mm0`, `b4_sigma.mm0`, `b4b_bb.mm0` and
+  `b4g2_final.mm0`, plus the files stating the proved forms), all in git and all at the hashes of the receipt.
+- The complete source closure: Theorem 1's in git plus the release
+  [`thm1-inputs-v1`](https://github.com/elliotglazer/k215-pa/releases/tag/thm1-inputs-v1); the 1,864 further sources of
+  `b4b_final` (6.2 GB, mostly generated `.mm1` proofs) in the release
+  [`thm23-g2-inputs-v1`](https://github.com/elliotglazer/k215-pa/releases/tag/thm23-g2-inputs-v1), listed in
+  [`manifests/thm23-g2-inputs.json`](manifests/thm23-g2-inputs.json). To fetch and check everything:
+
+  ```
+  sh scripts/fetch_large_inputs.sh all
+  python3 -I scripts/check_sources.py receipt/thm23-g2/pa/report.json      # must end with "closure COMPLETE"
+  ```
+
+  (about 8.7 GB unpacked; the compressed download of `thm23-g2-inputs-v1` is about 0.2 GB.)
+- The proof binaries: [doi:10.5281/zenodo.23872595](https://doi.org/10.5281/zenodo.23872595) (below).
+
 ## What you have to trust
 
 MM0 separates the *specification* (`.mm0` files: definitions and theorem statements, which a reader audits) from
@@ -154,10 +276,12 @@ The proof binaries are archived at [doi:10.5281/zenodo.23872595](https://doi.org
 | --- | --- |
 | `pa-mm0/*.mm0`, `pa-mm0/*.mm1` | the specification and proof sources of the theorem-1 closure (4128 files in git; the other 184 come from the release). Many are generator output; they are published as the exact files that were checked, so no generator has to be run or trusted |
 | `pa-mm0/check.py`, `pa-mm0/targets/final.mm0` | the pinned driver and the frozen statement |
+| `pa-mm0/targets/thm23.mm0`, `pa-mm0/targets/incompleteness.mm0` | the statements of Theorems 2, 3 and G2; their closure (260 further `.mm0` files in `pa-mm0/`) is in `manifests/thm23-g2-spec-closure.sha256`; the rest of the `b4b_final` closure comes from the release `thm23-g2-inputs-v1` |
 | `lean-mm0/vendor/` | the vendored MM0 Peano library (`peano.mm0`, `.mm1`, `.mmu`) |
 | `checker/` | `r0_check.py` with `final_spec_verify.py` and `mm0_join.py`; the `mm0-c` patch and its synthetic stress test `synth_mmb.py` |
-| `manifests/` | `final-spec-closure.sha256` (the frozen statement's closure), `thm1-inputs.json` (the release files: name, sha256, bytes) |
+| `manifests/` | `final-spec-closure.sha256` (the frozen statement's closure), `thm1-inputs.json` (the release files: name, sha256, bytes); `thm23-g2-spec-closure.sha256` and `thm23-g2-inputs.json` likewise for Theorems 2, 3, G2 |
 | `receipt/thm1/` | `report.json`, `status.json` (run metadata) and `reject-false.log` of the checking run |
+| `receipt/thm23-g2/` | the reports of the `b4b_final` and `zfc_incompleteness_root` checks (PA) and of the HA translation and check, with `b6-out.mm0`; `MANIFEST.json` lists each file and what was removed for publication |
 | `scripts/` | `fetch_large_inputs.sh`, `check_sources.py`, `compare_report.py` |
 
 ## License

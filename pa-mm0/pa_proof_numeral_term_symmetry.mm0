@@ -1,0 +1,35 @@
+import "pa_proof_numeral_term_computation.mm0";
+
+def paProofNumeralTermSymmetryPhi (a: nat): nat = $ paFormulaEqual (paTermVariable 0) a $;
+
+def paProofNumeralTermSymmetryRef (a: nat): nat = $ paFormulaEqual a a $;
+
+def paProofNumeralTermSymmetryTarget (a b: nat): nat = $ paFormulaEqual b a $;
+
+def paProofNumeralTermSymmetryAxiomFormula (a b: nat): nat = $ paFormulaImp (paFormulaEqual a b) (paFormulaImp (paProofNumeralTermSymmetryRef a) (paProofNumeralTermSymmetryTarget a b)) $;
+
+def paProofNumeralTermSymmetryAxiomAnnotation (a b: nat): nat = $ paProofAxiomAnnotation (paProofNumeralEqSubstWitness (paProofNumeralTermSymmetryPhi a) a b) $;
+
+def paProofNumeralTermSymmetryAxiomRow (a b: nat): nat = $ paProofRow 0 (paProofNumeralTermSymmetryAxiomFormula a b) (paProofNumeralTermSymmetryAxiomAnnotation a b) $;
+
+theorem paProofNumeralTermSymmetry_axiom_exact (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b -> paAxiomEqSubst (paProofNumeralTermSymmetryPhi a) a b = paProofNumeralTermSymmetryAxiomFormula a b $;
+
+theorem paProofNumeralTermSymmetry_axiom_derives (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b -> paProofDerives (paProofNumeralEqSubstProof (paProofNumeralTermSymmetryPhi a) a b) (paProofNumeralTermSymmetryAxiomRow a b) $;
+
+def paProofNumeralTermSymmetryFirstAnnotation (a b h: nat): nat = $ paProofNumeralMPAnnotation (paFormulaEqual a b) (paFormulaImp (paProofNumeralTermSymmetryRef a) (paProofNumeralTermSymmetryTarget a b)) h (paProofNumeralTermSymmetryAxiomAnnotation a b) $;
+
+def paProofNumeralTermSymmetryFirstRow (a b h: nat): nat = $ paProofRow 0 (paFormulaImp (paProofNumeralTermSymmetryRef a) (paProofNumeralTermSymmetryTarget a b)) (paProofNumeralTermSymmetryFirstAnnotation a b h) $;
+
+def paProofNumeralTermSymmetryFirstProof (a b h p: nat): nat = $ paProofNumeralMPProof (paFormulaEqual a b) (paFormulaImp (paProofNumeralTermSymmetryRef a) (paProofNumeralTermSymmetryTarget a b)) h (paProofNumeralTermSymmetryAxiomAnnotation a b) p (paProofNumeralEqSubstProof (paProofNumeralTermSymmetryPhi a) a b) $;
+
+def paProofNumeralTermSymmetryAnnotation (a b h: nat): nat = $ paProofNumeralMPAnnotation (paProofNumeralTermSymmetryRef a) (paProofNumeralTermSymmetryTarget a b) (paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness a)) (paProofNumeralTermSymmetryFirstAnnotation a b h) $;
+
+def paProofNumeralTermSymmetryRow (a b h: nat): nat = $ paProofRow 0 (paProofNumeralTermSymmetryTarget a b) (paProofNumeralTermSymmetryAnnotation a b h) $;
+
+def paProofNumeralTermSymmetryProof (a b h p: nat): nat = $ paProofNumeralMPProof (paProofNumeralTermSymmetryRef a) (paProofNumeralTermSymmetryTarget a b) (paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness a)) (paProofNumeralTermSymmetryFirstAnnotation a b h) (paProofNumeralTermReflexivityProof a) (paProofNumeralTermSymmetryFirstProof a b h p) $;
+
+theorem paProofNumeralTermSymmetry_derives (a b h p: nat): $ paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paProofDerives (paProofNumeralTermSymmetryProof a b h p) (paProofNumeralTermSymmetryRow a b h) $;
+
+theorem paProofNumeralTermSymmetry_provable (a b h p: nat): $ paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paProvable 0 (paFormulaEqual b a) $;
+
+theorem paProofNumeralTermSymmetry_length (a b h p: nat): $ len (paProofNumeralTermSymmetryProof a b h p) = suc (suc (suc (suc (len p)))) $;

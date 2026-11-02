@@ -1,0 +1,49 @@
+import "pa_proof_numeral_bounded_mp.mm0";
+
+def paProofNumeralBoundedProp1Witness (n a b: nat): nat = $ paAxiomWitness 0 a b 0 $;
+
+def paProofNumeralBoundedProp1Row (n a b: nat): nat = $ paProofNumeralAxiomRow n (paAxiomProp1 a b) (paProofNumeralBoundedProp1Witness n a b) $;
+
+def paProofNumeralBoundedProp1Proof (n a b: nat): nat = $ paProofNumeralAxiomProof n (paAxiomProp1 a b) (paProofNumeralBoundedProp1Witness n a b) $;
+
+theorem paProofNumeralBoundedProp1_derives (n a b: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paProofDerives (paProofNumeralBoundedProp1Proof n a b) (paProofNumeralBoundedProp1Row n a b) $;
+
+def paProofNumeralBoundedProp2Witness (n a b c: nat): nat = $ paAxiomWitness 1 a b c $;
+
+def paProofNumeralBoundedProp2Row (n a b c: nat): nat = $ paProofNumeralAxiomRow n (paAxiomProp2 a b c) (paProofNumeralBoundedProp2Witness n a b c) $;
+
+def paProofNumeralBoundedProp2Proof (n a b c: nat): nat = $ paProofNumeralAxiomProof n (paAxiomProp2 a b c) (paProofNumeralBoundedProp2Witness n a b c) $;
+
+theorem paProofNumeralBoundedProp2_derives (n a b c: nat): $ paFormulaBound n a /\ paFormulaBound n b /\ paFormulaBound n c -> paProofDerives (paProofNumeralBoundedProp2Proof n a b c) (paProofNumeralBoundedProp2Row n a b c) $;
+
+theorem paProofNumeralBoundedImplication_bounds (n a b h p: nat): $ paProofDerives p (paProofRow n (paFormulaImp a b) h) -> paFormulaBound n a /\ paFormulaBound n b $;
+
+theorem paProofNumeralBoundedFormula_bound (n a h p: nat): $ paProofDerives p (paProofRow n a h) -> paFormulaBound n a $;
+
+def paProofNumeralBoundedImpLiftAnnotation (n a b h: nat): nat = $ paProofNumeralBoundedMPAnnotation n b (paFormulaImp a b) h (paProofAxiomAnnotation (paProofNumeralBoundedProp1Witness n b a)) $;
+
+def paProofNumeralBoundedImpLiftRow (n a b h: nat): nat = $ paProofRow n (paFormulaImp a b) (paProofNumeralBoundedImpLiftAnnotation n a b h) $;
+
+def paProofNumeralBoundedImpLiftProof (n a b h p: nat): nat = $ paProofNumeralBoundedMPProof n b (paFormulaImp a b) h (paProofAxiomAnnotation (paProofNumeralBoundedProp1Witness n b a)) p (paProofNumeralBoundedProp1Proof n b a) $;
+
+theorem paProofNumeralBoundedImpLift_derives (n a b h p: nat): $ paFormulaBound n a -> paProofDerives p (paProofRow n b h) -> paProofDerives (paProofNumeralBoundedImpLiftProof n a b h p) (paProofNumeralBoundedImpLiftRow n a b h) $;
+
+def paProofNumeralBoundedImpApplyFirstAnnotation (n a b c k: nat): nat = $ paProofNumeralBoundedMPAnnotation n (paFormulaImp a (paFormulaImp b c)) (paFormulaImp (paFormulaImp a b) (paFormulaImp a c)) k (paProofAxiomAnnotation (paProofNumeralBoundedProp2Witness n a b c)) $;
+
+def paProofNumeralBoundedImpApplyFirstProof (n a b c k q: nat): nat = $ paProofNumeralBoundedMPProof n (paFormulaImp a (paFormulaImp b c)) (paFormulaImp (paFormulaImp a b) (paFormulaImp a c)) k (paProofAxiomAnnotation (paProofNumeralBoundedProp2Witness n a b c)) q (paProofNumeralBoundedProp2Proof n a b c) $;
+
+def paProofNumeralBoundedImpApplyAnnotation (n a b c h k: nat): nat = $ paProofNumeralBoundedMPAnnotation n (paFormulaImp a b) (paFormulaImp a c) h (paProofNumeralBoundedImpApplyFirstAnnotation n a b c k) $;
+
+def paProofNumeralBoundedImpApplyRow (n a b c h k: nat): nat = $ paProofRow n (paFormulaImp a c) (paProofNumeralBoundedImpApplyAnnotation n a b c h k) $;
+
+def paProofNumeralBoundedImpApplyProof (n a b c h k p q: nat): nat = $ paProofNumeralBoundedMPProof n (paFormulaImp a b) (paFormulaImp a c) h (paProofNumeralBoundedImpApplyFirstAnnotation n a b c k) p (paProofNumeralBoundedImpApplyFirstProof n a b c k q) $;
+
+theorem paProofNumeralBoundedImpApply_derives (n a b c h k p q: nat): $ paProofDerives p (paProofRow n (paFormulaImp a b) h) -> paProofDerives q (paProofRow n (paFormulaImp a (paFormulaImp b c)) k) -> paProofDerives (paProofNumeralBoundedImpApplyProof n a b c h k p q) (paProofNumeralBoundedImpApplyRow n a b c h k) $;
+
+def paProofNumeralBoundedImpComposeAnnotation (n a b c h k: nat): nat = $ paProofNumeralBoundedImpApplyAnnotation n a b c h (paProofNumeralBoundedImpLiftAnnotation n a (paFormulaImp b c) k) $;
+
+def paProofNumeralBoundedImpComposeRow (n a b c h k: nat): nat = $ paProofRow n (paFormulaImp a c) (paProofNumeralBoundedImpComposeAnnotation n a b c h k) $;
+
+def paProofNumeralBoundedImpComposeProof (n a b c h k p q: nat): nat = $ paProofNumeralBoundedImpApplyProof n a b c h (paProofNumeralBoundedImpLiftAnnotation n a (paFormulaImp b c) k) p (paProofNumeralBoundedImpLiftProof n a (paFormulaImp b c) k q) $;
+
+theorem paProofNumeralBoundedImpCompose_derives (n a b c h k p q: nat): $ paProofDerives p (paProofRow n (paFormulaImp a b) h) -> paProofDerives q (paProofRow n (paFormulaImp b c) k) -> paProofDerives (paProofNumeralBoundedImpComposeProof n a b c h k p q) (paProofNumeralBoundedImpComposeRow n a b c h k) $;

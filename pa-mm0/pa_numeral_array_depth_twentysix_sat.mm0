@@ -1,0 +1,31 @@
+import "pa_numeral_array_depth_twentyfive_sat.mm0";
+
+import "pa_source_interpretation_nat_term_assignment.mm0";
+
+def paNumeralArrayDepthTwentysixSatBody (E: set) (c h .x: nat): wff = $ ifp (c = 0) (0 != 0) (ifp (sfTag c = 1) (bb215ArithmeticFormulaTermValue E (sfLeft c) = bb215ArithmeticFormulaTermValue E (sfRight c)) (ifp (sfTag c = 3) (sfLeft c e. h /\ sfRight c e. h) (ifp (sfTag c = 4) (sfLeft c e. h \/ sfRight c e. h) (ifp (sfTag c = 5) (sfLeft c e. h -> sfRight c e. h) (ifp (sfTag c = 6 /\ sfRight c = 0) (A. x paNumeralArrayDepthTwentyfiveSat (paNatTermConsEnvironment E x) (sfLeft c)) (ifp (sfTag c = 7 /\ sfRight c = 0) (E. x paNumeralArrayDepthTwentyfiveSat (paNatTermConsEnvironment E x) (sfLeft c)) (0 != 0))))))) $;
+
+def paNumeralArrayDepthTwentysixSatStep (E: set) (.c .h: nat): set = $ S\ c, {h | paNumeralArrayDepthTwentysixSatBody E c h} $;
+
+def paNumeralArrayDepthTwentysixSat (E: set) (c: nat): wff = $ srecp (paNumeralArrayDepthTwentysixSatStep E) c $;
+
+def paNumeralArrayDepthTwentysixSatPrevious (E: set) (c .i: nat): nat = $ sep (upto c) {i | srecp (paNumeralArrayDepthTwentysixSatStep E) i} $;
+
+theorem paNumeralArrayDepthTwentysixSatStep_value (E: set) (c h: nat): $ (c, h) e. paNumeralArrayDepthTwentysixSatStep E <-> paNumeralArrayDepthTwentysixSatBody E c h $;
+
+theorem paNumeralArrayDepthTwentysixSatPrevious_value (E: set) (c a: nat): $ a e. paNumeralArrayDepthTwentysixSatPrevious E c <-> a < c /\ paNumeralArrayDepthTwentysixSat E a $;
+
+theorem paNumeralArrayDepthTwentysixSat_unfold (E: set) (c: nat): $ paNumeralArrayDepthTwentysixSat E c <-> paNumeralArrayDepthTwentysixSatBody E c (paNumeralArrayDepthTwentysixSatPrevious E c) $;
+
+theorem paNumeralArrayDepthTwentysixSat_false (E: set): $ paNumeralArrayDepthTwentysixSat E paFormulaFalse <-> 0 != 0 $;
+
+theorem paNumeralArrayDepthTwentysixSat_equal (E: set) (a b: nat): $ paNumeralArrayDepthTwentysixSat E (paFormulaEqual a b) <-> bb215ArithmeticFormulaTermValue E a = bb215ArithmeticFormulaTermValue E b $;
+
+theorem paNumeralArrayDepthTwentysixSat_and (E: set) (a b: nat): $ paNumeralArrayDepthTwentysixSat E (paFormulaAnd a b) <-> (paNumeralArrayDepthTwentysixSat E a /\ paNumeralArrayDepthTwentysixSat E b) $;
+
+theorem paNumeralArrayDepthTwentysixSat_or (E: set) (a b: nat): $ paNumeralArrayDepthTwentysixSat E (paFormulaOr a b) <-> (paNumeralArrayDepthTwentysixSat E a \/ paNumeralArrayDepthTwentysixSat E b) $;
+
+theorem paNumeralArrayDepthTwentysixSat_imp (E: set) (a b: nat): $ paNumeralArrayDepthTwentysixSat E (paFormulaImp a b) <-> (paNumeralArrayDepthTwentysixSat E a -> paNumeralArrayDepthTwentysixSat E b) $;
+
+theorem paNumeralArrayDepthTwentysixSat_all (E: set) (a: nat) {x: nat}: $ paNumeralArrayDepthTwentysixSat E (paFormulaAll a) <-> A. x paNumeralArrayDepthTwentyfiveSat (paNatTermConsEnvironment E x) a $;
+
+theorem paNumeralArrayDepthTwentysixSat_ex (E: set) (a: nat) {x: nat}: $ paNumeralArrayDepthTwentysixSat E (paFormulaEx a) <-> E. x paNumeralArrayDepthTwentyfiveSat (paNatTermConsEnvironment E x) a $;

@@ -1,0 +1,51 @@
+import "pa_numeral_term_subst_scalar.mm0";
+
+import "pa_numeral_subst_variable_bounded.mm0";
+
+def paNumeralTermSubstBoundedNode (j a b c .p: nat): wff = $ E. p (p <= c /\ (bb215ArithmeticFormulaPairGraph a b p /\ c = 8 * p + j)) $;
+
+theorem paNumeralTermSubstBoundedNode_correct (j a b c: nat) {p: nat}: $ paNumeralTermSubstBoundedNode j a b c <-> paNumeralTermSubstNodeGraph j a b c $;
+
+theorem paNumeralTermSubstBoundedNode_left_bound (j a b c: nat): $ paNumeralTermSubstBoundedNode j a b c -> a <= c $;
+
+theorem paNumeralTermSubstBoundedNode_right_bound (j a b c: nat): $ paNumeralTermSubstBoundedNode j a b c -> b <= c $;
+
+def paNumeralTermSubstBoundedNodeCell (m v c j a b .p: nat): wff = $ E. p (p < v /\ (bb215ArithmeticFormulaPairGraph a b p /\ zfcProofArithmeticBoundedHistoryPair m v c (8 * p + j))) $;
+
+theorem paNumeralTermSubstBoundedNodeCell_scalar (m v c j a b: nat) {p: nat}: $ paNumeralTermSubstBoundedNodeCell m v c j a b <-> paNumeralTermSubstScalarNodeCell m v c j a b $;
+
+def paNumeralTermSubstBoundedLocalVariable (d n z m v K .i .c .t: nat): wff = $ A. i A. c A. t ((i <= K /\ c <= K /\ t <= K + z) -> (paNumeralTermSubstBoundedNode 1 i 0 c /\ c <= K /\ paNumeralSubstVariableBoundedGraph d n i t) -> zfcProofArithmeticBoundedHistoryPair m v c t) $;
+
+def paNumeralTermSubstBoundedLocalSuccessor (m v K .a .c .u: nat): wff = $ A. a A. c A. u ((a <= K /\ c <= K /\ u < v) -> (paNumeralTermSubstBoundedNode 2 a 0 c /\ c <= K /\ zfcProofArithmeticBoundedHistoryPair m v a u) -> paNumeralTermSubstBoundedNodeCell m v c 2 u 0) $;
+
+theorem paNumeralTermSubstBoundedLocalSuccessor_scalar (m v K: nat): $ paNumeralTermSubstBoundedLocalSuccessor m v K <-> paNumeralTermSubstScalarLocalSuccessor m v K $;
+
+def paNumeralTermSubstBoundedLocalAddition (m v K .a .b .c .u .w: nat): wff = $ A. a A. b A. c A. u A. w ((a <= K /\ b <= K /\ c <= K /\ u < v /\ w < v) -> (paNumeralTermSubstBoundedNode 3 a b c /\ c <= K /\ zfcProofArithmeticBoundedHistoryPair m v a u /\ zfcProofArithmeticBoundedHistoryPair m v b w) -> paNumeralTermSubstBoundedNodeCell m v c 3 u w) $;
+
+theorem paNumeralTermSubstBoundedLocalAddition_scalar (m v K: nat): $ paNumeralTermSubstBoundedLocalAddition m v K <-> paNumeralTermSubstScalarLocalAddition m v K $;
+
+def paNumeralTermSubstBoundedLocalMultiplication (m v K .a .b .c .u .w: nat): wff = $ A. a A. b A. c A. u A. w ((a <= K /\ b <= K /\ c <= K /\ u < v /\ w < v) -> (paNumeralTermSubstBoundedNode 4 a b c /\ c <= K /\ zfcProofArithmeticBoundedHistoryPair m v a u /\ zfcProofArithmeticBoundedHistoryPair m v b w) -> paNumeralTermSubstBoundedNodeCell m v c 4 u w) $;
+
+theorem paNumeralTermSubstBoundedLocalMultiplication_scalar (m v K: nat): $ paNumeralTermSubstBoundedLocalMultiplication m v K <-> paNumeralTermSubstScalarLocalMultiplication m v K $;
+
+def paNumeralTermSubstBoundedLocal (d n z m v K: nat): wff = $ zfcProofArithmeticBoundedHistoryPair m v 0 0 /\ paNumeralTermSubstBoundedLocalVariable d n z m v K /\ paNumeralTermSubstBoundedLocalSuccessor m v K /\ paNumeralTermSubstBoundedLocalAddition m v K /\ paNumeralTermSubstBoundedLocalMultiplication m v K $;
+
+theorem paNumeralTermSubstBoundedLocal_scalar (d n z m v K: nat): $ paNumeralArithmeticBoundedGraph n z -> (paNumeralTermSubstBoundedLocal d n z m v K <-> paNumeralTermSubstScalarLocal d n m v K) $;
+
+def paNumeralTermSubstBoundedFinal (m v c t .y: nat): wff = $ A. y (y < v -> zfcProofArithmeticBoundedHistoryPair m v c y -> y = t) $;
+
+theorem paNumeralTermSubstBoundedFinal_scalar (m v c t: nat) {y: nat}: $ paNumeralTermSubstBoundedFinal m v c t <-> A. y (bb215ArithmeticFormulaHistoryPairGraph m v c y -> y = t) $;
+
+def paNumeralTermSubstBoundedCertificate (d n z m v c t: nat): wff = $ paNumeralTermSubstBoundedLocal d n z m v c /\ paNumeralTermSubstBoundedFinal m v c t $;
+
+theorem paNumeralTermSubstBoundedCertificate_scalar (d n z m v c t: nat): $ paNumeralArithmeticBoundedGraph n z -> (paNumeralTermSubstBoundedCertificate d n z m v c t <-> paNumeralTermSubstScalarCertificate d n m v c t) $;
+
+def paNumeralTermSubstBoundedWithNumeral (d n z c t .m .v: nat): wff = $ E. m E. v paNumeralTermSubstBoundedCertificate d n z m v c t $;
+
+theorem paNumeralTermSubstBoundedWithNumeral_scalar (d n z c t: nat) {m v: nat}: $ paNumeralArithmeticBoundedGraph n z -> (paNumeralTermSubstBoundedWithNumeral d n z c t <-> paNumeralTermSubstScalarGraph d n c t) $;
+
+def paNumeralTermSubstBoundedGraph (d n c t .z: nat): wff = $ E. z (paNumeralArithmeticBoundedGraph n z /\ paNumeralTermSubstBoundedWithNumeral d n z c t) $;
+
+theorem paNumeralTermSubstBoundedGraph_scalar (d n c t: nat) {z: nat}: $ paNumeralTermSubstBoundedGraph d n c t <-> paNumeralTermSubstScalarGraph d n c t $;
+
+theorem paNumeralTermSubstBoundedGraph_correct (d n c t m: nat): $ paTermBound m c -> (paNumeralTermSubstBoundedGraph d n c t <-> t = paTermSubst d (paTermNumeral n) c) $;

@@ -1,0 +1,71 @@
+import "pa_numeral_formula_subst_graph.mm0";
+
+import "pa_numeral_term_subst_scalar.mm0";
+
+def paNumeralFormulaSubstScalarKeyBound (d c K .i: nat): wff = $ E. i (bb215ArithmeticFormulaPairGraph d c i /\ i <= K) $;
+
+theorem paNumeralFormulaSubstScalarKeyBound_correct (d c K: nat) {i: nat}: $ paNumeralFormulaSubstScalarKeyBound d c K <-> (d, c) <= K $;
+
+def paNumeralFormulaSubstScalarKeyCell (m v d c t .i: nat): wff = $ E. i (bb215ArithmeticFormulaPairGraph d c i /\ bb215ArithmeticFormulaHistoryPairGraph m v i t) $;
+
+theorem paNumeralFormulaSubstScalarKeyCell_packed (m v d c t: nat) {i: nat}: $ paNumeralFormulaSubstScalarKeyCell m v d c t <-> bb215ArithmeticFormulaHistoryCell (m, v) (d, c) t $;
+
+def paNumeralFormulaSubstScalarNodeBound (d j a b K .c: nat): wff = $ E. c (paNumeralTermSubstNodeGraph j a b c /\ paNumeralFormulaSubstScalarKeyBound d c K) $;
+
+theorem paNumeralFormulaSubstScalarNodeBound_correct (d j a b K: nat) {c: nat}: $ paNumeralFormulaSubstScalarNodeBound d j a b K <-> (d, sfNode j a b) <= K $;
+
+def paNumeralFormulaSubstScalarNodeCell (m v d j a b k u w .c .r: nat): wff = $ E. c E. r ((paNumeralTermSubstNodeGraph j a b c /\ paNumeralTermSubstNodeGraph k u w r) /\ paNumeralFormulaSubstScalarKeyCell m v d c r) $;
+
+theorem paNumeralFormulaSubstScalarNodeCell_packed (m v d j a b k u w: nat) {c r: nat}: $ paNumeralFormulaSubstScalarNodeCell m v d j a b k u w <-> bb215ArithmeticFormulaHistoryCell (m, v) (d, sfNode j a b) (sfNode k u w) $;
+
+def paNumeralFormulaSubstScalarLocalZero (m v K .d: nat): wff = $ A. d (paNumeralFormulaSubstScalarKeyBound d 0 K -> paNumeralFormulaSubstScalarKeyCell m v d 0 0) $;
+
+theorem paNumeralFormulaSubstScalarLocalZero_packed (m v K: nat) {d: nat}: $ paNumeralFormulaSubstScalarLocalZero m v K <-> paNumeralFormulaSubstLocalZero (m, v) K $;
+
+def paNumeralFormulaSubstScalarEqualCell (n m v d a b .u .w: nat): wff = $ E. u E. w (paNumeralTermSubstScalarGraph d n a u /\ paNumeralTermSubstScalarGraph d n b w /\ paNumeralFormulaSubstScalarNodeCell m v d 1 a b 1 u w) $;
+
+theorem paNumeralFormulaSubstScalarEqualCell_packed (n m v d a b: nat) {u w: nat}: $ paNumeralFormulaSubstScalarEqualCell n m v d a b <-> paNumeralFormulaSubstEqualCell n (m, v) d a b $;
+
+def paNumeralFormulaSubstScalarLocalEqual (n m v K .d .a .b: nat): wff = $ A. d A. a A. b (paNumeralFormulaSubstScalarNodeBound d 1 a b K -> paNumeralFormulaSubstScalarEqualCell n m v d a b) $;
+
+theorem paNumeralFormulaSubstScalarLocalEqual_packed (n m v K: nat) {d a b: nat}: $ paNumeralFormulaSubstScalarLocalEqual n m v K <-> paNumeralFormulaSubstLocalEqual n (m, v) K $;
+
+def paNumeralFormulaSubstScalarLocalAnd (m v K .d .a .b .u .w: nat): wff = $ A. d A. a A. b A. u A. w (paNumeralFormulaSubstScalarNodeBound d 3 a b K -> paNumeralFormulaSubstScalarKeyCell m v d a u -> paNumeralFormulaSubstScalarKeyCell m v d b w -> paNumeralFormulaSubstScalarNodeCell m v d 3 a b 3 u w) $;
+
+theorem paNumeralFormulaSubstScalarLocalAnd_packed (m v K: nat) {d a b u w: nat}: $ paNumeralFormulaSubstScalarLocalAnd m v K <-> paNumeralFormulaSubstLocalAnd (m, v) K $;
+
+def paNumeralFormulaSubstScalarLocalOr (m v K .d .a .b .u .w: nat): wff = $ A. d A. a A. b A. u A. w (paNumeralFormulaSubstScalarNodeBound d 4 a b K -> paNumeralFormulaSubstScalarKeyCell m v d a u -> paNumeralFormulaSubstScalarKeyCell m v d b w -> paNumeralFormulaSubstScalarNodeCell m v d 4 a b 4 u w) $;
+
+theorem paNumeralFormulaSubstScalarLocalOr_packed (m v K: nat) {d a b u w: nat}: $ paNumeralFormulaSubstScalarLocalOr m v K <-> paNumeralFormulaSubstLocalOr (m, v) K $;
+
+def paNumeralFormulaSubstScalarLocalImp (m v K .d .a .b .u .w: nat): wff = $ A. d A. a A. b A. u A. w (paNumeralFormulaSubstScalarNodeBound d 5 a b K -> paNumeralFormulaSubstScalarKeyCell m v d a u -> paNumeralFormulaSubstScalarKeyCell m v d b w -> paNumeralFormulaSubstScalarNodeCell m v d 5 a b 5 u w) $;
+
+theorem paNumeralFormulaSubstScalarLocalImp_packed (m v K: nat) {d a b u w: nat}: $ paNumeralFormulaSubstScalarLocalImp m v K <-> paNumeralFormulaSubstLocalImp (m, v) K $;
+
+def paNumeralFormulaSubstScalarLocalAll (m v K .d .a .u: nat): wff = $ A. d A. a A. u (paNumeralFormulaSubstScalarNodeBound d 6 a 0 K -> paNumeralFormulaSubstScalarKeyCell m v (suc d) a u -> paNumeralFormulaSubstScalarNodeCell m v d 6 a 0 6 u 0) $;
+
+theorem paNumeralFormulaSubstScalarLocalAll_packed (m v K: nat) {d a u: nat}: $ paNumeralFormulaSubstScalarLocalAll m v K <-> paNumeralFormulaSubstLocalAll (m, v) K $;
+
+def paNumeralFormulaSubstScalarLocalEx (m v K .d .a .u: nat): wff = $ A. d A. a A. u (paNumeralFormulaSubstScalarNodeBound d 7 a 0 K -> paNumeralFormulaSubstScalarKeyCell m v (suc d) a u -> paNumeralFormulaSubstScalarNodeCell m v d 7 a 0 7 u 0) $;
+
+theorem paNumeralFormulaSubstScalarLocalEx_packed (m v K: nat) {d a u: nat}: $ paNumeralFormulaSubstScalarLocalEx m v K <-> paNumeralFormulaSubstLocalEx (m, v) K $;
+
+def paNumeralFormulaSubstScalarLocal (n m v K: nat): wff = $ paNumeralFormulaSubstScalarLocalZero m v K /\ paNumeralFormulaSubstScalarLocalEqual n m v K /\ paNumeralFormulaSubstScalarLocalAnd m v K /\ paNumeralFormulaSubstScalarLocalOr m v K /\ paNumeralFormulaSubstScalarLocalImp m v K /\ paNumeralFormulaSubstScalarLocalAll m v K /\ paNumeralFormulaSubstScalarLocalEx m v K $;
+
+theorem paNumeralFormulaSubstScalarLocal_packed (n m v K: nat): $ paNumeralFormulaSubstScalarLocal n m v K <-> paNumeralFormulaSubstLocal n (m, v) K $;
+
+def paNumeralFormulaSubstScalarCertificate (n m v K d c t .y: nat): wff = $ paNumeralFormulaSubstScalarLocal n m v K /\ A. y (paNumeralFormulaSubstScalarKeyCell m v d c y -> y = t) $;
+
+theorem paNumeralFormulaSubstScalarCertificate_packed (n m v d c t: nat) {y: nat}: $ paNumeralFormulaSubstScalarCertificate n m v (d, c) d c t <-> paNumeralFormulaSubstCertificate n (m, v) d c t $;
+
+def paNumeralFormulaSubstScalarPairCertificate (n m v d c t .K: nat): wff = $ E. K (bb215ArithmeticFormulaPairGraph d c K /\ paNumeralFormulaSubstScalarCertificate n m v K d c t) $;
+
+theorem paNumeralFormulaSubstScalarPairCertificate_packed (n m v d c t: nat) {K: nat}: $ paNumeralFormulaSubstScalarPairCertificate n m v d c t <-> paNumeralFormulaSubstCertificate n (m, v) d c t $;
+
+def paNumeralFormulaSubstScalarGraph (d n c t .m .v: nat): wff = $ E. m E. v paNumeralFormulaSubstScalarPairCertificate n m v d c t $;
+
+theorem paNumeralFormulaSubstScalarGraph_packed (d n c t: nat) {m v A: nat}: $ paNumeralFormulaSubstScalarGraph d n c t <-> paNumeralFormulaSubstGraph d n c t $;
+
+theorem paNumeralFormulaSubstScalarGraph_correct (d n c t m: nat): $ paFormulaBound m c -> (paNumeralFormulaSubstScalarGraph d n c t <-> t = paFormulaSubst d (paTermNumeral n) c) $;
+
+theorem paNumeralFormulaSubstScalarGraph_total (d n c: nat): $ paNumeralFormulaSubstScalarGraph d n c (paFormulaSubst d (paTermNumeral n) c) $;

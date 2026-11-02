@@ -1,0 +1,27 @@
+import "pa_proof_numeral_term_implication.mm0";
+
+def paProofNumeralTermNonzeroBody: nat = $ paFormulaImp (paFormulaEqual (paTermSuccessor (paTermVariable 0)) paTermZero) paFormulaFalse $;
+
+def paProofNumeralTermNonzeroAxiomWitness: nat = $ paAxiomWitness (suc (suc (suc (suc (suc (suc (suc 10))))))) 0 0 0 $;
+
+def paProofNumeralTermNonzeroAxiomRow: nat = $ paProofNumeralAxiomRow 0 paAxiomSuccessorNonzero paProofNumeralTermNonzeroAxiomWitness $;
+
+def paProofNumeralTermNonzeroAxiomProof: nat = $ paProofNumeralAxiomProof 0 paAxiomSuccessorNonzero paProofNumeralTermNonzeroAxiomWitness $;
+
+theorem paProofNumeralTermNonzero_axiom: $ paProofDerives paProofNumeralTermNonzeroAxiomProof paProofNumeralTermNonzeroAxiomRow $;
+
+def paProofNumeralTermNonzeroFormula (n: nat): nat = $ paFormulaImp (paFormulaEqual (paTermSuccessor (paTermNumeral n)) paTermZero) paFormulaFalse $;
+
+theorem paProofNumeralTermNonzero_substitution (n: nat): $ paFormulaSubst 0 (paTermNumeral n) paProofNumeralTermNonzeroBody = paProofNumeralTermNonzeroFormula n $;
+
+def paProofNumeralTermNonzeroRawRow (n: nat): nat = $ paProofNumeralAllElimRow 0 paProofNumeralTermNonzeroBody (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralTermNonzeroAxiomWitness) $;
+
+def paProofNumeralTermNonzeroProof (n: nat): nat = $ paProofNumeralAllElimProof 0 paProofNumeralTermNonzeroBody (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralTermNonzeroAxiomWitness) paProofNumeralTermNonzeroAxiomProof $;
+
+def paProofNumeralTermNonzeroRow (n: nat): nat = $ paProofRow 0 (paProofNumeralTermNonzeroFormula n) (paProofMPAnnotation paProofNumeralTermNonzeroAxiomRow (paProofNumeralAllElimAxiomRow 0 paProofNumeralTermNonzeroBody (paTermNumeral n))) $;
+
+theorem paProofNumeralTermNonzero_row_exact (n: nat): $ paProofNumeralTermNonzeroRawRow n = paProofNumeralTermNonzeroRow n $;
+
+theorem paProofNumeralTermNonzero_derives (n: nat): $ paProofDerives (paProofNumeralTermNonzeroProof n) (paProofNumeralTermNonzeroRow n) $;
+
+theorem paProofNumeralTermNonzero_provable (n: nat): $ paProvable 0 (paFormulaImp (paFormulaEqual (paTermSuccessor (paTermNumeral n)) paTermZero) paFormulaFalse) $;

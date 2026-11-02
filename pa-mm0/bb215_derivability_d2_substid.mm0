@@ -1,0 +1,16 @@
+import "bb215_derivability_d2_raise.mm0";
+
+-- L05, D2 plan (lanes/L05.md): substituting variable 0 at depth d is the identity on
+-- codes whose free variables are below d + 1. Needed to instantiate a closed
+-- universal statement at the bound variable when reasoning under a binder.
+
+def bb215D2SubstIdTermClass (d .c: nat): set = $ {c | paTermSubst d (paTermVariable 0) c = c} $;
+
+theorem bb215D2_term_subst_id (d c: nat):
+  $ paTermBound (suc d) c -> paTermSubst d (paTermVariable 0) c = c $;
+
+def bb215D2SubstIdFormulaClass (.n .c .d: nat): set =
+  $ S\ n, {c | A. d (n = suc d -> paFormulaSubst d (paTermVariable 0) c = c)} $;
+
+theorem bb215D2_formula_subst_id (d c: nat):
+  $ paFormulaBound (suc d) c -> paFormulaSubst d (paTermVariable 0) c = c $;

@@ -1,0 +1,15 @@
+import "pa_numeral_arithmetic_graph.mm0";
+
+import "pa_proof_numeral_closed.mm0";
+
+def paNumeralSubstVariableNodeGraph (i t .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph i 0 p /\ t = 8 * p + 1) $;
+
+theorem paNumeralSubstVariableNodeGraph_correct (i t: nat): $ paNumeralSubstVariableNodeGraph i t <-> t = paTermVariable i $;
+
+def paNumeralSubstVariablePredecessorGraph (i t .j: nat): wff = $ E. j (suc j = i /\ paNumeralSubstVariableNodeGraph j t) $;
+
+theorem paNumeralSubstVariablePredecessorGraph_correct (i t: nat): $ i != 0 -> (paNumeralSubstVariablePredecessorGraph i t <-> t = paTermVariable (i - 1)) $;
+
+def paNumeralSubstVariableGraph (d n i t: nat): wff = $ ifp (i < d) (paNumeralSubstVariableNodeGraph i t) (ifp (i = d) (paNumeralArithmeticGraph n t) (paNumeralSubstVariablePredecessorGraph i t)) $;
+
+theorem paNumeralSubstVariableGraph_correct (d n i t: nat): $ paNumeralSubstVariableGraph d n i t <-> t = paTermSubst d (paTermNumeral n) (paTermVariable i) $;

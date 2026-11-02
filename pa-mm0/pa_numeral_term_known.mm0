@@ -1,0 +1,19 @@
+import "pa_numeral_term_subst_bounded.mm0";
+
+def paNumeralTermKnownVariable (d z i t: nat): wff = $ ifp (i < d) (paNumeralSubstVariableBoundedNode i t) (ifp (i = d) (t = z) (paNumeralSubstVariableBoundedPredecessor i t)) $;
+
+theorem paNumeralTermKnownVariable_correct (d n z i t: nat): $ paNumeralArithmeticBoundedGraph n z -> (paNumeralTermKnownVariable d z i t <-> paNumeralSubstVariableBoundedGraph d n i t) $;
+
+def paNumeralTermKnownLocalVariable (d z m v K .i .c .t: nat): wff = $ A. i A. c A. t ((i <= K /\ c <= K /\ t <= K + z) -> (paNumeralTermSubstBoundedNode 1 i 0 c /\ c <= K /\ paNumeralTermKnownVariable d z i t) -> zfcProofArithmeticBoundedHistoryPair m v c t) $;
+
+theorem paNumeralTermKnownLocalVariable_correct (d n z m v K: nat) {i c t: nat}: $ paNumeralArithmeticBoundedGraph n z -> (paNumeralTermKnownLocalVariable d z m v K <-> paNumeralTermSubstBoundedLocalVariable d n z m v K) $;
+
+def paNumeralTermKnownLocal (d z m v K: nat): wff = $ zfcProofArithmeticBoundedHistoryPair m v 0 0 /\ paNumeralTermKnownLocalVariable d z m v K /\ paNumeralTermSubstBoundedLocalSuccessor m v K /\ paNumeralTermSubstBoundedLocalAddition m v K /\ paNumeralTermSubstBoundedLocalMultiplication m v K $;
+
+theorem paNumeralTermKnownLocal_correct (d n z m v K: nat): $ paNumeralArithmeticBoundedGraph n z -> (paNumeralTermKnownLocal d z m v K <-> paNumeralTermSubstBoundedLocal d n z m v K) $;
+
+def paNumeralTermKnownCertificate (d z m v c t: nat): wff = $ paNumeralTermKnownLocal d z m v c /\ paNumeralTermSubstBoundedFinal m v c t $;
+
+theorem paNumeralTermKnownCertificate_correct (d n z m v c t: nat): $ paNumeralArithmeticBoundedGraph n z -> (paNumeralTermKnownCertificate d z m v c t <-> paNumeralTermSubstBoundedCertificate d n z m v c t) $;
+
+theorem paNumeralTermKnownCertificate_scalar (d n z m v c t: nat): $ paNumeralArithmeticBoundedGraph n z -> (paNumeralTermKnownCertificate d z m v c t <-> paNumeralTermSubstScalarCertificate d n m v c t) $;

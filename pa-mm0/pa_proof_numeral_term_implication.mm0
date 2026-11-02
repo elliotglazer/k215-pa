@@ -1,0 +1,49 @@
+import "pa_proof_numeral_term_equality.mm0";
+
+def paProofNumeralTermProp1Witness (a b: nat): nat = $ paAxiomWitness 0 a b 0 $;
+
+def paProofNumeralTermProp1Row (a b: nat): nat = $ paProofNumeralAxiomRow 0 (paAxiomProp1 a b) (paProofNumeralTermProp1Witness a b) $;
+
+def paProofNumeralTermProp1Proof (a b: nat): nat = $ paProofNumeralAxiomProof 0 (paAxiomProp1 a b) (paProofNumeralTermProp1Witness a b) $;
+
+theorem paProofNumeralTermProp1_derives (a b: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b -> paProofDerives (paProofNumeralTermProp1Proof a b) (paProofNumeralTermProp1Row a b) $;
+
+def paProofNumeralTermProp2Witness (a b c: nat): nat = $ paAxiomWitness 1 a b c $;
+
+def paProofNumeralTermProp2Row (a b c: nat): nat = $ paProofNumeralAxiomRow 0 (paAxiomProp2 a b c) (paProofNumeralTermProp2Witness a b c) $;
+
+def paProofNumeralTermProp2Proof (a b c: nat): nat = $ paProofNumeralAxiomProof 0 (paAxiomProp2 a b c) (paProofNumeralTermProp2Witness a b c) $;
+
+theorem paProofNumeralTermProp2_derives (a b c: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paFormulaBound 0 c -> paProofDerives (paProofNumeralTermProp2Proof a b c) (paProofNumeralTermProp2Row a b c) $;
+
+theorem paProofNumeralTermImplication_bounds (a b h p: nat): $ paProofDerives p (paProofRow 0 (paFormulaImp a b) h) -> paFormulaBound 0 a /\ paFormulaBound 0 b $;
+
+theorem paProofNumeralTermFormula_bound (a h p: nat): $ paProofDerives p (paProofRow 0 a h) -> paFormulaBound 0 a $;
+
+def paProofNumeralTermImpLiftAnnotation (a b h: nat): nat = $ paProofNumeralMPAnnotation b (paFormulaImp a b) h (paProofAxiomAnnotation (paProofNumeralTermProp1Witness b a)) $;
+
+def paProofNumeralTermImpLiftRow (a b h: nat): nat = $ paProofRow 0 (paFormulaImp a b) (paProofNumeralTermImpLiftAnnotation a b h) $;
+
+def paProofNumeralTermImpLiftProof (a b h p: nat): nat = $ paProofNumeralMPProof b (paFormulaImp a b) h (paProofAxiomAnnotation (paProofNumeralTermProp1Witness b a)) p (paProofNumeralTermProp1Proof b a) $;
+
+theorem paProofNumeralTermImpLift_derives (a b h p: nat): $ paFormulaBound 0 a -> paProofDerives p (paProofRow 0 b h) -> paProofDerives (paProofNumeralTermImpLiftProof a b h p) (paProofNumeralTermImpLiftRow a b h) $;
+
+def paProofNumeralTermImpApplyFirstAnnotation (a b c k: nat): nat = $ paProofNumeralMPAnnotation (paFormulaImp a (paFormulaImp b c)) (paFormulaImp (paFormulaImp a b) (paFormulaImp a c)) k (paProofAxiomAnnotation (paProofNumeralTermProp2Witness a b c)) $;
+
+def paProofNumeralTermImpApplyFirstProof (a b c k q: nat): nat = $ paProofNumeralMPProof (paFormulaImp a (paFormulaImp b c)) (paFormulaImp (paFormulaImp a b) (paFormulaImp a c)) k (paProofAxiomAnnotation (paProofNumeralTermProp2Witness a b c)) q (paProofNumeralTermProp2Proof a b c) $;
+
+def paProofNumeralTermImpApplyAnnotation (a b c h k: nat): nat = $ paProofNumeralMPAnnotation (paFormulaImp a b) (paFormulaImp a c) h (paProofNumeralTermImpApplyFirstAnnotation a b c k) $;
+
+def paProofNumeralTermImpApplyRow (a b c h k: nat): nat = $ paProofRow 0 (paFormulaImp a c) (paProofNumeralTermImpApplyAnnotation a b c h k) $;
+
+def paProofNumeralTermImpApplyProof (a b c h k p q: nat): nat = $ paProofNumeralMPProof (paFormulaImp a b) (paFormulaImp a c) h (paProofNumeralTermImpApplyFirstAnnotation a b c k) p (paProofNumeralTermImpApplyFirstProof a b c k q) $;
+
+theorem paProofNumeralTermImpApply_derives (a b c h k p q: nat): $ paProofDerives p (paProofRow 0 (paFormulaImp a b) h) -> paProofDerives q (paProofRow 0 (paFormulaImp a (paFormulaImp b c)) k) -> paProofDerives (paProofNumeralTermImpApplyProof a b c h k p q) (paProofNumeralTermImpApplyRow a b c h k) $;
+
+def paProofNumeralTermImpComposeAnnotation (a b c h k: nat): nat = $ paProofNumeralTermImpApplyAnnotation a b c h (paProofNumeralTermImpLiftAnnotation a (paFormulaImp b c) k) $;
+
+def paProofNumeralTermImpComposeRow (a b c h k: nat): nat = $ paProofRow 0 (paFormulaImp a c) (paProofNumeralTermImpComposeAnnotation a b c h k) $;
+
+def paProofNumeralTermImpComposeProof (a b c h k p q: nat): nat = $ paProofNumeralTermImpApplyProof a b c h (paProofNumeralTermImpLiftAnnotation a (paFormulaImp b c) k) p (paProofNumeralTermImpLiftProof a (paFormulaImp b c) k q) $;
+
+theorem paProofNumeralTermImpCompose_derives (a b c h k p q: nat): $ paProofDerives p (paProofRow 0 (paFormulaImp a b) h) -> paProofDerives q (paProofRow 0 (paFormulaImp b c) k) -> paProofDerives (paProofNumeralTermImpComposeProof a b c h k p q) (paProofNumeralTermImpComposeRow a b c h k) $;

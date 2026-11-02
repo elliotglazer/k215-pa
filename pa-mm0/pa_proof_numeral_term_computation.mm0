@@ -1,0 +1,43 @@
+import "pa_proof_numeral_term_constructors.mm0";
+
+def paProofNumeralTermStateBody (c h: nat): nat = $ if (c = 0) paProofNumeralTermZeroState
+ (if (sfTag c = 1) paProofNumeralTermZeroState
+ (if (sfTag c = 2) (paProofNumeralTermSuccessorState (sfLeft c) (h @ (sfLeft c)))
+ (if (sfTag c = 3) (paProofNumeralTermAdditionState (sfLeft c) (sfRight c) (h @ (sfLeft c)) (h @ (sfRight c)))
+ (if (sfTag c = 4) (paProofNumeralTermMultiplicationState (sfLeft c) (sfRight c) (h @ (sfLeft c)) (h @ (sfRight c))) paProofNumeralTermZeroState)))) $;
+
+def paProofNumeralTermStateStep (.h: nat): set = $ \ h, paProofNumeralTermStateBody (sfHistoryLength h) h $;
+
+def paProofNumeralTermState (c: nat): nat = $ srec paProofNumeralTermStateStep c $;
+
+def paProofNumeralTermStateHistory (c .i: nat): nat = $ \. i e. upto c, srec paProofNumeralTermStateStep i $;
+
+theorem paProofNumeralTermStateStep_apply (h: nat): $ paProofNumeralTermStateStep @ h = paProofNumeralTermStateBody (sfHistoryLength h) h $;
+
+theorem paProofNumeralTermStateHistory_size (c: nat): $ sfHistoryLength (paProofNumeralTermStateHistory c) = c $;
+
+theorem paProofNumeralTermStateHistory_lookup (c a: nat): $ a < c -> paProofNumeralTermStateHistory c @ a = paProofNumeralTermState a $;
+
+theorem paProofNumeralTermState_unfold (c: nat): $ paProofNumeralTermState c = paProofNumeralTermStateBody c (paProofNumeralTermStateHistory c) $;
+
+theorem paProofNumeralTermState_zero: $ paProofNumeralTermState paTermZero = paProofNumeralTermZeroState $;
+
+theorem paProofNumeralTermState_successor (a: nat): $ paProofNumeralTermState (paTermSuccessor a) = paProofNumeralTermSuccessorState a (paProofNumeralTermState a) $;
+
+theorem paProofNumeralTermState_addition (a b: nat): $ paProofNumeralTermState (paTermAddition a b) = paProofNumeralTermAdditionState a b (paProofNumeralTermState a) (paProofNumeralTermState b) $;
+
+theorem paProofNumeralTermState_multiplication (a b: nat): $ paProofNumeralTermState (paTermMultiplication a b) = paProofNumeralTermMultiplicationState a b (paProofNumeralTermState a) (paProofNumeralTermState b) $;
+
+def paProofNumeralTermComputationClass (.c: nat): set = $ {c | paTermBound 0 c /\ paProofNumeralTermStateDerives c (paProofNumeralTermState c)} $;
+
+def paProofNumeralTermProof (c: nat): nat = $ fst (paProofNumeralTermState c) $;
+
+def paProofNumeralTermAnnotation (c: nat): nat = $ snd (paProofNumeralTermState c) $;
+
+def paProofNumeralTermRow (c: nat): nat = $ paProofRow 0 (paProofNumeralTermFormula c) (paProofNumeralTermAnnotation c) $;
+
+theorem paProofNumeralTerm_derives (c: nat): $ paTermBound 0 c -> paProofDerives (paProofNumeralTermProof c) (paProofNumeralTermRow c) $;
+
+theorem paProofNumeralTerm_provable (c: nat): $ paTermBound 0 c -> paProvable 0 (paFormulaEqual c (paTermNumeral (paProofNumeralTermValue c))) $;
+
+theorem paProofNumeralTerm_valid (c: nat): $ paTermBound 0 c -> paProofValid (paProofNumeralTermProof c) $;

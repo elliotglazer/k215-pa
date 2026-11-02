@@ -1,0 +1,49 @@
+import "pa_proof_numeral_bounded_propositional.mm0";
+
+def paProofNumeralBoundedAllDistribWitness (n a b: nat): nat = $ paAxiomWitness (suc 10) a b 0 $;
+
+def paProofNumeralBoundedAllDistribProof (n a b: nat): nat = $ paProofNumeralAxiomProof n (paAxiomAllDistrib a b) (paProofNumeralBoundedAllDistribWitness n a b) $;
+
+theorem paProofNumeralBoundedAllDistrib_derives (n a b: nat): $ paFormulaBound (suc n) a /\ paFormulaBound (suc n) b -> paProofDerives (paProofNumeralBoundedAllDistribProof n a b) (paProofRow n (paAxiomAllDistrib a b) (paProofAxiomAnnotation (paProofNumeralBoundedAllDistribWitness n a b))) $;
+
+def paProofNumeralBoundedAllVacuityWitness (n a: nat): nat = $ paAxiomWitness (suc (suc 10)) a 0 0 $;
+
+def paProofNumeralBoundedAllVacuityProof (n a: nat): nat = $ paProofNumeralAxiomProof n (paAxiomAllVacuity a) (paProofNumeralBoundedAllVacuityWitness n a) $;
+
+theorem paProofNumeralBoundedAllVacuity_derives (n a: nat): $ paFormulaBound n a -> paProofDerives (paProofNumeralBoundedAllVacuityProof n a) (paProofRow n (paAxiomAllVacuity a) (paProofAxiomAnnotation (paProofNumeralBoundedAllVacuityWitness n a))) $;
+
+def paProofNumeralBoundedExToDualWitness (n a: nat): nat = $ paAxiomWitness (suc (suc (suc 10))) a 0 0 $;
+
+def paProofNumeralBoundedExToDualProof (n a: nat): nat = $ paProofNumeralAxiomProof n (paAxiomExToDual a) (paProofNumeralBoundedExToDualWitness n a) $;
+
+theorem paProofNumeralBoundedExToDual_derives (n a: nat): $ paFormulaBound (suc n) a -> paProofDerives (paProofNumeralBoundedExToDualProof n a) (paProofRow n (paAxiomExToDual a) (paProofAxiomAnnotation (paProofNumeralBoundedExToDualWitness n a))) $;
+
+def paProofNumeralBoundedExElimContraAllAnnotation (n c b h p: nat): nat = $ paProofNumeralBoundedGenAnnotation n (paFormulaImp (paFormulaImp (paAxiomLift b) paFormulaFalse) (paFormulaImp c paFormulaFalse)) (paProofNumeralBoundedContrapositionAnnotation (suc n) c (paAxiomLift b) h p) $;
+
+def paProofNumeralBoundedExElimContraAllProof (n c b h p: nat): nat = $ paProofNumeralBoundedGenProof n (paFormulaImp (paFormulaImp (paAxiomLift b) paFormulaFalse) (paFormulaImp c paFormulaFalse)) (paProofNumeralBoundedContrapositionAnnotation (suc n) c (paAxiomLift b) h p) (paProofNumeralBoundedContrapositionProof (suc n) c (paAxiomLift b) h p) $;
+
+theorem paProofNumeralBoundedExElimContraAll_derives (n c b h p: nat): $ paFormulaBound (suc n) c /\ paFormulaBound n b /\ paProofDerives p (paProofRow (suc n) (paFormulaImp c (paAxiomLift b)) h) -> paProofDerives (paProofNumeralBoundedExElimContraAllProof n c b h p) (paProofRow n (paFormulaAll (paFormulaImp (paFormulaImp (paAxiomLift b) paFormulaFalse) (paFormulaImp c paFormulaFalse))) (paProofNumeralBoundedExElimContraAllAnnotation n c b h p)) $;
+
+def paProofNumeralBoundedExElimAllNegImpAnnotation (n c b h p: nat): nat = $ paProofNumeralBoundedMPAnnotation n (paFormulaAll (paFormulaImp (paFormulaImp (paAxiomLift b) paFormulaFalse) (paFormulaImp c paFormulaFalse))) (paFormulaImp (paFormulaAll (paFormulaImp (paAxiomLift b) paFormulaFalse)) (paFormulaAll (paFormulaImp c paFormulaFalse))) (paProofNumeralBoundedExElimContraAllAnnotation n c b h p) (paProofAxiomAnnotation (paProofNumeralBoundedAllDistribWitness n (paFormulaImp (paAxiomLift b) paFormulaFalse) (paFormulaImp c paFormulaFalse))) $;
+
+def paProofNumeralBoundedExElimAllNegImpProof (n c b h p: nat): nat = $ paProofNumeralBoundedMPProof n (paFormulaAll (paFormulaImp (paFormulaImp (paAxiomLift b) paFormulaFalse) (paFormulaImp c paFormulaFalse))) (paFormulaImp (paFormulaAll (paFormulaImp (paAxiomLift b) paFormulaFalse)) (paFormulaAll (paFormulaImp c paFormulaFalse))) (paProofNumeralBoundedExElimContraAllAnnotation n c b h p) (paProofAxiomAnnotation (paProofNumeralBoundedAllDistribWitness n (paFormulaImp (paAxiomLift b) paFormulaFalse) (paFormulaImp c paFormulaFalse))) (paProofNumeralBoundedExElimContraAllProof n c b h p) (paProofNumeralBoundedAllDistribProof n (paFormulaImp (paAxiomLift b) paFormulaFalse) (paFormulaImp c paFormulaFalse)) $;
+
+theorem paProofNumeralBoundedExElimAllNegImp_derives (n c b h p: nat): $ paFormulaBound (suc n) c /\ paFormulaBound n b /\ paProofDerives p (paProofRow (suc n) (paFormulaImp c (paAxiomLift b)) h) -> paProofDerives (paProofNumeralBoundedExElimAllNegImpProof n c b h p) (paProofRow n (paFormulaImp (paFormulaAll (paFormulaImp (paAxiomLift b) paFormulaFalse)) (paFormulaAll (paFormulaImp c paFormulaFalse))) (paProofNumeralBoundedExElimAllNegImpAnnotation n c b h p)) $;
+
+theorem paProofNumeralBoundedExElim_lift_negation (b: nat): $ paAxiomLift (paFormulaImp b paFormulaFalse) = (paFormulaImp (paAxiomLift b) paFormulaFalse) $;
+
+theorem paProofNumeralBoundedExElim_vacuity_exact (b: nat): $ paAxiomAllVacuity (paFormulaImp b paFormulaFalse) = (paFormulaImp (paFormulaImp b paFormulaFalse) (paFormulaAll (paFormulaImp (paAxiomLift b) paFormulaFalse))) $;
+
+def paProofNumeralBoundedExElimNegConclusionAllAnnotation (n c b h p: nat): nat = $ paProofNumeralBoundedImpComposeAnnotation n (paFormulaImp b paFormulaFalse) (paFormulaAll (paFormulaImp (paAxiomLift b) paFormulaFalse)) (paFormulaAll (paFormulaImp c paFormulaFalse)) (paProofAxiomAnnotation (paProofNumeralBoundedAllVacuityWitness n (paFormulaImp b paFormulaFalse))) (paProofNumeralBoundedExElimAllNegImpAnnotation n c b h p) $;
+
+def paProofNumeralBoundedExElimNegConclusionAllProof (n c b h p: nat): nat = $ paProofNumeralBoundedImpComposeProof n (paFormulaImp b paFormulaFalse) (paFormulaAll (paFormulaImp (paAxiomLift b) paFormulaFalse)) (paFormulaAll (paFormulaImp c paFormulaFalse)) (paProofAxiomAnnotation (paProofNumeralBoundedAllVacuityWitness n (paFormulaImp b paFormulaFalse))) (paProofNumeralBoundedExElimAllNegImpAnnotation n c b h p) (paProofNumeralBoundedAllVacuityProof n (paFormulaImp b paFormulaFalse)) (paProofNumeralBoundedExElimAllNegImpProof n c b h p) $;
+
+theorem paProofNumeralBoundedExElimNegConclusionAll_derives (n c b h p: nat): $ paFormulaBound (suc n) c /\ paFormulaBound n b /\ paProofDerives p (paProofRow (suc n) (paFormulaImp c (paAxiomLift b)) h) -> paProofDerives (paProofNumeralBoundedExElimNegConclusionAllProof n c b h p) (paProofRow n (paFormulaImp (paFormulaImp b paFormulaFalse) (paFormulaAll (paFormulaImp c paFormulaFalse))) (paProofNumeralBoundedExElimNegConclusionAllAnnotation n c b h p)) $;
+
+def paProofNumeralBoundedExElimAnnotation (n c b h p: nat): nat = $ paProofNumeralBoundedClassicalDualConclusionAnnotation n (paFormulaEx c) b (paFormulaAll (paFormulaImp c paFormulaFalse)) (paProofNumeralBoundedExElimNegConclusionAllAnnotation n c b h p) (paProofAxiomAnnotation (paProofNumeralBoundedExToDualWitness n c)) (paProofNumeralBoundedExElimNegConclusionAllProof n c b h p) (paProofNumeralBoundedExToDualProof n c) $;
+
+def paProofNumeralBoundedExElimProof (n c b h p: nat): nat = $ paProofNumeralBoundedClassicalDualConclusionProof n (paFormulaEx c) b (paFormulaAll (paFormulaImp c paFormulaFalse)) (paProofNumeralBoundedExElimNegConclusionAllAnnotation n c b h p) (paProofAxiomAnnotation (paProofNumeralBoundedExToDualWitness n c)) (paProofNumeralBoundedExElimNegConclusionAllProof n c b h p) (paProofNumeralBoundedExToDualProof n c) $;
+
+theorem paProofNumeralBoundedExElim_derives (n c b h p: nat): $ paFormulaBound (suc n) c /\ paFormulaBound n b /\ paProofDerives p (paProofRow (suc n) (paFormulaImp c (paAxiomLift b)) h) -> paProofDerives (paProofNumeralBoundedExElimProof n c b h p) (paProofRow n (paFormulaImp (paFormulaEx c) b) (paProofNumeralBoundedExElimAnnotation n c b h p)) $;
+
+theorem paProofNumeralBoundedExElim_provable (n c b h p: nat): $ paFormulaBound (suc n) c /\ paFormulaBound n b /\ paProofDerives p (paProofRow (suc n) (paFormulaImp c (paAxiomLift b)) h) -> paProvable n (paFormulaImp (paFormulaEx c) b) $;

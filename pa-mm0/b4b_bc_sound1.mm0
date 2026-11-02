@@ -1,0 +1,49 @@
+import "b4b_bc_meaning.mm0";
+
+theorem bcRNum_sound (m v i n t: nat): $ bcHasOK m v i -> bcRNum m v i n t -> t = paTermNumeral n $;
+theorem bcNodeTag (G: wff) (t g a b: nat) (h: $ G -> g < 8 /\ t = sfNode g a b $): $ G -> sfTag t = g $;
+theorem bcNodeLeft (G: wff) (t g a b: nat) (h: $ G -> g < 8 /\ t = sfNode g a b $): $ G -> sfLeft t = a $;
+theorem bcNodeRight (G: wff) (t g a b: nat) (h: $ G -> g < 8 /\ t = sfNode g a b $): $ G -> sfRight t = b $;
+theorem bcNodeK (G: wff) (t g a b k: nat) (h: $ G -> g < 8 /\ t = sfNode g a b $) (hg: $ G -> g = k $):
+  $ G -> t = sfNode k a b $;
+theorem bcTJ (G: wff) (t g a b: nat) (h: $ G -> g < 8 /\ t = sfNode g a b $)
+  (hg: $ G -> g = 0 \/ g = 5 \/ g = 6 \/ g = 7 $):
+  $ G -> sfTag t != 1 /\ sfTag t != 2 /\ sfTag t != 3 /\ sfTag t != 4 $;
+theorem bcTJ_ren (G: wff) (R: set) (t g a b: nat) (h: $ G -> g < 8 /\ t = sfNode g a b $)
+  (hg: $ G -> g = 0 \/ g = 5 \/ g = 6 \/ g = 7 $): $ G -> paTermRename R t = 0 $;
+theorem bcTJ_sub (G: wff) (d s t g a b: nat) (h: $ G -> g < 8 /\ t = sfNode g a b $)
+  (hg: $ G -> g = 0 \/ g = 5 \/ g = 6 \/ g = 7 $): $ G -> paTermSubst d s t = 0 $;
+theorem bcTJ_src (G: wff) (t g a b: nat) (h: $ G -> g < 8 /\ t = sfNode g a b $)
+  (hg: $ G -> g = 0 \/ g = 5 \/ g = 6 \/ g = 7 $): $ G -> paTermSource t = paSourceTermZero $;
+theorem bcElimNode {g a b: nat} (G: wff) (t: nat) (C: wff g a b) (Y: wff)
+  (h: $ G /\ (g < 8 /\ t = sfNode g a b) -> C -> Y $):
+  $ G -> E. g (g <= t /\ E. a (a <= t /\ E. b (b <= t /\ bdNode g a b t /\ C))) -> Y $;
+theorem bcTRn_zero (G: wff) (R: set) (t y: nat) (ht: $ G -> t = 0 $) (hy: $ G -> y = 0 $):
+  $ G -> y = paTermRename R t $;
+theorem bcTRn_var (G: wff) (R: set) (t y g a b j: nat) (hH: $ G -> g < 8 /\ t = sfNode g a b $)
+  (hg: $ G -> g = 1 $) (hj: $ G -> j = R @ a $) (hy: $ G -> bdNode 1 j 0 y $): $ G -> y = paTermRename R t $;
+theorem bcTRn_succ (G: wff) (R: set) (t y x g a b: nat) (hH: $ G -> g < 8 /\ t = sfNode g a b $)
+  (hg: $ G -> g = 2 $) (hx: $ G -> x = paTermRename R a $) (hy: $ G -> bdNode 2 x 0 y $):
+  $ G -> y = paTermRename R t $;
+theorem bcTRn_bin (G: wff) (R: set) (t y x z g a b: nat) (hH: $ G -> g < 8 /\ t = sfNode g a b $)
+  (hg: $ G -> g = 3 \/ g = 4 $) (hx: $ G -> x = paTermRename R a $) (hz: $ G -> z = paTermRename R b $)
+  (hy: $ G -> bdNode g x z y $): $ G -> y = paTermRename R t $;
+theorem bcTRn_junk (G: wff) (R: set) (t y g a b: nat) (hH: $ G -> g < 8 /\ t = sfNode g a b $)
+  (hg: $ G -> g = 0 \/ g = 5 \/ g = 6 \/ g = 7 $) (hy: $ G -> y = 0 $): $ G -> y = paTermRename R t $;
+theorem bcRTLift_sound (m v i k t y: nat): $ bcHasOK m v i -> bcRTLift m v i k t y -> y = paTermLift k t $;
+theorem bcTSb_zero (G: wff) (d s t y: nat) (ht: $ G -> t = 0 $) (hy: $ G -> y = 0 $):
+  $ G -> y = paTermSubst d s t $;
+theorem bcTSb_var (G: wff) (d s t y g p q: nat) (hH: $ G -> g < 8 /\ t = sfNode g p q $)
+  (hg: $ G -> g = 1 $) (hy: $ G -> y = paTermSubstVariable d s p $): $ G -> y = paTermSubst d s t $;
+theorem bcTSV_lt (d s p y: nat): $ p < d -> bdNode 1 p 0 y -> y = paTermSubstVariable d s p $;
+theorem bcTSV_eq (d s p y: nat): $ p = d -> y = paTermLift d s -> y = paTermSubstVariable d s p $;
+theorem bcTSV_gt (d s p y j: nat): $ d < p -> p = suc j -> bdNode 1 j 0 y -> y = paTermSubstVariable d s p $;
+theorem bcTSb_succ (G: wff) (d s t y x g p q: nat) (hH: $ G -> g < 8 /\ t = sfNode g p q $)
+  (hg: $ G -> g = 2 $) (hx: $ G -> x = paTermSubst d s p $) (hy: $ G -> bdNode 2 x 0 y $):
+  $ G -> y = paTermSubst d s t $;
+theorem bcTSb_bin (G: wff) (d s t y x z g p q: nat) (hH: $ G -> g < 8 /\ t = sfNode g p q $)
+  (hg: $ G -> g = 3 \/ g = 4 $) (hx: $ G -> x = paTermSubst d s p $) (hz: $ G -> z = paTermSubst d s q $)
+  (hy: $ G -> bdNode g x z y $): $ G -> y = paTermSubst d s t $;
+theorem bcTSb_junk (G: wff) (d s t y g p q: nat) (hH: $ G -> g < 8 /\ t = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ g = 5 \/ g = 6 \/ g = 7 $) (hy: $ G -> y = 0 $): $ G -> y = paTermSubst d s t $;
+theorem bcRTSub_sound (m v i d s t y: nat): $ bcHasOK m v i -> bcRTSub m v i d s t y -> y = paTermSubst d s t $;

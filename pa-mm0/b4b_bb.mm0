@@ -1,0 +1,27 @@
+import "b4b_bc_mv1.mm0";
+
+theorem bcBBSrc_sound (m v b s: nat): $ bcJust m v -> bcBBSrc m v b s -> s = bb215ArithmeticSentenceSource b $;
+theorem bcBBSrc_lt (m v b s: nat): $ bcBBSrc m v b s -> s < v $;
+theorem bcBBSrc_cert (b: nat) {m v: nat}: $ E. m E. v (bcJust m v /\ bcBBSrc m v b (bb215ArithmeticSentenceSource b)) $;
+theorem bcBBSrc_iff (b s: nat) {m v: nat}:
+  $ s = bb215ArithmeticSentenceSource b <-> E. m E. v (bcJust m v /\ bcBBSrc m v b s) $;
+theorem bdBB215Prf_intro (bb mm vv ww ss: nat):
+  $ bcJust mm vv /\ ss < vv /\ bcBBSrc mm vv bb ss /\ bdZfcPrf ww ss -> bdBB215Prf (bb, (mm, (vv, ww))) $;
+theorem bcExplode (f: nat): $ zfcInconsistent -> sfWf f -> zfcProvable f $;
+theorem bdBB215Prf_iff {b u: nat}:
+  $ E. b zfcProvable (bb215ArithmeticSentenceSource b) <-> E. u bdBB215Prf u $;
+theorem K215_thm2_pi2b {w u: nat}: $ A. w (bdZfcBot w -> E. u bdBB215Prf u) $;
+theorem K215_thm2_pi2a_of {u w b: nat}
+  (hT: $ ~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b) $):
+  $ A. u (bdBB215Prf u -> E. w bdZfcBot w) $;
+theorem K215_thm2_pi2b_of {w u b: nat}
+  (hT: $ ~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b) $):
+  $ A. w (bdZfcBot w -> E. u bdBB215Prf u) $;
+theorem K215_thm3_pi2a_of {h u b: nat}
+  (hT: $ (~zfcInconsistent <-> ~k215LiteralHalts) /\
+         (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) $):
+  $ A. h (bdK215Halt h -> E. u bdBB215Prf u) $;
+theorem K215_thm3_pi2b_of {u h b: nat}
+  (hT: $ (~zfcInconsistent <-> ~k215LiteralHalts) /\
+         (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) $):
+  $ A. u (bdBB215Prf u -> E. h bdK215Halt h) $;

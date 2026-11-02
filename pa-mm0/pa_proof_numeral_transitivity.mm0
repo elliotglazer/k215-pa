@@ -1,0 +1,31 @@
+import "pa_proof_numeral_successor_congruence.mm0";
+
+def paProofNumeralTransPhi (a: nat): nat = $ paFormulaEqual a (paTermVariable 0) $;
+
+def paProofNumeralTransAxiomFormula (a b c: nat): nat = $ paFormulaImp (paFormulaEqual b c) (paFormulaImp (paFormulaEqual a b) (paFormulaEqual a c)) $;
+
+def paProofNumeralTransAxiomAnnotation (a b c: nat): nat = $ paProofAxiomAnnotation (paProofNumeralEqSubstWitness (paProofNumeralTransPhi a) b c) $;
+
+def paProofNumeralTransAxiomRow (a b c: nat): nat = $ paProofRow 0 (paProofNumeralTransAxiomFormula a b c) (paProofNumeralTransAxiomAnnotation a b c) $;
+
+theorem paProofNumeralTrans_axiom_exact (a b c: nat): $ paTermBound 0 a /\ paTermBound 0 b /\ paTermBound 0 c -> paAxiomEqSubst (paProofNumeralTransPhi a) b c = paProofNumeralTransAxiomFormula a b c $;
+
+theorem paProofNumeralTrans_axiom_derives (a b c: nat): $ paTermBound 0 a /\ paTermBound 0 b /\ paTermBound 0 c -> paProofDerives (paProofNumeralEqSubstProof (paProofNumeralTransPhi a) b c) (paProofNumeralTransAxiomRow a b c) $;
+
+def paProofNumeralTransFirstAnnotation (a b c k: nat): nat = $ paProofNumeralMPAnnotation (paFormulaEqual b c) (paFormulaImp (paFormulaEqual a b) (paFormulaEqual a c)) k (paProofNumeralTransAxiomAnnotation a b c) $;
+
+def paProofNumeralTransFirstRow (a b c k: nat): nat = $ paProofRow 0 (paFormulaImp (paFormulaEqual a b) (paFormulaEqual a c)) (paProofNumeralTransFirstAnnotation a b c k) $;
+
+def paProofNumeralTransFirstProof (a b c k q: nat): nat = $ paProofNumeralMPProof (paFormulaEqual b c) (paFormulaImp (paFormulaEqual a b) (paFormulaEqual a c)) k (paProofNumeralTransAxiomAnnotation a b c) q (paProofNumeralEqSubstProof (paProofNumeralTransPhi a) b c) $;
+
+def paProofNumeralTransitivityAnnotation (a b c h k: nat): nat = $ paProofNumeralMPAnnotation (paFormulaEqual a b) (paFormulaEqual a c) h (paProofNumeralTransFirstAnnotation a b c k) $;
+
+def paProofNumeralTransitivityRow (a b c h k: nat): nat = $ paProofRow 0 (paFormulaEqual a c) (paProofNumeralTransitivityAnnotation a b c h k) $;
+
+def paProofNumeralTransitivityProof (a b c h k p q: nat): nat = $ paProofNumeralMPProof (paFormulaEqual a b) (paFormulaEqual a c) h (paProofNumeralTransFirstAnnotation a b c k) p (paProofNumeralTransFirstProof a b c k q) $;
+
+theorem paProofNumeralTransitivity_derives (a b c h k p q: nat): $ paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paProofDerives q (paProofRow 0 (paFormulaEqual b c) k) -> paProofDerives (paProofNumeralTransitivityProof a b c h k p q) (paProofNumeralTransitivityRow a b c h k) $;
+
+theorem paProofNumeralTransitivity_provable (a b c h k p q: nat): $ paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paProofDerives q (paProofRow 0 (paFormulaEqual b c) k) -> paProvable 0 (paFormulaEqual a c) $;
+
+theorem paProofNumeralTransitivity_length (a b c h k p q: nat): $ len (paProofNumeralTransitivityProof a b c h k p q) = suc (suc (suc (len p + len q))) $;

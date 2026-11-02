@@ -1,0 +1,19 @@
+import "pa_source_interpretation_substitution.mm0";
+
+import "source_theory_prefix.mm0";
+
+def paSourceRebaseMap (R: set) (d .i: nat): set = $ \ i, sfRenameIndex R d i $;
+
+theorem paSourceRebaseMap_value (R: set) (d i: nat): $ paSourceRebaseMap R d @ i = sfRenameIndex R d i $;
+
+theorem paSourceRebaseMap_index (R: set) (d e i: nat): $ sfRenameIndex (paSourceRebaseMap R d) e i = sfRenameIndex R (d + e) i $;
+
+def paSourceRebaseClass (R: set) (d .c .e: nat): set = $ {c | A. e (sfRename (paSourceRebaseMap R d) e c = sfRename R (d + e) c)} $;
+
+theorem paSourceRename_rebase (R: set) (d e c: nat): $ sfWf c -> sfRename (paSourceRebaseMap R d) e c = sfRename R (d + e) c $;
+
+theorem paSourceRename_rebase_zero (R: set) (d c: nat): $ sfWf c -> sfRename R d c = sfRename (paSourceRebaseMap R d) 0 c $;
+
+theorem paSourceSubst_full_rename (d t c: nat): $ sfWf c -> sfSubst d t c = sfRename (paSourceRebaseMap (paSourceSubstMap t) d) 0 c $;
+
+theorem paSourceShift_full_rename (d c: nat): $ sfWf c -> sfShift d c = sfRename (paSourceRebaseMap sfSuccessorMap d) 0 c $;

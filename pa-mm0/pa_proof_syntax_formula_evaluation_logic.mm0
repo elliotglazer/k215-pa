@@ -1,0 +1,15 @@
+import "pa_proof_syntax_formula_evaluation_syntax.mm0";
+
+def paFormulaGuardedEquivalence (g a b: nat): nat = $ sfImp g (sfAnd (sfImp a b) (sfImp b a)) $;
+
+theorem paFormulaEvaluation_and_implication (g a b c d: nat): $ sfWf g /\ sfWf a /\ sfWf b /\ sfWf c /\ sfWf d -> zfcProvable (sfImp (paFormulaGuardedEquivalence g a b) (sfImp (paFormulaGuardedEquivalence g c d) (paFormulaGuardedEquivalence g (sfAnd a c) (sfAnd b d)))) $;
+
+theorem paFormulaEvaluation_and (g a b c d: nat): $ sfWf g /\ sfWf a /\ sfWf b /\ sfWf c /\ sfWf d -> zfcProvable (paFormulaGuardedEquivalence g a b) -> zfcProvable (paFormulaGuardedEquivalence g c d) -> zfcProvable (paFormulaGuardedEquivalence g (sfAnd a c) (sfAnd b d)) $;
+
+theorem paFormulaEvaluation_or_implication (g a b c d: nat): $ sfWf g /\ sfWf a /\ sfWf b /\ sfWf c /\ sfWf d -> zfcProvable (sfImp (paFormulaGuardedEquivalence g a b) (sfImp (paFormulaGuardedEquivalence g c d) (paFormulaGuardedEquivalence g (sfOr a c) (sfOr b d)))) $;
+
+theorem paFormulaEvaluation_or (g a b c d: nat): $ sfWf g /\ sfWf a /\ sfWf b /\ sfWf c /\ sfWf d -> zfcProvable (paFormulaGuardedEquivalence g a b) -> zfcProvable (paFormulaGuardedEquivalence g c d) -> zfcProvable (paFormulaGuardedEquivalence g (sfOr a c) (sfOr b d)) $;
+
+theorem paFormulaEvaluation_imp_implication (g a b c d: nat): $ sfWf g /\ sfWf a /\ sfWf b /\ sfWf c /\ sfWf d -> zfcProvable (sfImp (paFormulaGuardedEquivalence g a b) (sfImp (paFormulaGuardedEquivalence g c d) (paFormulaGuardedEquivalence g (sfImp a c) (sfImp b d)))) $;
+
+theorem paFormulaEvaluation_imp (g a b c d: nat): $ sfWf g /\ sfWf a /\ sfWf b /\ sfWf c /\ sfWf d -> zfcProvable (paFormulaGuardedEquivalence g a b) -> zfcProvable (paFormulaGuardedEquivalence g c d) -> zfcProvable (paFormulaGuardedEquivalence g (sfImp a c) (sfImp b d)) $;

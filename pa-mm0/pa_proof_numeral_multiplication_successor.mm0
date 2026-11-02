@@ -1,0 +1,41 @@
+import "pa_proof_numeral_closed.mm0";
+
+def paProofNumeralMultiplicationSuccessorBody: nat = $ paFormulaEqual (paTermMultiplication (paTermVariable 1) (paTermSuccessor (paTermVariable 0))) (paTermAddition (paTermMultiplication (paTermVariable 1) (paTermVariable 0)) (paTermVariable 1)) $;
+
+def paProofNumeralMultiplicationSuccessorAxiomWitness: nat = $ paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))))))) 0 0 0 $;
+
+def paProofNumeralMultiplicationSuccessorAxiomRow: nat = $ paProofNumeralAxiomRow 0 paAxiomMultiplicationSuccessor paProofNumeralMultiplicationSuccessorAxiomWitness $;
+
+def paProofNumeralMultiplicationSuccessorAxiomProof: nat = $ paProofNumeralAxiomProof 0 paAxiomMultiplicationSuccessor paProofNumeralMultiplicationSuccessorAxiomWitness $;
+
+theorem paProofNumeralMultiplicationSuccessor_axiom: $ paProofDerives paProofNumeralMultiplicationSuccessorAxiomProof paProofNumeralMultiplicationSuccessorAxiomRow $;
+
+def paProofNumeralMultiplicationSuccessorFirstBody (n: nat): nat = $ paFormulaEqual (paTermMultiplication (paTermNumeral n) (paTermSuccessor (paTermVariable 0))) (paTermAddition (paTermMultiplication (paTermNumeral n) (paTermVariable 0)) (paTermNumeral n)) $;
+
+theorem paProofNumeralMultiplicationSuccessor_first_substitution (n: nat): $ paFormulaSubst 0 (paTermNumeral n) (paFormulaAll paProofNumeralMultiplicationSuccessorBody) = paFormulaAll (paProofNumeralMultiplicationSuccessorFirstBody n) $;
+
+def paProofNumeralMultiplicationSuccessorFirstAnnotation (n: nat): nat = $ paProofMPAnnotation paProofNumeralMultiplicationSuccessorAxiomRow (paProofNumeralAllElimAxiomRow 0 (paFormulaAll paProofNumeralMultiplicationSuccessorBody) (paTermNumeral n)) $;
+
+def paProofNumeralMultiplicationSuccessorFirstRawRow (n: nat): nat = $ paProofNumeralAllElimRow 0 (paFormulaAll paProofNumeralMultiplicationSuccessorBody) (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralMultiplicationSuccessorAxiomWitness) $;
+
+def paProofNumeralMultiplicationSuccessorFirstRow (n: nat): nat = $ paProofRow 0 (paFormulaAll (paProofNumeralMultiplicationSuccessorFirstBody n)) (paProofNumeralMultiplicationSuccessorFirstAnnotation n) $;
+
+def paProofNumeralMultiplicationSuccessorFirstProof (n: nat): nat = $ paProofNumeralAllElimProof 0 (paFormulaAll paProofNumeralMultiplicationSuccessorBody) (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralMultiplicationSuccessorAxiomWitness) paProofNumeralMultiplicationSuccessorAxiomProof $;
+
+theorem paProofNumeralMultiplicationSuccessor_first_derives (n: nat): $ paProofDerives (paProofNumeralMultiplicationSuccessorFirstProof n) (paProofNumeralMultiplicationSuccessorFirstRow n) $;
+
+def paProofNumeralMultiplicationSuccessorFormula (n m: nat): nat = $ paFormulaEqual (paTermMultiplication (paTermNumeral n) (paTermSuccessor (paTermNumeral m))) (paTermAddition (paTermMultiplication (paTermNumeral n) (paTermNumeral m)) (paTermNumeral n)) $;
+
+theorem paProofNumeralMultiplicationSuccessor_second_substitution (n m: nat): $ paFormulaSubst 0 (paTermNumeral m) (paProofNumeralMultiplicationSuccessorFirstBody n) = paProofNumeralMultiplicationSuccessorFormula n m $;
+
+def paProofNumeralMultiplicationSuccessorRawRow (n m: nat): nat = $ paProofNumeralAllElimRow 0 (paProofNumeralMultiplicationSuccessorFirstBody n) (paTermNumeral m) (paProofNumeralMultiplicationSuccessorFirstAnnotation n) $;
+
+def paProofNumeralMultiplicationSuccessorRow (n m: nat): nat = $ paProofRow 0 (paProofNumeralMultiplicationSuccessorFormula n m) (paProofMPAnnotation (paProofNumeralMultiplicationSuccessorFirstRow n) (paProofNumeralAllElimAxiomRow 0 (paProofNumeralMultiplicationSuccessorFirstBody n) (paTermNumeral m))) $;
+
+def paProofNumeralMultiplicationSuccessorProof (n m: nat): nat = $ paProofNumeralAllElimProof 0 (paProofNumeralMultiplicationSuccessorFirstBody n) (paTermNumeral m) (paProofNumeralMultiplicationSuccessorFirstAnnotation n) (paProofNumeralMultiplicationSuccessorFirstProof n) $;
+
+theorem paProofNumeralMultiplicationSuccessor_row_exact (n m: nat): $ paProofNumeralMultiplicationSuccessorRawRow n m = paProofNumeralMultiplicationSuccessorRow n m $;
+
+theorem paProofNumeralMultiplicationSuccessor_derives (n m: nat): $ paProofDerives (paProofNumeralMultiplicationSuccessorProof n m) (paProofNumeralMultiplicationSuccessorRow n m) $;
+
+theorem paProofNumeralMultiplicationSuccessor_provable (n m: nat): $ paProvable 0 (paProofNumeralMultiplicationSuccessorFormula n m) $;

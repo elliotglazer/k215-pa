@@ -1,0 +1,19 @@
+import "pa_source_interpretation_rebase.mm0";
+
+import "source_renaming_agreement.mm0";
+
+def paSourceTermValueAtMap (d .i: nat): set = $ \ i, if (i = 0) d (d + i) $;
+
+theorem paSourceTermValueAtMap_value (d i: nat): $ paSourceTermValueAtMap d @ i = if (i = 0) d (d + i) $;
+
+theorem paSourceTermValueAtMap_zero (d: nat): $ paSourceTermValueAtMap d @ 0 = d $;
+
+theorem paSourceTermValueAtMap_suc (d i: nat): $ paSourceTermValueAtMap d @ suc i = d + suc i $;
+
+def paSourceTermValueAt (d a: nat): nat = $ sfRename (paSourceTermValueAtMap d) 0 a $;
+
+theorem paSourceTermValueAt_wf (d a: nat): $ sfWf (paSourceTermValueAt d a) $;
+
+theorem paSourceTermValueAt_zero (a: nat): $ sfWf a -> paSourceTermValueAt 0 a = a $;
+
+theorem paSourceTermValueAt_shift (d a: nat): $ sfWf a -> sfShift 0 (paSourceTermValueAt d a) = paSourceTermValueAt (suc d) a $;

@@ -1,0 +1,119 @@
+import "pa_axiom_syntax_base.mm0";
+
+def paAxiomCase (n j a b d c: nat): wff = $ (j = 0 /\ (paFormulaBound n a /\ paFormulaBound n b) /\ c = (paAxiomProp1 a b)) \/ ((j = 1 /\ (paFormulaBound n a /\ paFormulaBound n b /\ paFormulaBound n d) /\ c = (paAxiomProp2 a b d)) \/ ((j = 2 /\ (paFormulaBound n a /\ paFormulaBound n b) /\ c = (paAxiomProp3 a b)) \/ ((j = 3 /\ (paFormulaBound n a) /\ c = (paAxiomFalseElim a)) \/ ((j = 4 /\ (paFormulaBound n a /\ paFormulaBound n b) /\ c = (paAxiomAndLeft a b)) \/ ((j = 5 /\ (paFormulaBound n a /\ paFormulaBound n b) /\ c = (paAxiomAndRight a b)) \/ ((j = 6 /\ (paFormulaBound n a /\ paFormulaBound n b) /\ c = (paAxiomAndIntro a b)) \/ ((j = 7 /\ (paFormulaBound n a /\ paFormulaBound n b) /\ c = (paAxiomOrLeft a b)) \/ ((j = 8 /\ (paFormulaBound n a /\ paFormulaBound n b) /\ c = (paAxiomOrRight a b)) \/ ((j = 9 /\ (paFormulaBound n a /\ paFormulaBound n b /\ paFormulaBound n d) /\ c = (paAxiomOrElim a b d)) \/ ((j = 10 /\ (paFormulaBound (suc n) a /\ paTermBound n b) /\ c = (paAxiomAllElim a b)) \/ ((j = (suc 10) /\ (paFormulaBound (suc n) a /\ paFormulaBound (suc n) b) /\ c = (paAxiomAllDistrib a b)) \/ ((j = (suc (suc 10)) /\ (paFormulaBound n a) /\ c = (paAxiomAllVacuity a)) \/ ((j = (suc (suc (suc 10))) /\ (paFormulaBound (suc n) a) /\ c = (paAxiomExToDual a)) \/ ((j = (suc (suc (suc (suc 10)))) /\ (paFormulaBound (suc n) a) /\ c = (paAxiomDualToEx a)) \/ ((j = (suc (suc (suc (suc (suc 10))))) /\ (paTermBound n a) /\ c = (paAxiomEqRefl a)) \/ ((j = (suc (suc (suc (suc (suc (suc 10)))))) /\ (paFormulaBound (suc n) a /\ paTermBound n b /\ paTermBound n d) /\ c = (paAxiomEqSubst a b d)) \/ ((j = (suc (suc (suc (suc (suc (suc (suc 10))))))) /\ (0 = 0) /\ c = (paAxiomSuccessorNonzero)) \/ ((j = (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))) /\ (0 = 0) /\ c = (paAxiomSuccessorInjective)) \/ ((j = (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))) /\ (0 = 0) /\ c = (paAxiomAdditionZero)) \/ ((j = (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))))) /\ (0 = 0) /\ c = (paAxiomAdditionSuccessor)) \/ ((j = (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))))) /\ (0 = 0) /\ c = (paAxiomMultiplicationZero)) \/ ((j = (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))))))) /\ (0 = 0) /\ c = (paAxiomMultiplicationSuccessor)) \/ ((j = (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))))))) /\ (paFormulaBound (suc n) a) /\ c = (paAxiomInduction a))))))))))))))))))))))))) $;
+
+def paAxiomWitness (j a b d: nat): nat = $ (j, (a, (b, d))) $;
+
+def paAxiomSyntax (n c w: nat): wff = $ paFormulaBound n c /\ paAxiomCase n (fst w) (fst (snd w)) (fst (snd (snd w))) (snd (snd (snd w))) c $;
+
+theorem paAxiomWitness_tag (j a b d: nat): $ fst (paAxiomWitness j a b d) = j $;
+
+theorem paAxiomWitness_left (j a b d: nat): $ fst (snd (paAxiomWitness j a b d)) = a $;
+
+theorem paAxiomWitness_middle (j a b d: nat): $ fst (snd (snd (paAxiomWitness j a b d))) = b $;
+
+theorem paAxiomWitness_right (j a b d: nat): $ snd (snd (snd (paAxiomWitness j a b d))) = d $;
+
+theorem paAxiomSyntax_witness (n j a b d c: nat): $ paAxiomSyntax n c (paAxiomWitness j a b d) <-> paFormulaBound n c /\ paAxiomCase n j a b d c $;
+
+theorem paAxiomSyntax_bound (n c w: nat): $ paAxiomSyntax n c w -> paFormulaBound n c $;
+
+theorem paAxiomSyntax_case (n c w: nat): $ paAxiomSyntax n c w -> paAxiomCase n (fst w) (fst (snd w)) (fst (snd (snd w))) (snd (snd (snd w))) c $;
+
+theorem paAxiomSyntax_intro (n j a b d c: nat): $ paFormulaBound n c -> paAxiomCase n j a b d c -> paAxiomSyntax n c (paAxiomWitness j a b d) $;
+
+theorem paAxiomCase_Prop1 (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomCase n 0 a b d (paAxiomProp1 a b) $;
+
+theorem paAxiomSyntax_Prop1 (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomSyntax n (paAxiomProp1 a b) (paAxiomWitness 0 a b d) $;
+
+theorem paAxiomCase_Prop2 (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b /\ paFormulaBound n d -> paAxiomCase n 1 a b d (paAxiomProp2 a b d) $;
+
+theorem paAxiomSyntax_Prop2 (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b /\ paFormulaBound n d -> paAxiomSyntax n (paAxiomProp2 a b d) (paAxiomWitness 1 a b d) $;
+
+theorem paAxiomCase_Prop3 (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomCase n 2 a b d (paAxiomProp3 a b) $;
+
+theorem paAxiomSyntax_Prop3 (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomSyntax n (paAxiomProp3 a b) (paAxiomWitness 2 a b d) $;
+
+theorem paAxiomCase_FalseElim (n a b d: nat): $ paFormulaBound n a -> paAxiomCase n 3 a b d (paAxiomFalseElim a) $;
+
+theorem paAxiomSyntax_FalseElim (n a b d: nat): $ paFormulaBound n a -> paAxiomSyntax n (paAxiomFalseElim a) (paAxiomWitness 3 a b d) $;
+
+theorem paAxiomCase_AndLeft (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomCase n 4 a b d (paAxiomAndLeft a b) $;
+
+theorem paAxiomSyntax_AndLeft (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomSyntax n (paAxiomAndLeft a b) (paAxiomWitness 4 a b d) $;
+
+theorem paAxiomCase_AndRight (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomCase n 5 a b d (paAxiomAndRight a b) $;
+
+theorem paAxiomSyntax_AndRight (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomSyntax n (paAxiomAndRight a b) (paAxiomWitness 5 a b d) $;
+
+theorem paAxiomCase_AndIntro (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomCase n 6 a b d (paAxiomAndIntro a b) $;
+
+theorem paAxiomSyntax_AndIntro (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomSyntax n (paAxiomAndIntro a b) (paAxiomWitness 6 a b d) $;
+
+theorem paAxiomCase_OrLeft (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomCase n 7 a b d (paAxiomOrLeft a b) $;
+
+theorem paAxiomSyntax_OrLeft (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomSyntax n (paAxiomOrLeft a b) (paAxiomWitness 7 a b d) $;
+
+theorem paAxiomCase_OrRight (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomCase n 8 a b d (paAxiomOrRight a b) $;
+
+theorem paAxiomSyntax_OrRight (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paAxiomSyntax n (paAxiomOrRight a b) (paAxiomWitness 8 a b d) $;
+
+theorem paAxiomCase_OrElim (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b /\ paFormulaBound n d -> paAxiomCase n 9 a b d (paAxiomOrElim a b d) $;
+
+theorem paAxiomSyntax_OrElim (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b /\ paFormulaBound n d -> paAxiomSyntax n (paAxiomOrElim a b d) (paAxiomWitness 9 a b d) $;
+
+theorem paAxiomCase_AllElim (n a b d: nat): $ paFormulaBound (suc n) a /\ paTermBound n b -> paAxiomCase n 10 a b d (paAxiomAllElim a b) $;
+
+theorem paAxiomSyntax_AllElim (n a b d: nat): $ paFormulaBound (suc n) a /\ paTermBound n b -> paAxiomSyntax n (paAxiomAllElim a b) (paAxiomWitness 10 a b d) $;
+
+theorem paAxiomCase_AllDistrib (n a b d: nat): $ paFormulaBound (suc n) a /\ paFormulaBound (suc n) b -> paAxiomCase n (suc 10) a b d (paAxiomAllDistrib a b) $;
+
+theorem paAxiomSyntax_AllDistrib (n a b d: nat): $ paFormulaBound (suc n) a /\ paFormulaBound (suc n) b -> paAxiomSyntax n (paAxiomAllDistrib a b) (paAxiomWitness (suc 10) a b d) $;
+
+theorem paAxiomCase_AllVacuity (n a b d: nat): $ paFormulaBound n a -> paAxiomCase n (suc (suc 10)) a b d (paAxiomAllVacuity a) $;
+
+theorem paAxiomSyntax_AllVacuity (n a b d: nat): $ paFormulaBound n a -> paAxiomSyntax n (paAxiomAllVacuity a) (paAxiomWitness (suc (suc 10)) a b d) $;
+
+theorem paAxiomCase_ExToDual (n a b d: nat): $ paFormulaBound (suc n) a -> paAxiomCase n (suc (suc (suc 10))) a b d (paAxiomExToDual a) $;
+
+theorem paAxiomSyntax_ExToDual (n a b d: nat): $ paFormulaBound (suc n) a -> paAxiomSyntax n (paAxiomExToDual a) (paAxiomWitness (suc (suc (suc 10))) a b d) $;
+
+theorem paAxiomCase_DualToEx (n a b d: nat): $ paFormulaBound (suc n) a -> paAxiomCase n (suc (suc (suc (suc 10)))) a b d (paAxiomDualToEx a) $;
+
+theorem paAxiomSyntax_DualToEx (n a b d: nat): $ paFormulaBound (suc n) a -> paAxiomSyntax n (paAxiomDualToEx a) (paAxiomWitness (suc (suc (suc (suc 10)))) a b d) $;
+
+theorem paAxiomCase_EqRefl (n a b d: nat): $ paTermBound n a -> paAxiomCase n (suc (suc (suc (suc (suc 10))))) a b d (paAxiomEqRefl a) $;
+
+theorem paAxiomSyntax_EqRefl (n a b d: nat): $ paTermBound n a -> paAxiomSyntax n (paAxiomEqRefl a) (paAxiomWitness (suc (suc (suc (suc (suc 10))))) a b d) $;
+
+theorem paAxiomCase_EqSubst (n a b d: nat): $ paFormulaBound (suc n) a /\ paTermBound n b /\ paTermBound n d -> paAxiomCase n (suc (suc (suc (suc (suc (suc 10)))))) a b d (paAxiomEqSubst a b d) $;
+
+theorem paAxiomSyntax_EqSubst (n a b d: nat): $ paFormulaBound (suc n) a /\ paTermBound n b /\ paTermBound n d -> paAxiomSyntax n (paAxiomEqSubst a b d) (paAxiomWitness (suc (suc (suc (suc (suc (suc 10)))))) a b d) $;
+
+theorem paAxiomCase_SuccessorNonzero (n a b d: nat): $ 0 = 0 -> paAxiomCase n (suc (suc (suc (suc (suc (suc (suc 10))))))) a b d (paAxiomSuccessorNonzero) $;
+
+theorem paAxiomSyntax_SuccessorNonzero (n a b d: nat): $ 0 = 0 -> paAxiomSyntax n (paAxiomSuccessorNonzero) (paAxiomWitness (suc (suc (suc (suc (suc (suc (suc 10))))))) a b d) $;
+
+theorem paAxiomCase_SuccessorInjective (n a b d: nat): $ 0 = 0 -> paAxiomCase n (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))) a b d (paAxiomSuccessorInjective) $;
+
+theorem paAxiomSyntax_SuccessorInjective (n a b d: nat): $ 0 = 0 -> paAxiomSyntax n (paAxiomSuccessorInjective) (paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))) a b d) $;
+
+theorem paAxiomCase_AdditionZero (n a b d: nat): $ 0 = 0 -> paAxiomCase n (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))) a b d (paAxiomAdditionZero) $;
+
+theorem paAxiomSyntax_AdditionZero (n a b d: nat): $ 0 = 0 -> paAxiomSyntax n (paAxiomAdditionZero) (paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))) a b d) $;
+
+theorem paAxiomCase_AdditionSuccessor (n a b d: nat): $ 0 = 0 -> paAxiomCase n (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))))) a b d (paAxiomAdditionSuccessor) $;
+
+theorem paAxiomSyntax_AdditionSuccessor (n a b d: nat): $ 0 = 0 -> paAxiomSyntax n (paAxiomAdditionSuccessor) (paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))))) a b d) $;
+
+theorem paAxiomCase_MultiplicationZero (n a b d: nat): $ 0 = 0 -> paAxiomCase n (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))))) a b d (paAxiomMultiplicationZero) $;
+
+theorem paAxiomSyntax_MultiplicationZero (n a b d: nat): $ 0 = 0 -> paAxiomSyntax n (paAxiomMultiplicationZero) (paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))))) a b d) $;
+
+theorem paAxiomCase_MultiplicationSuccessor (n a b d: nat): $ 0 = 0 -> paAxiomCase n (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))))))) a b d (paAxiomMultiplicationSuccessor) $;
+
+theorem paAxiomSyntax_MultiplicationSuccessor (n a b d: nat): $ 0 = 0 -> paAxiomSyntax n (paAxiomMultiplicationSuccessor) (paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))))))) a b d) $;
+
+theorem paAxiomCase_Induction (n a b d: nat): $ paFormulaBound (suc n) a -> paAxiomCase n (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))))))) a b d (paAxiomInduction a) $;
+
+theorem paAxiomSyntax_Induction (n a b d: nat): $ paFormulaBound (suc n) a -> paAxiomSyntax n (paAxiomInduction a) (paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))))))) a b d) $;

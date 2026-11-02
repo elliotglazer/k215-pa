@@ -1,0 +1,51 @@
+-- L10: the ZFC-to-K215 formula translation J that the M4 chain computes at sfBot, as named defs.
+-- J0 c = k218Translate (sqQuote 0-env, t = 1, k = 4, depth 0, (c^L)^WF): the formula-level form of
+-- sfLZFC_transfer_from_images (Rel_L), sfWFZFR_transfer (Rel_WF), the quotation step of
+-- k218SQ_sqST_refutation_context (sqQuote under kQuotientContext) and k218QProvable (k218Translate).
+-- J c = kImp kEmptyMarker (kImp kQuotientDomain (J0 c)) discharges kQuotientContext
+-- (k218IHypProvable_deduction, k218IHypProvable_discharge). F0 / F are J0 / J after paFormulaSource.
+-- J0 is exactly compositional at sfImp and sends sfBot to kF; J carries the two-formula context.
+import "quotient_quotation.mm0";
+import "quotation_supported_environment.mm0";
+import "source_relativization.mm0";
+import "k218_equality_translation.mm0";
+import "source_l_domain.mm0";
+import "source_wf_domain.mm0";
+import "k230_bootstrap_discharge.mm0";
+import "pa_formula_source.mm0";
+
+def k215AssemblyRel (c: nat): nat = $ sfRelativize sfWFDomain (sfRelativize sfLDomain c) $;
+def k215AssemblyJ0 (c: nat): nat = $ k218Translate (sqQuote sqZeroEnvironment 1 4 0 (k215AssemblyRel c)) $;
+def k215AssemblyJ (c: nat): nat = $ kImp kEmptyMarker (kImp kQuotientDomain (k215AssemblyJ0 c)) $;
+def k215AssemblyF0 (.x: nat): set = $ \ x, k215AssemblyJ0 (paFormulaSource x) $;
+def k215AssemblyF (.x: nat): set = $ \ x, k215AssemblyJ (paFormulaSource x) $;
+
+-- Node rules of the double relativization.
+theorem k215AssemblyRel_bot: $ k215AssemblyRel sfBot = sfBot $;
+theorem k215AssemblyRel_mem (a b: nat): $ k215AssemblyRel (sfMem a b) = sfMem a b $;
+theorem k215AssemblyRel_eq (a b: nat): $ k215AssemblyRel (sfEq a b) = sfEq a b $;
+theorem k215AssemblyRel_and (a b: nat):
+ $ k215AssemblyRel (sfAnd a b) = sfAnd (k215AssemblyRel a) (k215AssemblyRel b) $;
+theorem k215AssemblyRel_or (a b: nat):
+ $ k215AssemblyRel (sfOr a b) = sfOr (k215AssemblyRel a) (k215AssemblyRel b) $;
+theorem k215AssemblyRel_imp (a b: nat):
+ $ k215AssemblyRel (sfImp a b) = sfImp (k215AssemblyRel a) (k215AssemblyRel b) $;
+theorem k215AssemblyRel_all (a: nat):
+ $ k215AssemblyRel (sfAll a) =
+   sfAll (sfImp sfWFDomain (sfImp (sfRelativize sfWFDomain sfLDomain) (k215AssemblyRel a))) $;
+theorem k215AssemblyRel_ex (a: nat):
+ $ k215AssemblyRel (sfEx a) =
+   sfEx (sfAnd sfWFDomain (sfAnd (sfRelativize sfWFDomain sfLDomain) (k215AssemblyRel a))) $;
+
+-- Falsity and implication.
+theorem k215AssemblyJ0_bot: $ k215AssemblyJ0 sfBot = kF $;
+theorem k215AssemblyJ0_imp (a b: nat):
+ $ k215AssemblyJ0 (sfImp a b) = kImp (k215AssemblyJ0 a) (k215AssemblyJ0 b) $;
+theorem k215AssemblyJ_bot: $ k215AssemblyJ sfBot = kImp kEmptyMarker (kImp kQuotientDomain kF) $;
+theorem k215AssemblyF0_apply (x: nat): $ k215AssemblyF0 @ x = k215AssemblyJ0 (paFormulaSource x) $;
+theorem k215AssemblyF_apply (x: nat): $ k215AssemblyF @ x = k215AssemblyJ (paFormulaSource x) $;
+theorem k215AssemblyF0_imp (a b: nat):
+ $ k215AssemblyF0 @ (paFormulaImp a b) = kImp (k215AssemblyF0 @ a) (k215AssemblyF0 @ b) $;
+
+-- Hypothesis-free last theorem (keeps check.py's false-final control well formed).
+theorem k215AssemblyF0_false: $ k215AssemblyF0 @ paFormulaFalse = kF $;

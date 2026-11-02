@@ -1,0 +1,11 @@
+import "source_structural_induction.mm0";
+
+def paSourceSubstMap (t .i: nat): set = $ \ i, sfSubstIndex 0 t i $;
+
+theorem paSourceSubstMap_value (t i: nat): $ paSourceSubstMap t @ i = sfSubstIndex 0 t i $;
+
+theorem sfSubstIndex_as_rename (t d i: nat): $ sfSubstIndex d t i = sfRenameIndex (paSourceSubstMap t) d i $;
+
+def paSourceSubstRenameClass (t .c .d: nat): set = $ {c | A. d (sfSubst d t c = sfRename (paSourceSubstMap t) d c)} $;
+
+theorem sfSubst_as_rename (t d c: nat): $ sfWf c -> sfSubst d t c = sfRename (paSourceSubstMap t) d c $;

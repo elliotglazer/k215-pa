@@ -1,0 +1,30 @@
+import "bb215_derivability_d2_logic.mm0";
+
+-- L05, layer L1 of the D2 plan (lanes/L05.md): implication algebra, classical double
+-- negation, and existential elimination into an implication, uniformly at level n.
+
+theorem bb215D2_imp_syl_thm (n a b c: nat) (ha: $ paFormulaBound n a $) (hb: $ paFormulaBound n b $)
+  (hc: $ paFormulaBound n c $):
+  $ paProvable n (paFormulaImp (paFormulaImp b c) (paFormulaImp (paFormulaImp a b) (paFormulaImp a c))) $;
+
+theorem bb215D2_imp_post (n a b c: nat) (h: $ paProvable n (paFormulaImp a b) $) (hc: $ paFormulaBound n c $):
+  $ paProvable n (paFormulaImp (paFormulaImp b c) (paFormulaImp a c)) $;
+
+theorem bb215D2_imp_pre (n a b c: nat) (h: $ paProvable n (paFormulaImp b c) $) (ha: $ paFormulaBound n a $):
+  $ paProvable n (paFormulaImp (paFormulaImp a b) (paFormulaImp a c)) $;
+
+theorem bb215D2_contract (n a b: nat) (h: $ paProvable n (paFormulaImp a (paFormulaImp a b)) $):
+  $ paProvable n (paFormulaImp a b) $;
+
+theorem bb215D2_false_elim (n a: nat) (ha: $ paFormulaBound n a $):
+  $ paProvable n (paFormulaImp paFormulaFalse a) $;
+
+theorem bb215D2_dne (n a: nat) (ha: $ paFormulaBound n a $):
+  $ paProvable n (paFormulaImp (paFormulaImp (paFormulaImp a paFormulaFalse) paFormulaFalse) a) $;
+
+theorem bb215D2_ex_elim (n a c: nat) (ha: $ paFormulaBound (suc n) a $) (hc: $ paFormulaBound n c $)
+  (h: $ paProvable (suc n) (paFormulaImp a (paAxiomLift c)) $):
+  $ paProvable n (paFormulaImp (paFormulaEx a) c) $;
+
+theorem bb215D2_lift_not (c: nat):
+  $ paAxiomLift (paFormulaImp c paFormulaFalse) = paFormulaImp (paAxiomLift c) paFormulaFalse $;

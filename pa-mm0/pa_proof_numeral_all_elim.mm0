@@ -1,0 +1,17 @@
+import "pa_proof_numeral_reflexivity.mm0";
+
+def paProofNumeralAllElimAxiomWitness (phi t: nat): nat = $ paAxiomWitness 10 phi t 0 $;
+
+def paProofNumeralAllElimAxiomRow (n phi t: nat): nat = $ paProofNumeralAxiomRow n (paAxiomAllElim phi t) (paProofNumeralAllElimAxiomWitness phi t) $;
+
+def paProofNumeralAllElimAxiomProof (n phi t: nat): nat = $ paProofNumeralAxiomProof n (paAxiomAllElim phi t) (paProofNumeralAllElimAxiomWitness phi t) $;
+
+def paProofNumeralAllElimRow (n phi t h: nat): nat = $ paProofRow n (paFormulaSubst 0 t phi) (paProofMPAnnotation (paProofRow n (paFormulaAll phi) h) (paProofNumeralAllElimAxiomRow n phi t)) $;
+
+def paProofNumeralAllElimProof (n phi t h p: nat): nat = $ paProofNumeralAllElimRow n phi t h : (p ++ paProofNumeralAllElimAxiomProof n phi t) $;
+
+theorem paProofNumeralAllElim_axiom (n phi t: nat): $ paFormulaBound (suc n) phi /\ paTermBound n t -> paProofDerives (paProofNumeralAllElimAxiomProof n phi t) (paProofNumeralAllElimAxiomRow n phi t) $;
+
+theorem paProofNumeralAllElim_derives (n phi t h p: nat): $ paFormulaBound (suc n) phi /\ paTermBound n t -> paProofDerives p (paProofRow n (paFormulaAll phi) h) -> paProofDerives (paProofNumeralAllElimProof n phi t h p) (paProofNumeralAllElimRow n phi t h) $;
+
+theorem paProofNumeralAllElim_provable (n phi t h p: nat): $ paFormulaBound (suc n) phi /\ paTermBound n t -> paProofDerives p (paProofRow n (paFormulaAll phi) h) -> paProvable n (paFormulaSubst 0 t phi) $;

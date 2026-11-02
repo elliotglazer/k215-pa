@@ -1,0 +1,25 @@
+import "pa_source_interpretation_builders.mm0";
+
+import "source_renaming_depth.mm0";
+
+import "source_renaming_agreement.mm0";
+
+def paTermGraphMap (R: set) (.i: nat): set = $ \ i, if (i = 0) 0 (suc (R @ (i - 1))) $;
+
+theorem paTermGraphMap_value (R: set) (i: nat): $ paTermGraphMap R @ i = if (i = 0) 0 (suc (R @ (i - 1))) $;
+
+theorem paTermGraphMap_zero (R: set): $ paTermGraphMap R @ 0 = 0 $;
+
+theorem paTermGraphMap_suc (R: set) (i: nat): $ paTermGraphMap R @ suc i = suc (R @ i) $;
+
+theorem paTermGraphMap_bound_identity (R: set) (d c: nat) (hc: $ sfBound (suc d) c $): $ sfRename (paTermGraphMap R) d c = c $;
+
+theorem paSourceTermVariable_rename (R: set) (i: nat): $ sfRename (paTermGraphMap R) 0 (paSourceTermVariable i) = paSourceTermVariable (R @ i) $;
+
+theorem paSourceTermZero_rename (R: set): $ sfRename (paTermGraphMap R) 0 paSourceTermZero = paSourceTermZero $;
+
+theorem paSourceTermSuccessor_rename (R: set) (n a: nat) (ha: $ sfBound (suc n) a $): $ sfRename (paTermGraphMap R) 0 (paSourceTermSuccessor a) = paSourceTermSuccessor (sfRename (paTermGraphMap R) 0 a) $;
+
+theorem paSourceTermAddition_rename (R: set) (n a b: nat) (ha: $ sfBound (suc n) a $) (hb: $ sfBound (suc n) b $): $ sfRename (paTermGraphMap R) 0 (paSourceTermAddition a b) = paSourceTermAddition (sfRename (paTermGraphMap R) 0 a) (sfRename (paTermGraphMap R) 0 b) $;
+
+theorem paSourceTermMultiplication_rename (R: set) (n a b: nat) (ha: $ sfBound (suc n) a $) (hb: $ sfBound (suc n) b $): $ sfRename (paTermGraphMap R) 0 (paSourceTermMultiplication a b) = paSourceTermMultiplication (sfRename (paTermGraphMap R) 0 a) (sfRename (paTermGraphMap R) 0 b) $;

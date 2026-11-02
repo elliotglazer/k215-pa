@@ -1,0 +1,22 @@
+import "b4_k215_table.mm0";
+
+theorem k215TMDir_pr (w d t: nat): $ k215TMDir (w, d, t) = d $;
+theorem k215TMWrite_pr (w d t: nat): $ k215TMWrite (w, d, t) = w $;
+theorem k215TMTarget_pr (w d t: nat): $ k215TMTarget (w, d, t) = t $;
+theorem k215TMAction_split (a: nat): $ (k215TMWrite a, k215TMDir a, k215TMTarget a) = a $;
+theorem bdMoveV0 (w d t l r: nat): $ d = 0 ->
+  k215TMMove (w, d, t) l r = (t, l // 2, l % 2 + 2 * w + 4 * (r // 2)) $;
+theorem bdMoveV1 (w d t l r: nat): $ d != 0 ->
+  k215TMMove (w, d, t) l r = (t, 2 * l + w, r // 2) $;
+theorem bdMove_unfold (w d t l rh u: nat): $ bdK215Move w d t l rh u <->
+  (d = 0 /\ bdState t (l // 2) (l % 2 + 2 * w + 4 * rh) u) \/ (d != 0 /\ bdState t (2 * l + w) rh u) $;
+theorem bdMove_iff (w d t l r rh u: nat): $ rh = r // 2 ->
+  (bdK215Move w d t l rh u <-> u = k215TMMove (w, d, t) l r) $;
+theorem bdN215 (q: nat): $ q < bdNum 2 1 5 <-> q < k215Num215 $;
+theorem k215TMQ_pr (q l r: nat): $ k215TMQ (q, l, r) = q $;
+theorem k215TML_pr (q l r: nat): $ k215TML (q, l, r) = l $;
+theorem k215TMR_pr (q l r: nat): $ k215TMR (q, l, r) = r $;
+theorem bdStep_sound (s u: nat): $ bdK215Step s u -> u = k215TMStep s $;
+theorem bdStep_complete (s u: nat): $ u = k215TMStep s -> bdK215Step s u $;
+theorem bdStep_iff (s u: nat): $ bdK215Step s u <-> u = k215TMStep s $;
+theorem bdHalted_iff (s: nat): $ bdK215Halted s <-> k215TMQ s = k215Num215 $;

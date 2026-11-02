@@ -1,0 +1,42 @@
+import "pa_source_interpretation_formula_eqd_support.mm0";
+import "bb215_provability_d1.mm0";
+
+-- L05, layer L0 of the D2 plan (lanes/L05.md): uniform Hilbert-calculus rules for
+-- paProvable at an arbitrary level n (number of free variables), for arbitrary codes.
+
+theorem bb215D2_axiom (n c w: nat) (h: $ paAxiomSyntax n c w $): $ paProvable n c $;
+
+theorem bb215D2_mp (n a b: nat): $ paProvable n a -> paProvable n (paFormulaImp a b) -> paProvable n b $;
+
+theorem bb215D2_k (n a b: nat) (ha: $ paFormulaBound n a $) (hb: $ paFormulaBound n b $):
+  $ paProvable n (paFormulaImp a (paFormulaImp b a)) $;
+
+theorem bb215D2_s (n a b d: nat) (ha: $ paFormulaBound n a $) (hb: $ paFormulaBound n b $)
+  (hd: $ paFormulaBound n d $):
+  $ paProvable n (paFormulaImp (paFormulaImp a (paFormulaImp b d))
+      (paFormulaImp (paFormulaImp a b) (paFormulaImp a d))) $;
+
+theorem bb215D2_a1i (n a b: nat) (ha: $ paFormulaBound n a $) (h: $ paProvable n b $):
+  $ paProvable n (paFormulaImp a b) $;
+
+theorem bb215D2_id (n a: nat) (ha: $ paFormulaBound n a $): $ paProvable n (paFormulaImp a a) $;
+
+theorem bb215D2_mpd (n a b d: nat)
+  (h1: $ paProvable n (paFormulaImp a b) $) (h2: $ paProvable n (paFormulaImp a (paFormulaImp b d)) $):
+  $ paProvable n (paFormulaImp a d) $;
+
+theorem bb215D2_syl (n a b d: nat) (ha: $ paFormulaBound n a $)
+  (h1: $ paProvable n (paFormulaImp a b) $) (h2: $ paProvable n (paFormulaImp b d) $):
+  $ paProvable n (paFormulaImp a d) $;
+
+theorem bb215D2_all_elim (n a t: nat) (ha: $ paFormulaBound (suc n) a $) (ht: $ paTermBound n t $)
+  (h: $ paProvable n (paFormulaAll a) $): $ paProvable n (paFormulaSubst 0 t a) $;
+
+theorem bb215D2_and_intro (n a b: nat) (h1: $ paProvable n a $) (h2: $ paProvable n b $):
+  $ paProvable n (paFormulaAnd a b) $;
+
+theorem bb215D2_and_left (n a b: nat) (h: $ paProvable n (paFormulaAnd a b) $): $ paProvable n a $;
+
+theorem bb215D2_and_right (n a b: nat) (h: $ paProvable n (paFormulaAnd a b) $): $ paProvable n b $;
+
+theorem bb215D2_gen (n a: nat): $ paProvable (suc n) a -> paProvable n (paFormulaAll a) $;

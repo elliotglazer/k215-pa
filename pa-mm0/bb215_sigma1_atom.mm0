@@ -1,0 +1,38 @@
+import "bb215_derivability_l3_total.mm0";
+
+import "pa_source_interpretation_term_variable_substitution.mm0";
+
+import "source_renaming_extensional.mm0";
+
+def bb215S1Arg (j: nat) (.i: nat): set = $ \ i, j $;
+
+theorem bb215S1Arg_value (j i: nat): $ bb215S1Arg j @ i = j $;
+
+def bb215S1RRClass (S R: set) (e: nat) (.m .c .b: nat): set = $ S\ m, {c | A. b
+  paFormulaRename S (b + e) (paFormulaRename R b c) = paFormulaRename (sfComposeMap (sfRenameDepthMap S e) R) b c} $;
+
+theorem bb215S1_rename_rename (S R: set) (e m b c: nat): $ paFormulaBound m c ->
+  paFormulaRename S (b + e) (paFormulaRename R b c) = paFormulaRename (sfComposeMap (sfRenameDepthMap S e) R) b c $;
+
+def bb215S1SVClass (t: nat) (.m .c .d: nat): set = $ S\ m, {c | A. d
+  paFormulaSubst d (paTermVariable t) c = paFormulaRename (paSourceSubstMap t) d c} $;
+
+theorem bb215S1_subst_variable (t m d c: nat): $ paFormulaBound m c ->
+  paFormulaSubst d (paTermVariable t) c = paFormulaRename (paSourceSubstMap t) d c $;
+
+def bb215S1REClass (R Q: set) (.m .c .d: nat): set = $ S\ m, {c | A. d
+  paFormulaRename R d c = paFormulaRename Q d c} $;
+
+theorem bb215S1_rename_ext {i: nat} (R Q: set) (m d c: nat) (h: $ A. i R @ i = Q @ i $):
+  $ paFormulaBound m c -> paFormulaRename R d c = paFormulaRename Q d c $;
+
+theorem bb215S1_atom_bound (X j n: nat) (hX: $ paFormulaBound 1 X $) (hj: $ j < n $):
+  $ paFormulaBound n (paFormulaRename (bb215S1Arg j) 0 X) $;
+
+theorem bb215S1_atom_lift (X j k d: nat) (hX: $ paFormulaBound 1 X $) (hj: $ sfRenameIndex (paTermShiftMap 0) d j = k $):
+  $ paFormulaRename (paTermShiftMap 0) d (paFormulaRename (bb215S1Arg j) 0 X) = paFormulaRename (bb215S1Arg k) 0 X $;
+
+theorem bb215S1_atom_subst (X j k d t: nat) (hX: $ paFormulaBound 1 X $) (hj: $ sfSubstIndex d t j = k $):
+  $ paFormulaSubst d (paTermVariable t) (paFormulaRename (bb215S1Arg j) 0 X) = paFormulaRename (bb215S1Arg k) 0 X $;
+
+theorem bb215S1Arg_zero: $ bb215S1Arg 0 @ 0 = 0 $;

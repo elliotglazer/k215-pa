@@ -1,0 +1,37 @@
+import "pa_source_interpretation_term_value_logic.mm0";
+
+import "pa_source_interpretation_term_evaluation_contract.mm0";
+
+import "pa_formula_source_bound.mm0";
+
+import "pa_formula_substitution.mm0";
+
+def paFormulaEvaluationLeft (d a c: nat): nat = $ sfShift d (paFormulaSource (paFormulaSubst d a c)) $;
+
+def paFormulaSourceEvaluationBody (d a c: nat): nat = $ sfImp (paSourceTermValueAt d (paTermSource a)) (sfAnd (sfImp (paFormulaEvaluationLeft d a c) (paFormulaSource c)) (sfImp (paFormulaSource c) (paFormulaEvaluationLeft d a c))) $;
+
+def paFormulaSourceEvaluationCorrect (.n .m .d .a .c: nat): wff = $ A. n A. m A. d A. a A. c (paTermBound n a -> paFormulaBound m c -> zfcProvable (paFormulaSourceEvaluationBody d a c)) $;
+
+theorem paFormulaSourceEvaluationCorrect_at (n m d a c: nat): $ paFormulaSourceEvaluationCorrect -> paTermBound n a -> paFormulaBound m c -> zfcProvable (paFormulaSourceEvaluationBody d a c) $;
+
+theorem paFormulaEvaluationLeft_false (d a: nat): $ paFormulaEvaluationLeft d a paFormulaFalse = sfBot $;
+
+theorem paFormulaEvaluationLeft_and (d a c e: nat): $ paFormulaEvaluationLeft d a (paFormulaAnd c e) = sfAnd (paFormulaEvaluationLeft d a c) (paFormulaEvaluationLeft d a e) $;
+
+theorem paFormulaEvaluationLeft_or (d a c e: nat): $ paFormulaEvaluationLeft d a (paFormulaOr c e) = sfOr (paFormulaEvaluationLeft d a c) (paFormulaEvaluationLeft d a e) $;
+
+theorem paFormulaEvaluationLeft_imp (d a c e: nat): $ paFormulaEvaluationLeft d a (paFormulaImp c e) = sfImp (paFormulaEvaluationLeft d a c) (paFormulaEvaluationLeft d a e) $;
+
+theorem paFormulaEvaluationShift_all (d c: nat): $ sfShift d (paSourceFormulaAll c) = paSourceFormulaAll (sfShift (suc d) c) $;
+
+theorem paFormulaEvaluationLeft_all (d a c: nat): $ paFormulaEvaluationLeft d a (paFormulaAll c) = paSourceFormulaAll (paFormulaEvaluationLeft (suc d) a c) $;
+
+theorem paFormulaEvaluationShift_ex (d c: nat): $ sfShift d (paSourceFormulaEx c) = paSourceFormulaEx (sfShift (suc d) c) $;
+
+theorem paFormulaEvaluationLeft_ex (d a c: nat): $ paFormulaEvaluationLeft d a (paFormulaEx c) = paSourceFormulaEx (paFormulaEvaluationLeft (suc d) a c) $;
+
+theorem paFormulaEvaluationLeft_equal (d a s t: nat): $ paFormulaEvaluationLeft d a (paFormulaEqual s t) = sfShift d (paSourceFormulaEqual (paTermSource (paTermSubst d a s)) (paTermSource (paTermSubst d a t))) $;
+
+theorem paFormulaEvaluation_identity (g b: nat): $ sfWf g /\ sfWf b -> zfcProvable (sfImp g (sfAnd (sfImp b b) (sfImp b b))) $;
+
+theorem paFormulaSourceEvaluation_false (d a: nat): $ zfcProvable (paFormulaSourceEvaluationBody d a paFormulaFalse) $;

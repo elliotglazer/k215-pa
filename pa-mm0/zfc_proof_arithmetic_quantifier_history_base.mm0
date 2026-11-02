@@ -1,0 +1,77 @@
+import "zfc_proof_arithmetic_quantifier_total_induction.mm0";
+
+import "zfc_proof_arithmetic_quantifier_indices.mm0";
+
+import "bb215_arithmetic_formula_rec_graph.mm0";
+
+def zfcProofArithmeticQuantifierShiftValues (.i: nat): set = $ \ i, sfShift (fst i) (snd i) $;
+
+theorem zfcProofArithmeticQuantifierShiftValues_at (i: nat): $ zfcProofArithmeticQuantifierShiftValues @ i = sfShift (fst i) (snd i) $;
+
+theorem zfcProofArithmeticQuantifierShiftValues_pair (d c: nat): $ zfcProofArithmeticQuantifierShiftValues @ (d, c) = sfShift (d) (c) $;
+
+def zfcProofArithmeticQuantifierShiftCharacterization (A K: nat) {.i .y: nat}: wff = $ A. i A. y ((bb215ArithmeticFormulaHistoryCell A i y <-> i <= K /\ y = zfcProofArithmeticQuantifierShiftValues @ i)) $;
+
+theorem zfcProofArithmeticQuantifierShiftCharacterization_exists (K: nat) {A: nat}: $ E. A zfcProofArithmeticQuantifierShiftCharacterization A K $;
+
+theorem zfcProofArithmeticQuantifierShiftCharacterization_point (A K: nat) (i y: nat): $ zfcProofArithmeticQuantifierShiftCharacterization A K -> (bb215ArithmeticFormulaHistoryCell A i y <-> i <= K /\ y = zfcProofArithmeticQuantifierShiftValues @ i) $;
+
+theorem zfcProofArithmeticQuantifierShiftCharacterization_pair (A K: nat) (d c y: nat): $ zfcProofArithmeticQuantifierShiftCharacterization A K -> (bb215ArithmeticFormulaHistoryCell A ((d, c)) (y) <-> (d, c) <= K /\ y = sfShift (d) (c)) $;
+
+def zfcProofArithmeticQuantifierShiftLocal (A K: nat) (.d .a .b .x .y: nat): wff = $ (A. d A. a A. b ((d, sfNode 0 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 0 a b)) (0))) /\ (A. d A. a A. b ((d, sfMem a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfMem a b)) (sfMem (sfShiftIndex (d) (a)) (sfShiftIndex (d) (b))))) /\ (A. d A. a A. b ((d, sfEq a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfEq a b)) (sfEq (sfShiftIndex (d) (a)) (sfShiftIndex (d) (b))))) /\ (A. d A. a A. b A. x A. y ((d, sfAnd a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfAnd a b)) (sfAnd x y))) /\ (A. d A. a A. b A. x A. y ((d, sfOr a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfOr a b)) (sfOr x y))) /\ (A. d A. a A. b A. x A. y ((d, sfImp a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfImp a b)) (sfImp x y))) /\ (A. d A. a A. x ((d, sfAll a) <= K -> bb215ArithmeticFormulaHistoryCell A ((suc d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, sfAll a)) (sfAll x))) /\ (A. d A. a A. x ((d, sfEx a) <= K -> bb215ArithmeticFormulaHistoryCell A ((suc d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, sfEx a)) (sfEx x))) /\ (A. d A. a A. b (b != 0 -> (d, sfNode 6 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 6 a b)) (0))) /\ (A. d A. a A. b (b != 0 -> (d, sfNode 7 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 7 a b)) (0))) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_zero (A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> (d, sfNode 0 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 0 a b)) (0) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_mem (A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> (d, sfMem a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfMem a b)) (sfMem (sfShiftIndex (d) (a)) (sfShiftIndex (d) (b))) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_eq (A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> (d, sfEq a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfEq a b)) (sfEq (sfShiftIndex (d) (a)) (sfShiftIndex (d) (b))) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_and (A K: nat) (d a b x y: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> (d, sfAnd a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfAnd a b)) (sfAnd x y) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_or (A K: nat) (d a b x y: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> (d, sfOr a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfOr a b)) (sfOr x y) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_imp (A K: nat) (d a b x y: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> (d, sfImp a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfImp a b)) (sfImp x y) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_all (A K: nat) (d a x: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> (d, sfAll a) <= K -> bb215ArithmeticFormulaHistoryCell A ((suc d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, sfAll a)) (sfAll x) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_ex (A K: nat) (d a x: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> (d, sfEx a) <= K -> bb215ArithmeticFormulaHistoryCell A ((suc d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, sfEx a)) (sfEx x) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_bad6 (A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> b != 0 -> (d, sfNode 6 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 6 a b)) (0) $;
+
+theorem zfcProofArithmeticQuantifierShiftLocal_bad7 (A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierShiftLocal A K -> b != 0 -> (d, sfNode 7 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 7 a b)) (0) $;
+
+def zfcProofArithmeticQuantifierSubstValues (t: nat) (.i: nat): set = $ \ i, sfSubst (fst i) (t) (snd i) $;
+
+theorem zfcProofArithmeticQuantifierSubstValues_at (t i: nat): $ zfcProofArithmeticQuantifierSubstValues t @ i = sfSubst (fst i) (t) (snd i) $;
+
+theorem zfcProofArithmeticQuantifierSubstValues_pair (t d c: nat): $ zfcProofArithmeticQuantifierSubstValues t @ (d, c) = sfSubst (d) (t) (c) $;
+
+def zfcProofArithmeticQuantifierSubstCharacterization (t A K: nat) {.i .y: nat}: wff = $ A. i A. y ((bb215ArithmeticFormulaHistoryCell A i y <-> i <= K /\ y = zfcProofArithmeticQuantifierSubstValues t @ i)) $;
+
+theorem zfcProofArithmeticQuantifierSubstCharacterization_exists (t K: nat) {A: nat}: $ E. A zfcProofArithmeticQuantifierSubstCharacterization t A K $;
+
+theorem zfcProofArithmeticQuantifierSubstCharacterization_point (t A K: nat) (i y: nat): $ zfcProofArithmeticQuantifierSubstCharacterization t A K -> (bb215ArithmeticFormulaHistoryCell A i y <-> i <= K /\ y = zfcProofArithmeticQuantifierSubstValues t @ i) $;
+
+theorem zfcProofArithmeticQuantifierSubstCharacterization_pair (t A K: nat) (d c y: nat): $ zfcProofArithmeticQuantifierSubstCharacterization t A K -> (bb215ArithmeticFormulaHistoryCell A ((d, c)) (y) <-> (d, c) <= K /\ y = sfSubst (d) (t) (c)) $;
+
+def zfcProofArithmeticQuantifierSubstLocal (t A K: nat) (.d .a .b .x .y: nat): wff = $ (A. d A. a A. b ((d, sfNode 0 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 0 a b)) (0))) /\ (A. d A. a A. b ((d, sfMem a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfMem a b)) (sfMem (sfSubstIndex (d) (t) (a)) (sfSubstIndex (d) (t) (b))))) /\ (A. d A. a A. b ((d, sfEq a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfEq a b)) (sfEq (sfSubstIndex (d) (t) (a)) (sfSubstIndex (d) (t) (b))))) /\ (A. d A. a A. b A. x A. y ((d, sfAnd a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfAnd a b)) (sfAnd x y))) /\ (A. d A. a A. b A. x A. y ((d, sfOr a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfOr a b)) (sfOr x y))) /\ (A. d A. a A. b A. x A. y ((d, sfImp a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfImp a b)) (sfImp x y))) /\ (A. d A. a A. x ((d, sfAll a) <= K -> bb215ArithmeticFormulaHistoryCell A ((suc d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, sfAll a)) (sfAll x))) /\ (A. d A. a A. x ((d, sfEx a) <= K -> bb215ArithmeticFormulaHistoryCell A ((suc d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, sfEx a)) (sfEx x))) /\ (A. d A. a A. b (b != 0 -> (d, sfNode 6 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 6 a b)) (0))) /\ (A. d A. a A. b (b != 0 -> (d, sfNode 7 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 7 a b)) (0))) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_zero (t A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> (d, sfNode 0 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 0 a b)) (0) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_mem (t A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> (d, sfMem a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfMem a b)) (sfMem (sfSubstIndex (d) (t) (a)) (sfSubstIndex (d) (t) (b))) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_eq (t A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> (d, sfEq a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfEq a b)) (sfEq (sfSubstIndex (d) (t) (a)) (sfSubstIndex (d) (t) (b))) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_and (t A K: nat) (d a b x y: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> (d, sfAnd a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfAnd a b)) (sfAnd x y) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_or (t A K: nat) (d a b x y: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> (d, sfOr a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfOr a b)) (sfOr x y) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_imp (t A K: nat) (d a b x y: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> (d, sfImp a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, b)) (y) -> bb215ArithmeticFormulaHistoryCell A ((d, sfImp a b)) (sfImp x y) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_all (t A K: nat) (d a x: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> (d, sfAll a) <= K -> bb215ArithmeticFormulaHistoryCell A ((suc d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, sfAll a)) (sfAll x) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_ex (t A K: nat) (d a x: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> (d, sfEx a) <= K -> bb215ArithmeticFormulaHistoryCell A ((suc d, a)) (x) -> bb215ArithmeticFormulaHistoryCell A ((d, sfEx a)) (sfEx x) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_bad6 (t A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> b != 0 -> (d, sfNode 6 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 6 a b)) (0) $;
+
+theorem zfcProofArithmeticQuantifierSubstLocal_bad7 (t A K: nat) (d a b: nat): $ zfcProofArithmeticQuantifierSubstLocal t A K -> b != 0 -> (d, sfNode 7 a b) <= K -> bb215ArithmeticFormulaHistoryCell A ((d, sfNode 7 a b)) (0) $;

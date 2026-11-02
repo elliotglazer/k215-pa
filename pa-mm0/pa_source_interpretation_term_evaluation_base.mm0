@@ -1,0 +1,17 @@
+import "pa_source_interpretation_term_value_at_lift.mm0";
+
+import "pa_source_interpretation_term_substitution.mm0";
+
+import "pa_source_interpretation_term_source_bound.mm0";
+
+def paTermSourceEvaluationBody (d a t: nat): nat = $ sfImp (paSourceTermValueAt (suc d) (paTermSource a)) (sfAnd (sfImp (sfShift (suc d) (paTermSource (paTermSubst d a t))) (paTermSource t)) (sfImp (paTermSource t) (sfShift (suc d) (paTermSource (paTermSubst d a t))))) $;
+
+theorem paTermSourceEvaluation_zero (d a: nat): $ zfcProvable (paTermSourceEvaluationBody d a paTermZero) $;
+
+theorem paTermSourceEvaluation_hit_exact (d n a: nat): $ paTermBound n a -> paTermSourceEvaluationBody d a (paTermVariable d) = paSourceTermValueGraphEquality d (paTermSource a) $;
+
+theorem paTermSourceEvaluation_variable_hit (d n a: nat): $ paTermBound n a -> zfcProvable (paSourceTermFunctional (paTermSource a)) -> zfcProvable (paTermSourceEvaluationBody d a (paTermVariable d)) $;
+
+theorem paTermSourceEvaluation_variable_below (d a i: nat): $ i < d -> zfcProvable (paTermSourceEvaluationBody d a (paTermVariable i)) $;
+
+theorem paTermSourceEvaluation_variable_above (d a i: nat): $ d < i -> zfcProvable (paTermSourceEvaluationBody d a (paTermVariable i)) $;

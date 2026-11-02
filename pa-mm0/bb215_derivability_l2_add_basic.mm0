@@ -1,0 +1,48 @@
+import "bb215_derivability_l2_induction.mm0";
+import "bb215_derivability_d3_equality.mm0";
+
+-- L05, layer L2 (PA-internal arithmetic, lanes/L05.md): first object-level arithmetic
+-- laws, proved inside PA by the level-0 induction rule.
+
+-- PA |- A. x (0 + x = x)
+theorem bb215L2_add_zero_left:
+  $ paProvable 0 (paFormulaAll (paFormulaEqual (paTermAddition paTermZero (paTermVariable 0)) (paTermVariable 0))) $;
+
+-- ==== generated below by build_bb215_derivability_l2_add_basic.py ====
+
+theorem bb215L2_eq_trans_rule (n s t u: nat) (h1: $ paProvable n (paFormulaEqual s t) $) (h2: $ paProvable n (paFormulaEqual t u) $):
+  $ paProvable n (paFormulaEqual s u) $;
+
+theorem bb215L2_eq_sym_rule (n s t: nat) (h: $ paProvable n (paFormulaEqual s t) $):
+  $ paProvable n (paFormulaEqual t s) $;
+
+theorem bb215L2_eq_succ_rule (n s t: nat) (h: $ paProvable n (paFormulaEqual s t) $):
+  $ paProvable n (paFormulaEqual (paTermSuccessor s) (paTermSuccessor t)) $;
+
+theorem bb215L2_eq_trans_left (n a s t u: nat) (ha: $ paFormulaBound n a $) (h1: $ paProvable n (paFormulaEqual s t) $) (h2: $ paProvable n (paFormulaImp a (paFormulaEqual t u)) $):
+  $ paProvable n (paFormulaImp a (paFormulaEqual s u)) $;
+
+theorem bb215L2_eq_trans_right (n a s t u: nat) (ha: $ paFormulaBound n a $) (h1: $ paProvable n (paFormulaImp a (paFormulaEqual s t)) $) (h2: $ paProvable n (paFormulaEqual t u) $):
+  $ paProvable n (paFormulaImp a (paFormulaEqual s u)) $;
+
+theorem bb215L2_add_zero_inst (n t: nat) (ht: $ paTermBound n t $):
+  $ paProvable n (paFormulaEqual (paTermAddition t paTermZero) t) $;
+
+theorem bb215L2_add_succ_inst (n s t: nat) (hs: $ paTermBound n s $) (ht: $ paTermBound n t $):
+  $ paProvable n (paFormulaEqual (paTermAddition s (paTermSuccessor t)) (paTermSuccessor (paTermAddition s t))) $;
+
+-- PA |- A. y A. x (S x + y = S (x + y)), with y the outer variable.
+
+theorem bb215L2_add_succ_left:
+  $ paProvable 0 (paFormulaAll (paFormulaAll (paFormulaEqual (paTermAddition (paTermSuccessor (paTermVariable 0)) (paTermVariable 1)) (paTermSuccessor (paTermAddition (paTermVariable 0) (paTermVariable 1)))))) $;
+
+theorem bb215L2_add_zero_left_inst (n t: nat) (ht: $ paTermBound n t $):
+  $ paProvable n (paFormulaEqual (paTermAddition paTermZero t) t) $;
+
+theorem bb215L2_add_succ_left_inst (n s t: nat) (hs: $ paTermBound n s $) (ht: $ paTermBound n t $):
+  $ paProvable n (paFormulaEqual (paTermAddition (paTermSuccessor s) t) (paTermSuccessor (paTermAddition s t))) $;
+
+-- PA |- A. y A. x (x + y = y + x)
+
+theorem bb215L2_add_comm:
+  $ paProvable 0 (paFormulaAll (paFormulaAll (paFormulaEqual (paTermAddition (paTermVariable 0) (paTermVariable 1)) (paTermAddition (paTermVariable 1) (paTermVariable 0))))) $;

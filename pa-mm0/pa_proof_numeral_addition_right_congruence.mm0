@@ -1,0 +1,33 @@
+import "pa_proof_numeral_addition.mm0";
+
+def paProofNumeralAddRightEqPhi (a n: nat): nat = $ paFormulaEqual (paTermAddition a (paTermNumeral n)) (paTermAddition (paTermVariable 0) (paTermNumeral n)) $;
+
+def paProofNumeralAddRightEqRef (a n: nat): nat = $ paFormulaEqual (paTermAddition a (paTermNumeral n)) (paTermAddition a (paTermNumeral n)) $;
+
+def paProofNumeralAddRightEqTarget (a b n: nat): nat = $ paFormulaEqual (paTermAddition a (paTermNumeral n)) (paTermAddition b (paTermNumeral n)) $;
+
+def paProofNumeralAddRightEqAxiomFormula (a b n: nat): nat = $ paFormulaImp (paFormulaEqual a b) (paFormulaImp (paProofNumeralAddRightEqRef a n) (paProofNumeralAddRightEqTarget a b n)) $;
+
+def paProofNumeralAddRightEqAxiomAnnotation (a b n: nat): nat = $ paProofAxiomAnnotation (paProofNumeralEqSubstWitness (paProofNumeralAddRightEqPhi a n) a b) $;
+
+def paProofNumeralAddRightEqAxiomRow (a b n: nat): nat = $ paProofRow 0 (paProofNumeralAddRightEqAxiomFormula a b n) (paProofNumeralAddRightEqAxiomAnnotation a b n) $;
+
+theorem paProofNumeralAddRightEq_axiom_exact (a b n: nat): $ paTermBound 0 a /\ paTermBound 0 b -> paAxiomEqSubst (paProofNumeralAddRightEqPhi a n) a b = paProofNumeralAddRightEqAxiomFormula a b n $;
+
+theorem paProofNumeralAddRightEq_axiom_derives (a b n: nat): $ paTermBound 0 a /\ paTermBound 0 b -> paProofDerives (paProofNumeralEqSubstProof (paProofNumeralAddRightEqPhi a n) a b) (paProofNumeralAddRightEqAxiomRow a b n) $;
+
+def paProofNumeralAddRightEqFirstAnnotation (a b n h: nat): nat = $ paProofNumeralMPAnnotation (paFormulaEqual a b) (paFormulaImp (paProofNumeralAddRightEqRef a n) (paProofNumeralAddRightEqTarget a b n)) h (paProofNumeralAddRightEqAxiomAnnotation a b n) $;
+
+def paProofNumeralAddRightEqFirstRow (a b n h: nat): nat = $ paProofRow 0 (paFormulaImp (paProofNumeralAddRightEqRef a n) (paProofNumeralAddRightEqTarget a b n)) (paProofNumeralAddRightEqFirstAnnotation a b n h) $;
+
+def paProofNumeralAddRightEqFirstProof (a b n h p: nat): nat = $ paProofNumeralMPProof (paFormulaEqual a b) (paFormulaImp (paProofNumeralAddRightEqRef a n) (paProofNumeralAddRightEqTarget a b n)) h (paProofNumeralAddRightEqAxiomAnnotation a b n) p (paProofNumeralEqSubstProof (paProofNumeralAddRightEqPhi a n) a b) $;
+
+def paProofNumeralAdditionRightCongruenceAnnotation (a b n h: nat): nat = $ paProofNumeralMPAnnotation (paProofNumeralAddRightEqRef a n) (paProofNumeralAddRightEqTarget a b n) (paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness (paTermAddition a (paTermNumeral n)))) (paProofNumeralAddRightEqFirstAnnotation a b n h) $;
+
+def paProofNumeralAdditionRightCongruenceRow (a b n h: nat): nat = $ paProofRow 0 (paProofNumeralAddRightEqTarget a b n) (paProofNumeralAdditionRightCongruenceAnnotation a b n h) $;
+
+def paProofNumeralAdditionRightCongruenceProof (a b n h p: nat): nat = $ paProofNumeralMPProof (paProofNumeralAddRightEqRef a n) (paProofNumeralAddRightEqTarget a b n) (paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness (paTermAddition a (paTermNumeral n)))) (paProofNumeralAddRightEqFirstAnnotation a b n h) (paProofNumeralTermReflexivityProof (paTermAddition a (paTermNumeral n))) (paProofNumeralAddRightEqFirstProof a b n h p) $;
+
+theorem paProofNumeralAdditionRightCongruence_derives (a b n h p: nat): $ paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paProofDerives (paProofNumeralAdditionRightCongruenceProof a b n h p) (paProofNumeralAdditionRightCongruenceRow a b n h) $;
+
+theorem paProofNumeralAdditionRightCongruence_length (a b n h p: nat): $ len (paProofNumeralAdditionRightCongruenceProof a b n h p) = suc (suc (suc (suc (len p)))) $;

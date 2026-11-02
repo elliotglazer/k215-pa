@@ -1,0 +1,36 @@
+import "bb215_provability_qk_cell.mm0";
+
+import "bb215_provability_qk_axiom.mm0";
+
+-- Q' semantics (lane L07): arithmetic of ranks, provability closure, the finite code of
+-- k |-> entry at position len p - suc k of a trace p.
+
+theorem bb215ProvabilityQR_ltself (k j: nat): $ k < k + suc j $;
+
+theorem bb215ProvabilityQR_ar1 (j n: nat): $ j < n -> n - suc j + suc j = n $;
+
+theorem bb215ProvabilityQR_ar2 (j n: nat): $ j < n -> n - suc j < n $;
+
+theorem bb215ProvabilityQR_ar3 (j n: nat): $ j < n -> n - suc (n - suc j) = j $;
+
+theorem bb215ProvabilityQR_ar4 (j i n: nat): $ j < i -> i < n -> n - suc i < n - suc j $;
+
+theorem bb215ProvabilityQR_head_fst (l b: nat): $ bb215ArithmeticFormulaListHead l = suc b -> fst (l - 1) = b $;
+
+theorem bb215ProvabilityQR_head_lt (j p b: nat): $ bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop j p) = suc b -> j < len p $;
+
+theorem bb215ProvabilityQR_prov_ax (a: nat): $ a e. k215Axioms -> k215Provable a $;
+
+theorem bb215ProvabilityQR_prov_mp (a b: nat): $ k215Provable a -> k215Provable (kImp a b) -> k215Provable b $;
+
+theorem bb215ProvabilityQR_prov_gen (a b: nat): $ k215Provable b -> k215Provable (kAll a b) $;
+
+theorem bb215ProvabilityQR_app (p i: nat) {z: nat}: $ (\ z, fst (bb215ArithmeticFormulaListDrop (len p - suc z) p - 1)) @ i = fst (bb215ArithmeticFormulaListDrop (len p - suc i) p - 1) $;
+
+theorem bb215ProvabilityQR_code_exists (p: nat) {a x y2 z: nat}: $ E. a A. x A. y2 (bb215ArithmeticFormulaFiniteCell (fst a) (snd a) (x, y2) <-> x < len p /\ y2 = (\ z, fst (bb215ArithmeticFormulaListDrop (len p - suc z) p - 1)) @ x) $;
+
+theorem bb215ProvabilityQR_kd (a p k f: nat) {x y2 z: nat}: $ A. x A. y2 (bb215ArithmeticFormulaFiniteCell (fst a) (snd a) (x, y2) <-> x < len p /\ y2 = (\ z, fst (bb215ArithmeticFormulaListDrop (len p - suc z) p - 1)) @ x) -> (bb215ProvabilityQKD (fst a) (snd a) k f <-> k < len p /\ f = fst (bb215ArithmeticFormulaListDrop (len p - suc k) p - 1)) $;
+
+theorem bb215ProvabilityQR_rc (a p j b: nat) {x y2 z: nat}: $ (A. x A. y2 (bb215ArithmeticFormulaFiniteCell (fst a) (snd a) (x, y2) <-> x < len p /\ y2 = (\ z, fst (bb215ArithmeticFormulaListDrop (len p - suc z) p - 1)) @ x)) /\ bb215ArithmeticFormulaListHead (bb215ArithmeticFormulaListDrop j p) = suc b -> bb215ProvabilityQKD (fst a) (snd a) (len p - suc j) b $;
+
+theorem bb215ProvabilityQR_ar_zero: $ 0 < 1 -> 1 - suc 0 < 1 $;

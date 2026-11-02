@@ -1,0 +1,19 @@
+import "b4_zfc_sound3.mm0";
+
+theorem bdZfcRule_sound (m v B i g a b c d: nat): $ bdHasOK m v i -> bdZfcRule m v B i g a b c d -> bdMeaning g a b c d $;
+theorem bdTup_iff (i g a b c d k: nat): $ bdTup i g a b c d k <-> k = (i, g, a, b, c, d) $;
+theorem bdTup_inj (i g a b c d k i2 g2 a2 b2 c2 d2: nat): $ bdTup i g a b c d k -> bdTup i2 g2 a2 b2 c2 d2 k -> i = i2 /\ (g = g2 /\ (a = a2 /\ (b = b2 /\ (c = c2 /\ d = d2)))) $;
+--| every fact of (m, v) with index j means what it says.
+def bdFactOK (m v j .k .g .a .b .c .d: nat): wff =
+$ A. k (bdCell m v k -> A. g A. a A. b A. c A. d (bdTup j g a b c d k -> bdMeaning g a b c d)) $;
+theorem bdFactOKeqd (G: wff) (m v j j2: nat) (h: $ G -> j = j2 $): $ G -> (bdFactOK m v j <-> bdFactOK m v j2) $;
+theorem bdFactOK_inst (m v j k g a b c d: nat): $ bdFactOK m v j -> bdCell m v k -> bdTup j g a b c d k -> bdMeaning g a b c d $;
+theorem bdQ_HasOK (m v i: nat) {w0: nat}: $ A. w0 (w0 < i -> bdFactOK m v w0) -> bdHasOK m v i $;
+theorem bdJust_step (m v B i: nat): $ bdZfcJust m v B -> bdHasOK m v i -> bdFactOK m v i $;
+theorem bdLtS (q n: nat): $ q < suc n -> q < n \/ q = n $;
+theorem bdQ_succ (m v B n: nat) {w0: nat}: $ bdZfcJust m v B -> A. w0 (w0 < n -> bdFactOK m v w0) -> A. w0 (w0 < suc n -> bdFactOK m v w0) $;
+theorem bdQ_eq (m v x y: nat) {w0: nat}: $ x = y -> (A. w0 (w0 < x -> bdFactOK m v w0) <-> A. w0 (w0 < y -> bdFactOK m v w0)) $;
+theorem bdQ_all (m v B n: nat) {w0: nat}: $ bdZfcJust m v B -> A. w0 (w0 < n -> bdFactOK m v w0) $;
+theorem bdJust_ok (m v B i: nat): $ bdZfcJust m v B -> bdHasOK m v i $;
+theorem bdZfcBot_sound (w: nat): $ bdZfcBot w -> zfcInconsistent $;
+theorem bdZfcBot_sound_ex {w: nat}: $ E. w bdZfcBot w -> zfcInconsistent $;

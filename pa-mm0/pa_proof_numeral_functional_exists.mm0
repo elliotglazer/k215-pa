@@ -1,0 +1,47 @@
+import "pa_formula_rename_closed.mm0";
+
+import "pa_proof_numeral_bounded_equality.mm0";
+
+import "pa_proof_numeral_bounded_substitution.mm0";
+
+import "pa_proof_numeral_level_bounds.mm0";
+
+import "pa_source_interpretation_term_numerals.mm0";
+
+def paProofNumeralFunctionalExistsValueFormula (n c a: nat): nat = $ (paFormulaEqual (paTermVariable 0) (paTermNumeral n)) $;
+
+def paProofNumeralFunctionalExistsInstance (n c a: nat): nat = $ (paFormulaSubst 0 (paTermNumeral n) a) $;
+
+def paProofNumeralFunctionalExistsBody (n c a: nat): nat = $ (paFormulaAnd c a) $;
+
+def paProofNumeralFunctionalExistsFormula (n c a: nat): nat = $ (paFormulaImp (paFormulaEx (paFormulaAnd c a)) (paFormulaSubst 0 (paTermNumeral n) a)) $;
+
+theorem paProofNumeralFunctionalExistsInstance_bound (n a: nat): $ paFormulaBound 1 a -> paFormulaBound 0 (paFormulaSubst 0 (paTermNumeral n) a) $;
+
+theorem paProofNumeralFunctionalExistsInstance_lift (n a: nat): $ paFormulaBound 1 a -> paAxiomLift (paFormulaSubst 0 (paTermNumeral n) a) = (paFormulaSubst 0 (paTermNumeral n) a) $;
+
+theorem paProofNumeralFunctionalExistsEquality_exact (n a: nat): $ paFormulaBound 1 a -> paAxiomEqSubst a (paTermVariable 0) (paTermNumeral n) = (paFormulaImp (paFormulaEqual (paTermVariable 0) (paTermNumeral n)) (paFormulaImp a (paFormulaSubst 0 (paTermNumeral n) a))) $;
+
+def paProofNumeralFunctionalExistsEqualityAnnotation (n c a h p: nat): nat = $ paProofNumeralBoundedImpComposeAnnotation 1 (paFormulaAnd c a) c (paFormulaEqual (paTermVariable 0) (paTermNumeral n)) (paProofAxiomAnnotation (paProofNumeralBoundedQFAndLeftWitness 1 c a)) h $;
+
+def paProofNumeralFunctionalExistsEqualityProof (n c a h p: nat): nat = $ paProofNumeralBoundedImpComposeProof 1 (paFormulaAnd c a) c (paFormulaEqual (paTermVariable 0) (paTermNumeral n)) (paProofAxiomAnnotation (paProofNumeralBoundedQFAndLeftWitness 1 c a)) h (paProofNumeralBoundedQFAndLeftProof 1 c a) p $;
+
+theorem paProofNumeralFunctionalExistsEquality_derives (n c a h p: nat): $ paFormulaBound 1 a /\ paFormulaBound 1 c /\ paProofDerives p (paProofRow 1 (paFormulaImp c (paFormulaEqual (paTermVariable 0) (paTermNumeral n))) h) -> paProofDerives (paProofNumeralFunctionalExistsEqualityProof n c a h p) (paProofRow 1 (paFormulaImp (paFormulaAnd c a) (paFormulaEqual (paTermVariable 0) (paTermNumeral n))) (paProofNumeralFunctionalExistsEqualityAnnotation n c a h p)) $;
+
+def paProofNumeralFunctionalExistsTransportAnnotation (n c a h p: nat): nat = $ paProofNumeralBoundedImpComposeAnnotation 1 (paFormulaAnd c a) (paFormulaEqual (paTermVariable 0) (paTermNumeral n)) (paFormulaImp a (paFormulaSubst 0 (paTermNumeral n) a)) (paProofNumeralFunctionalExistsEqualityAnnotation n c a h p) (paProofAxiomAnnotation (paProofNumeralBoundedEqualitySubstWitness a (paTermVariable 0) (paTermNumeral n))) $;
+
+def paProofNumeralFunctionalExistsTransportProof (n c a h p: nat): nat = $ paProofNumeralBoundedImpComposeProof 1 (paFormulaAnd c a) (paFormulaEqual (paTermVariable 0) (paTermNumeral n)) (paFormulaImp a (paFormulaSubst 0 (paTermNumeral n) a)) (paProofNumeralFunctionalExistsEqualityAnnotation n c a h p) (paProofAxiomAnnotation (paProofNumeralBoundedEqualitySubstWitness a (paTermVariable 0) (paTermNumeral n))) (paProofNumeralFunctionalExistsEqualityProof n c a h p) (paProofNumeralBoundedEqualitySubstProof 1 a (paTermVariable 0) (paTermNumeral n)) $;
+
+theorem paProofNumeralFunctionalExistsTransport_derives (n c a h p: nat): $ paFormulaBound 1 a /\ paFormulaBound 1 c /\ paProofDerives p (paProofRow 1 (paFormulaImp c (paFormulaEqual (paTermVariable 0) (paTermNumeral n))) h) -> paProofDerives (paProofNumeralFunctionalExistsTransportProof n c a h p) (paProofRow 1 (paFormulaImp (paFormulaAnd c a) (paFormulaImp a (paFormulaSubst 0 (paTermNumeral n) a))) (paProofNumeralFunctionalExistsTransportAnnotation n c a h p)) $;
+
+def paProofNumeralFunctionalExistsBodyAnnotation (n c a h p: nat): nat = $ paProofNumeralBoundedImpApplyAnnotation 1 (paFormulaAnd c a) a (paFormulaSubst 0 (paTermNumeral n) a) (paProofAxiomAnnotation (paProofNumeralBoundedQFAndRightWitness 1 c a)) (paProofNumeralFunctionalExistsTransportAnnotation n c a h p) $;
+
+def paProofNumeralFunctionalExistsBodyProof (n c a h p: nat): nat = $ paProofNumeralBoundedImpApplyProof 1 (paFormulaAnd c a) a (paFormulaSubst 0 (paTermNumeral n) a) (paProofAxiomAnnotation (paProofNumeralBoundedQFAndRightWitness 1 c a)) (paProofNumeralFunctionalExistsTransportAnnotation n c a h p) (paProofNumeralBoundedQFAndRightProof 1 c a) (paProofNumeralFunctionalExistsTransportProof n c a h p) $;
+
+theorem paProofNumeralFunctionalExistsBody_derives (n c a h p: nat): $ paFormulaBound 1 a /\ paFormulaBound 1 c /\ paProofDerives p (paProofRow 1 (paFormulaImp c (paFormulaEqual (paTermVariable 0) (paTermNumeral n))) h) -> paProofDerives (paProofNumeralFunctionalExistsBodyProof n c a h p) (paProofRow 1 (paFormulaImp (paFormulaAnd c a) (paFormulaSubst 0 (paTermNumeral n) a)) (paProofNumeralFunctionalExistsBodyAnnotation n c a h p)) $;
+
+def paProofNumeralFunctionalExistsAnnotation (n c a h p: nat): nat = $ paProofNumeralBoundedExElimAnnotation 0 (paFormulaAnd c a) (paFormulaSubst 0 (paTermNumeral n) a) (paProofNumeralFunctionalExistsBodyAnnotation n c a h p) (paProofNumeralFunctionalExistsBodyProof n c a h p) $;
+
+def paProofNumeralFunctionalExistsProof (n c a h p: nat): nat = $ paProofNumeralBoundedExElimProof 0 (paFormulaAnd c a) (paFormulaSubst 0 (paTermNumeral n) a) (paProofNumeralFunctionalExistsBodyAnnotation n c a h p) (paProofNumeralFunctionalExistsBodyProof n c a h p) $;
+
+theorem paProofNumeralFunctionalExists_derives (n c a h p: nat): $ paFormulaBound 1 a /\ paFormulaBound 1 c /\ paProofDerives p (paProofRow 1 (paFormulaImp c (paFormulaEqual (paTermVariable 0) (paTermNumeral n))) h) -> paProofDerives (paProofNumeralFunctionalExistsProof n c a h p) (paProofRow 0 (paProofNumeralFunctionalExistsFormula n c a) (paProofNumeralFunctionalExistsAnnotation n c a h p)) $;

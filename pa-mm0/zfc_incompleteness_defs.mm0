@@ -1,0 +1,19 @@
+import "bb215_provability_hbl_g2_abstract.mm0";
+import "bb215_provability_d1.mm0";
+import "bb215_provability_qr.mm0";
+import "bb215_derivability_l3p_s.mm0";
+import "k215_assembly_s_wrap.mm0";
+import "bb215_provability_fixed_point.mm0";
+
+-- G2 lane: the named provability formula and consistency sentence of targets/incompleteness.mm0 (draft).
+--   zfcPr(x)  := E. y (S(x, y) /\ Prov_K215(y)), with
+--     S        = k215AssemblySWrap bb215L3S: Sigma1 graph of y = F(x), F = k215AssemblyF (= J o paFormulaSource,
+--                the syntactic translation of ZFC formulas into K215 through L, WF and the k218 quotation), and
+--     Prov_K215 = bb215ProvabilityK215Code: Sigma1 provability in the K215 Hilbert calculus.
+--   This is the provability formula Pr of theorem 2 (bb215ProvabilityImageFormula S Q').
+--   zfcConPA  := ~zfcPr(False) (paFormulaImp (zfcPr at the numeral of False) paFormulaFalse), a closed PA sentence.
+def zfcPr: nat = $ bb215ProvabilityImageFormula (k215AssemblySWrap bb215L3S) bb215ProvabilityK215Code $;
+def zfcConPA: nat = $ bb215ProvabilityConsistencyPA zfcPr $;
+
+-- Hypothesis-free last theorem (check.py's false-final control).
+theorem zfcIncDefs_final: $ paFormulaBound 0 paFormulaFalse $;

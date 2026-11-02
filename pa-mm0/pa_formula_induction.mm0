@@ -1,0 +1,13 @@
+import "pa_formula_syntax.mm0";
+
+def paFormulaFalseClosed (P: set) (.n: nat): wff = $ A. n (n, paFormulaFalse) e. P $;
+
+def paFormulaEqualClosed (P: set) (.n .a .b: nat): wff = $ A. n A. a A. b (paTermBound n a /\ paTermBound n b -> (n, paFormulaEqual a b) e. P) $;
+
+def paFormulaBinaryClosed (P: set) (.n .a .b: nat): wff = $ A. n A. a A. b ((n, a) e. P /\ (n, b) e. P -> (n, paFormulaAnd a b) e. P /\ (n, paFormulaOr a b) e. P /\ (n, paFormulaImp a b) e. P) $;
+
+def paFormulaQuantifierClosed (P: set) (.n .a: nat): wff = $ A. n A. a ((suc n, a) e. P -> (n, paFormulaAll a) e. P /\ (n, paFormulaEx a) e. P) $;
+
+def paFormulaConstructionClosed (P: set): wff = $ paFormulaFalseClosed P /\ paFormulaEqualClosed P /\ paFormulaBinaryClosed P /\ paFormulaQuantifierClosed P $;
+
+theorem paFormulaBound_induction (P: set) (n c: nat): $ paFormulaConstructionClosed P -> paFormulaBound n c -> (n, c) e. P $;

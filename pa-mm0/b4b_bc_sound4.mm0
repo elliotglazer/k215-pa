@@ -1,0 +1,35 @@
+import "b4b_bc_sound3.mm0";
+
+theorem bcRule_sound (m v i g a b c d: nat): $ bcHasOK m v i -> bcRule m v i g a b c d -> bcMeaning g a b c d $;
+theorem bcRule_soundR {ii jj: nat} (R: set) (e m v i g a b c d: nat) (hR: $ A. ii A. jj (bcCeMap e ii jj <-> jj = R @ ii) $): $ bcHasOKR R e m v i -> bcRule m v i g a b c d -> bcMeaningR R e g a b c d $;
+--| every fact of (m, v) with index j means what it says (bcMeaning).
+def bcFactOK (m v j .k .g .a .b .c .d: nat): wff =
+$ A. k (bdCell m v k -> A. g A. a A. b A. c A. d (bdTup j g a b c d k -> bcMeaning g a b c d)) $;
+theorem bcFactOKeqd (G: wff) (m v j j2: nat) (h: $ G -> j = j2 $): $ G -> (bcFactOK m v j <-> bcFactOK m v j2) $;
+theorem bcFactOK_inst (m v j k g a b c d: nat): $ bcFactOK m v j -> bdCell m v k -> bdTup j g a b c d k -> bcMeaning g a b c d $;
+theorem bcQ_HasOK (m v i: nat) {w0: nat}: $ A. w0 (w0 < i -> bcFactOK m v w0) -> bcHasOK m v i $;
+theorem bcJust_step (m v i: nat): $ bcJust m v -> bcHasOK m v i -> bcFactOK m v i $;
+theorem bcQ_succ (m v n: nat) {w0: nat}: $ bcJust m v -> A. w0 (w0 < n -> bcFactOK m v w0) -> A. w0 (w0 < suc n -> bcFactOK m v w0) $;
+theorem bcQ_eq (m v x y: nat) {w0: nat}: $ x = y -> (A. w0 (w0 < x -> bcFactOK m v w0) <-> A. w0 (w0 < y -> bcFactOK m v w0)) $;
+theorem bcQ_all (m v n: nat) {w0: nat}: $ bcJust m v -> A. w0 (w0 < n -> bcFactOK m v w0) $;
+theorem bcJust_ok (m v i: nat): $ bcJust m v -> bcHasOK m v i $;
+--| every fact of (m, v) with index j means what it says (bcMeaningR R e).
+def bcFactOKR (R: set) (e m v j .k .g .a .b .c .d: nat): wff =
+$ A. k (bdCell m v k -> A. g A. a A. b A. c A. d (bdTup j g a b c d k -> bcMeaningR R e g a b c d)) $;
+theorem bcFactOKReqd (G: wff) {ii jj: nat} (R: set) (e m v j j2: nat) (h: $ G -> j = j2 $): $ G -> (bcFactOKR R e m v j <-> bcFactOKR R e m v j2) $;
+theorem bcFactOKR_inst {ii jj: nat} (R: set) (e m v j k g a b c d: nat): $ bcFactOKR R e m v j -> bdCell m v k -> bdTup j g a b c d k -> bcMeaningR R e g a b c d $;
+theorem bcQR_HasOK {ii jj: nat} (R: set) (e m v i: nat) {w0: nat}: $ A. w0 (w0 < i -> bcFactOKR R e m v w0) -> bcHasOKR R e m v i $;
+theorem bcJustR_step {ii jj: nat} (R: set) (e m v i: nat) (hR: $ A. ii A. jj (bcCeMap e ii jj <-> jj = R @ ii) $): $ bcJust m v -> bcHasOKR R e m v i -> bcFactOKR R e m v i $;
+theorem bcQR_succ {ii jj: nat} (R: set) (e m v n: nat) {w0: nat} (hR: $ A. ii A. jj (bcCeMap e ii jj <-> jj = R @ ii) $): $ bcJust m v -> A. w0 (w0 < n -> bcFactOKR R e m v w0) -> A. w0 (w0 < suc n -> bcFactOKR R e m v w0) $;
+theorem bcQR_eq {ii jj: nat} (R: set) (e m v x y: nat) {w0: nat}: $ x = y -> (A. w0 (w0 < x -> bcFactOKR R e m v w0) <-> A. w0 (w0 < y -> bcFactOKR R e m v w0)) $;
+theorem bcQR_all {ii jj: nat} (R: set) (e m v n: nat) {w0: nat} (hR: $ A. ii A. jj (bcCeMap e ii jj <-> jj = R @ ii) $): $ bcJust m v -> A. w0 (w0 < n -> bcFactOKR R e m v w0) $;
+theorem bcJustR_ok {ii jj: nat} (R: set) (e m v i: nat) (hR: $ A. ii A. jj (bcCeMap e ii jj <-> jj = R @ ii) $): $ bcJust m v -> bcHasOKR R e m v i $;
+theorem bcNum_sound (m v n t c d: nat): $ bcJust m v -> bdHas m v v bctNum n t c d -> t = paTermNumeral n $;
+theorem bcTLift_sound (m v k t y d: nat): $ bcJust m v -> bdHas m v v bctTLift k t y d -> y = paTermLift k t $;
+theorem bcTSub_sound (m v d a t y: nat): $ bcJust m v -> bdHas m v v bctTSub d a t y -> y = paTermSubst d a t $;
+theorem bcFSub_sound (m v d a c y: nat): $ bcJust m v -> bdHas m v v bctFSub d a c y -> y = paFormulaSubst d a c $;
+theorem bcSRen_sound (m v e d c y: nat): $ bcJust m v -> bdHas m v v bctSRen e d c y -> bcSRenG e d c y $;
+theorem bcTSrc_sound (m v t y c d: nat): $ bcJust m v -> bdHas m v v bctTSrc t y c d -> y = paTermSource t $;
+theorem bcFSrc_sound (m v c y a b: nat): $ bcJust m v -> bdHas m v v bctFSrc c y a b -> y = paFormulaSource c $;
+theorem bcTRen_sound {ii jj: nat} (R: set) (e m v d t y: nat) (hR: $ A. ii A. jj (bcCeMap e ii jj <-> jj = R @ ii) $): $ bcJust m v -> bdHas m v v bctTRen e d t y -> y = paTermRename (sfRenameDepthMap R d) t $;
+theorem bcFRen_sound {ii jj: nat} (R: set) (e m v d c y: nat) (hR: $ A. ii A. jj (bcCeMap e ii jj <-> jj = R @ ii) $): $ bcJust m v -> bdHas m v v bctFRen e d c y -> y = paFormulaRename R d c $;

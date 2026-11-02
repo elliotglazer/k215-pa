@@ -1,0 +1,63 @@
+import "pa_source_interpretation_formula_eqd_support.mm0";
+
+import "pa_proof_syntax_constructors.mm0";
+
+def paProofLevelShiftAnnotationBody (a H: nat): nat = $ if (fst a = 1) (paProofMPAnnotation (H @ (fst (snd a))) (H @ (snd (snd a)))) (if (fst a = 2) (paProofGenAnnotation (H @ (snd a))) a) $;
+
+def paProofLevelShiftBody (k r H: nat): nat = $ paProofRow (paProofLevel r + k) (paProofFormula r) (paProofLevelShiftAnnotationBody (paProofAnnotation r) H) $;
+
+def paProofLevelShiftStep (k .H: nat): set = $ \ H, paProofLevelShiftBody k (sfHistoryLength H) H $;
+
+def paProofLevelShift (k r: nat): nat = $ srec (paProofLevelShiftStep k) r $;
+
+def paProofLevelShiftHistory (k r .i: nat): nat = $ \. i e. upto r, srec (paProofLevelShiftStep k) i $;
+
+theorem paProofLevelShiftStep_apply (k H: nat): $ paProofLevelShiftStep k @ H = paProofLevelShiftBody k (sfHistoryLength H) H $;
+
+theorem paProofLevelShiftHistory_size (k r: nat): $ sfHistoryLength (paProofLevelShiftHistory k r) = r $;
+
+theorem paProofLevelShiftHistory_lookup (k r a: nat): $ a < r -> paProofLevelShiftHistory k r @ a = paProofLevelShift k a $;
+
+theorem paProofLevelShift_unfold (k r: nat): $ paProofLevelShift k r = paProofLevelShiftBody k r (paProofLevelShiftHistory k r) $;
+
+theorem paProofLevelShiftBody_level (k r H: nat): $ paProofLevel (paProofLevelShiftBody k r H) = paProofLevel r + k $;
+
+theorem paProofLevelShiftBody_formula (k r H: nat): $ paProofFormula (paProofLevelShiftBody k r H) = paProofFormula r $;
+
+theorem paProofLevelShift_level (k r: nat): $ paProofLevel (paProofLevelShift k r) = paProofLevel r + k $;
+
+theorem paProofLevelShift_formula (k r: nat): $ paProofFormula (paProofLevelShift k r) = paProofFormula r $;
+
+theorem paProofRow_eta (r: nat): $ paProofRow (paProofLevel r) (paProofFormula r) (paProofAnnotation r) = r $;
+
+def paProofLevelShiftAnnotation (k n c h: nat): nat = $ paProofAnnotation (paProofLevelShift k (paProofRow n c h)) $;
+
+theorem paProofLevelShift_row (k n c h: nat): $ paProofLevelShift k (paProofRow n c h) = paProofRow (n + k) c (paProofLevelShiftAnnotation k n c h) $;
+
+theorem paProofLevelShiftBody_row (k n c h H: nat): $ paProofLevelShiftBody k (paProofRow n c h) H = paProofRow (n + k) c (paProofLevelShiftAnnotationBody h H) $;
+
+theorem paProofLevelShiftAnnotationBody_axiom (w H: nat): $ paProofLevelShiftAnnotationBody (paProofAxiomAnnotation w) H = paProofAxiomAnnotation w $;
+
+theorem paProofLevelShiftAnnotationBody_mp (p q H: nat): $ paProofLevelShiftAnnotationBody (paProofMPAnnotation p q) H = paProofMPAnnotation (H @ p) (H @ q) $;
+
+theorem paProofLevelShiftAnnotationBody_gen (p H: nat): $ paProofLevelShiftAnnotationBody (paProofGenAnnotation p) H = paProofGenAnnotation (H @ p) $;
+
+theorem paProofLevelShift_axiom (k n c w: nat): $ paProofLevelShift k (paProofRow n c (paProofAxiomAnnotation w)) = paProofRow (n + k) c (paProofAxiomAnnotation w) $;
+
+theorem paProofLevelShift_mp (k n c p q: nat): $ paProofLevelShift k (paProofRow n c (paProofMPAnnotation p q)) = paProofRow (n + k) c (paProofMPAnnotation (paProofLevelShift k p) (paProofLevelShift k q)) $;
+
+theorem paProofLevelShift_gen (k n c p: nat): $ paProofLevelShift k (paProofRow n c (paProofGenAnnotation p)) = paProofRow (n + k) c (paProofGenAnnotation (paProofLevelShift k p)) $;
+
+def paProofTraceLevelShiftMap (k .r: nat): set = $ \ r, paProofLevelShift k r $;
+
+def paProofTraceLevelShift (k p: nat): nat = $ map (paProofTraceLevelShiftMap k) p $;
+
+theorem paProofTraceLevelShiftMap_apply (k r: nat): $ paProofTraceLevelShiftMap k @ r = paProofLevelShift k r $;
+
+theorem paProofTraceLevelShift_nil (k: nat): $ paProofTraceLevelShift k 0 = 0 $;
+
+theorem paProofTraceLevelShift_cons (k r p: nat): $ paProofTraceLevelShift k (r : p) = paProofLevelShift k r : paProofTraceLevelShift k p $;
+
+theorem paProofTraceLevelShift_member (k r p: nat): $ r IN p -> paProofLevelShift k r IN paProofTraceLevelShift k p $;
+
+theorem paProofTraceLevelShift_length (k p: nat): $ len (paProofTraceLevelShift k p) = len p $;

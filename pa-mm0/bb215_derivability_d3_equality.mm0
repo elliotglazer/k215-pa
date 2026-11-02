@@ -1,0 +1,26 @@
+import "bb215_derivability_d2_substid.mm0";
+
+-- L05, D3 prerequisites (lanes/L05.md): equality rules for paProvable at level n.
+
+def bb215D3LiftSubstClass (t .c: nat): set = $ {c | paTermSubst 0 t (paTermLift 1 c) = c} $;
+
+theorem bb215D3_eq_refl (n s: nat) (hs: $ paTermBound n s $): $ paProvable n (paFormulaEqual s s) $;
+
+theorem bb215D3_eq_sym (n s t: nat) (hs: $ paTermBound n s $) (ht: $ paTermBound n t $):
+  $ paProvable n (paFormulaImp (paFormulaEqual s t) (paFormulaEqual t s)) $;
+
+theorem bb215D3_eq_trans (n s t u: nat) (hs: $ paTermBound n s $) (ht: $ paTermBound n t $) (hu: $ paTermBound n u $):
+  $ paProvable n (paFormulaImp (paFormulaEqual s t) (paFormulaImp (paFormulaEqual t u) (paFormulaEqual s u))) $;
+
+theorem bb215D3_eq_succ (n s t: nat) (hs: $ paTermBound n s $) (ht: $ paTermBound n t $):
+  $ paProvable n (paFormulaImp (paFormulaEqual s t) (paFormulaEqual (paTermSuccessor s) (paTermSuccessor t))) $;
+
+theorem bb215D3_eq_add (n s1 t1 s2 t2: nat)
+  (hs1: $ paTermBound n s1 $) (ht1: $ paTermBound n t1 $) (hs2: $ paTermBound n s2 $) (ht2: $ paTermBound n t2 $):
+  $ paProvable n (paFormulaImp (paFormulaEqual s1 t1) (paFormulaImp (paFormulaEqual s2 t2) (paFormulaEqual (paTermAddition s1 s2) (paTermAddition t1 t2)))) $;
+
+theorem bb215D3_eq_mul (n s1 t1 s2 t2: nat)
+  (hs1: $ paTermBound n s1 $) (ht1: $ paTermBound n t1 $) (hs2: $ paTermBound n s2 $) (ht2: $ paTermBound n t2 $):
+  $ paProvable n (paFormulaImp (paFormulaEqual s1 t1) (paFormulaImp (paFormulaEqual s2 t2) (paFormulaEqual (paTermMultiplication s1 s2) (paTermMultiplication t1 t2)))) $;
+
+theorem bb215D3_subst_lift (n t s: nat): $ paTermBound n s -> paTermSubst 0 t (paTermLift 1 s) = s $;

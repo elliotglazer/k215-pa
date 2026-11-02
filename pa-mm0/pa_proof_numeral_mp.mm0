@@ -1,0 +1,13 @@
+import "pa_proof_numeral_lengths.mm0";
+
+def paProofNumeralMPAnnotation (a b h k: nat): nat = $ paProofMPAnnotation (paProofRow 0 a h) (paProofRow 0 (paFormulaImp a b) k) $;
+
+def paProofNumeralMPRow (a b h k: nat): nat = $ paProofRow 0 b (paProofNumeralMPAnnotation a b h k) $;
+
+def paProofNumeralMPProof (a b h k p q: nat): nat = $ paProofNumeralMPRow a b h k : (p ++ q) $;
+
+theorem paProofNumeralMP_derives (a b h k p q: nat): $ paProofDerives p (paProofRow 0 a h) -> paProofDerives q (paProofRow 0 (paFormulaImp a b) k) -> paProofDerives (paProofNumeralMPProof a b h k p q) (paProofNumeralMPRow a b h k) $;
+
+theorem paProofNumeralMP_provable (a b h k p q: nat): $ paProofDerives p (paProofRow 0 a h) -> paProofDerives q (paProofRow 0 (paFormulaImp a b) k) -> paProvable 0 b $;
+
+theorem paProofNumeralMP_length (a b h k p q: nat): $ len (paProofNumeralMPProof a b h k p q) = suc (len p + len q) $;

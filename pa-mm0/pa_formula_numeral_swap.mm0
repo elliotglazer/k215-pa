@@ -1,0 +1,23 @@
+import "pa_formula_rename_closed.mm0";
+
+import "pa_formula_substitution_closed.mm0";
+
+import "pa_proof_numeral_closed.mm0";
+
+def paFormulaNumeralSwapMap (.i: nat): set = $ \ i, if (i = 0) 1 (if (i = 1) 0 i) $;
+
+theorem paFormulaNumeralSwapMap_zero: $ paFormulaNumeralSwapMap @ 0 = 1 $;
+
+theorem paFormulaNumeralSwapMap_one: $ paFormulaNumeralSwapMap @ 1 = 0 $;
+
+theorem paFormulaNumeralSwapIndexAt (d: nat): $ sfRenameIndex paFormulaNumeralSwapMap d (d) = suc d $;
+
+theorem paFormulaNumeralSwapIndexNext (d: nat): $ sfRenameIndex paFormulaNumeralSwapMap d (suc d) = d $;
+
+def paFormulaNumeralSwapTermClass (d n: nat) (.c: nat): set = $ {c | (paTermSubst (suc d) (paTermNumeral n) (paTermRename (sfRenameDepthMap paFormulaNumeralSwapMap d) c)) = (paTermSubst d (paTermNumeral n) c)} $;
+
+theorem paTermNumeralSwap_substitution (d n c: nat): $ paTermBound (suc (suc d)) c -> (paTermSubst (suc d) (paTermNumeral n) (paTermRename (sfRenameDepthMap paFormulaNumeralSwapMap d) c)) = (paTermSubst d (paTermNumeral n) c) $;
+
+def paFormulaNumeralSwapClass (n: nat) (.m .c .d: nat): set = $ S\ m, {c | A. d (paFormulaBound (suc (suc d)) c -> (paFormulaSubst (suc d) (paTermNumeral n) (paFormulaRename paFormulaNumeralSwapMap d c)) = (paFormulaSubst d (paTermNumeral n) c))} $;
+
+theorem paFormulaNumeralSwap_substitution (d n c: nat): $ paFormulaBound (suc (suc d)) c -> (paFormulaSubst (suc d) (paTermNumeral n) (paFormulaRename paFormulaNumeralSwapMap d c)) = (paFormulaSubst d (paTermNumeral n) c) $;

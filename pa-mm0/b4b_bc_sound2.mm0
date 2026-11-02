@@ -1,0 +1,109 @@
+import "b4b_bc_sound1.mm0";
+
+theorem bcSRenG_0 (d c y: nat): $ bcSRenG 0 d c y <-> y = sfRename paSITermSuccMap d c $;
+theorem bcSRenG_1 (d c y: nat): $ bcSRenG 1 d c y <-> y = sfRename paSITermLeftMap d c $;
+theorem bcSRenG_2 (d c y: nat): $ bcSRenG 2 d c y <-> y = sfRename paSITermRightMap d c $;
+theorem bcSRenG_3 (d c y: nat): $ bcSRenG 3 d c y <-> y = sfRename paSIFormulaLeftMap d c $;
+theorem bcTSr_zero (G: wff) (t y: nat) (ht: $ G -> t = 0 $) (hy: $ G -> bcPaSourceZero y $):
+  $ G -> y = paTermSource t $;
+theorem bcTSr_var (G: wff) (t y g p q: nat) (hH: $ G -> g < 8 /\ t = sfNode g p q $)
+  (hg: $ G -> g = 1 $) (hy: $ G -> bdNode 2 0 (suc p) y $): $ G -> y = paTermSource t $;
+theorem bcTSr_succ (G: wff) (t y x x2 r s g p q: nat) (hH: $ G -> g < 8 /\ t = sfNode g p q $)
+  (hg: $ G -> g = 2 $) (hx: $ G -> x = paTermSource p $) (hx2: $ G -> x2 = sfRename paSITermSuccMap 0 x $)
+  (hy: $ G -> bdNode 7 r 0 y $) (hr: $ G -> bdNode 3 x2 s r $) (hs: $ G -> bcPaSourceSuccessor s $):
+  $ G -> y = paTermSource t $;
+theorem bcTSr_bin (G: wff) (t y x z x2 z2 r s u w g p q: nat) (hH: $ G -> g < 8 /\ t = sfNode g p q $)
+  (hx: $ G -> x = paTermSource p $) (hz: $ G -> z = paTermSource q $)
+  (hx2: $ G -> x2 = sfRename paSITermLeftMap 0 x $) (hz2: $ G -> z2 = sfRename paSITermRightMap 0 z $)
+  (hy: $ G -> bdNode 7 r 0 y $) (hr: $ G -> bdNode 7 s 0 r $) (hs: $ G -> bdNode 3 x2 u s $)
+  (hu: $ G -> bdNode 3 z2 w u $)
+  (hw: $ G -> (g = 3 /\ bcPaSourceAddition102 w) \/ (g = 4 /\ bcPaSourceMultiplication102 w) $):
+  $ G -> y = paTermSource t $;
+theorem bcTSr_junk (G: wff) (t y g p q: nat) (hH: $ G -> g < 8 /\ t = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ g = 5 \/ g = 6 \/ g = 7 $) (hy: $ G -> bcPaSourceZero y $): $ G -> y = paTermSource t $;
+theorem bcFJ (G: wff) (c g p q: nat) (h: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ g = 2 \/ (g = 6 \/ g = 7) /\ q != 0 $):
+  $ G -> sfTag c != 1 /\ sfTag c != 3 /\ sfTag c != 4 /\ sfTag c != 5 /\ ~(sfTag c = 6 /\ sfRight c = 0) /\ ~(sfTag c = 7 /\ sfRight c = 0) $;
+theorem bcFJ_src (G: wff) (c g p q: nat) (h: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ g = 2 \/ (g = 6 \/ g = 7) /\ q != 0 $): $ G -> paFormulaSource c = 0 $;
+theorem bcFJ_sub (G: wff) (d s: nat) (c g p q: nat) (h: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ g = 2 \/ (g = 6 \/ g = 7) /\ q != 0 $): $ G -> paFormulaSubst d s c = 0 $;
+theorem bcFJ_ren (G: wff) (R: set) (d: nat) (c g p q: nat) (h: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ g = 2 \/ (g = 6 \/ g = 7) /\ q != 0 $): $ G -> paFormulaRename R d c = 0 $;
+theorem bcFSub_zero (G: wff) (d s: nat) (c y: nat) (hc: $ G -> c = 0 $) (hy: $ G -> y = 0 $): $ G -> y = paFormulaSubst d s c $;
+theorem bcFSub_bin (G: wff) (d s: nat) (c y x z g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 3 \/ g = 4 \/ g = 5 $) (hx: $ G -> x = paFormulaSubst d s p $) (hz: $ G -> z = paFormulaSubst d s q $)
+  (hy: $ G -> bdNode g x z y $): $ G -> y = paFormulaSubst d s c $;
+theorem bcFSub_junk (G: wff) (d s: nat) (c y g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ g = 2 \/ (g = 6 \/ g = 7) /\ q != 0 $) (hy: $ G -> y = 0 $): $ G -> y = paFormulaSubst d s c $;
+theorem bcFSub_quant (G: wff) (d s: nat) (c y x g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 6 \/ g = 7 $) (hq: $ G -> q = 0 $) (hx: $ G -> x = paFormulaSubst (suc d) s p $)
+  (hy: $ G -> bdNode g x 0 y $): $ G -> y = paFormulaSubst d s c $;
+theorem bcFRen_zero (G: wff) (R: set) (d: nat) (c y: nat) (hc: $ G -> c = 0 $) (hy: $ G -> y = 0 $): $ G -> y = paFormulaRename R d c $;
+theorem bcFRen_bin (G: wff) (R: set) (d: nat) (c y x z g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 3 \/ g = 4 \/ g = 5 $) (hx: $ G -> x = paFormulaRename R d p $) (hz: $ G -> z = paFormulaRename R d q $)
+  (hy: $ G -> bdNode g x z y $): $ G -> y = paFormulaRename R d c $;
+theorem bcFRen_junk (G: wff) (R: set) (d: nat) (c y g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ g = 2 \/ (g = 6 \/ g = 7) /\ q != 0 $) (hy: $ G -> y = 0 $): $ G -> y = paFormulaRename R d c $;
+theorem bcFRen_quant (G: wff) (R: set) (d: nat) (c y x g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 6 \/ g = 7 $) (hq: $ G -> q = 0 $) (hx: $ G -> x = paFormulaRename R (suc d) p $)
+  (hy: $ G -> bdNode g x 0 y $): $ G -> y = paFormulaRename R d c $;
+theorem bcFSrc_zero (G: wff) (c y: nat) (hc: $ G -> c = 0 $) (hy: $ G -> y = 0 $): $ G -> y = paFormulaSource c $;
+theorem bcFSrc_bin (G: wff) (c y x z g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 3 \/ g = 4 \/ g = 5 $) (hx: $ G -> x = paFormulaSource p $) (hz: $ G -> z = paFormulaSource q $)
+  (hy: $ G -> bdNode g x z y $): $ G -> y = paFormulaSource c $;
+theorem bcFSrc_junk (G: wff) (c y g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ g = 2 \/ (g = 6 \/ g = 7) /\ q != 0 $) (hy: $ G -> y = 0 $): $ G -> y = paFormulaSource c $;
+theorem bcFSub_eq (G: wff) (d s c y x z g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 1 $) (hx: $ G -> x = paTermSubst d s p $) (hz: $ G -> z = paTermSubst d s q $)
+  (hy: $ G -> bdNode 1 x z y $): $ G -> y = paFormulaSubst d s c $;
+theorem bcFRen_eq (G: wff) (R: set) (d c y x z g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 1 $) (hx: $ G -> x = paTermRename (sfRenameDepthMap R d) p $)
+  (hz: $ G -> z = paTermRename (sfRenameDepthMap R d) q $)
+  (hy: $ G -> bdNode 1 x z y $): $ G -> y = paFormulaRename R d c $;
+theorem bcFSrc_eq (G: wff) (c y x z x2 z2 r s u w g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 1 $) (hx: $ G -> x = paTermSource p $) (hz: $ G -> z = paTermSource q $)
+  (hx2: $ G -> x2 = sfRename paSIFormulaLeftMap 0 x $) (hz2: $ G -> z2 = sfRename paSITermSuccMap 0 z $)
+  (hy: $ G -> bdNode 7 r 0 y $) (hr: $ G -> bdNode 7 s 0 r $) (hs: $ G -> bdNode 3 x2 u s $)
+  (hu: $ G -> bdNode 3 z2 w u $) (hw: $ G -> bdNode 2 1 0 w $): $ G -> y = paFormulaSource c $;
+theorem bcFSrc_all (G: wff) (c y x r s g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 6 $) (hq: $ G -> q = 0 $) (hx: $ G -> x = paFormulaSource p $)
+  (hy: $ G -> bdNode 6 r 0 y $) (hr: $ G -> bdNode 5 s x r $) (hs: $ G -> bcPaSIOp63 s $):
+  $ G -> y = paFormulaSource c $;
+theorem bcFSrc_ex (G: wff) (c y x r s g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 7 $) (hq: $ G -> q = 0 $) (hx: $ G -> x = paFormulaSource p $)
+  (hy: $ G -> bdNode 7 r 0 y $) (hr: $ G -> bdNode 3 s x r $) (hs: $ G -> bcPaSIOp63 s $):
+  $ G -> y = paFormulaSource c $;
+theorem bcSiS0_value (i: nat): $ paSITermSuccMap @ i = if (i = 0) 0 (suc i) $;
+theorem bcSiS1_value (i: nat): $ paSITermLeftMap @ i = if (i = 0) 1 (suc (suc i)) $;
+theorem bcSiS2_value (i: nat): $ paSITermRightMap @ i = if (i = 0) 0 (suc (suc i)) $;
+theorem bcSiS3_value (i: nat): $ paSIFormulaLeftMap @ i = if (i = 0) 1 (suc i) $;
+theorem bcSiMap_0 (i j: nat): $ bcSiMap 0 i j <-> j = paSITermSuccMap @ i $;
+theorem bcSiMap_1 (i j: nat): $ bcSiMap 1 i j <-> j = paSITermLeftMap @ i $;
+theorem bcSiMap_2 (i j: nat): $ bcSiMap 2 i j <-> j = paSITermRightMap @ i $;
+theorem bcSiMap_3 (i j: nat): $ bcSiMap 3 i j <-> j = paSIFormulaLeftMap @ i $;
+theorem bcSiIdxQ {u x: nat} (e d i j: nat) (R: set) (hM: $ bcSiMap e u x <-> x = R @ u $):
+  $ d <= i -> (E. u (u <= i /\ d + u = i /\ E. x (x <= j /\ bcSiMap e u x /\ j = d + x)) <->
+    j = d + (R @ (i - d))) $;
+theorem bcCeIdxQ {u x: nat} (e d i j: nat) (R: set) (hM: $ bcCeMap e u x <-> x = R @ u $):
+  $ d <= i -> (E. u (u <= i /\ d + u = i /\ E. x (x <= j /\ bcCeMap e u x /\ j = d + x)) <->
+    j = d + (R @ (i - d))) $;
+theorem bcSiIdx_0 (d i j: nat): $ bcSiIdx 0 d i j <-> j = sfRenameIndex paSITermSuccMap d i $;
+theorem bcSiIdx_1 (d i j: nat): $ bcSiIdx 1 d i j <-> j = sfRenameIndex paSITermLeftMap d i $;
+theorem bcSiIdx_2 (d i j: nat): $ bcSiIdx 2 d i j <-> j = sfRenameIndex paSITermRightMap d i $;
+theorem bcSiIdx_3 (d i j: nat): $ bcSiIdx 3 d i j <-> j = sfRenameIndex paSIFormulaLeftMap d i $;
+theorem bcCeIdx_iff {ii jj: nat} (R: set) (e d i j: nat) (hR: $ A. ii A. jj (bcCeMap e ii jj <-> jj = R @ ii) $):
+  $ bcCeIdx e d i j <-> j = sfRenameIndex R d i $;
+theorem bcSRn_zero (G: wff) (S: set) (d c y: nat) (hc: $ G -> c = 0 $) (hy: $ G -> y = 0 $):
+  $ G -> y = sfRename S d c $;
+theorem bcSRn_atom (G: wff) (S: set) (d c y x z g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 1 \/ g = 2 $) (hx: $ G -> x = sfRenameIndex S d p $) (hz: $ G -> z = sfRenameIndex S d q $)
+  (hy: $ G -> bdNode g x z y $): $ G -> y = sfRename S d c $;
+theorem bcSRn_bin (G: wff) (S: set) (d c y x z g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 3 \/ g = 4 \/ g = 5 $) (hx: $ G -> x = sfRename S d p $) (hz: $ G -> z = sfRename S d q $)
+  (hy: $ G -> bdNode g x z y $): $ G -> y = sfRename S d c $;
+theorem bcSRn_quant (G: wff) (S: set) (d c y x g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 6 \/ g = 7 $) (hq: $ G -> q = 0 $) (hx: $ G -> x = sfRename S (suc d) p $)
+  (hy: $ G -> bdNode g x 0 y $): $ G -> y = sfRename S d c $;
+theorem bcSRn_junk (G: wff) (S: set) (d c y g p q: nat) (hH: $ G -> g < 8 /\ c = sfNode g p q $)
+  (hg: $ G -> g = 0 \/ (g = 6 \/ g = 7) /\ q != 0 $) (hy: $ G -> y = 0 $): $ G -> y = sfRename S d c $;

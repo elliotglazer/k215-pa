@@ -1,0 +1,9 @@
+import "pa_proof_numeral_term_qf_templates.mm0";
+
+def paProofNumeralTermQFEqualClosed (P: set) (.a .b: nat): wff = $ A. a A. b (paTermBound 0 a /\ paTermBound 0 b -> paFormulaEqual a b e. P) $;
+
+def paProofNumeralTermQFBinaryClosed (P: set) (.a .b: nat): wff = $ A. a A. b (a e. P /\ b e. P -> paFormulaAnd a b e. P /\ paFormulaOr a b e. P /\ paFormulaImp a b e. P) $;
+
+def paProofNumeralTermQFConstructionClosed (P: set): wff = $ paFormulaFalse e. P /\ paProofNumeralTermQFEqualClosed P /\ paProofNumeralTermQFBinaryClosed P $;
+
+theorem paProofNumeralTermQFBound0_induction (P: set) (c: nat): $ paProofNumeralTermQFConstructionClosed P -> paNatQFBound 0 c -> c e. P $;

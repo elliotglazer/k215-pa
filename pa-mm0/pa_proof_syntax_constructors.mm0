@@ -1,0 +1,35 @@
+import "pa_proof_syntax.mm0";
+
+theorem paProofAxiom_row (n c w: nat): $ paProofAxiom (paProofRow n c (paProofAxiomAnnotation w)) <-> paAxiomSyntax n c w $;
+
+theorem paProofMP_left (n c p q: nat): $ paProofLeftPremise (paProofRow n c (paProofMPAnnotation p q)) = p $;
+
+theorem paProofMP_right (n c p q: nat): $ paProofRightPremise (paProofRow n c (paProofMPAnnotation p q)) = q $;
+
+theorem paProofGen_premise (n c p: nat): $ paProofGenPremise (paProofRow n c (paProofGenAnnotation p)) = p $;
+
+theorem paProofMP_row (n c p q: nat): $ paProofMP (paProofRow n c (paProofMPAnnotation p q)) p q <-> (paProofLevel p = n /\ paProofLevel q = n /\ paProofFormula q = paFormulaImp (paProofFormula p) c) $;
+
+theorem paProofGen_row (n c p: nat): $ paProofGen (paProofRow n c (paProofGenAnnotation p)) p <-> (paProofLevel p = suc n /\ c = paFormulaAll (paProofFormula p)) $;
+
+theorem paProofRules_axiom (n c w l: nat): $ paAxiomSyntax n c w -> (paProofRow n c (paProofAxiomAnnotation w), l) e. paProofRules $;
+
+theorem paProofRules_mp (n c p q l: nat): $ paFormulaBound n c -> p IN l -> q IN l -> (paProofLevel p = n /\ paProofLevel q = n /\ paProofFormula q = paFormulaImp (paProofFormula p) c) -> (paProofRow n c (paProofMPAnnotation p q), l) e. paProofRules $;
+
+theorem paProofRules_gen (n c p l: nat): $ paFormulaBound n c -> p IN l -> (paProofLevel p = suc n /\ c = paFormulaAll (paProofFormula p)) -> (paProofRow n c (paProofGenAnnotation p), l) e. paProofRules $;
+
+theorem paProofRules_extend (r l s: nat): $ (r, l) e. paProofRules -> (r, l ++ s) e. paProofRules $;
+
+theorem paProofRules_stable: $ traceAppendStable paProofRules $;
+
+theorem paProofValid_append (P Q: nat): $ paProofValid P -> paProofValid Q -> paProofValid (P ++ Q) $;
+
+theorem paProofDerives_axiom (n c w: nat): $ paAxiomSyntax n c w -> paProofDerives ((paProofRow n c (paProofAxiomAnnotation w)) : 0) (paProofRow n c (paProofAxiomAnnotation w)) $;
+
+theorem paProofDerives_gen (n c p T: nat): $ paFormulaBound n c -> (paProofLevel p = suc n /\ c = paFormulaAll (paProofFormula p)) -> paProofDerives T p -> paProofDerives ((paProofRow n c (paProofGenAnnotation p)) : T) (paProofRow n c (paProofGenAnnotation p)) $;
+
+theorem paProofDerives_mp (n c p q T U: nat): $ paFormulaBound n c -> (paProofLevel p = n /\ paProofLevel q = n /\ paProofFormula q = paFormulaImp (paProofFormula p) c) -> paProofDerives T p -> paProofDerives U q -> paProofDerives ((paProofRow n c (paProofMPAnnotation p q)) : (T ++ U)) (paProofRow n c (paProofMPAnnotation p q)) $;
+
+theorem paProvable_intro (n c h p: nat): $ paProofDerives p (paProofRow n c h) -> paProvable n c $;
+
+theorem paProvable_bound (n c: nat): $ paProvable n c -> paFormulaBound n c $;

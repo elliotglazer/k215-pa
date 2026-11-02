@@ -1,15 +1,32 @@
 #!/bin/sh
-# Download the large proof inputs of the theorem-1 receipt (receipt sources that are not stored in git) from the GitHub
-# release TAG, check every part against the release's SHA256SUMS, unpack into pa-mm0/, and check every unpacked file
-# against manifests/thm1-inputs.json and receipt/thm1/report.json (both tracked in git, so a modified release asset is
-# detected even if its SHA256SUMS was modified too). Needs curl, sha256sum, tar, python3. Run from the repository root.
-#   sh scripts/fetch_large_inputs.sh [TAG]          (default tag: thm1-inputs-v1)
+# Download the large proof inputs of a receipt (receipt sources that are not stored in git) from the GitHub release TAG,
+# check every part against the release's SHA256SUMS, unpack into pa-mm0/, and check every unpacked file against the
+# tag's manifest and receipt (both tracked in git, so a modified release asset is detected even if its SHA256SUMS was
+# modified too). Needs curl, sha256sum, tar, python3. Run from the repository root.
+#   sh scripts/fetch_large_inputs.sh [TAG]                    (default tag: thm1-inputs-v1)
+#   sh scripts/fetch_large_inputs.sh TAG MANIFEST RECEIPT     (any other release: its manifests/*.json and receipt)
+#   sh scripts/fetch_large_inputs.sh all                      (every release below, in order)
+# Known tags:
+#   thm1-inputs-v1      Theorem 1:          manifests/thm1-inputs.json,      receipt/thm1/report.json
+#   thm23-g2-inputs-v1  Theorems 2, 3, G2:  manifests/thm23-g2-inputs.json,  receipt/thm23-g2/pa/report.json
+#                       (its receipt also needs every thm1-inputs-v1 file: fetch both, or use "all")
 # Downloads go to .large-inputs/TAG (resumable; delete it afterwards to free the space).
 set -eu
 REPO=elliotglazer/k215-pa
 TAG=${1:-thm1-inputs-v1}
+if [ "$TAG" = all ]; then
+  sh "$0" thm1-inputs-v1 && sh "$0" thm23-g2-inputs-v1
+  exit $?
+fi
 case "$TAG" in *[!A-Za-z0-9._-]*|'') echo "bad tag: $TAG" >&2; exit 1;; esac
-[ -f manifests/thm1-inputs.json ] && [ -d pa-mm0 ] || { echo "run this from the repository root" >&2; exit 1; }
+case "$TAG" in
+  thm1-inputs-v1)     MANIFEST=${2:-manifests/thm1-inputs.json};     RECEIPT=${3:-receipt/thm1/report.json};;
+  thm23-g2-inputs-v1) MANIFEST=${2:-manifests/thm23-g2-inputs.json}; RECEIPT=${3:-receipt/thm23-g2/pa/report.json};;
+  *) [ $# -eq 3 ] || { echo "unknown tag $TAG: give TAG MANIFEST RECEIPT" >&2; exit 1; }; MANIFEST=$2; RECEIPT=$3;;
+esac
+case "$MANIFEST" in manifests/*.json) ;; *) echo "manifest must be manifests/<name>.json: $MANIFEST" >&2; exit 1;; esac
+case "$RECEIPT" in receipt/*/report.json|receipt/*/*/report.json) ;; *) echo "receipt must be receipt/.../report.json: $RECEIPT" >&2; exit 1;; esac
+[ -f "$MANIFEST" ] && [ -f "$RECEIPT" ] && [ -d pa-mm0 ] || { echo "run this from the repository root" >&2; exit 1; }
 BASE=${K215_INPUTS_BASE:-https://github.com/$REPO/releases/download/$TAG}
 DL=.large-inputs/$TAG
 mkdir -p "$DL"
@@ -28,10 +45,13 @@ if grep -v -E '^pa-mm0/[A-Za-z0-9_.-]+\.mm[01]$' "$DL/listing.txt" >/dev/null; t
   echo "unexpected path in the archive:" >&2; grep -v -E '^pa-mm0/[A-Za-z0-9_.-]+\.mm[01]$' "$DL/listing.txt" >&2; exit 1
 fi
 cut -d' ' -f3 "$DL/SHA256SUMS" | while read -r name; do cat "$DL/$name"; done | tar -xzf - --no-same-owner
-python3 -I - <<'EOF'
-import hashlib, json, sys
-man = json.load(open('manifests/thm1-inputs.json'))['files']
-src = json.load(open('receipt/thm1/report.json', encoding='utf-8-sig'))['sources']
+K215_MANIFEST=$MANIFEST K215_RECEIPT=$RECEIPT K215_TAG=$TAG python3 -I - <<'EOF'
+import hashlib, json, os, sys
+mj = json.load(open(os.environ['K215_MANIFEST']))
+if mj.get('tag') != os.environ['K215_TAG']:
+    print('manifest %s is for tag %s, not %s' % (os.environ['K215_MANIFEST'], mj.get('tag'), os.environ['K215_TAG'])); sys.exit(1)
+man = mj['files']
+src = json.load(open(os.environ['K215_RECEIPT'], encoding='utf-8-sig'))['sources']
 bad = 0
 for f in man:
     h = hashlib.sha256()

@@ -1,0 +1,28 @@
+import "bb215_provability_fixed_point.mm0";
+
+import "pa_proof_numeral_bounded_exists.mm0";
+
+-- Condition D1 of bb215_provability_hbl_g2 for the image-provability formula
+--   P(x) := E. y (S(x, y) /\ Q(y))
+-- (under the binder: variable 0 is y, variable 1 is x), reduced to two numeral
+-- completeness facts:
+--   hS: PA proves S(n, src n) for every n   (S represents paFormulaSource)
+--   hQ: if ZFC proves y then PA proves Q(y) (Q is a Sigma1 ZFC-provability formula).
+-- Neither fact is proved here.
+
+theorem bb215ProvabilityPA_and_intro (a b: nat): $ paFormulaBound 0 a -> paFormulaBound 0 b -> paProvable 0 a -> paProvable 0 b -> paProvable 0 (paFormulaAnd a b) $;
+
+theorem bb215ProvabilityPA_ex_intro (c t: nat): $ paFormulaBound 1 c -> paTermBound 0 t -> paProvable 0 (paFormulaSubst 0 t c) -> paProvable 0 (paFormulaEx c) $;
+
+def bb215ProvabilityImageFormula (S Q: nat): nat = $ paFormulaEx (paFormulaAnd S Q) $;
+
+theorem bb215ProvabilityImageFormula_bound (S Q: nat) (hS2: $ paFormulaBound 2 S $) (hQ1: $ paFormulaBound 1 Q $): $ paFormulaBound 1 (bb215ProvabilityImageFormula S Q) $;
+
+theorem bb215ProvabilityImageFormula_at (S Q x: nat) (hQ1: $ paFormulaBound 1 Q $): $ bb215PrAt (bb215ProvabilityImageFormula S Q) x = paFormulaEx (paFormulaAnd (paFormulaSubst 1 (paTermNumeral x) S) Q) $;
+
+theorem bb215ProvabilityD1_from_graphs (S Q: nat) {c n y: nat}
+  (hS2: $ paFormulaBound 2 S $)
+  (hQ1: $ paFormulaBound 1 Q $)
+  (hS: $ A. n paProvable 0 (paFormulaSubst 0 (paTermNumeral (paFormulaSource n)) (paFormulaSubst 1 (paTermNumeral n) S)) $)
+  (hQ: $ A. y (zfcProvable y -> paProvable 0 (paFormulaSubst 0 (paTermNumeral y) Q)) $):
+  $ A. c bb215ProvabilityD1 (bb215ProvabilityImageFormula S Q) c $;

@@ -1,0 +1,51 @@
+import "bb215_provability_loeb_kernel.mm0";
+
+import "pa_proof_syntax.mm0";
+
+import "pa_formula_source_bound.mm0";
+
+import "pa_axiom_syntax_base.mm0";
+
+import "pa_source_interpretation_term_numerals.mm0";
+
+-- Hilbert-Bernays-Lob conditions for a PA provability formula P (one free variable),
+-- read as: x is the code of a closed PA formula whose source image is ZFC-provable.
+-- The second incompleteness theorem for ZFC follows from these conditions, the
+-- PA-to-ZFC transfer of PA theorems, and a fixed point, via bb215ProvabilityG2_kernel.
+-- The conditions are explicit hypotheses; none is proved or assumed here.
+
+def bb215PrAt (P x: nat): nat = $ paFormulaSubst 0 (paTermNumeral x) P $;
+
+def bb215ProvabilityD1 (P c: nat): wff = $ paFormulaBound 0 c -> zfcProvable (paFormulaSource c) -> paProvable 0 (bb215PrAt P c) $;
+
+def bb215ProvabilityD2 (P a b: nat): wff = $ paFormulaBound 0 a -> paFormulaBound 0 b -> paProvable 0 (paFormulaImp (bb215PrAt P (paFormulaImp a b)) (paFormulaImp (bb215PrAt P a) (bb215PrAt P b))) $;
+
+def bb215ProvabilityD3 (P a: nat): wff = $ paFormulaBound 0 a -> paProvable 0 (paFormulaImp (bb215PrAt P a) (bb215PrAt P (bb215PrAt P a))) $;
+
+def bb215ProvabilityFixedPoint (P G: nat): wff = $ paFormulaBound 0 G /\ paProvable 0 (paFormulaImp G (paFormulaImp (bb215PrAt P G) paFormulaFalse)) /\ paProvable 0 (paFormulaImp (paFormulaImp (bb215PrAt P G) paFormulaFalse) G) $;
+
+def bb215ProvabilityConsistencyPA (P: nat): nat = $ paFormulaImp (bb215PrAt P paFormulaFalse) paFormulaFalse $;
+
+theorem bb215PrAt_bound (P x: nat): $ paFormulaBound 1 P -> paFormulaBound 0 (bb215PrAt P x) $;
+
+theorem bb215ProvabilitySource_not (u: nat): $ paFormulaSource (paFormulaImp u paFormulaFalse) = sfImp (paFormulaSource u) sfBot $;
+
+theorem bb215ProvabilityConsistencyPA_bound (P: nat): $ paFormulaBound 1 P -> paFormulaBound 0 (bb215ProvabilityConsistencyPA P) $;
+
+theorem bb215ProvabilityG2_conditions (P G: nat) {c a b: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hT: $ A. c (paProvable 0 c -> zfcProvable (paFormulaSource c)) $)
+  (h1: $ A. c bb215ProvabilityD1 P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $):
+  $ zfcProvable (paFormulaSource (bb215ProvabilityConsistencyPA P)) -> zfcInconsistent $;
+
+theorem bb215ProvabilityG2_conditions_consistent (P G: nat) {c a b: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hT: $ A. c (paProvable 0 c -> zfcProvable (paFormulaSource c)) $)
+  (h1: $ A. c bb215ProvabilityD1 P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $):
+  $ ~zfcInconsistent -> ~zfcProvable (paFormulaSource (bb215ProvabilityConsistencyPA P)) $;

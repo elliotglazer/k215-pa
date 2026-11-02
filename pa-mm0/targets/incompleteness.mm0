@@ -1,0 +1,81 @@
+import "../zfc_incompleteness_defs.mm0";
+
+-- Spec (lane G2; owner-approved 2026-10-23, option 3; frozen: hashes in lanes/G2.md). Not a certificate, no claim of proof.
+--
+-- READ FIRST: what zfcPr is. zfcPr(x) says "K215 proves F(x)" (F = k215AssemblyF, the translation of ZFC formulas into
+-- K215 through L, WF and quotation). It is NOT the standard ZFC provability predicate (proof codes from ZFC's own axioms).
+-- It is sound for ZFC-provability (ZFC |- x implies K215 |- F(x): zfcToK215_complete) and faithful at False
+-- (K215 |- F(False) iff ZFC is inconsistent: zfcToK215_false_faithful); PA proves zfcPr(x) <-> Prov_K215(F x)
+-- (zfcPr_to_K215, zfcPr_from_K215), Prov_K215 defines K215-provability exactly (zfcProvK215_defines), and the Pi1
+-- sentence behind zfcConPA is true iff Con(ZFC) (zfcConPA_true_iff_consistent). The converse of soundness can fail
+-- (e.g. V = L), hence the name ZFC_second_incompleteness_K215Pr. The first headline theorem is G2_abstract (any theory,
+-- any provability formula with the HBL conditions). A version for the standard ZFC provability predicate is a planned
+-- follow-up with its own spec (lanes/G2.md, "Follow-up: standard predicate").
+-- Second incompleteness theorem as a headline result: (A) for an arbitrary theory, (B) for ZFC with the
+-- concrete provability formula zfcPr of theorem 2 of final.mm0, (C) the Hilbert-Bernays-Lob conditions for
+-- zfcPr, (D) adequacy: zfcPr expresses provability (via the translation into K215) and zfcConPA expresses Con(ZFC).
+--
+-- Vocabulary (definitions in the imported closure; zfcPr / zfcConPA in zfc_incompleteness_defs.mm0):
+--   paFormula*            codes of first-order PA formulas; paFormulaBound n c: c has free variables < n.
+--   paProvable 0 c        PA proves c (fixed Hilbert calculus, peano coding).
+--   bb215PrAt P x         P(numeral x) := paFormulaSubst 0 (paTermNumeral x) P.
+--   paFormulaSource c     the standard translation of a PA formula into the language of set theory (omega arithmetic).
+--   sfTheoryProvable T f  f is derivable in the fixed first-order ND calculus from axioms in the set T.
+--   zfcProvable f         ZFC proves f (zfc_proofs.mm0; <-> sfTheoryProvable zfcAxioms f by sfTheoryProvable_zfc);
+--                         zfcInconsistent = zfcProvable sfBot.
+--   bb215ProvabilityD1/D2/D3, bb215ProvabilityFixedPoint, bb215ProvabilityConsistencyPA P (= ~P(False)): bb215_provability_hbl_g2.mm0;
+--   bb215ProvabilityD1T T tau P c: (D1 relative to T and the translation tau): bb215_provability_hbl_g2_abstract.mm0.
+--   zfcPr(x) := E. y (S(x, y) /\ Prov_K215(y)), S = Sigma1 graph of F = k215AssemblyF (ZFC formula -> K215 formula,
+--   via L, WF and quotation), Prov_K215 = bb215ProvabilityK215Code; zfcConPA := ~zfcPr(False).
+
+-- (A) Abstract G2: any theory T, any translation tau of PA formulas into T's language commuting with -> and False and
+-- preserving closedness, any provability formula P with D1 (relative to T, tau), D2, D3, transfer PA -> T through tau,
+-- and a fixed point G of ~P: if T is consistent, T does not prove tau(Con_P).
+theorem G2_abstract (T tau: set) (P G: nat) {c a b u v: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hI: $ A. u A. v tau @ paFormulaImp u v = sfImp (tau @ u) (tau @ v) $)
+  (hF: $ tau @ paFormulaFalse = sfBot $)
+  (hB: $ A. c (paFormulaBound 0 c -> sfBound 0 (tau @ c)) $)
+  (hT: $ A. c (paProvable 0 c -> sfTheoryProvable T (tau @ c)) $)
+  (h1: $ A. c bb215ProvabilityD1T T tau P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $):
+  $ ~sfTheoryProvable T sfBot -> ~sfTheoryProvable T (tau @ bb215ProvabilityConsistencyPA P) $;
+
+-- (B) Second incompleteness theorem for ZFC.
+theorem ZFC_second_incompleteness_K215Pr:
+  $ ~zfcInconsistent -> ~zfcProvable (paFormulaSource zfcConPA) $;
+
+-- (C) zfcPr is a PA formula with one free variable, zfcConPA a PA sentence, and the hypotheses of (A) hold for
+-- T = ZFC, tau = paFormulaSource, P = zfcPr (so (B) is the instance of (A)).
+theorem zfcPr_formula: $ paFormulaBound 1 zfcPr $;
+theorem zfcConPA_sentence: $ paFormulaBound 0 zfcConPA $;
+theorem zfcPr_PA_transfer {c: nat}: $ A. c (paProvable 0 c -> zfcProvable (paFormulaSource c)) $;
+theorem zfcPr_D1 {c: nat}: $ A. c bb215ProvabilityD1 zfcPr c $;
+theorem zfcPr_D2 {a b: nat}: $ A. a A. b bb215ProvabilityD2 zfcPr a b $;
+theorem zfcPr_D3 {a: nat}: $ A. a bb215ProvabilityD3 zfcPr a $;
+theorem zfcPr_fixed_point: $ bb215ProvabilityFixedPoint zfcPr (bb215ProvabilityGodel zfcPr) $;
+
+-- (D) Adequacy.
+-- (D1) For closed x, PA proves zfcPr(x) <-> Prov_K215(F x).
+theorem zfcPr_to_K215 {x: nat}:
+  $ A. x (paFormulaBound 0 x -> paProvable 0 (paFormulaImp (bb215PrAt zfcPr x) (bb215PrAt bb215ProvabilityK215Code (k215AssemblyF @ x)))) $;
+theorem zfcPr_from_K215 {x: nat}:
+  $ A. x paProvable 0 (paFormulaImp (bb215PrAt bb215ProvabilityK215Code (k215AssemblyF @ x)) (bb215PrAt zfcPr x)) $;
+-- (D2) Prov_K215 defines K215-provability in the standard model (exact, depth-24 satisfaction).
+theorem zfcProvK215_defines (E: set):
+  $ bb215ArithmeticFormulaDepthTwentyfourSat E bb215ProvabilityK215Code <-> k215Provable (E @ 0) $;
+-- (D3) Every ZFC theorem is translated to a K215 theorem.
+theorem zfcToK215_complete {y: nat}:
+  $ A. y (paFormulaBound 0 y -> zfcProvable (paFormulaSource y) -> k215Provable (k215AssemblyF @ y)) $;
+-- (D4) At falsity the translation is faithful: K215 proves F(False) iff ZFC is inconsistent.
+theorem zfcToK215_false_faithful:
+  $ k215Provable (k215AssemblyF @ paFormulaFalse) <-> zfcInconsistent $;
+-- (D5) Hence the Pi1 sentence ~Prov_K215(F(False)), PA-equivalent to zfcConPA by (D1), is true iff ZFC is consistent.
+theorem zfcConPA_true_iff_consistent (E: set) (hE: $ E @ 0 = k215AssemblyF @ paFormulaFalse $):
+  $ ~bb215ArithmeticFormulaDepthTwentyfourSat E bb215ProvabilityK215Code <-> ~zfcInconsistent $;
+
+-- Hypothesis-free last theorem.
+theorem ZFC_second_incompleteness_K215Pr_end:
+  $ ~zfcInconsistent -> ~zfcProvable (paFormulaSource zfcConPA) $;

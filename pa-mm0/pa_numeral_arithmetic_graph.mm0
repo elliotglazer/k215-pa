@@ -1,0 +1,27 @@
+import "pa_source_interpretation_term_numerals.mm0";
+
+import "bb215_arithmetic_formula_nth_scalar.mm0";
+
+def paNumeralArithmeticSuccessorMap (.a: nat): set = $ \ a, paTermSuccessor a $;
+
+theorem paNumeralArithmeticSuccessorMap_value (a: nat): $ paNumeralArithmeticSuccessorMap @ a = paTermSuccessor a $;
+
+def paNumeralArithmeticNextCell (m v i x .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph x 0 p /\ bb215ArithmeticFormulaHistoryPairGraph m v (suc i) (8 * p + 2)) $;
+
+theorem paNumeralArithmeticNextCell_packed (m v i x: nat) {p: nat}: $ paNumeralArithmeticNextCell m v i x <-> bb215ArithmeticFormulaHistoryCell (m, v) (suc i) (paNumeralArithmeticSuccessorMap @ x) $;
+
+def paNumeralArithmeticClosure (m v n .i .x: nat): wff = $ A. i (i < n -> A. x (bb215ArithmeticFormulaHistoryPairGraph m v i x -> paNumeralArithmeticNextCell m v i x)) $;
+
+theorem paNumeralArithmeticClosure_packed (m v n: nat) {i x: nat}: $ paNumeralArithmeticClosure m v n <-> bb215ArithmeticFormulaRecClosure (m, v) paNumeralArithmeticSuccessorMap n $;
+
+def paNumeralArithmeticCertificate (m v n t .y: nat): wff = $ bb215ArithmeticFormulaHistoryPairGraph m v 0 0 /\ paNumeralArithmeticClosure m v n /\ A. y (bb215ArithmeticFormulaHistoryPairGraph m v n y -> y = t) $;
+
+theorem paNumeralArithmeticCertificate_packed (m v n t: nat) {y: nat}: $ paNumeralArithmeticCertificate m v n t <-> bb215ArithmeticFormulaRecCertificate (m, v) paTermZero paNumeralArithmeticSuccessorMap n t $;
+
+def paNumeralArithmeticGraph (n t .m .v: nat): wff = $ E. m E. v paNumeralArithmeticCertificate m v n t $;
+
+theorem paNumeralArithmeticGraph_packed (n t: nat) {m v A: nat}: $ paNumeralArithmeticGraph n t <-> bb215ArithmeticFormulaRecGraph paTermZero paNumeralArithmeticSuccessorMap n t $;
+
+theorem paNumeralArithmeticGraph_correct (n t: nat): $ paNumeralArithmeticGraph n t <-> t = paTermNumeral n $;
+
+theorem paNumeralArithmeticGraph_total (n: nat): $ paNumeralArithmeticGraph n (paTermNumeral n) $;

@@ -1,0 +1,104 @@
+import "bb215_provability_hbl_g2.mm0";
+import "source_theory_local.mm0";
+
+-- G2 lane (option 0, owner decision 2026-10-23): the second incompleteness theorem for an ARBITRARY
+-- theory T (a set of axiom codes for the fixed first-order ND calculus, provability sfTheoryProvable T)
+-- and an ARBITRARY translation tau of PA formulas into T's language that commutes with -> and False and
+-- sends closed formulas to closed formulas. Same Hilbert-Bernays-Lob argument as bb215_provability_hbl_g2
+-- (PASSED 00000-L07-002): for every provability formula P (one free variable) with D1 relative to (T, tau),
+-- D2, D3 (inside PA), the PA -> T transfer through tau and a fixed point G of ~P: if T is consistent,
+-- T does not prove tau(Con_P), Con_P = ~P(False). No hypothesis on T; the propositional steps use only
+-- empty-context ND derivations (sfTheory_pure) and modus ponens (sfTheoryProvable_mp).
+-- Instances: tau = paFormulaSource with T = zfcAxioms gives bb215ProvabilityG2_conditions_consistent
+-- (bb215ProvabilityG2_zfc_instance below); tau = sfRelativize D o paFormulaSource is the relativized form.
+
+def bb215ProvabilityD1T (T tau: set) (P c: nat): wff = $ paFormulaBound 0 c -> sfTheoryProvable T (tau @ c) -> paProvable 0 (bb215PrAt P c) $;
+
+-- Propositional laws K and S for any T (empty-context derivations, as paAxiomSource_Prop1 / Prop2).
+
+theorem bb215G2A_prop1 (T: set) (a b: nat):
+  $ sfWf a /\ sfWf b -> sfTheoryProvable T (sfImp a (sfImp b a)) $;
+
+theorem bb215G2A_prop2 (T: set) (a b d: nat):
+  $ sfWf a /\ sfWf b /\ sfWf d -> sfTheoryProvable T (sfImp (sfImp a (sfImp b d)) (sfImp (sfImp a b) (sfImp a d))) $;
+
+theorem bb215G2A_imp_trans (T: set) (a b c: nat):
+  $ sfWf a -> sfWf b -> sfWf c -> sfTheoryProvable T (sfImp a b) -> sfTheoryProvable T (sfImp b c) -> sfTheoryProvable T (sfImp a c) $;
+
+theorem bb215G2A_guarded_mp (T: set) (g a b: nat):
+  $ sfWf g -> sfWf a -> sfWf b -> sfTheoryProvable T (sfImp g (sfImp a b)) -> sfTheoryProvable T (sfImp g a) -> sfTheoryProvable T (sfImp g b) $;
+
+-- The Lob kernel for T (bb215ProvabilityLoeb_kernel with sfTheoryProvable T).
+
+def bb215G2ALoebDerivability (T: set) (a g pg pgg pa pga pfix: nat): wff = $ sfTheoryProvable T (bb215ProvabilityLoebFixedPointForward a g pg) /\ sfTheoryProvable T (bb215ProvabilityLoebFixedPointBackward a g pg) /\ (sfTheoryProvable T (bb215ProvabilityLoebFixedPointForward a g pg) -> sfTheoryProvable T pfix) /\ sfTheoryProvable T (sfImp pfix (sfImp pg pga)) /\ sfTheoryProvable T (sfImp pga (sfImp pgg pa)) /\ sfTheoryProvable T (sfImp pg pgg) /\ (sfTheoryProvable T g -> sfTheoryProvable T pg) $;
+
+def bb215G2ALoebConditions (T: set) (a g pg pgg pa pga pfix: nat): wff = $ bb215ProvabilityLoebBounds a g pg pgg pa pga pfix /\ bb215G2ALoebDerivability T a g pg pgg pa pga pfix $;
+
+theorem bb215G2A_loeb_kernel (T: set) (a g pg pgg pa pga pfix: nat):
+  $ bb215G2ALoebConditions T a g pg pgg pa pga pfix -> sfTheoryProvable T (sfImp pa a) -> sfTheoryProvable T a $;
+
+-- Translation, transfer and D1 helpers.
+
+-- Second incompleteness theorem for an arbitrary theory T and translation tau (abstract G2): for any provability
+-- formula P with D1 (relative to T, tau), D2, D3, the PA -> T transfer through tau and a fixed point G:
+-- if T is consistent, T does not prove tau(Con_P), Con_P = ~P(False).
+
+theorem bb215ProvabilityG2_abstract_conditions (T tau: set) (P G: nat) {c a b u v: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hI: $ A. u A. v tau @ paFormulaImp u v = sfImp (tau @ u) (tau @ v) $)
+  (hF: $ tau @ paFormulaFalse = sfBot $)
+  (hB: $ A. c (paFormulaBound 0 c -> sfBound 0 (tau @ c)) $)
+  (hT: $ A. c (paProvable 0 c -> sfTheoryProvable T (tau @ c)) $)
+  (h1: $ A. c bb215ProvabilityD1T T tau P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $):
+  $ sfTheoryProvable T (tau @ bb215ProvabilityConsistencyPA P) -> sfTheoryProvable T sfBot $;
+
+theorem bb215ProvabilityG2_abstract (T tau: set) (P G: nat) {c a b u v: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hI: $ A. u A. v tau @ paFormulaImp u v = sfImp (tau @ u) (tau @ v) $)
+  (hF: $ tau @ paFormulaFalse = sfBot $)
+  (hB: $ A. c (paFormulaBound 0 c -> sfBound 0 (tau @ c)) $)
+  (hT: $ A. c (paProvable 0 c -> sfTheoryProvable T (tau @ c)) $)
+  (h1: $ A. c bb215ProvabilityD1T T tau P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $):
+  $ ~sfTheoryProvable T sfBot -> ~sfTheoryProvable T (tau @ bb215ProvabilityConsistencyPA P) $;
+
+-- The instance T := zfcAxioms, tau := paFormulaSource is the ZFC theorem bb215ProvabilityG2_conditions_consistent.
+
+def bb215G2ASrc (.x: nat): set = $ \ x, paFormulaSource x $;
+
+theorem bb215G2ASrc_apply (x: nat):
+  $ bb215G2ASrc @ x = paFormulaSource x $;
+
+theorem bb215G2ASrc_imp (u v: nat):
+  $ bb215G2ASrc @ paFormulaImp u v = sfImp (bb215G2ASrc @ u) (bb215G2ASrc @ v) $;
+
+theorem bb215G2ASrc_false:
+  $ bb215G2ASrc @ paFormulaFalse = sfBot $;
+
+theorem bb215G2ASrc_bound (c: nat):
+  $ paFormulaBound 0 c -> sfBound 0 (bb215G2ASrc @ c) $;
+
+theorem bb215G2ASrc_zfc (c: nat):
+  $ sfTheoryProvable zfcAxioms (bb215G2ASrc @ c) <-> zfcProvable (paFormulaSource c) $;
+
+theorem bb215ProvabilityD1T_zfc (P c: nat):
+  $ bb215ProvabilityD1 P c <-> bb215ProvabilityD1T zfcAxioms bb215G2ASrc P c $;
+
+theorem bb215ProvabilityG2_zfc_instance (P G: nat) {c a b: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hT: $ A. c (paProvable 0 c -> zfcProvable (paFormulaSource c)) $)
+  (h1: $ A. c bb215ProvabilityD1 P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $):
+  $ ~zfcInconsistent -> ~zfcProvable (paFormulaSource (bb215ProvabilityConsistencyPA P)) $;
+
+-- Hypothesis-free last theorem (check.py's false-final control).
+
+theorem bb215ProvabilityG2Abstract_final:
+  $ paFormulaBound 0 paFormulaFalse $;

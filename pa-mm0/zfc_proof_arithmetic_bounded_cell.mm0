@@ -1,0 +1,49 @@
+import "zfc_proof_arithmetic_history_bounds.mm0";
+
+import "bb215_arithmetic_formula_depth_four_sat.mm0";
+
+def zfcProofArithmeticBoundedDivides (a b .q: nat): wff = $ E. q (q <= b /\ q * a = b) $;
+
+theorem zfcProofArithmeticBoundedDivides_sound (a b: nat): $ zfcProofArithmeticBoundedDivides a b -> a || b $;
+
+theorem zfcProofArithmeticBoundedDivides_witness (a b: nat): $ a || b -> zfcProofArithmeticBoundedDivides a b $;
+
+theorem zfcProofArithmeticBoundedDivides_correct (a b: nat): $ zfcProofArithmeticBoundedDivides a b <-> a || b $;
+
+def zfcProofArithmeticBoundedFiniteCell (m c k .x: nat): wff = $ 0 < m /\ 0 < c /\ (A. x (x <= k -> 0 < x -> zfcProofArithmeticBoundedDivides x m)) /\ zfcProofArithmeticBoundedDivides (suc (m * suc k)) c $;
+
+theorem zfcProofArithmeticBoundedFiniteCell_correct (m c k: nat): $ zfcProofArithmeticBoundedFiniteCell m c k <-> bb215ArithmeticFormulaFiniteCell m c k $;
+
+def zfcProofArithmeticBoundedHistoryPair (m c i y .p: nat): wff = $ E. p (p < c /\ (bb215ArithmeticFormulaPairGraph i y p /\ zfcProofArithmeticBoundedFiniteCell m c p)) $;
+
+theorem zfcProofArithmeticBoundedHistoryPair_point (m c i y p: nat): $ p < c /\ (bb215ArithmeticFormulaPairGraph i y p /\ zfcProofArithmeticBoundedFiniteCell m c p) <-> bb215ArithmeticFormulaPairGraph i y p /\ bb215ArithmeticFormulaFiniteCell m c p $;
+
+theorem zfcProofArithmeticBoundedHistoryPair_correct (m c i y: nat): $ zfcProofArithmeticBoundedHistoryPair m c i y <-> bb215ArithmeticFormulaHistoryPairGraph m c i y $;
+
+def zfcProofArithmeticBoundedFiniteCellCode: nat = $ paFormulaAnd (paFormulaAnd (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermZero)) (paTermVariable (0))) (paTermVariable (1)))) (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermZero)) (paTermVariable (0))) (paTermVariable (2))))) (paFormulaAll (paFormulaImp (paFormulaEx (paFormulaEqual (paTermAddition (paTermVariable (1)) (paTermVariable (0))) (paTermVariable (4)))) (paFormulaImp (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermZero)) (paTermVariable (0))) (paTermVariable (1)))) (paFormulaEx (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermVariable (1)) (paTermVariable (0))) (paTermVariable (3)))) (paFormulaEqual (paTermMultiplication (paTermVariable (0)) (paTermVariable (1))) (paTermVariable (2))))))))) (paFormulaEx (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermVariable (1)) (paTermVariable (0))) (paTermVariable (3)))) (paFormulaEqual (paTermMultiplication (paTermVariable (0)) (paTermSuccessor (paTermMultiplication (paTermVariable (1)) (paTermSuccessor (paTermVariable (3)))))) (paTermVariable (2))))) $;
+
+def zfcProofArithmeticBoundedFiniteCellSource: nat = $ sfAnd (sfAnd (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermZero)) (paSourceTermVariable (0))) (paSourceTermVariable (1)))) (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermZero)) (paSourceTermVariable (0))) (paSourceTermVariable (2))))) (paSourceFormulaAll (sfImp (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermVariable (1)) (paSourceTermVariable (0))) (paSourceTermVariable (4)))) (sfImp (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermZero)) (paSourceTermVariable (0))) (paSourceTermVariable (1)))) (paSourceFormulaEx (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermVariable (1)) (paSourceTermVariable (0))) (paSourceTermVariable (3)))) (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermVariable (0)) (paSourceTermVariable (1))) (paSourceTermVariable (2))))))))) (paSourceFormulaEx (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermVariable (1)) (paSourceTermVariable (0))) (paSourceTermVariable (3)))) (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermVariable (0)) (paSourceTermSuccessor (paSourceTermMultiplication (paSourceTermVariable (1)) (paSourceTermSuccessor (paSourceTermVariable (3)))))) (paSourceTermVariable (2))))) $;
+
+theorem zfcProofArithmeticBoundedFiniteCellCode_bound: $ paFormulaBound 3 zfcProofArithmeticBoundedFiniteCellCode $;
+
+theorem zfcProofArithmeticBoundedFiniteCellCode_satisfies (E: set): $ bb215ArithmeticFormulaDepthThreeSat E zfcProofArithmeticBoundedFiniteCellCode <-> zfcProofArithmeticBoundedFiniteCell (E @ 0) (E @ 1) (E @ 2) $;
+
+theorem zfcProofArithmeticBoundedFiniteCellCode_represents (E: set): $ bb215ArithmeticFormulaDepthThreeSat E zfcProofArithmeticBoundedFiniteCellCode <-> bb215ArithmeticFormulaFiniteCell (E @ 0) (E @ 1) (E @ 2) $;
+
+theorem zfcProofArithmeticBoundedFiniteCellSource_exact: $ paFormulaSource zfcProofArithmeticBoundedFiniteCellCode = zfcProofArithmeticBoundedFiniteCellSource $;
+
+theorem zfcProofArithmeticBoundedFiniteCellSource_bound: $ sfBound 3 zfcProofArithmeticBoundedFiniteCellSource $;
+
+def zfcProofArithmeticBoundedHistoryPairCode: nat = $ paFormulaEx (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermVariable (1))) (paTermVariable (0))) (paTermVariable (3)))) (paFormulaAnd (paFormulaEqual (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable (0))) (paTermAddition (paTermMultiplication (paTermAddition (paTermVariable (3)) (paTermVariable (4))) (paTermSuccessor (paTermAddition (paTermVariable (3)) (paTermVariable (4))))) (paTermMultiplication (paTermSuccessor (paTermSuccessor (paTermZero))) (paTermVariable (4))))) (paFormulaAnd (paFormulaAnd (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermZero)) (paTermVariable (0))) (paTermVariable (2)))) (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermZero)) (paTermVariable (0))) (paTermVariable (3))))) (paFormulaAll (paFormulaImp (paFormulaEx (paFormulaEqual (paTermAddition (paTermVariable (1)) (paTermVariable (0))) (paTermVariable (2)))) (paFormulaImp (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermZero)) (paTermVariable (0))) (paTermVariable (1)))) (paFormulaEx (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermVariable (1)) (paTermVariable (0))) (paTermVariable (4)))) (paFormulaEqual (paTermMultiplication (paTermVariable (0)) (paTermVariable (1))) (paTermVariable (3))))))))) (paFormulaEx (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermVariable (1)) (paTermVariable (0))) (paTermVariable (4)))) (paFormulaEqual (paTermMultiplication (paTermVariable (0)) (paTermSuccessor (paTermMultiplication (paTermVariable (2)) (paTermSuccessor (paTermVariable (1)))))) (paTermVariable (3)))))))) $;
+
+def zfcProofArithmeticBoundedHistoryPairSource: nat = $ paSourceFormulaEx (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermVariable (1))) (paSourceTermVariable (0))) (paSourceTermVariable (3)))) (sfAnd (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable (0))) (paSourceTermAddition (paSourceTermMultiplication (paSourceTermAddition (paSourceTermVariable (3)) (paSourceTermVariable (4))) (paSourceTermSuccessor (paSourceTermAddition (paSourceTermVariable (3)) (paSourceTermVariable (4))))) (paSourceTermMultiplication (paSourceTermSuccessor (paSourceTermSuccessor (paSourceTermZero))) (paSourceTermVariable (4))))) (sfAnd (sfAnd (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermZero)) (paSourceTermVariable (0))) (paSourceTermVariable (2)))) (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermZero)) (paSourceTermVariable (0))) (paSourceTermVariable (3))))) (paSourceFormulaAll (sfImp (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermVariable (1)) (paSourceTermVariable (0))) (paSourceTermVariable (2)))) (sfImp (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermZero)) (paSourceTermVariable (0))) (paSourceTermVariable (1)))) (paSourceFormulaEx (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermVariable (1)) (paSourceTermVariable (0))) (paSourceTermVariable (4)))) (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermVariable (0)) (paSourceTermVariable (1))) (paSourceTermVariable (3))))))))) (paSourceFormulaEx (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermVariable (1)) (paSourceTermVariable (0))) (paSourceTermVariable (4)))) (paSourceFormulaEqual (paSourceTermMultiplication (paSourceTermVariable (0)) (paSourceTermSuccessor (paSourceTermMultiplication (paSourceTermVariable (2)) (paSourceTermSuccessor (paSourceTermVariable (1)))))) (paSourceTermVariable (3)))))))) $;
+
+theorem zfcProofArithmeticBoundedHistoryPairCode_bound: $ paFormulaBound 4 zfcProofArithmeticBoundedHistoryPairCode $;
+
+theorem zfcProofArithmeticBoundedHistoryPairCode_satisfies (E: set): $ bb215ArithmeticFormulaDepthFourSat E zfcProofArithmeticBoundedHistoryPairCode <-> zfcProofArithmeticBoundedHistoryPair (E @ 0) (E @ 1) (E @ 2) (E @ 3) $;
+
+theorem zfcProofArithmeticBoundedHistoryPairCode_represents (E: set): $ bb215ArithmeticFormulaDepthFourSat E zfcProofArithmeticBoundedHistoryPairCode <-> bb215ArithmeticFormulaHistoryPairGraph (E @ 0) (E @ 1) (E @ 2) (E @ 3) $;
+
+theorem zfcProofArithmeticBoundedHistoryPairSource_exact: $ paFormulaSource zfcProofArithmeticBoundedHistoryPairCode = zfcProofArithmeticBoundedHistoryPairSource $;
+
+theorem zfcProofArithmeticBoundedHistoryPairSource_bound: $ sfBound 4 zfcProofArithmeticBoundedHistoryPairSource $;

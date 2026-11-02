@@ -1,0 +1,14 @@
+import "b4_k215_step.mm0";
+
+theorem bdTrace_at (m v a b: nat) {y z: nat}: $ bdK215Trace m v -> bdCell m v (a, b) ->
+  (a = 0 /\ b = 0) \/ E. y E. z (bdCell m v (y, z) /\ a = suc y /\ b = k215TMStep z) $;
+theorem bdTrace_run (m v n: nat) {s: nat}: $ bdK215Trace m v ->
+  A. s (bdCell m v (n, s) -> s = k215TMRun n k215TMInitial) $;
+theorem bdLH_intro (a: nat): $ k215TMQ (k215TMRun a k215TMInitial) = k215Num215 -> k215LiteralHalts $;
+theorem bdHalt_sound {h: nat}: $ E. h bdK215Halt h -> k215LiteralHalts $;
+theorem bdFinLe (a: nat) {i: nat}: $ finite {i | i <= a} $;
+theorem bdHalt_code (n: nat) {k m v i j: nat}:
+  $ E. m E. v A. k (bdCell m v k <-> E. i (i <= n /\ k = (i, k215TMRun i k215TMInitial))) $;
+theorem bdHalt_build (n: nat) {h: nat}:
+  $ k215TMQ (k215TMRun n k215TMInitial) = k215Num215 -> E. h bdK215Halt h $;
+theorem bdK215Halt_iff {h: nat}: $ k215LiteralHalts <-> E. h bdK215Halt h $;

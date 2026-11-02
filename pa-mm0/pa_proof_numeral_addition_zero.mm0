@@ -1,0 +1,29 @@
+import "pa_proof_numeral_all_elim.mm0";
+
+import "pa_source_interpretation_term_rename_agreement.mm0";
+
+def paProofNumeralAdditionZeroBody: nat = $ paFormulaEqual (paTermAddition (paTermVariable 0) paTermZero) (paTermVariable 0) $;
+
+def paProofNumeralAdditionZeroAxiomWitness: nat = $ paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc (suc 10))))))))) 0 0 0 $;
+
+def paProofNumeralAdditionZeroAxiomRow: nat = $ paProofNumeralAxiomRow 0 paAxiomAdditionZero paProofNumeralAdditionZeroAxiomWitness $;
+
+def paProofNumeralAdditionZeroAxiomProof: nat = $ paProofNumeralAxiomProof 0 paAxiomAdditionZero paProofNumeralAdditionZeroAxiomWitness $;
+
+theorem paProofNumeralAdditionZero_axiom: $ paProofDerives paProofNumeralAdditionZeroAxiomProof paProofNumeralAdditionZeroAxiomRow $;
+
+def paProofNumeralAdditionZeroFormula (n: nat): nat = $ paFormulaEqual (paTermAddition (paTermNumeral n) paTermZero) (paTermNumeral n) $;
+
+theorem paProofNumeralAdditionZero_substitution (n: nat): $ paFormulaSubst 0 (paTermNumeral n) paProofNumeralAdditionZeroBody = paProofNumeralAdditionZeroFormula n $;
+
+def paProofNumeralAdditionZeroRawRow (n: nat): nat = $ paProofNumeralAllElimRow 0 paProofNumeralAdditionZeroBody (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralAdditionZeroAxiomWitness) $;
+
+def paProofNumeralAdditionZeroProof (n: nat): nat = $ paProofNumeralAllElimProof 0 paProofNumeralAdditionZeroBody (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralAdditionZeroAxiomWitness) paProofNumeralAdditionZeroAxiomProof $;
+
+def paProofNumeralAdditionZeroRow (n: nat): nat = $ paProofRow 0 (paProofNumeralAdditionZeroFormula n) (paProofMPAnnotation paProofNumeralAdditionZeroAxiomRow (paProofNumeralAllElimAxiomRow 0 paProofNumeralAdditionZeroBody (paTermNumeral n))) $;
+
+theorem paProofNumeralAdditionZero_row_exact (n: nat): $ paProofNumeralAdditionZeroRawRow n = paProofNumeralAdditionZeroRow n $;
+
+theorem paProofNumeralAdditionZero_derives (n: nat): $ paProofDerives (paProofNumeralAdditionZeroProof n) (paProofNumeralAdditionZeroRow n) $;
+
+theorem paProofNumeralAdditionZero_provable (n: nat): $ paProvable 0 (paFormulaEqual (paTermAddition (paTermNumeral n) paTermZero) (paTermNumeral n)) $;

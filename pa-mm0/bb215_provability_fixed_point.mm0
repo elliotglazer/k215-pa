@@ -1,0 +1,31 @@
+import "bb215_provability_hbl_g2.mm0";
+
+import "pa_proof_numeral_diagonal_fixedpoint.mm0";
+
+import "pa_proof_numeral_mp.mm0";
+
+import "pa_proof_numeral_term_qf_axioms.mm0";
+
+-- The fixed-point condition of bb215_provability_hbl_g2 for G = the diagonal sentence of
+-- ~P, obtained from the existing PA diagonal fixed point, given its two diagonal-code
+-- certificates (functionality and introduction instance) as an explicit hypothesis.
+-- Also: modus ponens and conjunction elimination for paProvable at level 0.
+
+theorem bb215ProvabilityPA_mp (a b: nat): $ paProvable 0 a -> paProvable 0 (paFormulaImp a b) -> paProvable 0 b $;
+
+theorem bb215ProvabilityPA_and_left (a b: nat): $ paFormulaBound 0 a -> paFormulaBound 0 b -> paProvable 0 (paFormulaAnd a b) -> paProvable 0 a $;
+
+theorem bb215ProvabilityPA_and_right (a b: nat): $ paFormulaBound 0 a -> paFormulaBound 0 b -> paProvable 0 (paFormulaAnd a b) -> paProvable 0 b $;
+
+def bb215ProvabilityNotPr (P: nat): nat = $ paFormulaImp P paFormulaFalse $;
+
+def bb215ProvabilityGodel (P: nat): nat = $ paNumeralDiagonalBetaSentence (bb215ProvabilityNotPr P) $;
+
+theorem bb215ProvabilityNotPr_bound (P: nat): $ paFormulaBound 1 P -> paFormulaBound 1 (bb215ProvabilityNotPr P) $;
+
+theorem bb215ProvabilityNotPr_instance (P x: nat): $ paFormulaSubst 0 (paTermNumeral x) (bb215ProvabilityNotPr P) = paFormulaImp (bb215PrAt P x) paFormulaFalse $;
+
+theorem bb215ProvabilityFixedPoint_from_certificate (P h p k q: nat)
+  (hP: $ paFormulaBound 1 P $)
+  (hc: $ paProofNumeralDiagonalFixedPointCertificate (bb215ProvabilityNotPr P) h p k q $):
+  $ bb215ProvabilityFixedPoint P (bb215ProvabilityGodel P) $;

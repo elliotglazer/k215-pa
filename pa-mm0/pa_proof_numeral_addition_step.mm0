@@ -1,0 +1,25 @@
+import "pa_proof_numeral_transitivity.mm0";
+
+def paProofNumeralAdditionFormula (n m: nat): nat = $ paFormulaEqual (paTermAddition (paTermNumeral n) (paTermNumeral m)) (paTermNumeral (n + m)) $;
+
+def paProofNumeralAdditionBaseAnnotation (n: nat): nat = $ paProofAnnotation (paProofNumeralAdditionZeroRow n) $;
+
+theorem paProofNumeralAddition_base_formula (n: nat): $ paProofNumeralAdditionFormula n 0 = paProofNumeralAdditionZeroFormula n $;
+
+theorem paProofNumeralAddition_base_derives (n: nat): $ paProofDerives (paProofNumeralAdditionZeroProof n) (paProofRow 0 (paProofNumeralAdditionFormula n 0) (paProofNumeralAdditionBaseAnnotation n)) $;
+
+def paProofNumeralAdditionRecursionAnnotation (n m: nat): nat = $ paProofMPAnnotation (paProofNumeralAdditionSuccessorFirstRow n) (paProofNumeralAllElimAxiomRow 0 (paProofNumeralAdditionSuccessorFirstBody n) (paTermNumeral m)) $;
+
+def paProofNumeralAdditionPreviousTerm (n m: nat): nat = $ paTermAddition (paTermNumeral n) (paTermNumeral m) $;
+
+def paProofNumeralAdditionNextTerm (n m: nat): nat = $ paTermAddition (paTermNumeral n) (paTermSuccessor (paTermNumeral m)) $;
+
+def paProofNumeralAdditionStepAnnotation (n m h: nat): nat = $ paProofNumeralTransitivityAnnotation (paProofNumeralAdditionNextTerm n m) (paTermSuccessor (paProofNumeralAdditionPreviousTerm n m)) (paTermSuccessor (paTermNumeral (n + m))) (paProofNumeralAdditionRecursionAnnotation n m) (paProofNumeralSuccessorCongruenceAnnotation (paProofNumeralAdditionPreviousTerm n m) (paTermNumeral (n + m)) h) $;
+
+def paProofNumeralAdditionStepProof (n m h p: nat): nat = $ paProofNumeralTransitivityProof (paProofNumeralAdditionNextTerm n m) (paTermSuccessor (paProofNumeralAdditionPreviousTerm n m)) (paTermSuccessor (paTermNumeral (n + m))) (paProofNumeralAdditionRecursionAnnotation n m) (paProofNumeralSuccessorCongruenceAnnotation (paProofNumeralAdditionPreviousTerm n m) (paTermNumeral (n + m)) h) (paProofNumeralAdditionSuccessorProof n m) (paProofNumeralSuccessorCongruenceProof (paProofNumeralAdditionPreviousTerm n m) (paTermNumeral (n + m)) h p) $;
+
+theorem paProofNumeralAddition_step_formula (n m: nat): $ paFormulaEqual (paProofNumeralAdditionNextTerm n m) (paTermSuccessor (paTermNumeral (n + m))) = paProofNumeralAdditionFormula n (suc m) $;
+
+theorem paProofNumeralAddition_step_derives (n m h p: nat): $ paProofDerives p (paProofRow 0 (paProofNumeralAdditionFormula n m) h) -> paProofDerives (paProofNumeralAdditionStepProof n m h p) (paProofRow 0 (paProofNumeralAdditionFormula n (suc m)) (paProofNumeralAdditionStepAnnotation n m h)) $;
+
+theorem paProofNumeralAddition_step_length (n m h p: nat): $ len (paProofNumeralAdditionStepProof n m h p) = suc (suc (suc (5 + suc (suc (suc (suc (len p))))))) $;

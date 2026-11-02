@@ -1,0 +1,23 @@
+import "pa_source_interpretation_term_value_at.mm0";
+
+import "pa_source_interpretation_term_graph_equality_internal.mm0";
+
+import "pa_source_interpretation_term_source_renaming.mm0";
+
+def paSourceTermLiftAt (d a: nat): nat = $ sfRename (paTermGraphMap (paTermLiftMap d)) 0 a $;
+
+theorem paSourceTermLiftAt_wf (d a: nat): $ sfWf (paSourceTermLiftAt d a) $;
+
+theorem paSourceTermValueAt_left (d a: nat): $ sfWf a -> sfRename (paTermGraphMap (paTermLiftMap d)) 0 (sfShift 0 a) = paSourceTermValueAt (suc d) a $;
+
+theorem paSourceTermValueAt_right (d a: nat): $ sfWf a -> sfRename (paTermGraphMap (paTermLiftMap d)) 0 (sfShift 1 a) = paSourceTermLiftAt (suc d) a $;
+
+theorem paSourceTermLiftAt_shift (d a: nat): $ sfWf a -> sfShift (suc d) (paSourceTermLiftAt d a) = paSourceTermLiftAt (suc d) a $;
+
+theorem paTermSource_lift (d n a: nat): $ paTermBound n a -> paTermSource (paTermLift d a) = paSourceTermLiftAt d (paTermSource a) $;
+
+def paSourceTermGraphEqualityBody (a: nat): nat = $ sfImp (sfShift 0 a) (sfAnd (sfImp (sfShift 1 a) (sfEq 0 1)) (sfImp (sfEq 0 1) (sfShift 1 a))) $;
+
+def paSourceTermValueGraphEquality (d a: nat): nat = $ sfImp (paSourceTermValueAt (suc d) a) (sfAnd (sfImp (paSourceTermLiftAt (suc d) a) (sfEq 0 (suc d))) (sfImp (sfEq 0 (suc d)) (paSourceTermLiftAt (suc d) a))) $;
+
+theorem paSourceTermValueGraphEquality_provable (d a: nat): $ sfWf a -> zfcProvable (paSourceTermFunctional a) -> zfcProvable (paSourceTermValueGraphEquality d a) $;

@@ -1,0 +1,31 @@
+import "pa_numeral_array_depth_twentysix_sat.mm0";
+
+import "pa_source_interpretation_nat_term_assignment.mm0";
+
+def paNumeralArrayDepthTwentysevenSatBody (E: set) (c h .x: nat): wff = $ ifp (c = 0) (0 != 0) (ifp (sfTag c = 1) (bb215ArithmeticFormulaTermValue E (sfLeft c) = bb215ArithmeticFormulaTermValue E (sfRight c)) (ifp (sfTag c = 3) (sfLeft c e. h /\ sfRight c e. h) (ifp (sfTag c = 4) (sfLeft c e. h \/ sfRight c e. h) (ifp (sfTag c = 5) (sfLeft c e. h -> sfRight c e. h) (ifp (sfTag c = 6 /\ sfRight c = 0) (A. x paNumeralArrayDepthTwentysixSat (paNatTermConsEnvironment E x) (sfLeft c)) (ifp (sfTag c = 7 /\ sfRight c = 0) (E. x paNumeralArrayDepthTwentysixSat (paNatTermConsEnvironment E x) (sfLeft c)) (0 != 0))))))) $;
+
+def paNumeralArrayDepthTwentysevenSatStep (E: set) (.c .h: nat): set = $ S\ c, {h | paNumeralArrayDepthTwentysevenSatBody E c h} $;
+
+def paNumeralArrayDepthTwentysevenSat (E: set) (c: nat): wff = $ srecp (paNumeralArrayDepthTwentysevenSatStep E) c $;
+
+def paNumeralArrayDepthTwentysevenSatPrevious (E: set) (c .i: nat): nat = $ sep (upto c) {i | srecp (paNumeralArrayDepthTwentysevenSatStep E) i} $;
+
+theorem paNumeralArrayDepthTwentysevenSatStep_value (E: set) (c h: nat): $ (c, h) e. paNumeralArrayDepthTwentysevenSatStep E <-> paNumeralArrayDepthTwentysevenSatBody E c h $;
+
+theorem paNumeralArrayDepthTwentysevenSatPrevious_value (E: set) (c a: nat): $ a e. paNumeralArrayDepthTwentysevenSatPrevious E c <-> a < c /\ paNumeralArrayDepthTwentysevenSat E a $;
+
+theorem paNumeralArrayDepthTwentysevenSat_unfold (E: set) (c: nat): $ paNumeralArrayDepthTwentysevenSat E c <-> paNumeralArrayDepthTwentysevenSatBody E c (paNumeralArrayDepthTwentysevenSatPrevious E c) $;
+
+theorem paNumeralArrayDepthTwentysevenSat_false (E: set): $ paNumeralArrayDepthTwentysevenSat E paFormulaFalse <-> 0 != 0 $;
+
+theorem paNumeralArrayDepthTwentysevenSat_equal (E: set) (a b: nat): $ paNumeralArrayDepthTwentysevenSat E (paFormulaEqual a b) <-> bb215ArithmeticFormulaTermValue E a = bb215ArithmeticFormulaTermValue E b $;
+
+theorem paNumeralArrayDepthTwentysevenSat_and (E: set) (a b: nat): $ paNumeralArrayDepthTwentysevenSat E (paFormulaAnd a b) <-> (paNumeralArrayDepthTwentysevenSat E a /\ paNumeralArrayDepthTwentysevenSat E b) $;
+
+theorem paNumeralArrayDepthTwentysevenSat_or (E: set) (a b: nat): $ paNumeralArrayDepthTwentysevenSat E (paFormulaOr a b) <-> (paNumeralArrayDepthTwentysevenSat E a \/ paNumeralArrayDepthTwentysevenSat E b) $;
+
+theorem paNumeralArrayDepthTwentysevenSat_imp (E: set) (a b: nat): $ paNumeralArrayDepthTwentysevenSat E (paFormulaImp a b) <-> (paNumeralArrayDepthTwentysevenSat E a -> paNumeralArrayDepthTwentysevenSat E b) $;
+
+theorem paNumeralArrayDepthTwentysevenSat_all (E: set) (a: nat) {x: nat}: $ paNumeralArrayDepthTwentysevenSat E (paFormulaAll a) <-> A. x paNumeralArrayDepthTwentysixSat (paNatTermConsEnvironment E x) a $;
+
+theorem paNumeralArrayDepthTwentysevenSat_ex (E: set) (a: nat) {x: nat}: $ paNumeralArrayDepthTwentysevenSat E (paFormulaEx a) <-> E. x paNumeralArrayDepthTwentysixSat (paNatTermConsEnvironment E x) a $;

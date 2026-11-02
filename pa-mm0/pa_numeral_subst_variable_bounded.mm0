@@ -1,0 +1,21 @@
+import "pa_numeral_subst_variable_graph.mm0";
+
+import "pa_numeral_arithmetic_bounded.mm0";
+
+def paNumeralSubstVariableBoundedNode (i t .p: nat): wff = $ E. p (p <= t /\ (bb215ArithmeticFormulaPairGraph i 0 p /\ t = 8 * p + 1)) $;
+
+theorem paNumeralSubstVariableBoundedNode_correct (i t: nat) {p: nat}: $ paNumeralSubstVariableBoundedNode i t <-> paNumeralSubstVariableNodeGraph i t $;
+
+def paNumeralSubstVariableBoundedPredecessor (i t .j: nat): wff = $ E. j (j < i /\ (suc j = i /\ paNumeralSubstVariableBoundedNode j t)) $;
+
+theorem paNumeralSubstVariableBoundedPredecessor_correct (i t: nat) {j: nat}: $ paNumeralSubstVariableBoundedPredecessor i t <-> paNumeralSubstVariablePredecessorGraph i t $;
+
+def paNumeralSubstVariableBoundedGraph (d n i t: nat): wff = $ ifp (i < d) (paNumeralSubstVariableBoundedNode i t) (ifp (i = d) (paNumeralArithmeticBoundedGraph n t) (paNumeralSubstVariableBoundedPredecessor i t)) $;
+
+theorem paNumeralSubstVariableBoundedGraph_correct (d n i t: nat): $ paNumeralSubstVariableBoundedGraph d n i t <-> paNumeralSubstVariableGraph d n i t $;
+
+theorem paNumeralSubstVariableBoundedGraph_represents (d n i t: nat): $ paNumeralSubstVariableBoundedGraph d n i t <-> t = paTermSubst d (paTermNumeral n) (paTermVariable i) $;
+
+theorem paNumeralSubstVariableBoundedVariable_mono (i j: nat): $ i <= j -> paTermVariable i <= paTermVariable j $;
+
+theorem paNumeralSubstVariableBoundedGraph_value_bound (d n i t: nat): $ paNumeralSubstVariableBoundedGraph d n i t -> t <= paTermVariable i + paTermNumeral n $;

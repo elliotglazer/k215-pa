@@ -1,0 +1,53 @@
+import "pa_proof_numeral_term_binary_congruence.mm0";
+
+import "bb215_arithmetic_formula_term_value.mm0";
+
+import "pa_source_interpretation_term_induction.mm0";
+
+def paProofNumeralTermEnvironment (.i: nat): set = $ \ i, 0 $;
+
+def paProofNumeralTermValue (c: nat): nat = $ bb215ArithmeticFormulaTermValue paProofNumeralTermEnvironment c $;
+
+theorem paProofNumeralTermValue_zero: $ paProofNumeralTermValue (paTermZero) = 0 $;
+
+theorem paProofNumeralTermValue_successor (a: nat): $ paProofNumeralTermValue (paTermSuccessor a) = suc (paProofNumeralTermValue a) $;
+
+theorem paProofNumeralTermValue_addition (a b: nat): $ paProofNumeralTermValue (paTermAddition a b) = (paProofNumeralTermValue a) + (paProofNumeralTermValue b) $;
+
+theorem paProofNumeralTermValue_multiplication (a b: nat): $ paProofNumeralTermValue (paTermMultiplication a b) = (paProofNumeralTermValue a) * (paProofNumeralTermValue b) $;
+
+def paProofNumeralTermFormula (c: nat): nat = $ paFormulaEqual c (paTermNumeral (paProofNumeralTermValue c)) $;
+
+def paProofNumeralTermStateDerives (c s: nat): wff = $ paProofDerives (fst s) (paProofRow 0 (paProofNumeralTermFormula c) (snd s)) $;
+
+def paProofNumeralTermZeroState: nat = $ (paProofNumeralTermReflexivityProof paTermZero, paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness paTermZero)) $;
+
+theorem paProofNumeralTerm_zero_formula: $ paProofNumeralTermFormula paTermZero = paFormulaEqual paTermZero paTermZero $;
+
+theorem paProofNumeralTermZeroState_derives: $ paProofNumeralTermStateDerives paTermZero paProofNumeralTermZeroState $;
+
+def paProofNumeralTermSuccessorState (a s: nat): nat = $ (paProofNumeralSuccessorCongruenceProof a (paTermNumeral (paProofNumeralTermValue a)) (snd s) (fst s), paProofNumeralSuccessorCongruenceAnnotation a (paTermNumeral (paProofNumeralTermValue a)) (snd s)) $;
+
+theorem paProofNumeralTerm_successor_formula (a: nat): $ paFormulaEqual (paTermSuccessor a) (paTermSuccessor (paTermNumeral (paProofNumeralTermValue a))) = paProofNumeralTermFormula (paTermSuccessor a) $;
+
+theorem paProofNumeralTermSuccessorState_derives (a s: nat): $ paProofNumeralTermStateDerives a s -> paProofNumeralTermStateDerives (paTermSuccessor a) (paProofNumeralTermSuccessorState a s) $;
+
+def paProofNumeralTermAdditionCongruenceAnnotation (a b s t: nat): nat = $ paProofNumeralTransitivityAnnotation (paTermAddition a b) (paTermAddition (paTermNumeral (paProofNumeralTermValue a)) b) (paTermAddition (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paProofNumeralTermAdditionLeftCongruenceAnnotation a (paTermNumeral (paProofNumeralTermValue a)) b (snd s)) (paProofNumeralTermAdditionRightCongruenceAnnotation b (paTermNumeral (paProofNumeralTermValue b)) (paTermNumeral (paProofNumeralTermValue a)) (snd t)) $;
+
+def paProofNumeralTermAdditionCongruenceProof (a b s t: nat): nat = $ paProofNumeralTransitivityProof (paTermAddition a b) (paTermAddition (paTermNumeral (paProofNumeralTermValue a)) b) (paTermAddition (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paProofNumeralTermAdditionLeftCongruenceAnnotation a (paTermNumeral (paProofNumeralTermValue a)) b (snd s)) (paProofNumeralTermAdditionRightCongruenceAnnotation b (paTermNumeral (paProofNumeralTermValue b)) (paTermNumeral (paProofNumeralTermValue a)) (snd t)) (paProofNumeralTermAdditionLeftCongruenceProof a (paTermNumeral (paProofNumeralTermValue a)) b (snd s) (fst s)) (paProofNumeralTermAdditionRightCongruenceProof b (paTermNumeral (paProofNumeralTermValue b)) (paTermNumeral (paProofNumeralTermValue a)) (snd t) (fst t)) $;
+
+def paProofNumeralTermAdditionState (a b s t: nat): nat = $ ((paProofNumeralTransitivityProof (paTermAddition a b) (paTermAddition (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paTermNumeral ((paProofNumeralTermValue a) + (paProofNumeralTermValue b))) (paProofNumeralTermAdditionCongruenceAnnotation a b s t) (paProofNumeralAdditionAnnotation (paProofNumeralTermValue a) (paProofNumeralTermValue b)) (paProofNumeralTermAdditionCongruenceProof a b s t) (paProofNumeralAdditionProof (paProofNumeralTermValue a) (paProofNumeralTermValue b))), (paProofNumeralTransitivityAnnotation (paTermAddition a b) (paTermAddition (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paTermNumeral ((paProofNumeralTermValue a) + (paProofNumeralTermValue b))) (paProofNumeralTermAdditionCongruenceAnnotation a b s t) (paProofNumeralAdditionAnnotation (paProofNumeralTermValue a) (paProofNumeralTermValue b)))) $;
+
+theorem paProofNumeralTermAddition_formula (a b: nat): $ paFormulaEqual (paTermAddition a b) (paTermNumeral ((paProofNumeralTermValue a) + (paProofNumeralTermValue b))) = paProofNumeralTermFormula (paTermAddition a b) $;
+
+theorem paProofNumeralTermAdditionState_derives (a b s t: nat): $ paProofNumeralTermStateDerives a s /\ paProofNumeralTermStateDerives b t -> paProofNumeralTermStateDerives (paTermAddition a b) (paProofNumeralTermAdditionState a b s t) $;
+
+def paProofNumeralTermMultiplicationCongruenceAnnotation (a b s t: nat): nat = $ paProofNumeralTransitivityAnnotation (paTermMultiplication a b) (paTermMultiplication (paTermNumeral (paProofNumeralTermValue a)) b) (paTermMultiplication (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paProofNumeralTermMultiplicationLeftCongruenceAnnotation a (paTermNumeral (paProofNumeralTermValue a)) b (snd s)) (paProofNumeralTermMultiplicationRightCongruenceAnnotation b (paTermNumeral (paProofNumeralTermValue b)) (paTermNumeral (paProofNumeralTermValue a)) (snd t)) $;
+
+def paProofNumeralTermMultiplicationCongruenceProof (a b s t: nat): nat = $ paProofNumeralTransitivityProof (paTermMultiplication a b) (paTermMultiplication (paTermNumeral (paProofNumeralTermValue a)) b) (paTermMultiplication (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paProofNumeralTermMultiplicationLeftCongruenceAnnotation a (paTermNumeral (paProofNumeralTermValue a)) b (snd s)) (paProofNumeralTermMultiplicationRightCongruenceAnnotation b (paTermNumeral (paProofNumeralTermValue b)) (paTermNumeral (paProofNumeralTermValue a)) (snd t)) (paProofNumeralTermMultiplicationLeftCongruenceProof a (paTermNumeral (paProofNumeralTermValue a)) b (snd s) (fst s)) (paProofNumeralTermMultiplicationRightCongruenceProof b (paTermNumeral (paProofNumeralTermValue b)) (paTermNumeral (paProofNumeralTermValue a)) (snd t) (fst t)) $;
+
+def paProofNumeralTermMultiplicationState (a b s t: nat): nat = $ ((paProofNumeralTransitivityProof (paTermMultiplication a b) (paTermMultiplication (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paTermNumeral ((paProofNumeralTermValue a) * (paProofNumeralTermValue b))) (paProofNumeralTermMultiplicationCongruenceAnnotation a b s t) (paProofNumeralMultiplicationAnnotation (paProofNumeralTermValue a) (paProofNumeralTermValue b)) (paProofNumeralTermMultiplicationCongruenceProof a b s t) (paProofNumeralMultiplicationProof (paProofNumeralTermValue a) (paProofNumeralTermValue b))), (paProofNumeralTransitivityAnnotation (paTermMultiplication a b) (paTermMultiplication (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paTermNumeral ((paProofNumeralTermValue a) * (paProofNumeralTermValue b))) (paProofNumeralTermMultiplicationCongruenceAnnotation a b s t) (paProofNumeralMultiplicationAnnotation (paProofNumeralTermValue a) (paProofNumeralTermValue b)))) $;
+
+theorem paProofNumeralTermMultiplication_formula (a b: nat): $ paFormulaEqual (paTermMultiplication a b) (paTermNumeral ((paProofNumeralTermValue a) * (paProofNumeralTermValue b))) = paProofNumeralTermFormula (paTermMultiplication a b) $;
+
+theorem paProofNumeralTermMultiplicationState_derives (a b s t: nat): $ paProofNumeralTermStateDerives a s /\ paProofNumeralTermStateDerives b t -> paProofNumeralTermStateDerives (paTermMultiplication a b) (paProofNumeralTermMultiplicationState a b s t) $;

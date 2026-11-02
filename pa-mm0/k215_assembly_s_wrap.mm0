@@ -1,0 +1,70 @@
+-- L10: the context wrapper from S0 (the PA graph of F0 = J0 o src, L05's composite) to the S that the
+-- G3 parts need (the graph of F = k215AssemblyF = \ x, kImp EM (kImp QD (F0 x))), with transfer lemmas, so
+-- that L05 proves its parts for S0 only (lanes/L05.md, L07.md "From L10: s_wrap interface").
+--   S(x, y) := E. a E. b (S0(b, a) /\ (a = x /\ y = KImp(EM, KImp(QD, b))))
+-- Variables: S0 has 0 = y0, 1 = x (bound 2); S has 0 = y, 1 = x. Under the two binders: 0 = b (= y0), 1 = a,
+-- 2 = y, 3 = x, so S0 is used unchanged. KImp(u, v) is the PA term 2 * ((u + v) * S(u + v) + 2 * v), whose
+-- value is kImp u v (bb215ProvabilityQKImp_k). EM = kEmptyMarker, QD = kQuotientDomain as numerals.
+-- v1 (this module): the definition, hS2 and hS. The h2 (D2) transfer follows as v2.
+import "k215_assembly_translation.mm0";
+import "pa_formula_substitution_closed.mm0";
+import "pa_source_interpretation_term_substitution.mm0";
+import "pa_proof_numeral_closed.mm0";
+import "pa_source_interpretation_nat_term_renaming.mm0";
+import "pa_proof_numeral_term_equality.mm0";
+import "pa_proof_numeral_term_constructors.mm0";
+import "pa_proof_numeral_level_bounds.mm0";
+import "pa_source_interpretation_term_numerals.mm0";
+import "bb215_derivability_l3_exintro.mm0";
+import "bb215_derivability_d2_logic.mm0";
+import "bb215_provability_qk_kcode.mm0";
+
+def k215SWTwo: nat = $ paTermSuccessor (paTermSuccessor paTermZero) $;
+def k215SWKT (u v: nat): nat = $ paTermMultiplication k215SWTwo (paTermAddition
+  (paTermMultiplication (paTermAddition u v) (paTermSuccessor (paTermAddition u v)))
+  (paTermMultiplication k215SWTwo v)) $;
+def k215SWT (v: nat): nat = $ k215SWKT (paTermNumeral kEmptyMarker) (k215SWKT (paTermNumeral kQuotientDomain) v) $;
+def k215SWLink: nat = $ paFormulaAnd (paFormulaEqual (paTermVariable 1) (paTermVariable 3))
+  (paFormulaEqual (paTermVariable 2) (k215SWT (paTermVariable 0))) $;
+def k215AssemblySWrap (S0: nat): nat = $ paFormulaEx (paFormulaEx (paFormulaAnd S0 k215SWLink)) $;
+
+-- Term facts.
+theorem k215SW_two_subst (d a: nat): $ paTermSubst d a k215SWTwo = k215SWTwo $;
+theorem k215SW_kt_subst (d a u v: nat):
+ $ paTermSubst d a (k215SWKT u v) = k215SWKT (paTermSubst d a u) (paTermSubst d a v) $;
+theorem k215SW_num_bound (n k: nat): $ paTermBound n (paTermNumeral k) $;
+theorem k215SW_T_subst (d a v: nat): $ paTermSubst d a (k215SWT v) = k215SWT (paTermSubst d a v) $;
+theorem k215SW_two_value: $ paProofNumeralTermValue k215SWTwo = suc (suc 0) $;
+theorem k215SW_kt_value (u v: nat):
+ $ paProofNumeralTermValue (k215SWKT u v) = kImp (paProofNumeralTermValue u) (paProofNumeralTermValue v) $;
+theorem k215SW_T_value (v: nat):
+ $ paProofNumeralTermValue (k215SWT v) = kImp kEmptyMarker (kImp kQuotientDomain (paProofNumeralTermValue v)) $;
+theorem k215SW_two_bound (n: nat): $ paTermBound n k215SWTwo $;
+theorem k215SW_kt_bound (n u v: nat) (hu: $ paTermBound n u $) (hv: $ paTermBound n v $):
+ $ paTermBound n (k215SWKT u v) $;
+theorem k215SW_T_bound (n v: nat) (hv: $ paTermBound n v $): $ paTermBound n (k215SWT v) $;
+theorem k215SW_F_value (n: nat):
+ $ k215AssemblyF @ n = kImp kEmptyMarker (kImp kQuotientDomain (k215AssemblyF0 @ n)) $;
+
+-- hS2.
+theorem k215SW_link_bound: $ paFormulaBound 4 k215SWLink $;
+theorem k215AssemblySWrap_bound (S0: nat) (hb: $ paFormulaBound 2 S0 $):
+ $ paFormulaBound 2 (k215AssemblySWrap S0) $;
+
+-- hS, one numeral.
+theorem k215SW_link_subst (n m t: nat):
+ $ paFormulaSubst 0 (paTermNumeral t) (paFormulaSubst 1 (paTermNumeral n)
+     (paFormulaSubst 2 (paTermNumeral m) (paFormulaSubst 3 (paTermNumeral n) k215SWLink))) =
+   paFormulaAnd (paFormulaEqual (paTermNumeral n) (paTermNumeral n))
+     (paFormulaEqual (paTermNumeral m) (k215SWT (paTermNumeral t))) $;
+theorem k215AssemblySWrap_hS_at (S0 n: nat) (hb: $ paFormulaBound 2 S0 $)
+ (h0: $ paProvable 0 (paFormulaSubst 0 (paTermNumeral (k215AssemblyF0 @ n)) (paFormulaSubst 1 (paTermNumeral n) S0)) $):
+ $ paProvable 0 (paFormulaSubst 0 (paTermNumeral (k215AssemblyF @ n)) (paFormulaSubst 1 (paTermNumeral n) (k215AssemblySWrap S0))) $;
+
+-- hS, all numerals: L05's hS for S0 and F0 gives the G3 part hS for S = k215AssemblySWrap S0 and F.
+theorem k215AssemblySWrap_hS (S0: nat) {n: nat} (hb: $ paFormulaBound 2 S0 $)
+ (h0: $ A. n paProvable 0 (paFormulaSubst 0 (paTermNumeral (k215AssemblyF0 @ n)) (paFormulaSubst 1 (paTermNumeral n) S0)) $):
+ $ A. n paProvable 0 (paFormulaSubst 0 (paTermNumeral (k215AssemblyF @ n)) (paFormulaSubst 1 (paTermNumeral n) (k215AssemblySWrap S0))) $;
+
+-- Hypothesis-free last theorem (check.py's false-final control).
+theorem k215SW_final: $ paFormulaBound 4 k215SWLink $;

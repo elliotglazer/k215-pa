@@ -1,0 +1,41 @@
+import "source_substitution.mm0";
+
+import "bb215_arithmetic_formula_predecessor.mm0";
+
+import "bb215_arithmetic_formula_depth_one_sat.mm0";
+
+def zfcProofArithmeticQuantifierShiftIndexGraph (d i v: nat): wff = $ (i < d /\ v = i) \/ (d <= i /\ v = suc i) $;
+
+theorem zfcProofArithmeticQuantifierShiftIndexGraph_correct (d i v: nat): $ zfcProofArithmeticQuantifierShiftIndexGraph d i v <-> v = sfShiftIndex d i $;
+
+def zfcProofArithmeticQuantifierSubstIndexGraph (d t i v: nat): wff = $ (i < d /\ v = i) \/ ((i = d /\ v = t + d) \/ (d < i /\ i = suc v)) $;
+
+theorem zfcProofArithmeticQuantifierSubstIndexGraph_correct (d t i v: nat): $ zfcProofArithmeticQuantifierSubstIndexGraph d t i v <-> v = sfSubstIndex d t i $;
+
+def zfcProofArithmeticQuantifierShiftIndexCode: nat = $ paFormulaOr (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermVariable 2)) (paTermVariable 0)) (paTermVariable 1))) (paFormulaEqual (paTermVariable 2) (paTermVariable 1))) (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermVariable 1) (paTermVariable 0)) (paTermVariable 2))) (paFormulaEqual (paTermVariable 2) (paTermSuccessor (paTermVariable 1)))) $;
+
+def zfcProofArithmeticQuantifierShiftIndexSource: nat = $ sfOr (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermVariable 2)) (paSourceTermVariable 0)) (paSourceTermVariable 1))) (paSourceFormulaEqual (paSourceTermVariable 2) (paSourceTermVariable 1))) (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermVariable 1) (paSourceTermVariable 0)) (paSourceTermVariable 2))) (paSourceFormulaEqual (paSourceTermVariable 2) (paSourceTermSuccessor (paSourceTermVariable 1)))) $;
+
+theorem zfcProofArithmeticQuantifierShiftIndexCode_bound: $ paFormulaBound 3 zfcProofArithmeticQuantifierShiftIndexCode $;
+
+theorem zfcProofArithmeticQuantifierShiftIndexCode_satisfies (E: set): $ bb215ArithmeticFormulaDepthOneSat E zfcProofArithmeticQuantifierShiftIndexCode <-> zfcProofArithmeticQuantifierShiftIndexGraph (E @ 0) (E @ 1) (E @ 2) $;
+
+theorem zfcProofArithmeticQuantifierShiftIndexCode_represents (E: set): $ bb215ArithmeticFormulaDepthOneSat E zfcProofArithmeticQuantifierShiftIndexCode <-> (E @ 2) = sfShiftIndex (E @ 0) (E @ 1) $;
+
+theorem zfcProofArithmeticQuantifierShiftIndexSource_exact: $ paFormulaSource zfcProofArithmeticQuantifierShiftIndexCode = zfcProofArithmeticQuantifierShiftIndexSource $;
+
+theorem zfcProofArithmeticQuantifierShiftIndexSource_bound: $ sfBound 3 zfcProofArithmeticQuantifierShiftIndexSource $;
+
+def zfcProofArithmeticQuantifierSubstIndexCode: nat = $ paFormulaOr (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermVariable 3)) (paTermVariable 0)) (paTermVariable 1))) (paFormulaEqual (paTermVariable 3) (paTermVariable 2))) (paFormulaOr (paFormulaAnd (paFormulaEqual (paTermVariable 2) (paTermVariable 0)) (paFormulaEqual (paTermVariable 3) (paTermAddition (paTermVariable 1) (paTermVariable 0)))) (paFormulaAnd (paFormulaEx (paFormulaEqual (paTermAddition (paTermSuccessor (paTermVariable 1)) (paTermVariable 0)) (paTermVariable 3))) (paFormulaEqual (paTermVariable 2) (paTermSuccessor (paTermVariable 3))))) $;
+
+def zfcProofArithmeticQuantifierSubstIndexSource: nat = $ sfOr (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermVariable 3)) (paSourceTermVariable 0)) (paSourceTermVariable 1))) (paSourceFormulaEqual (paSourceTermVariable 3) (paSourceTermVariable 2))) (sfOr (sfAnd (paSourceFormulaEqual (paSourceTermVariable 2) (paSourceTermVariable 0)) (paSourceFormulaEqual (paSourceTermVariable 3) (paSourceTermAddition (paSourceTermVariable 1) (paSourceTermVariable 0)))) (sfAnd (paSourceFormulaEx (paSourceFormulaEqual (paSourceTermAddition (paSourceTermSuccessor (paSourceTermVariable 1)) (paSourceTermVariable 0)) (paSourceTermVariable 3))) (paSourceFormulaEqual (paSourceTermVariable 2) (paSourceTermSuccessor (paSourceTermVariable 3))))) $;
+
+theorem zfcProofArithmeticQuantifierSubstIndexCode_bound: $ paFormulaBound 4 zfcProofArithmeticQuantifierSubstIndexCode $;
+
+theorem zfcProofArithmeticQuantifierSubstIndexCode_satisfies (E: set): $ bb215ArithmeticFormulaDepthOneSat E zfcProofArithmeticQuantifierSubstIndexCode <-> zfcProofArithmeticQuantifierSubstIndexGraph (E @ 0) (E @ 1) (E @ 2) (E @ 3) $;
+
+theorem zfcProofArithmeticQuantifierSubstIndexCode_represents (E: set): $ bb215ArithmeticFormulaDepthOneSat E zfcProofArithmeticQuantifierSubstIndexCode <-> (E @ 3) = sfSubstIndex (E @ 0) (E @ 1) (E @ 2) $;
+
+theorem zfcProofArithmeticQuantifierSubstIndexSource_exact: $ paFormulaSource zfcProofArithmeticQuantifierSubstIndexCode = zfcProofArithmeticQuantifierSubstIndexSource $;
+
+theorem zfcProofArithmeticQuantifierSubstIndexSource_bound: $ sfBound 4 zfcProofArithmeticQuantifierSubstIndexSource $;

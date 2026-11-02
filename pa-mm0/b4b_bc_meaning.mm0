@@ -1,0 +1,46 @@
+import "b4b_bc_code1.mm0";
+
+--| the renaming judgment of an SRen fact (the four maps of pa_source_interpretation_builders).
+def bcSRenG (e d c y: nat): wff =
+$ (e = 0 /\ y = sfRename paSITermSuccMap d c) \/ (e = 1 /\ y = sfRename paSITermLeftMap d c) \/
+  (e = 2 /\ y = sfRename paSITermRightMap d c) \/ (e = 3 /\ y = sfRename paSIFormulaLeftMap d c) $;
+--| what a fact (tag g, arguments a b c d) asserts, for the tags other than TRen / FRen.
+def bcMeaning (g a b c d: nat): wff =
+$ (g = bctNum -> b = paTermNumeral a) /\ (g = bctTLift -> c = paTermLift a b) /\ (g = bctTSub -> d = paTermSubst a b c) /\ (g = bctFSub -> d = paFormulaSubst a b c) /\ (g = bctSRen -> bcSRenG a b c d) /\ (g = bctTSrc -> b = paTermSource a) /\ (g = bctFSrc -> b = paFormulaSource a) $;
+--| every fact of (m, v) with index below i means what it says.
+def bcHasOK (m v i .g .a .b .c .d: nat): wff =
+$ A. g A. a A. b A. c A. d (bdHas m v i g a b c d -> bcMeaning g a b c d) $;
+--| what a TRen / FRen fact of environment e asserts, for the environment R.
+def bcMeaningR (R: set) (e g a b c d: nat): wff =
+$ a = e -> (g = bctTRen -> d = paTermRename (sfRenameDepthMap R b) c) /\ (g = bctFRen -> d = paFormulaRename R b c) $;
+def bcHasOKR (R: set) (e m v i .g .a .b .c .d: nat): wff =
+$ A. g A. a A. b A. c A. d (bdHas m v i g a b c d -> bcMeaningR R e g a b c d) $;
+theorem bcHasOK_inst (m v i g a b c d: nat): $ bcHasOK m v i -> bdHas m v i g a b c d -> bcMeaning g a b c d $;
+theorem bcHasOKR_inst (R: set) (e m v i g a b c d: nat): $ bcHasOKR R e m v i -> bdHas m v i g a b c d -> bcMeaningR R e g a b c d $;
+theorem bcHasOK_Num (m v i a b c d: nat): $ bcHasOK m v i -> bdHas m v i bctNum a b c d -> b = paTermNumeral a $;
+theorem bcHasOK_TLift (m v i a b c d: nat): $ bcHasOK m v i -> bdHas m v i bctTLift a b c d -> c = paTermLift a b $;
+theorem bcHasOK_TSub (m v i a b c d: nat): $ bcHasOK m v i -> bdHas m v i bctTSub a b c d -> d = paTermSubst a b c $;
+theorem bcHasOK_FSub (m v i a b c d: nat): $ bcHasOK m v i -> bdHas m v i bctFSub a b c d -> d = paFormulaSubst a b c $;
+theorem bcHasOK_SRen (m v i a b c d: nat): $ bcHasOK m v i -> bdHas m v i bctSRen a b c d -> bcSRenG a b c d $;
+theorem bcHasOK_TSrc (m v i a b c d: nat): $ bcHasOK m v i -> bdHas m v i bctTSrc a b c d -> b = paTermSource a $;
+theorem bcHasOK_FSrc (m v i a b c d: nat): $ bcHasOK m v i -> bdHas m v i bctFSrc a b c d -> b = paFormulaSource a $;
+theorem bcMeaningI_Num (g a b c d: nat): $ g = bctNum -> b = paTermNumeral a -> bcMeaning g a b c d $;
+theorem bcMeaningI_TLift (g a b c d: nat): $ g = bctTLift -> c = paTermLift a b -> bcMeaning g a b c d $;
+theorem bcMeaningI_TSub (g a b c d: nat): $ g = bctTSub -> d = paTermSubst a b c -> bcMeaning g a b c d $;
+theorem bcMeaningI_FSub (g a b c d: nat): $ g = bctFSub -> d = paFormulaSubst a b c -> bcMeaning g a b c d $;
+theorem bcMeaningI_SRen (g a b c d: nat): $ g = bctSRen -> bcSRenG a b c d -> bcMeaning g a b c d $;
+theorem bcMeaningI_TSrc (g a b c d: nat): $ g = bctTSrc -> b = paTermSource a -> bcMeaning g a b c d $;
+theorem bcMeaningI_FSrc (g a b c d: nat): $ g = bctFSrc -> b = paFormulaSource a -> bcMeaning g a b c d $;
+theorem bcMeaningI_TRen (g a b c d: nat): $ g = bctTRen -> bcMeaning g a b c d $;
+theorem bcMeaningI_FRen (g a b c d: nat): $ g = bctFRen -> bcMeaning g a b c d $;
+theorem bcHasOKR_TRen (R: set) (e m v i b c d: nat): $ bcHasOKR R e m v i -> bdHas m v i bctTRen e b c d -> d = paTermRename (sfRenameDepthMap R b) c $;
+theorem bcMeaningRI_TRen (R: set) (e g a b c d: nat): $ g = bctTRen -> (a = e -> d = paTermRename (sfRenameDepthMap R b) c) -> bcMeaningR R e g a b c d $;
+theorem bcHasOKR_FRen (R: set) (e m v i b c d: nat): $ bcHasOKR R e m v i -> bdHas m v i bctFRen e b c d -> d = paFormulaRename R b c $;
+theorem bcMeaningRI_FRen (R: set) (e g a b c d: nat): $ g = bctFRen -> (a = e -> d = paFormulaRename R b c) -> bcMeaningR R e g a b c d $;
+theorem bcMeaningRI_Num (R: set) (e g a b c d: nat): $ g = bctNum -> bcMeaningR R e g a b c d $;
+theorem bcMeaningRI_TLift (R: set) (e g a b c d: nat): $ g = bctTLift -> bcMeaningR R e g a b c d $;
+theorem bcMeaningRI_TSub (R: set) (e g a b c d: nat): $ g = bctTSub -> bcMeaningR R e g a b c d $;
+theorem bcMeaningRI_FSub (R: set) (e g a b c d: nat): $ g = bctFSub -> bcMeaningR R e g a b c d $;
+theorem bcMeaningRI_SRen (R: set) (e g a b c d: nat): $ g = bctSRen -> bcMeaningR R e g a b c d $;
+theorem bcMeaningRI_TSrc (R: set) (e g a b c d: nat): $ g = bctTSrc -> bcMeaningR R e g a b c d $;
+theorem bcMeaningRI_FSrc (R: set) (e g a b c d: nat): $ g = bctFSrc -> bcMeaningR R e g a b c d $;

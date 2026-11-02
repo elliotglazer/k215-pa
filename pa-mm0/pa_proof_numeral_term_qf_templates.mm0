@@ -1,0 +1,125 @@
+import "pa_proof_numeral_term_qf_axioms.mm0";
+
+def paProofNumeralTermQFAndTrueNode1Annotation (a b h k p q: nat): nat = $ paProofNumeralMPAnnotation a (paFormulaImp b (paFormulaAnd a b)) h (paProofAxiomAnnotation (paProofNumeralTermQFAndIntroWitness a b)) $;
+
+def paProofNumeralTermQFAndTrueNode1Proof (a b h k p q: nat): nat = $ paProofNumeralMPProof a (paFormulaImp b (paFormulaAnd a b)) h (paProofAxiomAnnotation (paProofNumeralTermQFAndIntroWitness a b)) p (paProofNumeralTermQFAndIntroProof a b) $;
+
+def paProofNumeralTermQFAndTrueNode2Annotation (a b h k p q: nat): nat = $ paProofNumeralMPAnnotation b (paFormulaAnd a b) k (paProofNumeralTermQFAndTrueNode1Annotation a b h k p q) $;
+
+def paProofNumeralTermQFAndTrueNode2Proof (a b h k p q: nat): nat = $ paProofNumeralMPProof b (paFormulaAnd a b) k (paProofNumeralTermQFAndTrueNode1Annotation a b h k p q) q (paProofNumeralTermQFAndTrueNode1Proof a b h k p q) $;
+
+def paProofNumeralTermQFAndTrueAnnotation (a b h k p q: nat): nat = $ (paProofNumeralTermQFAndTrueNode2Annotation a b h k p q) $;
+
+def paProofNumeralTermQFAndTrueProof (a b h k p q: nat): nat = $ (paProofNumeralTermQFAndTrueNode2Proof a b h k p q) $;
+
+def paProofNumeralTermQFAndTrueRow (a b h k p q: nat): nat = $ paProofRow 0 (paFormulaAnd a b) (paProofNumeralTermQFAndTrueAnnotation a b h k p q) $;
+
+theorem paProofNumeralTermQFAndTrue_derives (a b h k p q: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofDerives p (paProofRow 0 a h) /\ paProofDerives q (paProofRow 0 b k) -> paProofDerives (paProofNumeralTermQFAndTrueProof a b h k p q) (paProofNumeralTermQFAndTrueRow a b h k p q) $;
+
+def paProofNumeralTermQFAndFalseLeftNode1Annotation (a b h p: nat): nat = $ paProofNumeralTermImpComposeAnnotation (paFormulaAnd a b) a paFormulaFalse (paProofAxiomAnnotation (paProofNumeralTermQFAndLeftWitness a b)) h $;
+
+def paProofNumeralTermQFAndFalseLeftNode1Proof (a b h p: nat): nat = $ paProofNumeralTermImpComposeProof (paFormulaAnd a b) a paFormulaFalse (paProofAxiomAnnotation (paProofNumeralTermQFAndLeftWitness a b)) h (paProofNumeralTermQFAndLeftProof a b) p $;
+
+def paProofNumeralTermQFAndFalseLeftAnnotation (a b h p: nat): nat = $ (paProofNumeralTermQFAndFalseLeftNode1Annotation a b h p) $;
+
+def paProofNumeralTermQFAndFalseLeftProof (a b h p: nat): nat = $ (paProofNumeralTermQFAndFalseLeftNode1Proof a b h p) $;
+
+def paProofNumeralTermQFAndFalseLeftRow (a b h p: nat): nat = $ paProofRow 0 (paFormulaImp (paFormulaAnd a b) paFormulaFalse) (paProofNumeralTermQFAndFalseLeftAnnotation a b h p) $;
+
+theorem paProofNumeralTermQFAndFalseLeft_derives (a b h p: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofDerives p (paProofRow 0 (paFormulaImp a paFormulaFalse) h) -> paProofDerives (paProofNumeralTermQFAndFalseLeftProof a b h p) (paProofNumeralTermQFAndFalseLeftRow a b h p) $;
+
+def paProofNumeralTermQFAndFalseRightNode1Annotation (a b h p: nat): nat = $ paProofNumeralTermImpComposeAnnotation (paFormulaAnd a b) b paFormulaFalse (paProofAxiomAnnotation (paProofNumeralTermQFAndRightWitness a b)) h $;
+
+def paProofNumeralTermQFAndFalseRightNode1Proof (a b h p: nat): nat = $ paProofNumeralTermImpComposeProof (paFormulaAnd a b) b paFormulaFalse (paProofAxiomAnnotation (paProofNumeralTermQFAndRightWitness a b)) h (paProofNumeralTermQFAndRightProof a b) p $;
+
+def paProofNumeralTermQFAndFalseRightAnnotation (a b h p: nat): nat = $ (paProofNumeralTermQFAndFalseRightNode1Annotation a b h p) $;
+
+def paProofNumeralTermQFAndFalseRightProof (a b h p: nat): nat = $ (paProofNumeralTermQFAndFalseRightNode1Proof a b h p) $;
+
+def paProofNumeralTermQFAndFalseRightRow (a b h p: nat): nat = $ paProofRow 0 (paFormulaImp (paFormulaAnd a b) paFormulaFalse) (paProofNumeralTermQFAndFalseRightAnnotation a b h p) $;
+
+theorem paProofNumeralTermQFAndFalseRight_derives (a b h p: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofDerives p (paProofRow 0 (paFormulaImp b paFormulaFalse) h) -> paProofDerives (paProofNumeralTermQFAndFalseRightProof a b h p) (paProofNumeralTermQFAndFalseRightRow a b h p) $;
+
+def paProofNumeralTermQFOrTrueLeftNode1Annotation (a b h p: nat): nat = $ paProofNumeralMPAnnotation a (paFormulaOr a b) h (paProofAxiomAnnotation (paProofNumeralTermQFOrLeftWitness a b)) $;
+
+def paProofNumeralTermQFOrTrueLeftNode1Proof (a b h p: nat): nat = $ paProofNumeralMPProof a (paFormulaOr a b) h (paProofAxiomAnnotation (paProofNumeralTermQFOrLeftWitness a b)) p (paProofNumeralTermQFOrLeftProof a b) $;
+
+def paProofNumeralTermQFOrTrueLeftAnnotation (a b h p: nat): nat = $ (paProofNumeralTermQFOrTrueLeftNode1Annotation a b h p) $;
+
+def paProofNumeralTermQFOrTrueLeftProof (a b h p: nat): nat = $ (paProofNumeralTermQFOrTrueLeftNode1Proof a b h p) $;
+
+def paProofNumeralTermQFOrTrueLeftRow (a b h p: nat): nat = $ paProofRow 0 (paFormulaOr a b) (paProofNumeralTermQFOrTrueLeftAnnotation a b h p) $;
+
+theorem paProofNumeralTermQFOrTrueLeft_derives (a b h p: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofDerives p (paProofRow 0 a h) -> paProofDerives (paProofNumeralTermQFOrTrueLeftProof a b h p) (paProofNumeralTermQFOrTrueLeftRow a b h p) $;
+
+def paProofNumeralTermQFOrTrueRightNode1Annotation (a b h p: nat): nat = $ paProofNumeralMPAnnotation b (paFormulaOr a b) h (paProofAxiomAnnotation (paProofNumeralTermQFOrRightWitness a b)) $;
+
+def paProofNumeralTermQFOrTrueRightNode1Proof (a b h p: nat): nat = $ paProofNumeralMPProof b (paFormulaOr a b) h (paProofAxiomAnnotation (paProofNumeralTermQFOrRightWitness a b)) p (paProofNumeralTermQFOrRightProof a b) $;
+
+def paProofNumeralTermQFOrTrueRightAnnotation (a b h p: nat): nat = $ (paProofNumeralTermQFOrTrueRightNode1Annotation a b h p) $;
+
+def paProofNumeralTermQFOrTrueRightProof (a b h p: nat): nat = $ (paProofNumeralTermQFOrTrueRightNode1Proof a b h p) $;
+
+def paProofNumeralTermQFOrTrueRightRow (a b h p: nat): nat = $ paProofRow 0 (paFormulaOr a b) (paProofNumeralTermQFOrTrueRightAnnotation a b h p) $;
+
+theorem paProofNumeralTermQFOrTrueRight_derives (a b h p: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofDerives p (paProofRow 0 b h) -> paProofDerives (paProofNumeralTermQFOrTrueRightProof a b h p) (paProofNumeralTermQFOrTrueRightRow a b h p) $;
+
+def paProofNumeralTermQFOrFalseNode1Annotation (a b h k p q: nat): nat = $ paProofNumeralMPAnnotation (paFormulaImp a paFormulaFalse) (paFormulaImp (paFormulaImp b paFormulaFalse) (paFormulaImp (paFormulaOr a b) paFormulaFalse)) h (paProofAxiomAnnotation (paProofNumeralTermQFOrElimWitness a b paFormulaFalse)) $;
+
+def paProofNumeralTermQFOrFalseNode1Proof (a b h k p q: nat): nat = $ paProofNumeralMPProof (paFormulaImp a paFormulaFalse) (paFormulaImp (paFormulaImp b paFormulaFalse) (paFormulaImp (paFormulaOr a b) paFormulaFalse)) h (paProofAxiomAnnotation (paProofNumeralTermQFOrElimWitness a b paFormulaFalse)) p (paProofNumeralTermQFOrElimProof a b paFormulaFalse) $;
+
+def paProofNumeralTermQFOrFalseNode2Annotation (a b h k p q: nat): nat = $ paProofNumeralMPAnnotation (paFormulaImp b paFormulaFalse) (paFormulaImp (paFormulaOr a b) paFormulaFalse) k (paProofNumeralTermQFOrFalseNode1Annotation a b h k p q) $;
+
+def paProofNumeralTermQFOrFalseNode2Proof (a b h k p q: nat): nat = $ paProofNumeralMPProof (paFormulaImp b paFormulaFalse) (paFormulaImp (paFormulaOr a b) paFormulaFalse) k (paProofNumeralTermQFOrFalseNode1Annotation a b h k p q) q (paProofNumeralTermQFOrFalseNode1Proof a b h k p q) $;
+
+def paProofNumeralTermQFOrFalseAnnotation (a b h k p q: nat): nat = $ (paProofNumeralTermQFOrFalseNode2Annotation a b h k p q) $;
+
+def paProofNumeralTermQFOrFalseProof (a b h k p q: nat): nat = $ (paProofNumeralTermQFOrFalseNode2Proof a b h k p q) $;
+
+def paProofNumeralTermQFOrFalseRow (a b h k p q: nat): nat = $ paProofRow 0 (paFormulaImp (paFormulaOr a b) paFormulaFalse) (paProofNumeralTermQFOrFalseAnnotation a b h k p q) $;
+
+theorem paProofNumeralTermQFOrFalse_derives (a b h k p q: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofDerives p (paProofRow 0 (paFormulaImp a paFormulaFalse) h) /\ paProofDerives q (paProofRow 0 (paFormulaImp b paFormulaFalse) k) -> paProofDerives (paProofNumeralTermQFOrFalseProof a b h k p q) (paProofNumeralTermQFOrFalseRow a b h k p q) $;
+
+def paProofNumeralTermQFImpTrueRightNode1Annotation (a b h p: nat): nat = $ paProofNumeralTermImpLiftAnnotation a b h $;
+
+def paProofNumeralTermQFImpTrueRightNode1Proof (a b h p: nat): nat = $ paProofNumeralTermImpLiftProof a b h p $;
+
+def paProofNumeralTermQFImpTrueRightAnnotation (a b h p: nat): nat = $ (paProofNumeralTermQFImpTrueRightNode1Annotation a b h p) $;
+
+def paProofNumeralTermQFImpTrueRightProof (a b h p: nat): nat = $ (paProofNumeralTermQFImpTrueRightNode1Proof a b h p) $;
+
+def paProofNumeralTermQFImpTrueRightRow (a b h p: nat): nat = $ paProofRow 0 (paFormulaImp a b) (paProofNumeralTermQFImpTrueRightAnnotation a b h p) $;
+
+theorem paProofNumeralTermQFImpTrueRight_derives (a b h p: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofDerives p (paProofRow 0 b h) -> paProofDerives (paProofNumeralTermQFImpTrueRightProof a b h p) (paProofNumeralTermQFImpTrueRightRow a b h p) $;
+
+def paProofNumeralTermQFImpTrueLeftNode1Annotation (a b h p: nat): nat = $ paProofNumeralTermImpComposeAnnotation a paFormulaFalse b h (paProofAxiomAnnotation (paProofNumeralTermQFFalseElimWitness b)) $;
+
+def paProofNumeralTermQFImpTrueLeftNode1Proof (a b h p: nat): nat = $ paProofNumeralTermImpComposeProof a paFormulaFalse b h (paProofAxiomAnnotation (paProofNumeralTermQFFalseElimWitness b)) p (paProofNumeralTermQFFalseElimProof b) $;
+
+def paProofNumeralTermQFImpTrueLeftAnnotation (a b h p: nat): nat = $ (paProofNumeralTermQFImpTrueLeftNode1Annotation a b h p) $;
+
+def paProofNumeralTermQFImpTrueLeftProof (a b h p: nat): nat = $ (paProofNumeralTermQFImpTrueLeftNode1Proof a b h p) $;
+
+def paProofNumeralTermQFImpTrueLeftRow (a b h p: nat): nat = $ paProofRow 0 (paFormulaImp a b) (paProofNumeralTermQFImpTrueLeftAnnotation a b h p) $;
+
+theorem paProofNumeralTermQFImpTrueLeft_derives (a b h p: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofDerives p (paProofRow 0 (paFormulaImp a paFormulaFalse) h) -> paProofDerives (paProofNumeralTermQFImpTrueLeftProof a b h p) (paProofNumeralTermQFImpTrueLeftRow a b h p) $;
+
+def paProofNumeralTermQFImpFalseNode1Annotation (a b h k p q: nat): nat = $ paProofNumeralTermImpLiftAnnotation (paFormulaImp a b) a h $;
+
+def paProofNumeralTermQFImpFalseNode1Proof (a b h k p q: nat): nat = $ paProofNumeralTermImpLiftProof (paFormulaImp a b) a h p $;
+
+def paProofNumeralTermQFImpFalseNode2Annotation (a b h k p q: nat): nat = $ paProofNumeralTermImpApplyAnnotation (paFormulaImp a b) a b (paProofNumeralTermQFImpFalseNode1Annotation a b h k p q) (paProofNumeralTermQFIdentityAnnotation (paFormulaImp a b)) $;
+
+def paProofNumeralTermQFImpFalseNode2Proof (a b h k p q: nat): nat = $ paProofNumeralTermImpApplyProof (paFormulaImp a b) a b (paProofNumeralTermQFImpFalseNode1Annotation a b h k p q) (paProofNumeralTermQFIdentityAnnotation (paFormulaImp a b)) (paProofNumeralTermQFImpFalseNode1Proof a b h k p q) (paProofNumeralTermQFIdentityProof (paFormulaImp a b)) $;
+
+def paProofNumeralTermQFImpFalseNode3Annotation (a b h k p q: nat): nat = $ paProofNumeralTermImpComposeAnnotation (paFormulaImp a b) b paFormulaFalse (paProofNumeralTermQFImpFalseNode2Annotation a b h k p q) k $;
+
+def paProofNumeralTermQFImpFalseNode3Proof (a b h k p q: nat): nat = $ paProofNumeralTermImpComposeProof (paFormulaImp a b) b paFormulaFalse (paProofNumeralTermQFImpFalseNode2Annotation a b h k p q) k (paProofNumeralTermQFImpFalseNode2Proof a b h k p q) q $;
+
+def paProofNumeralTermQFImpFalseAnnotation (a b h k p q: nat): nat = $ (paProofNumeralTermQFImpFalseNode3Annotation a b h k p q) $;
+
+def paProofNumeralTermQFImpFalseProof (a b h k p q: nat): nat = $ (paProofNumeralTermQFImpFalseNode3Proof a b h k p q) $;
+
+def paProofNumeralTermQFImpFalseRow (a b h k p q: nat): nat = $ paProofRow 0 (paFormulaImp (paFormulaImp a b) paFormulaFalse) (paProofNumeralTermQFImpFalseAnnotation a b h k p q) $;
+
+theorem paProofNumeralTermQFImpFalse_derives (a b h k p q: nat): $ paFormulaBound 0 a /\ paFormulaBound 0 b /\ paProofDerives p (paProofRow 0 a h) /\ paProofDerives q (paProofRow 0 (paFormulaImp b paFormulaFalse) k) -> paProofDerives (paProofNumeralTermQFImpFalseProof a b h k p q) (paProofNumeralTermQFImpFalseRow a b h k p q) $;

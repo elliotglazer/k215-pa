@@ -1,0 +1,107 @@
+import "zfc_proof_arithmetic_quantifier_history_sound.mm0";
+
+import "bb215_arithmetic_formula_nth_scalar.mm0";
+
+def zfcProofArithmeticQuantifierHistoryCodeKeyUpper (d f K .k: nat): wff = $ E. k (bb215ArithmeticFormulaPairGraph d f k /\ k <= K) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeKeyUpper_correct (d f K: nat) {k: nat}: $ zfcProofArithmeticQuantifierHistoryCodeKeyUpper d f K <-> (d, f) <= K $;
+
+def zfcProofArithmeticQuantifierHistoryCodeNodeUpper (d t a b K .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph a b p /\ zfcProofArithmeticQuantifierHistoryCodeKeyUpper d (8 * p + t) K) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeNodeUpper_correct (d t a b K: nat) {p: nat}: $ zfcProofArithmeticQuantifierHistoryCodeNodeUpper d t a b K <-> (d, sfNode t a b) <= K $;
+
+def zfcProofArithmeticQuantifierHistoryCodeCell (m c d f v .k: nat): wff = $ E. k (bb215ArithmeticFormulaPairGraph d f k /\ bb215ArithmeticFormulaHistoryPairGraph m c k v) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeCell_correct (m c d f v: nat) {k: nat}: $ zfcProofArithmeticQuantifierHistoryCodeCell m c d f v <-> bb215ArithmeticFormulaHistoryCell (m, c) ((d, f)) v $;
+
+def zfcProofArithmeticQuantifierHistoryCodeNodeCell (m c d t a b v .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph a b p /\ zfcProofArithmeticQuantifierHistoryCodeCell m c d (8 * p + t) v) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeNodeCell_correct (m c d t a b v: nat) {p: nat}: $ zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d t a b v <-> bb215ArithmeticFormulaHistoryCell (m, c) ((d, sfNode t a b)) v $;
+
+def zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell (m c d t a b u x y .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph x y p /\ zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d t a b (8 * p + u)) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell_correct (m c d t a b u x y: nat) {p: nat}: $ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d t a b u x y <-> bb215ArithmeticFormulaHistoryCell (m, c) ((d, sfNode t a b)) (sfNode u x y) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftAtomCell (m c d tag a b .x .y: nat): wff = $ E. x (zfcProofArithmeticQuantifierShiftIndexGraph d a x /\ E. y (zfcProofArithmeticQuantifierShiftIndexGraph d b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y)) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeShiftAtomCell_correct (m c d tag a b: nat) {x y: nat}: $ zfcProofArithmeticQuantifierHistoryCodeShiftAtomCell m c d tag a b <-> bb215ArithmeticFormulaHistoryCell (m, c) ((d, sfNode tag a b)) (sfNode tag (sfShiftIndex d a) (sfShiftIndex d b)) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_zero (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 0 a b K -> zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d 0 a b 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_mem (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 1 a b K -> zfcProofArithmeticQuantifierHistoryCodeShiftAtomCell m c d 1 a b) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_eq (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 2 a b K -> zfcProofArithmeticQuantifierHistoryCodeShiftAtomCell m c d 2 a b) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_and (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b A. x A. y (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 3 a b K -> zfcProofArithmeticQuantifierHistoryCodeCell m c d a x -> zfcProofArithmeticQuantifierHistoryCodeCell m c d b y -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 3 a b 3 x y) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_or (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b A. x A. y (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 4 a b K -> zfcProofArithmeticQuantifierHistoryCodeCell m c d a x -> zfcProofArithmeticQuantifierHistoryCodeCell m c d b y -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 4 a b 4 x y) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_imp (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b A. x A. y (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 5 a b K -> zfcProofArithmeticQuantifierHistoryCodeCell m c d a x -> zfcProofArithmeticQuantifierHistoryCodeCell m c d b y -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 5 a b 5 x y) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_all (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. x (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 6 a 0 K -> zfcProofArithmeticQuantifierHistoryCodeCell m c (suc d) a x -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 6 a 0 6 x 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_ex (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. x (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 7 a 0 K -> zfcProofArithmeticQuantifierHistoryCodeCell m c (suc d) a x -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 7 a 0 7 x 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_bad6 (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (0 < b -> zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 6 a b K -> zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d 6 a b 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftRow_bad7 (m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (0 < b -> zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 7 a b K -> zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d 7 a b 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftLocal (m c K: nat): wff = $ zfcProofArithmeticQuantifierHistoryCodeShiftRow_zero m c K /\ zfcProofArithmeticQuantifierHistoryCodeShiftRow_mem m c K /\ zfcProofArithmeticQuantifierHistoryCodeShiftRow_eq m c K /\ zfcProofArithmeticQuantifierHistoryCodeShiftRow_and m c K /\ zfcProofArithmeticQuantifierHistoryCodeShiftRow_or m c K /\ zfcProofArithmeticQuantifierHistoryCodeShiftRow_imp m c K /\ zfcProofArithmeticQuantifierHistoryCodeShiftRow_all m c K /\ zfcProofArithmeticQuantifierHistoryCodeShiftRow_ex m c K /\ zfcProofArithmeticQuantifierHistoryCodeShiftRow_bad6 m c K /\ zfcProofArithmeticQuantifierHistoryCodeShiftRow_bad7 m c K $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeShiftLocal_packed (m c K: nat) {d a b x y: nat}: $ zfcProofArithmeticQuantifierHistoryCodeShiftLocal m c K <-> zfcProofArithmeticQuantifierShiftLocal (m, c) K $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftFinal (m c K v .y: nat): wff = $ zfcProofArithmeticQuantifierHistoryCodeShiftLocal m c K /\ A. y (bb215ArithmeticFormulaHistoryPairGraph m c K y -> y = v) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeShiftFinal_packed (m c K v: nat) {y: nat}: $ zfcProofArithmeticQuantifierHistoryCodeShiftFinal m c K v <-> (zfcProofArithmeticQuantifierShiftLocal (m, c) K /\ A. y (bb215ArithmeticFormulaHistoryCell (m, c) K y -> y = v)) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftCertificate (m c d f v .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph d f p /\ zfcProofArithmeticQuantifierHistoryCodeShiftFinal m c p v) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeShiftCertificate_packed (m c d f v: nat) {p y: nat}: $ zfcProofArithmeticQuantifierHistoryCodeShiftCertificate m c d f v <-> zfcProofArithmeticQuantifierShiftCertificate (m, c) d f v $;
+
+def zfcProofArithmeticQuantifierHistoryCodeShiftGraph (d f v .m .c: nat): wff = $ E. m E. c zfcProofArithmeticQuantifierHistoryCodeShiftCertificate m c d f v $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeShiftGraph_packed (d f v: nat) {m c A: nat}: $ zfcProofArithmeticQuantifierHistoryCodeShiftGraph d f v <-> zfcProofArithmeticQuantifierShiftGraph d f v $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeShiftGraph_correct (d f v: nat): $ zfcProofArithmeticQuantifierHistoryCodeShiftGraph d f v <-> sfShift d f = v $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstAtomCell (t m c d tag a b .x .y: nat): wff = $ E. x (zfcProofArithmeticQuantifierSubstIndexGraph d t a x /\ E. y (zfcProofArithmeticQuantifierSubstIndexGraph d t b y /\ zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d tag a b tag x y)) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeSubstAtomCell_correct (t m c d tag a b: nat) {x y: nat}: $ zfcProofArithmeticQuantifierHistoryCodeSubstAtomCell t m c d tag a b <-> bb215ArithmeticFormulaHistoryCell (m, c) ((d, sfNode tag a b)) (sfNode tag (sfSubstIndex d t a) (sfSubstIndex d t b)) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_zero (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 0 a b K -> zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d 0 a b 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_mem (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 1 a b K -> zfcProofArithmeticQuantifierHistoryCodeSubstAtomCell t m c d 1 a b) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_eq (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 2 a b K -> zfcProofArithmeticQuantifierHistoryCodeSubstAtomCell t m c d 2 a b) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_and (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b A. x A. y (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 3 a b K -> zfcProofArithmeticQuantifierHistoryCodeCell m c d a x -> zfcProofArithmeticQuantifierHistoryCodeCell m c d b y -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 3 a b 3 x y) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_or (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b A. x A. y (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 4 a b K -> zfcProofArithmeticQuantifierHistoryCodeCell m c d a x -> zfcProofArithmeticQuantifierHistoryCodeCell m c d b y -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 4 a b 4 x y) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_imp (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b A. x A. y (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 5 a b K -> zfcProofArithmeticQuantifierHistoryCodeCell m c d a x -> zfcProofArithmeticQuantifierHistoryCodeCell m c d b y -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 5 a b 5 x y) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_all (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. x (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 6 a 0 K -> zfcProofArithmeticQuantifierHistoryCodeCell m c (suc d) a x -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 6 a 0 6 x 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_ex (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. x (zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 7 a 0 K -> zfcProofArithmeticQuantifierHistoryCodeCell m c (suc d) a x -> zfcProofArithmeticQuantifierHistoryCodeNodeNodeCell m c d 7 a 0 7 x 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_bad6 (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (0 < b -> zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 6 a b K -> zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d 6 a b 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstRow_bad7 (t m c K: nat) (.d .a .b .x .y: nat): wff = $ A. d A. a A. b (0 < b -> zfcProofArithmeticQuantifierHistoryCodeNodeUpper d 7 a b K -> zfcProofArithmeticQuantifierHistoryCodeNodeCell m c d 7 a b 0) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstLocal (t m c K: nat): wff = $ zfcProofArithmeticQuantifierHistoryCodeSubstRow_zero t m c K /\ zfcProofArithmeticQuantifierHistoryCodeSubstRow_mem t m c K /\ zfcProofArithmeticQuantifierHistoryCodeSubstRow_eq t m c K /\ zfcProofArithmeticQuantifierHistoryCodeSubstRow_and t m c K /\ zfcProofArithmeticQuantifierHistoryCodeSubstRow_or t m c K /\ zfcProofArithmeticQuantifierHistoryCodeSubstRow_imp t m c K /\ zfcProofArithmeticQuantifierHistoryCodeSubstRow_all t m c K /\ zfcProofArithmeticQuantifierHistoryCodeSubstRow_ex t m c K /\ zfcProofArithmeticQuantifierHistoryCodeSubstRow_bad6 t m c K /\ zfcProofArithmeticQuantifierHistoryCodeSubstRow_bad7 t m c K $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeSubstLocal_packed (t m c K: nat) {d a b x y: nat}: $ zfcProofArithmeticQuantifierHistoryCodeSubstLocal t m c K <-> zfcProofArithmeticQuantifierSubstLocal t (m, c) K $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstFinal (t m c K v .y: nat): wff = $ zfcProofArithmeticQuantifierHistoryCodeSubstLocal t m c K /\ A. y (bb215ArithmeticFormulaHistoryPairGraph m c K y -> y = v) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeSubstFinal_packed (t m c K v: nat) {y: nat}: $ zfcProofArithmeticQuantifierHistoryCodeSubstFinal t m c K v <-> (zfcProofArithmeticQuantifierSubstLocal t (m, c) K /\ A. y (bb215ArithmeticFormulaHistoryCell (m, c) K y -> y = v)) $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstCertificate (t m c d f v .p: nat): wff = $ E. p (bb215ArithmeticFormulaPairGraph d f p /\ zfcProofArithmeticQuantifierHistoryCodeSubstFinal t m c p v) $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeSubstCertificate_packed (t m c d f v: nat) {p y: nat}: $ zfcProofArithmeticQuantifierHistoryCodeSubstCertificate t m c d f v <-> zfcProofArithmeticQuantifierSubstCertificate t (m, c) d f v $;
+
+def zfcProofArithmeticQuantifierHistoryCodeSubstGraph (t d f v .m .c: nat): wff = $ E. m E. c zfcProofArithmeticQuantifierHistoryCodeSubstCertificate t m c d f v $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeSubstGraph_packed (t d f v: nat) {m c A: nat}: $ zfcProofArithmeticQuantifierHistoryCodeSubstGraph t d f v <-> zfcProofArithmeticQuantifierSubstGraph t d f v $;
+
+theorem zfcProofArithmeticQuantifierHistoryCodeSubstGraph_correct (t d f v: nat): $ zfcProofArithmeticQuantifierHistoryCodeSubstGraph t d f v <-> sfSubst d t f = v $;

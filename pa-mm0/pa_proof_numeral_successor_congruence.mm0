@@ -1,0 +1,35 @@
+import "pa_proof_numeral_equality_axioms.mm0";
+
+def paProofNumeralSuccEqPhi (a: nat): nat = $ paFormulaEqual (paTermSuccessor a) (paTermSuccessor (paTermVariable 0)) $;
+
+def paProofNumeralSuccEqRef (a: nat): nat = $ paFormulaEqual (paTermSuccessor a) (paTermSuccessor a) $;
+
+def paProofNumeralSuccEqTarget (a b: nat): nat = $ paFormulaEqual (paTermSuccessor a) (paTermSuccessor b) $;
+
+def paProofNumeralSuccEqAxiomFormula (a b: nat): nat = $ paFormulaImp (paFormulaEqual a b) (paFormulaImp (paProofNumeralSuccEqRef a) (paProofNumeralSuccEqTarget a b)) $;
+
+def paProofNumeralSuccEqAxiomAnnotation (a b: nat): nat = $ paProofAxiomAnnotation (paProofNumeralEqSubstWitness (paProofNumeralSuccEqPhi a) a b) $;
+
+def paProofNumeralSuccEqAxiomRow (a b: nat): nat = $ paProofRow 0 (paProofNumeralSuccEqAxiomFormula a b) (paProofNumeralSuccEqAxiomAnnotation a b) $;
+
+theorem paProofNumeralSuccEq_axiom_exact (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b -> paAxiomEqSubst (paProofNumeralSuccEqPhi a) a b = paProofNumeralSuccEqAxiomFormula a b $;
+
+theorem paProofNumeralSuccEq_axiom_derives (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b -> paProofDerives (paProofNumeralEqSubstProof (paProofNumeralSuccEqPhi a) a b) (paProofNumeralSuccEqAxiomRow a b) $;
+
+def paProofNumeralSuccEqFirstAnnotation (a b h: nat): nat = $ paProofNumeralMPAnnotation (paFormulaEqual a b) (paFormulaImp (paProofNumeralSuccEqRef a) (paProofNumeralSuccEqTarget a b)) h (paProofNumeralSuccEqAxiomAnnotation a b) $;
+
+def paProofNumeralSuccEqFirstRow (a b h: nat): nat = $ paProofRow 0 (paFormulaImp (paProofNumeralSuccEqRef a) (paProofNumeralSuccEqTarget a b)) (paProofNumeralSuccEqFirstAnnotation a b h) $;
+
+def paProofNumeralSuccEqFirstProof (a b h p: nat): nat = $ paProofNumeralMPProof (paFormulaEqual a b) (paFormulaImp (paProofNumeralSuccEqRef a) (paProofNumeralSuccEqTarget a b)) h (paProofNumeralSuccEqAxiomAnnotation a b) p (paProofNumeralEqSubstProof (paProofNumeralSuccEqPhi a) a b) $;
+
+def paProofNumeralSuccessorCongruenceAnnotation (a b h: nat): nat = $ paProofNumeralMPAnnotation (paProofNumeralSuccEqRef a) (paProofNumeralSuccEqTarget a b) (paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness (paTermSuccessor a))) (paProofNumeralSuccEqFirstAnnotation a b h) $;
+
+def paProofNumeralSuccessorCongruenceRow (a b h: nat): nat = $ paProofRow 0 (paProofNumeralSuccEqTarget a b) (paProofNumeralSuccessorCongruenceAnnotation a b h) $;
+
+def paProofNumeralSuccessorCongruenceProof (a b h p: nat): nat = $ paProofNumeralMPProof (paProofNumeralSuccEqRef a) (paProofNumeralSuccEqTarget a b) (paProofAxiomAnnotation (paProofNumeralTermReflexivityWitness (paTermSuccessor a))) (paProofNumeralSuccEqFirstAnnotation a b h) (paProofNumeralTermReflexivityProof (paTermSuccessor a)) (paProofNumeralSuccEqFirstProof a b h p) $;
+
+theorem paProofNumeralSuccessorCongruence_derives (a b h p: nat): $ paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paProofDerives (paProofNumeralSuccessorCongruenceProof a b h p) (paProofNumeralSuccessorCongruenceRow a b h) $;
+
+theorem paProofNumeralSuccessorCongruence_provable (a b h p: nat): $ paProofDerives p (paProofRow 0 (paFormulaEqual a b) h) -> paProvable 0 (paFormulaEqual (paTermSuccessor a) (paTermSuccessor b)) $;
+
+theorem paProofNumeralSuccessorCongruence_length (a b h p: nat): $ len (paProofNumeralSuccessorCongruenceProof a b h p) = suc (suc (suc (suc (len p)))) $;

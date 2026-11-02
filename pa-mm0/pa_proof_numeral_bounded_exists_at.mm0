@@ -1,0 +1,40 @@
+import "pa_proof_numeral_bounded_connectives.mm0";
+
+def paProofNumeralBoundedExistsAtNegation (n c: nat): nat = $ paFormulaImp c paFormulaFalse $;
+
+def paProofNumeralBoundedExistsAtInstance (n c t: nat): nat = $ paFormulaSubst 0 t c $;
+
+def paProofNumeralBoundedExistsAtAllNegation (n c: nat): nat = $ paFormulaAll (paProofNumeralBoundedExistsAtNegation n c) $;
+
+def paProofNumeralBoundedExistsAtDualWitness (n c: nat): nat = $ paAxiomWitness (suc (suc (suc (suc 10)))) c 0 0 $;
+
+def paProofNumeralBoundedExistsAtDualProof (n c: nat): nat = $ paProofNumeralAxiomProof n (paAxiomDualToEx c) (paProofNumeralBoundedExistsAtDualWitness n c) $;
+
+def paProofNumeralBoundedExistsAtDualRow (n c: nat): nat = $ paProofNumeralAxiomRow n (paAxiomDualToEx c) (paProofNumeralBoundedExistsAtDualWitness n c) $;
+
+theorem paProofNumeralBoundedExistsAt_dual_derives (n c: nat): $ paFormulaBound (suc n) c -> paProofDerives (paProofNumeralBoundedExistsAtDualProof n c) (paProofNumeralBoundedExistsAtDualRow n c) $;
+
+def paProofNumeralBoundedExistsAtNegAllElimFormula (n c t: nat): nat = $ paFormulaImp (paProofNumeralBoundedExistsAtAllNegation n c) (paFormulaImp (paProofNumeralBoundedExistsAtInstance n c t) paFormulaFalse) $;
+
+theorem paProofNumeralBoundedExistsAt_negative_instance (n c t: nat): $ paAxiomAllElim (paProofNumeralBoundedExistsAtNegation n c) t = paProofNumeralBoundedExistsAtNegAllElimFormula n c t $;
+
+theorem paProofNumeralBoundedExistsAt_negative_bound (n c: nat): $ paFormulaBound (suc n) c -> paFormulaBound (suc n) (paProofNumeralBoundedExistsAtNegation n c) $;
+
+theorem paProofNumeralBoundedExistsAt_all_negative_bound (n c: nat): $ paFormulaBound (suc n) c -> paFormulaBound n (paProofNumeralBoundedExistsAtAllNegation n c) $;
+
+theorem paProofNumeralBoundedExistsAt_negative_axiom (n c t: nat): $ paFormulaBound (suc n) c /\ paTermBound n t -> paProofDerives (paProofNumeralAllElimAxiomProof n (paProofNumeralBoundedExistsAtNegation n c) t) (paProofRow n (paProofNumeralBoundedExistsAtNegAllElimFormula n c t) (paProofAxiomAnnotation (paProofNumeralAllElimAxiomWitness (paProofNumeralBoundedExistsAtNegation n c) t))) $;
+
+def paProofNumeralBoundedExistsAtNotAllAnnotation (n c t h: nat): nat = $ paProofNumeralBoundedImpApplyAnnotation n (paProofNumeralBoundedExistsAtAllNegation n c) (paProofNumeralBoundedExistsAtInstance n c t) paFormulaFalse (paProofNumeralBoundedImpLiftAnnotation n (paProofNumeralBoundedExistsAtAllNegation n c) (paProofNumeralBoundedExistsAtInstance n c t) h) (paProofAxiomAnnotation (paProofNumeralAllElimAxiomWitness (paProofNumeralBoundedExistsAtNegation n c) t)) $;
+
+def paProofNumeralBoundedExistsAtNotAllProof (n c t h p: nat): nat = $ paProofNumeralBoundedImpApplyProof n (paProofNumeralBoundedExistsAtAllNegation n c) (paProofNumeralBoundedExistsAtInstance n c t) paFormulaFalse (paProofNumeralBoundedImpLiftAnnotation n (paProofNumeralBoundedExistsAtAllNegation n c) (paProofNumeralBoundedExistsAtInstance n c t) h) (paProofAxiomAnnotation (paProofNumeralAllElimAxiomWitness (paProofNumeralBoundedExistsAtNegation n c) t)) (paProofNumeralBoundedImpLiftProof n (paProofNumeralBoundedExistsAtAllNegation n c) (paProofNumeralBoundedExistsAtInstance n c t) h p) (paProofNumeralAllElimAxiomProof n (paProofNumeralBoundedExistsAtNegation n c) t) $;
+
+def paProofNumeralBoundedExistsAtAnnotation (n c t h: nat): nat = $ paProofNumeralBoundedMPAnnotation n (paFormulaImp (paProofNumeralBoundedExistsAtAllNegation n c) paFormulaFalse) (paFormulaEx c) (paProofNumeralBoundedExistsAtNotAllAnnotation n c t h) (paProofAxiomAnnotation (paProofNumeralBoundedExistsAtDualWitness n c)) $;
+
+def paProofNumeralBoundedExistsAtRow (n c t h: nat): nat = $ paProofRow n (paFormulaEx c) (paProofNumeralBoundedExistsAtAnnotation n c t h) $;
+
+def paProofNumeralBoundedExistsAtProof (n c t h p: nat): nat = $ paProofNumeralBoundedMPProof n (paFormulaImp (paProofNumeralBoundedExistsAtAllNegation n c) paFormulaFalse) (paFormulaEx c) (paProofNumeralBoundedExistsAtNotAllAnnotation n c t h) (paProofAxiomAnnotation (paProofNumeralBoundedExistsAtDualWitness n c)) (paProofNumeralBoundedExistsAtNotAllProof n c t h p) (paProofNumeralBoundedExistsAtDualProof n c) $;
+
+theorem paProofNumeralBoundedExistsAt_derives (n c t h p: nat): $ paFormulaBound (suc n) c /\ paTermBound n t /\ paProofDerives p (paProofRow n (paProofNumeralBoundedExistsAtInstance n c t) h) -> paProofDerives (paProofNumeralBoundedExistsAtProof n c t h p) (paProofNumeralBoundedExistsAtRow n c t h) $;
+
+theorem paProofNumeralBoundedExistsAt_provable (n c t h p: nat): $ paFormulaBound (suc n) c /\ paTermBound n t /\ paProofDerives p (paProofRow n (paProofNumeralBoundedExistsAtInstance n c t) h) -> paProvable n (paFormulaEx c) $;
+

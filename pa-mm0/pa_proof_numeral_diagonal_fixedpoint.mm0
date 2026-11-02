@@ -1,0 +1,17 @@
+import "pa_numeral_diagonal_beta.mm0";
+
+import "pa_proof_numeral_diagonal_certificate.mm0";
+
+def paProofNumeralDiagonalFixedPointCertificate (a h p k q: nat): wff = $ paProofNumeralDiagonalCertificate (paNumeralDiagonalBeta a) h p k q $;
+
+def paProofNumeralDiagonalFixedPointInstance (a: nat): nat = $ (paFormulaSubst 0 (paTermNumeral (paNumeralDiagonalBetaSentence a)) a) $;
+
+def paProofNumeralDiagonalFixedPointFormula (a: nat): nat = $ paFormulaAnd (paFormulaImp (paNumeralDiagonalBetaSentence a) (paFormulaSubst 0 (paTermNumeral (paNumeralDiagonalBetaSentence a)) a)) (paFormulaImp (paFormulaSubst 0 (paTermNumeral (paNumeralDiagonalBetaSentence a)) a) (paNumeralDiagonalBetaSentence a)) $;
+
+theorem paProofNumeralDiagonalFixedPointFormula_exact (a: nat): $ paFormulaBound 1 a -> paProofNumeralDiagonalCertificateFormula (paNumeralDiagonalBeta a) a = paProofNumeralDiagonalFixedPointFormula a $;
+
+def paProofNumeralDiagonalFixedPointAnnotation (a h p k q: nat): nat = $ paProofNumeralDiagonalCertificateAnnotation (paNumeralDiagonalBeta a) a h p k q $;
+
+def paProofNumeralDiagonalFixedPointProof (a h p k q: nat): nat = $ paProofNumeralDiagonalCertificateProof (paNumeralDiagonalBeta a) a h p k q $;
+
+theorem paProofNumeralDiagonalFixedPointFromCertificate_derives (a h p k q: nat): $ paFormulaBound 1 a /\ paProofNumeralDiagonalFixedPointCertificate a h p k q -> paProofDerives (paProofNumeralDiagonalFixedPointProof a h p k q) (paProofRow 0 (paProofNumeralDiagonalFixedPointFormula a) (paProofNumeralDiagonalFixedPointAnnotation a h p k q)) $;

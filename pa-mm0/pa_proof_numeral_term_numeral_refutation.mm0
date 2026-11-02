@@ -1,0 +1,61 @@
+import "pa_proof_numeral_term_numeral_refutation_step.mm0";
+
+def paProofNumeralTermNumeralRefutationZeroSuccessorState (m: nat): nat = $ (paProofNumeralTermNumeralRefutationZeroSuccessorProof m, paProofNumeralTermNumeralRefutationZeroSuccessorAnnotation m) $;
+
+def paProofNumeralTermNumeralRefutationSuccessorZeroState (n: nat): nat = $ (paProofNumeralTermNonzeroProof n, paProofNumeralTermNumeralRefutationSuccessorZeroAnnotation n) $;
+
+def paProofNumeralTermNumeralRefutationStepState (n m s: nat): nat = $ (paProofNumeralTermNumeralRefutationStepProof n m (snd s) (fst s), paProofNumeralTermNumeralRefutationStepAnnotation n m (snd s)) $;
+
+def paProofNumeralTermNumeralRefutationStateDerives (n m s: nat): wff = $ paProofDerives (fst s) (paProofRow 0 (paProofNumeralTermNumeralRefutationFormula n m) (snd s)) $;
+
+theorem paProofNumeralTermNumeralRefutationZeroSuccessorState_derives (m: nat): $ paProofNumeralTermNumeralRefutationStateDerives 0 (suc m) (paProofNumeralTermNumeralRefutationZeroSuccessorState m) $;
+
+theorem paProofNumeralTermNumeralRefutationSuccessorZeroState_derives (n: nat): $ paProofNumeralTermNumeralRefutationStateDerives (suc n) 0 (paProofNumeralTermNumeralRefutationSuccessorZeroState n) $;
+
+theorem paProofNumeralTermNumeralRefutationStepState_derives (n m s: nat): $ paProofNumeralTermNumeralRefutationStateDerives n m s -> paProofNumeralTermNumeralRefutationStateDerives (suc n) (suc m) (paProofNumeralTermNumeralRefutationStepState n m s) $;
+
+def paProofNumeralTermNumeralRefutationBody (n m h: nat): nat = $ if (n = 0) (if (m = 0) 0 (paProofNumeralTermNumeralRefutationZeroSuccessorState (m - 1))) (if (m = 0) (paProofNumeralTermNumeralRefutationSuccessorZeroState (n - 1)) (paProofNumeralTermNumeralRefutationStepState (n - 1) (m - 1) (h @ (n - 1, m - 1)))) $;
+
+def paProofNumeralTermNumeralRefutationRecStep (.h: nat): set = $ \ h, paProofNumeralTermNumeralRefutationBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+def paProofNumeralTermNumeralRefutationRec (c: nat): nat = $ srec paProofNumeralTermNumeralRefutationRecStep c $;
+
+def paProofNumeralTermNumeralRefutationHistory (c .i: nat): nat = $ \. i e. upto c, srec paProofNumeralTermNumeralRefutationRecStep i $;
+
+def paProofNumeralTermNumeralRefutationState (n m: nat): nat = $ paProofNumeralTermNumeralRefutationRec (n, m) $;
+
+theorem paProofNumeralTermNumeralRefutationRecStep_apply (h: nat): $ paProofNumeralTermNumeralRefutationRecStep @ h = paProofNumeralTermNumeralRefutationBody (fst (sfHistoryLength h)) (snd (sfHistoryLength h)) h $;
+
+theorem paProofNumeralTermNumeralRefutationHistory_size (c: nat): $ sfHistoryLength (paProofNumeralTermNumeralRefutationHistory c) = c $;
+
+theorem paProofNumeralTermNumeralRefutationHistory_lookup (c a: nat): $ a < c -> paProofNumeralTermNumeralRefutationHistory c @ a = paProofNumeralTermNumeralRefutationRec a $;
+
+theorem paProofNumeralTermNumeralRefutationRec_unfold (c: nat): $ paProofNumeralTermNumeralRefutationRec c = paProofNumeralTermNumeralRefutationBody (fst c) (snd c) (paProofNumeralTermNumeralRefutationHistory c) $;
+
+theorem paProofNumeralTermNumeralRefutationState_unfold (n m: nat): $ paProofNumeralTermNumeralRefutationState n m = paProofNumeralTermNumeralRefutationBody n m (paProofNumeralTermNumeralRefutationHistory (n, m)) $;
+
+theorem paProofNumeralTermNumeralRefutationState_zero_successor (m: nat): $ paProofNumeralTermNumeralRefutationState 0 (suc m) = paProofNumeralTermNumeralRefutationZeroSuccessorState m $;
+
+theorem paProofNumeralTermNumeralRefutationState_successor_zero (n: nat): $ paProofNumeralTermNumeralRefutationState (suc n) 0 = paProofNumeralTermNumeralRefutationSuccessorZeroState n $;
+
+theorem paProofNumeralTermNumeralRefutationState_successors (n m: nat): $ paProofNumeralTermNumeralRefutationState (suc n) (suc m) = paProofNumeralTermNumeralRefutationStepState n m (paProofNumeralTermNumeralRefutationState n m) $;
+
+def paProofNumeralTermNumeralRefutationCorrect (n m: nat): wff = $ n != m -> paProofNumeralTermNumeralRefutationStateDerives n m (paProofNumeralTermNumeralRefutationState n m) $;
+
+theorem paProofNumeralTermNumeralRefutationCorrect_zero (m: nat): $ paProofNumeralTermNumeralRefutationCorrect 0 m $;
+
+theorem paProofNumeralTermNumeralRefutationCorrect_step_at {i: nat} (n m: nat): $ A. i paProofNumeralTermNumeralRefutationCorrect n i -> paProofNumeralTermNumeralRefutationCorrect (suc n) m $;
+
+theorem paProofNumeralTermNumeralRefutationCorrect_all {i: nat} (n: nat): $ A. i paProofNumeralTermNumeralRefutationCorrect n i $;
+
+def paProofNumeralTermNumeralRefutationProof (n m: nat): nat = $ fst (paProofNumeralTermNumeralRefutationState n m) $;
+
+def paProofNumeralTermNumeralRefutationAnnotation (n m: nat): nat = $ snd (paProofNumeralTermNumeralRefutationState n m) $;
+
+def paProofNumeralTermNumeralRefutationRow (n m: nat): nat = $ paProofRow 0 (paProofNumeralTermNumeralRefutationFormula n m) (paProofNumeralTermNumeralRefutationAnnotation n m) $;
+
+theorem paProofNumeralTermNumeralRefutation_derives (n m: nat): $ n != m -> paProofDerives (paProofNumeralTermNumeralRefutationProof n m) (paProofNumeralTermNumeralRefutationRow n m) $;
+
+theorem paProofNumeralTermNumeralRefutation_provable (n m: nat): $ n != m -> paProvable 0 (paProofNumeralTermNumeralRefutationFormula n m) $;
+
+theorem paProofNumeralTermNumeralRefutation_valid (n m: nat): $ n != m -> paProofValid (paProofNumeralTermNumeralRefutationProof n m) $;

@@ -1,0 +1,13 @@
+import "pa_proof_numeral_term_symmetry.mm0";
+
+def paProofNumeralTermEqualityAnnotation (a b: nat): nat = $ paProofNumeralTransitivityAnnotation a (paTermNumeral (paProofNumeralTermValue a)) b (paProofNumeralTermAnnotation a) (paProofNumeralTermSymmetryAnnotation b (paTermNumeral (paProofNumeralTermValue b)) (paProofNumeralTermAnnotation b)) $;
+
+def paProofNumeralTermEqualityRow (a b: nat): nat = $ paProofRow 0 (paFormulaEqual a b) (paProofNumeralTermEqualityAnnotation a b) $;
+
+def paProofNumeralTermEqualityProof (a b: nat): nat = $ paProofNumeralTransitivityProof a (paTermNumeral (paProofNumeralTermValue a)) b (paProofNumeralTermAnnotation a) (paProofNumeralTermSymmetryAnnotation b (paTermNumeral (paProofNumeralTermValue b)) (paProofNumeralTermAnnotation b)) (paProofNumeralTermProof a) (paProofNumeralTermSymmetryProof b (paTermNumeral (paProofNumeralTermValue b)) (paProofNumeralTermAnnotation b) (paProofNumeralTermProof b)) $;
+
+theorem paProofNumeralTermEquality_derives (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b /\ (paProofNumeralTermValue a) = (paProofNumeralTermValue b) -> paProofDerives (paProofNumeralTermEqualityProof a b) (paProofNumeralTermEqualityRow a b) $;
+
+theorem paProofNumeralTermEquality_provable (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b /\ (paProofNumeralTermValue a) = (paProofNumeralTermValue b) -> paProvable 0 (paFormulaEqual a b) $;
+
+theorem paProofNumeralTermEquality_valid (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b /\ (paProofNumeralTermValue a) = (paProofNumeralTermValue b) -> paProofValid (paProofNumeralTermEqualityProof a b) $;

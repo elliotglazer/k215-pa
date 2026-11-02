@@ -1,0 +1,45 @@
+import "pa_numeral_term_subst_graph.mm0";
+
+import "pa_formula_induction.mm0";
+
+def paNumeralFormulaSubstLocalZero (A K .d: nat): wff = $ A. d ((d, 0) <= K -> bb215ArithmeticFormulaHistoryCell A (d, 0) 0) $;
+
+def paNumeralFormulaSubstEqualCell (n A d a b .u .v: nat): wff = $ E. u E. v (paNumeralTermSubstGraph d n a u /\ paNumeralTermSubstGraph d n b v /\ bb215ArithmeticFormulaHistoryCell A (d, paFormulaEqual a b) (paFormulaEqual u v)) $;
+
+def paNumeralFormulaSubstLocalEqual (n A K .d .a .b: nat): wff = $ A. d A. a A. b ((d, paFormulaEqual a b) <= K -> paNumeralFormulaSubstEqualCell n A d a b) $;
+
+def paNumeralFormulaSubstLocalAnd (A K .d .a .b .u .v: nat): wff = $ A. d A. a A. b A. u A. v ((d, paFormulaAnd a b) <= K -> bb215ArithmeticFormulaHistoryCell A (d, a) u -> bb215ArithmeticFormulaHistoryCell A (d, b) v -> bb215ArithmeticFormulaHistoryCell A (d, paFormulaAnd a b) (paFormulaAnd u v)) $;
+
+def paNumeralFormulaSubstLocalOr (A K .d .a .b .u .v: nat): wff = $ A. d A. a A. b A. u A. v ((d, paFormulaOr a b) <= K -> bb215ArithmeticFormulaHistoryCell A (d, a) u -> bb215ArithmeticFormulaHistoryCell A (d, b) v -> bb215ArithmeticFormulaHistoryCell A (d, paFormulaOr a b) (paFormulaOr u v)) $;
+
+def paNumeralFormulaSubstLocalImp (A K .d .a .b .u .v: nat): wff = $ A. d A. a A. b A. u A. v ((d, paFormulaImp a b) <= K -> bb215ArithmeticFormulaHistoryCell A (d, a) u -> bb215ArithmeticFormulaHistoryCell A (d, b) v -> bb215ArithmeticFormulaHistoryCell A (d, paFormulaImp a b) (paFormulaImp u v)) $;
+
+def paNumeralFormulaSubstLocalAll (A K .d .a .u: nat): wff = $ A. d A. a A. u ((d, paFormulaAll a) <= K -> bb215ArithmeticFormulaHistoryCell A (suc d, a) u -> bb215ArithmeticFormulaHistoryCell A (d, paFormulaAll a) (paFormulaAll u)) $;
+
+def paNumeralFormulaSubstLocalEx (A K .d .a .u: nat): wff = $ A. d A. a A. u ((d, paFormulaEx a) <= K -> bb215ArithmeticFormulaHistoryCell A (suc d, a) u -> bb215ArithmeticFormulaHistoryCell A (d, paFormulaEx a) (paFormulaEx u)) $;
+
+def paNumeralFormulaSubstLocal (n A K: nat): wff = $ paNumeralFormulaSubstLocalZero A K /\ paNumeralFormulaSubstLocalEqual n A K /\ paNumeralFormulaSubstLocalAnd A K /\ paNumeralFormulaSubstLocalOr A K /\ paNumeralFormulaSubstLocalImp A K /\ paNumeralFormulaSubstLocalAll A K /\ paNumeralFormulaSubstLocalEx A K $;
+
+def paNumeralFormulaSubstValues (n .i: nat): set = $ \ i, paFormulaSubst (fst i) (paTermNumeral n) (snd i) $;
+
+theorem paNumeralFormulaSubstValues_pair (n d c: nat): $ paNumeralFormulaSubstValues n @ (d, c) = paFormulaSubst (d) (paTermNumeral n) (c) $;
+
+def paNumeralFormulaSubstCharacterization (n A K .i .y: nat): wff = $ A. i A. y (bb215ArithmeticFormulaHistoryCell A i y <-> i <= K /\ y = paNumeralFormulaSubstValues n @ i) $;
+
+theorem paNumeralFormulaSubstCharacterization_exists (n K: nat) {A: nat}: $ E. A paNumeralFormulaSubstCharacterization n A K $;
+
+theorem paNumeralFormulaSubstCharacterization_local (n A K: nat): $ paNumeralFormulaSubstCharacterization n A K -> paNumeralFormulaSubstLocal n A K $;
+
+def paNumeralFormulaSubstGood (n A K .m .c .d: nat): set = $ S\ m, {c | A. d ((d, c) <= K -> bb215ArithmeticFormulaHistoryCell A (d, c) (paFormulaSubst (d) (paTermNumeral n) (c)))} $;
+
+theorem paNumeralFormulaSubstLocal_runs (n A K m d c: nat): $ paNumeralFormulaSubstLocal n A K -> paFormulaBound m c -> (d, c) <= K -> bb215ArithmeticFormulaHistoryCell A (d, c) (paFormulaSubst (d) (paTermNumeral n) (c)) $;
+
+def paNumeralFormulaSubstCertificate (n A d c t .y: nat): wff = $ paNumeralFormulaSubstLocal n A (d, c) /\ A. y (bb215ArithmeticFormulaHistoryCell A (d, c) y -> y = t) $;
+
+def paNumeralFormulaSubstGraph (d n c t .A: nat): wff = $ E. A paNumeralFormulaSubstCertificate n A d c t $;
+
+theorem paNumeralFormulaSubstGraph_sound (d n c t m: nat): $ paNumeralFormulaSubstGraph d n c t -> paFormulaBound m c -> t = paFormulaSubst (d) (paTermNumeral n) (c) $;
+
+theorem paNumeralFormulaSubstGraph_total (d n c: nat): $ paNumeralFormulaSubstGraph d n c (paFormulaSubst (d) (paTermNumeral n) (c)) $;
+
+theorem paNumeralFormulaSubstGraph_correct (d n c t m: nat): $ paFormulaBound m c -> (paNumeralFormulaSubstGraph d n c t <-> t = paFormulaSubst (d) (paTermNumeral n) (c)) $;

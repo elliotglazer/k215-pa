@@ -1,0 +1,41 @@
+import "pa_proof_numeral_term_nonzero.mm0";
+
+def paProofNumeralTermInjectiveBody: nat = $ paFormulaImp (paFormulaEqual (paTermSuccessor (paTermVariable 1)) (paTermSuccessor (paTermVariable 0))) (paFormulaEqual (paTermVariable 1) (paTermVariable 0)) $;
+
+def paProofNumeralTermInjectiveAxiomWitness: nat = $ paAxiomWitness (suc (suc (suc (suc (suc (suc (suc (suc 10)))))))) 0 0 0 $;
+
+def paProofNumeralTermInjectiveAxiomRow: nat = $ paProofNumeralAxiomRow 0 paAxiomSuccessorInjective paProofNumeralTermInjectiveAxiomWitness $;
+
+def paProofNumeralTermInjectiveAxiomProof: nat = $ paProofNumeralAxiomProof 0 paAxiomSuccessorInjective paProofNumeralTermInjectiveAxiomWitness $;
+
+theorem paProofNumeralTermInjective_axiom: $ paProofDerives paProofNumeralTermInjectiveAxiomProof paProofNumeralTermInjectiveAxiomRow $;
+
+def paProofNumeralTermInjectiveFirstBody (n: nat): nat = $ paFormulaImp (paFormulaEqual (paTermSuccessor (paTermNumeral n)) (paTermSuccessor (paTermVariable 0))) (paFormulaEqual (paTermNumeral n) (paTermVariable 0)) $;
+
+theorem paProofNumeralTermInjective_first_substitution (n: nat): $ paFormulaSubst 0 (paTermNumeral n) (paFormulaAll paProofNumeralTermInjectiveBody) = paFormulaAll (paProofNumeralTermInjectiveFirstBody n) $;
+
+def paProofNumeralTermInjectiveFirstAnnotation (n: nat): nat = $ paProofMPAnnotation paProofNumeralTermInjectiveAxiomRow (paProofNumeralAllElimAxiomRow 0 (paFormulaAll paProofNumeralTermInjectiveBody) (paTermNumeral n)) $;
+
+def paProofNumeralTermInjectiveFirstRawRow (n: nat): nat = $ paProofNumeralAllElimRow 0 (paFormulaAll paProofNumeralTermInjectiveBody) (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralTermInjectiveAxiomWitness) $;
+
+def paProofNumeralTermInjectiveFirstRow (n: nat): nat = $ paProofRow 0 (paFormulaAll (paProofNumeralTermInjectiveFirstBody n)) (paProofNumeralTermInjectiveFirstAnnotation n) $;
+
+def paProofNumeralTermInjectiveFirstProof (n: nat): nat = $ paProofNumeralAllElimProof 0 (paFormulaAll paProofNumeralTermInjectiveBody) (paTermNumeral n) (paProofAxiomAnnotation paProofNumeralTermInjectiveAxiomWitness) paProofNumeralTermInjectiveAxiomProof $;
+
+theorem paProofNumeralTermInjective_first_derives (n: nat): $ paProofDerives (paProofNumeralTermInjectiveFirstProof n) (paProofNumeralTermInjectiveFirstRow n) $;
+
+def paProofNumeralTermInjectiveFormula (n m: nat): nat = $ paFormulaImp (paFormulaEqual (paTermSuccessor (paTermNumeral n)) (paTermSuccessor (paTermNumeral m))) (paFormulaEqual (paTermNumeral n) (paTermNumeral m)) $;
+
+theorem paProofNumeralTermInjective_second_substitution (n m: nat): $ paFormulaSubst 0 (paTermNumeral m) (paProofNumeralTermInjectiveFirstBody n) = paProofNumeralTermInjectiveFormula n m $;
+
+def paProofNumeralTermInjectiveRawRow (n m: nat): nat = $ paProofNumeralAllElimRow 0 (paProofNumeralTermInjectiveFirstBody n) (paTermNumeral m) (paProofNumeralTermInjectiveFirstAnnotation n) $;
+
+def paProofNumeralTermInjectiveRow (n m: nat): nat = $ paProofRow 0 (paProofNumeralTermInjectiveFormula n m) (paProofMPAnnotation (paProofNumeralTermInjectiveFirstRow n) (paProofNumeralAllElimAxiomRow 0 (paProofNumeralTermInjectiveFirstBody n) (paTermNumeral m))) $;
+
+def paProofNumeralTermInjectiveProof (n m: nat): nat = $ paProofNumeralAllElimProof 0 (paProofNumeralTermInjectiveFirstBody n) (paTermNumeral m) (paProofNumeralTermInjectiveFirstAnnotation n) (paProofNumeralTermInjectiveFirstProof n) $;
+
+theorem paProofNumeralTermInjective_row_exact (n m: nat): $ paProofNumeralTermInjectiveRawRow n m = paProofNumeralTermInjectiveRow n m $;
+
+theorem paProofNumeralTermInjective_derives (n m: nat): $ paProofDerives (paProofNumeralTermInjectiveProof n m) (paProofNumeralTermInjectiveRow n m) $;
+
+theorem paProofNumeralTermInjective_provable (n m: nat): $ paProvable 0 (paProofNumeralTermInjectiveFormula n m) $;

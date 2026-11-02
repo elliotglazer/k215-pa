@@ -1,0 +1,113 @@
+import "pa_formula_substitution_bound.mm0";
+
+import "pa_formula_renaming_bound.mm0";
+
+def paAxiomLift (c: nat): nat = $ paFormulaRename (paTermShiftMap 0) 0 c $;
+
+def paAxiomRaiseParameters (c: nat): nat = $ paFormulaRename (paTermShiftMap 0) 1 c $;
+
+theorem paAxiomLift_bound (n c: nat): $ paFormulaBound n c -> paFormulaBound (suc n) (paAxiomLift c) $;
+
+theorem paAxiomRaiseParameters_bound (n c: nat): $ paFormulaBound (suc n) c -> paFormulaBound (suc (suc n)) (paAxiomRaiseParameters c) $;
+
+theorem paAxiom_subst0_bound (n t c: nat): $ paTermBound n t -> paFormulaBound (suc n) c -> paFormulaBound n (paFormulaSubst 0 t c) $;
+
+def paAxiomNext (phi: nat): nat = $ paFormulaSubst 0 (paTermSuccessor (paTermVariable 0)) (paAxiomRaiseParameters phi) $;
+
+theorem paAxiomNext_bound (n phi: nat): $ paFormulaBound (suc n) phi -> paFormulaBound (suc n) (paAxiomNext phi) $;
+
+def paAxiomProp1 (a b: nat): nat = $ paFormulaImp (a) (paFormulaImp (b) (a)) $;
+
+theorem paAxiomProp1_bound (n a b: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paFormulaBound n (paAxiomProp1 a b) $;
+
+def paAxiomProp2 (a b d: nat): nat = $ paFormulaImp (paFormulaImp (a) (paFormulaImp (b) (d))) (paFormulaImp (paFormulaImp (a) (b)) (paFormulaImp (a) (d))) $;
+
+theorem paAxiomProp2_bound (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b /\ paFormulaBound n d -> paFormulaBound n (paAxiomProp2 a b d) $;
+
+def paAxiomProp3 (a b: nat): nat = $ paFormulaImp (paFormulaImp (paFormulaImp (a) (paFormulaFalse)) (paFormulaImp (b) (paFormulaFalse))) (paFormulaImp (b) (a)) $;
+
+theorem paAxiomProp3_bound (n a b: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paFormulaBound n (paAxiomProp3 a b) $;
+
+def paAxiomFalseElim (a: nat): nat = $ paFormulaImp (paFormulaFalse) (a) $;
+
+theorem paAxiomFalseElim_bound (n a: nat): $ paFormulaBound n a -> paFormulaBound n (paAxiomFalseElim a) $;
+
+def paAxiomAndLeft (a b: nat): nat = $ paFormulaImp (paFormulaAnd (a) (b)) (a) $;
+
+theorem paAxiomAndLeft_bound (n a b: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paFormulaBound n (paAxiomAndLeft a b) $;
+
+def paAxiomAndRight (a b: nat): nat = $ paFormulaImp (paFormulaAnd (a) (b)) (b) $;
+
+theorem paAxiomAndRight_bound (n a b: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paFormulaBound n (paAxiomAndRight a b) $;
+
+def paAxiomAndIntro (a b: nat): nat = $ paFormulaImp (a) (paFormulaImp (b) (paFormulaAnd (a) (b))) $;
+
+theorem paAxiomAndIntro_bound (n a b: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paFormulaBound n (paAxiomAndIntro a b) $;
+
+def paAxiomOrLeft (a b: nat): nat = $ paFormulaImp (a) (paFormulaOr (a) (b)) $;
+
+theorem paAxiomOrLeft_bound (n a b: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paFormulaBound n (paAxiomOrLeft a b) $;
+
+def paAxiomOrRight (a b: nat): nat = $ paFormulaImp (b) (paFormulaOr (a) (b)) $;
+
+theorem paAxiomOrRight_bound (n a b: nat): $ paFormulaBound n a /\ paFormulaBound n b -> paFormulaBound n (paAxiomOrRight a b) $;
+
+def paAxiomOrElim (a b d: nat): nat = $ paFormulaImp (paFormulaImp (a) (d)) (paFormulaImp (paFormulaImp (b) (d)) (paFormulaImp (paFormulaOr (a) (b)) (d))) $;
+
+theorem paAxiomOrElim_bound (n a b d: nat): $ paFormulaBound n a /\ paFormulaBound n b /\ paFormulaBound n d -> paFormulaBound n (paAxiomOrElim a b d) $;
+
+def paAxiomAllElim (a b: nat): nat = $ paFormulaImp (paFormulaAll (a)) (paFormulaSubst 0 (b) (a)) $;
+
+theorem paAxiomAllElim_bound (n a b: nat): $ paFormulaBound (suc n) a /\ paTermBound n b -> paFormulaBound n (paAxiomAllElim a b) $;
+
+def paAxiomAllDistrib (a b: nat): nat = $ paFormulaImp (paFormulaAll (paFormulaImp (a) (b))) (paFormulaImp (paFormulaAll (a)) (paFormulaAll (b))) $;
+
+theorem paAxiomAllDistrib_bound (n a b: nat): $ paFormulaBound (suc n) a /\ paFormulaBound (suc n) b -> paFormulaBound n (paAxiomAllDistrib a b) $;
+
+def paAxiomAllVacuity (a: nat): nat = $ paFormulaImp (a) (paFormulaAll (paAxiomLift (a))) $;
+
+theorem paAxiomAllVacuity_bound (n a: nat): $ paFormulaBound n a -> paFormulaBound n (paAxiomAllVacuity a) $;
+
+def paAxiomExToDual (a: nat): nat = $ paFormulaImp (paFormulaEx (a)) (paFormulaImp (paFormulaAll (paFormulaImp (a) (paFormulaFalse))) (paFormulaFalse)) $;
+
+theorem paAxiomExToDual_bound (n a: nat): $ paFormulaBound (suc n) a -> paFormulaBound n (paAxiomExToDual a) $;
+
+def paAxiomDualToEx (a: nat): nat = $ paFormulaImp (paFormulaImp (paFormulaAll (paFormulaImp (a) (paFormulaFalse))) (paFormulaFalse)) (paFormulaEx (a)) $;
+
+theorem paAxiomDualToEx_bound (n a: nat): $ paFormulaBound (suc n) a -> paFormulaBound n (paAxiomDualToEx a) $;
+
+def paAxiomEqRefl (a: nat): nat = $ paFormulaEqual (a) (a) $;
+
+theorem paAxiomEqRefl_bound (n a: nat): $ paTermBound n a -> paFormulaBound n (paAxiomEqRefl a) $;
+
+def paAxiomEqSubst (a b d: nat): nat = $ paFormulaImp (paFormulaEqual (b) (d)) (paFormulaImp (paFormulaSubst 0 (b) (a)) (paFormulaSubst 0 (d) (a))) $;
+
+theorem paAxiomEqSubst_bound (n a b d: nat): $ paFormulaBound (suc n) a /\ paTermBound n b /\ paTermBound n d -> paFormulaBound n (paAxiomEqSubst a b d) $;
+
+def paAxiomSuccessorNonzero: nat = $ paFormulaAll (paFormulaImp (paFormulaEqual (paTermSuccessor (paTermVariable 0)) (paTermZero)) (paFormulaFalse)) $;
+
+theorem paAxiomSuccessorNonzero_bound (n: nat): $ paFormulaBound n paAxiomSuccessorNonzero $;
+
+def paAxiomSuccessorInjective: nat = $ paFormulaAll (paFormulaAll (paFormulaImp (paFormulaEqual (paTermSuccessor (paTermVariable 1)) (paTermSuccessor (paTermVariable 0))) (paFormulaEqual (paTermVariable 1) (paTermVariable 0)))) $;
+
+theorem paAxiomSuccessorInjective_bound (n: nat): $ paFormulaBound n paAxiomSuccessorInjective $;
+
+def paAxiomAdditionZero: nat = $ paFormulaAll (paFormulaEqual (paTermAddition (paTermVariable 0) (paTermZero)) (paTermVariable 0)) $;
+
+theorem paAxiomAdditionZero_bound (n: nat): $ paFormulaBound n paAxiomAdditionZero $;
+
+def paAxiomAdditionSuccessor: nat = $ paFormulaAll (paFormulaAll (paFormulaEqual (paTermAddition (paTermVariable 1) (paTermSuccessor (paTermVariable 0))) (paTermSuccessor (paTermAddition (paTermVariable 1) (paTermVariable 0))))) $;
+
+theorem paAxiomAdditionSuccessor_bound (n: nat): $ paFormulaBound n paAxiomAdditionSuccessor $;
+
+def paAxiomMultiplicationZero: nat = $ paFormulaAll (paFormulaEqual (paTermMultiplication (paTermVariable 0) (paTermZero)) (paTermZero)) $;
+
+theorem paAxiomMultiplicationZero_bound (n: nat): $ paFormulaBound n paAxiomMultiplicationZero $;
+
+def paAxiomMultiplicationSuccessor: nat = $ paFormulaAll (paFormulaAll (paFormulaEqual (paTermMultiplication (paTermVariable 1) (paTermSuccessor (paTermVariable 0))) (paTermAddition (paTermMultiplication (paTermVariable 1) (paTermVariable 0)) (paTermVariable 1)))) $;
+
+theorem paAxiomMultiplicationSuccessor_bound (n: nat): $ paFormulaBound n paAxiomMultiplicationSuccessor $;
+
+def paAxiomInduction (a: nat): nat = $ paFormulaImp (paFormulaSubst 0 (paTermZero) (a)) (paFormulaImp (paFormulaAll (paFormulaImp (a) (paAxiomNext (a)))) (paFormulaAll (a))) $;
+
+theorem paAxiomInduction_bound (n a: nat): $ paFormulaBound (suc n) a -> paFormulaBound n (paAxiomInduction a) $;

@@ -1,0 +1,19 @@
+import "pa_source_interpretation_term_source_renaming.mm0";
+
+import "pa_source_interpretation_term_substitution.mm0";
+
+import "pa_source_interpretation_substitution.mm0";
+
+def paTermSubstIndexMap (d t: nat) (.i: nat): set = $ \ i, sfSubstIndex d t i $;
+
+theorem paTermSubstIndexMap_value (d t i: nat): $ paTermSubstIndexMap d t @ i = sfSubstIndex d t i $;
+
+theorem paTermSubstVariable_index (d t i: nat): $ paTermSubstVariable d (paTermVariable t) i = paTermVariable (sfSubstIndex d t i) $;
+
+def paTermSubstRenameClass (d t: nat) (.c: nat): set = $ {c | paTermSubst d (paTermVariable t) c = paTermRename (paTermSubstIndexMap d t) c} $;
+
+theorem paTermSubst_variable_as_rename (d t n c: nat): $ paTermBound n c -> paTermSubst d (paTermVariable t) c = paTermRename (paTermSubstIndexMap d t) c $;
+
+theorem paTermGraphSubst_rename (d t n c: nat): $ sfBound n c -> sfRename (paTermGraphMap (paTermSubstIndexMap d t)) 0 c = sfSubst (suc d) t c $;
+
+theorem paTermSource_variable_substitution (d t n c: nat): $ paTermBound n c -> paTermSource (paTermSubst d (paTermVariable t) c) = sfSubst (suc d) t (paTermSource c) $;

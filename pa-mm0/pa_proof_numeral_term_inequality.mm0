@@ -1,0 +1,19 @@
+import "pa_proof_numeral_term_equality_transport.mm0";
+
+def paProofNumeralTermInequalityFormula (a b: nat): nat = $ paFormulaImp (paFormulaEqual a b) paFormulaFalse $;
+
+def paProofNumeralTermInequalityToNumeralsAnnotation (a b: nat): nat = $ paProofNumeralTermImpComposeAnnotation (paFormulaEqual a b) (paFormulaEqual (paTermNumeral (paProofNumeralTermValue a)) b) (paFormulaEqual (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paProofNumeralTermEqualityLeftTransportAnnotation a (paTermNumeral (paProofNumeralTermValue a)) b (paProofNumeralTermAnnotation a)) (paProofNumeralTermEqualityRightTransportAnnotation b (paTermNumeral (paProofNumeralTermValue b)) (paTermNumeral (paProofNumeralTermValue a)) (paProofNumeralTermAnnotation b)) $;
+
+def paProofNumeralTermInequalityToNumeralsProof (a b: nat): nat = $ paProofNumeralTermImpComposeProof (paFormulaEqual a b) (paFormulaEqual (paTermNumeral (paProofNumeralTermValue a)) b) (paFormulaEqual (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) (paProofNumeralTermEqualityLeftTransportAnnotation a (paTermNumeral (paProofNumeralTermValue a)) b (paProofNumeralTermAnnotation a)) (paProofNumeralTermEqualityRightTransportAnnotation b (paTermNumeral (paProofNumeralTermValue b)) (paTermNumeral (paProofNumeralTermValue a)) (paProofNumeralTermAnnotation b)) (paProofNumeralTermEqualityLeftTransportProof a (paTermNumeral (paProofNumeralTermValue a)) b (paProofNumeralTermAnnotation a) (paProofNumeralTermProof a)) (paProofNumeralTermEqualityRightTransportProof b (paTermNumeral (paProofNumeralTermValue b)) (paTermNumeral (paProofNumeralTermValue a)) (paProofNumeralTermAnnotation b) (paProofNumeralTermProof b)) $;
+
+def paProofNumeralTermInequalityAnnotation (a b: nat): nat = $ paProofNumeralTermImpComposeAnnotation (paFormulaEqual a b) (paFormulaEqual (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) paFormulaFalse (paProofNumeralTermInequalityToNumeralsAnnotation a b) (paProofNumeralTermNumeralRefutationAnnotation (paProofNumeralTermValue a) (paProofNumeralTermValue b)) $;
+
+def paProofNumeralTermInequalityRow (a b: nat): nat = $ paProofRow 0 (paProofNumeralTermInequalityFormula a b) (paProofNumeralTermInequalityAnnotation a b) $;
+
+def paProofNumeralTermInequalityProof (a b: nat): nat = $ paProofNumeralTermImpComposeProof (paFormulaEqual a b) (paFormulaEqual (paTermNumeral (paProofNumeralTermValue a)) (paTermNumeral (paProofNumeralTermValue b))) paFormulaFalse (paProofNumeralTermInequalityToNumeralsAnnotation a b) (paProofNumeralTermNumeralRefutationAnnotation (paProofNumeralTermValue a) (paProofNumeralTermValue b)) (paProofNumeralTermInequalityToNumeralsProof a b) (paProofNumeralTermNumeralRefutationProof (paProofNumeralTermValue a) (paProofNumeralTermValue b)) $;
+
+theorem paProofNumeralTermInequality_derives (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b /\ (paProofNumeralTermValue a) != (paProofNumeralTermValue b) -> paProofDerives (paProofNumeralTermInequalityProof a b) (paProofNumeralTermInequalityRow a b) $;
+
+theorem paProofNumeralTermInequality_provable (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b /\ (paProofNumeralTermValue a) != (paProofNumeralTermValue b) -> paProvable 0 (paProofNumeralTermInequalityFormula a b) $;
+
+theorem paProofNumeralTermInequality_valid (a b: nat): $ paTermBound 0 a /\ paTermBound 0 b /\ (paProofNumeralTermValue a) != (paProofNumeralTermValue b) -> paProofValid (paProofNumeralTermInequalityProof a b) $;

@@ -1,0 +1,23 @@
+import "b4_zfc_meaning.mm0";
+
+theorem bdRIn_sound (m v i a l: nat): $ bdHasOK m v i -> bdRIn m v i a l -> a IN l $;
+theorem bdSub_nil (h: nat): $ sfContextSub 0 h $;
+theorem bdSub_cons (a t h: nat): $ a IN h -> sfContextSub t h -> sfContextSub (a : t) h $;
+theorem bdRSub_sound (m v i g h: nat): $ bdHasOK m v i -> bdRSub m v i g h -> sfContextSub g h $;
+theorem bdRCwf_sound (m v i g: nat): $ bdHasOK m v i -> bdRCwf m v i g -> sfContextWf g $;
+theorem bdRCax_sound (m v i g: nat): $ bdHasOK m v i -> bdRCax m v i g -> zfcContext g $;
+theorem bdRRow_sound (m v i r: nat): $ bdHasOK m v i -> bdRRow m v i r -> sfRowWf r $;
+theorem bdNodeT (G: wff) (n t a b k: nat) (h1: $ G -> n = sfNode t a b $) (h2: $ G -> t = k $):
+  $ G -> n = sfNode k a b $;
+theorem bdNodeT0 (G: wff) (n t a b k: nat) (h1: $ G -> n = sfNode t a b $) (h2: $ G -> t = k $)
+  (h3: $ G -> b = 0 $): $ G -> n = sfNode k a 0 $;
+theorem bdWf_node (n t a b: nat): $ n = sfNode t a b ->
+  ((t = 1 \/ t = 2) \/ ((t = 3 \/ t = 4 \/ t = 5) /\ sfWf a /\ sfWf b)) \/
+  ((t = 6 \/ t = 7) /\ b = 0 /\ sfWf a) -> sfWf n $;
+theorem bdRWf_sound (m v i n: nat): $ bdHasOK m v i -> bdRWf m v i n -> sfWf n $;
+theorem bdBnd_node (n c t a b: nat): $ c = sfNode t a b ->
+  ((t = 1 \/ t = 2) /\ a < n /\ b < n \/ ((t = 3 \/ t = 4 \/ t = 5) /\ sfBound n a /\ sfBound n b)) \/
+  ((t = 6 \/ t = 7) /\ b = 0 /\ sfBound (suc n) a) -> sfBound n c $;
+theorem bdRBnd_sound (m v i n c: nat): $ bdHasOK m v i -> bdRBnd m v i n c -> sfBound n c $;
+theorem bdRAllPre_sound (m v i n c y: nat): $ bdHasOK m v i -> bdRAllPre m v i n c y -> sfAllPrefix n c = y $;
+theorem bdRCShift_sound (m v i g y: nat): $ bdHasOK m v i -> bdRCShift m v i g y -> sfContextShift g = y $;

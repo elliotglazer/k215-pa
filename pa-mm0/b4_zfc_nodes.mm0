@@ -1,0 +1,57 @@
+import "b4_bd_basics.mm0";
+import "zfc_proofs.mm0";
+
+theorem bdLt8_1: $ 1 < 8 $;
+theorem bdLt8_2: $ 2 < 8 $;
+theorem bdLt8_3: $ 3 < 8 $;
+theorem bdLt8_4: $ 4 < 8 $;
+theorem bdLt8_5: $ 5 < 8 $;
+theorem bdLt8_6: $ 6 < 8 $;
+theorem bdLt8_7: $ 7 < 8 $;
+theorem sfNode_le (t a b: nat): $ (a, b) <= sfNode t a b $;
+theorem bdNode_iff (t a b n: nat): $ bdNode t a b n <-> t < 8 /\ n = sfNode t a b $;
+theorem bdNodeK (t a b n: nat) (h: $ t < 8 $): $ bdNode t a b n <-> n = sfNode t a b $;
+theorem bdNode_le1 (t a b n: nat): $ bdNode t a b n -> a <= n $;
+theorem bdNode_le2 (t a b n: nat): $ bdNode t a b n -> b <= n $;
+theorem bdNode_node (t a b: nat): $ t < 8 -> bdNode t a b (sfNode t a b) $;
+theorem bdNode_decode (n: nat): $ bdNode (sfTag n) (sfLeft n) (sfRight n) n $;
+theorem bdCons_iff (a l c: nat): $ bdCons a l c <-> c = a : l $;
+theorem bdSeq_iff (g a r: nat): $ bdSeq g a r <-> r = sfSequent g a $;
+theorem bdBr_iff (g a b c r: nat): $ bdBr g a b c r <-> r = sfBranches g a b c $;
+theorem bdL1 {a: nat} (t z A P: nat) (S: wff a) (ht: $ t < 8 $) (h: $ S <-> a = A $):
+  $ E. a (a <= z /\ bdNode t a P z /\ S) <-> z = sfNode t A P $;
+theorem bdL1r {a: nat} (t z A P: nat) (S: wff a) (ht: $ t < 8 $) (h: $ S <-> a = A $):
+  $ E. a (a <= z /\ bdNode t P a z /\ S) <-> z = sfNode t P A $;
+theorem bdL2 {a b: nat} (t z A B: nat) (S1: wff a) (S2: wff b) (ht: $ t < 8 $)
+  (h1: $ S1 <-> a = A $) (h2: $ S2 <-> b = B $):
+  $ E. a (a <= z /\ E. b (b <= z /\ bdNode t a b z /\ S1 /\ S2)) <-> z = sfNode t A B $;
+theorem bdIff_iff (a b n: nat): $ bdIff a b n <-> n = sfIff a b $;
+theorem bdIff_le1 (a b: nat): $ a <= sfIff a b $;
+theorem bdIff_le2 (a b: nat): $ b <= sfIff a b $;
+theorem bdL2I {a b: nat} (z A B: nat) (S1: wff a) (S2: wff b)
+  (h1: $ S1 <-> a = A $) (h2: $ S2 <-> b = B $):
+  $ E. a (a <= z /\ E. b (b <= z /\ bdIff a b z /\ S1 /\ S2)) <-> z = sfIff A B $;
+theorem bdSepSkel_iff (p n: nat): $ bdSepSkel p n <-> n = sfSeparation p $;
+theorem bdFunSkel_iff (p q n: nat): $ bdFunSkel p q n <-> n = sfFunctionality p q $;
+theorem bdRepSkel_iff (p q r n: nat): $ bdRepSkel p q r n <-> n = sfReplacement p q r $;
+theorem bdIf2 (p Q: wff) (a b j: nat) (h: $ ~p -> (Q <-> j = b) $):
+  $ (p /\ j = a) \/ (~p /\ Q) <-> j = if p a b $;
+theorem bdIf3 (p q r: wff) (a b c j: nat) (hr: $ r <-> ~p /\ ~q $) (hq: $ q -> ~p $):
+  $ (p /\ j = a) \/ (q /\ j = b) \/ (r /\ j = c) <-> j = if p a (if q b c) $;
+theorem bdShIdx_iff (d i j: nat): $ bdShIdx d i j <-> j = sfShiftIndex d i $;
+theorem bdSucSub1 (j: nat): $ suc j - 1 = j $;
+theorem bdSbIdx_iff (d s i j: nat): $ bdSbIdx d s i j <-> j = sfSubstIndex d s i $;
+theorem bdNor (a b: wff) (h1: $ ~a $) (h2: $ ~b $): $ ~(a \/ b) $;
+theorem bdLt1 (i: nat): $ 1 < i <-> ~ i = 0 /\ ~ i = 1 $;
+theorem bdI1ne0 (i: nat): $ i = 1 -> ~ i = 0 $;
+theorem bdRnMap_0 (i j: nat): $ bdRnMap 0 i j <-> j = sfSepMap @ i $;
+theorem bdRnMap_1 (i j: nat): $ bdRnMap 1 i j <-> j = sfRepAMap @ i $;
+theorem bdRnMap_2 (i j: nat): $ bdRnMap 2 i j <-> j = sfRepBMap @ i $;
+theorem bdRnMap_3 (i j: nat): $ bdRnMap 3 i j <-> j = sfRepCMap @ i $;
+theorem bdRnIdxQ {u x: nat} (e d i j: nat) (R: set) (hM: $ bdRnMap e u x <-> x = R @ u $):
+  $ d <= i -> (E. u (u <= i /\ d + u = i /\ E. x (x <= j /\ bdRnMap e u x /\ j = d + x)) <->
+    j = d + (R @ (i - d))) $;
+theorem bdRnIdx_0 (d i j: nat): $ bdRnIdx 0 d i j <-> j = sfRenameIndex sfSepMap d i $;
+theorem bdRnIdx_1 (d i j: nat): $ bdRnIdx 1 d i j <-> j = sfRenameIndex sfRepAMap d i $;
+theorem bdRnIdx_2 (d i j: nat): $ bdRnIdx 2 d i j <-> j = sfRenameIndex sfRepBMap d i $;
+theorem bdRnIdx_3 (d i j: nat): $ bdRnIdx 3 d i j <-> j = sfRenameIndex sfRepCMap d i $;

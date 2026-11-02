@@ -1,0 +1,41 @@
+import "pa_proof_numeral_multiplication_step.mm0";
+
+def paProofNumeralMultiplicationInitialState (n: nat): nat = $ (0, (paProofNumeralMultiplicationZeroProof n, paProofNumeralMultiplicationBaseAnnotation n)) $;
+
+def paProofNumeralMultiplicationStepState (n m p h: nat): nat = $ (suc m, (paProofNumeralMultiplicationStepProof n m h p, paProofNumeralMultiplicationStepAnnotation n m h)) $;
+
+def paProofNumeralMultiplicationStateStep (n s: nat): nat = $ paProofNumeralMultiplicationStepState n (fst s) (fst (snd s)) (snd (snd s)) $;
+
+def paProofNumeralMultiplicationStateStepSet (n .s: nat): set = $ \ s, paProofNumeralMultiplicationStateStep n s $;
+
+def paProofNumeralMultiplicationState (n m: nat): nat = $ rec (paProofNumeralMultiplicationInitialState n) (paProofNumeralMultiplicationStateStepSet n) m $;
+
+def paProofNumeralMultiplicationProof (n m: nat): nat = $ fst (snd (paProofNumeralMultiplicationState n m)) $;
+
+def paProofNumeralMultiplicationAnnotation (n m: nat): nat = $ snd (snd (paProofNumeralMultiplicationState n m)) $;
+
+def paProofNumeralMultiplicationRow (n m: nat): nat = $ paProofRow 0 (paProofNumeralMultiplicationFormula n m) (paProofNumeralMultiplicationAnnotation n m) $;
+
+theorem paProofNumeralMultiplicationStateStepSet_apply (n s: nat): $ paProofNumeralMultiplicationStateStepSet n @ s = paProofNumeralMultiplicationStateStep n s $;
+
+theorem paProofNumeralMultiplicationState_zero (n: nat): $ paProofNumeralMultiplicationState n 0 = paProofNumeralMultiplicationInitialState n $;
+
+theorem paProofNumeralMultiplicationState_succ (n m: nat): $ paProofNumeralMultiplicationState n (suc m) = paProofNumeralMultiplicationStateStep n (paProofNumeralMultiplicationState n m) $;
+
+theorem paProofNumeralMultiplicationState_index (n m: nat): $ fst (paProofNumeralMultiplicationState n m) = m $;
+
+theorem paProofNumeralMultiplicationState_succ_canonical (n m: nat): $ paProofNumeralMultiplicationState n (suc m) = paProofNumeralMultiplicationStepState n m (paProofNumeralMultiplicationProof n m) (paProofNumeralMultiplicationAnnotation n m) $;
+
+theorem paProofNumeralMultiplicationProof_zero (n: nat): $ paProofNumeralMultiplicationProof n 0 = paProofNumeralMultiplicationZeroProof n $;
+
+theorem paProofNumeralMultiplicationAnnotation_zero (n: nat): $ paProofNumeralMultiplicationAnnotation n 0 = paProofNumeralMultiplicationBaseAnnotation n $;
+
+theorem paProofNumeralMultiplicationProof_succ (n m: nat): $ paProofNumeralMultiplicationProof n (suc m) = paProofNumeralMultiplicationStepProof n m (paProofNumeralMultiplicationAnnotation n m) (paProofNumeralMultiplicationProof n m) $;
+
+theorem paProofNumeralMultiplicationAnnotation_succ (n m: nat): $ paProofNumeralMultiplicationAnnotation n (suc m) = paProofNumeralMultiplicationStepAnnotation n m (paProofNumeralMultiplicationAnnotation n m) $;
+
+theorem paProofNumeralMultiplication_derives (n m: nat): $ paProofDerives (paProofNumeralMultiplicationProof n m) (paProofNumeralMultiplicationRow n m) $;
+
+theorem paProofNumeralMultiplication_provable (n m: nat): $ paProvable 0 (paFormulaEqual (paTermMultiplication (paTermNumeral n) (paTermNumeral m)) (paTermNumeral (n * m))) $;
+
+theorem paProofNumeralMultiplication_valid (n m: nat): $ paProofValid (paProofNumeralMultiplicationProof n m) $;

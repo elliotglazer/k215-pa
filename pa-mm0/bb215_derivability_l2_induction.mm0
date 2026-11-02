@@ -1,0 +1,31 @@
+import "bb215_derivability_d2_logic.mm0";
+import "pa_formula_rename_closed.mm0";
+
+-- L05, layer L2 (PA-internal arithmetic, lanes/L05.md): the induction rule at level n.
+-- A formula a bound at level suc n (variable 0 is the induction variable) is proved
+-- universally from its zero instance and its successor step.
+
+theorem bb215L2_ind_axiom (n a: nat) (ha: $ paFormulaBound (suc n) a $):
+  $ paProvable n (paAxiomInduction a) $;
+
+theorem bb215L2_ind_all (n a: nat) (ha: $ paFormulaBound (suc n) a $)
+  (h0: $ paProvable n (paFormulaSubst 0 paTermZero a) $)
+  (hs: $ paProvable n (paFormulaAll (paFormulaImp a (paAxiomNext a))) $):
+  $ paProvable n (paFormulaAll a) $;
+
+theorem bb215L2_ind (n a: nat) (ha: $ paFormulaBound (suc n) a $)
+  (h0: $ paProvable n (paFormulaSubst 0 paTermZero a) $)
+  (hs: $ paProvable (suc n) (paFormulaImp a (paAxiomNext a)) $):
+  $ paProvable n (paFormulaAll a) $;
+
+-- At level 0 (one free variable) the parameter raise is the identity, so the successor
+-- instance is a plain substitution.
+theorem bb215L2_raise_closed (a: nat): $ paFormulaBound 1 a -> paAxiomRaiseParameters a = a $;
+
+theorem bb215L2_next_closed (a: nat):
+  $ paFormulaBound 1 a -> paAxiomNext a = paFormulaSubst 0 (paTermSuccessor (paTermVariable 0)) a $;
+
+-- Monotonicity of A. under an implication (Gen, then the AllDistrib axiom).
+theorem bb215L2_all_mono (n a b: nat) (ha: $ paFormulaBound (suc n) a $) (hb: $ paFormulaBound (suc n) b $)
+  (h: $ paProvable (suc n) (paFormulaImp a b) $):
+  $ paProvable n (paFormulaImp (paFormulaAll a) (paFormulaAll b)) $;

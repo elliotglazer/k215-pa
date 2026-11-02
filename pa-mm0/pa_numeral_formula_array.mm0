@@ -1,0 +1,33 @@
+import "pa_numeral_term_array_at.mm0";
+
+import "pa_numeral_formula_subst_bounded.mm0";
+
+def paNumeralFormulaArrayEqualCell (z wm wv fm fv d a b .u .w: nat): wff = $ E. u E. w ((u < fv /\ w < fv) /\ (paNumeralTermArrayAt d z wm wv a u /\ paNumeralTermArrayAt d z wm wv b w /\ zfcProofArithmeticBoundedNodeNodeCell fm fv d 1 a b 1 u w)) $;
+
+theorem paNumeralFormulaArrayEqualCell_erases (n z wm wv fm fv d a b: nat): $ paNumeralArithmeticBoundedGraph n z -> paNumeralFormulaArrayEqualCell z wm wv fm fv d a b -> paNumeralFormulaSubstBoundedEqualCell n fm fv d a b $;
+
+def paNumeralFormulaArrayLocalEqual (z wm wv fm fv K .d .a .b: nat): wff = $ A. d A. a A. b ((d <= K /\ a <= K /\ b <= K) -> zfcProofArithmeticBoundedNodeUpper d 1 a b K -> paNumeralFormulaArrayEqualCell z wm wv fm fv d a b) $;
+
+theorem paNumeralFormulaArrayLocalEqual_erases (n z wm wv fm fv K: nat) {d a b: nat}: $ paNumeralArithmeticBoundedGraph n z -> paNumeralFormulaArrayLocalEqual z wm wv fm fv K -> paNumeralFormulaSubstBoundedLocalEqual n fm fv K $;
+
+def paNumeralFormulaArrayLocal (z wm wv fm fv K: nat): wff = $ paNumeralFormulaSubstBoundedLocalZero fm fv K /\ paNumeralFormulaArrayLocalEqual z wm wv fm fv K /\ paNumeralFormulaSubstBoundedLocalAnd fm fv K /\ paNumeralFormulaSubstBoundedLocalOr fm fv K /\ paNumeralFormulaSubstBoundedLocalImp fm fv K /\ paNumeralFormulaSubstBoundedLocalAll fm fv K /\ paNumeralFormulaSubstBoundedLocalEx fm fv K $;
+
+theorem paNumeralFormulaArrayLocal_erases (n z wm wv fm fv K: nat): $ paNumeralArithmeticBoundedGraph n z -> paNumeralFormulaArrayLocal z wm wv fm fv K -> paNumeralFormulaSubstBoundedLocal n fm fv K $;
+
+theorem paNumeralFormulaArrayLocalEqual_exists (n z wm wv fm fv K: nat): $ paNumeralArithmeticBoundedGraph n z /\ paNumeralTermWitnessArrayCharacterization n (wm, wv) (K, K) /\ paNumeralFormulaSubstCharacterization n (fm, fv) K -> paNumeralFormulaArrayLocalEqual z wm wv fm fv K $;
+
+theorem paNumeralFormulaArrayLocal_exists (n z wm wv fm fv K: nat): $ paNumeralArithmeticBoundedGraph n z /\ paNumeralTermWitnessArrayCharacterization n (wm, wv) (K, K) /\ paNumeralFormulaSubstCharacterization n (fm, fv) K -> paNumeralFormulaArrayLocal z wm wv fm fv K $;
+
+def paNumeralFormulaArrayMatrix (d n c t z nm nv wm wv fm fv k: nat): wff = $ paNumeralArithmeticBoundedCertificate nm nv n z /\ bb215ArithmeticFormulaPairGraph d c k /\ paNumeralFormulaArrayLocal z wm wv fm fv k /\ paNumeralFormulaSubstBoundedFinal fm fv d c t $;
+
+def paNumeralFormulaArrayGraph (d n c t .z .nm .nv .wm .wv .fm .fv .k: nat): wff = $ E. z E. nm E. nv E. wm E. wv E. fm E. fv E. k paNumeralFormulaArrayMatrix d n c t z nm nv wm wv fm fv k $;
+
+theorem paNumeralFormulaArrayMatrix_erases (d n c t z nm nv wm wv fm fv k: nat): $ paNumeralFormulaArrayMatrix d n c t z nm nv wm wv fm fv k -> paNumeralFormulaSubstBoundedGraph d n c t $;
+
+theorem paNumeralFormulaArrayGraph_erases (d n c t: nat): $ paNumeralFormulaArrayGraph d n c t -> paNumeralFormulaSubstBoundedGraph d n c t $;
+
+theorem paNumeralFormulaArrayFinal_exists (n fm fv k d c: nat): $ paNumeralFormulaSubstCharacterization n (fm, fv) k -> paNumeralFormulaSubstBoundedFinal fm fv d c (paFormulaSubst d (paTermNumeral n) c) $;
+
+theorem paNumeralFormulaArrayGraph_total (d n c: nat): $ paNumeralFormulaArrayGraph d n c (paFormulaSubst d (paTermNumeral n) c) $;
+
+theorem paNumeralFormulaArrayGraph_correct (d n c t m: nat): $ paFormulaBound m c -> (paNumeralFormulaArrayGraph d n c t <-> t = paFormulaSubst d (paTermNumeral n) c) $;

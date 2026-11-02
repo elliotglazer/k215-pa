@@ -1,0 +1,25 @@
+import "pa_numeral_term_known.mm0";
+
+def paNumeralTermWitnessChoices (n i .A: nat): set = $ {A | paNumeralTermSubstCharacterization (fst i) n A (snd i)} $;
+
+theorem paNumeralTermWitnessChoices_member (n i A: nat): $ A e. paNumeralTermWitnessChoices n i <-> paNumeralTermSubstCharacterization (fst i) n A (snd i) $;
+
+def paNumeralTermWitnessChoice (n i .A .B: nat): nat = $ the {A | A e. paNumeralTermWitnessChoices n i /\ A. B (B e. paNumeralTermWitnessChoices n i -> A <= B)} $;
+
+theorem paNumeralTermWitnessChoice_good (n i: nat): $ paNumeralTermSubstCharacterization (fst i) n (paNumeralTermWitnessChoice n i) (snd i) $;
+
+theorem paNumeralTermWitnessChoice_pair_good (n d c: nat): $ paNumeralTermSubstCharacterization d n (paNumeralTermWitnessChoice n (d, c)) c $;
+
+def paNumeralTermWitnessValues (n .i: nat): set = $ \ i, paNumeralTermWitnessChoice n i $;
+
+theorem paNumeralTermWitnessValues_at (n i: nat): $ paNumeralTermWitnessValues n @ i = paNumeralTermWitnessChoice n i $;
+
+def paNumeralTermWitnessArrayCharacterization (n A K .i .y: nat): wff = $ A. i A. y (bb215ArithmeticFormulaHistoryCell A i y <-> i <= K /\ y = paNumeralTermWitnessChoice n i) $;
+
+theorem paNumeralTermWitnessArray_exists (n K: nat) {A: nat}: $ E. A paNumeralTermWitnessArrayCharacterization n A K $;
+
+theorem paNumeralTermWitnessArray_value (n A K i: nat): $ paNumeralTermWitnessArrayCharacterization n A K -> i <= K -> bb215ArithmeticFormulaHistoryCell A i (paNumeralTermWitnessChoice n i) $;
+
+theorem paNumeralTermWitnessArray_choice (n A K d c y: nat): $ paNumeralTermWitnessArrayCharacterization n A K -> bb215ArithmeticFormulaHistoryCell A (d, c) y -> paNumeralTermSubstCharacterization d n y c $;
+
+theorem paNumeralTermWitnessChoice_certificate (d n z A c: nat): $ paNumeralArithmeticBoundedGraph n z -> paNumeralTermSubstCharacterization d n A c -> paNumeralTermKnownCertificate d z (fst A) (snd A) c (paTermSubst d (paTermNumeral n) c) $;

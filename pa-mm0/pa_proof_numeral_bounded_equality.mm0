@@ -1,0 +1,43 @@
+import "pa_proof_numeral_bounded_exists_elimination.mm0";
+
+import "pa_source_interpretation_term_lift_bound.mm0";
+
+import "pa_source_interpretation_term_subst_cancel.mm0";
+
+import "pa_source_interpretation_term_rename_agreement.mm0";
+
+def paProofNumeralBoundedEqualitySubstWitness (phi a b: nat): nat = $ paAxiomWitness (suc (suc (suc (suc (suc (suc 10)))))) phi a b $;
+
+def paProofNumeralBoundedEqualitySubstProof (n phi a b: nat): nat = $ paProofNumeralAxiomProof n (paAxiomEqSubst phi a b) (paProofNumeralBoundedEqualitySubstWitness phi a b) $;
+
+theorem paProofNumeralBoundedEqualitySubst_derives (n phi a b: nat): $ paFormulaBound (suc n) phi /\ paTermBound n a /\ paTermBound n b -> paProofDerives (paProofNumeralBoundedEqualitySubstProof n phi a b) (paProofRow n (paAxiomEqSubst phi a b) (paProofAxiomAnnotation (paProofNumeralBoundedEqualitySubstWitness phi a b))) $;
+
+theorem paProofNumeralBoundedEquality_bounds (n a b h p: nat): $ paProofDerives p (paProofRow n (paFormulaEqual a b) h) -> paTermBound n a /\ paTermBound n b $;
+
+def paProofNumeralBoundedEqualityLeftTransportPhi (n c: nat): nat = $ paFormulaEqual (paTermVariable 0) (paTermShift 0 c) $;
+
+def paProofNumeralBoundedEqualityLeftTransportFormula (a b c: nat): nat = $ paFormulaImp (paFormulaEqual a c) (paFormulaEqual b c) $;
+
+def paProofNumeralBoundedEqualityLeftTransportAxiomAnnotation (n a b c: nat): nat = $ paProofAxiomAnnotation (paProofNumeralBoundedEqualitySubstWitness (paProofNumeralBoundedEqualityLeftTransportPhi n c) a b) $;
+
+def paProofNumeralBoundedEqualityLeftTransportAnnotation (n a b c h: nat): nat = $ paProofNumeralBoundedMPAnnotation n (paFormulaEqual a b) (paProofNumeralBoundedEqualityLeftTransportFormula a b c) h (paProofNumeralBoundedEqualityLeftTransportAxiomAnnotation n a b c) $;
+
+def paProofNumeralBoundedEqualityLeftTransportRow (n a b c h: nat): nat = $ paProofRow n (paProofNumeralBoundedEqualityLeftTransportFormula a b c) (paProofNumeralBoundedEqualityLeftTransportAnnotation n a b c h) $;
+
+def paProofNumeralBoundedEqualityLeftTransportProof (n a b c h p: nat): nat = $ paProofNumeralBoundedMPProof n (paFormulaEqual a b) (paProofNumeralBoundedEqualityLeftTransportFormula a b c) h (paProofNumeralBoundedEqualityLeftTransportAxiomAnnotation n a b c) p (paProofNumeralBoundedEqualitySubstProof n (paProofNumeralBoundedEqualityLeftTransportPhi n c) a b) $;
+
+theorem paProofNumeralBoundedEqualityLeftTransport_derives (n a b c h p: nat): $ paTermBound n c -> paProofDerives p (paProofRow n (paFormulaEqual a b) h) -> paProofDerives (paProofNumeralBoundedEqualityLeftTransportProof n a b c h p) (paProofNumeralBoundedEqualityLeftTransportRow n a b c h) $;
+
+def paProofNumeralBoundedEqualityRightTransportPhi (n c: nat): nat = $ paFormulaEqual (paTermShift 0 c) (paTermVariable 0) $;
+
+def paProofNumeralBoundedEqualityRightTransportFormula (a b c: nat): nat = $ paFormulaImp (paFormulaEqual c a) (paFormulaEqual c b) $;
+
+def paProofNumeralBoundedEqualityRightTransportAxiomAnnotation (n a b c: nat): nat = $ paProofAxiomAnnotation (paProofNumeralBoundedEqualitySubstWitness (paProofNumeralBoundedEqualityRightTransportPhi n c) a b) $;
+
+def paProofNumeralBoundedEqualityRightTransportAnnotation (n a b c h: nat): nat = $ paProofNumeralBoundedMPAnnotation n (paFormulaEqual a b) (paProofNumeralBoundedEqualityRightTransportFormula a b c) h (paProofNumeralBoundedEqualityRightTransportAxiomAnnotation n a b c) $;
+
+def paProofNumeralBoundedEqualityRightTransportRow (n a b c h: nat): nat = $ paProofRow n (paProofNumeralBoundedEqualityRightTransportFormula a b c) (paProofNumeralBoundedEqualityRightTransportAnnotation n a b c h) $;
+
+def paProofNumeralBoundedEqualityRightTransportProof (n a b c h p: nat): nat = $ paProofNumeralBoundedMPProof n (paFormulaEqual a b) (paProofNumeralBoundedEqualityRightTransportFormula a b c) h (paProofNumeralBoundedEqualityRightTransportAxiomAnnotation n a b c) p (paProofNumeralBoundedEqualitySubstProof n (paProofNumeralBoundedEqualityRightTransportPhi n c) a b) $;
+
+theorem paProofNumeralBoundedEqualityRightTransport_derives (n a b c h p: nat): $ paTermBound n c -> paProofDerives p (paProofRow n (paFormulaEqual a b) h) -> paProofDerives (paProofNumeralBoundedEqualityRightTransportProof n a b c h p) (paProofNumeralBoundedEqualityRightTransportRow n a b c h) $;
