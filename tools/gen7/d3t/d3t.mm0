@@ -1,0 +1,26 @@
+import "perdef.mm0";
+axiom bi1_R (v0: nat) (v1: nat): $ cPr (cIm (ciff v0 v1) (cIm v0 v1)) $;
+axiom bi2_R (v0: nat) (v1: nat): $ cPr (cIm (ciff v0 v1) (cIm v1 v0)) $;
+axiom bicom_R (v0: nat) (v1: nat): $ cPr (cIm (ciff v0 v1) (ciff v1 v0)) $;
+axiom bitr_R (v0: nat) (v1: nat) (v2: nat): $ cPr (cIm (ciff v0 v1) (cIm (ciff v1 v2) (ciff v0 v2))) $;
+axiom exeqi_R (v0: nat) (v1: nat) (v2: nat) (h0: $ cPr (ciff v1 v2) $): $ cPr (ciff (cex v0 v1) (cex v0 v2)) $;
+axiom paS1Holds_and_R (v0: nat) (v1: nat) (v2: nat): $ cPr (ciff (cpaS1Holds (cpaFormulaAnd v0 v1) v2) (can (cpaS1Holds v0 v2) (cpaS1Holds v1 v2))) $;
+axiom paS1Holds_ex_R (v0: nat) (v1: nat) (v2: nat) (h0: $ nfr v2 v0 $) (h1: $ nfr v2 v1 $): $ cPr (ciff (cpaS1Holds (cpaFormulaEx v0) v1) (cex v2 (cpaS1Holds v0 (ccons (cV v2) v1)))) $;
+theorem d3t_u3_ex (x A Q E: nat)
+  (ih: $ cPr (ciff Q (cpaS1Holds A (ccons (cV x) E))) $) (hA: $ nfr x A $) (hE: $ nfr x E $):
+  $ cPr (ciff (cex x Q) (cpaS1Holds (cpaFormulaEx A) E)) $;
+theorem d3t_u3_and (A B QA QB E: nat)
+  (iha: $ cPr (ciff QA (cpaS1Holds A E)) $) (ihb: $ cPr (ciff QB (cpaS1Holds B E)) $)
+  (hand: $ cPr (ciff (can QA QB) (can (cpaS1Holds A E) (cpaS1Holds B E))) $):
+  $ cPr (ciff (can QA QB) (cpaS1Holds (cpaFormulaAnd A B) E)) $;
+def d3W (x: nat) (M: set) (.i: nat): set = $ \ i, if (i = 0) (suc x) (M @ (i - 1)) $;
+theorem d3t_tq_all {i j: nat} (M: set) (K m x C a: nat)
+  (hM: $ A. j M @ j != suc x $) (hb: $ paFormulaBound m a $) (hC0: $ trFr 0 (trPA C) $)
+  (ih: $ paProvable K (trIff (trPA C) (paFormulaRename (d3W x M) 0 a)) $):
+  $ paProvable K (trIff (trPA (cAl x C)) (paFormulaRename M 0 (paFormulaAll a))) $;
+theorem d3t_nfr_env (x y E: nat) (hxy: $ nne x y $) (hE: $ nfr x E $): $ nfr x (ccons (cV y) E) $;
+def d3Z (.i: nat): set = $ \ i, 0 $;
+theorem d3Z_fresh {j: nat} (y: nat): $ A. j d3Z @ j != suc y $;
+theorem d3W_fresh {j k: nat} (M: set) (x y: nat) (hM: $ A. k M @ k != suc y $) (hxy: $ x != y $):
+  $ A. j d3W x M @ j != suc y $;
+theorem d3t_final: $ paFormulaBound 0 paFormulaFalse $;

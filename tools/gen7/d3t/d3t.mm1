@@ -1,0 +1,89 @@
+import "perdef.mm1";
+
+-- D3CHECK GO/STOP test (lanes/D3CHECK.md section 7): U3's Ex case and TQ's All case.
+-- STUBS: reflected statements, copied verbatim from the out.mm0 of the reflection run R4
+-- (tools/gen7/refl_lib.py over the g2_generic_s1_tarski closure, roots paS1Holds_ex paS1Holds_and
+-- exeqi bitr bicom bi1 bi2, --cone; mm0-c rc 0 on R4/out.mmb). The linker replaces these axioms by
+-- the reflected proofs. Nothing else is assumed.
+axiom bi1_R (v0: nat) (v1: nat): $ cPr (cIm (ciff v0 v1) (cIm v0 v1)) $;
+axiom bi2_R (v0: nat) (v1: nat): $ cPr (cIm (ciff v0 v1) (cIm v1 v0)) $;
+axiom bicom_R (v0: nat) (v1: nat): $ cPr (cIm (ciff v0 v1) (ciff v1 v0)) $;
+axiom bitr_R (v0: nat) (v1: nat) (v2: nat): $ cPr (cIm (ciff v0 v1) (cIm (ciff v1 v2) (ciff v0 v2))) $;
+axiom exeqi_R (v0: nat) (v1: nat) (v2: nat) (h0: $ cPr (ciff v1 v2) $): $ cPr (ciff (cex v0 v1) (cex v0 v2)) $;
+axiom paS1Holds_and_R (v0: nat) (v1: nat) (v2: nat): $ cPr (ciff (cpaS1Holds (cpaFormulaAnd v0 v1) v2) (can (cpaS1Holds v0 v2) (cpaS1Holds v1 v2))) $;
+axiom paS1Holds_ex_R (v0: nat) (v1: nat) (v2: nat) (h0: $ nfr v2 v0 $) (h1: $ nfr v2 v1 $): $ cPr (ciff (cpaS1Holds (cpaFormulaEx v0) v1) (cex v2 (cpaS1Holds v0 (ccons (cV v2) v1)))) $;
+
+-- ---------------------------------------------------------------------------------------------
+-- U3, Ex case (s = 1). Q = q(a, x :: rho) (the named code of the hand formula a), A = r(a) (the structural
+-- code of a), E = the env code of rho. IH at the extended naming / env; conclusion at q(Ex a, rho) =
+-- cex x Q and r(Ex a) = cpaFormulaEx A.
+pub theorem d3t_u3_ex (x A Q E: nat)
+  (ih: $ cPr (ciff Q (cpaS1Holds A (ccons (cV x) E))) $) (hA: $ nfr x A $) (hE: $ nfr x E $):
+  $ cPr (ciff (cex x Q) (cpaS1Holds (cpaFormulaEx A) E)) $ =
+'(ax_mp_R (ax_mp_R bitr_R (exeqi_R ih)) (ax_mp_R bicom_R (paS1Holds_ex_R hA hE)));
+
+-- U3, And case (for comparison: no binder).
+pub theorem d3t_u3_and (A B QA QB E: nat)
+  (iha: $ cPr (ciff QA (cpaS1Holds A E)) $) (ihb: $ cPr (ciff QB (cpaS1Holds B E)) $)
+  (hand: $ cPr (ciff (can QA QB) (can (cpaS1Holds A E) (cpaS1Holds B E))) $):
+  $ cPr (ciff (can QA QB) (cpaS1Holds (cpaFormulaAnd A B) E)) $ =
+'(ax_mp_R (ax_mp_R bitr_R hand) (ax_mp_R bicom_R paS1Holds_and_R));
+
+-- ---------------------------------------------------------------------------------------------
+-- TQ, All case (hand de Bruijn PA formula vs trPA of its named code).
+-- A naming is a map M (de Bruijn index -> PA variable index; name y is PA variable suc y).
+-- Extending it by the fresh name x for the new index 0:
+def d3W (x: nat) (M: set) (.i: nat): set = $ \ i, if (i = 0) (suc x) (M @ (i - 1)) $;
+theorem d3W_value (x i: nat) (M: set): $ d3W x M @ i = if (i = 0) (suc x) (M @ (i - 1)) $ =
+'(!! applame j ,eqtac);
+
+-- after the extended renaming, abstracting the fresh name = the renaming lifted under one binder (pointwise;
+-- hM: x is fresh for the naming M, i.e. suc x is not in M's range)
+theorem d3t_pt {j: nat} (M: set) (x i: nat) (hM: $ A. j M @ j != suc x $):
+  $ sfComposeMap (trAbsMap (suc x)) (d3W x M) @ i = sfRenameDepthMap M 1 @ i $ =
+'(cases
+  (eqtr4d
+    (eqtrd (a1i sfComposeMap_value) (eqtrd (syl appeq2 (syl5eq d3W_value ifpos)) (a1i (eqtr g7_abs_value (ifpos eqid)))))
+    (eqtrd (syl appeq2 id) (a1i g7_d1_zero)))
+  (eqtr4d
+    (eqtrd (a1i sfComposeMap_value) (eqtrd (syl appeq2 (syl5eq d3W_value ifneg))
+      (a1i (eqtr g7_abs_value (ifneg (eale (syl neeq1 appeq2) hM))))))
+    (eqtrd (syl appeq2 (syl eqcom sub1can)) (a1i g7_d1_suc))));
+
+-- TQ, All case. IH: at level K, trPA of the named code C of a (naming d3W x M) is equivalent to a renamed by
+-- d3W x M. Conclusion: trPA (cAl x C) is equivalent to (All a) renamed by M.
+pub theorem d3t_tq_all {i j: nat} (M: set) (K m x C a: nat)
+  (hM: $ A. j M @ j != suc x $) (hb: $ paFormulaBound m a $) (hC0: $ trFr 0 (trPA C) $)
+  (ih: $ paProvable K (trIff (trPA C) (paFormulaRename (d3W x M) 0 a)) $):
+  $ paProvable K (trIff (trPA (cAl x C)) (paFormulaRename M 0 (paFormulaAll a))) $ =
+'(mpbir (paProvableeq2 (trIffeq
+    (eqtr trPA_cAl (paFormulaAlleq (trAbseq2 (g7_J_id hC0))))
+    (eqtr paFormulaRename_all (paFormulaAlleq (eqtr (g7_rename_d0 hb)
+      (eqtr (eqcom (!! bb215S1_rename_ext i (ax_gen (d3t_pt hM)) hb)) (eqcom (g7_rename_comp hb))))))))
+  (bb215D2_and_intro
+    (paD0_all_mono_imp
+      (anl (bi1 paFormulaBound_imp (paProvable_bound (bb215D2_and_left (mpbi (paProvableeq2 (eqtr paFormulaRename_and (paFormulaAndeq paFormulaRename_imp paFormulaRename_imp))) (!! g7_rr i (ax_gen g7_abs_lt) ih (paProvable_bound ih)))))))
+      (anr (bi1 paFormulaBound_imp (paProvable_bound (bb215D2_and_left (mpbi (paProvableeq2 (eqtr paFormulaRename_and (paFormulaAndeq paFormulaRename_imp paFormulaRename_imp))) (!! g7_rr i (ax_gen g7_abs_lt) ih (paProvable_bound ih)))))))
+      (bb215D2_and_left (mpbi (paProvableeq2 (eqtr paFormulaRename_and (paFormulaAndeq paFormulaRename_imp paFormulaRename_imp))) (!! g7_rr i (ax_gen g7_abs_lt) ih (paProvable_bound ih)))))
+    (paD0_all_mono_imp
+      (anl (bi1 paFormulaBound_imp (paProvable_bound (bb215D2_and_right (mpbi (paProvableeq2 (eqtr paFormulaRename_and (paFormulaAndeq paFormulaRename_imp paFormulaRename_imp))) (!! g7_rr i (ax_gen g7_abs_lt) ih (paProvable_bound ih)))))))
+      (anr (bi1 paFormulaBound_imp (paProvable_bound (bb215D2_and_right (mpbi (paProvableeq2 (eqtr paFormulaRename_and (paFormulaAndeq paFormulaRename_imp paFormulaRename_imp))) (!! g7_rr i (ax_gen g7_abs_lt) ih (paProvable_bound ih)))))))
+      (bb215D2_and_right (mpbi (paProvableeq2 (eqtr paFormulaRename_and (paFormulaAndeq paFormulaRename_imp paFormulaRename_imp))) (!! g7_rr i (ax_gen g7_abs_lt) ih (paProvable_bound ih)))))));
+
+-- The side conditions are maintainable along the induction:
+-- (1) env freshness for U3: the new name x is fresh for the extended env once it is fresh for E and differs from y.
+pub theorem d3t_nfr_env (x y E: nat) (hxy: $ nne x y $) (hE: $ nfr x E $): $ nfr x (ccons (cV y) E) $ =
+'(nfr_ccons (nfr_cV hxy) hE);
+-- (2) naming freshness for TQ: the base naming (every index to 0) is fresh for every name, and extending a naming
+-- that is fresh for y by a name x != y keeps it fresh for y.
+def d3Z (.i: nat): set = $ \ i, 0 $;
+theorem d3Z_value (i: nat): $ d3Z @ i = 0 $ = '(!! applame j ,eqtac);
+pub theorem d3Z_fresh {j: nat} (y: nat): $ A. j d3Z @ j != suc y $ =
+'(ax_gen (mpbir (neeq1 d3Z_value) (necom peano1)));
+pub theorem d3W_fresh {j k: nat} (M: set) (x y: nat) (hM: $ A. k M @ k != suc y $) (hxy: $ x != y $):
+  $ A. j d3W x M @ j != suc y $ =
+'(ax_gen (cases
+  (mpbird (syl neeq1 (syl5eq d3W_value ifpos)) (a1i (mtbir peano2 hxy)))
+  (mpbird (syl neeq1 (syl5eq d3W_value ifneg)) (a1i (eale (syl neeq1 appeq2) hM)))));
+
+pub theorem d3t_final: $ paFormulaBound 0 paFormulaFalse $ = 'paFormulaBound_false;

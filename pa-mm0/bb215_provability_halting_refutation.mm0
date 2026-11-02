@@ -1,0 +1,19 @@
+import "bb215_provability_hbl_g2.mm0";
+
+-- Step E of the BB215 clause (lanes/L06.md): a ZFC refutation of the closed PA sentence H
+-- ("K215 halts") makes ZFC inconsistent, given the Hilbert-Bernays-Lob conditions for P,
+-- the PA-to-ZFC transfer, the fixed point G, and the internal bridge
+-- "PA proves: PrAt P False -> H". This is the hypothesis hg of L06's
+-- bb215ValueForward_from_obligations.
+
+def bb215ProvabilityInternalBridge (P H: nat): wff = $ paFormulaBound 0 H /\ paProvable 0 (paFormulaImp (bb215PrAt P paFormulaFalse) H) $;
+
+theorem bb215ProvabilityHalting_refutation_inconsistent (P G H: nat) {c a b: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hT: $ A. c (paProvable 0 c -> zfcProvable (paFormulaSource c)) $)
+  (h1: $ A. c bb215ProvabilityD1 P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $)
+  (hB: $ bb215ProvabilityInternalBridge P H $):
+  $ zfcProvable (paFormulaSource (paFormulaImp H paFormulaFalse)) -> zfcInconsistent $;

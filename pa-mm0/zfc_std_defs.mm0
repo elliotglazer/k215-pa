@@ -1,0 +1,65 @@
+import "bb215_provability_hbl_g2_abstract.mm0";
+import "bb215_provability_d1.mm0";
+import "bb215_provability_fixed_point.mm0";
+import "bb215_derivability_l3p_imp.mm0";
+import "bb215_arithmetic_formula_depth_twentyfour_sat.mm0";
+
+-- G2STD lane (DRAFT, not approved, not frozen): the named codes of targets/incompleteness_std.mm0, the second
+-- incompleteness theorem for the STANDARD ZFC provability predicate (owner option 3; lanes/G2STD.md).
+--
+--   zfcStdCode(y)  ZProv(y): the literal Sigma1 transcription of
+--                    zfcProvable y := E. G E. p (zfcContext G /\ sfNDFullDerives p (sfSequent G y))
+--                  (zfc_proofs.mm0), one free variable (0 = y). Skeleton fixed below, word for word:
+--                    zfcStdCode := E. G E. p (Ctx /\ (Valid /\ Goal)),
+--                  under the two binders variable 0 = p, 1 = G, 2 = y, with
+--                    Ctx   = zfcStdContextCode  "zfcContext G"                  = all zfcAxioms G
+--                    Valid = zfcStdValidCode    "traceValid sfNDFullRules p"     (first conjunct of sfNDFullDerives)
+--                    Goal  = zfcStdGoalCode     "sfSequent G y IN p"             (second conjunct of sfNDFullDerives)
+--   zfcStdSat E c  the satisfaction relation used by the adequacy theorems: depth-N Tarski truth of the code c in
+--                  the environment E (bb215ArithmeticFormulaDepth<N>Sat; it is Tarski truth for every code of
+--                  quantifier depth <= N, so N is bookkeeping, not content: a too-small N makes the adequacy
+--                  theorems false, hence unprovable, never weaker). N is the ONE open parameter of the draft.
+--   zfcPrStd(x)    := E. y (Src(x, y) /\ ZProv(y)), Src = bb215L3pGsr (Sigma1 graph of y = paFormulaSource x; under
+--                  the binder 0 = y, 1 = x; _b/_func/_total/_inv PASSED). No K215, no L, no quotation.
+--   zfcConStd      := ~zfcPrStd(False) = paFormulaImp (bb215PrAt zfcPrStd paFormulaFalse) paFormulaFalse.
+--
+-- PIN ITEM (the one item to be pinned after construction): the bodies of the three leaf codes below. In this draft they
+-- are abstract defs (`def ...: nat;`) so the spec type-checks now; a spec with abstract defs must NEVER be frozen
+-- (the proof would choose the code). At freeze each `def X: nat;` is replaced by `def X: nat = $ <literal> $;`, the
+-- literal PA formula code (paFormula* / paTerm* constructors, split into Part defs as bb215ProvabilityQRCode is), and the
+-- file hash enters the closure manifest.
+--   Generator: pa-mm0/build_zfc_std_code.py (to be written; template build_bb215_provability_qr_bounded.py /
+--   build_bb215_provability_qk.py, i.e. the generator of bb215ProvabilityQRCode, with the same Pair / Cell / list atoms).
+--   Input: the MM0 definitions being transcribed, read from the repo at the pinned commit:
+--     zfc_proofs.mm0 (zfcContext), zfc_axioms.mm0 + zfc_fixed.mm0 + zfc_schema_maps.mm0 + source_renaming.mm0
+--     (zfcAxioms: zfcFixed, zfcClosedSeparation, zfcClosedReplacement, sfAllPrefix, sfRename), proof_sequence.mm0
+--     (traceStep / traceCheck / traceValid / traceDerives), source_nd_prop.mm0 + source_nd_quantifiers.mm0
+--     (sfNDFullRules = sfNDPropRules u. sfNDQuantRules: 2 base, 7 unary, 4 binary propositional cases, Wk, AllI, AllE,
+--     ExI, ExE), source_contexts.mm0 (sfSequent, sfBranches, sfRowWf, sfContextWf, sfContextSub), source_syntax.mm0
+--     (sfWf), source_bounds.mm0 (sfBound), source_shift.mm0 (sfShift), source_substitution.mm0 (sfSubst),
+--     source_context_shift.mm0 (sfContextShift = map sfShiftMap). Every recursive operation (srec / srecp / lrec / map)
+--     becomes a Sigma1 course-of-values graph in the finite-cell form of bb215ProvabilityQRCode; every MM0 E. becomes
+--     paFormulaEx, every bounded A. a guarded paFormulaAll.
+--   Acceptance contract of the generator output (module theorems, not spec theorems; together they give zfcStdCode_defines):
+--     paFormulaBound 3 X for each leaf, and for every E:
+--       zfcStdSat E zfcStdContextCode <-> zfcContext (E @ 1)
+--       zfcStdSat E zfcStdValidCode   <-> traceValid sfNDFullRules (E @ 0)
+--       zfcStdSat E zfcStdGoalCode    <-> sfSequent (E @ 1) (E @ 2) IN (E @ 0)
+--   (with zfcStdSat at depth N - 2 for the leaves; the theorem names are the generator's choice).
+
+def zfcStdContextCode: nat;
+def zfcStdValidCode: nat;
+def zfcStdGoalCode: nat;
+
+def zfcStdCode: nat = $ paFormulaEx (paFormulaEx (paFormulaAnd zfcStdContextCode (paFormulaAnd zfcStdValidCode zfcStdGoalCode))) $;
+
+-- N: PROVISIONAL value Twentyfour, to be fixed by the owner once the code exists (lanes/G2STD.md, open question Q1).
+-- Candidates: bb215ArithmeticFormulaDepthTwentyfourSat (PASSED) if the depth of zfcConStd is <= 24;
+-- zfcProofArithmeticAcceptanceDepth40Sat (PASSED, same Tarski clauses) if <= 40; otherwise a new depth family.
+def zfcStdSat (E: set) (c: nat): wff = $ bb215ArithmeticFormulaDepthTwentyfourSat E c $;
+
+def zfcPrStd: nat = $ bb215ProvabilityImageFormula bb215L3pGsr zfcStdCode $;
+def zfcConStd: nat = $ bb215ProvabilityConsistencyPA zfcPrStd $;
+
+-- Hypothesis-free last theorem (check.py's false-final control).
+theorem zfcStdDefs_final: $ paFormulaBound 0 paFormulaFalse $;

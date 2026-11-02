@@ -1,0 +1,42 @@
+import "../targets/g2_generic.mm0";
+
+-- Lane G2GEN, PA front end: SAMPLE-MACHINE PRE-CHECK (statements only; no proof of Theorem 1; NOT part of the approved
+-- spec, which is untouched). A proof-enumerating machine M_PA with m_PA states for T = PA (lanes/G2GEN.md "PA FRONT
+-- END", sample machine). Elaborates with mm0-rs against targets/g2_generic.mm0 (check: `mm0-rs compile` on this file).
+-- m_PA / M_PA are abstract here: the literal table is the output of the machine construction (not done).
+def m_PA: nat;
+def M_PA: nat;
+
+-- T = PA is the empty extension: R := paFormulaFalse (paThAxSet paFormulaFalse is empty).
+-- Proved locally in gen7/g2pa_inst (g2pi_rec, g2pi_axset, g2pi_prov, g2pi_inc): cost nil.
+theorem PA_rec: $ thIsSigma1Rec paFormulaFalse $;
+theorem PA_axset_empty (a: nat): $ ~ a e. paThAxSet paFormulaFalse $;
+theorem PA_prov_iff (c: nat): $ paThProvable (paThAxSet paFormulaFalse) c <-> paProvable 0 c $;
+theorem PA_inc_iff: $ paThInconsistent paFormulaFalse <-> paProvable 0 paFormulaFalse $;
+
+-- Supplied per machine. (1) validity of the literal table (Delta0, by computation).
+theorem M_PA_valid: $ tmValid m_PA M_PA $;
+-- (2) THEOREM 1 in its natural form (PA's own Hilbert calculus): the machine halts iff PA is inconsistent.
+theorem PA_thm1: $ tmHalts m_PA M_PA <-> paProvable 0 paFormulaFalse $;
+-- (3) the form of its hard direction that the reflection compiler must see (C5 instantiates the code variables
+--     R, m, M with cNum codes; the equations are discharged by closed-term evaluation, see the lane notes).
+theorem PA_thm1_fwd (R m M: nat) (hR: $ R = paFormulaFalse $) (hm: $ m = m_PA $) (hM: $ M = M_PA $):
+  $ paThInconsistent R -> tmHalts m M $;
+
+-- Derived, automatic.
+-- hT1 of the spec (from PA_thm1 and PA_inc_iff; g2pi_hT1):
+theorem PA_hT1: $ tmHalts m_PA M_PA <-> paThInconsistent paFormulaFalse $;
+-- hRefl (reflection of PA_thm1_fwd at R := cNum paFormulaFalse, m := cNum m_PA, M := cNum M_PA):
+theorem PA_hRefl: $ paProvable 0 (paFormulaImp (reflPaThInconsistent paFormulaFalse) (reflTmHalts m_PA M_PA)) $;
+-- hB of the spec (bridge_of_reflection_pa PA_rec PA_hRefl):
+theorem PA_hB: $ bb215ProvabilityInternalBridge (paThPr paFormulaFalse) (tmHaltsPA m_PA M_PA) $;
+-- Theorems 2 / 3 and G2 for PA (BB_generic_pa_thm2 / _thm3 / G2_generic_pa at R := paFormulaFalse, then PA_prov_iff;
+-- proved generically in m, M, n from hT1 / hB as gen7/g2pa_inst's BB_pa_thm2 / BB_pa_thm3 / G2_pa).
+theorem PA_thm2 (n: nat) {b: nat} (hmn: $ m_PA <= n $):
+  $ ~paThInconsistent paFormulaFalse <-> A. b ~paThProvable (paThAxSet paFormulaFalse) (bbSentencePA n b) $;
+theorem PA_thm2_nat (n: nat) {b: nat} (hmn: $ m_PA <= n $):
+  $ ~paProvable 0 paFormulaFalse <-> A. b ~paProvable 0 (bbSentencePA n b) $;
+theorem PA_thm3_nat (n: nat) {b: nat} (hmn: $ m_PA <= n $):
+  $ (~paProvable 0 paFormulaFalse <-> ~tmHalts m_PA M_PA) /\
+    (~tmHalts m_PA M_PA <-> A. b ~paProvable 0 (bbSentencePA n b)) $;
+theorem PA_G2_nat: $ ~paProvable 0 paFormulaFalse -> ~paProvable 0 (paThCon paFormulaFalse) $;

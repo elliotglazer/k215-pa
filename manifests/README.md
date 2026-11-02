@@ -13,3 +13,7 @@
 - [`thm23-g2-inputs.json`](thm23-g2-inputs.json): the sources of `receipt/thm23-g2/pa/report.json` that are not in the
   Theorem 1 publication (1,864 files), published as assets of the release `thm23-g2-inputs-v1`;
   `sh scripts/fetch_large_inputs.sh thm23-g2-inputs-v1` checks every downloaded file against this list.
+- [`generic-inputs.json`](generic-inputs.json): the proof sources of the generic-framework links C-084 / C-092
+  (`generic/receipts/C-084/sources.json`, `C-092/sources.json`) that are neither in git nor in the two releases above
+  (400 files), for the release `generic-inputs-v1` (not yet exported). The spec closure of the generic framework is
+  [`../generic/spec-closure.sha256`](../generic/spec-closure.sha256).

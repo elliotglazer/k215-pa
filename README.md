@@ -35,6 +35,7 @@ the other receipts with the files named here.
 | [`receipt/thm23-g2/pa/`](receipt/thm23-g2/pa/) | `b4b_final` | Theorems 1, 2, 3 and G2 in PA and their Pi2 forms (6,176 sources, joined spec `6d79aac0...`, binary `25b7a4d5...` = the Zenodo PA binary) |
 | [`receipt/thm23-g2/pa-g2/`](receipt/thm23-g2/pa-g2/) | `zfc_incompleteness_root` | the G2 theorems below (6,056 sources, a subset of `b4b_final`'s, joined spec `f02b3e62...`) |
 | [`receipt/thm23-g2/ha/`](receipt/thm23-g2/ha/) | `b6-out.mm0` | the 7 Pi2 statements in HA (binary `636804b4...` = the Zenodo HA binary, translated from the PA binary above) |
+| [`generic/receipts/`](generic/README.md) | `gen7/g2pa_inst`, `gen7/g2sf_spec` | the generic framework "Theorem 1 => Theorems 2, 3 + G2" for any T ⊇ PA and any T ⊇ ZFC ([`generic/README.md`](generic/README.md)) |
 
 The `b4b_final` and `zfc_incompleteness_root` runs used the separate-link mode (each module compiled to its own
 `.mmb`, then linked into one binary and checked against the joined spec); the false-conclusion control of each

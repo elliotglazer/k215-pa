@@ -1,0 +1,26 @@
+import "g2pa_head.mm0";
+def paSigma1 (c: nat): wff = $ paS1Class 1 c $;
+def paSigma1True (c a: nat): wff = $ paS1Holds c (a : 0) $;
+def thIsSigma1Rec (R: nat): wff = $ paFormulaBound 1 R /\ paSigma1 R $;
+def paThAxSet (R .a: nat): set = $ {a | paFormulaBound 0 a /\ paSigma1True R a} $;
+def paThInconsistent (R: nat): wff = $ paThProvable (paThAxSet R) paFormulaFalse $;
+def paThCode (R: nat): nat = $ g2paThCode R $;
+def paThPr (R: nat): nat = $ paThCode R $;
+def paThCon (R: nat): nat = $ bb215ProvabilityConsistencyPA (paThPr R) $;
+theorem G2_generic_pa (R: nat)
+  (hR: $ thIsSigma1Rec R $):
+  $ ~paThInconsistent R -> ~paThProvable (paThAxSet R) (paThCon R) $;
+theorem BB_generic_pa_thm2 (R m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec R $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> paThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (paThPr R) (tmHaltsPA m M) $):
+  $ ~paThInconsistent R <-> A. b ~paThProvable (paThAxSet R) (bbSentencePA n b) $;
+theorem BB_generic_pa_thm3 (R m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec R $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> paThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (paThPr R) (tmHaltsPA m M) $):
+  $ (~paThInconsistent R <-> ~tmHalts m M) /\
+    (~tmHalts m M <-> A. b ~paThProvable (paThAxSet R) (bbSentencePA n b)) $;
+theorem g2paSpec_final: $ paFormulaBound 0 paFormulaFalse $;

@@ -1,0 +1,35 @@
+import "bb215_provability_halting_refutation.mm0";
+
+import "bb215_provability_value_explosion.mm0";
+
+-- The BB215 clause of the final target, reduced to explicit conditions:
+-- the Hilbert-Bernays-Lob conditions and fixed point for a provability formula P
+-- (bb215_provability_hbl_g2), the PA-to-ZFC transfer, the internal machine bridge
+-- "PA proves: ZFC proves falsity -> H" for a closed PA sentence H (K215 halts)
+-- (bb215_provability_halting_refutation), and the run cut
+-- "under Con(ZFC), PA proves BB(215)=b -> ~H for every numeral b".
+-- Informal argument: lanes/L07.md, "Informal proof of the BB clause".
+
+def bb215ProvabilityRunCut (H b: nat): wff = $ paProvable 0 (paFormulaImp (bb215ArithmeticSentencePA b) (paFormulaImp H paFormulaFalse)) $;
+
+theorem bb215ProvabilityValue_consistent_none (P G H: nat) {c a w b: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hT: $ A. c (paProvable 0 c -> zfcProvable (paFormulaSource c)) $)
+  (h1: $ A. c bb215ProvabilityD1 P c $)
+  (h2: $ A. a A. w bb215ProvabilityD2 P a w $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $)
+  (hB: $ bb215ProvabilityInternalBridge P H $)
+  (hR: $ ~zfcInconsistent -> A. b bb215ProvabilityRunCut H b $):
+  $ ~zfcInconsistent -> A. b ~zfcProvable (bb215ArithmeticSentenceSource b) $;
+
+theorem bb215ProvabilityValue_iff_conditions (P G H: nat) {c a w b: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hT: $ A. c (paProvable 0 c -> zfcProvable (paFormulaSource c)) $)
+  (h1: $ A. c bb215ProvabilityD1 P c $)
+  (h2: $ A. a A. w bb215ProvabilityD2 P a w $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $)
+  (hB: $ bb215ProvabilityInternalBridge P H $)
+  (hR: $ ~zfcInconsistent -> A. b bb215ProvabilityRunCut H b $):
+  $ ~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b) $;

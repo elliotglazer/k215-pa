@@ -1,0 +1,21 @@
+import "perdef.mm0";
+import "gen7_num.mm0";
+import "gen7_l0.mm0";
+import "gen7_closed.mm0";
+axiom g7ev_eqid_R (v0: nat): $ cPr (cEq v0 v0) $;
+axiom g7ev_eqcom_R (v0: nat) (v1: nat): $ cPr (cIm (cEq v0 v1) (cEq v1 v0)) $;
+axiom g7ev_eqtr_R (v0: nat) (v1: nat) (v2: nat): $ cPr (cIm (cEq v0 v1) (cIm (cEq v1 v2) (cEq v0 v2))) $;
+axiom g7ev_suceq_R (v0: nat) (v1: nat): $ cPr (cIm (cEq v0 v1) (cEq (cSuc v0) (cSuc v1))) $;
+axiom g7ev_pr_R (v0: nat) (v1: nat) (v2: nat): $ cPr (cIm (cEq (cAdd v2 v2) (cMul (cAdd v0 v1) (cSuc (cAdd v0 v1)))) (cEq (cpr v0 v1) (cAdd v2 v1))) $;
+theorem g7ev_sym (a b: nat) (h: $ cPr (cEq a b) $): $ cPr (cEq b a) $;
+theorem g7ev_z: $ cPr (cEq c0 (cNum 0)) $;
+theorem g7ev_s (x a: nat) (h: $ cPr (cEq x (cNum a)) $): $ cPr (cEq (cSuc x) (cNum (suc a))) $;
+theorem g7ev_a (x y a b: nat) (h1: $ cPr (cEq x (cNum a)) $) (h2: $ cPr (cEq y (cNum b)) $):
+  $ cPr (cEq (cAdd x y) (cNum (a + b))) $;
+theorem g7ev_m (x y a b: nat) (h1: $ cPr (cEq x (cNum a)) $) (h2: $ cPr (cEq y (cNum b)) $):
+  $ cPr (cEq (cMul x y) (cNum (a * b))) $;
+theorem g7ev_p (x y a b: nat) (h1: $ cPr (cEq x (cNum a)) $) (h2: $ cPr (cEq y (cNum b)) $):
+  $ cPr (cEq (cpr x y) (cNum (a, b))) $;
+theorem g7ev_toimp (a b: nat) {x: nat} (hf: $ nfr x (cIm a b) $) (h: $ cPr (cIm a b) $):
+  $ paProvable 0 (paFormulaImp (trJ (trPA a)) (trJ (trPA b))) $;
+theorem g7ev_lib_final: $ paFormulaBound 0 paFormulaFalse $;

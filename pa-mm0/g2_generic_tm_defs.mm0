@@ -1,0 +1,34 @@
+import "k215_literal_tm.mm0";
+import "g2_generic_bb_codes.mm0";
+import "pa_proof_syntax.mm0";
+
+-- Lane GEN4 (G2GEN block G4): the generic Turing-machine / BB defs of the G2GEN spec, moved VERBATIM out of
+-- g2_generic_defs.mm0 (which imports this file) so that proof modules can build on them.
+
+-- Generic Turing machines: 2 symbols, k working states 0 .. k-1, halt label k, table M with
+-- action(q, b) = nth (q, b) M - 1 (the encoding of bb215_tables.mm0 and k215_literal_tm.mm0 with 215 := k).
+def tmAct (M q b: nat): nat = $ nth (q, b) M - 1 $;
+def tmValidAction (k a: nat): wff = $ k215TMWrite a <= 1 /\ k215TMDir a <= 1 /\ k215TMTarget a <= k $;
+def tmValid (k M .q .b: nat): wff = $ A. q A. b (q < k -> b < 2 -> tmValidAction k (tmAct M q b)) $;
+def tmStep (k M s: nat): nat =
+$ if (k215TMQ s < k) (k215TMMove (tmAct M (k215TMQ s) (k215TMR s % 2)) (k215TML s) (k215TMR s)) s $;
+def tmRun (k M t s .x: nat): nat = $ rec s (\ x, tmStep k M x) t $;
+def tmHalted (k M t: nat): wff = $ k215TMQ (tmRun k M t k215TMInitial) = k $;
+def tmHalts (k M .t: nat): wff = $ E. t tmHalted k M t $;
+-- BB(n) = b in MM0 (meta), for comparison with the PA code bbValueCode n (adequacy theorem bbValueCode_defines).
+def bbUpper (n b .T: nat): wff = $ A. T (tmValid n T -> tmHalts n T -> tmHalted n T b) $;
+def bbFirst (n T b .t: nat): wff = $ tmHalted n T b /\ A. t (t < b -> ~tmHalted n T t) $;
+def bbValue (n b .T: nat): wff = $ bbUpper n b /\ E. T (tmValid n T /\ bbFirst n T b) $;
+-- Padding an m-state machine to n >= m states: same actions on states < m, halt label m renamed to n.
+def tmRename (m n a: nat): nat = $ (k215TMWrite a, k215TMDir a, if (k215TMTarget a = m) n (k215TMTarget a)) $;
+def tmPadOf (m n M T .q .b: nat): wff =
+$ tmValid n T /\ A. q A. b ((q < m /\ b < 2) -> tmAct T q b = tmRename m n (tmAct M q b)) $;
+-- PA codes: "the k-state table M halts" (closed) and "BB(n) = b" (closed), from the generated generic literals.
+def tmHaltsPA (k M: nat): nat = $ paFormulaSubst 0 (paTermNumeral M) (tmHaltsOpenPA k) $;
+def bbSentencePA (n b: nat): nat = $ paFormulaSubst 0 (paTermNumeral b) (bbValueCode n) $;
+def bbSentenceSource (n b: nat): nat = $ paFormulaSource (bbSentencePA n b) $;
+-- Run cut for "BB(n) = b" (owner-approved fix F2, 2026-10-25): PA |- BB(n) = b -> H -> False.
+def tmRunCut (n H b: nat): wff = $ paProvable 0 (paFormulaImp (bbSentencePA n b) (paFormulaImp H paFormulaFalse)) $;
+
+-- Hypothesis-free last theorem (check.py false-final control).
+theorem g2GenericTmDefs_final: $ tmRun 0 0 0 0 = 0 $;

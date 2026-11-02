@@ -1,0 +1,139 @@
+import "zfc_std_defs_frozen.mm0";
+import "g2_generic_bb_codes.mm0";
+import "g2_generic_tm_defs.mm0";
+import "g2_generic_vp.mm0";
+import "bb215_tables.mm0";
+import "bb215_provability_halting_refutation.mm0";
+import "bb215_provability_value_reduction.mm0";
+import "pa_proof_syntax.mm0";
+import "source_theory.mm0";
+
+-- Lane G2GEN (DRAFT, NOT approved, NOT frozen): the named codes of targets/g2_generic.mm0, the generic
+-- "Theorem 1 => Theorems 2 / 3" framework for extensions of ZFC (set front end) and of PA (PA front end).
+-- Plan, options and open questions: lanes/G2GEN.md.
+--
+-- A THEORY IS ITS AXIOM RECOGNIZER. The owner supplies one PA formula code R (one free variable 0 = a, Sigma1);
+-- the axiom set is thAxSet R = {a closed | R(a) is true} (set front end) or paThAxSet R (PA front end). Nothing
+-- else about T is ever supplied: Pr_T, Con_T, the D1-D3 conditions, the transfer from PA and the route-B
+-- certificates are all functions of R. Theories extending ZFC are written thZFCPlus Rx (ZFC's recognizer OR Rx);
+-- e.g. ZFC + one sentence s is thZFCPlus (thSingleton s).
+--
+-- ITEMS NOT YET WRITTEN (abstract defs; a spec with abstract defs is NEVER frozen; each is replaced by its literal
+-- body at freeze, the file hash entering the closure manifest):
+--   paSigma1 c            hand-written (1-2 agent-days): c = E. ... E. (Delta0 matrix); Delta0 = atoms closed under
+--                         /\ \/ -> F. and bounded quantifiers A. x (x < t -> _), E. x (x < t /\ _), t free of x;
+--                         one srecp over the formula code, in the style of paD0Depth (bb215_provability_delta0_depth).
+--   paSigma1True c a      hand-written (2-3 agent-days): Sigma1 truth of c at variable 0 = a, defined WITHOUT a depth
+--                         family: E. w (Delta0 evaluation of the matrix at (w, a) returns 1), the evaluator a
+--                         course-of-values recursion (bounded quantifiers are finite loops). Contract (one-time
+--                         theorem): paSigma1 c -> (paSigma1True c (E @ 0) <-> bb215ArithmeticFormulaDepth<N>Sat E c)
+--                         for every N >= depth c for which the family exists.
+--   zfcVPRecognizer       generated: see its def below (Vopenka schema recognizer).
+--   zfcStdAxRecognizer    generated (build_zfc_std_code.py, g2std): Delta0 recognizer of zfcAxioms (zfcFixed,
+--                         closed Separation / Replacement codes). Contract: thAxSet zfcStdAxRecognizer = zfcAxioms
+--                         pointwise (spec theorem zfcStdAxRecognizer_axioms).
+--   sfThMemCode           generated (same generator): "a IN G /\ a < G", variables 0 = a, 2 = G (the guard keeps
+--                         the context quantifier bounded).
+--   sfThClosedCode        generated (same generator): Delta0 graph of sfBound 0 a, variable 0 = a.
+--   paThCode R            generated (build_pa_th_code.py, template build_bb215_provability_qr_bounded.py): the
+--                         literal Sigma1 transcription of paThProvable (paThAxSet R) (variable 0), with R spliced
+--                         into the axiom case at a fixed binder position (R itself, unshifted: variable 0 = the row
+--                         formula). Contract: paFormulaBound 1 (paThCode R) and
+--                         paSigma1 R -> (paSigma1True (paThCode R) c <-> paThProvable (paThAxSet R) c).
+--   bdThPrf, bdPaThPrf, bdTmHalt, bdBBPrf, bdPaBBPrf, bdConPrf, bdPaConPrf   route-B certificate predicates,
+--                         generated once by generalizing mm0-pa-ha b4/gen_bd_certs.py + gen_bd_certs_b4b.py
+--                         (contract: the _iff theorems of section (E) of the spec; Delta0, `the`-free, the
+--                         recognizer r and table M enter as nat parameters, evaluated through fact lookups).
+-- zfcStdValidCode / zfcStdGoalCode (theory-independent ND trace and goal leaves) are the g2std draft's, reused as is.
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- Sigma1 class and Sigma1 truth (generic, no depth parameter).
+def paSigma1 (c: nat): wff = $ paS1Class 1 c $;
+def paSigma1True (c a: nat): wff = $ paS1Holds c (a : 0) $;
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- The theory parameter.
+-- thIsSigma1Rec R: R is a Sigma1 PA formula with free variables among {0}. This is the ONLY condition on a theory,
+-- and it is syntactic (decidable by computation on the code R).
+def thIsSigma1Rec (R: nat): wff = $ paFormulaBound 1 R /\ paSigma1 R $;
+-- The axiom set of R, set front end (closed sf formulas) and PA front end (closed PA formulas).
+def thAxSet (R .a: nat): set = $ {a | sfBound 0 a /\ paSigma1True R a} $;
+def paThAxSet (R .a: nat): set = $ {a | paFormulaBound 0 a /\ paSigma1True R a} $;
+-- ZFC's recognizer (generated, see header).
+def zfcStdAxRecognizer: nat = $ g2szRz $;
+-- T extends ZFC, meta and inside PA (both automatic for thZFCPlus).
+def thExtendsZFC (R .a: nat): wff =
+$ A. a (a e. zfcAxioms -> a e. thAxSet R) /\ paProvable 0 (paFormulaAll (paFormulaImp zfcStdAxRecognizer R)) $;
+-- ZFC plus the axioms recognized by Rx; a single extra sentence s.
+def thZFCPlus (Rx: nat): nat = $ paFormulaOr zfcStdAxRecognizer Rx $;
+def thSingleton (s: nat): nat = $ paFormulaEqual (paTermVariable 0) (paTermNumeral s) $;
+-- ZFC + Vopenka's Principle (a schema; instance check of the spec, section (G4)). zfcVPAxioms / zfcVPCode:
+-- g2_generic_vp.mm0 (generated by build_g2_generic_vp.py). zfcVPRecognizer: generated (build_zfc_std_code.py, the
+-- Separation-case template with the VP template), contract: thIsSigma1Rec zfcVPRecognizer and
+-- a e. thAxSet zfcVPRecognizer <-> a e. zfcVPAxioms; it is "E. phi <= a E. n <= a (sfBound (suc n) phi /\
+-- a = zfcVPCode phi n)" with the Sigma1 graphs of sfRename / sfAllPrefix (bounded witnesses), closedness checked by
+-- thAxSet itself.
+def zfcVPRecognizer: nat;
+def zfcVPTheory: nat = $ thZFCPlus zfcVPRecognizer $;
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- Set front end: the STANDARD provability predicate of T (the g2std ZProv with the context leaf parametric in R).
+-- Meta: T |- f  :=  sfTheoryProvable (thAxSet R) f  (source_theory.mm0; the fixed ND calculus sfNDFullRules).
+def sfThProvable (R f: nat): wff = $ sfTheoryProvable (thAxSet R) f $;
+def sfThInconsistent (R: nat): wff = $ sfThProvable R sfBot $;
+-- Internal: Prov_T(y) := E. G E. p (all members of G are closed and satisfy R /\ Valid(p) /\ Goal(G, p, y)),
+-- under the binders 0 = p, 1 = G, 2 = y (the context quantifier adds 0 = a).
+def sfThMemCode: nat = $ g2sfMemCode $;
+def sfThClosedCode: nat = $ g2sfClosedCode $;
+def sfThCtxCode (R: nat): nat = $ paFormulaAll (paFormulaImp sfThMemCode (paFormulaAnd sfThClosedCode R)) $;
+def sfThCode (R: nat): nat =
+$ paFormulaEx (paFormulaEx (paFormulaAnd (sfThCtxCode R) (paFormulaAnd zfcStdValidCode zfcStdGoalCode))) $;
+-- Pr_T(x) := E. y (Src(x, y) /\ Prov_T(y)), x a PA sentence code, Src the Sigma1 graph of paFormulaSource.
+def sfThPr (R: nat): nat = $ bb215ProvabilityImageFormula bb215L3pGsr (sfThCode R) $;
+-- Con_T := ~Pr_T(False), a closed PA sentence; T sees it as paFormulaSource (sfThCon R).
+def sfThCon (R: nat): nat = $ bb215ProvabilityConsistencyPA (sfThPr R) $;
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- PA front end: T = PA + the closed PA sentences recognized by R, in the Hilbert calculus of pa_proof_syntax.mm0
+-- with one extra rule: a row (n, c, (3, 0)) whose formula c is an axiom of T. (PA's own axioms stay in paProofCase,
+-- so T contains PA by construction.)
+def paThCase (A: set) (r l: nat): wff =
+$ paProofCase r l \/ (paProofRowWf r /\ (paProofAnnotation r = (3, 0) /\ paProofFormula r e. A)) $;
+def paThRules (A: set) (.r .l: nat): set = $ S\ r, {l | paThCase A r l} $;
+def paThProvable (A: set) (c .p .h: nat): wff = $ E. p E. h traceDerives (paThRules A) p (paProofRow 0 c h) $;
+def paThInconsistent (R: nat): wff = $ paThProvable (paThAxSet R) paFormulaFalse $;
+def paThCode (R: nat): nat = $ g2paThCode R $;
+def paThPr (R: nat): nat = $ paThCode R $;
+def paThCon (R: nat): nat = $ bb215ProvabilityConsistencyPA (paThPr R) $;
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- Generic Turing machines, BB(n) = b, padding and the PA codes tmHaltsPA / bbSentencePA / bbSentenceSource:
+-- moved VERBATIM to g2_generic_tm_defs.mm0 (lane GEN4, so that proof modules can import them; imported above).
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- Route-B (HA) certificate predicates: Delta0, `the`-free, generic in the recognizer value r and the table M.
+--   bdThPrf r w s     w certifies an ND proof of s from closed axioms satisfying r (Delta0-evaluation
+--                     certificates of r's matrix inside w): generalizes B4b's bdZfcPrf (Cax tag -> r lookup).
+--   bdPaThPrf r w s   the same for the PA front end.
+--   bdTmHalt k M h    h certifies tmHalted k M t for some t <= h: generalizes B4's bdK215Halt.
+--   bdBBPrf r n u     u = (b, (m, (v, w))): (m, v) computes s = bbSentenceSource n b, w is a bdThPrf r w s.
+--   bdPaBBPrf r n u   PA front end, s = bbSentencePA n b.
+--   bdConPrf r u      (m, v) computes s = paFormulaSource (sfThCon r), w certifies its proof.
+--   bdPaConPrf r u    PA front end.
+def bdThPrf (r w s: nat): wff;
+def bdPaThPrf (r w s: nat): wff;
+def bdTmHalt (k M h: nat): wff;
+def bdBBPrf (r n u: nat): wff;
+def bdPaBBPrf (r n u: nat): wff;
+def bdConPrf (r u: nat): wff;
+def bdPaConPrf (r u: nat): wff;
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- OPTIONAL, option (a) of lanes/G2GEN.md: the codes that the MM0 -> PA reflection compiler assigns to the MM0
+-- predicates "T is inconsistent" and "the k-state table M halts" (abstract: they are the compiler's output).
+def reflThInconsistent (R: nat): nat;
+def reflPaThInconsistent (R: nat): nat;
+def reflTmHalts (k M: nat): nat;
+
+-- Hypothesis-free last theorem (check.py's false-final control).
+theorem g2GenericDefs_final: $ paFormulaBound 0 paFormulaFalse $;

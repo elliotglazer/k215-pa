@@ -1,0 +1,182 @@
+-- ---------------------------------------------------------------------------------------------------------------
+-- Meta rules in implication form, derived from d3_cmp (coded modus ponens).
+theorem d3_c1 (a b: nat) (h: $ cPr (cIm a b) $): $ cPr a -> cPr b $ = '(d3_cmp h);
+theorem d3_c2 (a b c: nat) (h: $ cPr (cIm a (cIm b c)) $): $ cPr a -> cPr b -> cPr c $ = '(syl d3_cmp (d3_cmp h));
+theorem d3_c3 (a b c e: nat) (h: $ cPr (cIm a (cIm b (cIm c e))) $): $ cPr a -> cPr b -> cPr c -> cPr e $ =
+'(syl (imim2i d3_cmp) (d3_c2 h));
+theorem d3_c4 (a b c e f: nat) (h: $ cPr (cIm a (cIm b (cIm c (cIm e f)))) $): $ cPr a -> cPr b -> cPr c -> cPr e -> cPr f $ =
+'(syl (imim2i (imim2i d3_cmp)) (d3_c3 h));
+theorem d3_cbi1 (a b: nat): $ cPr (ciff a b) -> cPr a -> cPr b $ = '(d3_c2 d3r_bi1_R);
+theorem d3_cbi2 (a b: nat): $ cPr (ciff a b) -> cPr b -> cPr a $ = '(d3_c2 d3r_bi2_R);
+theorem d3_ctr (a b c: nat): $ cPr (ciff a b) -> cPr (ciff b c) -> cPr (ciff a c) $ = '(d3_c2 d3r_bitr_R);
+theorem d3_csym (a b: nat): $ cPr (ciff a b) -> cPr (ciff b a) $ = '(d3_c1 d3r_bicom_R);
+theorem d3_cian (a b: nat): $ cPr a -> cPr b -> cPr (can a b) $ = '(d3_c2 d3r_ian_R);
+theorem d3_ceqtr (a b c: nat): $ cPr (cEq a b) -> cPr (cEq b c) -> cPr (cEq a c) $ = '(d3_c2 d3r_eqtr_R);
+theorem d3_ceqcom (a b: nat): $ cPr (cEq a b) -> cPr (cEq b a) $ = '(d3_c1 d3r_eqcom_R);
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- Code numerals: freshness, order.
+theorem d3e_j1 (j: nat): $ 1 <= j -> j = suc (j - 1) $ = (named '(eqtr3d npcan (a1i (eqtr addS (suceq add0)))));
+pub theorem d3_nfr_cn (z n: nat) {x y: nat}: $ nfr z (d3cn n) $ =
+(named '(!! ind x y ,(eqtac-gen 'n) ,eqtac ,eqtac ,eqtac (mpbir (nfreq eqid d3cn_0) nfr_c0)
+  (bi2i (bitr (nfreq eqid d3cn_S) (noteq occ_cSuc)))));
+
+theorem d3e_cnP (n: nat): $ 1 <= n -> d3cn n = cSuc (d3cn (n - 1)) $ = (named '(eqtrd (d3cneqd d3e_j1) (a1i d3cn_S)));
+theorem d3_lt_base (n: nat): $ 0 < n -> cPr (clt (d3cn 0) (d3cn n)) $ =
+(named '(mpbird (syl cPreq (clteqd (a1i d3cn_0) d3e_cnP)) (a1i d3r_lt0S_R)));
+theorem d3_lt_step (y n: nat) {k: nat}: $ (A. k (y < k -> cPr (clt (d3cn y) (d3cn k)))) -> suc y < n -> cPr (clt (d3cn (suc y)) (d3cn n)) $ =
+(named '(exp (mpbird (syl cPreq (clteqd (a1i d3cn_S) (syl d3e_cnP (syl (lelttr le01) anr))))
+  (syl (d3_c1 d3r_ltS_R)
+    (mpd (mpbird (a1i ltsuc) (mpbid (lteq2d (syl d3e_j1 (syl (lelttr le01) anr))) anr))
+      (syl {(!! eale k ,eqtac) : $ (A. k (y < k -> cPr (clt (d3cn y) (d3cn k)))) -> (y < n - 1 -> cPr (clt (d3cn y) (d3cn (n - 1)))) $} anl))))));
+theorem d3_ltA (i: nat) {x y n k: nat}: $ A. n (i < n -> cPr (clt (d3cn i) (d3cn n))) $ =
+(named '(!! ind x y ,(eqtac-gen 'i) ,eqtac ,eqtac ,eqtac (ax_gen d3_lt_base) (syl (iald d3_lt_step) (bi1i (cbval ,eqtac)))));
+pub theorem d3_EVlt (i n: nat) {k: nat}: $ i < n -> cPr (clt (d3cn i) (d3cn n)) $ =
+(named '(ax_mp {(!! eale k ,eqtac) : $ (A. k (i < k -> cPr (clt (d3cn i) (d3cn k)))) -> (i < n -> cPr (clt (d3cn i) (d3cn n))) $} d3_ltA));
+
+theorem d3_le_base (n: nat): $ 0 <= n -> cPr (cle (d3cn 0) (d3cn n)) $ =
+(named '(a1i (mpbir (cPreq (cleeq d3cn_0 eqid)) d3r_le0_R)));
+theorem d3_le_step (y n: nat) {k: nat}: $ (A. k (y <= k -> cPr (cle (d3cn y) (d3cn k)))) -> suc y <= n -> cPr (cle (d3cn (suc y)) (d3cn n)) $ =
+(named '(exp (mpbird (syl cPreq (cleeqd (a1i d3cn_S) (syl d3e_cnP (syl (letr (bi1 lesuc le01)) anr))))
+  (syl (d3_c1 d3r_leS_R)
+    (mpd (mpbird (a1i lesuc) (mpbid (leeq2d (syl d3e_j1 (syl (letr (bi1 lesuc le01)) anr))) anr))
+      (syl {(!! eale k ,eqtac) : $ (A. k (y <= k -> cPr (cle (d3cn y) (d3cn k)))) -> (y <= n - 1 -> cPr (cle (d3cn y) (d3cn (n - 1)))) $} anl))))));
+theorem d3_leA (i: nat) {x y n k: nat}: $ A. n (i <= n -> cPr (cle (d3cn i) (d3cn n))) $ =
+(named '(!! ind x y ,(eqtac-gen 'i) ,eqtac ,eqtac ,eqtac (ax_gen d3_le_base) (syl (iald d3_le_step) (bi1i (cbval ,eqtac)))));
+pub theorem d3_EVle (i n: nat) {k: nat}: $ i <= n -> cPr (cle (d3cn i) (d3cn n)) $ =
+(named '(ax_mp {(!! eale k ,eqtac) : $ (A. k (i <= k -> cPr (cle (d3cn i) (d3cn k)))) -> (i <= n -> cPr (cle (d3cn i) (d3cn n))) $} d3_leA));
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- Coded paTermBound of a structural term code.
+@_ abstract def d3TBC (n .t: nat): set = $ {t | cPr (cpaTermBound (d3cn n) (d3rt t))} $;
+theorem d3TBC_value (n t: nat): $ t e. d3TBC n <-> cPr (cpaTermBound (d3cn n) (d3rt t)) $ = (named '(elabe ,eqtac));
+theorem d3TB_zero (n: nat): $ paTermZero e. d3TBC n $ =
+(named '(mpbir d3TBC_value (mpbir (cPreq (cpaTermBoundeq eqid d3rt_zero)) paTermBound_zero_R)));
+theorem d3TB_var (n i: nat): $ i < n -> paTermVariable i e. d3TBC n $ =
+(named '(mpbird (a1i d3TBC_value) (mpbird (a1i (cPreq (cpaTermBoundeq eqid d3rt_var))) (syl (d3_cbi2 paTermBound_variable_R) d3_EVlt))));
+theorem d3TB_succ (n a: nat): $ a e. d3TBC n -> paTermSuccessor a e. d3TBC n $ =
+(named '(mpbird (a1i d3TBC_value) (mpbird (a1i (cPreq (cpaTermBoundeq eqid d3rt_succ))) (syl (d3_cbi2 paTermBound_successor_R) (bi1i d3TBC_value)))));
+theorem d3TB_add (n a b: nat): $ a e. d3TBC n /\ b e. d3TBC n -> paTermAddition a b e. d3TBC n $ =
+(named '(mpbird (a1i d3TBC_value) (mpbird (a1i (cPreq (cpaTermBoundeq eqid d3rt_add)))
+  (syl (d3_cbi2 paTermBound_addition_R) (sylc d3_cian (syl (bi1i d3TBC_value) anl) (syl (bi1i d3TBC_value) anr))))));
+theorem d3TB_mul (n a b: nat): $ a e. d3TBC n /\ b e. d3TBC n -> paTermMultiplication a b e. d3TBC n $ =
+(named '(mpbird (a1i d3TBC_value) (mpbird (a1i (cPreq (cpaTermBoundeq eqid d3rt_mul)))
+  (syl (d3_cbi2 paTermBound_multiplication_R) (sylc d3_cian (syl (bi1i d3TBC_value) anl) (syl (bi1i d3TBC_value) anr))))));
+theorem d3TB_cons (n: nat): $ paTermConstructionClosed (d3TBC n) n $ =
+(named '(ian d3TB_zero (ian (ax_gen d3TB_var) (ian (ax_gen d3TB_succ) (ax_gen @ ax_gen @ iand d3TB_add d3TB_mul)))));
+pub theorem d3_EVtb (n t: nat): $ paTermBound n t -> cPr (cpaTermBound (d3cn n) (d3rt t)) $ =
+(named '(syl (bi1i d3TBC_value) (paTermBound_induction d3TB_cons)));
+
+-- Coded paTermLowerBound.
+@_ abstract def d3LBC (n .t: nat): set = $ {t | paTermLowerBound n t -> cPr (cpaTermLowerBound (d3cn n) (d3rt t))} $;
+theorem d3LBC_value (n t: nat): $ t e. d3LBC n <-> (paTermLowerBound n t -> cPr (cpaTermLowerBound (d3cn n) (d3rt t))) $ = (named '(elabe ,eqtac));
+theorem d3LB_zero (n: nat): $ paTermZero e. d3LBC n $ =
+(named '(mpbir d3LBC_value (a1i (mpbir (cPreq (cpaTermLowerBoundeq eqid d3rt_zero)) paTermLowerBound_zero_R))));
+theorem d3LB_var (m n i: nat): $ i < m -> paTermVariable i e. d3LBC n $ =
+(named '(a1i (mpbir d3LBC_value (mpbird (a1i (cPreq (cpaTermLowerBoundeq eqid d3rt_var)))
+  (syl (d3_cbi2 paTermLowerBound_variable_R) (syl d3_EVle (bi1i paTermLowerBound_variable)))))));
+theorem d3LB_succ (n a: nat): $ a e. d3LBC n -> paTermSuccessor a e. d3LBC n $ =
+(named '(sylibr d3LBC_value (exp (mpbird (a1i (cPreq (cpaTermLowerBoundeq eqid d3rt_succ)))
+  (syl (d3_cbi2 paTermLowerBound_successor_R) (mpd (syl (bi1i paTermLowerBound_successor) anr) (syl (bi1i d3LBC_value) anl)))))));
+theorem d3LB_add (n a b: nat): $ a e. d3LBC n /\ b e. d3LBC n -> paTermAddition a b e. d3LBC n $ =
+(named '(sylibr d3LBC_value (exp (mpbird (a1i (cPreq (cpaTermLowerBoundeq eqid d3rt_add)))
+  (syl (d3_cbi2 paTermLowerBound_addition_R) (sylc d3_cian
+    (mpd (syl (syl anl (bi1i paTermLowerBound_addition)) anr) (syl (bi1i d3LBC_value) (syl anl anl)))
+    (mpd (syl (syl anr (bi1i paTermLowerBound_addition)) anr) (syl (bi1i d3LBC_value) (syl anr anl)))))))));
+theorem d3LB_mul (n a b: nat): $ a e. d3LBC n /\ b e. d3LBC n -> paTermMultiplication a b e. d3LBC n $ =
+(named '(sylibr d3LBC_value (exp (mpbird (a1i (cPreq (cpaTermLowerBoundeq eqid d3rt_mul)))
+  (syl (d3_cbi2 paTermLowerBound_multiplication_R) (sylc d3_cian
+    (mpd (syl (syl anl (bi1i paTermLowerBound_multiplication)) anr) (syl (bi1i d3LBC_value) (syl anl anl)))
+    (mpd (syl (syl anr (bi1i paTermLowerBound_multiplication)) anr) (syl (bi1i d3LBC_value) (syl anr anl)))))))));
+theorem d3LB_cons (m n: nat): $ paTermConstructionClosed (d3LBC n) m $ =
+(named '(ian d3LB_zero (ian (ax_gen d3LB_var) (ian (ax_gen d3LB_succ) (ax_gen @ ax_gen @ iand d3LB_add d3LB_mul)))));
+pub theorem d3_EVlb (m n t: nat): $ paTermBound m t -> paTermLowerBound n t -> cPr (cpaTermLowerBound (d3cn n) (d3rt t)) $ =
+(named '(syl (bi1i d3LBC_value) (paTermBound_induction d3LB_cons)));
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- The env code of depth n: entry i is cV (n - suc i).
+theorem d3_env_step0 (y: nat): $ cPr (cEq (capp (cpaS1Env (d3env (suc y))) (d3cn 0)) (cV (suc y - suc 0))) $ =
+(named '(mpbir (cPreq (cEqeq (cappeq (cpaS1Enveq d3env_S) d3cn_0) (cVeq (eqtr subSS sub02)))) paS1Env_zero_R));
+theorem d3_env_stepS (y j: nat) {k: nat}: $ (A. k (k < y -> cPr (cEq (capp (cpaS1Env (d3env y)) (d3cn k)) (cV (y - suc k))))) -> j < y ->
+  cPr (cEq (capp (cpaS1Env (d3env (suc y))) (d3cn (suc j))) (cV (suc y - suc (suc j)))) $ =
+(named '(exp (mpbird (a1i (cPreq (cEqeq (cappeq (cpaS1Enveq d3env_S) d3cn_S) (cVeq subSS))))
+  (sylc d3_ceqtr (a1i paS1Env_suc_R)
+    (mpd anr (syl {(!! eale k ,eqtac) : $ (A. k (k < y -> cPr (cEq (capp (cpaS1Env (d3env y)) (d3cn k)) (cV (y - suc k))))) ->
+      (j < y -> cPr (cEq (capp (cpaS1Env (d3env y)) (d3cn j)) (cV (y - suc j)))) $} anl))))));
+theorem d3_env_step (y i: nat) {k: nat}: $ (A. k (k < y -> cPr (cEq (capp (cpaS1Env (d3env y)) (d3cn k)) (cV (y - suc k))))) -> i < suc y ->
+  cPr (cEq (capp (cpaS1Env (d3env (suc y))) (d3cn i)) (cV (suc y - suc i))) $ =
+(named '(exp (casesd
+  (exp (mpbird (syl cPreq (cEqeqd (cappeqd (a1i eqid) (d3cneqd anr)) (cVeqd (subeq2d (suceqd anr))))) (a1i d3_env_step0)))
+  (exp (mpbird (syl cPreq (cEqeqd (cappeqd (a1i eqid) (d3cneqd (syl d3e_j1 (syl (bi2 lt01) anr)))) (cVeqd (subeq2d (suceqd (syl d3e_j1 (syl (bi2 lt01) anr)))))))
+    (sylc d3_env_stepS (syl anl anl) (mpbird (a1i ltsuc) (mpbid (lteq1d (syl d3e_j1 (syl (bi2 lt01) anr))) (syl anr anl)))))))));
+theorem d3_envA (n: nat) {x y i k: nat}: $ A. i (i < n -> cPr (cEq (capp (cpaS1Env (d3env n)) (d3cn i)) (cV (n - suc i)))) $ =
+(named '(!! ind x y ,(eqtac-gen 'n) ,eqtac ,eqtac ,eqtac (ax_gen (absurd lt02)) (syl (iald d3_env_step) (bi1i (cbval ,eqtac)))));
+pub theorem d3_envat (n i: nat) {k: nat}: $ i < n -> cPr (cEq (capp (cpaS1Env (d3env n)) (d3cn i)) (cV (n - suc i))) $ =
+(named '(ax_mp {(!! eale k ,eqtac) : $ (A. k (k < n -> cPr (cEq (capp (cpaS1Env (d3env n)) (d3cn k)) (cV (n - suc k))))) ->
+  (i < n -> cPr (cEq (capp (cpaS1Env (d3env n)) (d3cn i)) (cV (n - suc i)))) $} d3_envA));
+
+-- UT: the coded value of a structural term code in the env of depth d is its named code.
+@_ abstract def d3UTC (d .t: nat): set = $ {t | cPr (cEq (cbb215ArithmeticFormulaTermValue (cpaS1Env (d3env d)) (d3rt t)) (d3qt d t))} $;
+theorem d3UTC_value (d t: nat): $ t e. d3UTC d <-> cPr (cEq (cbb215ArithmeticFormulaTermValue (cpaS1Env (d3env d)) (d3rt t)) (d3qt d t)) $ = (named '(elabe ,eqtac));
+theorem d3UT_zero (d: nat): $ paTermZero e. d3UTC d $ =
+(named '(mpbir d3UTC_value (mpbir (cPreq (cEqeq (cbb215ArithmeticFormulaTermValueeq eqid d3rt_zero) d3qt_zero)) bb215ArithmeticFormulaTermValue_zero_R)));
+theorem d3UT_var (d i: nat): $ i < d -> paTermVariable i e. d3UTC d $ =
+(named '(mpbird (a1i d3UTC_value) (mpbird (a1i (cPreq (cEqeq (cbb215ArithmeticFormulaTermValueeq eqid d3rt_var) d3qt_var)))
+  (sylc d3_ceqtr (a1i bb215ArithmeticFormulaTermValue_variable_R) d3_envat))));
+theorem d3UT_succ (d a: nat): $ a e. d3UTC d -> paTermSuccessor a e. d3UTC d $ =
+(named '(mpbird (a1i d3UTC_value) (mpbird (a1i (cPreq (cEqeq (cbb215ArithmeticFormulaTermValueeq eqid d3rt_succ) d3qt_succ)))
+  (sylc d3_ceqtr (a1i bb215ArithmeticFormulaTermValue_successor_R) (syl (d3_c1 d3r_suceq_R) (bi1i d3UTC_value))))));
+theorem d3UT_add (d a b: nat): $ a e. d3UTC d /\ b e. d3UTC d -> paTermAddition a b e. d3UTC d $ =
+(named '(mpbird (a1i d3UTC_value) (mpbird (a1i (cPreq (cEqeq (cbb215ArithmeticFormulaTermValueeq eqid d3rt_add) d3qt_add)))
+  (sylc d3_ceqtr (a1i bb215ArithmeticFormulaTermValue_addition_R) (sylc (d3_c2 addeq_R) (syl (bi1i d3UTC_value) anl) (syl (bi1i d3UTC_value) anr))))));
+theorem d3UT_mul (d a b: nat): $ a e. d3UTC d /\ b e. d3UTC d -> paTermMultiplication a b e. d3UTC d $ =
+(named '(mpbird (a1i d3UTC_value) (mpbird (a1i (cPreq (cEqeq (cbb215ArithmeticFormulaTermValueeq eqid d3rt_mul) d3qt_mul)))
+  (sylc d3_ceqtr (a1i bb215ArithmeticFormulaTermValue_multiplication_R) (sylc (d3_c2 muleq_R) (syl (bi1i d3UTC_value) anl) (syl (bi1i d3UTC_value) anr))))));
+theorem d3UT_cons (d: nat): $ paTermConstructionClosed (d3UTC d) d $ =
+(named '(ian d3UT_zero (ian (ax_gen d3UT_var) (ian (ax_gen d3UT_succ) (ax_gen @ ax_gen @ iand d3UT_add d3UT_mul)))));
+pub theorem d3_UT (d t: nat): $ paTermBound d t -> cPr (cEq (cbb215ArithmeticFormulaTermValue (cpaS1Env (d3env d)) (d3rt t)) (d3qt d t)) $ =
+(named '(syl (bi1i d3UTC_value) (paTermBound_induction d3UT_cons)));
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- Freshness of structural codes and env codes.
+@_ abstract def d3NRT (z .t: nat): set = $ {t | nfr z (d3rt t)} $;
+theorem d3NRT_value (z t: nat): $ t e. d3NRT z <-> nfr z (d3rt t) $ = (named '(elabe ,eqtac));
+theorem d3NRT_zero (z: nat): $ paTermZero e. d3NRT z $ = (named '(mpbir d3NRT_value (mpbir (nfreq eqid d3rt_zero) nfr_cpaTermZero)));
+theorem d3NRT_var (z n i: nat): $ i < n -> paTermVariable i e. d3NRT z $ =
+(named '(a1i (mpbir d3NRT_value (mpbir (nfreq eqid d3rt_var) (nfr_cpaTermVariable d3_nfr_cn)))));
+theorem d3NRT_succ (z a: nat): $ a e. d3NRT z -> paTermSuccessor a e. d3NRT z $ =
+(named '(mpbird (a1i d3NRT_value) (mpbird (a1i (nfreq eqid d3rt_succ)) (syl d3_nfS (bi1i d3NRT_value)))));
+theorem d3NRT_add (z a b: nat): $ a e. d3NRT z /\ b e. d3NRT z -> paTermAddition a b e. d3NRT z $ =
+(named '(mpbird (a1i d3NRT_value) (mpbird (a1i (nfreq eqid d3rt_add)) (sylc d3_nfA (syl (bi1i d3NRT_value) anl) (syl (bi1i d3NRT_value) anr)))));
+theorem d3NRT_mul (z a b: nat): $ a e. d3NRT z /\ b e. d3NRT z -> paTermMultiplication a b e. d3NRT z $ =
+(named '(mpbird (a1i d3NRT_value) (mpbird (a1i (nfreq eqid d3rt_mul)) (sylc d3_nfM (syl (bi1i d3NRT_value) anl) (syl (bi1i d3NRT_value) anr)))));
+theorem d3NRT_cons (z n: nat): $ paTermConstructionClosed (d3NRT z) n $ =
+(named '(ian d3NRT_zero (ian (ax_gen d3NRT_var) (ian (ax_gen d3NRT_succ) (ax_gen @ ax_gen @ iand d3NRT_add d3NRT_mul)))));
+pub theorem d3_nfr_rt (z n t: nat): $ paTermBound n t -> nfr z (d3rt t) $ =
+(named '(syl (bi1i d3NRT_value) (paTermBound_induction d3NRT_cons)));
+
+@_ abstract def d3NR (z .d .c: nat): set = $ S\ d, {c | nfr z (d3r c)} $;
+theorem d3NR_value (z d c: nat): $ (d, c) e. d3NR z <-> nfr z (d3r c) $ = (named '(elsabe @ elabed ,eqtac));
+theorem d3NR_false (z n: nat): $ (n, paFormulaFalse) e. d3NR z $ = (named '(mpbir d3NR_value (mpbir (nfreq eqid d3r_false) nfr_cpaFormulaFalse)));
+theorem d3NR_eq (z n a b: nat): $ paTermBound n a /\ paTermBound n b -> (n, paFormulaEqual a b) e. d3NR z $ =
+(named '(mpbird (a1i d3NR_value) (mpbird (a1i (nfreq eqid d3r_equal)) (sylc d3_nfE (syl d3_nfr_rt anl) (syl d3_nfr_rt anr)))));
+theorem d3NR_bin (z n a b: nat): $ (n, a) e. d3NR z /\ (n, b) e. d3NR z ->
+  (n, paFormulaAnd a b) e. d3NR z /\ (n, paFormulaOr a b) e. d3NR z /\ (n, paFormulaImp a b) e. d3NR z $ =
+(named '(iand (iand
+  (mpbird (a1i d3NR_value) (mpbird (a1i (nfreq eqid d3r_and)) (sylc d3_nfAnd (syl (bi1i d3NR_value) anl) (syl (bi1i d3NR_value) anr))))
+  (mpbird (a1i d3NR_value) (mpbird (a1i (nfreq eqid d3r_or)) (sylc d3_nfOr (syl (bi1i d3NR_value) anl) (syl (bi1i d3NR_value) anr)))))
+  (mpbird (a1i d3NR_value) (mpbird (a1i (nfreq eqid d3r_imp)) (sylc d3_nfImp (syl (bi1i d3NR_value) anl) (syl (bi1i d3NR_value) anr))))));
+theorem d3NR_q (z n a: nat): $ (suc n, a) e. d3NR z -> (n, paFormulaAll a) e. d3NR z /\ (n, paFormulaEx a) e. d3NR z $ =
+(named '(iand
+  (mpbird (a1i d3NR_value) (mpbird (a1i (nfreq eqid d3r_all)) (syl d3_nfAll (bi1i d3NR_value))))
+  (mpbird (a1i d3NR_value) (mpbird (a1i (nfreq eqid d3r_ex)) (syl d3_nfEx (bi1i d3NR_value))))));
+theorem d3NR_cons (z: nat): $ paFormulaConstructionClosed (d3NR z) $ =
+(named '(ian (ian (ian (ax_gen d3NR_false) (ax_gen @ ax_gen @ ax_gen d3NR_eq)) (ax_gen @ ax_gen @ ax_gen d3NR_bin)) (ax_gen @ ax_gen d3NR_q)));
+pub theorem d3_nfr_r (z n c: nat): $ paFormulaBound n c -> nfr z (d3r c) $ =
+(named '(syl (bi1i d3NR_value) (paFormulaBound_induction d3NR_cons)));
+
+theorem d3_nfr_env_step (z y: nat): $ (y <= z -> nfr z (d3env y)) -> suc y <= z -> nfr z (d3env (suc y)) $ =
+(named '(exp (mpbird (a1i (nfreq eqid d3env_S)) (sylc d3_nfcons (syl (bi2i (noteq occ_cV)) (syl ltner anr)) (mpd (syl ltle anr) anl)))));
+pub theorem d3_nfr_env (z d: nat) {x y: nat}: $ d <= z -> nfr z (d3env d) $ =
+(named '(!! ind x y ,(eqtac-gen 'd) ,eqtac ,eqtac ,eqtac (a1i (mpbir (nfreq eqid d3env_0) nfr_c0)) d3_nfr_env_step));
+pub theorem d3_nfr_env0 (d: nat): $ nfr d (d3env d) $ = (named '(d3_nfr_env leid));

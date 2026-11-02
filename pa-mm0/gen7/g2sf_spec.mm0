@@ -1,0 +1,57 @@
+import "g2sf_head.mm0";
+def paSigma1 (c: nat): wff = $ paS1Class 1 c $;
+def paSigma1True (c a: nat): wff = $ paS1Holds c (a : 0) $;
+def thIsSigma1Rec (R: nat): wff = $ paFormulaBound 1 R /\ paSigma1 R $;
+def thAxSet (R .a: nat): set = $ {a | sfBound 0 a /\ paSigma1True R a} $;
+def zfcStdAxRecognizer: nat = $ g2szRz $;
+def thExtendsZFC (R .a: nat): wff = $ A. a (a e. zfcAxioms -> a e. thAxSet R) /\ paProvable 0 (paFormulaAll (paFormulaImp zfcStdAxRecognizer R)) $;
+def sfThProvable (R f: nat): wff = $ sfTheoryProvable (thAxSet R) f $;
+def sfThInconsistent (R: nat): wff = $ sfThProvable R sfBot $;
+def sfThMemCode: nat = $ g2sfMemCode $;
+def sfThClosedCode: nat = $ g2sfClosedCode $;
+def sfThCtxCode (R: nat): nat = $ paFormulaAll (paFormulaImp sfThMemCode (paFormulaAnd sfThClosedCode R)) $;
+def zfcStdValidCode: nat = $ g2sfValidCode $;
+def zfcStdGoalCode: nat = $ g2sfGoalCode $;
+def sfThCode (R: nat): nat = $ paFormulaEx (paFormulaEx (paFormulaAnd (sfThCtxCode R) (paFormulaAnd zfcStdValidCode zfcStdGoalCode))) $;
+def sfThPr (R: nat): nat = $ bb215ProvabilityImageFormula bb215L3pGsr (sfThCode R) $;
+def sfThCon (R: nat): nat = $ bb215ProvabilityConsistencyPA (sfThPr R) $;
+theorem G2_generic_set (R: nat)
+  (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $):
+  $ ~sfThInconsistent R -> ~sfThProvable R (paFormulaSource (sfThCon R)) $;
+theorem BB_generic_set_thm2 (R m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (sfThPr R) (tmHaltsPA m M) $):
+  $ ~sfThInconsistent R <-> A. b ~sfThProvable R (bbSentenceSource n b) $;
+theorem BB_generic_set_thm3 (R m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (sfThPr R) (tmHaltsPA m M) $):
+  $ (~sfThInconsistent R <-> ~tmHalts m M) /\
+    (~tmHalts m M <-> A. b ~sfThProvable R (bbSentenceSource n b)) $;
+theorem BB_generic_set_thm2_P (A: set) (P G m n M: nat) {a b c: nat}
+  (hA: $ zfcAxioms C_ A $)
+  (hP: $ paFormulaBound 1 P $)
+  (h1: $ A. c bb215ProvabilityD1T A bb215G2ASrc P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfTheoryProvable A sfBot $)
+  (hB: $ bb215ProvabilityInternalBridge P (tmHaltsPA m M) $):
+  $ ~sfTheoryProvable A sfBot <-> A. b ~sfTheoryProvable A (bbSentenceSource n b) $;
+theorem BB_generic_set_thm3_P (A: set) (P G m n M: nat) {a b c: nat}
+  (hA: $ zfcAxioms C_ A $)
+  (hP: $ paFormulaBound 1 P $)
+  (h1: $ A. c bb215ProvabilityD1T A bb215G2ASrc P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfTheoryProvable A sfBot $)
+  (hB: $ bb215ProvabilityInternalBridge P (tmHaltsPA m M) $):
+  $ (~sfTheoryProvable A sfBot <-> ~tmHalts m M) /\
+    (~tmHalts m M <-> A. b ~sfTheoryProvable A (bbSentenceSource n b)) $;
+theorem g2sfSpec_final: $ paFormulaBound 0 paFormulaFalse $;

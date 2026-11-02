@@ -1,0 +1,330 @@
+import "../g2_generic_defs_frozen.mm0";
+import "../zfc_incompleteness_defs.mm0";
+import "../k215_literal_tm.mm0";
+import "../zfc_proofs.mm0";
+import "../bb215_arithmetic_sentence_syntax.mm0";
+
+-- Spec (lane G2GEN; DRAFT for owner approval, NOT approved, NOT frozen). Not a certificate, no claim of proof.
+-- The one-time "Theorem 1 => Theorems 2 / 3 and G2" framework for extensions of ZFC (set front end) and of PA
+-- (PA front end). Separate from final.mm0, incompleteness.mm0 (both frozen, untouched) and incompleteness_std.mm0.
+-- Plan, options (a) / (b) / (c), estimates and open questions: lanes/G2GEN.md.
+--
+-- READ FIRST: what the owner supplies per new theory T and machine M, and what is automatic.
+--   SUPPLIED  R    a Sigma1 PA formula code, the axiom recognizer of T (thIsSigma1Rec R: syntactic). For T ⊇ ZFC
+--                  write R = thZFCPlus Rx (e.g. Rx = thSingleton s for ZFC + one sentence s).
+--   SUPPLIED  M    a literal m-state table, any n >= m.
+--   SUPPLIED  hT1  THEOREM 1 FOR T, an MM0 theorem in the STANDARD sense:  tmHalts m M <-> sfThInconsistent R
+--                  (sfThInconsistent R = "there is an sfNDFullRules proof of sfBot from axioms of T").
+--   SUPPLIED  hB   THE INTERNAL BRIDGE, a CODED PA theorem:  PA |- Pr_T(False) -> "M halts", i.e.
+--                  bb215ProvabilityInternalBridge (sfThPr R) (tmHaltsPA m M). It is mathematically unavoidable
+--                  (without it T may prove the true Pi1 sentence "M does not halt" consistently; see lanes/G2GEN.md
+--                  section 1). Under the recommended option (a) it is NOT hand work: section (F) produces it from the
+--                  MM0 proof of the direction sfThInconsistent R -> tmHalts m M of hT1 by the reflection compiler.
+--   AUTOMATIC      Pr_T, Con_T, D1-D3, fixed point, transfer, G2 for T, Theorems 2 and 3 for T (sections B-D),
+--                  the run cut / BB encoding bridge, the route-B Pi2 normal forms and their HA proofs (section E).
+-- K215 is an instance (section G) through the general-predicate form (B'), with P = zfcPr of the frozen spec and
+-- K215's existing internal bridge; its Theorem 1 already has the required standard form (zfcInconsistent =
+-- zfcProvable sfBot = sfThInconsistent zfcStdAxRecognizer).
+--
+-- Vocabulary (definitions in g2_generic_defs.mm0 and the imported closure):
+--   sfThProvable R f      T |- f, set front end (sfTheoryProvable (thAxSet R) f).
+--   paThProvable A c      T |- c, PA front end (PA's Hilbert calculus plus axioms from A); paThAxSet R.
+--   sfThPr R / paThPr R   the standard provability formula Pr_T (one free variable); sfThCon R / paThCon R = ~Pr_T(F.).
+--   tmHalts k M           the k-state table M halts (halt label k); tmHaltsPA k M its closed PA code.
+--   bbSentencePA n b      the PA sentence "BB(n) = b"; bbSentenceSource n b its set-theoretic translation.
+--   bb215ProvabilityD1T/D2/D3/FixedPoint/InternalBridge/RunCut, bb215G2ASrc (= paFormulaSource): as in incompleteness.mm0.
+
+-- (A) Abstract G2. (A1) set language: verbatim the frozen spec's G2_abstract (proof bb215ProvabilityG2_abstract).
+theorem G2_abstract (T tau: set) (P G: nat) {c a b u v: nat}
+  (hP: $ paFormulaBound 1 P $)
+  (hI: $ A. u A. v tau @ paFormulaImp u v = sfImp (tau @ u) (tau @ v) $)
+  (hF: $ tau @ paFormulaFalse = sfBot $)
+  (hB: $ A. c (paFormulaBound 0 c -> sfBound 0 (tau @ c)) $)
+  (hT: $ A. c (paProvable 0 c -> sfTheoryProvable T (tau @ c)) $)
+  (h1: $ A. c bb215ProvabilityD1T T tau P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $):
+  $ ~sfTheoryProvable T sfBot -> ~sfTheoryProvable T (tau @ bb215ProvabilityConsistencyPA P) $;
+-- (A2) PA language: any set A of closed PA sentences, T = PA + A (translation = identity).
+theorem G2_abstract_pa (A: set) (P G: nat) {c a b: nat}
+  (hA: $ A. c (c e. A -> paFormulaBound 0 c) $)
+  (hP: $ paFormulaBound 1 P $)
+  (h1: $ A. c (paFormulaBound 0 c -> paThProvable A c -> paProvable 0 (bb215PrAt P c)) $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $):
+  $ ~paThProvable A paFormulaFalse -> ~paThProvable A (bb215ProvabilityConsistencyPA P) $;
+
+-- (B) HEADLINE META-THEOREMS, set front end: any T ⊇ ZFC given by a Sigma1 recognizer R.
+-- (B1) G2 for T with its standard predicate. No hypothesis beyond the recognizer.
+theorem G2_generic_set (R: nat)
+  (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $):
+  $ ~sfThInconsistent R -> ~sfThProvable R (paFormulaSource (sfThCon R)) $;
+-- (B2) Theorem 2 for T from Theorem 1 for T (hT1, standard) and the internal bridge (hB).
+theorem BB_generic_set_thm2 (R m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (sfThPr R) (tmHaltsPA m M) $):
+  $ ~sfThInconsistent R <-> A. b ~sfThProvable R (bbSentenceSource n b) $;
+-- (B3) Theorem 3 for T (the conjunction with Theorem 1), same hypotheses.
+theorem BB_generic_set_thm3 (R m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (sfThPr R) (tmHaltsPA m M) $):
+  $ (~sfThInconsistent R <-> ~tmHalts m M) /\
+    (~tmHalts m M <-> A. b ~sfThProvable R (bbSentenceSource n b)) $;
+-- (B') General-predicate form (any axiom set A ⊇ ZFC, any provability formula P with the HBL package relative to
+-- (A, paFormulaSource) and an internal bridge for P). (B2) is the instance P = sfThPr R; K215 is the instance
+-- P = zfcPr (section G). Theorem 1 stays standard (sfTheoryProvable A sfBot); only the bridge mentions P.
+theorem BB_generic_set_thm2_P (A: set) (P G m n M: nat) {a b c: nat}
+  (hA: $ zfcAxioms C_ A $)
+  (hP: $ paFormulaBound 1 P $)
+  (h1: $ A. c bb215ProvabilityD1T A bb215G2ASrc P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfTheoryProvable A sfBot $)
+  (hB: $ bb215ProvabilityInternalBridge P (tmHaltsPA m M) $):
+  $ ~sfTheoryProvable A sfBot <-> A. b ~sfTheoryProvable A (bbSentenceSource n b) $;
+theorem BB_generic_set_thm3_P (A: set) (P G m n M: nat) {a b c: nat}
+  (hA: $ zfcAxioms C_ A $)
+  (hP: $ paFormulaBound 1 P $)
+  (h1: $ A. c bb215ProvabilityD1T A bb215G2ASrc P c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 P a b $)
+  (h3: $ A. a bb215ProvabilityD3 P a $)
+  (hG: $ bb215ProvabilityFixedPoint P G $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfTheoryProvable A sfBot $)
+  (hB: $ bb215ProvabilityInternalBridge P (tmHaltsPA m M) $):
+  $ (~sfTheoryProvable A sfBot <-> ~tmHalts m M) /\
+    (~tmHalts m M <-> A. b ~sfTheoryProvable A (bbSentenceSource n b)) $;
+
+-- (B-PA) HEADLINE META-THEOREMS, PA front end: T = PA + paThAxSet R (T ⊇ PA by construction).
+theorem G2_generic_pa (R: nat)
+  (hR: $ thIsSigma1Rec R $):
+  $ ~paThInconsistent R -> ~paThProvable (paThAxSet R) (paThCon R) $;
+theorem BB_generic_pa_thm2 (R m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec R $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> paThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (paThPr R) (tmHaltsPA m M) $):
+  $ ~paThInconsistent R <-> A. b ~paThProvable (paThAxSet R) (bbSentencePA n b) $;
+theorem BB_generic_pa_thm3 (R m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec R $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> paThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (paThPr R) (tmHaltsPA m M) $):
+  $ (~paThInconsistent R <-> ~tmHalts m M) /\
+    (~tmHalts m M <-> A. b ~paThProvable (paThAxSet R) (bbSentencePA n b)) $;
+
+-- (C) The generic HBL package (proved ONCE; the meta-theorems of (B) are (A) + (C) + the run cut of (D3)).
+-- (C1) set front end.
+theorem sfThPr_formula (R: nat) (hR: $ thIsSigma1Rec R $): $ paFormulaBound 1 (sfThPr R) $;
+theorem sfThCon_sentence (R: nat) (hR: $ thIsSigma1Rec R $): $ paFormulaBound 0 (sfThCon R) $;
+theorem sfTh_PA_transfer (R: nat) {c: nat} (hZ: $ thExtendsZFC R $):
+  $ A. c (paProvable 0 c -> sfThProvable R (paFormulaSource c)) $;
+theorem sfThPr_D1 (R: nat) {c: nat} (hR: $ thIsSigma1Rec R $):
+  $ A. c bb215ProvabilityD1T (thAxSet R) bb215G2ASrc (sfThPr R) c $;
+theorem sfThPr_D2 (R: nat) {a b: nat} (hR: $ thIsSigma1Rec R $):
+  $ A. a A. b bb215ProvabilityD2 (sfThPr R) a b $;
+theorem sfThPr_D3 (R: nat) {a: nat} (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $):
+  $ A. a bb215ProvabilityD3 (sfThPr R) a $;
+theorem sfThPr_fixed_point (R: nat) (hR: $ thIsSigma1Rec R $):
+  $ bb215ProvabilityFixedPoint (sfThPr R) (bb215ProvabilityGodel (sfThPr R)) $;
+-- (C2) PA front end.
+theorem paThPr_formula (R: nat) (hR: $ thIsSigma1Rec R $): $ paFormulaBound 1 (paThPr R) $;
+theorem paTh_PA_transfer (R: nat) {c: nat}: $ A. c (paProvable 0 c -> paThProvable (paThAxSet R) c) $;
+theorem paThPr_D1 (R: nat) {c: nat} (hR: $ thIsSigma1Rec R $):
+  $ A. c (paFormulaBound 0 c -> paThProvable (paThAxSet R) c -> paProvable 0 (bb215PrAt (paThPr R) c)) $;
+theorem paThPr_D2 (R: nat) {a b: nat} (hR: $ thIsSigma1Rec R $):
+  $ A. a A. b bb215ProvabilityD2 (paThPr R) a b $;
+theorem paThPr_D3 (R: nat) {a: nat} (hR: $ thIsSigma1Rec R $):
+  $ A. a bb215ProvabilityD3 (paThPr R) a $;
+theorem paThPr_fixed_point (R: nat) (hR: $ thIsSigma1Rec R $):
+  $ bb215ProvabilityFixedPoint (paThPr R) (bb215ProvabilityGodel (paThPr R)) $;
+
+-- (D) Adequacy and the three language bridges (each proved once, generic in R / n / M).
+-- (D1) Sigma1 truth and the recognizer: R defines thAxSet R, and true instances are PA-provable (Sigma1-completeness).
+theorem thAxSet_value (R a: nat): $ a e. thAxSet R <-> sfBound 0 a /\ paSigma1True R a $;
+theorem paSigma1True_complete (R: nat) {a: nat} (hR: $ thIsSigma1Rec R $):
+  $ A. a (paSigma1True R a -> paProvable 0 (bb215PrAt R a)) $;
+-- (D2) bridge (i), standard predicate: Prov_T defines T-provability exactly, so Con_T is true iff T is consistent.
+theorem sfThCode_defines (R y: nat) (hR: $ thIsSigma1Rec R $):
+  $ paSigma1True (sfThCode R) y <-> sfThProvable R y $;
+theorem sfThCon_true_iff_consistent (R: nat) (hR: $ thIsSigma1Rec R $):
+  $ ~paSigma1True (sfThCode R) sfBot <-> ~sfThInconsistent R $;
+theorem paThCode_defines (R c: nat) (hR: $ thIsSigma1Rec R $):
+  $ paSigma1True (paThCode R) c <-> paThProvable (paThAxSet R) c $;
+-- bridge (i) at ZFC: the generic predicate at zfcStdAxRecognizer IS the standard ZFC predicate, meta (zfcProvable,
+-- hence zfcInconsistent) and as a code (the g2std zfcStdCode: requires g2std's context leaf to be built as
+-- sfThCtxCode zfcStdAxRecognizer at freeze, open question Q7).
+theorem zfcStdAxRecognizer_rec: $ thIsSigma1Rec zfcStdAxRecognizer $;
+theorem zfcStdAxRecognizer_axioms (a: nat): $ a e. thAxSet zfcStdAxRecognizer <-> a e. zfcAxioms $;
+theorem sfThProvable_zfc (f: nat): $ sfThProvable zfcStdAxRecognizer f <-> zfcProvable f $;
+theorem sfThInconsistent_zfc: $ sfThInconsistent zfcStdAxRecognizer <-> zfcInconsistent $;
+theorem sfThCode_zfc: $ sfThCode zfcStdAxRecognizer = zfcStdCode $;
+theorem sfThPr_zfc: $ sfThPr zfcStdAxRecognizer = zfcPrStd $;
+-- thZFCPlus: the extension interface is automatic.
+theorem thZFCPlus_rec (Rx: nat) (h: $ thIsSigma1Rec Rx $): $ thIsSigma1Rec (thZFCPlus Rx) $;
+theorem thZFCPlus_extends (Rx: nat) (h: $ thIsSigma1Rec Rx $): $ thExtendsZFC (thZFCPlus Rx) $;
+theorem thZFCPlus_axioms (Rx a: nat) (h: $ thIsSigma1Rec Rx $):
+  $ a e. thAxSet (thZFCPlus Rx) <-> a e. zfcAxioms \/ a e. thAxSet Rx $;
+theorem thSingleton_rec (s: nat): $ thIsSigma1Rec (thSingleton s) $;
+theorem thSingleton_axioms (s a: nat): $ a e. thAxSet (thSingleton s) <-> sfBound 0 s /\ a = s $;
+-- (D3) bridge (ii), BB / halting encoding: the codes mean what they say, the K215 codes are the n = 215 instances,
+-- padding (for 0 < m <= n, owner fix F1 2026-10-25), and the generic run cut (PA |- BB(n) = b -> ~"M halts" whenever M
+-- does not halt; tmRunCut, owner fix F2 2026-10-25).
+theorem bbValueCode_defines (E: set) (n: nat):
+  $ bb215ArithmeticFormulaDepthTwentyfourSat E (bbValueCode n) <-> bbValue n (E @ 0) $;
+theorem tmHaltsPA_sentence (k M: nat): $ paFormulaBound 0 (tmHaltsPA k M) $;
+theorem bbSentencePA_sentence (n b: nat): $ paFormulaBound 0 (bbSentencePA n b) $;
+theorem tmHalts_k215 (T: nat) (hr: $ bb215RepresentsLiteral T $): $ tmHalts k215Num215 T <-> k215LiteralHalts $;
+theorem tmValid_k215 (T: nat) (hr: $ bb215RepresentsLiteral T $): $ tmValid k215Num215 T $;
+theorem bbSentencePA_k215 (b: nat): $ bbSentencePA k215Num215 b = bb215ArithmeticSentencePA b $;
+theorem bbSentenceSource_k215 (b: nat): $ bbSentenceSource k215Num215 b = bb215ArithmeticSentenceSource b $;
+theorem tmHaltsPA_k215 (T: nat): $ tmHaltsPA k215Num215 T = paFormulaSubst 0 (paTermNumeral T) bb215ValueHaltsOpenPA $;
+theorem tmPad_exists (m n M: nat) {T: nat} (hM: $ tmValid m M $) (hmn: $ m <= n $): $ E. T tmPadOf m n M T $;
+theorem tmPad_halts (m n M T: nat) (hM: $ tmValid m M $) (hp: $ tmPadOf m n M T $)
+  (h0: $ 0 < m $) (hmn: $ m <= n $): $ tmHalts n T <-> tmHalts m M $;
+theorem tmPad_haltsPA (m n M T: nat) (hM: $ tmValid m M $) (hp: $ tmPadOf m n M T $)
+  (h0: $ 0 < m $) (hmn: $ m <= n $):
+  $ paProvable 0 (paFormulaImp (tmHaltsPA m M) (tmHaltsPA n T)) $;
+theorem tm_run_cut (m n M: nat) {b: nat} (hM: $ tmValid m M $) (hmn: $ m <= n $):
+  $ ~tmHalts m M -> A. b tmRunCut n (tmHaltsPA m M) b $;
+-- tmRunCut (fix F2, g2_generic_tm_defs.mm0) is the run cut for "BB(n) = b"; at n = 215 it is K215's.
+theorem tmRunCut_k215 (H b: nat): $ tmRunCut k215Num215 H b <-> bb215ProvabilityRunCut H b $;
+-- (D4) bridge (iii), the PA -> set translation: version 1 uses paFormulaSource (omega-based), which needs T ⊇ ZFC
+-- (thExtendsZFC). Bases without Infinity (B = ZF - Inf + TC) are NOT covered by this spec (lanes/G2GEN.md Q3);
+-- they would add a relativized translation tau_B = sfRelativize omegaB o paFormulaSource with its own (C1).
+
+-- (E) Route B: the HA versions come out of the translator with no per-theory hand work.
+-- (E1) generic certificate bridges (proved once; generalize B4 / B4b's bdZfcPrf_iff, bdK215Halt_iff, bdBB215Prf_iff,
+-- bdZfcConPrf_iff).
+theorem bdThPrf_iff (R s: nat) {w: nat} (hR: $ thIsSigma1Rec R $):
+  $ sfThProvable R s <-> E. w bdThPrf R w s $;
+theorem bdPaThPrf_iff (R c: nat) {w: nat} (hR: $ thIsSigma1Rec R $):
+  $ paThProvable (paThAxSet R) c <-> E. w bdPaThPrf R w c $;
+theorem bdTmHalt_iff (k M: nat) {h: nat}: $ tmHalts k M <-> E. h bdTmHalt k M h $;
+theorem bdBBPrf_iff (R n: nat) {b u: nat} (hR: $ thIsSigma1Rec R $):
+  $ E. b sfThProvable R (bbSentenceSource n b) <-> E. u bdBBPrf R n u $;
+theorem bdPaBBPrf_iff (R n: nat) {b u: nat} (hR: $ thIsSigma1Rec R $):
+  $ E. b paThProvable (paThAxSet R) (bbSentencePA n b) <-> E. u bdPaBBPrf R n u $;
+theorem bdConPrf_iff (R: nat) {u: nat} (hR: $ thIsSigma1Rec R $):
+  $ sfThProvable R (paFormulaSource (sfThCon R)) <-> E. u bdConPrf R u $;
+theorem bdPaConPrf_iff (R: nat) {u: nat} (hR: $ thIsSigma1Rec R $):
+  $ paThProvable (paThAxSet R) (paThCon R) <-> E. u bdPaConPrf R u $;
+-- (E2) Pi2 normal forms of Theorems 1-3 and G2 (B5 "closedhyp" shape A. x (D x -> E. y D' y)), set front end, under
+-- the hypotheses of (B2). PA front end: same with bdPaThPrf / bdPaBBPrf / bdPaConPrf (stated in the module, not here).
+theorem BB_generic_set_sigma1 (R m M: nat) {h w: nat}
+  (hR: $ thIsSigma1Rec R $) (hT1: $ tmHalts m M <-> sfThInconsistent R $):
+  $ A. h (bdTmHalt m M h -> E. w bdThPrf R w sfBot) $;
+theorem BB_generic_set_sigma2 (R m M: nat) {h w: nat}
+  (hR: $ thIsSigma1Rec R $) (hT1: $ tmHalts m M <-> sfThInconsistent R $):
+  $ A. w (bdThPrf R w sfBot -> E. h bdTmHalt m M h) $;
+theorem BB_generic_set_thm2_pi2a (R m n M: nat) {u w: nat}
+  (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $) (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (sfThPr R) (tmHaltsPA m M) $):
+  $ A. u (bdBBPrf R n u -> E. w bdThPrf R w sfBot) $;
+theorem BB_generic_set_thm2_pi2b (R n: nat) {w u: nat} (hR: $ thIsSigma1Rec R $):
+  $ A. w (bdThPrf R w sfBot -> E. u bdBBPrf R n u) $;
+theorem BB_generic_set_thm3_pi2a (R m n M: nat) {h u: nat}
+  (hR: $ thIsSigma1Rec R $) (hT1: $ tmHalts m M <-> sfThInconsistent R $):
+  $ A. h (bdTmHalt m M h -> E. u bdBBPrf R n u) $;
+theorem BB_generic_set_thm3_pi2b (R m n M: nat) {u h: nat}
+  (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $) (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfThInconsistent R $)
+  (hB: $ bb215ProvabilityInternalBridge (sfThPr R) (tmHaltsPA m M) $):
+  $ A. u (bdBBPrf R n u -> E. h bdTmHalt m M h) $;
+theorem G2_generic_set_pi2 (R: nat) {u w: nat} (hR: $ thIsSigma1Rec R $) (hZ: $ thExtendsZFC R $):
+  $ A. u (bdConPrf R u -> E. w bdThPrf R w sfBot) $;
+
+-- (F) OPTION (a) (recommended; lanes/G2GEN.md section 3): the internal bridge hB from the reflected MM0 proof of
+-- Theorem 1's direction "T inconsistent -> M halts". The reflection compiler turns that MM0 proof into the coded
+-- theorem hRefl; the two code bridges below are proved ONCE (they relate the compiler's codes of the MM0 defs
+-- sfThInconsistent / tmHalts to the hand codes of (B)).
+theorem reflThInconsistent_pr (R: nat) (hR: $ thIsSigma1Rec R $):
+  $ paProvable 0 (paFormulaImp (bb215PrAt (sfThPr R) paFormulaFalse) (reflThInconsistent R)) $;
+theorem reflTmHalts_code (k M: nat):
+  $ paProvable 0 (paFormulaImp (reflTmHalts k M) (tmHaltsPA k M)) $;
+theorem bridge_of_reflection (R m M: nat) (hR: $ thIsSigma1Rec R $)
+  (hRefl: $ paProvable 0 (paFormulaImp (reflThInconsistent R) (reflTmHalts m M)) $):
+  $ bb215ProvabilityInternalBridge (sfThPr R) (tmHaltsPA m M) $;
+theorem bridge_of_reflection_pa (R m M: nat) (hR: $ thIsSigma1Rec R $)
+  (hRefl: $ paProvable 0 (paFormulaImp (reflPaThInconsistent R) (reflTmHalts m M)) $):
+  $ bb215ProvabilityInternalBridge (paThPr R) (tmHaltsPA m M) $;
+
+-- (G) INSTANCE CHECKS (stated, not proved).
+-- (G1) K215: final.mm0's Theorems 2 and 3 from (B') at A = zfcAxioms, P = zfcPr (the frozen spec's predicate),
+-- m = n = 215, M = any table representing the literal K215; hT1 = final.mm0's Theorem 1 (standard: zfcInconsistent);
+-- h2 / h3 / hG = incompleteness.mm0's zfcPr_D2 / zfcPr_D3 / zfcPr_fixed_point; h1 from zfcPr_D1 by
+-- bb215ProvabilityD1T_zfc; hB = K215's internal bridge (k215AssemblyG3_value's hB at H = k215FinalH).
+theorem K215_thm2_from_generic (T: nat) {a b c: nat}
+  (hr: $ bb215RepresentsLiteral T $)
+  (hT1: $ k215LiteralHalts <-> zfcInconsistent $)
+  (h1: $ A. c bb215ProvabilityD1 zfcPr c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 zfcPr a b $)
+  (h3: $ A. a bb215ProvabilityD3 zfcPr a $)
+  (hG: $ bb215ProvabilityFixedPoint zfcPr (bb215ProvabilityGodel zfcPr) $)
+  (hB: $ bb215ProvabilityInternalBridge zfcPr (paFormulaSubst 0 (paTermNumeral T) bb215ValueHaltsOpenPA) $):
+  $ ~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b) $;
+theorem K215_thm3_from_generic (T: nat) {a b c: nat}
+  (hr: $ bb215RepresentsLiteral T $)
+  (hT1: $ k215LiteralHalts <-> zfcInconsistent $)
+  (h1: $ A. c bb215ProvabilityD1 zfcPr c $)
+  (h2: $ A. a A. b bb215ProvabilityD2 zfcPr a b $)
+  (h3: $ A. a bb215ProvabilityD3 zfcPr a $)
+  (hG: $ bb215ProvabilityFixedPoint zfcPr (bb215ProvabilityGodel zfcPr) $)
+  (hB: $ bb215ProvabilityInternalBridge zfcPr (paFormulaSubst 0 (paTermNumeral T) bb215ValueHaltsOpenPA) $):
+  $ (~zfcInconsistent <-> ~k215LiteralHalts) /\
+    (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) $;
+-- (G2) ZFC with the standard predicate: G2 of incompleteness_std.mm0 is (B1) at zfcStdAxRecognizer; Theorem 2 for ZFC
+-- via the standard predicate needs the standard internal bridge, which K215 does not have (lanes/G2GEN.md 1.3).
+theorem ZFC_G2_std_from_generic: $ ~zfcInconsistent -> ~zfcProvable (paFormulaSource zfcConStd) $;
+theorem ZFC_thm2_std_from_generic (T: nat) {b: nat}
+  (hr: $ bb215RepresentsLiteral T $)
+  (hT1: $ k215LiteralHalts <-> zfcInconsistent $)
+  (hB: $ bb215ProvabilityInternalBridge zfcPrStd (paFormulaSubst 0 (paTermNumeral T) bb215ValueHaltsOpenPA) $):
+  $ ~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b) $;
+-- (G3) a new theory, ZFC + one sentence s (e.g. s = "there is a proper class of inaccessible cardinals"): the whole
+-- per-theory input is s, the table M, Theorem 1 and the bridge.
+theorem BB_zfc_plus_sentence_thm2 (s m n M: nat) {b: nat}
+  (hs: $ sfBound 0 s $) (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfThInconsistent (thZFCPlus (thSingleton s)) $)
+  (hB: $ bb215ProvabilityInternalBridge (sfThPr (thZFCPlus (thSingleton s))) (tmHaltsPA m M) $):
+  $ ~sfThInconsistent (thZFCPlus (thSingleton s)) <->
+    A. b ~sfThProvable (thZFCPlus (thSingleton s)) (bbSentenceSource n b) $;
+
+-- (G4) ZFC + Vopenka's Principle, a SCHEMA (infinitely many axioms) incompatible with V = L. Formulation
+-- (lanes/G2GEN.md section 9): for every formula phi(x, p) and parameters p, if {x | phi(x, p)} is a proper class
+-- of graphs then there are distinct G, H in it with a graph homomorphism G -> H (equivalent over ZFC to Jech's
+-- elementary-embedding form, Adamek-Rosicky Thm 6.9; owner question Q11). Codes: zfcVPCode / zfcVPAxioms
+-- (g2_generic_vp.mm0, generated, fully written); recognizer zfcVPRecognizer (generated; contract below).
+theorem zfcVPCode_closed (phi n: nat): $ sfBound (suc n) phi -> sfBound 0 (zfcVPCode phi n) $;
+theorem zfcVPCode_bounds (phi n: nat): $ phi <= zfcVPCode phi n /\ n <= zfcVPCode phi n $;
+theorem zfcVPRecognizer_rec: $ thIsSigma1Rec zfcVPRecognizer $;
+theorem zfcVPRecognizer_axioms (a: nat): $ a e. thAxSet zfcVPRecognizer <-> a e. zfcVPAxioms $;
+theorem zfcVPTheory_axioms (a: nat): $ a e. thAxSet zfcVPTheory <-> a e. zfcAxioms \/ a e. zfcVPAxioms $;
+theorem BB_zfc_vp_thm2 (m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec zfcVPTheory $) (hZ: $ thExtendsZFC zfcVPTheory $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfThInconsistent zfcVPTheory $)
+  (hB: $ bb215ProvabilityInternalBridge (sfThPr zfcVPTheory) (tmHaltsPA m M) $):
+  $ ~sfThInconsistent zfcVPTheory <-> A. b ~sfThProvable zfcVPTheory (bbSentenceSource n b) $;
+theorem BB_zfc_vp_thm3 (m n M: nat) {b: nat}
+  (hR: $ thIsSigma1Rec zfcVPTheory $) (hZ: $ thExtendsZFC zfcVPTheory $)
+  (hM: $ tmValid m M $) (hmn: $ m <= n $)
+  (hT1: $ tmHalts m M <-> sfThInconsistent zfcVPTheory $)
+  (hB: $ bb215ProvabilityInternalBridge (sfThPr zfcVPTheory) (tmHaltsPA m M) $):
+  $ (~sfThInconsistent zfcVPTheory <-> ~tmHalts m M) /\
+    (~tmHalts m M <-> A. b ~sfThProvable zfcVPTheory (bbSentenceSource n b)) $;
+theorem G2_zfc_vp
+  (hR: $ thIsSigma1Rec zfcVPTheory $) (hZ: $ thExtendsZFC zfcVPTheory $):
+  $ ~sfThInconsistent zfcVPTheory -> ~sfThProvable zfcVPTheory (paFormulaSource (sfThCon zfcVPTheory)) $;
+
+-- Hypothesis-free last theorem.
+theorem G2_generic_set_zfc_end: $ ~sfThInconsistent zfcStdAxRecognizer -> ~sfThProvable zfcStdAxRecognizer (paFormulaSource (sfThCon zfcStdAxRecognizer)) $;
