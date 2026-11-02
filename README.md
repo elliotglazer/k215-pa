@@ -130,6 +130,23 @@ peak was 459 GB) and several hours.
    `compare_report.py` then checks that your run covered exactly the receipt's sources, spec, proof input and
    theorems.
 
+## Archived proof binaries (Zenodo)
+
+The proof binaries are archived at [doi:10.5281/zenodo.23872595](https://doi.org/10.5281/zenodo.23872595)
+(4.6 GB download, zstd-compressed, with `SHA256SUMS`, `MANIFEST.json` and a README giving the verification steps):
+
+- **PA**: `b4b_final.mmb.zst` (9.70 GB unpacked, sha256 `25b7a4d5...`), checked by `mm0-c` against its joined
+  specification over the 26 axioms of `peano.mm0`, which states 4 Pi2 theorems: `K215_thm2_pi2a` (a ZFC proof
+  of a value sentence for BB(215) gives a ZFC proof of falsity), `K215_thm3_pi2a` / `K215_thm3_pi2b` (K215 halts
+  iff ZFC proves a value sentence for BB(215)) and `K215_G2_pi2` (a ZFC proof of Con(ZFC) gives a ZFC proof of
+  falsity). The binary also contains the Theorem 1 closure of this repository.
+- **HA**: `b6-out.mmb.zst` (18.46 GB unpacked, sha256 `636804b4...`), checked by `mm0-c` against `b6-out.mm0`:
+  the intuitionistic foundation `hpeano.mm0` (Heyting arithmetic), the bounded definitions, and 7 hypothesis-free
+  Pi2 statements: Theorem 1 in both directions (`K215_sigma1`, `K215_sigma2`), Theorem 2 in both directions
+  (`K215_thm2_pi2a`, `K215_thm2_pi2b`), Theorem 3 in both directions, and `K215_G2_pi2`. It was
+  produced from the PA proof by a certifying negative + Friedman (A-) translation and checked with an `mm0-c` build whose hypothesis and
+  unification stacks are 4096 instead of 256 (the recipe and pinned hash are in the archive).
+
 ## Repository layout
 
 | path | contents |
