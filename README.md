@@ -271,6 +271,8 @@ The proof binaries are archived at [doi:10.5281/zenodo.23872595](https://doi.org
   unification stacks are 4096 instead of 256 (the recipe and pinned hash are in the archive).
   The translator, as the exact snapshot that produced this binary, is in [`routeb/`](routeb/README.md).
 
+The two linked proof binaries of the generic framework (PA front end, host job C-084; ZFC front end, C-092), with their checked specifications and receipts, are archived at [doi:10.5281/zenodo.23878192](https://doi.org/10.5281/zenodo.23878192) (232 MB download, zstd-compressed; supplements the K215 record doi:10.5281/zenodo.23872595).
+
 ## Repository layout
 
 | path | contents |

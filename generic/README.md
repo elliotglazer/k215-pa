@@ -14,6 +14,10 @@ Both front ends were kernel-checked end to end on the host (runs C-084 and C-092
 linked binary against a spec consisting of `peano.mm0`'s 26 axioms, every definition body, and the headline
 statements below; the same binary with the last statement replaced by `F.` was rejected.
 
+## Archived linked binaries (Zenodo)
+
+The two linked proof binaries of the generic framework (PA front end, host job C-084; ZFC front end, C-092), with their checked specifications and receipts, are archived at [doi:10.5281/zenodo.23878192](https://doi.org/10.5281/zenodo.23878192) (232 MB download, zstd-compressed; supplements the K215 record doi:10.5281/zenodo.23872595).
+
 ## 1. The statements
 
 The specification is [`pa-mm0/targets/g2_generic_frozen.mm0`](../pa-mm0/targets/g2_generic_frozen.mm0)
@@ -250,9 +254,10 @@ The files not in git or earlier releases (400 files, 239,380,702 bytes) are list
     mm0-c linked.mmb < generic/receipts/C-084/linked.mm0     # expect rc 0
     mm0-c linked.mmb < generic/receipts/C-092/linked.mm0
 
-with the linked binaries above (sha256 `db14a765...`, `9d918fd8...`). **The linked binaries are not archived yet**
-(open item); until they are, re-verification means re-running the pipeline (reflection + hand compile + link;
-C-084: ~74 GB peak commit for the hand compile, C-092: ~124 GB) from the sources and the tool snapshot. Then check
+with the linked binaries above (sha256 `db14a765...`, `9d918fd8...`), downloadable (zstd-compressed) from
+[doi:10.5281/zenodo.23878192](https://doi.org/10.5281/zenodo.23878192). Alternatively re-run the pipeline (reflection
++ hand compile + link; C-084: ~74 GB peak commit for the hand compile, C-092: ~124 GB) from the sources and the tool
+snapshot. Then check
 that the linked spec's axioms are `peano.mm0`'s 26 (`tools/gen7/axioms.py linked.mmb linked.mm0`) and run the freeze
 check of section 1.3, which ties the linked specs to the frozen spec.
 
