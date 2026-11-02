@@ -1,0 +1,223 @@
+-- hpeano.mm0 -- intuitionistic (Heyting Arithmetic) foundation for Route B.
+-- STATUS: approved by Elliot 2026-10-24 (blueprint node B0), with the coordinator's recommended answers to the six open questions.
+--
+-- Derived from foundation/peano.mm0 (26 axioms); 34 axioms here. Differences, axiom by axiom,
+-- with soundness and conservativity arguments: docs/hpeano-audit.md.
+--   * dropped: ax_3 (classical), ax_10 (now a theorem of ax_i5r), itru (T. is a def),
+--              the / theid / the0 (description; proves WLEM, see scoping report)
+--   * new primitives: F., /\, \/, E. (peano defines /\, \/, E. negatively)
+--   * new axioms: efq, ani/anl/anr, orl/orr/ore, exi/exe, ax_sp,
+--                 ax_ial/ax_ie1/ax_i5r (iset.mm "bound in" axioms)
+--   * defs: kept where the body is `the`-free; `~` and `T.` become defs.
+-- Notations and names follow peano.mm0 wherever possible.
+
+delimiter $ ( { ~ $  $ } ) , $;
+--| Well formed formulas, or propositions.
+strict provable sort wff;
+--| Implication: if p, then q.
+term im (p q: wff): wff; infixr im: $->$ prec 25;
+
+--| Falsum. Primitive here (peano defines it as `~T.`).
+term fal: wff; prefix fal: $F.$ prec max;
+--| Negation: `~p` abbreviates `p -> F.` (primitive term in peano).
+def not (p: wff): wff = $ p -> F. $; prefix not: $~$ prec 41;
+
+--| Axiom 1 (K) of the implicational fragment.
+axiom ax_1 (a b: wff): $ a -> b -> a $;
+--| Axiom 2 (S) of the implicational fragment.
+axiom ax_2 (a b c: wff): $ (a -> b -> c) -> (a -> b) -> a -> c $;
+--| Modus ponens: from `a -> b` and `a`, infer `b`.
+axiom ax_mp (a b: wff): $ a -> b $ > $ a $ > $ b $;
+--| Ex falso quodlibet. Replaces peano's ax_3.
+axiom efq (a: wff): $ F. -> a $;
+
+--| Conjunction (primitive; peano: `~(a -> ~b)`).
+term an (a b: wff): wff; infixl an: $/\$ prec 34;
+--| Conjunction introduction.
+axiom ani (a b: wff): $ a -> b -> a /\ b $;
+--| Conjunction elimination, left.
+axiom anl (a b: wff): $ a /\ b -> a $;
+--| Conjunction elimination, right.
+axiom anr (a b: wff): $ a /\ b -> b $;
+
+--| If and only if (same definition as peano).
+def iff (a b: wff): wff = $ (a -> b) /\ (b -> a) $;
+infixl iff: $<->$ prec 20;
+
+--| Disjunction (primitive; peano: `~a -> b`).
+term or (a b: wff): wff; infixl or: $\/$ prec 30;
+--| Disjunction introduction, left.
+axiom orl (a b: wff): $ a -> a \/ b $;
+--| Disjunction introduction, right.
+axiom orr (a b: wff): $ b -> a \/ b $;
+--| Disjunction elimination (proof by cases).
+axiom ore (a b c: wff): $ (a -> c) -> (b -> c) -> a \/ b -> c $;
+
+--| The constant `true` (a def here; peano: primitive term plus axiom itru).
+def tru: wff = $ ~F. $; prefix tru: $T.$ prec max;
+
+--| The sort of natural numbers, the domain of discourse.
+sort nat;
+
+--| The for-all quantifier `A. x p`.
+term al {x: nat} (p: wff x): wff; prefix al: $A.$ prec 41;
+
+--| The (intuitionistic) exists quantifier `E. x p`
+--| (primitive; peano: `~(A. x ~p)`).
+term ex {x: nat} (p: wff x): wff; prefix ex: $E.$ prec 41;
+
+--| Equality of natural numbers.
+term eq (a b: nat): wff; infixl eq: $=$ prec 50;
+
+--| Generalization: from `|- p` infer `|- A. x p`.
+axiom ax_gen {x: nat} (p: wff x): $ p $ > $ A. x p $;
+--| Axiom 4: forall distributes over implication.
+axiom ax_4 {x: nat} (p q: wff x): $ A. x (p -> q) -> A. x p -> A. x q $;
+--| Axiom 5: a formula not depending on `x` implies its generalization.
+axiom ax_5 {x: nat} (p: wff): $ p -> A. x p $;
+--| Specialization (iset.mm ax-4). A theorem in peano, but there it is
+--| derived through ax_3 (peano.mm1 `eal`).
+axiom ax_sp {x: nat} (p: wff x): $ A. x p -> p $;
+--| Exists introduction, with `x` itself as the witness.
+axiom exi {x: nat} (p: wff x): $ p -> E. x p $;
+--| Exists elimination (iset.mm ax-ie2, one direction): `q` may mention `x`
+--| only if `x` is not free in it (hypothesis `A. x (q -> A. x q)`; when `q`
+--| does not depend on `x`, discharge it with `ax_gen ax_5`).
+axiom exe {x: nat} (p q: wff x):
+  $ A. x (q -> A. x q) -> A. x (p -> q) -> E. x p -> q $;
+--| Axiom 6: every term has a (now intuitionistic) witness `x = a`.
+axiom ax_6 (a: nat) {x: nat}: $ E. x x = a $;
+--| Axiom 7: equality is euclidean.
+axiom ax_7 (a b c: nat): $ a = b -> a = c -> b = c $;
+
+-- ax_9 was already redundant in peano; ax_8 is below.
+--
+-- "Bound in" axioms. MM0 counts `x` as occurring in `A. x p` and `E. x p`,
+-- so ax_5 does NOT apply to them; peano internalizes this with ax_10 and
+-- recovers the rest classically. Intuitionistically we take the iset.mm
+-- axioms instead; ax_10 is then a theorem (hpeano-test.mm1 `ax_10`).
+
+--| `x` is not free in `A. x p` (iset.mm ax-ial).
+axiom ax_ial {x: nat} (p: wff x): $ A. x p -> A. x A. x p $;
+--| `x` is not free in `E. x p` (iset.mm ax-ie1).
+axiom ax_ie1 {x: nat} (p: wff x): $ E. x p -> A. x E. x p $;
+--| Quantified implication with `x` bound in the antecedent (iset.mm ax-i5r).
+axiom ax_i5r {x: nat} (p q: wff x):
+  $ (A. x p -> A. x q) -> A. x (A. x p -> q) $;
+
+--| Axiom 11: forall quantifiers commute.
+axiom ax_11 {x y: nat} (p: wff x y): $ A. x A. y p -> A. y A. x p $;
+--| Axiom 12: substitution property of `=` (name shadowing on `x`).
+axiom ax_12 {x: nat} (a: nat) (p: wff x): $ x = a -> p -> A. x (x = a -> p) $;
+
+--| Not equal.
+def ne (a b: nat): wff = $ ~ a = b $; infixl ne: $!=$ prec 50;
+
+--| Proper substitution `[a / x] p` (same definition as peano).
+def sb (a: nat) {x .y: nat} (p: wff x): wff =
+$ A. y (y = a -> A. x (x = y -> p)) $;
+notation sb (a: nat) {x: nat} (p: wff x): wff =
+  ($[$:41) a ($/$:0) x ($]$:0) p;
+
+--| Sets of natural numbers: never quantified over (strict sort), only
+--| sugar for formulas with one free variable; see the audit for the
+--| conservativity argument.
+strict sort set;
+
+--| Class abstraction `{x | p(x)}`.
+term ab {x: nat} (p: wff x): set;
+notation ab {x: nat} (p: wff x): set = (${$:max) x ($|$:0) p ($}$:0);
+--| Membership `a e. A`.
+term el (a: nat) (A: set): wff; infixl el: $e.$ prec 50;
+--| `a` is in `{x | p(x)}` iff `p(a)` holds.
+axiom elab (a: nat) {x: nat} (p: wff x): $ a e. {x | p} <-> [ a / x ] p $;
+--| Axiom 8: membership respects equality.
+axiom ax_8 (a b: nat) (A: set): $ a = b -> a e. A -> b e. A $;
+
+--| Extensional equality of sets.
+def eqs (A B: set) {.x: nat}: wff = $ A. x (x e. A <-> x e. B) $;
+infixl eqs: $==$ prec 50;
+--| Subset.
+def subset (A B: set) (.x: nat): wff = $ A. x (x e. A -> x e. B) $;
+infixl subset: $C_$ prec 50;
+--| Intersection.
+def Inter (A B: set) (.x: nat): set = $ {x | x e. A /\ x e. B} $;
+infixl Inter: $i^i$ prec 70;
+--| Union.
+def Union (A B: set) (.x: nat): set = $ {x | x e. A \/ x e. B} $;
+infixl Union: $u.$ prec 65;
+--| Complement (with intuitionistic `~`).
+def Compl (A: set) (.x: nat): set = $ {x | ~x e. A} $;
+--| The universal set.
+def Univ (.x: nat): set = $ {x | T.} $; prefix Univ: $_V$ prec max;
+--| Substitution for sets `S[a / x] A`.
+def sbs (a: nat) {x .y: nat} (A: set x): set = $ {y | [ a / x ] y e. A} $;
+notation sbs (a: nat) {x: nat} (A: set x): set = ($S[$:99) a ($/$:0) x ($]$:0) A;
+
+--| Zero.
+term d0: nat; prefix d0: $0$ prec max;
+--| Successor.
+term suc (n: nat): nat;
+
+def d1:  nat = $suc 0$; prefix d1:  $1$  prec max;
+def d2:  nat = $suc 1$; prefix d2:  $2$  prec max;
+def d3:  nat = $suc 2$; prefix d3:  $3$  prec max;
+def d4:  nat = $suc 3$; prefix d4:  $4$  prec max;
+def d5:  nat = $suc 4$; prefix d5:  $5$  prec max;
+def d6:  nat = $suc 5$; prefix d6:  $6$  prec max;
+def d7:  nat = $suc 6$; prefix d7:  $7$  prec max;
+def d8:  nat = $suc 7$; prefix d8:  $8$  prec max;
+def d9:  nat = $suc 8$; prefix d9:  $9$  prec max;
+def d10: nat = $suc 9$; prefix d10: $10$ prec max;
+
+--| Zero is not a successor (Peano 1).
+axiom peano1 (a: nat): $ suc a != 0 $;
+--| Successor is injective (Peano 2).
+axiom peano2 (a b: nat): $ suc a = suc b <-> a = b $;
+--| Induction (Peano 5), for every formula `p`.
+axiom peano5 {x: nat} (p: wff x):
+  $ [ 0 / x ] p -> A. x (p -> [ suc x / x ] p) -> A. x p $;
+
+--| Addition (primitive).
+term add (a b: nat): nat; infixl add: $+$ prec 64;
+--| Multiplication (primitive).
+term mul (a b: nat): nat; infixl mul: $*$ prec 70;
+
+--| Addition respects equality.
+axiom addeq (a b c d: nat): $ a = b -> c = d -> a + c = b + d $;
+--| Multiplication respects equality.
+axiom muleq (a b c d: nat): $ a = b -> c = d -> a * c = b * d $;
+--| Addition, base case.
+axiom add0 (a: nat): $ a + 0 = a $;
+--| Addition, successor case.
+axiom addS (a b: nat): $ a + suc b = suc (a + b) $;
+--| Multiplication, base case.
+axiom mul0 (a: nat): $ a * 0 = 0 $;
+--| Multiplication, successor case.
+axiom mulS (a b: nat): $ a * suc b = a * b + a $;
+
+----------------------------------------------------------------------
+-- Axioms end here (34). The rest are peano.mm0 definitions whose bodies
+-- do not use `the` (directly or through another def). Note `E.` is now the
+-- intuitionistic quantifier, which is the standard HA reading of these.
+----------------------------------------------------------------------
+
+--| `a <= b`.
+def le (a b .x: nat): wff = $ E. x a + x = b $;
+infixl le: $<=$ prec 50;
+--| `a < b`.
+def lt (a b: nat): wff = $ suc a <= b $;
+infixl lt: $<$ prec 50;
+--| `finite A`: `A` is bounded by some natural number.
+def finite (A: set) (.n .x: nat): wff = $ E. n A. x (x e. A -> x < n) $;
+--| `true n`: `n` is nonzero.
+def true (n: nat): wff = $ n != 0 $;
+--| `bool n`: `n` is 0 or 1.
+def bool (n: nat): wff = $ n < 2 $;
+--| `a || b`: `a` divides `b`.
+def dvd (a b .c: nat): wff = $ E. c c * a = b $;
+infixl dvd: $||$ prec 50;
+--| `b0 n` is `n * 2`.
+def b0 (n: nat): nat = $ n + n $;
+--| `b1 n` is `n * 2 + 1`.
+def b1 (n: nat): nat = $ suc (b0 n) $;

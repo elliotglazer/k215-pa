@@ -1,0 +1,31 @@
+-- Sanity test for the DRAFT foundation hpeano.mm0 (not part of the spec).
+import "hpeano.mm0";
+
+--| `a -> a` from K and S.
+pub theorem id (a: wff): $ a -> a $ = '(ax_mp (ax_mp ax_2 ax_1) (! ax_1 _ a));
+--| Syllogism rule.
+pub theorem syl (a b c: wff) (h1: $ b -> c $) (h2: $ a -> b $): $ a -> c $ =
+'(ax_mp (ax_mp ax_2 (ax_mp ax_1 h1)) h2);
+--| peano's axiom itru is a theorem once `T.` is `~F.`.
+pub theorem itru: $ T. $ = 'id;
+--| Ex falso in use: a negation and its argument prove anything.
+pub theorem notimp (a b: wff): $ ~a -> a -> b $ =
+'(ax_mp ax_2 (ax_mp ax_1 efq));
+--| Prefix an antecedent: from `b -> c` infer `(a -> b) -> (a -> c)`.
+pub theorem imim2i (a b c: wff) (h: $ b -> c $): $ (a -> b) -> (a -> c) $ =
+'(ax_mp ax_2 (ax_mp ax_1 h));
+--| peano's ax_10 from ax_i5r (with `q := F.`) and ax_5.
+pub theorem ax_10 {x: nat} (p: wff x): $ ~(A. x p) -> A. x ~(A. x p) $ =
+'(syl ax_i5r (imim2i ax_5));
+--| Disjunction commutes (ore with orl/orr).
+pub theorem orcom (a b: wff): $ a \/ b -> b \/ a $ = '(ax_mp (ax_mp ore orr) orl);
+--| Reflexivity of `=` from ax_6, ax_7 and exists elimination.
+pub theorem eqid (a: nat): $ a = a $ =
+'(ax_mp (ax_mp (ax_mp (!! exe x) (ax_gen ax_5))
+  (ax_gen (ax_mp (ax_mp ax_2 ax_7) id))) ax_6);
+--| Induction as a rule (an instance of peano5).
+pub theorem indi {x: nat} (p: wff x) (h0: $ [ 0 / x ] p $)
+  (hS: $ p -> [ suc x / x ] p $): $ A. x p $ =
+'(ax_mp (ax_mp peano5 h0) (ax_gen hS));
+--| Specialization then reintroduction: `A. x p -> E. x p`.
+pub theorem alex {x: nat} (p: wff x): $ A. x p -> E. x p $ = '(syl exi ax_sp);

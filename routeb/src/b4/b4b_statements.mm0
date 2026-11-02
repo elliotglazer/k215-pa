@@ -1,0 +1,87 @@
+-- B4b DRAFT (NOT approved by Elliot): public statements of node B4b, the Pi2
+-- forms of K215 Theorem 2, Theorem 3 and ZFC_second_incompleteness_K215Pr.
+-- Placement: next to pa-mm0/targets/{final,incompleteness}.mm0, with
+-- bd_certs.mm0 and bd_certs_b4b.mm0 alongside (as for b4_statements.mm0).
+-- None of the three K215 theorems is proved yet, so each Pi2 target also has an
+-- `_of` form taking the K215 statement as hypothesis; the plain form is the
+-- `_of` form applied to the K215 theorem once it exists.
+import "k215_literal_tm.mm0";
+import "zfc_proofs.mm0";
+import "bb215_arithmetic_sentence_syntax.mm0";
+import "zfc_incompleteness_defs.mm0";
+import "bd_certs.mm0";
+import "bd_certs_b4b.mm0";
+
+-- ---------------------------------------------------------------------------
+-- equivalence (_iff) lemmas: K215 predicates <-> certificate forms
+-- ---------------------------------------------------------------------------
+
+--| D_I generalized: ZFC provability of any code s is Sigma1 over bdZfcPrf.
+theorem bdZfcPrf_iff (s: nat) {w: nat}: $ zfcProvable s <-> E. w bdZfcPrf w s $;
+
+--| bdZfcBot (approved, B4) is the case s = sfBot = 0.
+theorem bdZfcBot_Prf (w: nat): $ bdZfcBot w <-> bdZfcPrf w 0 $;
+
+--| Delta0 graph (with computation certificate) of b |-> the BB(215) = b sentence code.
+theorem bcBBSrc_iff (b s: nat) {m v: nat}:
+  $ s = bb215ArithmeticSentenceSource b <-> E. m E. v (bcJust m v /\ bcBBSrc m v b s) $;
+
+--| Delta0 description (with computation certificate) of the code of Con(ZFC).
+theorem bcConSrc_iff (s: nat) {m v: nat}:
+  $ s = paFormulaSource zfcConPA <-> E. m E. v (bcJust m v /\ bcConSrc m v s) $;
+
+--| D_B is a Sigma1 normal form of "ZFC proves BB(215) = b for some b".
+theorem bdBB215Prf_iff {b u: nat}:
+  $ E. b zfcProvable (bb215ArithmeticSentenceSource b) <-> E. u bdBB215Prf u $;
+
+--| D_G is a Sigma1 normal form of "ZFC proves Con(ZFC)" (zfcConPA via paFormulaSource).
+theorem bdZfcConPrf_iff {u: nat}:
+  $ zfcProvable (paFormulaSource zfcConPA) <-> E. u bdZfcConPrf u $;
+
+-- ---------------------------------------------------------------------------
+-- Theorem 2: ~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)
+-- ---------------------------------------------------------------------------
+
+--| Theorem 2, (->): a ZFC proof of some value sentence gives a ZFC proof of falsity.
+theorem K215_thm2_pi2a {u w: nat}: $ A. u (bdBB215Prf u -> E. w bdZfcBot w) $;
+--| Theorem 2, (<-): a ZFC proof of falsity gives a ZFC proof of some value sentence.
+theorem K215_thm2_pi2b {w u: nat}: $ A. w (bdZfcBot w -> E. u bdBB215Prf u) $;
+
+theorem K215_thm2_pi2a_of {u w b: nat}
+  (hT: $ ~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b) $):
+  $ A. u (bdBB215Prf u -> E. w bdZfcBot w) $;
+theorem K215_thm2_pi2b_of {w u b: nat}
+  (hT: $ ~zfcInconsistent <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b) $):
+  $ A. w (bdZfcBot w -> E. u bdBB215Prf u) $;
+
+-- ---------------------------------------------------------------------------
+-- Theorem 3: (~zfcInconsistent <-> ~k215LiteralHalts) /\
+--            (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b))
+-- First conjunct = K215_sigma1 /\ K215_sigma2 (B4, approved); second conjunct:
+-- ---------------------------------------------------------------------------
+
+--| Theorem 3, second conjunct (->): a halting run gives a ZFC proof of some value sentence.
+theorem K215_thm3_pi2a {h u: nat}: $ A. h (bdK215Halt h -> E. u bdBB215Prf u) $;
+--| Theorem 3, second conjunct (<-): a ZFC proof of some value sentence gives a halting run.
+theorem K215_thm3_pi2b {u h: nat}: $ A. u (bdBB215Prf u -> E. h bdK215Halt h) $;
+
+theorem K215_thm3_pi2a_of {h u b: nat}
+  (hT: $ (~zfcInconsistent <-> ~k215LiteralHalts) /\
+         (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) $):
+  $ A. h (bdK215Halt h -> E. u bdBB215Prf u) $;
+theorem K215_thm3_pi2b_of {u h b: nat}
+  (hT: $ (~zfcInconsistent <-> ~k215LiteralHalts) /\
+         (~k215LiteralHalts <-> A. b ~zfcProvable (bb215ArithmeticSentenceSource b)) $):
+  $ A. u (bdBB215Prf u -> E. h bdK215Halt h) $;
+
+-- ---------------------------------------------------------------------------
+-- G2: ZFC_second_incompleteness_K215Pr (and its _end twin):
+--     ~zfcInconsistent -> ~zfcProvable (paFormulaSource zfcConPA)
+-- ---------------------------------------------------------------------------
+
+--| G2: a ZFC proof of Con(ZFC) gives a ZFC proof of falsity.
+theorem K215_G2_pi2 {u w: nat}: $ A. u (bdZfcConPrf u -> E. w bdZfcBot w) $;
+
+theorem K215_G2_pi2_of {u w: nat}
+  (hT: $ ~zfcInconsistent -> ~zfcProvable (paFormulaSource zfcConPA) $):
+  $ A. u (bdZfcConPrf u -> E. w bdZfcBot w) $;

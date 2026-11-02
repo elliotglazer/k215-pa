@@ -1,0 +1,253 @@
+-- ===================================================================
+-- B5 recovery machinery (hand-written schemas; lambda proofs L{..} are
+-- compiled to ax_1/ax_2/ax_mp by spike/lamc.py, see b5/gen_b5.py).
+--   dec p      : p is decidable (p \/ ~p)
+--   rel p q A  : q (a translated formula, Friedman parameter A) is
+--                equivalent to p \/ A
+--   isv X a A  : the graph X is (negatively) the singleton of the value a
+-- ===================================================================
+local def dec (p: wff): wff = $ p \/ ~p $;
+local def rel (p q A: wff): wff = $ (p \/ A -> q) /\ (q -> p \/ A) $;
+local def isv (X: set) (a: nat) (A: wff): wff = $ nsing X A /\ eqG X (sg a) A $;
+
+theorem relI (p q A: wff) (h1: $ p \/ A -> q $) (h2: $ q -> p \/ A $): $ rel p q A $ =
+  '(ax_mp (ax_mp ani h1) h2);
+theorem relF (p q A: wff) (h: $ rel p q A $): $ p \/ A -> q $ = '(ax_mp anl h);
+theorem relB (p q A: wff) (h: $ rel p q A $): $ q -> p \/ A $ = '(ax_mp anr h);
+theorem relFp (p q A: wff) (h: $ rel p q A $): $ p -> q $ = '(syl (relF h) orl);
+theorem relFA (p q A: wff) (h: $ rel p q A $): $ A -> q $ = '(syl (relF h) orr);
+theorem notnot (p: wff) (h: $ dec p $): $ ~ ~ p -> p $ = L{(\ n ([ore] (\ x x) (\ y ([efq] (n y))) h))};
+theorem dnor (p A: wff) (h: $ dec p $): $ dn p A -> p \/ A $ =
+  L{(\ d ([ore] (\ x ([orl] x)) (\ n ([orr] (d (\ x ([efq] (n x)))))) h))};
+theorem ordn (p A: wff): $ p \/ A -> dn p A $ = L{(\ o (\ k ([ore] k (\ a a) o)))};
+theorem dnmapr (p q r A: wff) (h: $ p -> q -> r $): $ dn p A -> q -> dn r A $ =
+  L{(\ d (\ y (\ k (d (\ x (k (h x y)))))))};
+
+-- quantifier helpers
+theorem exmapd {x: nat} (G: wff) (p q: wff x) (h: $ G -> p -> q $): $ G -> E. x p -> E. x q $ =
+  L{(\ g (\ e ([exe] [ax_gen ax_ie1] ([alim @L{(\ f (\ u ([exi] (f u))))}] ([!! ald1 x h] g)) e)))};
+theorem exmap {x: nat} (p q: wff x) (h: $ p -> q $): $ E. x p -> E. x q $ =
+  '(ax_mp (exmapd (ax_mp ax_1 h)) itru);
+theorem almapd {x: nat} (G: wff) (p q: wff x) (h: $ G -> p -> q $): $ G -> A. x p -> A. x q $ =
+  L{(\ g ([ax_4] ([!! ald1 x h] g)))};
+theorem exit {x: nat} (t: nat) (p: wff x) (q: wff) (h: $ x = t -> q -> p $): $ q -> E. x p $ =
+  L{(\ u ([exe] [ax_gen ax_ie1] ([!! ald1 x @L{(\ u (\ e ([exi] (h e u))))}] u) [ax_6]))};
+theorem nfor {x: nat} (a b: wff x) (ha: $ a -> A. x a $) (hb: $ b -> A. x b $): $ a \/ b -> A. x (a \/ b) $ =
+  L{(\ o ([ore] (\ u ([alim orl] (ha u))) (\ u ([alim orr] (hb u))) o))};
+theorem al2 {x: nat} (a b c: wff x) (h: $ a -> b -> c $): $ A. x a -> A. x b -> A. x c $ =
+  L{(\ f (\ g ([ax_4] ([ax_4] [ax_gen h] f) g)))};
+
+-- induction in the form of iset.mm `finds` (one direction of each hypothesis)
+theorem fi0 {x: nat} (p: wff x) (p0: wff) (e0: $ x = 0 -> p0 -> p $) (h0: $ p0 $):
+  $ [ 0 / x ] p $ = '(!! ax_gen z (!! ald1 x @L{(\ e1 (\ e2 (e0 ([eqtr] e2 e1) h0)))}));
+theorem fiS1 {x y z: nat} (p: wff x) (py psy: wff y) (ey: $ x = y -> p -> py $) (hs: $ py -> psy $):
+  $ p -> z = suc x -> z = suc y -> psy $ =
+  L{(\ u (\ e (\ f (hs (ey ([ax_mp anl peano2] ([eqtr] ([eqcom] e) f)) u)))))};
+theorem fiS2 {x y z: nat}: $ z = suc x -> E. y z = suc y $ =
+  '(!! exit y @L{(\ f (\ e ([eqtr] e ([sucq] ([eqcom] f)))))});
+theorem fiS3 {x y z: nat} (p: wff x) (psy: wff y) (es: $ x = suc y -> psy -> p $):
+  $ A. y (z = suc y -> psy) -> E. y z = suc y -> x = z -> p $ =
+  L{(\ F (\ E ([exe] [ax_gen ax_5] ([alim @L{(\ g (\ f (\ e (es ([eqtr] e f) (g f)))))}] F) E)))};
+theorem fiS {x y z: nat} (p: wff x) (py psy: wff y)
+  (ey: $ x = y -> p -> py $) (es: $ x = suc y -> psy -> p $) (hs: $ py -> psy $):
+  $ p -> z = suc x -> A. x (x = z -> p) $ =
+  L{(\ u (\ e ([!! ald2 x (fiS3 es)] ([!! ald2 y (fiS1 ey hs)] u e) ([fiS2] e))))};
+theorem finds {x y: nat} (a: nat) (p: wff x) (p0: wff) (py psy: wff y) (pa: wff)
+  (e0: $ x = 0 -> p0 -> p $) (ey: $ x = y -> p -> py $) (es: $ x = suc y -> psy -> p $)
+  (ea: $ x = a -> p -> pa $) (h0: $ p0 $) (hs: $ py -> psy $): $ pa $ =
+  '(ax_mp (spi ea) (ax_mp (ax_mp peano5 (fi0 e0 h0)) (!! ax_gen x (!! ald1 z (fiS ey es hs)))));
+
+-- every number is 0 or a successor
+theorem zsc {w: nat} (a b: nat): $ a = b -> (a = 0 \/ E. w a = suc w) -> (b = 0 \/ E. w b = suc w) $ =
+  L{(\ e (\ o ([ore] (\ z ([orl] ([eqtr] ([eqcom] e) z))) (\ f ([orr] ([exmapd @L{(\ e (\ g ([eqtr] ([eqcom] e) g)))}] e f))) o)))};
+theorem zs {w: nat} (a: nat): $ a = 0 \/ E. w a = suc w $ =
+  '(!! finds x y @L{(\ e ([!! zsc w] ([eqcom] e)))} (!! zsc w) @L{(\ e ([!! zsc w] ([eqcom] e)))} (!! zsc w)
+    (ax_mp orl eqid) (ax_mp ax_1 (ax_mp orr (ax_mp (!! exit w @L{(\ e (\ u ([sucq] ([eqcom] e))))}) itru))));
+theorem zcase {w: nat} (b: nat) (q: wff) (h0: $ b = 0 -> q $) (hs: $ b = suc w -> q $): $ q $ =
+  '(ax_mp (ax_mp (ax_mp ore h0) (ax_mp (ax_mp exe (ax_gen ax_5)) (ax_gen hs))) (!! zs w));
+
+-- decidable equality (approved: a theorem, proved by induction)
+theorem deqc (a b c d: nat): $ a = b -> c = d -> a = c \/ ~ a = c -> b = d \/ ~ b = d $ =
+  L{(\ e1 (\ e2 (\ o ([ore] (\ q ([orl] ([eqtr] ([eqtr] ([eqcom] e1) q) e2))) (\ n ([orr] (\ r (n ([eqtr] ([eqtr] e1 r) ([eqcom] e2)))))) o))))};
+theorem dqc {v: nat} (a b: nat): $ a = b -> A. v (a = v \/ ~ a = v) -> A. v (b = v \/ ~ b = v) $ =
+  '(almapd @L{(\ e ([deqc] e [eqid]))});
+theorem dq0 {v: nat}: $ 0 = v \/ ~ 0 = v $ =
+  '(!! zcase w @L{(\ e ([orl] ([eqcom] e)))} @L{(\ e ([orr] (\ f ([peano1] ([eqcom] ([eqtr] f e))))))});
+theorem dqS {y v: nat}: $ A. v (y = v \/ ~ y = v) -> A. v (suc y = v \/ ~ suc y = v) $ =
+  '(ald1q (!! zcase w @L{(\ e (\ I ([orr] (\ f ([peano1] ([eqtr] f e))))))}
+     @L{(\ e (\ I ([deqc] [eqid] ([eqcom] e) ([ore] (\ q ([orl] ([sucq] q))) (\ n ([orr] (\ s (n ([ax_mp anl peano2] s))))) ([spi @L{(\ e ([deqc] [eqid] e))}] I)))))}));
+theorem deceq (a b: nat): $ dec (a = b) $ =
+  '(ax_mp (!! spi v @L{(\ e ([deqc] [eqid] e))})
+     (!! finds x y @L{(\ e ([!! dqc v] ([eqcom] e)))} (!! dqc v) @L{(\ e ([!! dqc v] ([eqcom] e)))} (!! dqc v)
+       (!! ax_gen v dq0) (!! dqS y v)));
+
+-- arithmetic of < and <=
+theorem a2c (a b c: nat): $ b = c -> suc a + b = suc (a + b) -> suc a + c = suc (a + c) $ =
+  L{(\ e (\ f ([eqtr] ([eqtr] ([addq0] [eqid] ([eqcom] e)) f) ([sucq] ([addq0] [eqid] e)))))};
+theorem addSl (a b: nat): $ suc a + b = suc (a + b) $ =
+  '(!! finds x y @L{(\ e ([a2c] ([eqcom] e)))} a2c @L{(\ e ([a2c] ([eqcom] e)))} a2c
+    @L{([eqtr] [add0] ([sucq] ([eqcom] [add0])))}
+    @L{(\ f ([eqtr] ([eqtr] [addS] ([sucq] f)) ([sucq] ([eqcom] [addS]))))});
+theorem lt0a {z: nat} (a: nat): $ suc a + z = 0 -> F. $ =
+  '(!! zcase w
+     @L{(\ e (\ f ([peano1] ([eqtr] ([eqtr] ([eqcom] [add0]) ([addq0] [eqid] ([eqcom] e))) f))))}
+     @L{(\ e (\ f ([peano1] ([eqtr] ([eqtr] ([eqcom] [addS]) ([addq0] [eqid] ([eqcom] e))) f))))});
+theorem lt0 (a: nat): $ ~ a < 0 $ = '(ax_mp (ax_mp exe (ax_gen ax_5)) (!! ax_gen z lt0a));
+theorem ltSa {z: nat} (a b: nat): $ suc a + z = suc b -> a < b \/ a = b $ =
+  '(!! zcase w
+     @L{(\ e (\ f ([orr] ([ax_mp anl peano2] ([eqtr] ([eqtr] ([eqcom] [add0]) ([addq0] [eqid] ([eqcom] e))) f)))))}
+     @L{(\ e (\ f ([orl] ([!! exi w] ([ax_mp anl peano2] ([eqtr] ([eqtr] ([eqcom] [addS]) ([addq0] [eqid] ([eqcom] e))) f))))))});
+theorem ltS (a b: nat): $ a < suc b -> a < b \/ a = b $ = '(ax_mp (ax_mp exe (ax_gen ax_5)) (!! ax_gen z ltSa));
+theorem ltupa {z: nat} (a b: nat): $ suc a + z = b -> a < suc b $ =
+  '(!! exit z2 @L{(\ e (\ f ([eqtr] ([addq0] [eqid] e) ([eqtr] [addS] ([sucq] f)))))});
+theorem ltup (a b: nat): $ a < b -> a < suc b $ = '(ax_mp (ax_mp exe (ax_gen ax_5)) (!! ax_gen z ltupa));
+theorem lteqS (a b: nat): $ a = b -> a < suc b $ =
+  '(!! exit z @L{(\ e (\ f ([eqtr] ([addq0] [eqid] e) ([eqtr] [add0] ([sucq] f)))))});
+theorem le2lt (a b: nat): $ a <= b -> a < suc b $ = '(!! exmap z @L{(\ f ([eqtr] [addSl] ([sucq] f)))});
+theorem lt2le (a b: nat): $ a < suc b -> a <= b $ = '(!! exmap z @L{(\ f ([ax_mp anl peano2] ([eqtr] ([eqcom] [addSl]) f)))});
+theorem ltlea {z: nat} (a b: nat): $ suc a + z = b -> a <= b $ =
+  '(!! exit z2 @L{(\ e (\ f ([eqtr] ([eqtr] ([eqtr] ([addq0] [eqid] e) [addS]) ([eqcom] [addSl])) f)))});
+theorem ltle (a b: nat): $ a < b -> a <= b $ = '(ax_mp (ax_mp exe (ax_gen ax_5)) (!! ax_gen z ltlea));
+theorem lec1 (a b c: nat): $ a = b -> a <= c -> b <= c $ =
+  '(!! exmapd z @L{(\ e (\ f ([eqtr] ([addq0] ([eqcom] e) [eqid]) f)))});
+theorem lec2 (a b c: nat): $ a = b -> c <= a -> c <= b $ = '(!! exmapd z @L{(\ e (\ f ([eqtr] f e)))});
+theorem ltc2 (a b c: nat): $ a = b -> c < a -> c < b $ = 'lec2;
+
+-- bounded quantifiers over a decidable matrix (induction on the bound)
+theorem bq1 {x: nat} (v: nat) (p: wff x) (dp: $ dec p $):
+  $ x = v -> A. x (x = v -> p) \/ E. x (x = v /\ ~p) $ =
+  L{(\ e ([ore] (\ u ([orl] ([ax_12] e u))) (\ n ([orr] ([exi] ([ani] e n)))) dp))};
+theorem bq2 {x: nat} (v: nat) (p: wff x) (dp: $ dec p $): $ A. x (x = v -> p) \/ E. x (x = v /\ ~p) $ =
+  '(ax_mp (ax_mp (ax_mp exe (ax_gen (nfor ax_ial ax_ie1))) (ax_gen (bq1 dp))) ax_6);
+theorem bqc {x: nat} (a b: nat) (p: wff x):
+  $ a = b -> A. x (x < a -> p) \/ E. x (x < a /\ ~p) -> A. x (x < b -> p) \/ E. x (x < b /\ ~p) $ =
+  L{(\ e (\ o ([ore] (\ L ([orl] ([almapd @L{(\ e (\ f (\ l (f ([ltc2] ([eqcom] e) l)))))}] e L)))
+                   (\ R ([orr] ([exmapd @L{(\ e (\ c ([ani] ([ltc2] e ([anl] c)) ([anr] c))))}] e R))) o)))};
+theorem bq0 {x: nat} (p: wff x): $ A. x (x < 0 -> p) \/ E. x (x < 0 /\ ~p) $ =
+  '(ax_mp orl (ax_gen @L{(\ l ([efq] ([lt0] l)))}));
+theorem bqS {x v: nat} (p: wff x) (dp: $ dec p $):
+  $ A. x (x < v -> p) \/ E. x (x < v /\ ~p) -> A. x (x < suc v -> p) \/ E. x (x < suc v /\ ~p) $ =
+  L{(\ P ([ore] (\ Al ([ore] (\ Bl ([orl] ([al2 @L{(\ a (\ b (\ l ([ore] a b ([ltS] l)))))}] Al Bl)))
+                            (\ Br ([orr] ([exmap @L{(\ c ([ani] ([lteqS] ([anl] c)) ([anr] c)))}] Br))) [bq2 dp]))
+                (\ Pr ([orr] ([exmap @L{(\ c ([ani] ([ltup] ([anl] c)) ([anr] c)))}] Pr))) P))};
+theorem bdall_lt {x: nat} (t: nat) (p: wff x) (dp: $ dec p $): $ A. x (x < t -> p) \/ E. x (x < t /\ ~p) $ =
+  '(!! finds u v @L{(\ e ([bqc] ([eqcom] e)))} bqc @L{(\ e ([bqc] ([eqcom] e)))} bqc bq0 (bqS dp));
+theorem bdall_le {x: nat} (t: nat) (p: wff x) (dp: $ dec p $): $ A. x (x <= t -> p) \/ E. x (x <= t /\ ~p) $ =
+  L{([ore] (\ L ([orl] ([alim @L{(\ f (\ l (f ([le2lt] l))))}] L)))
+           (\ R ([orr] ([exmap @L{(\ c ([ani] ([lt2le] ([anl] c)) ([anr] c)))}] R))) [bdall_lt dp])};
+
+-- decidability: connectives, atoms, bounded quantifiers
+theorem dec_im (p q: wff) (dp: $ dec p $) (dq: $ dec q $): $ dec (p -> q) $ =
+  L{([ore] (\ y ([orl] (\ x y))) (\ n ([ore] (\ x ([orr] (\ f (n (f x))))) (\ m ([orl] (\ x ([efq] (m x))))) dp)) dq)};
+theorem dec_not (p: wff) (dp: $ dec p $): $ dec (~ p) $ = L{([ore] (\ x ([orr] (\ n (n x)))) (\ n ([orl] n)) dp)};
+theorem dec_an (p q: wff) (dp: $ dec p $) (dq: $ dec q $): $ dec (p /\ q) $ =
+  L{([ore] (\ x ([ore] (\ y ([orl] ([ani] x y))) (\ m ([orr] (\ c (m ([anr] c))))) dq)) (\ n ([orr] (\ c (n ([anl] c))))) dp)};
+theorem dec_or (p q: wff) (dp: $ dec p $) (dq: $ dec q $): $ dec (p \/ q) $ =
+  L{([ore] (\ x ([orl] ([orl] x))) (\ n ([ore] (\ y ([orl] ([orr] y))) (\ m ([orr] ([ore] n m))) dq)) dp)};
+theorem dle1 {x: nat} (a b: nat): $ x = a -> (x <= b -> ~ x = a) -> ~ a <= b $ =
+  L{(\ e (\ f (\ l (f ([lec1] ([eqcom] e) l) e))))};
+theorem dle2 {x: nat} (a b: nat): $ x <= b /\ ~ ~ x = a -> a <= b $ =
+  L{(\ c ([lec1] ([notnot (! deceq x a)] ([anr] c)) ([anl] c)))};
+theorem dec_le (a b: nat): $ dec (a <= b) $ =
+  L{([ore] (\ L ([orr] ([!! spi x dle1] L))) (\ R ([orl] ([exe] [ax_gen ax_5] [!! ax_gen x dle2] R)))
+           [!! bdall_le x (dec_not (! deceq x a))])};
+theorem dec_lt (a b: nat): $ dec (a < b) $ = 'dec_le;
+theorem dec_al_lt {x: nat} (t: nat) (p: wff x) (dp: $ dec p $): $ dec (A. x (x < t -> p)) $ =
+  L{([ore] (\ L ([orl] L)) (\ R ([orr] (\ a ([exe] [ax_gen ax_5] ([alim @L{(\ f (\ c (([anr] c) (f ([anl] c)))))}] a) R)))) [bdall_lt dp])};
+theorem dec_al_le {x: nat} (t: nat) (p: wff x) (dp: $ dec p $): $ dec (A. x (x <= t -> p)) $ =
+  L{([ore] (\ L ([orl] L)) (\ R ([orr] (\ a ([exe] [ax_gen ax_5] ([alim @L{(\ f (\ c (([anr] c) (f ([anl] c)))))}] a) R)))) [bdall_le dp])};
+theorem dec_ex_lt {x: nat} (t: nat) (p: wff x) (hb: $ p -> x < t $) (dp: $ dec p $): $ dec (E. x p) $ =
+  L{([ore] (\ L ([orr] (\ e ([exe] [ax_gen ax_5] ([alim @L{(\ f (\ q ((f (hb q)) q)))}] L) e))))
+           (\ R ([orl] ([exmap @L{(\ c ([notnot dp] ([anr] c)))}] R))) [bdall_lt (dec_not dp)])};
+theorem dec_ex_le {x: nat} (t: nat) (p: wff x) (hb: $ p -> x <= t $) (dp: $ dec p $): $ dec (E. x p) $ =
+  L{([ore] (\ L ([orr] (\ e ([exe] [ax_gen ax_5] ([alim @L{(\ f (\ q ((f (hb q)) q)))}] L) e))))
+           (\ R ([orl] ([exmap @L{(\ c ([notnot dp] ([anr] c)))}] R))) [bdall_le (dec_not dp)])};
+
+-- graphs of terms
+theorem isvI (X: set) (a: nat) (A: wff) (h1: $ nsing X A $) (h2: $ eqG X (sg a) A $): $ isv X a A $ =
+  '(ax_mp (ax_mp ani h1) h2);
+theorem isvN (X: set) (a: nat) (A: wff) (h: $ isv X a A $): $ nsing X A $ = '(ax_mp anl h);
+theorem isvE (X: set) (a: nat) (A: wff) (h: $ isv X a A $): $ eqG X (sg a) A $ = '(ax_mp anr h);
+theorem isv_sg (a: nat) (A: wff): $ isv (sg a) a A $ = '(isvI ns_sg (eqGrefl ns_sg));
+theorem sucsg (a: nat) (A: wff): $ eqG (sucG (sg a) A) (sg (suc a)) A $ =
+  '(!! eqGc u v @L{(\ m (\ n ([dnmapr eqtrc] ([elsucsg] m) ([elsg1] n))))});
+theorem aS1 {u p q: nat} (a b: nat) (A: wff):
+  $ u e. addG (sg a) (sg b) A -> p = a -> q = b -> dn (u = a + b) A $ =
+  L{(\ m (\ e1 (\ e2 ([dnmapr eqtr] ([eladdE] m ([elsg2] e1) ([elsg2] e2)) ([addq0] e1 e2)))))};
+theorem aS3 {u p: nat} (a b: nat) (A: wff): $ u e. addG (sg a) (sg b) A -> p = a -> dn (u = a + b) A $ =
+  L{(\ m (\ e1 ([exeq] ([!! ald2 q aS1] m e1))))};
+theorem aS2 {u: nat} (a b: nat) (A: wff): $ u e. addG (sg a) (sg b) A -> dn (u = a + b) A $ =
+  L{(\ m ([exeq] ([!! ald1 p aS3] m)))};
+theorem addsg (a b: nat) (A: wff): $ eqG (addG (sg a) (sg b) A) (sg (a + b)) A $ =
+  '(!! eqGc u v @L{(\ m (\ n ([dnmapr eqtrc] ([aS2] m) ([elsg1] n))))});
+theorem mS1 {u p q: nat} (a b: nat) (A: wff):
+  $ u e. mulG (sg a) (sg b) A -> p = a -> q = b -> dn (u = a * b) A $ =
+  L{(\ m (\ e1 (\ e2 ([dnmapr eqtr] ([elmulE] m ([elsg2] e1) ([elsg2] e2)) ([mulq0] e1 e2)))))};
+theorem mS3 {u p: nat} (a b: nat) (A: wff): $ u e. mulG (sg a) (sg b) A -> p = a -> dn (u = a * b) A $ =
+  L{(\ m (\ e1 ([exeq] ([!! ald2 q mS1] m e1))))};
+theorem mS2 {u: nat} (a b: nat) (A: wff): $ u e. mulG (sg a) (sg b) A -> dn (u = a * b) A $ =
+  L{(\ m ([exeq] ([!! ald1 p mS3] m)))};
+theorem mulsg (a b: nat) (A: wff): $ eqG (mulG (sg a) (sg b) A) (sg (a * b)) A $ =
+  '(!! eqGc u v @L{(\ m (\ n ([dnmapr eqtrc] ([mS2] m) ([elsg1] n))))});
+theorem isv_suc (X: set) (a: nat) (A: wff) (h: $ isv X a A $): $ isv (sucG X A) (suc a) A $ =
+  '(isvI (ns_suc (isvN h)) (ax_mp (ax_mp (eqGtr (ns_suc ns_sg)) (ax_mp (p2bwd (isvN h) ns_sg) (isvE h))) sucsg));
+theorem isv_add (X Y: set) (a b: nat) (A: wff) (h1: $ isv X a A $) (h2: $ isv Y b A $):
+  $ isv (addG X Y A) (a + b) A $ =
+  '(isvI (ns_add (isvN h1) (isvN h2))
+     (ax_mp (ax_mp (eqGtr (ns_add ns_sg ns_sg)) (ax_mp (ax_mp (addeqN (isvN h1) ns_sg (isvN h2) ns_sg) (isvE h1)) (isvE h2))) addsg));
+theorem isv_mul (X Y: set) (a b: nat) (A: wff) (h1: $ isv X a A $) (h2: $ isv Y b A $):
+  $ isv (mulG X Y A) (a * b) A $ =
+  '(isvI (ns_mul (isvN h1) (isvN h2))
+     (ax_mp (ax_mp (eqGtr (ns_mul ns_sg ns_sg)) (ax_mp (ax_mp (muleqN (isvN h1) ns_sg (isvN h2) ns_sg) (isvE h1)) (isvE h2))) mulsg));
+
+-- atoms
+theorem isveq (X Y: set) (a b: nat) (A: wff) (h1: $ isv X a A $) (h2: $ isv Y b A $):
+  $ eqG X Y A -> eqG (sg a) (sg b) A $ =
+  L{(\ e ([eqGtr (isvN h2)] ([eqGtr (isvN h1)] ([eqGsym] [isvE h1]) e) [isvE h2]))};
+theorem isveq2 (X Y: set) (a b: nat) (A: wff) (h1: $ isv X a A $) (h2: $ isv Y b A $):
+  $ eqG (sg a) (sg b) A -> eqG X Y A $ =
+  L{(\ e ([eqGtr ns_sg] ([eqGtr ns_sg] [isvE h1] e) ([eqGsym] [isvE h2])))};
+theorem rel_eq (X Y: set) (a b: nat) (A: wff) (h1: $ isv X a A $) (h2: $ isv Y b A $):
+  $ rel (a = b) (eqG X Y A) A $ =
+  '(relI (syl (isveq2 h1 h2) (syl eqGsg2 ordn)) (syl (dnor deceq) (syl eqGsg1 (isveq h1 h2))));
+
+-- connectives
+theorem rel_im (p q pN qN A: wff) (rp: $ rel p pN A $) (rq: $ rel q qN A $) (dp: $ dec p $):
+  $ rel (p -> q) (pN -> qN) A $ =
+  '(relI @L{(\ o (\ u ([ore] (\ f ([ore] (\ x ([relF rq] ([orl] (f x)))) (\ a ([relF rq] ([orr] a))) ([relB rp] u))) (\ a ([relF rq] ([orr] a))) o)))}
+         @L{(\ g ([ore] (\ x ([ore] (\ y ([orl] (\ z y))) (\ a ([orr] a)) ([relB rq] (g ([relFp rp] x))))) (\ n ([orl] (\ x ([efq] (n x))))) dp))});
+theorem rel_not (p pN A: wff) (rp: $ rel p pN A $) (dp: $ dec p $): $ rel (~ p) (ng pN A) A $ =
+  '(relI @L{(\ o (\ u ([ore] (\ n ([ore] (\ x ([efq] (n x))) (\ a a) ([relB rp] u))) (\ a a) o)))}
+         @L{(\ g ([ore] (\ x ([orr] (g ([relFp rp] x)))) (\ n ([orl] n)) dp))});
+theorem rel_an (p q pN qN A: wff) (rp: $ rel p pN A $) (rq: $ rel q qN A $) (dp: $ dec p $) (dq: $ dec q $):
+  $ rel (p /\ q) (an_N pN qN A) A $ =
+  '(relI @L{(\ o (\ k ([ore] (\ c (k ([relFp rp] ([anl] c)) ([relFp rq] ([anr] c)))) (\ a a) o)))}
+         @L{(\ H ([ore] (\ c ([orl] c)) (\ n ([orr] (H (\ u (\ v ([ore] (\ x ([ore] (\ y ([efq] (n ([ani] x y)))) (\ a a) ([relB rq] v))) (\ a a) ([relB rp] u))))))) [dec_an dp dq]))});
+theorem rel_or (p q pN qN A: wff) (rp: $ rel p pN A $) (rq: $ rel q qN A $) (dp: $ dec p $):
+  $ rel (p \/ q) (or_N pN qN A) A $ =
+  '(relI @L{(\ o ([ore] (\ d ([ore] (\ x (\ k ([relFA rq] (k ([relFp rp] x))))) (\ y (\ k ([relFp rq] y))) d)) (\ a (\ k ([relFA rq] a))) o))}
+         @L{(\ g ([ore] (\ x ([orl] ([orl] x))) (\ n ([ore] (\ y ([orl] ([orr] y))) (\ a ([orr] a)) ([relB rq] (g (\ u ([ore] (\ x ([efq] (n x))) (\ a a) ([relB rp] u))))))) dp))});
+theorem rel_ex {x: nat} (p pN: wff x) (A: wff) (rp: $ rel p pN A $) (d: $ dec (E. x p) $):
+  $ rel (E. x p) (ex_N x pN A) A $ =
+  '(relI @L{(\ o ([ore] (\ e (\ g ([exe] [ax_gen ax_5] ([alim @L{(\ f (\ u (f ([relFp rp] u))))}] g) e))) (\ a (\ g a)) o))}
+         @L{(\ H ([ore] (\ e ([orl] e)) (\ n ([orr] (H ([alim @L{(\ n (\ u ([ore] (\ y ([efq] (n ([exi] y)))) (\ a a) ([relB rp] u))))}] ([nfim ax_ie1 ax_5] n))))) d))});
+theorem rel_le (X Y: set) (a b: nat) (A: wff) (h1: $ isv X a A $) (h2: $ isv Y b A $):
+  $ rel (a <= b) (le_N X Y A) A $ = '(!! rel_ex z (rel_eq (isv_add h1 isv_sg) h2) dec_le);
+theorem rel_lt (X Y: set) (a b: nat) (A: wff) (h1: $ isv X a A $) (h2: $ isv Y b A $):
+  $ rel (a < b) (lt_N X Y A) A $ = '(rel_le (isv_suc h1) h2);
+theorem rel_al_le {x: nat} (t: nat) (T: set) (p pN: wff x) (A: wff) (hT: $ isv T t A $)
+  (rp: $ rel p pN A $) (dp: $ dec p $):
+  $ rel (A. x (x <= t -> p)) (A. x (le_N (sg x) T A -> pN)) A $ =
+  '(relI @L{(\ o ([ore] (\ L ([alim @L{(\ f (\ l ([ore] (\ y ([relFp rp] (f y))) (\ a ([relFA rp] a)) ([relB (rel_le isv_sg hT)] l))))}] L))
+                        (\ a ([!! ald1 x @L{(\ a (\ l ([relFA rp] a)))}] a)) o))}
+         @L{(\ g ([ore] (\ L ([orl] L))
+                  (\ R ([orr] ([exe] [ax_gen ax_5] ([alim @L{(\ g (\ c ([ore] (\ y ([efq] (([anr] c) y))) (\ a a) ([relB rp] (([ax_sp] g) ([relFp (rel_le isv_sg hT)] ([anl] c)))))))}] ([ax_ial] g)) R)))
+                  [bdall_le dp]))});
+theorem rel_al_lt {x: nat} (t: nat) (T: set) (p pN: wff x) (A: wff) (hT: $ isv T t A $)
+  (rp: $ rel p pN A $) (dp: $ dec p $):
+  $ rel (A. x (x < t -> p)) (A. x (lt_N (sg x) T A -> pN)) A $ =
+  '(relI @L{(\ o ([ore] (\ L ([alim @L{(\ f (\ l ([ore] (\ y ([relFp rp] (f y))) (\ a ([relFA rp] a)) ([relB (rel_lt isv_sg hT)] l))))}] L))
+                        (\ a ([!! ald1 x @L{(\ a (\ l ([relFA rp] a)))}] a)) o))}
+         @L{(\ g ([ore] (\ L ([orl] L))
+                  (\ R ([orr] ([exe] [ax_gen ax_5] ([alim @L{(\ g (\ c ([ore] (\ y ([efq] (([anr] c) y))) (\ a a) ([relB rp] (([ax_sp] g) ([relFp (rel_lt isv_sg hT)] ([anl] c)))))))}] ([ax_ial] g)) R)))
+                  [bdall_lt dp]))});

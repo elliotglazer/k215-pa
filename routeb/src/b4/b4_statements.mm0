@@ -1,0 +1,19 @@
+-- B4 (approved by Elliot 2026-10-24): public statements of node B4.
+-- Placement: a K215-side extension next to pa-mm0/targets/final.mm0; there
+-- bd_certs.mm0 imports "../lean-mm0/vendor/peano.mm0" (byte-identical to
+-- foundation/peano.mm0). The bd* defs use no `the`; the K215 defs do.
+import "k215_literal_tm.mm0";
+import "zfc_proofs.mm0";
+import "bd_certs.mm0";
+
+--| D_H is a Sigma1 normal form of literal K215 halting.
+theorem bdK215Halt_iff {h: nat}: $ k215LiteralHalts <-> E. h bdK215Halt h $;
+
+--| D_I is a Sigma1 normal form of ZFC inconsistency (zfcProvable sfBot).
+theorem bdZfcBot_iff {w: nat}: $ zfcInconsistent <-> E. w bdZfcBot w $;
+
+--| sigma1: K215 Theorem 1, halting -> inconsistency, as a Pi2 sentence.
+theorem K215_sigma1 {h w: nat}: $ A. h (bdK215Halt h -> E. w bdZfcBot w) $;
+
+--| sigma2: K215 Theorem 1, inconsistency -> halting, as a Pi2 sentence.
+theorem K215_sigma2 {h w: nat}: $ A. w (bdZfcBot w -> E. h bdK215Halt h) $;
