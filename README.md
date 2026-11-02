@@ -146,6 +146,7 @@ The proof binaries are archived at [doi:10.5281/zenodo.23872595](https://doi.org
   (`K215_thm2_pi2a`, `K215_thm2_pi2b`), Theorem 3 in both directions, and `K215_G2_pi2`. It was
   produced from the PA proof by a certifying negative + Friedman (A-) translation and checked with an `mm0-c` build whose hypothesis and
   unification stacks are 4096 instead of 256 (the recipe and pinned hash are in the archive).
+  The translator, as the exact snapshot that produced this binary, is in [`routeb/`](routeb/README.md).
 
 ## Repository layout
 
