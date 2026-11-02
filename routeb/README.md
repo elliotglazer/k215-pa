@@ -22,7 +22,8 @@ sentences translated.
   and runs a control in which one statement is replaced by falsity (it must be rejected).
   `src/b6/b6-lib*.mmb` are the precompiled HA-side libraries (pinned; `--rebuild-lib` regenerates them).
 - `src/foundation/`: `hpeano.mm0` (Heyting arithmetic) and `peano.mm0` (PA).
-- `src/b4/`: the approved Pi2 statements (`b4_statements.mm0`, `b4b_statements.mm0`) and their bounded
+- `src/b4/`: the approved Pi2 statements (approved by the owner on 2026-10-24 for `b4b`; the header line "DRAFT (NOT
+  approved ...)" in `b4b_statements.mm0` predates that approval and is kept because the file is pinned by hash) (`b4_statements.mm0`, `b4b_statements.mm0`) and their bounded
   definitions (`bd_certs.mm0`, `bd_certs_b4b.mm0`), which `b6.py` pins by sha256.
 
 ## Rebuilding the archived HA proof
