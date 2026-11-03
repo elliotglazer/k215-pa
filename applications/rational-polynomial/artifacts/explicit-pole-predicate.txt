@@ -1,0 +1,162 @@
+An explicit polynomial for the pole predicate
+2 November 2026
+
+This file fixes the finite multipliers and the smallness constants in
+the pole predicate used by linear-prime-certificate.txt. Its elementary
+soundness and its polynomial compilation are proved below. Completeness
+is now proved at the source-audit level in
+pole-descent-completeness-audit.txt, using the restricted positive-rank
+dependency chain in restricted-pointwise-assembly.txt. None of these
+notes is a Lean formalization.
+
+1. Explicit multipliers
+
+Take
+
+  M = {+d,-d : d is a positive divisor of 2730},
+  2730 = 2*3*5*7*13,
+  S0 = {2,3,5,7,13},
+  epsilon = 1/2,
+  b_p = 4 for every p in S0.
+
+There are 64 multipliers. They represent every class in
+
+  R^*/R^{*2} x Q_2^*/Q_2^{*2} x Q_3^*/Q_3^{*2}.
+
+Here is a direct proof. The classes of -1,2,3 control respectively
+real sign and the valuation parities at 2 and 3. After those have been
+set, 5,7,13 are positive units at both local primes. In coordinates
+given by the unit generators -1,5 at 2 and the nonsquare unit at 3,
+their bit vectors are
+
+  5  : (0,1,1),
+  7  : (1,0,0),
+  13 : (0,1,0).
+
+This matrix is invertible over F_2. The last three exponents therefore
+set both 2-adic unit bits and the 3-adic unit bit without changing
+sign or valuation parities. All six exponents can be chosen in {0,1}.
+
+Consequently, for every nonzero B in Q, one of these multipliers makes
+mu B positive, a square in Q_2, and a nonsquare unit square class in Q_3.
+"Unit square class" permits a nonzero even 3-adic valuation.
+
+A direct enumeration of all 64 signatures was also performed, with
+no duplicates. The signatures are saved in explicit-pole-data.json.
+
+2. One integer-coefficient polynomial
+
+Use eleven rational witness variables
+
+  b0,b1,b2,b3,b4,b5, e,z,r1,r2,w.
+
+The six b variables will be constrained to 0 or 1. Define polynomial
+expressions, not additional quantified variables,
+
+  m = (1-2b0)(1+b1)(1+2b2)(1+4b3)(1+6b4)(1+12b5),
+  A = m B,
+  H = A(A-B^2),
+  T1 = A(A-e)(A+3e),
+  T2 = A(A z^2-e H)(A z^2+3e H).
+
+Define the single polynomial
+
+  Q_pole(B,b0,...,b5,e,z,r1,r2,w)
+    = B * [
+        sum_{i=0}^5 (bi^2-bi)^2
+        + (e H z w-1)^2
+        + (r1^2-T1)^2
+        + (r2^2-T2)^2
+      ].                                                (1)
+
+All coefficients in (1) are integers. Its total degree is at most 75.
+There are eleven existential rational witnesses, independently of B.
+
+Let Phi0(B) mean that (1) has such witnesses. If B=0 it holds. If B is
+nonzero, the sum of rational squares must vanish term by term. Thus
+m belongs to M and e,H,z are all nonzero. The two square equations give
+
+  (A,r1) on y^2=x(x-e)(x+3e),
+
+and
+
+  (A z^2,z r2) on y^2=x(x-eH)(x+3eH).
+
+Conversely, whenever the two curves have points with nonzero
+x-coordinates in the class A Q^{*2}, simultaneous square scaling makes
+the first x-coordinate equal to A. Explicitly, if the original first
+x is A q^2, replace both curve parameters by division by q^2 and all
+point coordinates by (x/q^2,y/q^3). The second parameter remains the
+first parameter times H. The second x becomes A z^2 for a nonzero
+rational z. Its ordinate divided by z supplies r2. Taking
+w=1/(eHz) gives (1). Zero ordinates are allowed.
+
+Thus (1) is exactly the pole predicate with preparation parameter zero
+for the chosen explicit multiplier list.
+
+3. Unconditional elementary soundness
+
+Suppose B is nonzero, Phi0(B) holds, and p is outside S0. If
+k=v_p(B)<0 were odd, then m would be a p-adic unit, and
+
+  v_p(A)=k,
+  v_p(A-B^2)=2k,
+  v_p(H)=3k.
+
+The valuations of e and eH have opposite parities. Choose the parameter
+l among them with even valuation, and scale by a square power of p so
+that the curve parameter is a p-adic unit. This scaling does not change
+the x-coordinate square class.
+
+On y^2=x(x-l)(x+3l) with l a unit and p not 2 or 3, every nonzero
+x-coordinate has even valuation. For v_p(x)<0, the right-hand side has
+valuation 3v_p(x). For v_p(x)>0, it has valuation v_p(x). The latter two
+factors are units in that case. Either valuation must be even because
+the right-hand side is a square. If v_p(x)=0 the assertion already holds.
+
+But both points furnished by (1) have x square class mB, whose valuation
+parity is odd. This is a contradiction. Therefore
+
+  Phi0(B) implies v_p(B) is not negative odd, for every p outside S0.
+
+No pointwise converse or finiteness statement about Sha enters this
+soundness proof.
+
+4. Completeness and its arithmetic dependency
+
+The normalized pole construction in Sun, Proposition 2.3, uses a
+multiplier list with the local property proved in section 1. Its
+smallness choices are
+
+  epsilon = (1/2) min_{mu>0} mu,
+  b_p = 3 + max(0,max_mu v_p(mu)).
+
+Our list has positive minimum 1 and maximal valuation 1 at every
+p in S0, giving exactly epsilon=1/2 and b_p=4.
+
+Therefore its asserted completeness specializes to
+
+  B has square reduced denominator,
+  0 < B < 1/2,
+  v_p(B) >= 4 for every p in {2,3,5,7,13}
+       implies Phi0(B).                                 (2)
+
+The local preparation for (2) is explicit: the selected m is positive,
+and 1-B/m is positive and a square in Q_p for every p in S0. Indeed
+v_p(B/m)>=3, which suffices also at p=2. What remains is the rational
+point construction on the two elliptic curves, not any choice of these
+constants.
+
+Pole-descent-completeness-audit.txt now proves (2) directly for this
+polynomial. It checks the local Kummer images, both simultaneous
+residue matrices and the preparation H=A^2(1-B/m). The restricted
+source-level pointwise argument excludes the divisible-Sha alternative
+and supplies the required rational points. This direct proof does not
+need the original preparation parameter or a second multiplier list.
+
+Source:
+https://arxiv.org/html/2610.20691v2#S2.SS4
+
+The polynomial (1), its interpretation, and its one-sided soundness
+are now explicit. A universal rational Diophantine equation still
+requires the remaining explicit height cutoff and compilation work.

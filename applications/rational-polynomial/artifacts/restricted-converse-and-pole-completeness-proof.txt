@@ -1,0 +1,387 @@
+The restricted converse and completeness of the actual pole predicate
+3 November 2026
+
+Statements and scope
+
+For a positive squarefree integer l with l=11 modulo 12, put
+
+  E_l: y^2=x(x-l)(x+3l).
+
+The restricted converse used here is
+
+  corank_Z2 Sel_(2^infinity)(E_l/Q)=1
+      implies ord_(s=1) L(E_l,s)=1.                       (RC)
+
+The forward Gross--Zagier--Kolyvagin theorem then gives rank one and
+finite Sha. In particular, if dim_F2 Sel_2(E_l/Q)=3, the argument below
+gives rank one and Sha(E_l/Q)[2]=0.
+
+The pole-completeness conclusion concerns the exact eleven-witness
+polynomial of explicit-pole-predicate.txt. If B is rational with square
+reduced denominator and
+
+  0<B<1/2,       v_p(B)>=4 for p in {2,3,5,7,13},
+
+then that polynomial has a rational zero over B. Call this assertion PC.
+
+This file combines the component mathematical proofs and checks their
+interfaces. It uses the ordinary split-witness branch only for the
+displayed l. It does not claim to prove every case of the general
+pointwise 2-converse preprint, and it is not a Lean formalization.
+
+There is a scope correction to older notes: the elementary split-witness
+contradiction using (l/p)=-1 requires l to be a nonsquare. It would not
+apply to l=1. Squarefree l=11 modulo 12 guarantees l>1 and the required
+nonsquareness. Both twists constructed for PC satisfy this restriction.
+
+1. Component results and their order
+
+All references to the OpenAI source in the component proofs use commit
+4eaee87548250b2682affda7d05d947c05554bae. The following are the component
+results used here, in dependency order.
+
+(a) Nonvanishing with local conditions. For a fixed elliptic curve and
+any nonempty fixed local filter of fundamental discriminants, the
+appropriate central value or derivative is nonzero at arbitrarily large
+indices. In the positive-sign case there is an absolute bound A_0 on
+the number of prime factors of such an index, and all its primes can
+avoid a prescribed finite set. The bound on size can depend on the
+curve and filter; A_0 cannot. The progression moment, nonzero-frequency
+estimate and lower linear sieve proving this are in nonvanishing-audit.txt.
+
+(b) Even lower bound and even transfer. For a fixed non-CM E and its
+allowed twist parameters h, write w(h)=omega(h), and, where finite,
+s(h)=length_Z2 Sha(E^(h)/Q)[2^infinity]. At nonzero central values,
+
+  v_2(L_*(h)) >= 2w(h)+s(h)-C.                            (1)
+
+For a binary family with a corank-zero base, a uniform upper bound on
+v_2(L_*)-2w-s at its nonzero vertices implies nonvanishing and the same
+kind of upper bound at its base. These statements are proved in
+cyclotomic-noncm-audit.txt. The construction uses one fixed-form Kato
+class before character evaluation, integral smoothing and Euler-factor
+corrections, and Fourier intersection. It does not use a pointwise
+rank-one converse. Kato's rational theorem at coefficient prime two,
+including the local H^2 correction, was checked separately in
+restricted-converse-primary-input-checks.txt.
+
+(c) Coefficients and symbols. The even coefficient system detects L_*(h)
+and its exact nonzero coefficient ratios satisfy
+
+  2v_2(a(D)/a(D_0))=v_2(L_*(sigma D)/L_*(sigma D_0)).      (2)
+
+The weighted odd coefficient systems detect the genus Heegner points
+P_h to arbitrarily high finite precision. At each stage their vanishing
+modulo that precision includes all parameters with zero derivative.
+Their constants are independent of the moving detecting prime.
+These are the constructions in coefficient-trace-audit.txt and
+weighted-theta-audit.txt. The even comparison uses the nonzero Shimura
+eigenspace and the same-local-class Waldspurger comparison. The (H1)
+condition is supplied by that nonzero eigenspace; an (H2) condition
+absent from this comparison is not silently assumed.
+
+(d) Ring-class lower bound and height ratio. If h is already known to
+have analytic rank one and hk has nonzero central value, with K=Q(sqrt(k))
+an allowed imaginary companion and omega(k)<=A, then
+
+  2j_h(k) >= 4w(h)+s(h)+s(hk)-C(E,A).                     (3)
+
+The corresponding unnormalized Heegner-height comparison is
+
+  2j_h(k)-2j(P_h)=v_2(L_*(hk))+O_(E,A)(1).                (4)
+
+The finite classes, exact local conditions, limits, switches and central
+comparison proving (3) are in finite-heegner-descent-audit.txt,
+limit-interface-audit.txt, determinant-switch-audit.txt and
+central-specialization-audit.txt. The actual paired functional and both
+ranges of uniformity are checked in paired-functional-and-uniformity-proof.txt.
+Equation (4), including the conductor factor in the unaveraged sums,
+is derived from Cai--Shu--Tian in restricted-pointwise-assembly.txt,
+section 5. These arguments apply at already known simple zeros; they
+do not presume a nonzero point at the base of (RC).
+
+(e) Graph realization and addressing. Once a coefficient system has
+its arithmetic lower bound, its least normalized depth defines a binary
+symbol. The trace calculation gives product-label contraction, omission
+of a whole rational prime, and isolation of a primary vertex. From these
+identities, arithmetic-graph-audit.txt proves the finite address theorem.
+Two separately nonzero terminal polynomials can be made simultaneously
+one at every nonzero binary address by one finite graph of primary
+auxiliaries. All those auxiliaries are absent at zero. The graph is
+realizable by distinct primes with the prescribed support and splitting.
+
+In the present full-two-torsion branch all vertices are split vertices
+and all weights are one. The general simple-vertex and donor branches
+are not used. No claim about simple vertices is needed for (RC) or PC.
+
+2. Checking the coefficient-to-graph interface
+
+The squarefree coefficient lower bounds give an attained least depth in
+a discrete translate of Z. For the odd finite-precision systems, use
+one fixed ultrafilter and a bounded-weight sequence attaining the least
+depth. For every fixed weight bound, divisibility at that depth holds
+on a large set of stages. For an all-coefficient statement at a selected
+precision, large squarefree weights are handled by the coarser arithmetic
+lower bound, and the remaining bounded weights by this minimum. Thus
+normalization gives integral coefficient operators at one sufficiently
+late stage for any fixed finite graph problem.
+
+Unary subtraction divides by the integer 2. The square-shell recurrence
+proves this divisibility coefficient by coefficient, before reduction
+modulo the maximal ideal of the character coefficient ring. Good Hecke
+operators and diamond operators preserve the resulting integral lattice;
+the diamond corrections are undivided unary terms. After a fresh trace
+those corrections vanish. The reduced trace identities are therefore
+
+  d(u)t(v)=t(v),
+  t(u)t(v)=t(uv)+t(uv^{-1}),       t(1)=0.                (5)
+
+The conductor-one local inertia calculation, using the same Frobenius
+lift on both sides, gives
+
+  U_p(t(g tau_p phi_p)-t(g phi_p))
+       =d(phi_p)(t(g tau_p)-t(g)).                        (6)
+
+At an omitted prime p the lower-source coefficient system was formed
+without p, with the same original character and minimum. It is unramified
+at the entire rational prime. Its two product Frobenius tests therefore
+agree, and (6) leaves exactly their common contraction symbol. This
+checks the whole-prime omission required in the forest argument.
+
+In that argument every cyclic set of edge differences vanishes; each
+forest contracts to its product labels. The grounded Laplacian minors
+give the constant and pair coefficients of an auxiliary network. The
+singular network has zero constant at its target address and first term
+equal to the desired edge derivative. The two nonsingular networks have
+constant one; their first-degree difference is that derivative only at
+the target. The ordinary polynomial product of the two terminal
+polynomials has a nonzero top monomial, with exponents at most two.
+Assign singular networks to exponent-two variables and the paired
+nonsingular networks to exponent-one variables. Summing over the binary
+network choices kills all constant choices, and the top-degree budget
+leaves coefficient one. Some one network choice makes both symbols one
+at all nonzero addresses. No common evaluation of the original two
+terminal polynomials is assumed.
+
+These checks identify the precise symbol rules consumed by the graph
+proof. Neither the normalization nor the graph step creates its own
+arithmetic lower bound.
+
+3. Obtaining the odd lower bound without circularity
+
+At a least positive-size unit seed, changing an edge contracts to a
+smaller nonempty configuration and hence gives zero. Thus its value
+depends only on the individual labels. A sufficient supply of those
+labels, with the same total label, contracts to that seed by retaining
+all but one of its vertices and merging the rest. Duplicated full
+labels give packets of total zero, with arbitrary reserves.
+
+Use this fact and the one-symbol address theorem with the even symbols.
+For a partitionable parameter h of corank zero, every nonzero address
+has an even unit and hence
+v_2(L_*)<=2w+C. Apply the even transfer in (b) to obtain
+
+  L_*(h)!=0,       v_2(L_*(h))<=2w(h)+s(h)+C'.             (7)
+
+Now fix an h already known to have analytic rank one. For each possible
+total at the finite support prepare the appropriate even negative-filter
+seed. There are finitely many. Adjoin a bounded dummy supply of their
+labels. Absorb h and this dummy supply into the curve before applying
+the bounded-factor nonvanishing result (a), with a finishing progression
+that makes the final k' negative, fundamental, coprime to 2Nh and locally
+square at 2Nh. The final twist has even sign and nonzero central value.
+The dummy labels make hk' partitionable. The number of dummy and finishing
+primes is bounded independently of h. Thus omega(k')<=A for a fixed A,
+and (7) applies to hk'.
+
+Subtract (4) from (3) and use (7) and w(hk')=w(h)+w(k') to get
+
+  2j(P_h) >= 2w(h)+s(h)-C_o.                              (8)
+
+The constant in (8) is independent of h. This establishes the arithmetic
+lower bound needed for the odd minimum in (c). The steps preceding (8)
+used only even normalized symbols and independently known simple-zero
+parameters, not an odd normalized symbol.
+
+4. A fixed companion and a nonempty split witness
+
+Since j(E_l)=35152/9 is not an algebraic integer, E_l and all its twists
+are non-CM. Apply the preceding construction to E=E_l. Parity turns the
+corank-one hypothesis in (RC) into odd functional sign. Normalize the
+odd coefficient system using (8). If its empty configuration is a unit,
+an actual late stage already detects the base derivative and proves (RC).
+Otherwise retain a nonempty minimum odd seed.
+
+Choose a separate negative even unit k, with a fresh ramified prime
+outside the old support, and fix K=Q(sqrt(k)). Its central value is
+nonzero. This choice precedes every later binary dimension.
+
+The ordinary even coefficient system for E_l^(k), normalized at 1, has
+v_2(a(D))>=omega(D). If no nonempty K-split parameter attains equality,
+discreteness improves this to omega(D)+1 at every such parameter. The
+integral trace calculation in ordinary-split-witness-audit.txt then
+forces
+
+  a_p(E_l^(k))=p+1 modulo 8                               (9)
+
+at every good K-split prime outside the support. In deriving (9), a
+fresh prime p' matches the support data of p, so that pp', rather than
+p alone, belongs to the square filter. Thus (9) does not require p to
+be individually trivial on all support characters.
+
+Because l>1 is squarefree, Q(i,sqrt(l)) is biquadratic. The fresh
+ramification of K makes it independent of that field. Chebotarev
+therefore supplies good primes p with
+
+  p=1 modulo 4,        (l/p)=-1,        (k/p)=1.
+
+For the three roots 0,l,-3l, respectively the differences -l,l,-4l
+are nonsquares. No nonzero rational two-torsion point is twice a point
+over F_p. Therefore E_l(F_p)[2^infinity]=(Z/2Z)^2 and
+#E_l(F_p)=4 modulo 8. As k is a square at p, this contradicts (9).
+The ordinary even system has a nonempty K-split unit seed.
+
+This step is why the nonsquareness of l was recorded explicitly. It
+does not establish the same ordinary-seed claim at l=1.
+
+5. Two tests and the missing vertex
+
+Enrich the finite rational label alphabet to contain the fixed K
+character and the support of the even system. Every old odd label has
+a K-split lift, because K has fresh ramification outside its intrinsic
+label extension. Every even seed label already occurs at a K-split
+prime. Take the union of sufficient compatible lifts for the two seeds
+separately, then duplicate every full label. No arbitrary pair of
+projected labels is asserted to have a simultaneous lift.
+
+Each packet has total zero and sufficient reserves. Under each of the
+two projections, a positive union of packets contracts to that test's
+nonempty minimum seed. Hence the two terminal polynomials are separately
+nonzero. Apply the two-symbol address theorem of section 2. For each
+chosen binary dimension it supplies a finite common network on which
+both tests are units at every nonzero address. All active primes split
+in K, and the zero address has h=1.
+
+At each nonzero address, the odd and even detections give analytic
+orders one for E_l^(h) and zero for E_l^(hk). Their unit bounds and (4)
+give
+
+  2j_h(k)<=4w(h)+C.
+
+The nonnegative finite Sha lengths may be subtracted, so the corrected
+ring-class determinant has a uniform upper valuation bound there.
+At zero, the companion has corank zero by the forward theorem, and
+restriction and the two quadratic projections give
+
+  s_2(E_l/K)=s_2(E_l/Q)+s_2(E_l^(k)/Q)=1.
+
+This is a rational corank identity; no integral direct sum or finiteness
+of the unknown base Sha is assumed.
+
+The proof in paired-functional-and-uniformity-proof.txt now applies.
+It constructs the universal class and its dual functional over the
+group ring before character evaluation, removes unused-prime factors
+integrally, and supplies a bounded clearing factor. Its bound depends
+on the fixed E_l,K, not the binary dimension. Choose the desired bit
+precision and dimension, then the finite networks, then an actual
+coefficient stage meeting their finitely many requirements. The odd
+depth and the companion remain fixed throughout.
+
+If the base derivative vanished, the central Heegner class and its
+determinant coordinate would vanish. Binary coefficient transfer would
+then force a nonzero-address coordinate to have valuation above the
+uniform upper bound. This contradiction proves (RC).
+
+6. The finite Selmer hypothesis actually supplied by descent
+
+For full rational two-torsion, the finite Kummer sequence gives
+
+  dim Sel_2(E_l/Q)=rank E_l(Q)+2+dim Sha(E_l/Q)[2].
+
+If its left side is 3, write the 2-primary Sha group as its maximal
+divisible subgroup (Q_2/Z_2)^t plus a finite group F. Its finite quotient
+has a nondegenerate alternating Cassels--Tate pairing, since the
+principal polarization comes from the rational divisor (O). Hence
+dim F[2] is even. It follows that F=0 and rank+t=1. Thus the full
+2-primary Selmer corank is one, exactly the hypothesis of (RC).
+
+Apply (RC) and the forward theorem. The rank is one; substituting back
+in the finite Kummer equation gives Sha[2]=0. Every finite 2-Selmer
+class is now represented by a rational point. No inference from finite
+Selmer dimension directly to a positive Mordell--Weil rank was made.
+
+7. Applying the converse to the actual eleven-witness predicate
+
+Let S0={2,3,5,7,13} and M={+d,-d: d divides 2730}. This list represents
+all real, 2-adic and 3-adic squareclasses, as shown by the explicit
+invertible six-bit signature calculation in explicit-pole-predicate.txt.
+For B in the statement of PC, choose m in M so that A=mB is positive,
+a square at 2, and a nonsquare unit squareclass at 3. Then m>0. Put
+
+  H=A(A-B^2)=A^2(1-B/m).
+
+H is positive and a local square at every prime of S0. Indeed m>=1,
+B<1/2, and v_p(B/m)>=3. Let beta,theta be the positive squarefree
+representatives of A,H. They avoid 2 and 3; beta is a square at 2
+and nonsquare at 3, while theta is a square at both.
+
+Their supports are disjoint, and each is a local square at every prime
+of the other's support. To verify this, at a prime q outside S0 with
+v_q(A) odd, the square reduced denominator of B forces v_q(B)>0,
+and 1-B/m is a square unit. Thus H is locally square. Conversely, if
+v_q(H) is odd, then v_q(A) is even. Positive or negative v_q(B) would
+make v_q(H) even, so v_q(B)=0 and cancellation requires B/m=1 modulo q.
+Then A=m^2(B/m) is a square locally. At S0 the conclusion follows from
+the already verified local square property of H.
+
+Use the simultaneous matrix construction in
+pole-descent-completeness-audit.txt, sections 1-5. Here are its exact
+interfaces. If B_set is the nonempty support of beta and J is the
+support of theta, adjoin one prime of type ([-1/q],[3/q])=(1,1) and
+|B_set|-1 primes of type (0,0). Prescribe the latter cross-symbol
+matrix to span the even-sum hyperplane of F_2^(B_set). The smaller
+deleted matrix has the block form
+
+  [ A C; C^t 0 ],      1^t A 1=1,
+
+and is nonsingular. The full-product coefficient in the enlarged
+matrix's free diagonal bits is this same determinant, so those bits
+can be chosen to make the enlarged matrix nonsingular as well.
+Quadratic reciprocity supplies the reverse symbols; CRT and Dirichlet
+realize the auxiliary primes without changing old symbols.
+
+The resulting squarefree parameters n and n theta are both positive,
+coprime to 6, and 11 modulo 12. For both, the exact local Kummer
+calculation gives dim Sel_2=3 and includes the class (beta,1), which
+is distinct from all two-torsion classes. Sections 4 and 6 therefore
+apply to both parameters. They supply rational points with nonzero
+x-coordinate in the class beta=[A]. This is the precise location at
+which (RC) enters PC, and it uses no l outside its stated range.
+
+Write H=theta c^2. Scaling the second point by (x,y)->(c^2x,c^3y)
+gives a point on E_(nH). If the first x-coordinate is A q^2, divide
+both curve parameters by q^2 and all point coordinates by (q^2,q^3).
+Put e=n/q^2. The two points now have x-coordinates A and A z^2 for
+some nonzero rational z, on E_e and E_(eH). Their ordinates give
+
+  r1^2=A(A-e)(A+3e),
+  r2^2=A(A z^2-eH)(A z^2+3eH),
+
+where the second ordinate was divided by z. Set w=1/(eHz), and encode
+m by the six Boolean multiplier bits. These are exactly the eleven
+witnesses of the saved pole polynomial. This proves PC.
+
+Status of this conclusion
+
+The restricted converse and PC now have a combined written proof using
+the component source-level arguments named above and their cited
+classical theorems. The scope correction l=11 modulo 12 is part of the
+statement, not an extra assumption on the rational input B. The
+simultaneous descent constructs both needed parameters in that range.
+
+This closes the pointwise/pole-completeness portion of the construction
+at the level of the written mathematical argument. It is not a
+machine-checked proof of (RC) or PC. The separate end-to-end completion
+audit still has to combine PC with the actual multiplication template,
+the six-contact height and prime-pattern inputs, and the two translated
+integer circuits before declaring the saved U universally correct.

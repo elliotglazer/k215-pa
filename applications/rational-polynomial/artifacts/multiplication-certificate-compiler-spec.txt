@@ -1,0 +1,214 @@
+Compilation of the rational multiplication certificate
+3 November 2026
+
+Scope and artifacts
+
+multiplication-certificate-library.json is an explicit library of
+integer-coefficient polynomial circuits over Q. Every call is literal
+substitution of an earlier polynomial, with its own block of rational
+witness variables. The library contains the unguarded height certificate.
+rational-model-assembly.js supplies the finite guard, binds the fixed
+scalar and normalization constants, and constructs the natural-number
+predicate from four squares in the model.
+
+The arithmetic proof still uses the source-level dependencies recorded
+in six-contact-certificate.txt. This compiler does not prove those
+dependencies. The enormous prescribed constants have not been evaluated.
+The small-constant assembly used by the tests is a structural test only;
+it is not advertised as a valid multiplication model.
+
+1. Literal polynomial substitution
+
+A template has its parameter variables first, followed by its existential
+variables. A call records the earlier template number, expression nodes
+for its parameters, and the start of a private block for all its witnesses.
+Recursive substitution therefore ends at const, var, add and mul nodes.
+
+The library audit checks backward references, parameter counts, complete
+variable coverage, disjoint witness blocks, and ordinary polynomial leaves.
+expandTemplate performs the actual substitution for manageable cases.
+The fully expanded test-group polynomial agrees with the library call
+both at exact satisfying witnesses and after changing a test output.
+
+As before, conjunction uses sums of squares and disjunction uses products.
+All existential variables range over Q. Thus the resulting root equation
+is equivalent to the indicated finite existential formula.
+
+2. The field-valued test group
+
+Its parameters are four point codes C0,C1,C2,C3 and twelve output elements
+D0,...,D11 of F=Q(sqrt(2)). The outer formula will impose
+ C0=[cstar]P, Ci=[cstar]Pi for i=1,2,3.
+
+The group introduces H,U1,U2,U3 in D and sets
+ V0=H-C0, Vi=Ui-Ci.
+The raw addition calls are legitimate because the outer scalar formulas
+and these memberships put every input in D. The formula requires
+H and V0 to be finite and nonzero.
+
+For the eight points H,U1,U2,U3,V0,V1,V2,V3 it constructs z, 1/x and
+the explicit polynomial L(z). The origin conventions are z(O)=0 and
+(1/x)(O)=0. It requires nonzero L(z(H)) and L(z(V0)), then constructs
+ L_i=L(z(Ui))/L(z(H)), R_i=L(z(Vi))/L(z(V0)).
+
+Its outputs are, in this exact order:
+ 1/x(H), 1/x(U1), 1/x(U2), 1/x(U3);
+ the conjugates of 1/x(V0), 1/x(V1), 1/x(V2), 1/x(V3);
+ L_1-conjugate(R_1), L_2-conjugate(R_2), L_3-conjugate(R_3);
+ L_1*L_2-L_3.
+
+Conjugating R_i also conjugates the coefficients of L and the coordinates
+of Vi, so it is the expression required by the original certificate.
+The first eight tests have precision one; all four remaining tests have
+precision 25. The template has 44 rational parameters and 162 witnesses.
+
+3. The slope certificate
+
+Parameters are t, the fixed normalization integer ell, and the four C codes.
+It excludes t in {0,-15,-20,-24,-30,-60,1}, imposes eta^2=1, and defines
+ R0*(t-1)^8=eta*t(t+15)(t+20)(t+24)(t+30)(t+60),
+ a=1-R0*q^2, R=ell^2*a^2*R0.
+It explicitly requires nonzero ell and a. Therefore R0 and R are nonzero.
+
+For six independent test groups define
+ C_gj=D_gj/(R0^k_j*(t-1)^(k_j+1)),
+ W_g=product_j(1+R*C_gj^2),
+ Theta=2*sum_g (1/W_g)_0,
+ B*Theta^2=R.
+Here subscript 0 is the rational coefficient of 1 in F.
+
+Each displayed quotient has its denominator excluded either directly or
+by the preceding equations. In particular every W_g has an inverse-norm
+guard, and Theta has a rational inverse guard. The template then calls
+the explicit eleven-witness pole polynomial at B.
+
+The normalized C_gj expression is exactly D'_gj/R^k_j after cancellation.
+All factors cancelled are already nonzero. Hence this avoids no required
+condition and changes none of the valuation arguments.
+There are 22 parameters and 1,298 witnesses.
+
+4. The height certificate and guard
+
+The height certificate takes three root codes, ell, and the four C codes.
+It imposes root membership in D. For each root it introduces a0,a1,b,
+requires b nonzero, and sets b*x0=a0, b*x1=a1. The nine resulting rational
+quantities are each a sum of three slopes with the preceding certificates.
+It has 36 parameters and 35,106 witnesses.
+
+For the finite guard, write every coordinate of iota(n) as A_nj/B_nj
+in reduced form with B_nj positive, including the origin flag.
+For each false triple a*b != c in [-T,T]^3, let D_abc be the product
+of the fifteen denominators of its three point codes. Use the factor
+ sum_(i,j) [D_abc*X_ij - (D_abc/B_nij)*A_nij]^2.
+
+Every coefficient is an integer. The factor vanishes precisely at that
+false triple of codes. The product H_T of these factors is therefore a
+fully specified integer polynomial. The guard s*H_T-1=0 has exactly one
+rational witness, independently of T. No rational constants need extra
+witness variables in this guard.
+
+The finite-height argument puts all false certificate triples inside
+the prescribed box. Hence adjoining this guard makes multiplication
+exact, provided the recorded arithmetic dependencies and fixed-constant
+requirements hold. The true triples never vanish at any guard factor.
+
+5. Fixed scalar maps with one witness
+
+elliptic-division-polynomials.js gives an alternative to introducing
+a witness point at every binary addition step. It uses normalized
+division polynomials f_n in x, with
+ psi_n=f_n for odd n and psi_n=2y*f_n for even n.
+
+Put A=-11243+7950sqrt(2), F=x^3+A*x and D=16F^2.
+The initial polynomials are
+ f0=0, f1=f2=1,
+ f3=3x^4+6A*x^2-A^2,
+ f4=2(x^6+5A*x^4-5A^2*x^2-A^3).
+For m>=3,
+ f_(2m)=f_m*(f_(m+2)*f_(m-1)^2-f_(m-2)*f_(m+1)^2).
+For 2m+1>=5, put L=f_(m+2)*f_m^3 and R=f_(m-1)*f_(m+1)^3.
+Then f_(2m+1)=D*L-R if m is even, and L-D*R if m is odd.
+These are finite polynomial recurrences with no division.
+
+For a nonzero fixed n and a finite point p in D, set g=psi_n(p).
+The graph of r=[n]p is
+ g^2*x(r)=x(p)*g^2-psi_(n+1)(p)*psi_(n-1)(p),
+ 2*g^4*y(r)=psi_(2n)(p).
+The second equation follows from the division-polynomial chain rule.
+Since D is torsion free, g is nonzero. One rational inverse-norm witness
+enforces this. A separate origin branch gives r=O when p=O.
+Negative n uses negation; n=0 simply gives O.
+
+The convention here is psi_2=+2y. Stange's corrected v3 uses -2y;
+our psi_n equals (-1)^(n-1) times her polynomial. Both the chain rule
+and the displayed x formula are preserved under this change.
+The v2 HTML introduction has an incorrect sign in its x relation and
+is not used for that identity. The corrected v3 has x([m])-x([n]).
+
+Primary references:
+https://arxiv.org/pdf/2503.15428v3
+https://doc.sagemath.org/html/en/reference/arithmetic_curves/sage/schemes/elliptic_curves/ell_generic.html#sage.schemes.elliptic_curves.ell_generic.EllipticCurve_generic.multiplication_by_m
+
+The scalar graph passed 44 exact comparisons with independent affine
+double-and-add, 44 changed-x checks, and 30 changed-y-sign checks.
+The checks include zero, positive and negative scalars, and the origin.
+They supplement the polynomial identities rather than prove them.
+
+6. Simplified fixed constants
+
+Let P0 be the product of the 66 primes at most 324, and W=4P0.
+For each unit residue r modulo W, take the first 22 primes greater
+than 324 in that residue class. Let H be their product and Hmax their
+maximum. Dirichlet's theorem proves this finite prescription terminates.
+Put Ns=P0*H.
+
+The local condition defining M admits an elementary integer test.
+Write 1/x([m]P)=(a+b*sqrt(2))/c with a,b,c integers, c positive and
+gcd(a,b,c)=1. Then the required condition at every place above every
+prime in Sb is equivalent to
+ Ns^4 divides a, Ns^4 divides b, gcd(c,Ns)=1.
+
+Indeed O_F=Z[sqrt(2)], so being in p^4 O_F tensor Z_p is equivalent
+to both rational coefficients being in p^4 Z_p. In the reduced common
+denominator representation a denominator divisible by p would leave
+at least one coefficient with negative valuation. Thus the displayed
+integer test is exact. The formal-group argument in the earlier note
+proves that some positive m passes it. Choose the least and put cstar=4M.
+
+The normalization simplifies to
+ ell=12*P0^2916*H^732.
+For small primes the old exponent is 52*56+v_p(12)+4=2916+v_p(12).
+For catalogue primes it is 52*14+4=732.
+
+Use the previous height formulas but replace R by
+ max(D,Hmax,cstar,10^12).
+This bounds every prime in Sb and every prime dividing cstar. It only
+enlarges the previous permissible R and hence preserves the height
+cutoff. fixed-certificate-constants.json records the entire prescription.
+The implementation includes exact arithmetic algorithms for its finite
+searches, but evaluating these enormous constants is not practical.
+
+7. Witness counts and remaining assembly
+
+The bound multiplication template uses:
+ 35,106 height-certificate witnesses;
+ 20 coordinates for C0,C1,C2,C3;
+ 4 scalar inverse-norm witnesses;
+ 3 witnesses fixing the nonintegral coordinates of P;
+ 1 finite-guard inverse.
+Total: 35,134 rational witnesses, beyond its 15 root-code parameters.
+This count does not depend on the magnitudes of cstar, ell or T.
+
+The natural-number predicate writes a model integer as a sum of four
+model squares. It uses four multiplication calls, 50 intermediate
+coordinates, and 18 addition witnesses, for a total of 140,604 witnesses
+beyond its five input coordinates. This is a predicate on model codes,
+not an integrality test on ordinary rational coordinates.
+
+These counts are verified by the small-constant structural assembly.
+They do not validate those small constants as arithmetic choices.
+The remaining task is to interpret the two saved integer polynomial
+circuits through these exact model operations, compose the ordinary
+integer input bridges, and verify the complete finite expression and
+all its arithmetic dependencies.
+

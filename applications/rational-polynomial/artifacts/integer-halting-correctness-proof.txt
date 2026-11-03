@@ -1,0 +1,235 @@
+Natural-witness halting polynomial: correctness and artifact binding
+3 November 2026
+
+Theorem and scope
+
+Let H be the integer-coefficient polynomial specified by
+universal-integer-polynomial.json, SHA256
+27a840c06c68bfae88da84a934d6e7f0ca2778dd3e56ec2bf3b4d4eb8171fe04.
+For ordinary nonnegative integers e,n,
+
+  exists v in N^1305802: H(e,n,v)=0
+  iff the program numbered e halts on input n,
+
+with the numbering in universal-interpreter-spec.txt. Here N includes
+zero. The polynomial's hierarchical calls mean literal substitution,
+not oracle calls. This proof uses the established alpha/exponentiation
+results below. It does not use the new pointwise-converse preprint.
+
+This is a written mathematical and source-correspondence proof. It is
+not an Isabelle verification of the JavaScript implementation. Replacing
+N by Q in the displayed theorem is not justified. The rational model,
+accuracy program, and rational translation require their own proofs.
+
+1. Exact arithmetic input and its transcription
+
+The AFP DPRM_Theorem development supplies alpha_equivalence in
+Exponentiation.thy, its Diophantine transcription alpha_dioph in
+Alpha_Sequence.thy, and exp_repr in Exponential_Relation.thy.
+Sources:
+https://isa-afp.org/browser_info/current/AFP/DPRM_Theorem/Alpha_Sequence.html
+https://isa-afp.org/browser_info/current/AFP/DPRM_Theorem/Exponential_Relation.html
+https://github.com/isabelle-prover/mirror-afp-devel/tree/master/thys/DPRM_Theorem/Diophantine
+
+The downloaded sources are bound by their Git blob identifiers and
+SHA256 hashes in alpha-power-checks.json. Their Git blob hashes match
+the repository API's file records. The relevant source locations are
+Exponentiation.thy:1038,1690, Alpha_Sequence.thy:11, and
+Exponential_Relation.thy:9,16.
+
+For b>3, alpha_b(0)=0, alpha_b(1)=1, and
+alpha_b(k+2)=b alpha_b(k+1)-alpha_b(k).
+The eight-variable system in Builder.alpha is exactly the fifteen
+conditions of Exp_Matrices.alpha_equations, with a=X and c=N:
+the b bound; three Pell-type equations; r<s; u^2 dividing s;
+v+2r=bs; the two congruences specifying w; w>2; the three size
+bounds involving X,N; and the two congruences specifying x.
+Equation order and reversal of equality do not alter this system.
+
+Builder.lt(A,B) replaces A<B by B=A+1+d, d natural. Builder.divides
+replaces A dividing B by B=A*d. Builder.congruent(A,M,B) replaces
+equality of remainders by A+M*u=B+M*v. For M>0 this follows by
+separating the positive and negative parts of (B-A)/M; for M=0 both
+conditions mean A=B. Thus these replacements have both implications.
+All their witnesses are fresh. The alpha macro consequently has a
+natural witness exactly when b>3 and X=alpha_b(N).
+
+In the positive-base branch of Builder.power, the three alpha calls
+set a0=alpha_(Q+4)(R+1), a1=alpha_b(R), a2=alpha_b(R+1).
+The remaining equations are exactly exp_equations. The additional
+alpha hypothesis b>3 follows from Q>=1, a0>=1 and
+b=a0+Q^2+2>=4. The other two branches implement Q=R=0, P=1 and
+Q=0<R, P=0. Hence power(P,Q,R) has witnesses exactly when P=Q^R,
+including 0^0=1. No natural-subtraction convention is left implicit:
+the equations use sums on both sides.
+
+2. Binomial digits and bit operations
+
+For natural N,K put B=2^(N+1). Every binomial coefficient in
+(1+B)^N is less than B, since each is at most 2^N. The binomial
+theorem therefore gives its base-B digits without carries. Requiring
+
+  (1+B)^N=B^K*(B*u+C)+r,  C<B,  r<B^K
+
+selects exactly the K-th digit C, including C=0 for K>N. The power
+macro proves the three power equalities used in this formula. This
+establishes Builder.binomial in both directions, also for N=K=0.
+
+Lucas's theorem modulo two gives that binomial(B,A) is odd precisely
+when all set bits of A occur in B. Also binomial(A+B,A) is odd
+precisely when A and B have disjoint set bits: disjointness makes
+addition carry-free; conversely the least position with a shared bit
+would have no incoming carry and would erase a set bit of A in A+B.
+These are exactly Builder.mask and Builder.orthogonal.
+
+The equations X=Z+A and Y=Z+B, together with pairwise disjointness
+of Z,A,B, express Z=X AND Y. The first two disjointness conditions
+exclude carries, and the third excludes any further common bit.
+Conversely take Z=X AND Y, A=X-Z, B=Y-Z. This proves Builder.bitAnd.
+
+3. Packed-machine theorem for any fixed finite program
+
+Fix a finite add/sub/final-halt program with m states and r registers,
+and k<=r natural input values. The first k registers receive those
+values and the others receive zero. Acceptance means reaching the
+unique final halt with all registers zero.
+
+The compiler quantifies q,c,K,B,T,F,D and imposes
+c>0, K=2^c, B=4K>m, T=B^q, and input_i<K. Its equations give
+F=(B*T-1)/(B-1)=sum_(t=0)^q B^t and D=(K-1)F. Division here is
+only a proof calculation; the emitted equations are BF+1=F+BT
+and D+F=KF.
+
+Since B is a power of two, R_j masked by D has exactly q+1 slots
+whose values lie in [0,K). The bound R_j<T forces its last slot
+to vanish and excludes any higher slot. Each S_i masked by F has
+only zero-or-one slots. Since m<B, their sum cannot carry. The
+equation sum S_i=F selects exactly one state per time slot, and
+S_halt=T places the first and only halt at time q.
+
+In each slot R_j+D has value r_j(t)+K-1<2K<B. Its K-bit is one
+exactly when r_j(t)>0. Thus the equation involving
+(R_j+D) AND (KF)=K*N_j determines the nonzero indicator. For a
+sub instruction V_i=S_i AND N_j and S_i=V_i+W_i determine the
+two mutually exclusive branch indicators. There is no subtraction
+ambiguity because these are ordinary equalities of natural numbers.
+
+Let A_j,C_j be the packed increment/decrement indicators and I_d
+the packed indicators of transitions entering state d. At each time
+there is at most one actual instruction and one actual outgoing
+branch. Consequently all these indicators have slots zero or one,
+even if two branches in the program have the same target.
+
+The compiler emits
+
+  R_j+B*C_j=initial_j+B*R_j+B*A_j,
+  S_d=1_(d=0)+B*I_d.
+
+Every register coefficient on either side is at most K, hence less
+than B. Every state coefficient is at most one. Uniqueness of base-B
+expansions now proves the initial conditions and each exact transition.
+The possible extra slot q+1 is zero because the terminal registers
+vanish and halt contributes no outgoing operation. Thus every natural
+solution decodes to an accepting run. If q=0, these same equations
+require that state zero itself is the final halt and all inputs vanish.
+
+Conversely an accepting run has finite length q and finitely many
+register values. Choose c so that K exceeds all those values and
+B>m; pack the run as above. Every displayed identity holds. Sections
+1-2 provide witnesses for all expanded arithmetic and bit predicates.
+This proves the compiler's soundness and completeness for arbitrary
+run length, register values, and number of input registers.
+
+4. Boolean compilation and hierarchical substitution
+
+For integer-valued polynomials, a sum of squares vanishes exactly
+when every summand vanishes, and a product vanishes exactly when
+at least one factor vanishes. Induction over the formula DAG proves
+Builder.polynomial: equations become differences, conjunctions
+become sums of squares, and disjunctions become products.
+Empty conjunction/disjunction give 0/1 respectively. Fresh existential
+variables can be pulled out across either connective because N is
+nonempty; unused-branch witnesses can be assigned zero.
+
+Node hash-consing identifies only literally identical expressions.
+Every variable receives a fresh index, so it cannot merge distinct
+witnesses. Topological node order gives the usual polynomial semantics.
+
+HierarchicalBuilder replaces a power formula by the same fixed power
+polynomial, substituting its three arguments and a fresh block of 79
+witnesses. These blocks are allocated consecutively and do not overlap
+ordinary variables or other blocks. Induction on construction steps
+therefore gives exactly the flat compiler's expression after literal
+substitution, with the same variable numbering. The earlier theorem
+applies unchanged. The call's value is a polynomial value; it is not
+an additional assertion that every power subcall vanishes independently
+of the surrounding Boolean formula.
+
+5. Correctness of the fixed interpreter
+
+The numbering uniquely writes e+1=2^w(2D+1). If w=0 it halts;
+otherwise B=2^w and state i uses the four base-B digits of D at
+positions 4i through 4i+3. Opcode 1 increments its chosen register;
+opcode 2 decrements and branches, or takes the zero branch. Other
+opcodes halt. Missing digits are zero. Every finite register program
+has such a code by choosing w large enough for all fields.
+
+The primitive assembler implements preserving tests by decrementing
+and restoring a positive value. copy and addInto use a private counter
+to restore the consumed operand. ifLt compares private copies.
+divmod repeatedly subtracts its positive divisor from a private
+remainder, maintaining x=q*y+r; it terminates with r<y. divmod2
+consumes pairs and returns the parity. All scratch variables are
+initialized on entry, and the reserved jump register stays zero.
+
+The simulated tape uses nil=0 and cons(h,t)=2^h(2t+1). uncons first
+copies its input, then repeatedly halves a positive even value until
+it is odd. This strictly decreases that value. It returns h,t; nil
+returns zeros. cons copies both inputs before its final output write,
+so the aliases used by the interpreter are safe. getList follows a
+finite number of links. setList saves the traversed prefix in reverse,
+replaces the selected entry, then restores the prefix. The saved list
+strictly decreases during restoration. Reading past nil gives zero;
+writing past nil pads zero entries.
+
+At the main-loop entry, D,B are fixed, pc is the simulated state,
+and tape encodes its registers. Repeated division extracts exactly the
+four specified digits. The opcode test admits precisely 1 and 2;
+the subsequent list update and pc assignment implement their stated
+semantics. All operations for one simulated step terminate. Induction
+on simulated steps proves the invariant. The only exit is a halt
+opcode or w=0, followed by finite cleanup of all 204 registers.
+Thus the 1,399-state primitive interpreter accepts e,n exactly when
+the numbered program halts.
+
+These machines are universal: two base-encoded stacks and finite
+control represent a Turing tape. Push/pop use multiplication, addition,
+quotient and remainder by a fixed alphabet base, all implemented by
+finite increment/decrement loops. A Turing step therefore has a finite
+register-program implementation, yielding an effective translation.
+
+6. Binding to the delivered natural polynomial
+
+integer-stage-binding-checks.json binds the compiler, hierarchical
+builder, interpreter source, saved primitive program, and saved H by
+SHA256. A fresh generation of the interpreter matched the saved
+primitive program. Fresh compilation matched every field of the saved
+natural polynomial after JSON parsing, including variable ranges,
+template bodies, metadata, and root. Its structure check found
+1,305,804 total variables, 293,568 parent nodes, 15,845 calls, and
+one 474-node power template. This binds the preceding argument to H.
+
+alpha-power-checks.json separately records six complete alpha witnesses
+and seven complete power witnesses evaluated against the actual emitted
+polynomials. They include n=0, 0^0, positive powers of zero, and
+positive bases. Changing the claimed result made all thirteen evaluated
+polynomials nonzero. These are transcription checks, not substitutes
+for the general proofs in sections 1-5.
+
+Conclusion
+
+H is a universal Diophantine polynomial with natural witnesses for the
+specified ordinary integer parameters. This closes the natural compiler
+and interpreter obligation. To obtain the requested rational-witness U,
+the exact elliptic model and certificate, the accuracy program, and the
+semantics of their rational composition still must be justified.

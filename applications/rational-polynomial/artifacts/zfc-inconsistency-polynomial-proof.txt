@@ -1,0 +1,230 @@
+A rational-zero polynomial for ZFC inconsistency, using K215
+3 November 2026
+
+Definition
+
+Let e_K be the nonnegative integer printed in k215-program-code.txt.
+Its hexadecimal representation is k215-program-code.hex. The integer
+has 403,898 binary digits and 121,586 decimal digits. It is not the
+integer 215: it encodes the 7,768-instruction register simulation of
+the 215-state Turing machine, in the numbering understood by U.
+
+Let U be universal-rational-equation.json, SHA256
+ be7347c439459759121cda9656eda501afd75ca48897aa0f0acf5f85f6a43b1f.
+Define the single polynomial
+
+             P(w) = U(e_K,0,w),                 (1)
+
+with N=878664928321 rationally quantified coordinates in w. Its
+integer coefficients and entire finite expression are specified in
+zfc-inconsistency-polynomial.json, SHA256
+ 2d6b97e7496ab8eb99f8b6e8b2f2e1792bbc8b5142ef73a6270ca6a1982e5a5e.
+
+The latter file contains the complete source expression for U and
+the exact decimal values of both substitutions. Thus it is usable
+without looking up another polynomial file. Literal substitution
+introduces no extra variables and preserves integer coefficients.
+As with U, the coefficient prescriptions are finite and terminating;
+their expanded decimal values and monomial list are not printed.
+The free variables of P are w alone. This is a multivariable polynomial.
+
+Claim and dependencies
+
+Using the written universality theorem for U and the K215 theorem
+specified below,
+
+  exists w in Q^N with P(w)=0
+      if and only if
+  ZFC has a finite formal proof of contradiction.          (2)
+
+The new work here is the explicit register simulation, its integer
+encoding, and the literal specialization (1). The arithmetic proof
+of U remains the earlier written proof, including its six-contact
+height construction and restricted pointwise-converse dependency.
+The repository's complete MM0 proof binary was not rerun locally.
+Its theorem is an external mathematical input with a checked
+specification/receipt match, not a newly kernel-checked result here.
+
+1. Pinned K215 specification and theorem
+
+Repository:
+ https://github.com/elliotglazer/k215-pa
+Revision:
+ c16fb4c751b27f03233929ec56135f32f342dfed
+
+The machine is the literal table in pa-mm0/k215_literal_tm.mm0,
+whose SHA256 is
+ 175a704301df3887f75e4d7ecbd3b7a15b0423dae39758797d578e751732d4c5.
+It has working states 0,...,214 and halt state 215. The tape alphabet
+is {0,1}, the blank symbol is zero, and it starts in state 0 on a blank
+two-sided tape. Direction 0 means left; direction 1 means right.
+
+The definition encodes a configuration by a triple (q,l,r). The
+lowest bit of r is the head symbol; higher bits are symbols further
+right. The lowest bit of l is the symbol immediately left of the
+head. Beyond the finite binary expansions, all symbols are zero.
+For transition (w,d,t), its literal move equations are
+
+ d=0: (q,l,r) -> (t, floor(l/2),
+                        l mod 2 + 2w + 4 floor(r/2));
+ d=1: (q,l,r) -> (t, 2l+w, floor(r/2)).              (3)
+
+The source's k215LiteralHalts says that some finite iterate from
+(0,0,0) reaches state 215. The step function fixes halt configurations.
+
+The endpoint K215_halts_iff_ZFC_inconsistent_final in
+pa-mm0/k215_final_thm1.mm0 has no hypotheses and states
+the equivalence of k215LiteralHalts and zfcInconsistent. It agrees
+with the frozen target theorem in pa-mm0/targets/final.mm0.
+The final .mm1 proof source applies the previously proved full
+theorem to k215FinalFull_fixed_closed, discharging its old premise.
+
+zfcInconsistent is zfcProvable sfBot. zfcProvable explicitly quantifies
+a finite list of ZFC axioms and a finite full natural-deduction proof
+of the target sequent. The axiom specification includes the fixed
+set-theoretic axioms, Choice, and the Separation and Replacement
+schemata with their bound-variable checks. This concerns syntactic
+inconsistency, not the truth of a semantic assertion about all models.
+
+The 23 files in the frozen statement import closure were downloaded
+at the pinned revision and checked against its SHA256 manifest. The
+actual import closure agrees with that manifest. The definition files
+and final root source agree with the hashes in receipt/thm1/report.json.
+The endpoint's binder and formula agree with the frozen target. The
+receipt records PASSED, a closed dependency graph, no new project
+axioms, and rejection of a false-conclusion control. These checks bind
+the stated theorem to the published receipt. They are not a rerun of
+the 4,627,501,632-byte MM0 proof file, whose recorded SHA256 is
+ e92e0e00cfd69b949d53a9e7c3aa40b7760b301c77788bb37c39741a7701496f.
+
+k215-source-specification.json retains the checked specification,
+root statement/proof source, receipt and upstream license. It does
+not contain the complete 2,156-module proof dependency closure.
+
+2. Register-machine simulation
+
+The compiled program uses four natural-number registers:
+ R0=L, R1=R, R2=T, R3=Z.
+At each simulated-state boundary q_i, L and R have the meaning in
+(3), and T=Z=0. Z is never incremented. A decrement/test of Z with
+both successors equal implements an unconditional jump.
+
+There are two finite macros, emitted literally as increment and
+decrement/test instructions by TapeCompiler.
+
+scale(x,k,c) assumes T=0. Its first loop consumes x, incrementing
+T exactly k times for each unit consumed. After j iterations,
+ x=x_initial-j and T=kj.
+It terminates when x=0. Its second loop transfers T back to x one
+unit at a time, preserving x+T=k*x_initial, and terminates with
+T=0. It then increments x exactly c times. Its result is
+x=k*x_initial+c, with T=0 and all other registers unchanged.
+
+pop(x,even,odd) also assumes T=0. It consumes pairs from x, adding
+one unit to T per pair. After j pairs, x=x_initial-2j and T=j.
+It eventually sees either zero remaining or exactly one remaining.
+In the second case it consumes that last unit. On either branch,
+x=0 and T=floor(x_initial/2). The selected branch transfers T back
+to x one unit at a time and jumps to the specified even or odd
+successor. It leaves x=floor(x_initial/2), T=0, and chooses the
+successor according to the original x modulo 2.
+
+Both macros terminate for every finite natural input. Their loops
+have strictly decreasing natural counters. Their code contains no
+halt instruction, and their private control labels are resolved
+before encoding. They preserve the boundary invariant.
+
+At q_i, the compiled block first jumps to a private entry and then
+applies pop(R,a_i0,a_i1). Keeping q_i distinct from the pop loop
+means that no internal loop iteration is mistaken for another
+simulated-state entry. The pop selects the source transition on
+the head bit and leaves
+R=floor(r/2). For a right move it applies scale(L,2,w) and jumps to
+q_t, giving exactly the second line of (3). For a left move it
+applies scale(R,4,2w), then pop(L,even,odd); the odd branch adds one
+to R. It jumps to q_t, giving exactly the first line of (3).
+
+The unique halt instruction is q_215. All other branch targets
+are within the emitted program, and every source target is between
+0 and 215. Starting with input zero puts L=R=T=Z=0 at q_0.
+Induction on source steps therefore proves exact simulation.
+Each source step takes finitely many register steps, so a source
+halt gives a register halt. Conversely a register halt can only
+occur at q_215, reached after a finite number of simulated source
+steps; no macro can produce a spurious halt or run forever during
+one source step. Thus
+
+ register simulation halts on input zero
+       iff K215 halts on its blank tape.                  (4)
+
+The generated register program is k215-register-program.json.
+The table used by the compiler is k215-transition-table.json.
+A parser consumes every expression in all 22 source table blocks
+and evaluates each of the 430 state/symbol cases. An independent
+extraction of the explicit branches agrees with that evaluation.
+
+3. Exact numerical encoding
+
+The existing universal-interpreter numbering uses four base-B
+digits per instruction, with B=2^w. Here w=13 is large enough for
+all register numbers, opcodes and jump targets. An increment has
+fields (1,register,next,0), a decrement/test has fields
+(2,register,nonzero,zero), and halt has fields (0,0,0,0).
+
+If these fields at instruction i are (o_i,j_i,a_i,b_i), define
+
+ d_i=o_i+B*j_i+B^2*a_i+B^3*b_i,
+ D=sum_(i=0)^7767 d_i B^(4i),
+ e_K=2^13(2D+1)-1.                                    (5)
+
+Then e_K+1 has 2-adic valuation exactly 13. The universal decoder
+recovers D, and its four-digit extraction recovers each instruction
+because every field lies in [0,B). Missing high digits are zero,
+consistent with the final all-zero halt record. Every actual jump
+stays within the explicit list. The verifier decodes all 7,768
+records from the printed integer and compares every field.
+
+The universal interpreter's private cleanup on a source halt does
+not change its halting behavior. It merely satisfies the all-zero
+acceptance convention of the natural polynomial compiler. Combining
+its previously proved semantics with (4)-(5),
+
+ program numbered e_K halts on input 0
+       iff K215 halts on its blank tape.                  (6)
+
+4. Polynomial specialization and both implications
+
+The existing written universality theorem says, for all ordinary
+nonnegative integers e,n,
+
+ exists w in Q^N: U(e,n,w)=0
+       iff program numbered e halts on n.
+
+The literal constants in (5) and zero satisfy its parameter domain.
+If P has a rational zero, substitution (1), universality, (6) and
+the upstream K215 theorem give a finite formal ZFC contradiction.
+If a finite formal ZFC contradiction exists, the K215 theorem gives
+a finite K215 halt, (6) gives a halt for program e_K on zero, and
+universality supplies rational witnesses for U(e_K,0,w)=0. These
+are exactly witnesses for P(w)=0. This proves (2) from its stated
+mathematical inputs.
+
+5. Verification scope
+
+verify-k215-specialization.js checks source hashes and the statement
+import closure, receipt binding, the literal table, fresh register
+compilation, every encoded instruction, 21,500 complete transition
+executions with both bit values and boundary cases, and 32 consecutive
+blank-tape steps against an independent tape-cell simulation.
+Those bounded executions do not decide whether K215 eventually halts.
+The all-input simulation proof is the decreasing-loop argument above.
+
+The verifier also compares the whole embedded source polynomial to U,
+checks its hash, the exact two integer substitutions and the number of
+remaining variables. The original U package has a separate integrity
+and assembly checker. These checks cannot certify the arithmetic
+proof of U or replace kernel verification of the upstream MM0 proof.
+
+This construction is not evidence that ZFC is inconsistent. It gives
+one fixed polynomial whose rational solvability has that meaning.
+No stronger independence claim is made here.

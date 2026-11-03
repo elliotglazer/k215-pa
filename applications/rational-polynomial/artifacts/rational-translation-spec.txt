@@ -1,0 +1,171 @@
+Specification for the integer-to-rational model translation
+3 November 2026
+
+Status
+
+This specifies the final translation and proves its intended invariant
+conditional on an exact Diophantine model of Z. The complete expression
+is now generated in universal-rational-equation.json. Its assembly audit
+passes, as recorded in universal-rational-expression-audit.json. That
+audit does not prove the arithmetic model or the source compiler.
+The source circuits are pinned in rational-translation-plan.json.
+
+The operation templates and their counts are those of
+multiplication-certificate-compiler-spec.txt. In particular the fixed
+constants must be the prescribed constants, not the small test values.
+
+1. Evaluation invariant
+
+Let iota(k) be the five-coordinate code of [k]P. Write Add and Mul for
+the exact model operations. Thus
+ Add(iota(a),iota(b),C) iff C=iota(a+b),
+ Mul(iota(a),iota(b),C) iff C=iota(a*b).
+Each relation also restricts the relevant points to D as documented.
+
+An integer polynomial circuit is evaluated one node at a time:
+ a source variable uses its assigned point code;
+ the constants 0,1,-1 use O,P,-P;
+ another fixed integer c uses the one-witness graph [c]P;
+ an addition creates a result point and an Add constraint;
+ a multiplication creates a result point and a Mul constraint.
+
+Structural induction shows that every node is exactly iota(v), where v
+is its integer value. Conversely, exact node values have witnesses for
+all operation constraints. This induction uses the full signed carrier
+D for intermediate values. It would fail if every node were forced to
+represent a natural number, since polynomial subtraction uses -1.
+
+The three nonintegral rational coordinates of P are fixed by three
+linear equations in each translated template. They are shared within
+that template. Distinct equal integer constants also share their point
+code. Every other nontrivial fixed constant has one result point and
+one inverse-norm witness for its scalar graph.
+
+The final point is required to equal O. Since P is nontorsion, this is
+equivalent to the source polynomial having integer value zero.
+
+2. Natural source variables
+
+For each source variable originally quantified over N, impose the
+natural-model predicate. It expresses the associated integer as a sum
+of four squares of model integers. The four-square theorem gives both
+directions. Source input point codes are also restricted this way.
+
+Each auxiliary source variable therefore contributes five coordinate
+variables and 140,604 witnesses. A source input already supplies its
+five coordinates as parameters, so only its 140,604 witnesses are added.
+
+No integrality condition is placed directly on an ordinary rational
+coordinate. All integrality and nonnegativity here concern indices in
+the elliptic model.
+
+3. Power-template calls
+
+The saved integer circuits use one 474-node ordinary polynomial
+template with three parameters and 79 natural witnesses. Its value can
+be nonzero: it is an arithmetic subexpression in a larger polynomial.
+
+Translate this template as an EVALUATION relation with four point
+parameters: three input codes and one output code. Its 79 natural
+witnesses are internal to each call. Evaluate every arithmetic node
+using the invariant in section 1 and require the last code to equal
+the supplied output.
+
+Do not instead assert that each power-template polynomial is zero.
+That would change the disjunctions in the source circuit and, in
+particular, could incorrectly require witnesses for unselected branches.
+
+The source's private witness blocks occur only within their associated
+template call; this must be confirmed in the implementation audit.
+A translated call therefore supplies the three current input values,
+introduces an output point, and allocates the evaluation template's
+private witnesses. Their existential scope matches the source.
+
+With the present layout, this evaluation template has 20 rational
+parameters and 17,786,698 witnesses.
+
+4. The two source predicates
+
+Translate universal-integer-polynomial.json with source inputs e,n.
+Requiring its value to be zero gives a rational relation V(A,B) on
+model codes. For natural a,b,
+ V(iota(a),iota(b)) iff program a halts on input b.
+
+Translate accuracy-integer-polynomial.json with source inputs k,h,j.
+Requiring its value to be zero gives a rational relation Acc(A,H,J).
+For natural k,h,j, it expresses
+ h>=1, j=k*h, abs(rho(hP,jP)-k)<1/8,
+where rho(H,J)=Tr(z(J)/z(H))/2.
+The fixed program code in this circuit is an ordinary integer constant.
+Its code is defined by the scalar graph rather than by attempting to
+print the coordinates of that enormous multiple of P.
+
+Both translations inherit source-variable nonnegativity and the source
+compiler's correctness obligations. A generated-output audit must check
+the source hashes, parameter ordering, all operation calls, and the
+local scope of each witness block.
+
+5. Ordinary integer input bridge
+
+For a rational parameter a and a point code A, define Gamma(a,A) by
+existentially choosing H,J,r and requiring
+ Acc(A,H,J), r=rho(H,J), abs(a-r)<1/8.
+
+Acc restricts the index k of A to N and gives abs(r-k)<1/8. Thus when
+a is an ordinary integer, Gamma(a,A) implies abs(a-k)<1/4 and hence
+a=k. Conversely, for each k>=0, recurrence of hP toward O in both
+real elliptic groups gives positive h with
+ Tr(z(khP)/z(hP))/2 tending to k.
+Such an h supplies Acc, and a=k then supplies the proximity condition.
+
+This is an exact bridge for ordinary integer inputs. No characterization
+of Gamma at nonintegral rational a is needed or claimed.
+
+Beyond the Acc witnesses, Gamma uses:
+ ten coordinates for H and J;
+ one rational variable r;
+ nine witnesses for the raw trace-ratio formula;
+ four witnesses for strict proximity.
+Total: 24 witnesses.
+
+The raw trace formula's domain preconditions are supplied by Acc.
+It retains its nonzero-denominator conditions and requires H nonzero.
+The case J=O is supported.
+
+6. Final composition
+
+For ordinary external parameters e,n, choose two point codes A,B.
+Conjoin
+ V(A,B), Gamma(e,A), Gamma(n,B).
+Replace every component relation by its explicit existential polynomial
+formula and use the sum-of-squares and product rules throughout.
+All witnesses are rational. The resulting single polynomial has integer
+coefficients because the templates, fixed scalar graphs, and finite
+guard all have integer coefficients.
+
+The evaluation invariant and the bridge prove
+ exists rational witnesses U(e,n,w)=0
+ iff program e halts on n,
+for ordinary nonnegative integers e,n.
+
+This is a proof of the composition from the exact model and source
+compiler statements. The implementation and mechanical assembly audit
+are complete. Establishing those mathematical premises, including the
+arithmetic dependencies of the exact model, remains necessary for an
+unconditional universality claim.
+
+7. Count for this specified layout
+
+The counts computed from the pinned source circuits are:
+ V: 292,887,770,443 witnesses, beyond its ten point coordinates;
+ Acc: 292,888,578,910 witnesses, beyond its fifteen point coordinates.
+
+Adding two bridges and the ten outer coordinates gives a checked count
+of 878,664,928,321 rational witnesses. This large number is not optimized.
+The generated expression and its assembly auditor agree on this count.
+This does not establish the unfinished universality theorem.
+
+These counts depend on the fixed polynomial syntax and source variable
+layout, not on the ordinary input values e,n. The enormous sizes of the
+fixed coefficients and degrees also do not change this number.
+

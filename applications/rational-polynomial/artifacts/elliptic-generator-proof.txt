@@ -1,0 +1,175 @@
+An explicit generator for the elliptic model
+2 November 2026
+
+Result
+------
+Let F=Q(sqrt(2)), s=sqrt(2), and d=75-53s. On
+  E: y^2=x^3-d^2 x,
+the point
+  P = ((1641-1160s)/8, (-123720+87483s)/32)           (1)
+generates 2E(F). Thus the model carrier is exactly Z P with a fully
+specified rational-coordinate code for P.
+
+This result uses the rank-one descent in explicit-elliptic-data.txt,
+the height argument below, and the exhaustive exact finite calculation
+in verify-elliptic-generator.js. It does not use the pointwise 2-converse,
+the five-contact height theorem, or a conjectural rank computation.
+
+1. Change to a smaller equation
+-------------------------------
+Set epsilon=1+s and delta=3-s. Since d epsilon^4=delta, the isomorphism
+  (x,y) -> (epsilon^4 x, epsilon^6 y)
+takes E to
+  C: y^2=x^3-delta^2 x.
+Both real conjugates of delta lie strictly between 1 and 5, Norm(delta)=7,
+and O_F=Z[s] is a PID.
+
+The point
+  R=(1+s,2s)
+lies on C, since (1+s)^3-(11-6s)(1+s)=8. The exact torsion computation
+already gives C(F)_tors=C[2](F)=(Z/2)^2, and the descent gives rank one.
+
+R is not in 2C(F)+C(F)_tors. Indeed, under the two-isogeny descent map
+alpha, its x-class is epsilon, with opposite signs at the real
+embeddings. The four two-torsion classes are 1,-1,delta,-delta, each
+with equal signs. Since alpha kills 2C(F), this proves the assertion.
+In particular R is nontorsion and its index in the free part is odd.
+
+2. A uniform elementary height bound for C
+------------------------------------------
+Write h(T) for h(x(T)), with h(O)=h(infinity)=0, and write hat_h for
+the canonical height with 2 hat_h(T)=lim_n 4^(-n) h([2^n]T).
+
+The duplication map on projective x-coordinates is
+  [a:b] -> [F(a,b):G(a,b)],
+  F(a,b)=(a^2+delta^2 b^2)^2,
+  G(a,b)=4ab(a^2-delta^2 b^2).
+
+Choose a,b in O_F generating the unit ideal, which is possible because
+O_F is a PID. At either real embedding, set M=max(|a|,|b|).
+The bounds 1<delta<5 give
+  M^4 <= max(|F(a,b)|,|G(a,b)|) <= 676 M^4.          (2)
+For the lower bound use F, a square of a sum of nonnegative real
+terms. For the upper bound use
+  |F| <= (1+delta^2)^2 M^4 < 676 M^4,
+  |G| <= 4(1+delta^2) M^4 < 104 M^4.
+
+Let I=(F(a,b),G(a,b)) be their common ideal. Outside the primes above
+2 and delta it is the unit ideal: a common zero modulo such a prime
+would force a,b both nonzero and a^2=delta^2 b^2=-delta^2 b^2.
+
+At the prime (delta), use integral valuation v(delta)=1. If a is a
+unit, F is a unit whenever b is divisible by delta, and if both are
+units F and G cannot vanish together. A common factor can therefore
+only arise when b is a unit and v(a)>=1. For v(a)>1 one has v(F)=4.
+For v(a)=1, write a=delta u; then
+  F=delta^4(u^2+b^2)^2.
+Since -1 is a nonsquare in the residue field F_7 and u,b are units,
+v(F)=4 again. Thus v(I)<=4.
+
+At the prime (s) above 2, if exactly one of a,b is a unit, F is a
+unit. If both are units, put u=a/(delta b). Every local unit has the
+form A+B s with A odd and A,B in Z_2. If B is even then
+v_s(u^2+1)=2; if B is odd it is 3. This follows by separating
+A^2+2B^2+1 and 2ABs, using A^2=1 mod 8. Consequently
+v_s(F)=2v_s(u^2+1)<=6, so v_s(I)<=6.
+
+Therefore
+  Norm(I)<=2^6 7^4.
+Combining the projective height formula with (2) proves
+  4h(T)-log(392) <= h([2]T) <= 4h(T)+log(676).       (3)
+This includes O and two-torsion, interpreted projectively.
+Iteration gives
+  h(T) <= 2 hat_h(T)+log(392)/3.                    (4)
+
+3. A small enough search bound
+------------------------------
+Direct doubling gives
+  [2]R=((57-28s)/8,(-660+417s)/32).
+Its x-coordinate has primitive polynomial
+  64X^2-912X+1681.
+Both real roots exceed 1, so its Mahler measure is 1681 and
+  h([2]R)=log(41).
+The upper half of (3), iterated starting at [2]R, gives
+  2 hat_h(R) <= log(41)/4+log(676)/12.
+
+If R has odd index m with |m|>=3, write R=mS+T with S a free generator
+and T torsion. Then (4) gives
+  h(S) <= (log(41^3*676))/108+log(392)/3 < log(9).   (5)
+The final strict inequality is the exact integer comparison
+  41^3 * 676 * 392^36 < 9^108,
+checked in the accompanying script.
+
+4. Exhaustive search with exact arithmetic
+------------------------------------------
+If x is nonrational in F and h(x)<log(9), its primitive irreducible
+integer polynomial aX^2+bX+c, a>0, has Mahler measure less than 81.
+The elementary coefficient bound gives
+  1<=a<=81, |b|<=162, |c|<=81.
+(The weak bounds deliberately include the boundary.)
+Its discriminant has the form
+  b^2-4ac=2k^2, k a positive integer,
+and x=(-b +/- k s)/(2a).
+
+The script enumerates every primitive triple in this finite box and
+both roots when the discriminant condition holds. It also enumerates
+all rational x with coprime numerator and positive denominator at
+most 9 in absolute value. This covers the rational possibilities in
+(5), again with harmless extra boundary points.
+
+For each x it tests y^2=x^3-(11-6s)x exactly. For q=u+vs in F, q is a
+square only if u^2-2v^2 is a rational square. Given either sign t of
+that square root, a possible rational coefficient y0 must satisfy
+  y0^2=(u+t)/2.
+When y0 is nonzero, y1=v/(2y0), and substitution verifies the answer.
+When y0=0, one requires v=0 and tests y1^2=u/2. This test is necessary
+and sufficient and includes q=0. The script uses integer square-root
+tests after clearing and reducing rational denominators; it does not
+use floating-point square tests for the curve equation.
+
+There are 14,008 quadratic root candidates in the box. The complete
+list of x-coordinates supporting points is
+  0, delta, -delta,
+  1+s, 23-17s, 2+4s, (5-4s)/2.                     (6)
+
+The first three are the two-torsion x-coordinates. The remaining four
+are precisely the x-coordinates of R+T as T runs over C[2](F):
+  T=O          : x=1+s,
+  T=(0,0)      : x=23-17s,
+  T=(delta,0)  : x=2+4s,
+  T=(-delta,0) : x=(5-4s)/2.
+These identities follow directly from the addition formulas. A
+non-two-torsion x-coordinate gives exactly the two opposite points.
+
+Thus any nontorsion S satisfying (5) is of the form +/-R+T'. Its
+canonical height is hat_h(R). But R=mS+T would then imply
+hat_h(R)=m^2 hat_h(R), impossible since hat_h(R)>0 and |m|>=3.
+Together with the odd-index assertion in section 1, this proves that
+R generates C(F) modulo its torsion.
+
+5. Return to the original curve
+-------------------------------
+Since torsion has exponent two, 2C(F)=Z[2]R. Apply the inverse
+isomorphism:
+  x=epsilon^(-4)(57-28s)/8=(1641-1160s)/8,
+  y=epsilon^(-6)(-660+417s)/32=(-123720+87483s)/32.
+This is (1), and proves 2E(F)=Z P.
+
+In the unique five-coordinate coding convention, the code for P is
+  (0, 1641/8, -145, -15465/4, 87483/32).
+The same point is [2]Q for the Q used in the source rank computation:
+under the displayed isomorphism Q is R+(0,0).
+
+Reproducibility and scope
+------------------------
+verify-elliptic-generator.js is a standalone JavaScript program using
+only integer arithmetic and exact rational reductions for all curve
+tests. Its discriminant lookup uses a complete table of 2k^2 for
+1<=k<=162, with exact integers below 2^53. It was run
+successfully in this session. Its output is saved in
+elliptic-generator-search.json.
+
+This is an elementary proof with a reproducible finite computation.
+It is not a Lean formalization or a validation of the separate
+pointwise-converse dependency of the universal equation.
+

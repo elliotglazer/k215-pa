@@ -1,0 +1,147 @@
+Exact arithmetic program for the ordinary-input bridge
+3 November 2026
+
+The natural-number relation to be represented is
+ Acc(k,h,j) iff h>=1, j=k*h, and
+ abs((1/2)Tr(z(jP)/z(hP))-k)<1/8,
+with z(Q)=-x(Q)/y(Q), z(O)=0, and the fixed generator P.
+
+accuracy-program.js gives an explicit algorithm for this relation.
+It generates a natural-arithmetic intermediate program and lowers
+that program to literal add/sub/halt instructions. The lowered program
+has 57,791 states and 9,445 registers. Its code in the fixed numbering
+is saved exactly in accuracy-program-code.hex, with 3,698,577 bits.
+
+1. A single ordinary input
+
+Use the Cantor pairing polynomial
+ pair(x,y)=(x+y)(x+y+1)/2+y
+and input pair(k,pair(h,j)).
+
+To invert a, start w=0,r=a and, while w<r, replace
+ r by r-(w+1), then w by w+1.
+The invariant is a=w(w+1)/2+r. At termination 0<=r<=w, so
+x=w-r,y=r satisfy a=pair(x,y). Every iteration decreases r,
+and the inverse is unique. The program applies this inverse twice.
+
+It rejects h=0 or j!=k*h. When j=0 and these guards hold, k=0,
+so the required accuracy is exact and it accepts immediately.
+
+2. Exact signed arithmetic
+
+An integer is represented by two natural registers (p,n) with value
+p-n and with at least one register zero. Addition forms positive and
+negative totals and uses truncated subtraction in both directions,
+restoring this canonical property. Negation swaps the registers.
+
+For multiplication use
+ (p,n)*(q,m)=(p*q+n*m, p*m+n*q).
+Canonical inputs make the output canonical. Squaring may therefore
+use (p+n)^2 as its positive magnitude and zero as negative magnitude.
+Positive integer scaling preserves the invariant.
+
+An element of Z[sqrt(2)] is a pair of these signed integers.
+Its multiplication is
+ (a,b)*(c,d)=(ac+2bd,ad+bc).
+There is no floating-point arithmetic and no division in this layer.
+
+3. Projective elliptic arithmetic
+
+The curve is y^2=x^3+A*x, A=-11243+7950sqrt(2).
+Use Jacobian coordinates x=X/Z^2, y=Y/Z^3. The initial point is
+ X=13128-9280sqrt(2),
+ Y=-1979520+1399728sqrt(2),
+ Z=8.
+These give the previously fixed affine generator P.
+
+For doubling set
+ D=4XY^2, E=3X^2+A Z^4,
+ X'=E^2-2D,
+ Y'=E(D-X')-8Y^4,
+ Z'=2YZ.
+
+For adding two points set
+ U1=X1 Z2^2, U2=X2 Z1^2,
+ S1=Y1 Z2^3, S2=Y2 Z1^3,
+ H=U2-U1, R=S2-S1,
+ X'=R^2-H^3-2U1 H^2,
+ Y'=R(U1 H^2-X')-S1 H^3,
+ Z'=H Z1 Z2.
+These formulas follow by clearing denominators in the affine chord
+and tangent formulas. They use only addition and multiplication.
+
+The scalar algorithm processes bits from low to high, with base
+[2^i]P and an accumulator equal to the sum of earlier selected powers.
+Before an addition the accumulator's index is strictly less than 2^i.
+If it is zero, the program copies the base instead. Otherwise the
+two points have different x-coordinates: equality would make their
+indices equal or opposite because P is nontorsion. Thus H is nonzero.
+Doubling also has nonzero denominator because no positive multiple
+of P is two-torsion. The formulas are therefore used only on valid
+branches, and no all-zero projective tuple is consumed.
+
+Repeated halving of the positive scalar terminates. On exit the
+coordinates represent exactly its multiple of P.
+
+4. The final comparison
+
+For the computed points H=hP and J=jP, put
+ A0=X_J Z_J Y_H=a+b sqrt(2),
+ B0=Y_J X_H Z_H=c+d sqrt(2).
+Then z(J)/z(H)=A0/B0 and
+ (1/2)Tr(A0/B0)=(ac-2bd)/(c^2-2d^2).
+Let N=ac-2bd and D=c^2-2d^2. B0 is nonzero on the guarded branch,
+hence D is nonzero. The exact test is
+                   64(N-kD)^2 < D^2.
+It is equivalent to the required strict error bound even if D<0.
+
+5. Lowering and halting
+
+Each natural-arithmetic operation lowers to the primitive assembler's
+copy, add, decrement, comparison, division-by-two, and finite-loop
+macros. Multiplication uses a copied counter and repeated addition.
+Signed arithmetic is already expanded before this lowering.
+
+Acceptance jumps to a cleanup block that clears every primitive
+register and then reaches the unique final halt. Rejection jumps to
+a self-loop. Thus the primitive program HALTS exactly on triples for
+which Acc is true. The intermediate program itself decides both cases.
+
+The lowering proof is induction on the intermediate syntax, using
+the macro invariants in universal-interpreter-spec.txt. In particular,
+scratch registers are private, and arithmetic outputs are fresh except
+for explicit copies. No aliasing assumption is left implicit.
+
+6. Actual integer polynomial
+
+The program's complete code is substituted into the already generated
+universal integer polynomial H. Two pairing equations give
+ Q=pair(h,j), U=pair(k,Q).
+Consequently
+ H(e_Acc,U,w)^2
+ +(2Q-(h+j)(h+j+1)-2j)^2
+ +(2U-(k+Q)(k+Q+1)-2Q)^2
+is one fixed integer-coefficient polynomial representing Acc on N.
+
+build-accuracy-polynomial.js performs this specialization, including
+the entire program code as a literal integer coefficient. It also
+checks every decoded instruction against the saved primitive program.
+The output is accuracy-integer-polynomial.json.
+
+7. Evidence and limitations
+
+The exact intermediate program was checked on 20 valid index triples
+and five invalid triples. Its projective point outputs and trace
+ratios were compared with an independent affine calculation using
+reduced rational coefficients in Q(sqrt(2)).
+
+The nontrivial elliptic examples were not executed in the unary
+primitive machine, whose arithmetic is intentionally very slow.
+Their primitive correctness rests on the lowering proof and the
+separately checked macro semantics, not on an unperformed execution.
+
+This closes the previously unspecified integer-algorithm part of the
+ordinary-input bridge. The final rational equation still requires
+substituting the exact rational Diophantine model into these integer
+circuits and compiling the rational comparison in Gamma.
+

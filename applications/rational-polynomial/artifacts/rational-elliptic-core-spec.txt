@@ -1,0 +1,160 @@
+Rational elliptic coordinate formulas
+2 November 2026
+
+Files
+
+rational-elliptic-core.js supplies polynomial formulas over Q.
+rational-elliptic-templates.json contains four explicit polynomial circuits.
+verify-rational-elliptic.js evaluates them with exact rational arithmetic.
+rational-elliptic-checks.json records the completed finite checks.
+
+These formulas implement membership in the elliptic carrier, addition,
+coordinate functions, and strict rational proximity. They do not yet
+implement multiplication of integer indices or the universal rational
+polynomial. Their elementary correctness is separate from the height
+and pointwise-converse inputs.
+
+1. Encoding
+
+Write F=Q(sqrt(2)). An element (a,b) means a+b sqrt(2).
+Its product with (c,d) is (ac+2bd,ad+bc), and its norm is a^2-2b^2.
+Since 2 is not a rational square, a field element is nonzero exactly
+when its norm is nonzero.
+
+A point code is (o,x0,x1,y0,y1). The unique origin code is
+(1,0,0,0,0). A finite code has o=0 and coordinates x0+x1 sqrt(2),
+y0+y1 sqrt(2). The curve is
+ y^2=x^3+A x, A=-11243+7950 sqrt(2).
+
+All variables in these templates range over Q. A nonzero test for a
+rational expression t is the polynomial equation t*u=1 with a new
+rational variable u. Nonzero field tests apply this to the norm.
+No order or integrality test is implicit in a variable declaration.
+
+The fixed generator has code
+ (0,1641/8,-145,-15465/4,87483/32).
+For a rational constant p/q, the builder introduces a fixed variable
+v and the global equation q*v=p. Thus its polynomial nodes have integer
+coefficients even when the mathematical input uses rational constants.
+These constant equations always have their unique intended solution.
+
+2. Carrier membership
+
+The carrier is D=2E(F). Its definition is the following disjunction.
+
+The input code is O; or it is finite and there exist X,Y,m in F such that
+ Y^2=X^3+A X,
+ Norm(Y)*u=1,
+ 2Y*m=3X^2+A,
+ x=m^2-2X,
+ y=m(X-x)-Y.
+
+The second branch is exactly the tangent formula for [2](X,Y).
+Nonzero Y makes the tangent well defined and excludes points whose
+double is O. Conversely, every nonzero point of 2E(F) has a finite
+preimage with nonzero Y, so appears in this branch. This proves the
+membership formula without using a rank computation.
+
+The previously recorded rank, torsion and generator results identify
+this set with Z*P. That identification is needed for interpreting
+integer arithmetic, but not for the displayed membership equations.
+
+3. Addition
+
+For canonical input points p,q in E(F), the addition relation uses
+five branches:
+ p=O and r=q;
+ p finite, q=O and r=p;
+ both finite, xp=xq, yp=-yq, and r=O;
+ both finite, xp != xq, m(xq-xp)=yq-yp;
+ both finite, xp=xq, yp=yq, yp != 0, 2yp*m=3xp^2+A.
+
+In the last two branches r is finite and
+ xr=m^2-xp-xq, yr=m(xp-xr)-yp.
+Every field inequality has an explicit inverse-norm witness.
+The general branch and tangent branch use independent slope variables.
+
+For points on the curve these branches exhaust the possibilities.
+When x coordinates agree, equality of y squares implies that the y
+coordinates agree or are negatives. At a point of order two the
+inverse branch gives O and the tangent branch is excluded.
+
+The exported addition template also imposes membership of both inputs
+in D. Closure of the group proves that its output belongs to D.
+The lower-level addRelation function documents canonical curve inputs
+as preconditions. The scalar helper only applies it to such inputs
+and their previously constructed sums.
+
+Fixed scalar multiplication uses binary doubling and addition.
+Its iteration count depends only on the fixed scalar, not on an input
+integer index. It introduces finitely many intermediate point codes.
+The scalar helper therefore does not assume the multiplication relation
+that the certificate is intended to define.
+
+4. Coordinate functions
+
+For p in D define z(O)=0 and z(p)=-x/y on the finite branch. The formula
+retains a nonzero norm guard on y. Since D is torsion free, its only
+point with y=0 is absent from the finite branch.
+
+Similarly inverseX(O)=0 and inverseX(p)=1/x on the finite branch.
+The equation x*inverseX=1 itself enforces nonzero x. The only curve
+point with x=0 is a point of order two, so this excludes no finite
+element of D.
+
+The function log25 implements the previously computed polynomial
+ L(z)=16575z-6630d^2z^5+11050d^4z^9-25500d^6z^13
+      +68250d^8z^17-198900d^10z^21+612612d^12z^25,
+ d^2=11243-7950 sqrt(2).
+All powers are finite multiplication expressions.
+
+For h,j in D with h != O, traceRatio introduces their z coordinates
+and a field quotient q with z(h)*q=z(j). It retains the inverse-norm
+guard on z(h), and sets the rational output r to q's first component.
+This is r=Tr_F/Q(z(j)/z(h))/2. In particular j=O is supported.
+The exported trace template imposes both carrier memberships.
+
+5. Strict proximity and conversion to one polynomial
+
+The relation abs(a-r)<1/8 is equivalent to
+ (1-64(a-r)^2)*(q1^2+q2^2+q3^2+q4^2)=1.
+
+The right-hand equation implies positive first factor over Q.
+Conversely every positive rational has a representation as a sum of
+four rational squares: for b/c>0 with positive integers b,c, apply
+the four-square theorem to bc and divide the squares by c^2.
+Apply this to the reciprocal of 1-64(a-r)^2.
+
+Each equality A=B becomes A-B. A finite conjunction becomes the sum
+of the squares of its constituent polynomials. A disjunction becomes
+their product. These equivalences hold over Q because a sum of rational
+squares vanishes exactly when all summands vanish, and Q is a field.
+All branch witnesses are quantified existentially over Q; witnesses
+used only by unselected branches can be assigned arbitrary values.
+Global rational-constant equations remain conjoined with the final
+formula. No nonzero guard from an unselected branch is imposed globally.
+
+6. Checks and limits
+
+The generated circuits have:
+ membership: 12 variables, 150 polynomial nodes;
+ addition: 35 variables, 552 polynomial nodes;
+ trace ratio: 34 variables, 411 polynomial nodes;
+ strict proximity: 6 variables, 29 polynomial nodes.
+
+The independent affine reference uses the half-generator
+ Q=(-7+5sqrt(2),-280+198sqrt(2)), with [2]Q=P.
+Six multiples agree with the independent Jacobian implementation
+already used by the accuracy program.
+
+Completed checks cover 7 membership assignments, 49 additions,
+42 trace-ratio assignments, 13 proximity cases and 98 changed-output
+or changed-flag rejections. In particular the addition examples include
+both origin inputs, inverse inputs, tangent and distinct-x branches.
+
+A rejected mutated assignment is not an exhaustive proof that no
+other witnesses exist. General soundness follows from the equations
+and chart argument above. These tests also do not prove the imported
+arithmetic theorems, the rank calculation, or an index-multiplication
+certificate. No Lean verification is claimed.
+

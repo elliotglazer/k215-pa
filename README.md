@@ -287,6 +287,15 @@ The two linked proof binaries of the generic framework (PA front end, host job C
 | `receipt/thm23-g2/` | the reports of the `b4b_final` and `zfc_incompleteness_root` checks (PA) and of the HA translation and check, with `b6-out.mm0`; `MANIFEST.json` lists each file and what was removed for publication |
 | `scripts/` | `fetch_large_inputs.sh`, `check_sources.py`, `compare_report.py` |
 
+## Experimental applications
+
+[`applications/rational-polynomial/`](applications/rational-polynomial/) contains
+an explicit specialization of a candidate universal rational polynomial to
+K215, its register-machine compiler, executable checks and written arithmetic
+arguments. Its claimed rational-solvability equivalence depends on the supplied
+universality argument, which has not been independently reviewed or checked by
+a proof assistant. It is separate from this repository's MM0-verified theorem.
+
 ## License
 
 MIT (see [LICENSE](LICENSE)). The vendored files in `lean-mm0/vendor/` are unmodified copies from the MM0

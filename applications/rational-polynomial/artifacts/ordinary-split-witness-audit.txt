@@ -1,0 +1,226 @@
+ORDINARY SPLIT WITNESS FOR THE POLE-PREDICATE FAMILY
+2 November 2026
+
+Scope
+-----
+This is a source-level audit of the first part of pw:split-witness
+(lines 585-700) and pw:coinvariants (lines 842-868) in pointwise.tex,
+at openai/math commit 4eaee87548250b2682affda7d05d947c05554bae:
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/A-pointwise-2-converse-for-elliptic-curves-with-rational-two-torsion-October-7-2026/build/sections/pointwise.tex
+
+For E_l:y^2=x(x-l)(x+3l), with positive squarefree l=11 modulo 12,
+the ordinary coefficient test already has the
+nonempty split witness required in the final argument. The subsequent
+extra division by four in the general split-witness proof is not needed.
+The dependencies retained here are the exact even coefficient comparison,
+the least-depth normalization, and the integral trace interface audited
+in coefficient-trace-audit.txt. This conclusion alone does not prove
+the pointwise converse or the universal equation.
+
+1. The ordinary test and its extra-depth alternative
+----------------------------------------------------
+Fix a negative minimum-depth even unit k, with fresh ramification outside
+the old support, and put K=Q(sqrt(k)). Choose the coefficient form for
+E_l^(k), normalized by a(1)=1. The exact coefficient comparison gives
+
+                   v_2(a(D)) >= omega(D)
+
+for the allowed squarefree positive D. Full rational two-torsion makes
+the weight omega(D). This is an exact comparison within one local filter,
+not a subtraction of two estimates with unknown error constants.
+
+Every nonzero a(D) is a rational number times a root of unity, so its
+normalized 2-adic valuation is an integer. Suppose no nonempty product
+of K-split primes attains equality. Then
+
+        v_2(a(D)) >= omega(D)+1                         (1)
+
+for every nonempty allowed all-K-split D, with the convention v(0)=infinity.
+
+Write eta for the phase character and psi for the nebentypus.
+Here psi/eta=chi_(-4), and eta is odd. At an allowed K-split prime p,
+let a=a_p(E_l^(k)) and set
+
+ B_p = (U_p-eta(p)V_p)g/2,
+ H_p = (B_p - B_p[1]Theta_1 - B_p[p]Theta_p)/2,
+ Theta_J = sum_m eta(m)m q^(J*m^2).
+
+All fixed support sieves are retained. The coefficient/trace audit
+establishes that H_p is integral. Multiplication by the integral
+weight-1/2 theta series, congruent to 1 modulo 2, allows the weight-two
+Galois trace construction without changing reduced coefficients.
+
+2. The Frobenius trace computation
+----------------------------------
+Choose a Frobenius lift phi_p at p that lies in G_K. On a conductor-one
+ramified principal-series constituent let the unramified eigenvalue be
+lambda, so U_p=lambda. If mu is the second Frobenius eigenvalue, then
+
+ U_p^2 t(phi_p)=lambda^2(lambda+mu)
+              =U_p^3+d(phi_p)U_p.
+
+On the unraised unary constituent the corresponding equality is the
+ordinary good-prime coefficient identity. Thus on the expression at issue,
+
+       (t(phi_p)H_p)[p^2]
+             =H_p[p^3]+(d(phi_p)H_p)[p].              (2)
+
+The use of a Frobenius lift at a ramified place causes no ambiguity:
+the principal-series formula is an identity with the determinant of
+that same lift.
+
+Replace t(phi_p), to the finite precision required, by the trace at a
+fresh prime p' with the same finite Galois data. Include every fixed
+rational quadratic support character in that data. Then p' is split
+in K and has the same support unit classes as p, so D=pp' belongs to
+the total square filter even if p by itself does not.
+
+At the left of (2), the good p' coefficient rule gives H_p[p^2 p'].
+The unary terms have no such coefficient. Up to the phase eta(p), the
+remaining coefficient is
+
+                   (a-1) a(pp')/4.
+
+By (1), v_2(a(pp'))>=3; this coefficient is therefore zero modulo 2.
+This calculation explains why no individual filter condition on p
+is needed: only the matched product pp' is used in (1).
+
+The determinant term at index p on the right of (2) vanishes. Indeed,
+B_p and the Theta_p summand have the same determinant character and
+their coefficients cancel at p; Theta_1 has no coefficient at p.
+
+It remains to compute H_p[p^3]. The phase-free coefficients at
+1,p^2,p^4 are respectively
+
+                        1, a-1, a(a-1)-p.
+
+Hence, removing the common unit eta(p)^2,
+
+ H_p[p^3]
+   = [a^2-2a-p+1-p(a-2)]/4
+   = (a-1)(a-p-1)/4.                                  (3)
+
+Equations (1)-(2) make (3) zero modulo 2. Full rational two-torsion
+implies a is even, so a-1 is odd. The no-witness assumption therefore
+forces
+
+                 a_p(E_l^(k)) = p+1 modulo 8          (4)
+
+at every allowed good K-split p.
+
+3. An elementary contradiction for this family
+----------------------------------------------
+Take a good prime p not dividing 6l with p=1 modulo 4 and (l/p)=-1.
+For a curve with all three roots in F_p, a nonzero two-torsion point
+at root r can be twice a rational point only if both root differences
+r-r' are squares.
+
+For roots 0,l,-3l:
+* at 0 the difference -l is a nonsquare;
+* at l the difference l is a nonsquare;
+* at -3l the difference -4l is a nonsquare.
+
+Thus no nonzero two-torsion point is divisible by 2 in E_l(F_p).
+A finite abelian 2-group containing E_l[2] but having order greater
+than four would contain an element of order four; its double would
+contradict this conclusion. Therefore
+
+          E_l(F_p)[2^infinity]=(Z/2Z)^2,
+          #E_l(F_p)=4 modulo 8,
+          a_p(E_l)=p+1-4 modulo 8.                    (5)
+
+Because k has a fresh ramified prime outside the support of Q(i,sqrt(l)),
+K is independent of that biquadratic field. Chebotarev supplies p,
+outside any specified finite exceptional set, with
+
+                    p=1 mod 4, (k/p)=1, (l/p)=-1.
+
+At these primes E_l^(k) and E_l have the same point count. Thus (5)
+contradicts (4). The ordinary test must have a nonempty K-split unit.
+
+This argument needs the chosen negative companion to have fresh
+ramification, which follows by excluding the old support when choosing
+its unit. It does not apply to an arbitrary predetermined K.
+It also needs l to be a nonsquare, as is guaranteed by the stated range.
+The argument using (l/p)=-1 does not apply to l=1.
+
+4. Orientation correction
+-------------------------
+Let V0 be the finite elementary label space for K, unramified outside
+the conjugation-stable fixed support S0. Let c be complex conjugation.
+Since K is imaginary, an order-two complex conjugation provides
+
+                    G_Q = G_K semidirect <c>.
+
+A c-invariant quadratic character of G_K extends to G_Q by assigning
+c value zero. At a rational prime outside S0, inertia lies inside G_K,
+since S0 contains the ramification of K; the extension remains
+unramified there.
+
+If a configuration has rational total zero on all rational quadratic
+characters unramified outside S0, its oriented total v annihilates
+the invariant dual space (V0*)^c. Linear algebra gives
+
+       annihilator(ker(1+c*)) = image(1+c),
+                    so v belongs to (1+c)V0.
+
+Flipping a vertex with label w changes the total by (1+c)w.
+A reserved supply of labels can therefore make any prescribed change
+in this image, without changing a rational label. The desired change
+between two totals lies in the same image.
+
+These flips can be read as conjugation choices along a contraction
+forest, as permitted by gr:realization. They need not change the
+terminal configuration separately at different addresses.
+
+5. Minimum seeds and compatible packet lifts
+--------------------------------------------
+Let r be the least positive count of a split unit. For r>=2, a finite
+difference in an edge contracts to r-1 nonempty vertices and vanishes
+by minimality. For r=1 there is no edge. The unit at this count therefore
+depends only on its individual labels. This remains valid if the empty
+configuration is also a unit; no contraction to the empty graph is used.
+
+For the final common packet, an arbitrary pair of projected even and
+odd labels need not have a simultaneous lift. It suffices to choose
+compatible lifts of each required even label and each required odd
+label separately, and take their union. Fresh ramification of K ensures
+that every old odd label can be realized at a K-split prime. Duplicate
+the full labels so the packet has rational total zero, and reserve
+enough labels for orientation correction.
+
+For the even contraction, retain r-1 anchors, adjust the total within
+(1+c)V0, and merge all remaining vertices into a nonempty last cluster.
+Its label is forced to be the final seed label. For the odd contraction,
+rational total zero similarly fixes the last cluster. These are separate
+certificates showing the two terminal polynomials are nonzero.
+The two-symbol address theorem, not the certificates alone, makes both
+tests units at every nonzero address.
+
+6. The CM branch is unnecessary here
+------------------------------------
+For y^2=x^3+2l*x^2-3l^2*x one has
+
+       c4=208 l^2, Delta=2304 l^6,
+       j=c4^3/Delta=35152/9.
+
+This rational number is not an integer. A CM j-invariant is an
+algebraic integer, so E_l is non-CM, as is every quadratic twist.
+Thus the restricted cyclotomic argument uses the non-CM rational
+divisibility theorem of Kato. Its separate CM substitute is not a
+dependency for this pole-predicate family.
+
+This does not remove the CM case of the five-contact height estimate:
+that estimate concerns a different varying family of abelian surfaces.
+
+Conclusion and remaining dependencies
+--------------------------------------
+The ordinary nonempty split witness and its orientation correction
+are established relative to the coefficient/trace interface already
+audited. The general deeper divided-form branch is not needed for
+this family. The cyclotomic comparison is supplied in cyclotomic-noncm-audit.txt,
+and the odd lower bound, height comparison and final transfer are
+assembled in restricted-pointwise-assembly.txt. Matching the exact
+descent and pole-certificate hypotheses remains necessary before
+asserting the whole certificate's completeness.
+

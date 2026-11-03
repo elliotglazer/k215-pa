@@ -1,0 +1,307 @@
+An explicit algebraic audit of the determinant transfer
+2 November 2026
+
+Scope
+-----
+This note proves the algebraic clearing and transfer assertions used in
+the pointwise 2-converse, subject to the stated inputs about actual
+Selmer complexes and Heegner classes. It does not prove those arithmetic
+inputs or the pointwise 2-converse itself. It is a written mathematical
+proof, not a Lean formalization.
+
+The principal new bound is
+  c_* = a_0 + 4 h_1,
+  L(M) = 16 m M,
+where 2m+2 is the total rank of the bounded old complex. Here h_1 bounds
+the torsion length of its central integral cohomology, and 2^a_0 clears
+the fixed denominator of the dual functional. Neither bound depends on
+the number of auxiliary primes.
+
+1. Rings and Laurent expansions
+-------------------------------
+Let Lambda=Z_2[[t]], O=completion of Lambda_(2), and
+G=(Z/2Z)^b. Put R=Lambda[G] and S=O[G].
+A subscript x means evaluation at the sign character indexed by
+x in F_2^b; subscript 0 is augmentation.
+
+For M>=1,
+  O/2^M O = (Z/2^M Z)((t)).
+Indeed, a denominator outside (2) has the form t^d v+2w with v a
+power-series unit. Its inverse modulo 2^M is the finite geometric
+expansion around t^d v. Conversely inverting t supplies every Laurent
+series with finite negative support. Passing to the inverse limit
+identifies O with series sum a_n t^n, a_n in Z_2, for which
+v_2(a_n) tends to infinity as n tends to minus infinity.
+Its valuation is min_n v_2(a_n).
+
+In particular, coefficient extraction gives a Z_2-linear map O -> Z_2
+at every fixed Laurent degree. It commutes with all sign evaluations
+of S, since G is finite.
+
+2. Simultaneous elimination
+--------------------------
+Suppose A=diag(A_1,...,A_s) over Lambda, with each residual determinant
+nonzero and ord_t(det A_j mod 2)<=h. Suppose B=A+2E over Lambda.
+Write
+  det A_j=t^{d_j}v_j+2w_j, d_j<=h,
+and set C_j=adj(A_j)/(t^{d_j}v_j), C=diag(C_j).
+Then BC=1+2F, and C and F have pole at most h. Hence
+  B^-1 = C sum_{j=0}^{M-1}(-2F)^j mod 2^M.
+Every entry has pole at most Mh. Matrix multiplication adds pole orders;
+summing an arbitrary number of terms cannot increase the maximum pole.
+Thus the estimate is independent of s and of all block sizes.
+
+The same estimate applies to P-Q B^-1 T when P,Q,T have entries in
+Lambda. For a block over R whose augmentation is A, each sign evaluation
+is A+2E_x. The block is invertible over S, since its determinant is a unit
+after reduction modulo the maximal ideal (2, augmentation ideal) of S.
+If T_0=0, the Schur complement has augmentation P_0.
+
+This verifies rd:schur. In the stated application h=4, so the bounded
+complex after simultaneous elimination has pole bound 4M at precision M.
+
+3. Why the required graded model can be lifted
+---------------------------------------------
+This is a conditional algebra statement. Assume an actual bounded
+finite free R-complex C has augmentation chain-homotopy equivalent
+over Lambda to the asserted triangular old-plus-local complex T.
+
+Over a local ring, a bounded finite free complex splits into a minimal
+complex and elementary contractible disks. Cancel unit differential
+entries in C over R first. Its augmentation is minimal over Lambda,
+because the maximal ideal of R maps into the maximal ideal of Lambda.
+Split T over Lambda into its minimal part and disks. A homotopy
+equivalence between bounded minimal free complexes is a degreewise
+isomorphism: reduce the homotopy identities modulo the maximal ideal,
+where the differentials vanish, and use Nakayama's lemma.
+
+Consequently, after adding to C the disks appearing in T, there is a
+graded isomorphism between its augmentation and T which identifies
+the differentials. Each degreewise invertible matrix lifts to an
+invertible matrix over R, since the kernel of R -> Lambda lies in
+the Jacobson radical. Changing bases gives an R-model with exactly
+the asserted augmented differential. The old summand need not be a
+subcomplex over R; only its augmentation is required to be one.
+
+Thus the algebraic lifting used before the Schur complement is valid.
+The hypothesis is a chain-level homotopy equivalence of the actual
+arithmetic complexes. An equality of Euler characteristics would not
+suffice and is not substituted for that hypothesis here.
+
+4. An explicit bounded-complex clearing lemma
+---------------------------------------------
+Let D be a based bounded finite free S-complex. Suppose D_0 is defined
+over Lambda, and let D_c=D_0 tensor_Lambda Z_2, where t maps to zero.
+Assume the rational cohomology of D_c has dimension one in degrees
+1 and 2 and zero elsewhere. Suppose the sum of the lengths of all
+torsion cohomology groups of D_c is at most h_1.
+
+Let r be the total graded rank of D; necessarily r=2m+2.
+Let z be an integral degree-one cycle and let lambda be a closed
+degree-two functional with 2^a lambda integral, a>=0 an integer.
+Let eta be any element of S. On each sign constituent, define u_x
+as eta_x times the coordinate of [z_x] tensor [lambda_x] in the
+inverse determinant line when the generic cohomology is one in
+degrees 1 and 2, and define u_x=0 when the complex is generically
+acyclic. Assume these are the only generic patterns.
+
+There exist f,d in S such that, for every x,
+  f_x u_x=d_x,
+  f_0 in Lambda,
+  v_2(f_0(0)) <= a+4h_1.
+If every entry of every D_x has pole at most J(M) modulo 2^M, then
+every f_x has pole at most 4m J(M) modulo 2^M.
+
+Proof.
+A bounded free complex over the DVR Z_2 decomposes, in integral bases,
+into elementary two-term complexes [Z_2 --2^a_j--> Z_2] and free
+cohomology summands. This follows by splitting the saturated kernels
+and putting each remaining injective map into Smith normal form.
+The sum of the nonnegative a_j is the total torsion cohomology length.
+There are precisely m elementary pairs and two free summands.
+
+Lift these constant Z_2 basis changes to S. In degree i write the
+resulting graded module as B_i direct-sum H_i direct-sum E_i, where
+E_i maps to B_{i+1} at the central fiber. H_i has rank one for i=1,2
+and zero otherwise. Let A_i be the square submatrix of the actual
+differential D^i -> D^{i+1} from E_i to B_{i+1}. Put
+  Delta_i=det A_i, Delta=product_i Delta_i.
+An empty determinant or product is 1. Then Delta is a polynomial of
+degree m in the differential entries, its augmentation is in Lambda,
+and
+  v_2(Delta_0(0))=sum_j a_j<=h_1.                 (1)
+
+Work first after inverting Delta. An A_i-block can be canceled using
+the matrices
+  L = [ I       0 ]       R = [ I  -A_i^-1 B ]
+      [-C A_i^-1 I ],         [ 0      I     ],
+since
+  L [ A_i B ] R = [ A_i          0        ].
+    [ C   D ]     [  0   D-C A_i^-1 B    ]
+Both basis changes have determinant one.
+
+The differential preceding this one changes by R^-1 on its target,
+and the following differential changes by L^-1 on its source.
+The identity differential-squared=0 makes their components into the
+canceled pair zero. Their other entries are unchanged. Therefore
+canceling A_i does not change the surviving A_j-blocks for j!=i.
+Every A_i can be canceled exactly once, using its original determinant.
+
+The remaining complex is a map between two rank-one modules in
+degrees 1 and 2. Each projected cycle or functional has denominator
+dividing Delta. To see the denominator bound directly, each A_i^-1
+is adj(A_i)/Delta_i, and each block is used at most once in composing
+the projections. Thus no Delta_i is required more than once for
+either projection. The factor 2^-a is kept separate.
+
+The determinant comparison contributes
+  product_i Delta_i^{(-1)^i},
+up to an integral constant unit from ordering the bases. For example,
+a disk in degrees 1 and 2 contributes Delta_1^-1 to the coordinate
+of a cohomology element in the inverse determinant line. Multiplying
+this comparison by Delta gives an integral polynomial. Thus there is
+Q in S, obtained by multiplying the displayed numerators, such that
+on every constituent with Delta_x!=0,
+  u_x = 2^-a eta_x Q_x / Delta_x^3.             (2)
+A fixed unit from the initial bases is absorbed into Q.
+
+This expression also covers a generically acyclic constituent with
+Delta_x!=0. There the remaining rank-one differential is nonzero,
+so its degree-one cycle is zero over the fraction field. Consequently
+the numerator Q_x is zero as required.
+
+Take
+  f=2^a Delta^4,     d=eta Delta Q.             (3)
+Equation (2) proves f_x u_x=d_x when Delta_x!=0. When Delta_x=0,
+both f_x and d_x are zero, so the same equality holds without any
+division. This handles vanishing pivots separately, rather than
+specializing a rational expression at an undefined denominator.
+
+Equations (1) and (3) give the central bound a+4h_1. The polynomial f
+has degree 4m in the differential entries, with coefficients integral
+over Z_2, so its precision-M pole bound is 4m J(M). No bounds on z,
+lambda, eta, or d are needed. This proves the lemma.
+
+For the complex in section 2 with h=4, this gives
+  c_*=a+4h_1,     L(M)=16mM.                    (4)
+Since m=(r-2)/2, one may instead use L(M)=8(r_0-2)M if r<=r_0.
+
+5. The unused-prime correction is integral
+-----------------------------------------
+The arithmetic input at an unused prime is the identity
+  u_rel=e_q^2 u_prim/l_q,
+with e_q,l_q units of S. The asserted Frobenius expressions satisfy
+modulo 2
+  (1+a_q z+z^2)(1+a_q z^-1+z^-2)
+    =(a_q+z+z^-1)^2.
+Thus l_q/e_q^2=1+2v_q for some v_q in S.
+The single group-ring factor
+  1+v_q(1+g_q)
+evaluates to l_q/e_q^2 at an inactive character and to 1 at an active
+character. Their product is integral regardless of the number of
+primes. It is an allowed eta in section 4, so it does not enter f.
+
+This verifies the algebra in rd:unused. It assumes, rather than
+proves, the actual arithmetic formula for u_rel and the specified
+Frobenius scalar and local factors.
+
+6. Binary coefficient comparison
+---------------------------------
+A slight strengthening of the source bound is available. For q
+specified Laurent coefficients of elements of S, precision M>=1,
+and
+  b > q(2^(M-1)-1),                            (5)
+there is a nonzero sign address x at which all coefficients agree
+with their augmented values modulo 2^M.
+
+For one coefficient its sign-value function has the expansion
+  A(x)=a_empty+sum_{I nonempty} 2^|I| a_I x_I,
+where x_I=product_{i in I} x_i and a_I is in Z_2. The bit numbered j
+is the coefficient of Y^(2^j) in (1+Y)^A(x) over F_2. A term involving
+x_I in this generating function costs Y-degree at least 2^|I|.
+Since |I|<=2^(|I|-1) for every nonempty I, the Boolean degree of bit j
+is at most 2^(j-1) for j>=1. Bit zero is constant and imposes no test.
+This follows first for nonnegative integer exponents and then by
+continuity for Z_2 exponents.
+
+All q coefficient congruences can therefore be imposed by Boolean
+equations of total degree at most q(2^(M-1)-1). If this is less than b,
+the product of one plus each equation, which indicates their common
+zero set, has degree less than b. Every monomial omits a variable, so
+its sum over F_2^b is zero in F_2. The common zero set has even size.
+It contains 0, and hence also a nonzero address. This proves (5).
+The source's larger threshold q(2^M-1) is consequently valid as well.
+
+7. Transfer of the constant term
+--------------------------------
+Suppose f,d in S satisfy f_x u_x=d_x with u_x in Lambda[1/2],
+f_0 in Lambda, and c=v_2(f_0(0)) finite. Suppose the precision-M
+pole bound on all f_x is L(M), and M>c.
+Test the coefficients of f from -L(M) through 0 and the constant
+coefficient of d, a total of L(M)+2 tests. If
+  b > (L(M)+2)(2^(M-1)-1),                    (6)
+section 6 gives a nonzero x meeting all these congruences.
+
+Every negative coefficient of f_x is divisible by 2^M. Its constant
+coefficient has valuation c, so v_O(f_x)<=c. The equality f_x u_x=d_x
+and integrality of d_x imply v_O(u_x)>=-c; also v_O(u_0)>=-c.
+Since u_x,u_0 are in Lambda[1/2], they have no negative coefficients
+and all their coefficients lie in 2^-c Z_2.
+
+The constant-term convolution converges 2-adically, giving
+  [t^0]d_x = [t^0]f_x u_x(0) mod 2^(M-c),
+  [t^0]d_0 = f_0(0)u_0(0).
+The two coefficient congruences then give
+  v_2(u_x(0)-u_0(0)) >= M-2c.                 (7)
+In particular the source's rd:binary-transfer is valid. Notice that
+only one coefficient of d is tested; its negative pole support is
+irrelevant.
+
+Combining (4), (6), and (7), if every nonzero address has
+v_2(u_x(0))<=B, choose an integer
+  M>max(c_*, B+2c_*),
+then any available family with
+  b>(16mM+2)(2^(M-1)-1)
+forces u_0(0)!=0. This is the algebraic contradiction needed for the
+missing-vertex argument.
+
+8. What this does and does not settle
+-------------------------------------
+The written proofs above verify the following algebraic steps with
+explicit bounds:
+* Laurent expansions and simultaneous Schur elimination.
+* Lifting the augmented graded model, given its chain-level equivalence.
+* Clearing bounded complexes, including constituents with zero pivots.
+* Integrality of the unused-prime correction, given its local identity.
+* Binary coefficient comparison and transfer of the constant term.
+
+The remaining arithmetic obligations include constructing the stated
+universal Selmer and Heegner diagrams with their actual specialization
+maps, proving the local trace identities used in the correction,
+producing the required binary families, and establishing the central
+determinant comparison and noncentral upper bound. The weighted-theta
+and limit arguments supplying these data are not proved by this note.
+
+The torsion bound here concerns the finite quotient by the maximal
+divisible subgroup of a fixed Selmer group. Finiteness of that quotient
+does not assert finiteness of the entire Shafarevich--Tate group.
+
+In particular this note does not exclude rank zero with a divisible
+Q_2/Z_2 inside Sha for the restricted E_l family. Pole completeness,
+the full five-contact height audit and its numerical constant, and
+the final explicit universal polynomial remain unfinished.
+
+Sources
+-------
+OpenAI, pointwise 2-converse, frozen commit
+4eaee87548250b2682affda7d05d947c05554bae.
+Sections rd:unused, rd:schur, rd:clearing, rd:family-clearing,
+rd:bits, rd:binary-transfer and rd:missing-vertex:
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/A-pointwise-2-converse-for-elliptic-curves-with-rational-two-torsion-October-7-2026/build/sections/ring-determinants.tex#L1269
+
+Finite Artin models and limits:
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/A-pointwise-2-converse-for-elliptic-curves-with-rational-two-torsion-October-7-2026/build/sections/ring-limits.tex#L121
+
+Binary congruences, cy:binary:
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/A-pointwise-2-converse-for-elliptic-curves-with-rational-two-torsion-October-7-2026/build/sections/cyclotomic.tex#L121
+

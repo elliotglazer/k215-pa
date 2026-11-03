@@ -1,0 +1,189 @@
+Completion audit of the universal rational polynomial
+3 November 2026
+
+Objective and evidence standard
+
+The objective is one fixed polynomial U with integer coefficients such
+that, for ordinary nonnegative integer parameters e,n, existence of a
+rational witness tuple is equivalent to program e halting on input n.
+The program numbering must be effective and universal. A computable
+replacement of e,n by externally calculated elliptic coordinates would
+not meet the requested interface.
+
+The candidate audited here is universal-rational-equation.json:
+ SHA256 be7347c439459759121cda9656eda501afd75ca48897aa0f0acf5f85f6a43b1f
+ 40,644,116 bytes; 878,664,928,321 rational witnesses.
+
+The mathematical evidence is the written argument in
+universal-rational-end-to-end-proof.txt and the component arguments
+listed below. The computation evidence checks transcription, finite
+algebra, allocation and source/artifact identity. Passing those checks
+does not establish the mathematical theorems. This audit makes no
+claim of proof-assistant verification or independent expert review.
+
+Requirements and dispositions
+
+R1. One ordinary polynomial, with fixed integer coefficients.
+Disposition: established by the finite expression semantics and the
+termination argument, not by a finite sample of numerical evaluations.
+End-to-end sections 1-2 check acyclic substitution, sum/product Boolean
+encoding, denominator clearing, fixed division-polynomial recurrences,
+and the finite false-triple guard. The catalogue search terminates by
+Dirichlet; the local multiplier search terminates by the finite-index
+formal-subgroup argument. The dyadic argument explicitly allows for
+division by 2 and sqrt(2) when extracting rational coefficients.
+All choices precede e,n. No integrality or halting oracle occurs in U.
+The coefficients are specified by finite algorithms, not printed as
+expanded decimal integers or an expanded monomial list.
+
+R2. An exact, explicitly identified cyclic carrier.
+Disposition: established by explicit-elliptic-data.txt and
+elliptic-generator-proof.txt. The elementary descent gives rank one;
+the torsion calculation and exhaustive height-bounded search identify
+the generator of 2E(Q(sqrt(2))). The search bounds are proved before
+enumeration. verify-elliptic-generator.js checks every candidate in
+that bound, rather than sampling multiples of the proposed generator.
+
+R3. Exact index multiplication for the actual saved template.
+Disposition: established by multiplication-certificate-correctness-
+proof.txt using the inputs R2, R4, R5 and R6 below.
+Its soundness is proved for arbitrary rational assignments: membership
+constraints first put the three inputs in the cyclic carrier; the
+common-group valuation argument gives all twelve tests at one place;
+the two anchors give congruence of the root indices modulo p^25; the
+height bound confines false triples to the fixed guard's box.
+Its completeness constructs every required group, normalization and
+pole witness for each true triple. Constants, contact set, all 27
+slopes, twelve tests and six groups agree with the saved template.
+
+R4. An applicable height estimate with the actual fixed constant.
+Disposition: established by six-contact-height-proof.txt, with
+six-contact-height-model.txt, explicit-noncm-height-bound.txt and
+effective-cm-height-bound.txt. The proof covers all allowed rational
+arguments, including negative valuations. It bounds the entire fine
+cover, its components and its Hom field, treats CM and non-CM fibers,
+and gives the explicit theta comparison and exponent 24.
+height-primary-input-review.txt checks the stated published inputs.
+The exact symbolic constant definitions are bound to U by
+height-constant-binding-checks.json. Finite identities and quotient
+calculations are checked separately by verify-six-contact.js.
+This is the SIX-contact replacement. It is not a completed validation
+of the original five-contact theta comparison.
+
+R5. The prime patterns needed for completeness.
+Disposition: established by twenty-two-prime-pattern-proof.txt from
+the cited Green--Tao--Ziegler theorem and the displayed elementary
+sieve. Its parameter A can be any integer. The small-prime residues,
+fixed catalogue, lower count and upper bad-prime count use compatible
+orders of limits: first fix the auxiliary cutoff, then increase the
+counting scale. Only gcd(d1,d2)=4 at each individual selected prime
+is required. No assertion about different primes' reduction orders,
+or unproved simultaneous quadratic prime-pattern assertion, is used.
+
+R6. Completeness of the exact eleven-witness pole predicate.
+Disposition: established by restricted-converse-and-pole-completeness-
+proof.txt and pole-descent-completeness-audit.txt, using the restricted
+pointwise argument and component proofs identified below.
+The two descent parameters are positive squarefree and 11 modulo 12.
+This supplies the nonsquareness used in the ordinary split-witness
+argument. The finite Selmer dimension is converted to full Selmer
+corank one using the Cassels--Tate pairing; it is not directly equated
+with positive Mordell--Weil rank. The resulting rational points give
+the literal guarded equations in explicit-pole-predicate.txt.
+The elementary opposite direction, exclusion of negative odd poles,
+is independent of this completeness argument.
+
+R6a. No circular arithmetic or quantifier dependency inside R6.
+Disposition: checked in restricted-pointwise-assembly.txt,
+restricted-converse-and-pole-completeness-proof.txt and
+paired-functional-and-uniformity-proof.txt. The dependency order is:
+ nonvanishing and the even cyclotomic bound;
+ even coefficient comparison and even symbols;
+ finite Heegner classes, limit interface and determinant switch;
+ varying-companion bound and unnormalized height comparison;
+ odd arithmetic lower bound, then odd minimum and symbols;
+ a fixed companion, two finite address tests, then binary transfer.
+The varying-companion constant depends on a prime-factor bound, not on
+the particular companion. The later clearing constant may depend on
+the one companion that has already been fixed. Precision and binary
+dimension precede the choice of the actual coefficient stage.
+The complete supporting files are included in the hash manifest.
+Kato and Purkait range checks are recorded in
+restricted-converse-primary-input-checks.txt.
+
+R6b. Correction to the intermediate matrix-inverse argument.
+Disposition: repaired. The earlier claim of a precision-independent
+pole bound for an actual inverse was false. With
+ det A_i=t^d_i v_i+2w_i and d_i<=4,
+use C_i=adj(A_i)/(t^d_i v_i), not A_i^{-1}. Then BC=1+2F,
+and C and F have poles at most four. Modulo 2^M the inverse is
+ C sum_(j=0)^(M-1) (-2F)^j,
+with pole bound 4M. The required clearing bound remains 16mM.
+determinant-transfer-audit.txt already contained this argument;
+paired-functional-and-uniformity-proof.txt now uses it consistently.
+verify-determinant-schur.js checks 72 finite cases and records the
+counterexample (t+2)^{-1} modulo 8 to the erroneous stronger claim.
+Those finite cases support, but do not replace, the geometric-series
+proof. No coefficient or variable count in U changed.
+
+R7. An effective universal program numbering and natural polynomial.
+Disposition: established by integer-halting-correctness-proof.txt,
+integer-compiler-spec.txt and universal-interpreter-spec.txt.
+The proof covers the packed-history and no-carry invariants, zero-time
+runs, unbounded register values, the cited alpha/power formulas and
+the universal interpreter. integer-stage-binding-checks.json checks
+the full freshly compiled natural circuit and interpreter, not merely
+their dimensions. The alpha/power evaluations are finite supplementary
+checks, not the proof of universality.
+
+R8. A total accuracy predicate and exact rational interpretation.
+Disposition: established by accuracy-correctness-proof.txt and
+rational-universality-conditional-proof.txt, whose hypothesis M is
+supplied by R3. The accuracy proof checks the signed arithmetic,
+pair decoding, Jacobian exceptional cases, primitive lowering and
+specialization of the universal natural polynomial. The interpretation
+preserves signed intermediate values. Each private power block is
+used once and evaluates a polynomial value; it is not forced to zero
+inside an unselected branch. Source/artifact binding and private scopes
+are checked by the corresponding accuracy and translation reports.
+
+R9. The user's ordinary integer parameter interface, in both directions.
+Disposition: established in end-to-end sections 7-8. The accuracy
+predicate ensures that its trace ratio is within 1/8 of an internal
+natural index k. The bridge requires the same ratio within 1/8 of the
+external integer a. Thus |a-k|<1/4 and a=k. Recurrence in the product
+of the two real elliptic groups supplies a suitable positive index h
+for each k, proving completeness. Recurrence is a proof of existence
+of finite witnesses, not an operation in the polynomial.
+No behavior on nonintegral rational input parameters is asserted.
+
+R10. One fixed witness count and a bound to the delivered bytes.
+Disposition: established by explicit allocation and the assembly audit.
+ Halting recipe: 292887770443 witnesses.
+ Each input bridge: 292888578934 witnesses.
+ Outer elliptic coordinates: 10 witnesses.
+ Total: 878664928321 witnesses, or 878664928323 variables with e,n.
+Every witness range is disjoint and completely covered. The saved
+polynomial regenerates byte for byte. The auditor rejects nine
+deliberate mutations of essential constraints and wiring.
+
+Conclusion and limits
+
+R1-R10 supply the requested construction and its written mathematical
+proof. The hash manifest identifies the exact proof package and its
+computational evidence. Its integrity verifier does not read natural
+language proofs or certify their logical validity.
+
+This completes the construction at the level of a written proof using
+the cited mathematical inputs, including the audited restricted
+pointwise argument. It is not a claim that those arguments have been
+accepted by the mathematical community or checked by Lean. The
+original five-contact comparison remains outside the proved route.
+The numerical code of a separate ZFC proof-search program has not been
+compiled. Its possible specialization is a consequence of universality,
+not an additional prerequisite for the polynomial constructed here.
+
+Earlier status sentences retained in component notes describe their
+then-missing premises. The dispositions above identify the subsequent
+proofs supplying each premise. Metadata in U does not define additional
+equations and is retained unchanged to preserve the audited file hash.

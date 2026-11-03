@@ -1,0 +1,313 @@
+The saved rational polynomial: correctness conditional on exact multiplication
+3 November 2026
+
+Statement and precise remaining hypothesis
+
+Let U be the finite polynomial expression in
+universal-rational-equation.json, SHA256
+be7347c439459759121cda9656eda501afd75ca48897aa0f0acf5f85f6a43b1f.
+Let E/F and P be the curve and point in accuracy-correctness-proof.txt,
+where F=Q(sqrt(2)). Write iota(a) for the canonical five-rational code
+of [a]P: O has code (1,0,0,0,0), and a finite point has code
+(0,x0,x1,y0,y1). The infinite order of P was proved there by good
+reduction at 17 and 23.
+
+Use the following hypothesis M, for the ACTUAL library template named
+multiply, with the ACTUAL fixed coefficients of the saved candidate:
+
+ For every three rational five-tuples A,B,C,
+ there exist rational witnesses making multiply(A,B,C) zero
+ iff there are a,b in Z with A=iota(a), B=iota(b), C=iota(ab).
+
+Under M, for every pair of ordinary nonnegative integers e,n,
+
+ exists w in Q^878664928321: U(e,n,w)=0
+ iff the program numbered e halts on input n.
+
+The numbering is the one proved universal in
+integer-halting-correctness-proof.txt. This file proves the implication
+from M for the generated artifact, rather than positing an unspecified
+compiler. Hypothesis M itself is not proved here. Its arithmetic
+requirements include the cyclic carrier, the exact multiplication
+certificate, and the pole predicate's restricted pointwise-converse
+dependency. A successful assembly check is not a proof of M.
+
+1. Finite polynomial semantics and coefficients
+
+All scalar variables in the candidate range over Q. In the underlying
+Builder, equality f=g is represented by f-g; conjunction of polynomial
+equations is represented by a sum of their squares; disjunction is
+represented by their product. These replacements are equivalent over Q,
+because Q is an ordered field and an integral domain. Empty conjunction
+and disjunction use 0 and 1. RationalBuilder adds its fixed-coefficient
+equations to the outer conjunction, so an unselected branch does not
+leave a fixed rational constant unconstrained.
+
+A rational constant p/q uses a fresh rational r and the equation
+qr-p=0, with nonzero fixed integer q. Every scalar node is consequently
+an integer-coefficient polynomial. A library call is literal polynomial
+substitution, with fresh variables for the callee's witness block.
+The library is acyclic; calls refer to earlier templates. Recipe calls
+likewise have finite depth: universal calls halting and bridge; bridge
+calls accuracy; halting and accuracy call power_value and the library.
+
+The finite constructors also define ordinary polynomials. Each
+psi_component has a fixed integer index. The recurrence for its
+normalized division polynomial uses only sums and products and smaller
+indices after the base cases 0 through 4. The finite guard is a product
+over a fixed finite set of integer triples. At a triple (a,b,c), each
+coordinate of iota(a),iota(b),iota(c) is a fixed rational A_j/B_j.
+With D the product of the positive B_j, its factor is
+ sum_j (D*X_j-(D/B_j)*A_j)^2,
+which has integer coefficients. Computing these fixed rational points
+uses a nontorsion P, so their prescribed division-polynomial denominators
+do not vanish for nonzero indices. Index zero uses its separate O code.
+
+The constants contain finite algorithms, all independent of e,n and
+of every quantified variable. Dirichlet's theorem terminates each
+prime-list search in a reduced residue class. The least_formal_multiple
+search also terminates: at each of the finitely many primes dividing
+its fixed argument N, sufficiently small formal neighborhoods of O
+force both Q_p coefficients of 1/x to lie in N^4 Z_p. Their preimages
+are open subgroups of finite index in the compact local elliptic groups.
+Some positive multiple of P belongs to their intersection. Exact
+coordinate arithmetic then detects the required coefficient divisibility
+and denominator coprimality. The common integral basis is 1,sqrt(2),
+including at 2; sufficiently small neighborhoods work also at ramified
+or bad-reduction primes. Remaining operations are finite integer
+arithmetic, maxima, powers with nonnegative integer exponents, and
+factorials. All fixed scalar indices used by the library are positive.
+
+Thus U denotes one finite integer-coefficient polynomial, with no
+external predicate or oracle remaining in its syntax. This does not
+assert that expanding its monomials or evaluating its huge coefficients
+is practical. Neither operation is necessary to define the polynomial.
+
+2. Exact elementary relations on the cyclic points
+
+The map iota is injective because P has infinite order. Field elements
+are pairs (a,b), meaning a+b*sqrt(2), with the exact product
+(a,b)(c,d)=(ac+2bd,ad+bc). The norm a^2-2b^2 vanishes over Q exactly
+when a=b=0. Therefore the polynomial norm*u-1 enforces precisely the
+nonvanishing needed for a field inverse. Multiplication by a supplied
+inverse is never inferred from a denominator-cleared equation alone.
+
+On canonical elliptic inputs, raw_add has five branches: left O;
+finite left and right O; finite inverses; distinct finite x-coordinates;
+and equal finite points with nonzero y. In the last two branches the
+norm inverse guard and the slope equation determine the unique slope.
+The output formulas are x3=slope^2-x1-x2 and
+y3=slope*(x1-x3)-y1. Equal finite x-coordinates on E imply y2=+/-y1;
+the y=0 case belongs to the inverse branch. Thus these cases are
+exhaustive and their outputs are the canonical group sum. In particular,
+on iota(a),iota(b) the relation holds exactly for iota(a+b).
+
+raw_add does not assert membership of arbitrary malformed inputs.
+Every use in the proof below supplies canonical inputs by induction.
+This precondition is essential and is not replaced by the template's
+informal name.
+
+For a positive fixed integer m, the scalar template uses
+ g=psi_m(x,y),
+ x([m]Q)=(x*g^2-psi_(m+1)*psi_(m-1))/g^2,
+ y([m]Q)=psi_(2m)/(2*g^4).
+These are the classical division-polynomial identities. The template
+uses an explicit nonzero norm guard on g, the two denominator-cleared
+coordinate equations, and a separate O-to-O branch. On the cyclic
+points every finite input is nontorsion, so g never vanishes. Hence
+this is exactly the fixed scalar graph on the inputs used here.
+The normalized recurrences in elliptic-division-polynomials.js give
+psi_m=f_m for odd m and psi_m=2y*f_m for even m; substituting these
+identities into the standard recurrences gives precisely the saved
+even/odd formulas, with D=(2y)^4=16(x^3+A*x)^2. Their use introduces
+no extra variables depending on the magnitude of m.
+
+For a primary reference see Stange, Division polynomials for arbitrary
+isogenies, version 3, introduction (chain rule and relation to x):
+https://arxiv.org/pdf/2503.15428v3
+That reference uses Psi_2=-2y. Our psi_n=(-1)^(n-1)*Psi_n, so its
+chain rule with outer index 2 becomes psi_(2m)=2y([m]Q)*psi_m^4,
+and its x-coordinate identity is unchanged. This accounts for the
+sign convention used by the saved scalar graphs.
+
+3. Defining natural indices, conditional on M
+
+The natural template introduces four point codes U_i and four S_i,
+requires multiply(U_i,U_i,S_i)=0, and adds the S_i by three raw_add
+calls to give its supplied output A. Under M the U_i=iota(u_i) and
+S_i=iota(u_i^2), with u_i in Z. The addition result is therefore
+A=iota(sum_i u_i^2). Conversely, every a>=0 is a sum of four integer
+squares, so A=iota(a) admits these witnesses. Thus natural is exact
+on all rational five-tuples, not just on previously validated inputs.
+The two intermediate sums are canonical by the addition argument.
+
+This constrains an INTEGER INDEX, not the individual rational
+coordinates. It does not define Z as a subset of Q.
+
+4. Evaluation of an ordinary polynomial circuit
+
+The three generator variables in each model recipe satisfy
+ 8g0-1641=0, 4g1+15465=0, 32g2-87483=0.
+The recipe's special point references consequently denote exactly
+O, P=(0,g0,-145,g1,g2), and -P. Source constants 0,1,-1 map to these.
+Each other source constant is positive and uses its fixed scalar
+template on P. Equal source constants may share their exact code.
+
+Each explicit natural source variable has a five-coordinate code and
+a natural-template call. The source inputs of halting and accuracy
+have these calls as well. Every arithmetic addition or multiplication
+node has a fresh output point and its raw_add or multiply equation.
+
+Induct along the source's topological node order. A source variable
+represents its natural integer assignment. A constant represents its
+integer value. If preceding nodes represent a,b, section 2 or M forces
+the next output to be iota(a+b) or iota(ab). Conversely these values
+admit the required witnesses. Hence the output of every node is the
+code of its EXACT integer polynomial value. Intermediate values are
+allowed to be negative: no natural predicate is imposed on them.
+
+For a zero-mode recipe, the five root-coordinate equations require
+the final code to equal O. Injectivity of iota makes this equivalent
+to the source polynomial being zero. For a value-mode recipe, those
+equations identify it with the supplied output code instead.
+
+5. Hierarchical power calls and quantifiers
+
+The source circuits use one 474-node ordinary polynomial with three
+parameters and 79 natural private variables. The recipe power_value
+has 20 scalar parameters: three input point codes and an output code.
+It restricts its 79 internal source variables to natural indices,
+evaluates all 474 nodes as in section 4, and identifies the root code
+with the supplied output. Its three inputs are permitted to be signed
+integer codes; its arithmetic identity is valid for all such inputs.
+
+This relation EVALUATES the power polynomial. It does not separately
+require its value to vanish. In the parent formula, a nonzero value
+can occur inside an unselected branch of a disjunction. Forcing every
+power call to zero would change that parent polynomial and is not
+what the saved recipe does.
+
+The source's private blocks are disjoint, each is used by exactly one
+call, and no parent variable node refers to their entries. Therefore,
+in the soundness direction, the 79 natural indices extracted from
+each rational subcall can be assembled with the parent's explicit
+natural variables into one complete natural assignment to the source
+polynomial. In the completeness direction, any complete natural
+assignment splits into these private assignments and gives witnesses
+to every value-mode subcall. There is no duplicated variable that
+would need an unrecorded equality constraint.
+
+verify-rational-translation-binding.js independently checks these
+scope conditions for every one of the 15845 calls in each source
+circuit. The source-level allocation proof is also included in
+integer-halting-correctness-proof.txt.
+
+6. The two translated predicates
+
+Apply sections 3-5 to the pinned natural-witness theorems proved in
+integer-halting-correctness-proof.txt and accuracy-correctness-proof.txt.
+For ANY rational input codes A,B, the halting recipe V has witnesses
+iff A=iota(a), B=iota(b) for natural a,b and program a halts on b.
+
+For ANY rational input codes A,H,J, the accuracy recipe has witnesses
+iff they are iota(k),iota(h),iota(j), respectively, with k,h,j natural,
+h>=1, j=k*h and |rho(h,j)-k|<1/8. Here
+rho(h,j)=Tr(z(jP)/z(hP))/2. The natural predicates supply membership
+and the theorem for the accuracy polynomial supplies h>=1.
+
+7. The bridge to ordinary integer parameters
+
+On the domain just supplied, raw_trace_ratio introduces field values
+z(H),z(J) and q, requires H finite, enforces z=-x/y in the finite
+branches and z(O)=0, and imposes q*z(H)=z(J) with a nonzero norm
+guard on z(H). It then sets r=q0, the coefficient of 1 in q.
+All denominators are nonzero: H is a positive multiple of P; J is
+either O or a nonzero multiple. Section 1 of the accuracy proof
+shows that x and y are nonzero for every nonzero multiple of P.
+Consequently r is exactly rho(H,J).
+
+The strict_close template is
+ (1-64(a-r)^2)*(q1^2+q2^2+q3^2+q4^2)-1=0.
+It has rational witnesses iff |a-r|<1/8. For completeness, any positive
+rational b/c is a sum of four rational squares: write the positive
+integer bc as four integer squares and divide their bases by c.
+Apply this to the reciprocal of 1-64(a-r)^2. Soundness follows because
+the sum of squares in a solution is positive.
+
+The bridge Gamma(a,A) conjoins accuracy(A,H,J), raw_trace_ratio(H,J,r),
+and strict_close(a,r), with fresh rational witnesses. If a is an
+ordinary integer, these imply A=iota(k), k>=0, |r-k|<1/8 and
+|r-a|<1/8. Hence |a-k|<1/4, which forces a=k. The conclusion also
+rules out malformed A. No exactness assertion is made for nonintegral a.
+
+For the converse let a=k>=0. In the compact group
+E(R) x E^sigma(R), positive multiples h_i*(P,P^sigma) approach O.
+Indeed, covering by finitely many translates of a sufficiently small
+identity neighborhood gives two orbit points with difference in any
+prescribed neighborhood. Their positive index difference supplies h_i.
+To obtain arbitrarily large h_i, shrink that neighborhood to avoid
+the finitely many nonzero multiples with smaller positive indices.
+The infinite order of P makes this possible.
+
+At either real embedding z=-x/y is a local parameter at O and
+z([k]Q)=k*z(Q)+O(z(Q)^2). Thus z([k]h_iP)/z(h_iP) tends to k
+at both embeddings, and its half trace tends to k. For k=0 the ratio
+is identically zero. Some positive h therefore gives
+|rho(h,kh)-k|<1/8. Use H=iota(h), J=iota(kh), r=rho(h,kh).
+Section 6 supplies accuracy witnesses, and the other two relations
+have witnesses by their exactness. This proves
+
+ for a in N and A in Q^5: Gamma(a,A) iff A=iota(a).
+
+The limit argument proves existence only. No analytic approximation
+or convergence-rate computation appears inside the polynomial.
+
+8. Both universality implications and variable count
+
+The universal recipe is the sum of squares of the three substituted
+polynomials V(A,B), Gamma(e,A), Gamma(n,B), each with a disjoint
+witness block. It existentially chooses the ten coordinates of A,B.
+
+If U(e,n,w)=0 with rational w, each summand vanishes. The two bridges
+give A=iota(e), B=iota(n). Section 6 then says program e halts on n.
+Conversely, if the program halts, choose these exact codes. Section 6
+supplies witnesses for V, and section 7 supplies both bridge witnesses.
+Disjointness permits all choices at once, giving a rational zero of U.
+
+The saved allocation counts, checked by the assembly auditor, are:
+ power_value: 17786698 witnesses beyond 20 parameters;
+ halting:     292887770443 witnesses beyond 10 parameters;
+ accuracy:    292888578910 witnesses beyond 15 parameters;
+ bridge:      292888578934 witnesses beyond 6 parameters.
+The bridge adds ten coordinates H,J, one r, nine trace witnesses and
+four proximity witnesses: exactly 24 beyond accuracy. Therefore U has
+ 10+292887770443+2*292888578934 = 878664928321
+rational witnesses, plus its two external parameters e,n.
+
+9. What binds this proof to the saved artifact
+
+rational-translation-binding-checks.json records that fresh generation
+from the reviewed source matches EVERY BYTE of the saved candidate.
+It records the source hashes and verifies the private-block property
+used in section 5. This also binds the library templates to their
+builders, rather than comparing two unexplained serialized objects.
+
+universal-rational-expression-audit.json separately checks every source
+node's operation and operands, natural constraints, constants, output
+equations, witness ranges, and the exact two bridge compositions.
+Its expression hash is the one at the start of this proof. Neither
+check has evaluated the astronomical coefficients or expanded all
+monomials; their mathematical finiteness is established in section 1.
+
+The conclusion is the stated conditional universality theorem for U.
+An unconditional claim still requires proving M for the prescribed
+arithmetic certificate. That requirement is unchanged by this proof.
+
+The soundness implication (a rational zero implies halting) uses only
+the forward implication of M. It never needs existence of multiply
+witnesses for arbitrary true triples. The separate certificate proof
+in multiplication-certificate-correctness-proof.txt establishes that
+forward implication from the cyclic-carrier and six-contact height
+inputs without the new pointwise converse. The reverse implication
+uses pole-predicate completeness and remains subject to its arithmetic
+dependency audit.

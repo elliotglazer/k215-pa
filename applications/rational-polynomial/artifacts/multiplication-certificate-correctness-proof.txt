@@ -1,0 +1,315 @@
+The actual multiplication template: soundness and conditional completeness
+3 November 2026
+
+Scope and inputs
+
+This proof concerns the template named multiply in the library of
+universal-rational-equation.json, SHA256
+be7347c439459759121cda9656eda501afd75ca48897aa0f0acf5f85f6a43b1f.
+Fresh source generation is bound to that exact file by
+rational-translation-binding-checks.json. The parameters are three
+five-coordinate point codes, and all 35134 witnesses are rational.
+
+Use the following previously proved inputs, with their exact scope:
+
+ G. On E/F, F=Q(sqrt(2)), E:y^2=x^3-(75-53sqrt(2))^2*x,
+    the stated point P generates D=2E(F), and has infinite order.
+    See elliptic-generator-proof.txt and explicit-elliptic-data.txt.
+
+ H. For C={0,-15,-20,-24,-30,-60} and S containing all primes <=324,
+    h(t)<=Aheight*M_S(t)^24, where M_S(t) is the product of primes
+    outside S with v_p(t-c) positive and odd for some c in C.
+    The actual Aheight is an admissible integer for the actual S.
+    See six-contact-height-proof.txt and height-constant-binding-checks.json.
+
+ L. For every integer A, the three slopes u_j/v with sum A can be
+    chosen with all 22 integral forms v,u_j-cv (c in C union {1})
+    equal to signed fixed-catalogue multipliers times arbitrarily
+    large selected primes. At each such prime E and its conjugate
+    split with good reduction, their orders d1,d2 have gcd(d1,d2)=4,
+    and p does not divide d1*d2. See twenty-two-prime-pattern-proof.txt.
+
+The only further assertion used for completeness below is:
+
+ PC. If B is rational with square reduced denominator, 0<B<1/2,
+     and v_p(B)>=4 for p in {2,3,5,7,13}, then the eleven-witness
+     polynomial Q_pole(B,...) has a rational zero.
+
+PC is the exact pole-completeness assertion in
+pole-descent-completeness-audit.txt. Its positive-rank input is the
+restricted pointwise-converse argument; this proof does not validate
+that new arithmetic argument by assuming PC.
+
+Result. Using G and H, every rational zero of multiply(A,B,C) has
+A=iota(a), B=iota(b), C=iota(ab), with a,b in Z. Using also L and PC,
+every such triple has a rational zero. The elementary direction of the
+pole predicate, used in soundness, does not depend on PC.
+
+1. Interpreting the actual library constraints
+
+The member template is the exact doubling image 2E(F). Its finite
+branch gives a finite preimage with nonzero y, its tangent slope,
+and the doubled output coordinates. The other branch gives O.
+Every point in 2E(F) is obtained this way: a double that is not O
+has a preimage that is neither O nor a two-torsion point.
+
+The height_certificate conjunction imposes member on all three root
+codes. By G they are iota(n1),iota(n2),iota(n3), for integers ni.
+The outer scalar equations then force C0=[cstar]P, Ci=[cstar]Pi.
+The scalar graphs are applied only to valid nontorsion cyclic points
+or O, so their division-polynomial guards lose no intended solution.
+
+Each test_group chooses four points H,U1,U2,U3 in D and defines
+V0=H-C0, Vi=Ui-Ci using exact group addition. Thus write
+ H=[h]P, Ui=[zi]P, V0=[h-cstar]P, Vi=[zi-cstar*ni]P.
+It requires H,V0 finite and their L values nonzero. Here
+ L(z)=16575z-6630d^2 z^5+11050d^4 z^9-25500d^6 z^13
+       +68250d^8 z^17-198900d^10 z^21+612612d^12 z^25,
+ d=75-53sqrt(2), z(Q)=-x(Q)/y(Q), z(O)=0.
+The inverse-x convention at O is zero.
+
+The twelve outputs are, in order: the four inverse-x values at H,Ui;
+the conjugates of the four inverse-x values at V0,Vi; the three
+differences
+ L(z(Ui))/L(z(H)) - conjugate(L(z(Vi))/L(z(V0)));
+and the product of the first two unprimed ratios minus the third.
+This is precisely the output order in multiplication-certificate.js.
+
+The slope template excludes t in C union {1}, sets eta^2=1,
+ R0=eta*product_(c in C)(t-c)/(t-1)^8,
+ a=1-R0*q^2, R=ell^2*a^2*R0,
+and requires a!=0. For six independent test groups and precisions
+k_j=1 for j<=8 and k_j=25 for j>=9 it sets
+ C_gj=D_gj/[R0^k_j*(t-1)^(k_j+1)],
+ W_g=product_j(1+R*C_gj^2),
+ Theta=Tr_F/Q(sum_g 1/W_g), B=R/Theta^2,
+with explicit nonzero guards on W_g and Theta, and requires Phi0(B).
+The letter B in this local calculation denotes this scalar, not a
+root-code parameter. All quotients are guarded or have denominators
+already proved nonzero by the same conjunction.
+
+2. The elementary pole obstruction
+
+The Q_pole formula is displayed in explicit-pole-predicate.txt.
+For a nonzero B it supplies a signed divisor m of 2730, sets
+A=mB, H0=A(A-B^2), and gives two points with nonzero x-squareclass A
+on the curves y^2=x(x-e)(x+3e) and y^2=x(x-eH0)(x+3eH0).
+Its inverse constraint ensures e,H0 and the second x-coordinate
+are nonzero. Zero ordinates cause no difficulty.
+
+If p does not divide 2730 and v_p(B)<0 is odd, then
+v_p(A)=v_p(B) and v_p(H0)=3v_p(B) are odd. One of e,eH0 has even
+valuation. Square scaling makes that parameter a p-adic unit without
+changing the x-squareclass. On y^2=x(x-l)(x+3l), with l a unit and
+p!=2,3, a nonzero x of positive valuation gives RHS valuation v_p(x),
+and one of negative valuation gives RHS valuation 3v_p(x). Either
+must be even. A unit x also has even valuation. This contradicts the
+odd valuation of its squareclass A. Consequently
+
+ Phi0(B) implies no negative odd valuation outside {2,3,5,7,13}.
+
+This argument is elementary and uses neither PC nor a Selmer converse.
+
+3. One slope forces divisibility at each height-contact prime
+
+Let p outside the prescribed S satisfy v_p(t-c)=delta>0 odd for
+some c in C. All finite contacts stay distinct modulo p, since their
+nonzero differences are at most 61 and p>324. Thus t-1 and the other
+five t-c' are units, and v_p(R0)=delta. Also ell and cstar are units.
+
+If q!=0, delta+2v_p(q) is odd and nonzero. It follows that
+b=v_p(a)=min(0,delta+2v_p(q))<=0. For q=0 take b=0. Put
+alpha=v_p(R)=delta+2b; alpha is odd. Define, only for this argument,
+D'_gj=(ell*a)^(2k_j)*D_gj/(t-1)^(k_j+1), so C_gj=D'_gj/R^k_j.
+
+At every place v above p, the valuation of each factor of W_g is
+ min(0, alpha+2(v(D'_gj)-k_j*alpha)).
+The expression after the comma is odd, so no equal-valuation
+cancellation is possible. In particular every v(W_g)<=0.
+Let lambda be the maximum v(W_g) over the six groups and all places
+above p. Then v_p(Theta)>=-lambda>=0, including in the inert case,
+since conjugation preserves the valuation there. By section 2 the
+odd valuation v_p(B)=alpha-2v_p(Theta) is nonnegative. Thus
+ alpha>0 and lambda>=-alpha/2.
+
+Choose one common group and place attaining lambda. All its factor
+valuations are nonpositive and sum to lambda, so each is at least
+lambda. Rearranging gives, for every j in this same group and place,
+ v(D'_gj)>=(k_j-3/4)*alpha,
+ v(D_gj)>=(k_j-3/4)*delta-(3/2)*b>=k_j-3/4.
+The extension is unramified at p, so these valuations are integers.
+Consequently all eight inverse-x tests have valuation >=1 and all
+four other tests have valuation >=25, simultaneously.
+
+4. From the twelve local tests to p^25 | n1*n2-n3
+
+At good unramified p>324, a point with v(1/x)>=1 is in the formal
+group (or is O under the convention above). Thus the eight tests put
+H,Ui and the conjugate V0,Vi in their required formal groups. In the
+formal parameter z, v(1/x)=2v(z), so nonzero such points have v(z)>=1.
+
+The formal logarithm is normalized by dz at O. The displayed L is
+16575 times its truncation through degree 25; the next possible
+nonzero degree is 29. For integral Weierstrass coefficients the
+logarithm coefficient in degree r has valuation at least -v_p(r).
+For p>324 and v(z)>=1, the omitted terms therefore have valuation
+at least 29v(z); the leading scalar 16575 is a unit. Both the full
+logarithm and L preserve the valuation of z.
+
+The full local logarithm extends additively from the formal group to
+E(F_v), by multiplying into that group and dividing the logarithm.
+Its kernel is torsion. Since P is nontorsion, its local logarithm is
+nonzero. Hence the exact full-log ratios of the above points are
+ r_i=zi/h and r'_i=(zi-cstar*ni)/(h-cstar).
+The guards imply h and h-cstar are nonzero.
+
+At least one of h,h-cstar is a p-adic unit. Its corresponding r_i
+or r'_i is integral for every i, since all indices are integers.
+The equality of valuations between full and truncated logarithms,
+and the valuation-25 difference tests, make both ratios integral.
+For an integral ratio, truncation changes it by valuation at least
+28, so, writing L_i,L'_i for the two truncated ratios,
+ zi/h=L_i mod p^25,
+ (zi-cstar*ni)/(h-cstar)=L'_i mod p^25,
+ L_i=L'_i mod p^25.
+Zero numerator points obey the same congruences with value zero.
+
+Multiply the first two congruences by the integer denominators and
+subtract. Since cstar is a p-adic unit, ni=L_i mod p^25. The twelfth
+test now gives n1*n2-n3=0 mod p^25. For a rational integer this local
+divisibility at any unramified place is exactly ordinary p^25
+divisibility. This proves the soundness consequence for each slope.
+
+5. Height bound, explicit finite box, and soundness of multiply
+
+Let f=n1*n2-n3!=0. Section 4 shows M_S(t)^25 divides f for each
+of the 27 slopes. Input H gives h(t)<=Aheight*|f|^(24/25).
+The height_certificate constraints express the two x-coordinates
+of each root as a0/b,a1/b with b!=0, each of a0,a1,b being a sum
+of three slopes. No integrality of these coordinates is assumed.
+The rational height inequalities for sums and quotients give
+ h(x_j)<=6Aheight*|f|^(24/25)+2log(3).
+
+The calculation in finite-guard-bound.txt applies unchanged to six
+contacts: it uses only this slope height inequality. For completeness,
+the isomorphism x_C=(1+sqrt(2))^4*x_E to
+C:y^2=x^3-(3-sqrt(2))^2*x and the duplication bounds there give
+ 2*hat_h(P)>1,
+ 2*ni^2*hat_h(P)<=12Aheight*|f|^(24/25)+B0, B0<10.
+The additive constant includes the field-component height inequality,
+the fixed isomorphism, and log(676)/3. All are independent of ni.
+
+For N=max|ni|>=1 and |f|<=2N^2 this implies
+ N^2<24Aheight*N^(48/25)+10.
+If N>=5, then N^(2/25)<48Aheight and hence
+ N<(48Aheight)^(25/2)<=(48Aheight)^13=T.
+The same final bound holds for N<=4, since Aheight>=1.
+
+Every false triple admitting the unguarded certificate is therefore
+inside [-T,T]^3. The actual finite_guard_product includes its exact
+denominator-cleared squared-distance factor. That factor vanishes
+at its three canonical codes, making the guard product zero. The
+outer guard demands a multiplicative inverse, a contradiction.
+Thus every zero of multiply is a true multiplication triple. PC and
+the new pointwise converse were not used in this direction.
+
+6. Slopes for true triples and the exceptional primes
+
+Now let n1*n2=n3. Choose integral homogeneous coordinates for the
+three actual root x-coordinates, using (0,0,1) for O. Apply L to
+each of their nine integer quantities. The resulting three slopes
+sum to that quantity and avoid all seven finite excluded contacts.
+
+Put Sb={primes<=324} union Hcat. At p outside Sb, each of the 22
+forms has valuation zero or one. If v_p(v)=0, at most one finite
+contact form for a given slope is divisible by p. A contact in C
+gives v_p(R0)=1 and the contact 1 gives -8. If v_p(v)=1 while
+v_p(u_j)=0, the slope has negative valuation and v_p(R0)=2. If both
+have valuation one, all contact forms must also have valuation one;
+after cancellation all normalized contacts are units and v_p(R0)=0.
+Thus outside Sb the odd valuations of R0 are exactly +1 at at most
+six selected primes. The selected primes were chosen beyond max(S),
+where S=Sb union {prime divisors of cstar}.
+
+7. Constructing the six test groups
+
+Assign a distinct group to each of those at most six primes p.
+Let d1,d2 be the orders of the two good split reductions. Choose h
+by the compatible congruences
+ h=0 mod lcm(M,d1), h=cstar mod d2.
+Their common divisor divides M*gcd(d1,d2)=4M=cstar. A solution
+exists, and can be chosen h>cstar. Set H=[h]P and Ui=[ni]H.
+Then H,Ui reduce to O at the first place, and V0,Vi do so at the
+conjugate place. Their exact full-log ratios are all ni. The formal
+truncation estimate in section 4 makes every D_gj meet its required
+precision at the assigned group and place, since f(ni)=0.
+Unused groups can use any h>cstar divisible by M and the same Ui.
+
+At every prime of Sb, H,Ui,V0,Vi lie in the small formal subgroup
+specified by M, since h and h-cstar are multiples of M. Every such
+nonzero point has normalized v(z)>=2. The coefficient bound
+v(c_r)>=-v_p(r) for the normalized logarithm makes its full series
+and degree-25 truncation equal to z times a unit there. L differs
+by the same fixed scalar in numerator and denominator. Thus the
+two truncated ratios for Ui=[ni]H and Vi=[ni]V0 are integral at all
+these places. All twelve D_gj are integral there. H,V0 and their
+L values are globally nonzero, so all group guards are satisfied.
+
+8. Normalization produces exactly the inputs covered by PC
+
+For p in Sb, let Bp=4 for p<=324 and Bp=1 for catalogue primes.
+The form valuations imply |v_p(t-c)|<=Bp and the conservative bounds
+ |v_p(R0)|, |v_p(t-1)|<=Cp=14Bp.
+Hence v(C_gj)>=-Dp with Dp=51Cp for all j and places above p.
+The actual ell has exponent Ep=52Cp+v_p(12)+4: this is
+ell=12*P0^2916*Hproduct^732, as saved in the fixed constants.
+
+Choose eta so R0>0. Weak approximation supplies rational q integral
+at all selected primes, sufficiently small p-adically at Sb, and
+arbitrarily close in R to a root of 1-R0*q^2, without equality.
+Thus a is a unit at Sb and the selected primes, but is nonzero and
+arbitrarily small in R. At p in Sb,
+ v(R*C_gj^2)>=2Ep-Cp-2Dp=Cp+2v_p(12)+8>v_p(12).
+Therefore v_p(Theta-12)>v_p(12), and
+ v_p(B)>=2Ep-Cp-2v_p(12)=103Cp+8>=4.
+
+At a selected odd-contact prime, v_p(R)=1. Every inverse W_g has
+residue zero or one at either split place: the factor valuation
+1+2v(C_gj) is odd, so a factor is either 1 modulo p or has negative
+valuation. The assigned group and place has every C_gj integral,
+so its inverse W_g has residue one. Theta is the sum of twelve such
+residues, at least one of them one. Since p>324, Theta is a unit
+and v_p(B)=1. At every other p outside Sb, v_p(R0) is even, so
+v_p(B)=v_p(R0)+2v_p(ell*a/Theta) is even. These statements allow
+negative EVEN valuations and exclude negative odd ones everywhere.
+The reduced denominator of B is consequently a square.
+
+Finally R>0 and every W_g is positive in both real embeddings.
+The C_gj are independent of q. As a tends to zero, all W_g tend to
+one, Theta tends to twelve, and B tends to zero through positive
+values. All W_g and Theta are nonzero. Choose q close enough to
+obtain 0<B<1/2, simultaneously with the stated local conditions.
+PC supplies the pole witnesses. This proves completeness of each
+slope and hence of the height certificate for every true triple.
+
+9. Adding the guard and locating the unresolved arithmetic input
+
+At a true triple, none of the false-triple squared-distance factors
+vanishes, since canonical codes are injective. Their finite product
+is a nonzero rational, so its inverse supplies the guard witness.
+The exact fixed scalar and membership witnesses already exist.
+Thus, conditional on PC and using G,H,L, every true triple satisfies
+the ACTUAL outer multiply polynomial.
+
+Combining this with section 5 gives hypothesis M of
+rational-universality-conditional-proof.txt. Its soundness direction
+alone already proves that a rational zero of U(e,n,...) implies that
+program e halts on input n: the extraction part of that proof uses
+only soundness of multiplication. Completeness of U still requires PC.
+
+The dedicated pole-descent audit reduces PC to a positive-rank
+assertion for a precisely specified full-rational-two-torsion family
+with full 2-primary Selmer corank one. That new restricted pointwise
+argument remains the arithmetic dependency to finish validating.
+The present certificate proof neither removes it nor infers it from
+finite tests, matrix identities, or the candidate's assembly audit.

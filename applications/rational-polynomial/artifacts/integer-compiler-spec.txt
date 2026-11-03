@@ -1,0 +1,201 @@
+Integer Diophantine circuit compiler
+3 November 2026
+
+Scope and status
+
+Current proof supplement: integer-halting-correctness-proof.txt establishes
+the general natural compiler and fixed-interpreter statement and binds it
+to the saved natural polynomial. alpha-power-checks.json includes full
+emitted-polynomial witness evaluations. Later-stage construction status
+is maintained in universal-rational-equation-status.txt; the final section
+below records the original staging plan.
+
+integer-diophantine-compiler.js expands a finite register machine into
+one polynomial arithmetic circuit with integer coefficients. Its input
+and quantified variables currently range over NONNEGATIVE INTEGERS.
+The later rational construction must represent these variables by
+codes in the exact elliptic model. Simply allowing these witnesses
+to be rational would invalidate this stage.
+
+This module supplies a concrete replacement for an unspecified DPRM
+translation. It does not yet supply the universal interpreter program,
+the accuracy program, or their composition with the rational model.
+The alpha representation is imported from the cited formalized theorem;
+this JavaScript implementation itself has not been formally verified.
+
+1. Circuit convention
+
+A circuit consists of integer constants, variables, addition and
+multiplication. It denotes an ordinary integer-coefficient polynomial;
+shared subexpressions do not add quantified variables.
+
+Every introduced variable is existential and natural. The Boolean
+formula has only equations, conjunctions, and disjunctions. Flattening
+existential quantifiers across these connectives is valid, with fresh
+variables and nonempty domain N.
+
+The final conversion is recursive:
+ Eq(A,B) becomes A-B;
+ And(F_i) becomes sum P_i^2;
+ Or(F_i) becomes product P_i.
+Empty conjunction becomes zero and empty disjunction becomes one.
+Over N, or indeed Q, these transformations preserve the zero set.
+All introduced variables still have their original natural domain.
+
+Strict inequality A<B means B=A+1+d for an existential d in N.
+Divisibility A|B means B=A*d.
+Congruence A=B modulo M means A+M*u=B+M*v for u,v in N.
+This also handles M=0 with the conventional equality interpretation.
+
+2. Alpha and exponentiation
+
+Let alpha_b(0)=0, alpha_b(1)=1 and
+ alpha_b(n+2)=b*alpha_b(n+1)-alpha_b(n).
+
+For b>3 the module's alpha(X,b,n) is exactly the polynomial,
+inequality, divisibility, and congruence system in AFP
+Alpha_Sequence.alpha_dioph. It uses the eight variables r,s,t,u,v,w,x,y.
+The theorem proves that its natural solutions are equivalent to
+X=alpha_b(n), with no unlisted bound on n.
+
+The power(P,Q,R) macro uses Exponential_Relation.exp_repr.
+It explicitly handles 0^0=1 and 0^R=0 for R>0.
+For Q>0 it sets
+ b=alpha_(Q+4)(R+1)+Q^2+2,
+ m+Q^2+1=bQ,
+ P<m,
+ P+b*alpha_b(R) = Q*alpha_b(R)+alpha_b(R+1) modulo m.
+The alpha macros also impose their b>3 hypotheses.
+No exponent operation remains in the output circuit.
+
+Sources inspected:
+https://isa-afp.org/browser_info/current/AFP/DPRM_Theorem/Alpha_Sequence.html
+https://isa-afp.org/browser_info/current/AFP/DPRM_Theorem/Exponential_Relation.html
+
+The imported source theorem is a proof about N, not about Q.
+
+3. Binomial coefficients and bits
+
+To define C=binomial(N,K), including K>N, use
+ base=2^(N+1), total=(1+base)^N, place=base^K,
+ total=place*(base*u+C)+r,  C<base, r<place.
+All variables are natural. Every coefficient binomial(N,j) is
+strictly smaller than base, so the binomial theorem makes C exactly
+the K-th base digit. For K>N it is zero. These equations also work
+at N=0 and K=0.
+
+Lucas's theorem at 2 gives:
+ * A is a bitwise subset of B iff binomial(B,A) is odd.
+ * A and B have disjoint set bits iff binomial(A+B,A) is odd.
+
+For the second assertion, if A and B are disjoint, binary addition
+has no carries and every bit of A occurs in A+B. Conversely, at
+the lowest overlapping bit there is no incoming carry from below;
+that bit of A+B is zero while that bit of A is one, contradicting
+Lucas's criterion.
+
+Define Z=X bitwise-AND Y by natural A,B satisfying
+ X=Z+A, Y=Z+B,
+ with Z,A pairwise disjoint, Z,B pairwise disjoint, and A,B disjoint.
+The first two disjointness conditions say these sums introduce no
+carries. The last says X and Y have exactly Z's bits in common.
+Each bit predicate expands through the binomial and power macros.
+
+These are mathematical derivations; the compiler does not leave
+bit operations, binomial operations, or exponentiation as primitives.
+
+4. Register-machine semantics
+
+A program is a finite array with instructions:
+ add(j,next): increment register j, then jump;
+ sub(j,nonzero,zero): if register j>0 decrement and take nonzero,
+                     otherwise take zero;
+ halt: allowed only at the final array position.
+
+The initial state is 0, register 0 contains input a, and other registers
+contain zero. Acceptance means reaching the final halt with all
+registers zero. Ordinary halting can be converted to this convention
+by redirecting halts to a finite cleanup loop for each register.
+
+The compiler validates all literal indices and jump targets.
+
+5. Packed histories
+
+Let m be the number of states and n the number of registers.
+Choose natural q,c with c>0 and put
+ K=2^c, B=4K, T=B^q, B>m, a<K,
+ F=1+B+...+B^q, D=(K-1)F.
+The equations actually used are
+ BF+1=F+BT, D+F=KF,
+ so there is no division in the formula.
+
+For each register j use packed history
+ R_j=sum_(t=0)^q r_j(t) B^t.
+Impose R_j bitwise-subset D and R_j<T. Since B is a power of two,
+these give 0<=r_j(t)<K and r_j(q)=0, with no other digits.
+
+For each state i use S_i bitwise-subset F, sum_i S_i=F, and
+ S_halt=T.
+Each state digit is 0 or 1. Since m<B, the sum of state digits
+cannot carry between slots. Exactly one state is active at every
+time, and the halt state is active only at time q.
+
+Introduce N_j by
+ K*N_j = (R_j+D) bitwise-AND (K*F).
+In a slot, the digit of R_j+D is r_j(t)+K-1. It is less than 2K<B
+and its K-bit is set exactly when r_j(t)>0. Thus N_j is precisely
+the packed nonzero indicator, without needing another mask axiom.
+
+For each sub instruction i acting on j, put
+ V_i=S_i bitwise-AND N_j,  S_i=V_i+W_i.
+V_i records the nonzero branch and W_i the zero branch.
+Their subtraction is expressed as an equality of natural numbers.
+
+Let A_j sum S_i over add instructions acting on j, and C_j sum V_i
+over sub instructions acting on j. The register equations are
+ R_j+B*C_j = initial_j+B*R_j+B*A_j.
+Let I_d sum the packed branches targeting state d. The state equations are
+ S_d=initial_state_indicator_d+B*I_d.
+
+No equation is repeated q times. q is one quantified integer; the
+number of equations depends only on the fixed program.
+
+6. Completeness and soundness
+
+A finite accepting run determines q, the register digits and state
+digits. Choose c so that K dominates every register value and B>m.
+All displayed equations then hold by summing the one-step recurrences.
+The terminal register values vanish by the acceptance convention.
+
+Conversely, decode any solution into base-B digits.
+The mask equations and B>m give legal register values and a unique
+state in every slot. The nonzero indicators and branch masks therefore
+select exactly the instruction's actual branch.
+
+There are no hidden carries in a register equation. At any slot,
+its left coefficient is r_j(t)+decrement_indicator and is at most K.
+Its right coefficient is either the initial value, or
+r_j(t-1)+increment_indicator, also at most K. These coefficients
+are nonnegative and less than B. At the extra slot q+1, all terminal
+registers and operation indicators are zero because the state is halt.
+Equality therefore forces the actual register recurrence slot by slot.
+The state equation has the same property, with coefficients at most one.
+Starting from the prescribed initial configuration gives an actual run
+ending at the final halt, with all registers zero.
+
+Together with Sections 1-3, this proves that the generated polynomial
+has a natural solution exactly when the fixed machine accepts a.
+
+7. What remains for the user's universal rational polynomial
+
+A single fixed interpreter machine must accept the encoded pair (e,n)
+exactly when program e halts on n. The ordinary-input bridge also needs
+a fixed machine for its exact arithmetic accuracy relation. Those
+programs must be supplied and checked, rather than inferred from this
+compiler's existence.
+
+Finally the natural variables must be represented by elliptic codes,
+the rational certificate/finite guard expanded, and the two ordinary
+input bridges added. The compiler file is a completed integer-stage
+component, not the requested final rational polynomial.
+
