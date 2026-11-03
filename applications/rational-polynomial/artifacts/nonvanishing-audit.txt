@@ -1,0 +1,284 @@
+AUXILIARY NONVANISHING AND BOUNDED-FACTOR COMPLETION: SOURCE AUDIT
+2 November 2026
+
+Scope and status
+----------------
+Source: openai/math, commit 4eaee87548250b2682affda7d05d947c05554bae,
+preprints/A-pointwise-2-converse-for-elliptic-curves-with-rational-two-torsion-October-7-2026/build/sections/nonvanishing.tex.
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/A-pointwise-2-converse-for-elliptic-curves-with-rational-two-torsion-October-7-2026/build/sections/nonvanishing.tex
+
+This note checks nv:moment, nv:local-witness and nv:rough. The conclusion
+is a source-level derivation relative to the classical analytic inputs
+listed below, not a Lean formalization. It does not validate the remaining
+cyclotomic and pointwise assembly steps.
+
+The required conclusion has two distinct uniformity assertions:
+* The number of prime factors in a positive-sign nonvanishing twist is
+  bounded by one absolute integer A0.
+* The minimum size of the twist may depend on the curve, the prescribed
+  local classes and any finite set of forbidden primes.
+The argument needs no uniform bound on that minimum size.
+
+Classical inputs
+----------------
+Modularity and the functional equation for elliptic-curve twists;
+Deligne's bound; the quadratic large sieve; symmetric-square continuation
+and the Rankin--Selberg residue; analytic continuation and convexity for
+finite-character twists of the fixed GL(2) cusp form; Waldspurger
+nonnegativity; and the lower linear sieve.
+
+Radziwill--Soundararajan, Proposition 2, supplies an independent model
+for the central-value calculation with a prescribed squarefree divisor,
+including an error O(X^(7/8+epsilon) u^(3/8) v^(1/4)):
+https://arxiv.org/pdf/1403.7067
+Their displayed progression modulus is lcm(8,N); the arbitrary enlarged
+modulus used here must still be retained in the calculation. It is not
+enough simply to quote their statement for a different modulus.
+The derivative calculation below uses the same contour machinery, with
+a double instead of a simple pole.
+
+1. Fixing the local data
+-----------------------
+Fix the curve A, H divisible by 8N_A, a reduced residue class a modulo H,
+and a sign sigma with sigma*a = 1 modulo 4. For positive squarefree
+n = a modulo H, sigma*n is a fundamental discriminant coprime to 2N_A.
+The root number is constant in this progression. Prescribed unit
+squareclasses and the real sign are represented by a finite union of
+such progressions; select one nonempty progression.
+
+Adding a finite set of forbidden primes is accomplished by enlarging
+H and taking a reduced CRT lift. This changes the constants, not the
+absolute exponents in the estimates.
+
+Let lambda(u) be the normalized coefficients, with center 1/2 and
+|lambda(u)| <= tau(u). Put Q_A=sqrt(N_A)/(2*pi). For j=0 in sign +1,
+and j=1 in sign -1, the symmetric approximate functional equation is
+
+ L^(j)(1/2,f*chi_(sigma*n))
+   = 2 sum_u lambda(u) chi_(sigma*n)(u) u^(-1/2)
+                      V_j(u/(Q_A*n)),
+
+ V_j(y) = (1/(2*pi*i)) integral_(2)
+          exp(z^2) Gamma(1+z) y^(-z) dz/z^(j+1).
+
+For j=1 the derivative of the completion adds no central-value term:
+that value is zero by the negative sign.
+
+2. Removing large square divisors
+---------------------------------
+The quadratic large sieve and the approximate functional equation give
+
+ sum_(t<=Z, primitive discriminants) |L(1/2+delta+i*tau,f*chi_(sigma*t))|^2
+    << Z^(1+rho) (1+|tau|)^C
+
+for fixed delta>0 and any rho>0. The constants may depend on the fixed
+form and small exponents. The polynomial exponent in tau is independent
+of the level.
+
+The treatment of square coefficient indices is essential. Write each
+index as u*r^2 with u squarefree. Minkowski and the quadratic large sieve
+give, up to arbitrarily small powers,
+
+ sum_(r<=sqrt(U)) sqrt(Z+U/r^2)/r
+     << (ZU)^epsilon (sqrt(Z)+sqrt(U)).
+
+Restrictions (t,r)=1 may be discarded after absolute squares. Work
+dyadically in t so the functional-equation length is
+U <<_f T(1+|tau|)^C. On the line 1/2+delta the main coefficients improve
+by n^(-delta); the dual coefficients cost at most U^delta but have the
+prefactor T^(-2delta). Hence the dual term introduces no positive power
+of T. Mellin separation handles smooth conductor-dependent weights.
+
+Expand mu^2(n) by square divisors and truncate at d<=Y. For an omitted
+term write n=t*v^2 with t squarefree. Necessarily v>Y, and the number of
+omitted d is at most tau(v). The nonsquarefree approximate functional
+equation equals a Mellin integral of the primitive twist L-function
+with Euler factors at v deleted. On Re(z)=delta_M>0 those deleted
+factors cost v^epsilon. Cauchy and the preceding second moment imply
+
+ sum_(t<=2X/v^2) |L(1/2+delta_M+i*tau,f*chi_(sigma*t))|
+     << (X/v^2)^(1+epsilon) (1+|tau|)^C.
+
+Choose delta_M and every divisor/large-sieve exponent sufficiently small.
+The resulting total tail is
+
+             O(X^(1+rho) sum_(v>Y) v^(-2))
+                  = O(X^(1+rho)/Y).
+
+The extra 1/z in V_1 changes the constant only. A condition b|n can be
+dropped in this absolute-value estimate, so the tail is uniform in b.
+
+3. Poisson summation with the imposed divisor
+--------------------------------------------
+For d<=Y let J=lcm(d^2,b), with (J,H)=1, and c_J=a/J modulo H.
+Separate a coefficient index as u=u1*q, where u1 is supported on H
+and (q,H)=1. The value at u1 is fixed by the progression.
+
+Poisson summation in n=J*m gives the prefactor 2X/(HJ) and q-summand
+
+ lambda(q) q^(-3/2) (sigma*J*H/q)
+ sum_(nu in Z) G_nu(q) e(nu*c_J*qbar/H)
+ W_j(u1*q/X, nu*X/(HJ*q)),
+
+where
+ G_nu(q)=sum_(y mod q) (y/q)e(nu*y/q),
+ W_j(z,R)=integral Phi(x)V_j(z/(Q_A*x))e(-R*x) dx.
+
+The CRT identity producing the phase and the symbol is exact. If q has
+a prime factor in common with J, the Jacobi symbol makes the term zero.
+Thus no coprimality condition has silently been omitted.
+
+4. Zero frequency and positivity of the main term
+-------------------------------------------------
+Only square q contribute when nu=0. With |alpha_p|=1 at p not dividing H,
+
+ F_p^ev = sum_(r>=0) lambda(p^(2r))/p^r
+        = (1+1/p)/[(1-alpha_p^2/p)(1-alpha_p^(-2)/p)] > 0,
+
+ H_p = 1/p + (1-1/p)F_p^ev > 1/p.
+
+The corresponding function of z factors as the symmetric-square
+L-function at 1+2z times an absolutely convergent correction product
+on a strip containing Re(z)>=-1/16. At a prime dividing J, omit the
+correction factor and insert the inverse symmetric-square Euler
+polynomial. Do not divide by H_p(z): its possible zeros cannot be
+treated as harmless denominators.
+
+These modified Euler factors have polynomial growth in J with an
+absolute exponent. Shifting to Re(z)=-1/16 therefore gives an error
+
+                    O(J^B1 X^(1-1/16))
+
+for an absolute B1. The fixed factors supported on H are holomorphic
+on this strip. Symmetric-square continuation also applies to CM forms;
+the central value at 1 is positive by the Rankin--Selberg residue.
+
+After summing the square-divisor residue, a prime outside Hb contributes
+H_p-p^(-2), and a prime dividing b contributes p^(-1)-p^(-2). Their ratio is
+
+ beta_p = (p-1)/(p^2 H_p-1) = 1/(1+p F_p^ev).
+
+Consequently 0<beta_p<1 and beta_p=1/p+O(p^(-2)), with absolute implied
+constant, since |lambda(p)|<=2. The fixed Euler factors are positive.
+The residue of 1/z yields cX, c>0; the residue of 1/z^2 yields
+cX log X+c1X, with the same positive leading coefficient.
+
+Extending the square-divisor residue sum past Y costs
+O(b^B2 X^(1+rho)/Y). The d^(-2+epsilon) tail remains summable after a
+logarithmic factor, so this also justifies differentiation for j=1.
+
+5. Nonzero frequencies and absolute exponents
+---------------------------------------------
+Normalize G_nu(q) by epsilon_q, equal to 1 or i according as q is
+1 or 3 modulo 4. The resulting Gauss sum is multiplicative in q.
+Expand the remaining periodic phase in Dirichlet characters modulo H.
+The q-series is then
+
+ D_(psi,J,nu)(s)
+   = L(s,f*xi_prim) C_(psi,J,nu)(s),
+ xi(q)=psi(q)(sigma*J*H*nu/q).
+
+At p not dividing 2HJnu, the q-series local factor is
+1+lambda(p)xi(p)p^(-s). Multiplying by the inverse GL(2) Euler polynomial
+gives 1+O(p^(-2 Re(s))), with an absolute coefficient bound.
+
+At a prime dividing nu, put a=v_p(nu). Direct finite Gauss sums give:
+* for even r<=a, G_nu(p^r)=phi(p^r);
+* for even r=a+1, G_nu(p^r)=-p^(r-1);
+* for odd r=a+1, it is the primitive quadratic Gauss sum times p^(r-1);
+* otherwise it is zero.
+In every case |G_nu(p^r)/p^(r/2)|<=p^(r/2). At Re(s)>=3/4 its local
+contribution is bounded by sum_(r>=0)(r+1)p^(-r/4), an absolute constant.
+The inverse GL(2) Euler polynomial is also absolutely bounded there.
+Thus the bad local factors cost at most (2J|nu|)^C with absolute C.
+
+The conductor of xi_prim is at most 4HJ|nu|. The twisted cusp-form
+L-function is entire, and convexity gives
+
+ |D_(psi,J,nu)(3/4+i*tau)|
+      <<_(f,H) (J|nu|)^C (1+|tau|)^C
+
+after enlarging one absolute C. There is no pole crossed in this step.
+
+Rapid decay and integration by parts in W_j restrict the effective sums to
+
+ u1*q << X^(1+rho),  0<|nu| <<_H J X^(2rho),
+ q >>_H X^(1-rho)/J.
+
+These truncations can have negligible error with an absolute polynomial
+loss in J. The large derivative orders needed when rho is small do not
+force an unbounded J exponent: the cutoffs are scaled by J. For example,
+the factor (Jq/X)^K in the nu-tail is paired with
+(J X^(2rho))^(1-K), so the K-dependent J powers cancel. In the small-q
+tail the analogous cancellation uses the cutoff X^(1-rho)/J.
+
+For q around T, Mellin inversion expresses the sum as an integral of
+T^s D(1+s) times the Mellin transform of a smooth weight. Shift to
+Re(s)=-1/4. The bound is
+
+              O((J|nu|)^C X^(C' rho) T^(-1/4)).
+
+The u1-sum is absolutely convergent because u1 is supported on the fixed
+finite set of primes dividing H. Sum the dyadic q ranges and nu:
+including X/J, the bound becomes
+
+                O(J^(2C+1/4) X^(3/4+O(rho))).
+
+Choose rho small enough to replace the X exponent by 7/8. All exponents
+are absolute; the curve and progression affect only constants.
+
+6. Choosing the square-divisor cutoff
+-------------------------------------
+Because J<=b*d^2, the total error has the form
+
+ O(b^B4 Y^(2B4+1) X^(1-kappa) + b^B4 X^(1+rho)/Y)
+
+for absolute B4 and kappa>0. Take Y=X^delta with
+(2B4+1)delta<kappa/2, and subsequently take rho<delta/4.
+This leaves an absolute saving eta>0. It proves
+
+ S_(0,b)(X)=cX product_(p|b) beta_p + O(b^B X^(1-eta))
+
+and the stated derivative moment for b=1.
+
+A numerical A0 is not extracted in this note. The needed assertion is
+the existence of fixed absolute exponents B,eta, and the proof above
+preserves that assertion. No uniform implied constant in f,H is used.
+
+7. Sieve and consequences
+-------------------------
+In sign -1, cX log X+c1X with a power-saving error is nonzero in every
+sufficiently large dyadic interval. At least one derivative is nonzero.
+Together with the forced central zero this is a simple zero.
+
+In sign +1, Waldspurger makes the summands nonnegative. Choose theta>0
+with (B+1)theta<eta and D=X^theta. The sum of divisor remainders for
+squarefree b<=D is O(D^(B+1)X^(1-eta))=o(X/log X).
+
+The beta_p estimate gives dimension one:
+ product_(w<=p<z, p not dividing H)(1-beta_p)^(-1)
+ <= (log z/log w)(1+C_(f,H)/log w),
+and the full product is comparable to 1/log z. The lower linear sieve
+with z=D^(1/s), for any fixed s>2, therefore leaves positive weight.
+A surviving n<2X has all prime factors at least z, hence
+
+             omega(n) <= log(2X)/log(z).
+
+Any fixed integer A0>2s/theta works for all sufficiently large X.
+It is absolute. Since z tends to infinity, every prescribed finite
+set of prime divisors is eventually avoided.
+
+Dependency consequence
+-----------------------
+This supplies the auxiliary analytic rank-zero and rank-one twists
+before the pointwise converse is proved. The proof does not invoke
+that converse, the odd coefficient lower bound, or finiteness of Sha.
+It is therefore not circular when used to construct seed witnesses
+and the bounded-factor companion in pointwise.tex.
+
+The subsequent cyclotomic-noncm-audit.txt,
+ordinary-split-witness-audit.txt, and restricted-pointwise-assembly.txt
+check the restricted cyclotomic, split-witness, height and assembly
+steps. The universal equation still requires the exact descent/pole
+hypothesis match, explicit height constants and polynomial instantiation.
+

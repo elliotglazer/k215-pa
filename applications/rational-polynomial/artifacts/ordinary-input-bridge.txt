@@ -1,0 +1,203 @@
+Ordinary integer inputs from an elliptic Diophantine model
+2 November 2026
+
+Status
+------
+The argument below proves an implication. If the cyclic elliptic model
+has Diophantine multiplication over Q, then a fixed existential formula
+connects ordinary nonnegative integer inputs to their elliptic codes.
+It removes the extra input-bridge assumption from the earlier route.
+It does not prove the arithmetic assumptions used to construct that
+model, and is not an unconditional universal equation or a Lean proof.
+
+Hypotheses and notation
+----------------------
+Let F=Q(sqrt(2)), let
+  E: y^2=x^3-d^2 x,  d=75-53 sqrt(2),
+and let P in E(F) have infinite order. Suppose D is a Diophantine subset
+of Q^s with a computable bijection
+  iota: Z -> D,  iota(k)=the fixed coordinate code of [k]P,
+for which addition and multiplication of the indices are Diophantine.
+Use a flag for O, with unused coordinates zero, and the rational
+components of affine x and y elsewhere. The earlier conditional
+finite-error construction is intended to supply this hypothesis.
+
+All Diophantine definitions in this note use fixed rational coefficients
+and finitely many rational witnesses. Fixed denominators can be cleared.
+Let D_N be the codes of the nonnegative integers. It is Diophantine:
+inside the model, a nonnegative integer is a sum of four integer squares.
+
+1. Computable relations can be interpreted on the model
+-----------------------------------------------------
+If S is a recursively enumerable subset of N^r, then
+  {(iota(n_1),...,iota(n_r)): (n_1,...,n_r) in S}
+is Diophantine over Q.
+
+Proof. DPRM gives an integer polynomial representing S with finitely
+many nonnegative integer witnesses. Interpret every integer variable by
+a variable in D_N, every operation by the assumed Diophantine graph,
+and each of the finitely many integer constants by its fixed code.
+All new witnesses are rational. Compose the finite existential formulas.
+For an integer polynomial with negative coefficients, move its negative
+terms to the other side before using nonnegative arithmetic. This proves
+the assertion without a conversion of variable field elements to codes.
+
+2. A rational-valued function approximating an index
+--------------------------------------------------
+Put z(Q)=-x(Q)/y(Q) for Q!=O and z(O)=0. For a nonzero multiple of P,
+both x and y are nonzero: x=0 or y=0 would make the point two-torsion
+on this curve. In particular z([h]P)!=0 when h>=1.
+
+For H!=O and J in the cyclic group define
+  rho(H,J) = (1/2) Tr_{F/Q}(z(J)/z(H)) in Q.
+
+For every fixed k>=0 there exists h>=1 with
+  |rho([h]P,[kh]P)-k| < 1/8.                         (A)
+
+Proof. At both real embeddings of F the elliptic curve has a compact
+real point group. Put g=(P,P^sigma) in the product of these two groups.
+There are positive integers h_j tending to infinity with h_j g -> 0.
+Here is a compactness proof: for any identity neighborhood U choose V
+with V-V contained in U and cover the compact group by finitely many
+translates of V. Among sufficiently many orbit points, two fall in the
+same translate, so a positive multiple of g lies in U. To force that multiple
+above any given bound, shrink U to exclude the finitely many positive
+multiples up to that bound. None is zero because P has infinite order.
+Applying this to a shrinking sequence of neighborhoods gives h_j.
+
+The function z is a local parameter at O. The multiplication map [k]
+has local expansion
+  z([k]Q)=k z(Q)+O(z(Q)^2).
+Thus z([k]Q)/z(Q) tends to k as Q tends to O, Q!=O, at either real
+embedding. For k=0 the ratio is identically zero. The normalized trace
+of the two ratios tends to k. Taking h=h_j for sufficiently large j
+proves (A). No effective rate of recurrence is used or required.
+
+3. A decidable accuracy relation on indices
+-----------------------------------------
+Define S subset N^3 by
+
+ (k,h,j) in S iff h>=1, j=kh,
+                  |rho([h]P,[j]P)-k|<1/8.           (B)
+
+This relation is decidable. Given k,h,j, check the two integer conditions,
+compute the two points by the exact algebraic group law, compute rho
+in rational arithmetic, and compare rational numbers. For rho=u/v with
+v>0, the last check is the integer inequality 8|u-kv|<v.
+The procedure uses the fixed exact coordinates of P, not a table of
+values or an oracle. It never invokes a Diophantine input-to-code map.
+
+By section 1, there is a fixed Diophantine relation Acc(A,H,J) on D_N^3
+which holds exactly when A=iota(k), H=iota(h), J=iota(j) and (B) holds.
+By section 2, every A=iota(k), k>=0, has at least one such pair H,J.
+
+The analytic limit proves this last existence assertion. The predicate
+Acc itself uses an exact terminating integer algorithm, so no analytic
+limit or infinitely many inequalities occur in its existential formula.
+
+4. The ordinary-input bridge
+---------------------------
+Define Gamma(a,A) over Q by
+
+ exists H,J,r:
+   Acc(A,H,J) and r=rho(H,J) and |a-r|<1/8.           (C)
+
+For every a in N and every A in D,
+  Gamma(a,A) iff A=iota(a).                          (D)
+
+Proof of completeness. Set k=a. Choose h from section 2, take
+H=iota(h), J=iota(kh) and r=rho(H,J). Both conditions in (C) hold.
+
+Proof of soundness. Acc supplies a nonnegative integer k with A=iota(k)
+and |r-k|<1/8. The last condition in (C) then gives |a-k|<1/4.
+Since a and k are integers, a=k.
+
+For A outside D, Acc is false. Nothing is claimed about exact integrality
+of a when a is an arbitrary rational number. In particular this does
+not supply a Diophantine definition of Z inside Q.
+
+5. All operations in (C) have finite polynomial encodings
+--------------------------------------------------------
+Write z(H)=s_0+s_1 sqrt(2), z(J)=t_0+t_1 sqrt(2). Then
+  D_H=s_0^2-2s_1^2 != 0,
+  rho(H,J)=(t_0 s_0-2t_1 s_1)/D_H.
+Introduce u and impose
+  u D_H-1=0,
+  r D_H-(t_0 s_0-2t_1 s_1)=0.
+The equations z=-x/y are encoded by their two rational components,
+with the nonzero-y guard for affine points. At J=O set t_0=t_1=0.
+There are finitely many charts. These give a polynomial T(H,J,r,eta)
+whose rational solvability in eta is exactly r=rho(H,J) on the domain
+specified by Acc. All denominators and chart conditions are retained.
+
+The strict inequality in (C) has this polynomial encoding:
+  (1-64(a-r)^2)(q_1^2+q_2^2+q_3^2+q_4^2)-1=0.      (E)
+Indeed (E) forces its first factor to be strictly positive. Conversely,
+if that factor is positive, its reciprocal is a sum of four rational
+squares. For any positive rational b/c with positive integer b,c, write
+bc as a sum of four integer squares and divide their four bases by c.
+
+Let C_S(A,H,J,w)=0 be a polynomial encoding Acc, including its domain
+conditions. One fixed polynomial encoding Gamma is therefore
+
+ G(a,A,H,J,r,w,eta,q) = C_S(A,H,J,w)^2
+                    + T(H,J,r,eta)^2
+                    + ((1-64(a-r)^2) sum_{i=1}^4 q_i^2-1)^2.
+
+Clear the fixed rational coefficients, if any. Every witness in G is
+a rational variable, and all variable blocks have fixed finite length.
+
+6. Conditional universal equation with ordinary integer parameters
+-----------------------------------------------------------------
+Let V(A,B,v)=0 represent the ordinary halting relation on the model:
+  exists v in Q^r: V(iota(e),iota(n),v)=0
+       iff program e halts on n,
+for e,n in N. Section 1 supplies V from DPRM and a fixed effective
+enumeration of programs.
+
+With disjoint witness blocks g_e and g_n for G, put
+
+ U(e,n,y) = V(A,B,v)^2 + G(e,A,g_e)^2 + G(n,B,g_n)^2. (F)
+
+Here A,B,v,g_e,g_n are all included in y. Formula (D) and the sum of
+squares show, for ordinary integer e,n>=0, that
+
+  exists y in Q^N: U(e,n,y)=0 iff program e halts on n.
+
+The variable count N is fixed. Formula (F) is a construction from the
+assumed model definitions, not an expanded coefficient list. A finite
+arithmetic-circuit encoding introduces variables for intermediate sums
+and products and then sums the squares of quadratic gate equations.
+Thus the conditional construction can also have total degree at most
+four, at the cost of more rational variables. No bound of 86 variables
+or explicit numerical variable count is asserted.
+
+What is and is not completed
+---------------------------
+The ordinary-input bridge is now a proved consequence of the precise
+Diophantine-model hypothesis above, rather than an extra conjectural
+assumption. The earlier nonuniform height bound remains a valid reason
+that its particular finite-guard argument did not prove this bridge.
+It does not obstruct the different approximation argument here.
+
+To turn (F) into the requested unconditional equation, the arithmetic
+construction of the model still needs complete verification, and its
+fixed constants and polynomial definitions must be instantiated. In the
+current route this includes the five-contact height input, pole-parity
+completeness, and the finite-certificate theorems used for multiplication.
+An alternative conditional certificate using linear prime patterns and
+separate local witness groups is recorded in linear-prime-certificate.txt.
+It retains the height and pole-parity dependencies.
+
+Sources for the standard inputs
+------------------------------
+Silverman, The Arithmetic of Elliptic Curves, Chapter IV, Proposition
+2.3(a): the local multiplication series has linear term k z.
+https://people.math.rochester.edu/faculty/doug/otherpapers/silverman.pdf
+
+DPRM, including a formalization of the computability-to-Diophantine step:
+https://isa-afp.org/entries/DPRM_Theorem.html
+
+The conditional model construction uses Sun, arXiv:2610.20691v2,
+Propositions 8.2 and 9.1, as detailed in universal-rational-equation-status.txt.
+https://arxiv.org/html/2610.20691v2

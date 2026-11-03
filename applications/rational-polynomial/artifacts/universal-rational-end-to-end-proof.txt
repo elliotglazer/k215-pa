@@ -1,0 +1,478 @@
+A fixed rational Diophantine representation of the halting relation
+3 November 2026
+
+Statement
+
+Let U be the polynomial defined by the finite expression in
+universal-rational-equation.json, SHA256
+be7347c439459759121cda9656eda501afd75ca48897aa0f0acf5f85f6a43b1f.
+Let N=878664928321. For the effective universal program numbering in
+universal-interpreter-spec.txt and all ordinary e,n in {0,1,2,...},
+
+  program e halts on input n
+       if and only if
+  there exists w in Q^N such that U(e,n,w)=0.                 (U)
+
+The expression defines one member of Z[e,n,w_1,...,w_N]. Its
+coefficients and number of variables do not depend on the supplied
+program or input. In particular, the inputs in (U) are the ordinary
+integers e,n, not externally calculated elliptic-curve coordinates.
+
+This file gives the final composition argument and the precise
+dependency audit for the saved expression. It is a written mathematical
+proof using the component proofs listed below and their classical
+inputs. It is not a Lean proof or a claim that the finite execution
+checks prove the arithmetic theorems. The construction uses the
+six-contact height estimate, not the original five-contact family.
+
+1. What polynomial the file defines
+
+Only the expression definitions, library node lists and roots, fixed
+integer definitions, and recipe constraints define U. Source hashes,
+metadata, and the historical status strings do not add conditions.
+
+The elementary scalar nodes are integer constants, variables, sums,
+and products. A library call substitutes its scalar parameter
+expressions and a private block of witness variables into an earlier
+library polynomial. A recipe adds the squares of its listed constraint
+polynomials. The remaining three finite constructors are:
+
+* fixed_integer: an integer defined by the fixed prescriptions below;
+* psi_component: one component of a fixed division polynomial, obtained
+  by the complete normalized recurrences in the expression;
+* finite_guard_product: the finite product explicitly specified there.
+
+No constructor tests the halting relation, invokes an integrality
+oracle, or has a bound depending on a quantified variable. Library
+references go backwards. Recipe dependencies are
+
+  universal -> halting, bridge;
+  bridge -> accuracy, raw_trace_ratio, strict_close;
+  halting, accuracy -> power_value and library templates;
+  power_value -> library templates.
+
+Repeated finite substitution consequently yields an ordinary
+polynomial. A rational constant p/q is implemented by a witness r
+and qr-p=0, with fixed nonzero integer q. Its defining equation is
+conjoined outside branch choices. All scalar polynomial coefficients
+are therefore integers. Over Q, a sum of squares is zero exactly
+when each summand is zero, and a product is zero exactly when a
+factor is zero. These facts justify the Boolean encodings.
+
+2. Termination and order of the fixed prescriptions
+
+The relevant exact code is in fixed-certificate-constants.js,
+rational-field-arithmetic.js, finite-polynomial-expressions.js,
+elliptic-division-polynomials.js, and rational-model-assembly.js.
+
+Put F=Q(s), s^2=2, d=75-53s, and
+
+  E: y^2=x^3-d^2 x,
+  P=((1641-1160s)/8,(-123720+87483s)/32).
+
+The proof in elliptic-generator-proof.txt, with the elementary descent
+in explicit-elliptic-data.txt, gives
+
+  E(F)_tors=E[2](F),       2E(F)=Z P,
+
+and P has infinite order. The exact finite search in that proof covers
+every candidate in its stated height bound; its search domain is
+derived there, not inferred from a list of sampled multiples.
+
+Let P0 be the product of primes at most 324 and W=4P0. For every
+unit r modulo W take the first 22 primes greater than 324 in that
+progression. There are finitely many such progressions and Dirichlet's
+theorem gives infinitely many primes in each. Trial division is a
+terminating primality test. Thus the prescribed catalogue, its product
+Hproduct, and its maximum Hmax are fixed computable integers. Its primes
+are distinct: classes are disjoint, and each class lists distinct primes.
+
+Set Ns=P0*Hproduct. The next prescription is the least m>=1 such that
+
+  1/x([m]P)=(a+b*s)/c,  c>0, gcd(a,b,c)=1,
+  Ns^4 divides a and b, and gcd(c,Ns)=1.                (1)
+
+Here is a termination argument with the dyadic place included. The
+Weierstrass equation is integral at every finite place. On a sufficiently
+small formal subgroup, with z=-x/y, one has 1/x=z^2 times a unit power
+series. For an odd p dividing Ns, require v_p(z)>=2 at every place of
+F above p. The extension is unramified there, and extraction of the
+two rational coefficients uses only the units 2 and s. Both coefficients
+of 1/x are then in p^4 Z_p.
+
+At p=2, instead take v_2(z)>=3, using the normalization v_2(2)=1
+on F_2. Then 1/x has valuation at least six. Its rational coefficients
+are obtained by adding the conjugates and dividing by 2, or subtracting
+them and dividing by 2s. Their valuations are at least five and
+six-3/2 respectively, and hence at least four. Thus this smaller
+formal subgroup also ensures (1) at 2. Each chosen subgroup is open
+of finite index in the corresponding compact local elliptic group.
+The simultaneous subgroup has finite index in the finite product.
+Some positive multiple of P belongs to it.
+
+If both rational coefficients belong to p^4 Z_p, their normalized
+common denominator is prime to p and both common numerators are
+divisible by p^4. Thus this multiple satisfies the literal test (1).
+Every step in the search computes [m]P and its reciprocal coordinate
+by exact field arithmetic. Nonzero multiples are neither O nor
+two-torsion; in particular x([m]P)!=0. No test is undefined. The
+least-m search therefore terminates. Denote its output by M.
+
+For the later local argument it is enough that this selected [M]P
+has v_p(z)>=2 at every place over p|Ns. That follows directly from
+(1) and 1/x=z^2 times a unit. All multiples of [M]P remain in that
+formal subgroup, including at bad and ramified places. The set in
+(1) itself need not be asserted to be a subgroup.
+
+Now set
+
+  cstar=4M,  ell=12*P0^2916*Hproduct^732,
+  S={p<=324} union {p|Hproduct} union {p|cstar}.
+
+The remaining fixed definitions are, in their dependency order,
+
+  F0=324!, D=F0*3^(256*F0^4), G0=116064000000,
+  E0=10*(D*G0)^2, R=max(D,Hmax,cstar,10^12),
+  Q=R^(R*E0), Bcm=D^2*3^(21000*D^2)+1,
+  Ccm=2*Bcm+4096*(1028+5*D+84000*D^2),
+  Aheight=2*10^13*max(1,Ccm,Q^17),
+  T=(48*Aheight)^13.
+
+All powers and factorials have fixed nonnegative integer arguments.
+R bounds max(S). These expressions have no cyclic dependency.
+The selected primes used to witness a particular multiplication
+certificate are chosen only afterwards and do not enter the constants.
+
+For each fixed division index, the normalized recurrence refers to
+smaller nonnegative indices once the cases 0,...,4 have been supplied.
+It uses polynomial operations only. The actual indices are positive
+constants and their indicated neighbors; no undefined negative-index
+recursion is needed. Division occurs only in computing fixed point
+coordinates, where nontorsion of P proves all denominators nonzero.
+
+Finally, [-T,T]^3 is finite. Compute the fifteen rational coordinates
+of (iota(a),iota(b),iota(c)) for each triple ab!=c in that box, where
+iota(k) is the canonical code of [k]P. If those coordinates are A_j/B_j
+in lowest terms with B_j>0 and D0=product B_j, its guard factor is
+
+  sum_j (D0*X_j-(D0/B_j)*A_j)^2.
+
+Every factor has integer coefficients. Their finite product is the
+exact guard in the expression. Thus every coefficient prescription
+terminates as an algorithm with unbounded integer storage. This does
+not assert that a physical JavaScript runtime can store the resulting
+astronomical integers, or that the expanded monomial list is practical.
+
+3. The arithmetic inputs supplied to multiplication
+
+The inputs are distinct and have the following exact interfaces.
+
+G: The cyclic-carrier theorem in section 2. Its proof is elementary
+descent, torsion reduction, a height bound, and the exhaustive finite
+calculation in elliptic-generator-proof.txt.
+
+H: six-contact-height-proof.txt proves, for C={0,-15,-20,-24,-30,-60},
+
+  h(t)<=Aheight*M_S(t)^24,
+
+where M_S(t) is the squarefree product of p outside S with positive
+odd v_p(t-c) for some c in C. The proof covers negative valuations
+of t and every allowed rational t. Its bounded fine cover, Hom field,
+CM and non-CM cases, and theta-height comparison yield exactly the
+fixed constants above. height-constant-binding-checks.json binds
+the symbolic definitions to the candidate. Pan's theorem is used
+at coefficient prime five, not two. The original discriminant-210
+five-contact theta comparison is not an input.
+
+L: twenty-two-prime-pattern-proof.txt proves the required simultaneous
+linear prime patterns for every integer homogeneous coordinate,
+including negative ones. The fixed catalogue is the one in section 2.
+At each selected prime the two conjugate reductions of E have orders
+d1,d2 with gcd(d1,d2)=4 and p not dividing d1*d2. The theorem permits
+arbitrarily large selected primes. It asserts no unneeded gcd relation
+between orders belonging to different primes.
+
+RC: restricted-converse-and-pole-completeness-proof.txt proves the
+pointwise implication only needed here: for positive squarefree
+l=11 modulo 12, full 2-primary Selmer corank one for
+
+  E_l: y^2=x(x-l)(x+3l)
+
+implies analytic rank one. This non-CM family is different from E/F.
+The proof first obtains the even lower bound and the varying-companion
+ring-class bound, then the odd lower bound, then normalizes the odd
+symbol. It fixes the final companion before choosing the binary
+dimension. Its elementary split-witness contradiction uses l nonsquare,
+which is automatic in the stated range. It does not apply that argument
+to l=1 or assume a rank conclusion from finite 2-Selmer dimension alone.
+
+The RC dependency proofs are nonvanishing-audit.txt,
+cyclotomic-noncm-audit.txt, coefficient-trace-audit.txt,
+weighted-theta-audit.txt, finite-heegner-descent-audit.txt,
+limit-interface-audit.txt, determinant-switch-audit.txt,
+central-specialization-audit.txt, determinant-transfer-audit.txt,
+arithmetic-graph-audit.txt, ordinary-split-witness-audit.txt,
+restricted-pointwise-assembly.txt, and
+paired-functional-and-uniformity-proof.txt. The primary-source range
+checks for Kato and Purkait are recorded separately. None of these
+arguments uses the universal polynomial or H, L, or its multiplication
+certificate to prove its own premise.
+
+The final audit corrected an intermediate claim in section 6 of the
+paired-functional supplement. An exact inverse of an augmented block
+does not have a precision-independent Laurent pole bound. Instead use
+C_i=adj(A_i)/(t^{d_i}v_i) when det A_i=t^{d_i}v_i+2w_i, d_i<=4. Then
+BC=1+2F, and both C and F have poles at most four. Modulo 2^m,
+
+  B^{-1}=C*sum_(j=0)^(m-1)(-2F)^j
+
+has poles at most 4m. This is the argument already proved in
+determinant-transfer-audit.txt. It leaves the required clearing bound
+L(m)=16r*m unchanged, with 2r+2 the old graded rank. The correction
+does not change any coefficient or witness count in U.
+
+PC: The same combined RC proof and pole-descent-completeness-audit.txt
+give the literal eleven-witness pole polynomial used by the library:
+
+  B has square reduced denominator,
+  0<B<1/2, and v_p(B)>=4 for p in {2,3,5,7,13}
+     imply Phi0(B).
+
+The two descent parameters n and n*theta are both squarefree and
+11 modulo 12. Thus RC applies to both. The finite Selmer dimension
+three gives full Selmer corank one using the alternating Cassels--Tate
+pairing modulo the maximal divisible subgroup. RC and the forward
+theorem then give Sha[2]=0 and the required rational points. The
+non-torsion squareclasses yield the literal inverse guard in Phi0.
+
+Separately, the elementary valuation argument gives
+
+  Phi0(B), B!=0 => no negative odd v_p(B) outside {2,3,5,7,13}.
+
+This direction uses neither RC nor PC. These two different directions
+of the pole predicate are used separately in the certificate proof.
+
+4. The actual multiplication template
+
+multiplication-certificate-correctness-proof.txt proves the following
+statement for the exact template multiply in the saved expression:
+
+  for A,B,C in Q^5, there are rational multiply witnesses
+  if and only if A=iota(a), B=iota(b), C=iota(ab) for some a,b in Z. (M)
+
+The template uses 35134 witnesses. Its height_certificate calls member
+on all three root codes. The outer four fixed-scalar calls impose
+C0=[cstar]P and Ci=[cstar]Pi. Consequently the test_group preconditions
+are consequences of the same conjunction, not assumptions on arbitrary
+rational inputs.
+
+The code has eight reciprocal-x tests of precision one and four tests
+of precision 25, six independent test groups per slope, and 27 slopes.
+Their normalization is exactly
+
+  R0=eta*product_(c in C)(t-c)/(t-1)^8, eta^2=1,
+  a=1-R0*q^2, R=ell^2*a^2*R0,
+  C_gj=D_gj/[R0^k_j*(t-1)^(k_j+1)],
+  W_g=product_j(1+R*C_gj^2),
+  Theta=Tr(sum_g 1/W_g), Bpole=R/Theta^2.
+
+All denominators are explicitly guarded or nonzero by the contact
+guards. Bpole is nonzero. For any rational zero, the elementary pole
+obstruction selects a common group and place giving all twelve local
+inequalities at each positive odd contact prime. The full-log versus
+truncated-log comparison then gives p^25 | a*b-c for the root indices.
+Thus M_S(t)^25 divides a*b-c at every slope. H and the elementary
+canonical-height comparison force every false triple inside [-T,T]^3.
+Its own factor in the guard vanishes, contradicting the guard inverse.
+This proves the forward implication of (M) using only G and H.
+
+For a true triple, L gives all 27 slopes and at most six odd-contact
+primes per slope. At such a prime the congruences
+
+  h=0 modulo lcm(M,d1), h=cstar modulo d2
+
+are compatible since gcd(lcm(M,d1),d2) divides 4M=cstar. Choose h>cstar
+and use Ui=[a_i]([h]P). All exact log ratios are the required integer
+indices. The small formal subgroup from section 2 controls the fixed
+exceptional primes. Weak approximation chooses q with the required
+local units and with a nonzero but arbitrarily small real a.
+
+The explicit exponents in ell make v_p(Bpole)>=4 at the five primes
+of PC. At selected odd-contact primes the twelve trace residues are
+zeros and ones, at least one is one, and p>324, so their sum is a unit.
+At other primes outside the fixed set the valuation is even. The
+denominator of Bpole is therefore a square. Positivity of every real
+W_g and the choice of a give 0<Bpole<1/2. These are exactly the premises
+of PC, which supplies the pole witnesses. No guard factor vanishes at
+a true triple. This proves the reverse implication of (M).
+
+5. The two natural-witness theorems being interpreted
+
+integer-halting-correctness-proof.txt proves the general compiler and
+universal-interpreter theorem for the saved natural polynomial H:
+
+  exists v in N^1305802: H(e,n,v)=0
+       iff program e halts on n.
+
+The proof includes zero-length runs, arbitrary input and register
+sizes, the base-B no-carry invariants, and the complete alpha and
+exponentiation formulas from the cited AFP development. It does not
+replace any natural witness by a rational witness.
+
+accuracy-correctness-proof.txt proves for the saved polynomial Aacc:
+
+  exists v in N^1305804: Aacc(k,h,j,v)=0
+       iff h>=1, j=kh, and |rho(h,j)-k|<1/8,
+
+where rho(h,j)=Tr(z([j]P)/z([h]P))/2. Its exact arithmetic algorithm,
+Jacobian formulas, scalar-loop preconditions, primitive lowering, and
+specialization into H are included in that proof. The integer code is
+fixed, and the two Cantor-pairing equations are literal polynomials.
+The theorem is false for h=0 without evaluating an undefined ratio.
+
+These two proofs are independent of (M). Their use inside the
+elliptic model is the next, separate step.
+
+6. Interpreting both polynomials with rational witnesses
+
+Under (M), the natural template is exact on arbitrary rational
+five-tuples. Its four multiply calls give four integer squares, and
+its three additions give their sum. The four-square theorem proves
+the converse. Hence it defines precisely iota(N).
+
+The raw_add formulas are exact on canonical input codes. The origin,
+inverse, distinct-x and nonzero tangent cases are exhaustive. Its
+preconditions are supplied by the preceding natural, constant or
+arithmetic nodes. Fixed-scalar graphs are exact on ZP: nonzero
+multiples are nontorsion, so the division-polynomial denominator
+cannot vanish. Constant nodes are the required multiples of P.
+
+Induction through each source circuit now gives the exact integer
+value at every output code. Intermediate values can be negative;
+only source natural variables receive natural constraints. A
+zero-mode recipe requires its root code to be O. A value-mode recipe
+identifies its root with the output parameter instead.
+
+In particular power_value evaluates its 474-node polynomial with
+79 private natural witnesses. It does not force every power subcall
+to vanish, which would incorrectly constrain unselected Boolean
+branches. Every private block is used exactly once and has no parent
+variable reference. The rationally extracted natural assignments
+therefore combine to one assignment to the original natural circuit;
+conversely every natural assignment splits into the prescribed blocks.
+
+It follows that V(A,B), the translated halting recipe, holds precisely
+when A=iota(a), B=iota(b) for a,b in N and program a halts on b. The
+translated accuracy recipe has precisely the natural-index meaning
+in section 5 on arbitrary rational input codes.
+
+The complete induction, including all variable scopes and the output
+mode distinction, is in rational-universality-conditional-proof.txt.
+Section 4 supplies its sole remaining hypothesis (M).
+
+7. Ordinary integer input parameters
+
+The bridge Gamma(a,A) chooses codes H,J and a rational r and imposes
+
+  accuracy(A,H,J), raw_trace_ratio(H,J,r), |a-r|<1/8.
+
+The last condition is the explicit four-square equation
+
+  (1-64(a-r)^2)*(q1^2+q2^2+q3^2+q4^2)=1.
+
+The accuracy theorem forces A=iota(k), H=iota(h), J=iota(kh), with
+k>=0, h>=1 and |r-k|<1/8. H is a nonzero multiple of P, and all
+trace-ratio denominators are nonzero. For an ordinary integer a,
+the two strict inequalities give |a-k|<1/4, hence a=k.
+
+Conversely fix a=k>=0. In the compact group E(R) times E^sigma(R),
+positive multiples of (P,P^sigma) approach the origin. They can have
+arbitrarily large indices, since no positive multiple is the origin.
+At either embedding, z([k]Q)=k*z(Q)+O(z(Q)^2). The ratio therefore
+approaches k at both embeddings, and its half trace does too.
+Some h>=1 satisfies |rho(h,kh)-k|<1/8. For k=0 the ratio is zero.
+The accuracy and strict-proximity formulas then have witnesses.
+Positive rational numbers are sums of four rational squares by
+clearing denominators and applying the integer four-square theorem.
+
+Thus for a in N and every A in Q^5,
+
+  Gamma(a,A) holds if and only if A=iota(a).             (2)
+
+No statement that Gamma defines the integer subset of Q is used.
+Its behavior at nonintegral a is irrelevant to (U). The recurrence
+argument supplies existential witnesses; it is not a limiting
+operation inside the polynomial.
+
+8. Both directions of (U) and the witness count
+
+The universal recipe is exactly the sum of the squares of
+
+  V(A,B,v), Gamma(e,A,g_e), Gamma(n,B,g_n),
+
+with ten freely chosen coordinates A,B and disjoint witness blocks.
+If it has a rational zero, all three summands vanish. Equation (2)
+forces A=iota(e), B=iota(n), and V says that program e halts on n.
+Conversely, if the program halts, choose those two codes. V has
+witnesses by its translated theorem, and both bridges have witnesses
+by section 7. Disjointness permits all choices simultaneously.
+
+The actual allocation is
+
+  power_value: 17786698 witnesses beyond 20 parameters;
+  halting:     292887770443 witnesses beyond 10 parameters;
+  accuracy:    292888578910 witnesses beyond 15 parameters;
+  bridge:      292888578934 witnesses beyond 6 parameters.
+
+Therefore the outer count is
+
+  10+292887770443+2*292888578934=878664928321.
+
+There are N+2=878664928323 total polynomial variables including e,n.
+This is an upper bound from this construction, not a minimality claim.
+
+9. What the checks establish
+
+The completion audit reread the current component statements and their
+interfaces, the fixed prescriptions, the actual multiplication and
+elliptic library code, and the rational translator. Its mathematical
+argument is sections 1-8 and the cited component proofs.
+
+Fresh source generation matches every byte of the fixed candidate.
+The natural halting circuit and primitive interpreter match fresh
+compilation. The accuracy IR, primitive program and its full numerical
+code match fresh generation; all inherited H nodes and the two outer
+pairing equations are checked. Both sets of 15845 private power blocks
+are used exactly once, with no escaped references.
+
+The assembly auditor separately checks every source node mapping,
+operation, natural predicate, constant, composition and variable range.
+Finite-constructor fixture checks verify expansion rules without
+substituting fixture constants into U. The corrected Schur formula
+passes 72 exact Laurent-polynomial matrix checks, including different
+sizes and precisions. These checks support transcription and binding;
+they do not prove RC, the height theorem, or any other quantified
+arithmetic claim by testing examples.
+
+The proof dependencies and current file hashes are recorded in the
+completion audit manifest. Earlier component notes retain historical
+statements about work that was still pending when they were written.
+The theorem here uses their mathematical statements and the subsequent
+proofs that supply their premises, not those historical status lines.
+
+10. Consequences and scope
+
+Equation (U) is universality for ordinary integer program/input
+parameters with rational existential witnesses. Any computably
+enumerable predicate can be encoded by a fixed program in this
+numbering. In particular, the code of a search for a finite ZFC proof
+of contradiction can be substituted for e and input zero for n.
+The resulting integer-coefficient polynomial has a rational zero
+exactly when that proof search halts. This observation does not decide
+whether ZFC is consistent. The numerical code of that separate proof
+checker has not been produced here.
+
+The construction and written proof are supplied; a proof-assistant
+formalization is not. The original five-contact theta calculation is
+also not supplied and is not needed by this six-contact construction.
+No optimality of the number of variables or degree is claimed.

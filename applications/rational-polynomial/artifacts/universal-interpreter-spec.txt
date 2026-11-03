@@ -1,0 +1,143 @@
+A fixed universal register-machine interpreter
+3 November 2026
+
+The file universal-interpreter.js generates one finite primitive program
+with 1,399 states and 204 natural-number registers. Its initial registers
+0 and 1 contain e and n. Every other register starts at zero.
+It halts with all registers zero exactly when the program numbered e,
+under the convention below, halts on input n.
+
+This is the program-numbering convention for the construction. No
+existing language's executable-file format is being assumed.
+
+1. Exact numbering
+
+Decode e+1=2^w(2D+1). If w=0, the program halts immediately.
+Otherwise B=2^w. At state i, read the four base-B digits of D in
+positions 4i,4i+1,4i+2,4i+3, denoted op,j,a,b.
+
+If op=1, increment register j and jump to state a.
+If op=2, inspect register j. If positive, decrement it and jump to a;
+if zero, jump to b. Every other opcode means halt.
+Missing high digits are zero, so jumping beyond the represented
+program means halt.
+
+For any finite add/sub/halt program, choose w large enough to contain
+all its register numbers, state numbers and opcodes. Put
+ record_i=op_i+B*j_i+B^2*a_i+B^3*b_i,
+ D=sum_i record_i*B^(4i),
+ e=2^w*(2D+1)-1.
+Thus every such program has an effectively computable code.
+
+These register machines simulate Turing machines: two integer-encoded
+stacks store the tape to the left and right of the head, and finite
+control stores the state and head symbol. Push and pop are multiplication,
+addition, quotient and remainder by a fixed alphabet base. Each of those
+operations is implemented by finite increment/decrement loops with
+temporary registers. This gives an effective translation from any
+Turing machine to one of the numbered programs. Hence the numbering
+covers every computably enumerable halting set.
+
+2. Data representation inside the interpreter
+
+The simulated register tape is a finite list encoded by
+ nil=0, cons(head,tail)=2^head*(2*tail+1).
+Decoding a positive list entry takes its 2-adic valuation as head and
+the remaining odd part minus one, divided by two, as tail.
+Decoding nil returns head=tail=0. Reading beyond a finite list returns
+zero; writing beyond it pads the prefix with zeros.
+
+The list code can grow very large. No efficiency or resource bound is
+claimed, but each operation on finite natural numbers terminates.
+
+The interpreter reads the four program digits by repeated division by
+B, reads and updates the selected tape entry, and updates its simulated
+program counter. Every source step takes finitely many primitive steps.
+On a halt opcode it clears all of its own registers and enters its
+unique final halt state. This matches the acceptance convention of
+integer-diophantine-compiler.js.
+
+3. Primitive macro invariants
+
+Assembler expands every macro into literal add/sub instructions and
+resolves every jump target to a numeric state. There are no macro
+instructions in the generated program.
+
+copy(out,x) consumes x into out and a temporary, then restores x by
+consuming that temporary. addInto has the same restoration invariant.
+When input and output alias, an additional saved copy prevents feedback.
+
+take(x,body) decrements x once per iteration and stops at zero.
+ifNZ tests by decrementing and immediately restoring a positive value.
+whileNZ uses the same preserving test before each iteration.
+
+ifLt(x,y) copies both operands and decrements the copies together.
+The first copy becomes zero first exactly when x<y. It does not alter
+the operands.
+
+divmod(q,r,x,y), used only for y>0, repeatedly subtracts y from a copy
+of x while that copy is at least y. Its invariant is x=q*y+r.
+Its final remainder is in [0,y). divmod2 implements the same operation
+by consuming a copy of x two units at a time.
+
+cons doubles an accumulator head times. uncons repeatedly halves a
+positive input until it is odd. The positive temporary strictly
+decreases on every repeated half, so decoding terminates.
+
+getList traverses index list links then decodes the current head.
+setList traverses the prefix while saving it in reverse order,
+replaces the selected head, then prepends the saved prefix in reverse.
+The traversal counters and reversed-prefix tail code decrease, so these
+operations terminate and have the claimed list semantics.
+
+All scratch registers are private to their syntactic macro invocation.
+The expansions clear or overwrite them before use. Re-entering a macro
+inside an interpreter loop therefore does not rely on initial zeros.
+A reserved zero register supplies unconditional jumps and is never
+incremented.
+
+4. Simulation and universality
+
+At the top of the main loop, D and B are unchanged, pc is the simulated
+state, and tape encodes exactly its register contents. The four digit
+extractions recover the numbered program's instruction. The list
+operations and opcode branch implement precisely that instruction.
+This proves the invariant by induction on source steps.
+
+If the numbered program halts, the interpreter reaches cleanup after
+finitely many source steps and finitely many primitive steps per source
+step, then halts with all registers zero. Conversely, the only route to
+the final halt is cleanup, entered for w=0 or a halt opcode. Thus an
+interpreter halt witnesses a halt of the numbered program.
+
+Combining this fixed interpreter with the integer compiler yields a
+fixed natural-witness Diophantine relation for halting, with two input
+parameters e,n. The compiler's support for multiple input registers
+sets the first k register histories' initial digits to the corresponding
+parameters; the packed-history proof is otherwise unchanged.
+
+5. Validation and remaining work
+
+verify-universal-interpreter.js checked 250 macro cases, twelve complete
+interpreter executions, and one bounded nonhalting execution.
+The complete examples include code 531, which clears its input by
+decrementing, and code 139, which increments once and halts.
+The generated primitive interpreter passed these examples with the
+final all-zero convention.
+
+These finite tests complement the invariant proof; they do not prove
+universality by themselves. The JSON program is generated from the
+same source and can be fed directly to the integer compiler.
+
+Still required for the final rational equation:
+ * compile the interpreter through a manageable explicit circuit format;
+ * produce the exact index-accuracy program for the ordinary-input bridge;
+ * substitute the rational model and its nonnegative-index domain;
+ * assemble the two bridges and check the final polynomial artifact.
+
+For the later ZFC specialization, program e_ZFC must enumerate finite
+formal proofs and halt when it finds a proof of 0=1. Its code can be
+produced in this numbering. The resulting specialization is a
+multivariable polynomial with integer coefficients and rational
+witnesses, not a univariate rational-root problem.
+

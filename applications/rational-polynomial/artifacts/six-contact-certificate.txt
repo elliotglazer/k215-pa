@@ -1,0 +1,227 @@
+Six-contact multiplication certificate and fixed constants
+2 November 2026
+
+Scope
+
+This note adapts linear-prime-certificate.txt to the rational map in
+six-contact-height-model.txt. It gives a deterministic finite prescription
+for the constants. The multiplier catalogue and the resulting polynomial
+have not been expanded or evaluated. This is not a Lean verification.
+
+The arithmetic inputs remain the six-contact height estimate, the pole
+predicate's completeness, and the linear prime-pattern theorem with its
+upper sieve. Their source-level arguments are recorded separately.
+An exact finite prescription is not a new proof of those inputs.
+
+1. Contacts and the detector
+
+Put C={0,-15,-20,-24,-30,-60}, xi=1, and
+ F6(t)=t(t+15)(t+20)(t+24)(t+30)(t+60).
+Use
+ R0=eta F6(t)/(t-1)^8,  eta in {1,-1}.
+Exclude all seven finite contacts.
+
+The divisor of R0 has order one at each point of C, order -8 at 1,
+and order two at infinity. There are therefore six odd contacts.
+Six witness groups, whose traces have twelve summands, suffice.
+An earlier tentative count of seven groups was unnecessary.
+
+Use the twelve tests, normalization a=1-R0 q^2, and definitions R,
+D', W, Theta, B in linear-prime-certificate.txt without other changes.
+In particular the precisions are ONE for the eight reciprocal-x tests,
+and TWENTY-FIVE for all three logarithm differences AND the final
+multiplication test. Assigning precision one to the logarithm
+differences would not prove the required index congruences.
+
+At a height-contact prime outside the exception set, t-1 is a unit
+and v(R0) is the positive odd contact depth. Thus the soundness proof
+there applies verbatim and gives p^25 dividing n1*n2-n3.
+
+2. Twenty-two prime forms
+
+For a prescribed integer A, put u3=Av-u1-u2. Apply the source's linear
+prime-pattern argument to
+ v, uj-bv  (j=1,2,3 and b in C union {1}).
+There are 22 forms. Their coefficient vectors are primitive. Their
+pairwise independence can fail only at primes dividing a nonzero
+difference of contacts. All such differences have absolute value at
+most 61. The three directions (1,0),(0,1),(-1,-1) stay distinct
+over every field.
+
+Here is one deterministic replacement for the source's finite
+catalogue construction. Let
+ P0=product of all primes <=324, W=8*product of odd primes <=324.
+For each unit residue r modulo W, let h(r,1),...,h(r,22) be the first
+22 primes greater than 324 congruent to r modulo W, in increasing order.
+Dirichlet's theorem proves that this finite prescription terminates.
+Let Hcat be their union, and set
+ Kcat={d*h: d divides P0^4 positively, h in Hcat}.
+
+This enlarged catalogue contains every tuple required in the source.
+For each of 22 forms, its small-prime valuation is in {0,1,2,3,4}:
+the union bound uses 22*2^(-5)<1. Its required unit residues, after
+division by the desired prime residues c2=1 modulo 8, c7=3 modulo 7,
+and cp=1 otherwise, specify a unit r modulo W. Among the 22 listed
+primes for that r one can choose distinct h for all occurrences.
+Different residue classes cannot share a prime. The needed d*h is in Kcat.
+
+The fixed threshold 324 also suffices for the density estimate.
+For p>324 and t=22 the proportion avoiding the t zero hyperplanes
+is at least 1-t/p. Therefore its local factor beta satisfies
+ log beta >= log(1-t/p)-t log(1-1/p) >= -t^2/p^2.
+Here t/p<1/2, log(1-x)>=-x-x^2 for 0<=x<=1/2, and
+-log(1-1/p)>=1/p. These lower bounds have a positive convergent product.
+The simultaneous exclusions of zero and -k remove at most 44p^2
+points of F_p^3. The catalogue-prime plane argument removes at most
+42p points of its p^2 points. Both leave a point.
+
+All later upper-sieve thresholds may be enlarged independently
+without changing this fixed catalogue. The source's order of choices
+is preserved: the catalogue precedes A, which precedes the cutoff L,
+which precedes the dilation X.
+
+3. Odd valuations for the constructed slopes
+
+Set Sb={primes <=324} union Hcat. Choose the selected prime values
+larger than every prime eventually put in S below.
+
+Each displayed integral form value is a signed member of Kcat times
+one selected prime. Outside Sb its valuation is therefore zero or one.
+For a fixed slope t=uj/v and p outside Sb, the following cases exhaust
+the possibilities.
+
+If v_p(v)=0, a positive valuation at one finite form gives its contact.
+Distinct finite contacts remain distinct modulo p, so at most one
+of the seven forms has positive valuation. A contact in C gives
+v_p(R0)=1; contact at xi gives -8.
+
+If v_p(v)=1 and v_p(uj)=0, all finite forms are units, all t-b have
+valuation -1, and v_p(R0)=2. If v_p(uj)=1, every finite form has
+valuation one, since no displayed value can have valuation two;
+all normalized t-b are units and v_p(R0)=0.
+
+Consequently the odd valuations of R0 outside Sb are exactly +1,
+at at most six selected primes. Give each of these a separate witness
+group. No group is needed for xi or infinity. Multiplication by
+ell^2 a^2, followed by division by Theta^2, preserves valuation parity.
+Thus all other primes outside Sb automatically have even v_p(B),
+whether positive or negative.
+
+4. A deterministic local multiplier
+
+Retain the explicit elliptic curve E/F, F=Q(sqrt(2)), and generator P
+in explicit-elliptic-data.txt and elliptic-generator-proof.txt.
+Normalize every finite valuation v above p by v(p)=1.
+
+Define M as the least positive integer m for which
+                    v(x([m]P)) <= -4
+at every place of F above every p in Sb.
+
+This is a terminating exact search, not an unspecified existence choice.
+Each [m]P is obtained by rational arithmetic in Q(sqrt(2)). Valuations
+of its algebraic coordinates at specified prime ideals are computable
+by finite integer arithmetic. P is nontorsion, so x([m]P) is defined.
+
+The points with v(x)<=-4 form an open subgroup near O for this integral
+Weierstrass equation. Indeed they are its formal subgroup v(z)>=2.
+The product of the local elliptic groups is compact. Its quotient
+by this open subgroup is finite, so some positive multiple of P
+belongs to it. This proves termination of the search.
+
+Every multiple of [M]P remains in that subgroup. The integral formal
+differential gives v(c_j)>=-v_p(j) for logarithm coefficients.
+For v(z)>=2, all non-linear terms have strictly larger valuation
+than z, including at p=2. Hence the logarithm and its degree-25
+truncation preserve valuation there. Their ratios on integer
+multiples are integral. This proves the small-prime integrality
+needed in certificate completeness.
+
+Set cstar=4M and
+ S=Sb union {prime divisors of cstar}.
+There is no repeated enlargement or fixed-point choice of M.
+Selected primes exceed max(S), so they are coprime to M and cstar.
+
+5. An explicit normalization ell
+
+Put Bp=4 if p<=324 and Bp=1 if p is in Hcat. A selected prime is outside
+Sb; thus every form value has small-prime valuation between 0 and Bp.
+Consequently
+ |v_p(t-b)|<=Bp,
+ |v_p(R0)|<=14Bp,  |v_p(t-1)|<=14Bp.
+Put Cp=14Bp, Dp=51Cp, and
+ Ep=52Cp+v_p(12)+4,
+ ell=product over p in Sb of p^Ep.
+
+The test precisions are at most 25. Once the original D tests are
+integral, the quantities
+ Cgj=Dgj/[R0^kj (t-1)^(kj+1)]
+have valuations at least -Dp. This holds at all places above p,
+including ramified ones with the normalized valuation.
+
+For a a unit at Sb,
+ v(R Cgj^2)>=2Ep-Cp-2Dp=Cp+2v_p(12)+8>v_p(12).
+Every Wg is therefore sufficiently close to one, and
+ v_p(Theta-12)>v_p(12). Also
+ v_p(B)>=2Ep-Cp-2v_p(12)=103Cp+8>=4.
+Thus the pole predicate's threshold is met at every p in its set
+{2,3,5,7,13}; at the remaining primes of Sb the valuation is nonnegative.
+
+Weak approximation chooses q integral at the selected primes,
+sufficiently small p-adically at Sb, and close to a real root
+of 1-R0 q^2 after choosing eta so R0>0. Keep a nonzero.
+Then B is positive and less than 1/2. At each selected odd prime,
+the twelve inverse-W residues are zero or one with at least one one.
+Because p>324>12, their sum is nonzero and v_p(B)=1.
+At all remaining primes outside Sb, its valuation is even.
+The pole-completeness input therefore supplies Phi0(B).
+
+6. Fixed height and finite guard
+
+The preceding prescriptions determine a finite S without dependence
+on e, n, A, or any multiplication query. Using the bounds recorded
+in six-contact-height-model.txt, define the following integers:
+ D=324!*3^(256*(324!)^4),
+ G0=116064000000,
+ E0=10*(D*G0)^2,
+ R=max(D,max(S),10^12),
+ Q=R^(R*E0),
+ Bcm=D^2*3^(21000*D^2)+1,
+ Ccm=2*Bcm+4096*(1028+5*D+84000*D^2),
+ Aheight=2*10^13*max(1,Ccm,Q^17),
+ T=(48*Aheight)^13.
+
+The source-level height argument gives h(t)<=Aheight*M_S(t)^24.
+The finite-guard calculation uses only this inequality, not the
+number of contacts. It therefore gives |ni|<T for every false
+multiplication certificate.
+
+For a triple of five-coordinate codes X=(X1,X2,X3), put
+ Hguard(X)=product over (a,b,c) in Z^3 with
+   |a|,|b|,|c|<=T and ab!=c
+ of sum over i=1,2,3 and j=1,...,5
+   (Xij-iota((a,b,c)_i)j)^2.
+
+This is a finite, explicitly prescribed rational polynomial.
+All its fixed rational denominators can be cleared. On actual codes,
+Hguard vanishes exactly at those finitely many false triples.
+Adding a rational witness s with s*Hguard-1=0 to the certificate
+therefore defines exact multiplication, conditional on the recorded
+arithmetic inputs. True triples never meet a factor's zero set.
+
+What remains
+
+The prescriptions above remove free choices of a height constant,
+an exceptional set, a catalogue, M, ell, and a finite cutoff.
+They do not constitute an evaluated coefficient list or a finished
+universal polynomial. The remaining compilation must specify the
+program enumeration and implement the integer-Diophantine translation
+for the halting and approximation relations, then compose it with
+the exact rational model and the ordinary-input bridge.
+
+The nonformal arithmetic dependencies must be kept visible throughout.
+In particular, the pointwise 2-converse is still an input proved only
+by the recorded source-level analysis, not by a Lean artifact.
+
+Primary source for the linear-pattern argument:
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/Hilberts-tenth-problem-over-the-rational-numbers-October-6-2026/build/sections/06-primes.tex
+

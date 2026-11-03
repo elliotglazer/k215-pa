@@ -1,0 +1,298 @@
+DESCENT MATRICES AND COMPLETENESS OF THE EXPLICIT POLE PREDICATE
+2 November 2026
+
+Scope
+-----
+This checks par:descent, par:simultaneous-matrices and par:global-point
+in the H10(Q) parity source, and applies them directly to the explicit
+polynomial in explicit-pole-predicate.txt:
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/Hilberts-tenth-problem-over-the-rational-numbers-October-6-2026/build/sections/03-parity.tex
+
+The positive-rank input is the restricted source-level proof assembled
+in restricted-pointwise-assembly.txt, with its listed classical inputs.
+This is not a Lean certificate.
+
+The result proved here is the completeness implication actually needed
+by linear-prime-certificate.txt:
+
+ If B has square reduced denominator, 0<B<1/2, and
+ v_p(B)>=4 for p in {2,3,5,7,13}, then Phi0(B).
+
+Together with the elementary soundness in explicit-pole-predicate.txt,
+this discharges the pole-predicate dependency at the source-audit level.
+It does not supply the numerical five-contact height constant or the
+final universal polynomial.
+
+1. Exact local descent for one parameter
+----------------------------------------
+Let l>0 be squarefree, coprime to 6, with l=3 modulo 4 and l=2 modulo 3.
+Write Q for its prime support and use Kummer coordinates (x+3l,x-l)
+on E_l:y^2=x(x-l)(x+3l). The two independent rational torsion classes are
+
+                      tau1=(l,1), tau2=(3,-l).
+
+At an odd local prime the Kummer image has order four. Indeed an open
+formal subgroup is uniquely 2-divisible; passing to the finite quotient
+preserves both the quotient modulo 2 and the full rational 2-torsion.
+For a finite abelian group, the quotient modulo 2 and its 2-torsion
+have the same size.
+
+At q not dividing 3l, the roots are distinct modulo q. A nonintegral
+x has even valuation by the curve equation; for integral x, at most
+one root factor has positive valuation, again even. The local Kummer
+image is therefore exactly the four unit squareclass pairs.
+
+At q_i|l, the valuation pairs of tau1,tau2 are (1,0),(0,1), so these
+classes generate the full local image. At 3, l is a nonsquare unit
+and -l a square. The local image is all first-coordinate squareclasses
+with square second coordinate.
+
+At 2 only a necessary condition is used: both coordinate valuations
+are even. Negative v_2(x) is even by the product equation. For integral
+even x, the two selected coordinates are units. If x-l=2u with u odd,
+the equation would give
+
+             (y/2)^2=(l+2u)u(u+2l)=l modulo 8,
+
+which is impossible for l=3 or 7 modulo 8. Otherwise both x-l and x+3l
+have valuation at least two. Their difference is 4l, so the minimum
+valuation is two, and their sum of valuations is even. Both are even.
+The torsion replacement values have the same property.
+
+At infinity the first Kummer coordinate is positive. The sign of
+the second coordinate is a surjective character, because tau2 has
+negative second coordinate. Its kernel has index two. Every class
+in this positive kernel has the unique squareclass representative
+
+                   (3^delta product q_i^u_i, product q_i^v_i),
+
+with delta in F_2 and u,v in F_2^Q.
+
+2. The matrix criterion and the exact dimension
+-----------------------------------------------
+Put s_i=[-1/q_i], lambda_i=[3/q_i], with square=0 and nonsquare=1, and
+
+       (Ku)_i=sum_(j!=i)[q_j/q_i](u_j+u_i),   N=K+D_s.
+
+Quadratic reciprocity gives K+K^t=ss^t+D_s. The congruences on l imply
+s^t*1=1 and lambda^t*1=0. Hence
+
+                    K1=K^t1=0,  N=K^t+ss^t.
+
+Matching the local torsion class tau1^u_i tau2^v_i at q_i gives
+
+                 Ku+D_lambda v=delta*lambda,   Nv=0.
+
+The second coordinate condition at 3 is (lambda+s)^t v=0.
+
+Assume a nonempty proper B_set subset Q satisfies
+
+         ker K=span{1,1_B_set},   lambda not in image K.        (1)
+
+Then ker K^t has dimension two and contains 1. Multiplying Nv=0
+by 1^t first shows s^t v=0. Thus
+
+                     ker N=ker K^t intersect s-perp
+
+is a line. Since lambda not in image K, lambda is nonzero on ker K^t.
+It vanishes on 1, whereas s does not. Therefore lambda is nonzero
+on the complementary line ker N. The condition at 3 forces v=0.
+Now Ku=delta*lambda and (1) force delta=0 and u in ker K.
+
+There are at most four positive-kernel classes, hence at most eight
+Selmer classes in total.
+
+Let beta=product_(q in B_set) q. Assume beta is positive and a square
+at 2, a nonsquare unit class at 3, and K1_B_set=0. Then (beta,1) is
+an actual local class:
+* identity at 2 and infinity;
+* tau1 at 3;
+* tau1 to the indicator exponent at q_i|l, by K1_B_set=0;
+* a unit pair at every remaining odd prime.
+It is neither 1 nor tau1, because B_set is nonempty and proper.
+It is neither tau2 nor tau1*tau2, whose second coordinates are negative.
+It supplies the third independent Selmer direction. Consequently
+
+                     dim_F2 Sel_2(E_l/Q)=3.                    (2)
+
+3. From finite Selmer dimension to a rational point
+---------------------------------------------------
+Equation (2) and full rational 2-torsion give
+
+                 rank E_l(Q)+dim_F2 Sha(E_l/Q)[2]=1.
+
+Write the 2-primary Sha group as (Q_2/Z_2)^t plus a finite group F.
+The Cassels--Tate pairing modulo the maximal divisible subgroup is
+nondegenerate and alternating; for an elliptic curve the polarization
+is represented by the rational divisor (O). Therefore dim F[2] is even.
+It follows that F=0 and rank+t=1. In particular the FULL 2-primary
+Selmer corank is exactly one.
+
+The restricted pointwise argument applies and gives rank E_l(Q)=1.
+The preceding Kummer identity then implies Sha[2]=0. The class
+(beta,1) is therefore represented by a rational point, and its
+distinction from all rational two-torsion classes excludes the origin
+and all three roots. The curve equation gives
+
+                 [x]=[x+3l][x-l]=beta.
+
+Thus the point has nonzero x in beta*Q^{*2}. Neither the finite
+Selmer calculation alone nor a Mordell--Weil rank hypothesis was
+substituted for the full corank argument.
+
+4. One prime support works for two twists
+----------------------------------------
+Suppose beta,theta are positive squarefree odd integers, their supports
+B_set,J are disjoint and avoid 2,3, and
+
+ theta is a local square at every q in B_set,
+ beta is a local square at every q in J.
+
+Suppose both are squares at 2, beta is a nonsquare unit class at 3,
+and theta is a square there. Then
+
+ sum_B s=sum_J s=0,  sum_B lambda=1,  sum_J lambda=0,
+
+and each row sum of the fixed cross-symbol blocks B_set--J is zero.
+
+Add a prime q0 with (s0,lambda0)=(1,1), and a set I of |B_set|-1 primes
+with type (0,0). These types are realizable by 7 and 1 modulo 12.
+Let Q0=B_set union I union {q0}, and Q1=Q0 union J. Both have total
+s=1 and total lambda=0, so their prime products are 11 modulo 12.
+
+Choose b_* in B_set and let a be the vector supported at q0 and b_*.
+Then a^t1=0 and a^t1_B_set=1. If K1_B_set=0, put
+
+                 Ksharp=K+lambda*a^t,  T=Id-1_B_set*a^t.
+
+The map T projects onto a-perp, kills 1_B_set, and fixes 1. Moreover
+Ksharp1=0 on both sides, Ksharp1_B_set=lambda, and K=Ksharp*T.
+
+If ker Ksharp=span{1}, then (1) follows:
+Kx=0 forces Tx=c1 and x in span{1,1_B_set};
+Kx=lambda would force Tx-1_B_set in span{1}, contradicting a^tTx=0.
+It suffices to make the matrix obtained by deleting q0 from Ksharp
+nonsingular. Subtracting the q0 coordinate times 1 then proves that
+its full kernel is span{1}.
+
+5. Constructing both nonsingular deleted matrices
+------------------------------------------------
+Let C be a B_set-by-I matrix whose columns form a basis of the
+even-sum hyperplane of F_2^B_set. For |B_set|=1, C is empty.
+Prescribe the B_set--I symbols to be C in both directions and every
+other off-diagonal symbol incident with I to be zero. Prescribe
+
+                 [q0/q_b]=sum_(i in I) C_bi,
+
+and take the reverse symbols by reciprocity. Leave q0--J free.
+
+These choices give K1_B_set=0 on both Q0 and Q1:
+the B_set row sums from I and q0 cancel; C has even column sums;
+sum_B s=0 handles q0; and the fixed cross-row sums handle J.
+
+The smaller deleted matrix is
+
+                    M0 = [ A   C  ]
+                         [ C^t 0  ],
+
+where 1_B_set^t A1_B_set=1. No symmetry of A is needed.
+If M0(x,y)=0, then C^t x=0, so x=c1_B_set. Multiply the first block
+equation by 1_B_set^t to obtain c=0, and then injectivity of C gives
+y=0. This includes even |B_set| and the case |B_set|=1, where M0=(1).
+
+On adjoining J, the B_set,I block remains M0 because the old-to-J
+row sums vanish. Changing one bit [q0/q_j] changes its reverse by
+the same bit; after q0 is deleted, only the jth diagonal is toggled.
+Thus the free q0--J bits independently vary the J diagonal.
+
+The enlarged determinant is a multilinear polynomial in these bits.
+Its full-product coefficient is det M0=1. The squarefree monomials
+are linearly independent as Boolean functions, so this polynomial
+is nonzero at some bit assignment. If J is empty there is nothing
+further to choose. Both deleted matrices are now nonsingular.
+
+Finally choose the auxiliary primes successively by CRT and Dirichlet.
+A nonzero residue at each old prime imposes its required symbol; the
+reverse symbols were already made consistent by reciprocity. The
+modulo-12 type imposes no conflict, and finitely many used primes can
+be avoided. The resulting positive squarefree
+
+                     n=product_(q in Q0) q
+
+is coprime to 6theta. Both l=n and l=n*theta satisfy (1), contain the
+nonempty B_set, and contain the additional q0. Sections 1-3 provide
+the required rational points on BOTH curves.
+
+6. Applying this directly to Phi0
+---------------------------------
+The explicit predicate uses M={+d,-d: d divides 2730}, S0={2,3,5,7,13}.
+Its 64 elements represent all simultaneous real, 2-adic and 3-adic
+squareclasses, as proved in explicit-pole-predicate.txt.
+
+Take rational B with square reduced denominator, 0<B<1/2, and
+v_p(B)>=4 for p in S0. Choose m in M so that A=mB is positive,
+a square at 2, and a nonsquare unit squareclass at 3.
+Since B>0, this m is positive and m>=1. Put
+
+                         H=A(A-B^2)=A^2(1-B/m).
+
+At infinity H>0. At p in S0, v_p(B/m)>=3, since v_p(m)<=1.
+Thus 1-B/m is a local square (including p=2), and H is a local square.
+
+Let beta and theta be the positive squarefree representatives of A
+and H. Their supports avoid 2,3. Beta is a square at 2 and a nonsquare
+unit class at 3; theta is a square at both.
+
+If q divides beta and q is in S0, H is already a local square.
+If q is outside S0, v_q(A)=v_q(B) is odd. A square reduced denominator
+excludes negative odd valuations, so v_q(B)>0. Then
+1-B/m is in 1+qZ_q and is a square. Again H is a local square.
+Consequently the supports of beta and theta are disjoint.
+
+Conversely let q divide theta. It is outside S0, and v_q(A) is even.
+Since m is a unit there, write alpha=v_q(B)=v_q(A).
+If alpha>0, 1-B/m is a square unit and v_q(H)=2alpha is even.
+If alpha<0, v_q(1-B/m)=alpha and v_q(H)=3alpha is even.
+Both contradict q|theta, so alpha=0. For v_q(H) to be odd, cancellation
+forces B/m to lie in 1+qZ_q. Hence A=m^2(B/m) is a local square.
+Thus beta is a square at q.
+
+All hypotheses of sections 4-5 now hold. Obtain n and points on
+E_n and E_(n*theta) with x-coordinate class beta=[A].
+Write H=theta*c^2. The square-scaling isomorphism
+(x,y)->(c^2x,c^3y) gives the second point on E_(nH) with the same class.
+
+Let the first point have x=A*q^2, q!=0. Divide both curve parameters
+by q^2 and their point coordinates by (q^2,q^3).
+The first new parameter is e=n/q^2, its point has x=A, and the
+second parameter is eH, with point x=A*z^2 for some nonzero z.
+Their ordinates provide the two square equations
+
+       r1^2=A(A-e)(A+3e),
+       r2^2=A(A*z^2-eH)(A*z^2+3eH).
+
+Here r2 is the second ordinate divided by z. Since e,H,z are nonzero,
+take w=1/(eHz). Together with the six Boolean bits representing m,
+these are exactly the eleven witnesses of Q_pole(B,...)=0.
+
+This proves the required Phi0 completeness implication. It uses the
+direct H=A(A-B^2) preparation and does not import the original paper's
+extra rational parameter or a second multiplier list.
+
+7. Consequence for the universal-equation construction
+-----------------------------------------------------
+The explicit eleven-witness predicate now has both:
+* elementary exclusion of negative odd valuations outside S0;
+* completeness for the small, sufficiently S0-divisible rational inputs
+  with square reduced denominator used in the linear-prime certificate.
+
+The first property is unconditional elementary algebra. The second is
+supported by the source-level restricted pointwise dependency audit and
+the classical theorems listed there. No additional unproved arithmetic
+conjecture has been introduced in passing from that implication to
+Phi0. There is still no Lean proof or instantiated universal polynomial.
+
+The remaining tasks are the explicit five-contact height constant and
+exceptional-set bookkeeping, the resulting numerical finite guard,
+and compilation of the fixed model and ordinary-input bridge into U.
+

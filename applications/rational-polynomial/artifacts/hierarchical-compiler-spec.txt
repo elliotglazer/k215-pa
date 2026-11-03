@@ -1,0 +1,73 @@
+Hierarchical integer polynomial artifact
+3 November 2026
+
+universal-integer-polynomial.json is a fixed, fully specified polynomial
+circuit with integer coefficients. Its inputs are e,n, followed by
+1,305,802 natural-number witnesses. It represents the halting relation
+for the exact program numbering in universal-interpreter-spec.txt.
+
+This is still an INTEGER-stage artifact. Its witnesses are not yet
+allowed to range freely over Q. It must be interpreted through the
+rational Diophantine model before it can answer the user's question.
+
+Circuit semantics
+
+The format has ordinary const, var, add and mul nodes, in topological
+order. It also has call nodes with arguments [template,P,Q,R,start].
+A call means literal substitution into the explicitly stored polynomial
+template: its first three variables take the values of parent nodes
+P,Q,R, and its remaining 79 variables are global variables with indices
+start through start+78. There is no decision procedure, oracle, or
+unexpanded mathematical predicate in a call.
+
+The sole template is the integer polynomial for exponentiation,
+already expanded into 474 const/var/add/mul nodes. Each call reserves
+its own disjoint block of 79 natural witnesses. The artifact specifies
+every index and block. Expanding all calls would give an ordinary
+larger arithmetic circuit for exactly the same polynomial.
+
+The parent circuit has 293,568 nodes and 15,845 calls. Its total variable
+count is 1,305,804, including the two input parameters. These counts
+were checked after saving and rereading the artifact.
+
+What has been checked
+
+The builder compared the fully substituted expression-tree hashes of
+flat and hierarchical compilations for one- and two-input machines.
+Both pairs were identical, including variable indices and operand
+order. Exact evaluation on three assignments per pair also agreed.
+
+The structure audit checked that all variables are accounted for once,
+witness blocks do not overlap, references point backward, and the
+template has only ordinary polynomial operations. The native integer
+compiler and interpreter tests were rerun under the local Node runtime.
+
+These checks establish representation consistency. They do not turn
+a natural witness into a rational witness, and they do not independently
+verify the alpha-sequence theorem imported by the integer compiler.
+
+Reproduction
+
+Run:
+ node outputs/build-universal-integer-polynomial.js
+
+This regenerates the JSON artifact and hierarchical-compiler-checks.json
+from the saved compiler and interpreter sources.
+
+Next composition
+
+The accuracy relation for the input bridge can be represented using
+the same fixed universal circuit, by specializing its program parameter
+to the code of an exact integer-arithmetic accuracy program. A fixed
+pairing polynomial combines its three indices into one input.
+
+The rational interpretation must impose the model's nonnegative-index
+domain on the original natural variables, use exact model addition and
+multiplication for circuit operations, and require the output code to
+be the code of zero. Internal arithmetic nodes may have negative
+values, so their domain is the full integer model.
+
+This construction will yield an existential rational formula. The
+ordinary-input bridges and the finite algebraic compilation then
+produce one polynomial with integer coefficients.
+

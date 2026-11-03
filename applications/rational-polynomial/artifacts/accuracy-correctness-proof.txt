@@ -1,0 +1,242 @@
+Accuracy polynomial: general correctness and artifact binding
+3 November 2026
+
+Statement and scope
+
+Put F=Q(sqrt(2)), A=-11243+7950sqrt(2), and
+ E: y^2=x^3+A*x,
+ P=((1641-1160sqrt(2))/8,(-123720+87483sqrt(2))/32).
+For a nonzero multiple Q of P put z(Q)=-x(Q)/y(Q), and put z(O)=0.
+For h>=1 and j>=0 define rho(h,j)=Tr_F/Q(z(jP)/z(hP))/2.
+
+The polynomial Aacc in accuracy-integer-polynomial.json, SHA256
+6d1a4f92baa7f4931fa053875639d1f5c80a18498e5342fc1ac43b06bd6f52c6,
+has the following property for k,h,j in N, with 0 included in N:
+
+ exists w in N^1305804: Aacc(k,h,j,w)=0
+ iff h>=1, j=k*h, and |rho(h,j)-k|<1/8.
+
+The right side is false when h=0, without evaluating rho. This is a
+natural-witness statement. It does not assert that the same polynomial
+with arbitrary rational witnesses has the stated property.
+
+This proof uses the natural halting-polynomial theorem proved in
+integer-halting-correctness-proof.txt from the cited AFP results.
+It supplies the additional algorithm, lowering and specialization
+arguments for the accuracy polynomial. It uses no pointwise 2-converse
+or multiplication-certificate theorem. The source/artifact comparison
+is in accuracy-binding-checks.json. It is a written proof with finite
+artifact checks, not a proof-assistant verification of the JavaScript.
+
+1. The point and the nonvanishing needed by the algorithm
+
+Write d=75-53sqrt(2); then A=-d^2 and d is nonzero. The projective
+coordinates used in accuracy-program.js are
+ X=13128-9280sqrt(2), Y=-1979520+1399728sqrt(2), Z=8.
+They satisfy Y^2=X^3+A*X*Z^4 and give P under x=X/Z^2, y=Y/Z^3.
+These integer coefficient identities are checked directly by
+verify-accuracy-binding.js.
+
+The primes (17,sqrt(2)-6) and (23,sqrt(2)-5) are primes of F with
+residue fields F_17 and F_23. At them d reduces to 12 and 17,
+respectively. Since the discriminant is 64*d^6, both are primes of
+good reduction. Direct point counts, including O, are 20 and 24.
+The verifier checks both counts by enumerating the residue fields.
+
+Prime-to-residue-characteristic torsion injects into a good reduction.
+Every torsion prime except 17 and 23 therefore divides gcd(20,24)=4;
+17-primary torsion is excluded by reduction at 23, and 23-primary
+torsion by reduction at 17. The entire torsion subgroup consequently
+injects at both primes and has order dividing 4. The four points
+O,(0,0),(d,0),(-d,0) already supply a subgroup of order 4. Thus the
+torsion subgroup is exactly E[2]. Since P has nonzero y-coordinate,
+P has infinite order.
+
+It follows that, for every n>=1, nP is finite and not a 2-torsion
+point. Its y-coordinate is nonzero. Its x-coordinate is also nonzero,
+because x=0 on E implies y=0. Hence z(nP) is defined and nonzero.
+For positive a,b, equal x-coordinates of aP,bP imply aP=+/-bP, so
+a=b or a=-b. These elementary facts justify every denominator and
+exceptional-case exclusion below. No generator or rank calculation
+is required for this particular proof.
+
+2. Natural, signed and quadratic-field arithmetic
+
+The IR has natural registers with exact copy, addition, multiplication,
+truncated subtraction, division by 2, comparisons and structured loops.
+Represent an integer t by a canonical pair (p,n) of naturals with
+t=p-n and p*n=0. Integer constants in IR.signed have this property.
+The operations in accuracy-program.js preserve it:
+
+ sadd((p,n),(q,m)) = ((p+q) dotminus (n+m),
+                      (n+m) dotminus (p+q));
+ sneg(p,n)=(n,p);
+ smul((p,n),(q,m))=(p*q+n*m,p*m+n*q);
+ ssquare(p,n)=((p+n)^2,0).
+
+Here dotminus is truncated subtraction. In smul, canonical inputs
+ensure that at most one output component is nonzero. Thus ssquare,
+which would not be correct for arbitrary redundant signed pairs,
+is correct at every use in this program. Scaling is by nonnegative
+integer constants and preserves the same invariant.
+
+A pair of these integer representations stores a+b*sqrt(2). Field
+addition is componentwise; multiplication is
+(a,b)*(c,d)=(ac+2bd,ad+bc). The emitted fsquare is the specialization
+(a^2+2b^2,2ab). All of these are exact operations in Z[sqrt(2)].
+No real-number approximation occurs in the acceptance decision.
+
+3. Pair decoding, guards and termination at the IR level
+
+Define pair(x,y)=(x+y)(x+y+1)/2+y. In unpair(a), the loop begins
+with r=a,w=0 and maintains a=w(w+1)/2+r. Its guard is w<r.
+Under that guard, r>=w+1, so the update r:=r-(w+1), w:=w+1
+uses ordinary subtraction, not a truncated approximation. It preserves
+the invariant and strictly decreases r. At termination 0<=r<=w,
+and the returned pair (w-r,r) is the unique nonnegative pair mapped
+to a. This also proves termination for every natural a.
+
+Two calls decode pair(k,pair(h,j)). The second call copies its input
+before modifying the remainder. The program rejects h=0, then rejects
+j!=k*h by testing (j dotminus kh)+(kh dotminus j). If j=0 after
+these guards, h>=1 implies k=0, and rho(h,0)=0, so acceptance is
+correct. Otherwise both scalar multiplications are called with a
+positive integer, as required in the next section.
+
+All arithmetic operations are total on natural registers. Each
+unpair loop terminates as just shown; each scalar loop halves a
+positive count. There are no other unbounded loops at the IR level.
+Every natural input therefore reaches accept or reject.
+
+4. Jacobian formulas and the scalar-loop invariant
+
+Coordinates are Jacobian: (X,Y,Z) means (X/Z^2,Y/Z^3). The formulas
+can be verified directly from the affine chord and tangent law; the
+same coordinate convention and formulas are documented in the EFD:
+https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html
+
+For doubling, put D=4XY^2, L=3X^2+A*Z^4 and
+ X'=L^2-2D, Y'=L(D-X')-8Y^4, Z'=2YZ.
+When YZ!=0 the affine tangent slope is L/Z'. The identities
+D/Z'^2=X/Z^2 and 8Y^4/Z'^3=Y/Z^3 give exactly
+ x'=slope^2-2x, y'=slope*(x-x')-y.
+Thus IR.double is correct whenever the doubled point is finite and
+not 2-torsion; its output has Z'!=0.
+
+For addition put
+ U1=X1*Z2^2, U2=X2*Z1^2,
+ S1=Y1*Z2^3, S2=Y2*Z1^3, H=U2-U1, R=S2-S1,
+ X'=R^2-H^3-2U1*H^2,
+ Y'=R*(U1*H^2-X')-S1*H^3, Z'=H*Z1*Z2.
+When both Z coordinates and H are nonzero, the affine slope is R/Z'.
+Since H^3+2U1*H^2=H^2(U1+U2), the displayed X' gives
+x'=slope^2-x1-x2. Dividing the Y' identity by Z'^3 gives
+y'=slope*(x1-x')-y1. Thus IR.pointAdd is correct for distinct
+affine x-coordinates, and its output has Z'!=0.
+
+At the start of scalar-loop iteration i, base=[2^i]P, count=floor(n/2^i),
+and the bits already processed sum to r=n mod 2^i. If the flag is
+set, acc=[r]P with 0<r<2^i; if it is unset, r=0 and acc is not read.
+For an odd count, an unset flag causes a copy of base. A set flag
+causes pointAdd(acc,base). Their x-coordinates are distinct: equality
+would imply r=+/-2^i by the infinite order of P, contrary to 0<r<2^i.
+Thus this call never reaches a missing inverse or doubling case.
+
+After halving count, a further iteration doubles base. The base point
+is a nonzero multiple of P, so its Y is nonzero by section 1. This
+proves the doubling precondition. The invariant follows at iteration
+i+1. Since n>0, at least one bit is set, and the returned acc is nP.
+All temporary arithmetic outputs are fresh registers. A pointCopy
+mutates base or acc only after all new coordinates have been computed,
+so the algebraic formulas are not affected by an in-place overwrite.
+
+5. Exact acceptance comparison
+
+Let H=hP and J=jP, with their computed Jacobian coordinates, and put
+ Bnum=X_J*Z_J*Y_H=a+b*sqrt(2),
+ Bden=X_H*Z_H*Y_J=c+d*sqrt(2).
+The signs in z=-x/y cancel, so Bnum/Bden=z(J)/z(H).
+Section 1 and the scalar invariant prove Bden!=0. Consequently
+D=c^2-2d^2 is a nonzero integer, and
+ rho(h,j)=(ac-2bd)/(c^2-2d^2)=N/D.
+The program computes exactly N,D and accepts precisely when
+ 64*(N-kD)^2<D^2.
+For either sign of D this is equivalent to |rho(h,j)-k|<1/8.
+The signed-pair invariant in section 2 applies to each square here.
+Together with the early guards, this proves the IR's stated predicate
+for every natural input, not just the finite test cases.
+
+6. Lowering the IR to the primitive register program
+
+The Assembler uses increment, decrement-with-zero-branch and halt.
+Its macro proof is recorded in integer-halting-correctness-proof.txt.
+Here are the additional aliasing and termination checks for lowerIR.
+
+IR register 0 maps to primitive register 0. All other IR registers
+receive distinct fresh primitive registers, disjoint from the
+Assembler's zero register and from all subsequently allocated scratch
+registers. Every binary IR operation has a fresh output. Explicit
+assignment is implemented by the alias-safe copy macro. Constants
+are collected during construction and initialized before the body.
+
+setBig clears its output and follows the binary digits, doubling and
+optionally incrementing; the alias-safe addInto(out,out) implements
+doubling. Zero is handled by the single digit 0. Addition copies the
+first operand to the fresh output and adds the preserved second.
+Multiplication copies its first operand into a private count, repeatedly
+adds the preserved second to a cleared accumulator, and copies the
+result out. Subtraction copies its second operand into a private count
+before copying the first operand to the output, then applies that many
+saturating decrements. These loops are finite for all natural inputs.
+
+divmod2 copies its input before clearing outputs; its two outputs are
+fresh and distinct. It removes pairs until zero or one remains and
+returns floor(x/2) and x mod 2. ifNZ restores the tested register
+before its selected branch. ifLt compares private copies and preserves
+both operands. whileNZ repeats the preserving zero test; whileLT
+repeats the preserving comparison at its loop label. Structural
+induction on an IR block now gives exactly its intended control flow.
+
+accept jumps to a finite cleanup that clears every primitive register
+and then halts. reject jumps to a decrement instruction whose zero
+and nonzero successors are itself; hence it never halts. There is no
+other halt in the generated program. All arithmetic macro invocations
+terminate, so the primitive program halts exactly on the IR's accepting
+inputs, and it halts with all registers zero as required by H.
+
+7. Specialization and its exact binding to the saved polynomial
+
+Let eAcc be the integer in accuracy-program-code.hex. The verifier
+freshly constructs the IR, lowers it, and checks exact equality with
+accuracy-program-ir.json and accuracy-register-program.json. It then
+encodes the entire fresh program and compares its code with eAcc.
+Thus section 6 concerns the actual specialized program, not merely a
+similar algorithm. The hashes of all six relevant artifacts are in
+accuracy-binding-checks.json.
+
+By the natural halting theorem, H(eAcc,u,v)=0 has natural witnesses
+iff that program halts on u. The accuracy polynomial uses variables
+k,h,j,q,u,v and is exactly
+
+ H(eAcc,u,v)^2
+ +(2q-(h+j)(h+j+1)-2j)^2
+ +(2u-(k+q)(k+q+1)-2q)^2.
+
+A sum of integer squares is zero iff each is zero. The second and
+third terms therefore force q=pair(h,j) and u=pair(k,pair(h,j));
+conversely those natural choices exist for every k,h,j. Applying
+sections 3-6 and the theorem for H proves the statement at the top.
+
+verify-accuracy-binding.js checks every one of H's 293568 parent nodes
+after specializing e and shifting variable indices. It checks the
+unchanged power templates and every private witness-block shift. It
+then expands the small outer expression symbolically, treating H's
+root as an independent symbol, and verifies the displayed sum of
+squares. The variable audit gives 1305807 variables, of which 3 are
+inputs and 1305804 are natural witnesses. This adds precisely q,u to
+the 1305802 witnesses of H; the program parameter e is specialized.
+
+Finite execution tests in accuracy-program-checks.json supplement
+the proof. They are not its induction step and do not justify replacing
+natural witnesses by rational witnesses. That replacement still needs
+the exact elliptic integer model and its separate translation proof.

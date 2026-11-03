@@ -1,0 +1,488 @@
+A source-level proof of the six-contact height estimate
+3 November 2026
+
+This proves the height input used by the current candidate polynomial
+from the published arithmetic-geometric inputs listed below. It does
+not prove the restricted pointwise 2-converse, certificate completeness,
+or the correctness of the universal compiler. It is not a Lean proof.
+
+Statement and constants
+
+Let
+ C={0,-15,-20,-24,-30,-60},
+ F(u)=u(u+15)(u+20)(u+24)(u+30)(u+60),
+ G(u)=7u^2+300u+3600,
+ J(u)=-57600 F(u)^2/G(u)^6.
+Let S be any finite set of rational primes containing every prime at
+most 324. For u in Q outside C, define
+ M_S(u)=product of primes p outside S for which
+        v_p(u-c) is positive and odd for some c in C.
+The product is squarefree; an empty product is one. Negative valuations
+of u do not enter this definition.
+
+Put
+ n=324, d0=n!,
+ d=d0*3^(256*d0^4),
+ G0=116064000000,
+ E0=10*(d*G0)^2,
+ R=max(d,max(S),10^12),
+ Q0=R^(R*E0),
+ B(d)=d^2*3^(21000*d^2)+1,
+ C_CM(d)=2*B(d)+4096*(1028+5*d+84000*d^2),
+ H6(S)=2*10^13*max(1,C_CM(d),Q0^17).
+Then, for the absolute logarithmic rational height,
+                   h(u)<=H6(S)*M_S(u)^24.                 (1)
+
+The same conclusion holds with any larger R in the definition of Q0.
+This is the version needed when the certificate enlarges S.
+
+1. The fine quaternionic cover, including all components
+
+Use the indefinite division algebra B=(2,-3), with i^2=2, j^2=-3 and
+ij=-ji, and the maximal order
+ O=Z[i,(1+j)/2].
+Set mu=2j+ij, so mu^2=-6. On O put
+ psi(x,y)=Trd(mu^(-1)*x*bar(y)).
+Choose the half-plane and the sign of psi to give the positive
+polarization. In the basis 1,i,(1+j)/2,(i+ij)/2 its matrix is
+ [0,0,-1,1; 0,0,1,-2; 1,-1,0,0; -1,2,0,0].
+It is alternating, integral and has determinant one. Right
+multiplication is a symplectic similitude with multiplier Nrd.
+This is the principally polarized quaternionic moduli problem.
+
+The published discriminant-six description identifies the normalizer
+quotient with P^1_j. Its orbifold points are j=0,infinity,-16/27, of
+orders 4,6,2. The norm-one quotient V has signature (0;2,2,3,3);
+its Atkin--Lehner quotient has degree four. The forgetful map to
+principally polarized abelian surfaces factors through this quotient.
+
+These facts are in Baba--Granath, Section 3, the table in Section 3.1,
+and Proposition 10. Lin--Yang, introduction, equation (2), identifies
+the moduli coordinate by
+ [J2,J4,J6,J10]=[12(j+1),6(j^2+j+1),4(j^3-2j^2+1),j^3].
+In particular equal j-values give the same geometric polarized
+moduli point. At the rational u-values in (1), j is finite and nonzero.
+
+Now let K0=O_hat^* and
+ K3=ker(K0 -> (O/3O)^*).
+The associated Shimura curve Y3 carries full level three for its
+symplectic lattice, hence a universal abelian scheme. All components
+of Y3 are retained. It is important not to discard the component
+permutation when computing a degree over Q.
+
+Let N be the finite-adelic normalizer of O_hat. Conjugation by N
+preserves 3*O_hat, so N normalizes K3. Its quotient by central ideles
+and K0 has order four: at split primes the normalizer consists of
+central scalars times order units, while each of the two ramified
+primes contributes one parity of a uniformizer.
+
+Central finite ideles act trivially at level K3. To see this, multiply
+such an idele by a rational scalar to make it a unit at every finite
+prime. Its component at three is 1 or -1 modulo three. Changing the
+rational scalar's sign makes it 1 modulo three. The remaining central
+idele belongs to K3, and a rational central scalar acts trivially on
+the symmetric domain. Consequently
+ H=N/(A_f^* K3)
+acts on Y3 and
+ |H|<=4*|(O/3O)^*|<=4*81=324.                           (2)
+After removing any ineffective action the bound still holds.
+Its quotient is P^1_j. This argument counts the entire cover, including
+the permutations of its geometric components.
+
+The exact finite calculation in verify-six-contact.js gives 72 units
+in O/3O and 36 of norm one. Quotienting the units by the two central
+residues gives the stronger bound |H|<=144. We retain 324 in every
+constant of the candidate; no coefficient change is required.
+
+There are no elliptic stabilizers at level K3. Indeed a stabilizer
+lifts to a finite-order integral symplectic automorphism congruent to
+the identity modulo three, and that congruence kernel is torsion-free.
+The usual proof expands a prime-order power I+3^a X: reduction modulo
+3^(a+1), or 3^(a+2) for order three, contradicts X nonzero modulo three.
+This works over Z_3 as well as over Z.
+
+Thus each geometric component is a torsion-free orbifold cover of V.
+Since V has orbifold Euler characteristic -1/3, every such compact
+component has negative Euler characteristic, hence genus at least two.
+The ramification of Y3 -> P^1_j is exactly 4,6,2 at the three points
+above and nowhere else.
+
+2. Good integral models without increasing the cover degree
+
+Fix a prime p>324. Here B_p=M2(Q_p), O_p=M2(Z_p), psi is self-dual,
+and the p-component of K3 is hyperspecial. Right multiplication gives
+a closed reductive embedding into GSp: the matrix determines the
+multiplier on 1, and the equations for right multiplication are
+linear. Its group of units is GL2 over Z_p.
+
+Kisin's Theorem 2.3.8, with its setup in 2.3.1--2.3.5, supplies the
+smooth integral canonical models at sufficiently small prime-to-p
+levels, with finite etale transition maps and a map to integral
+Siegel moduli. Only p>2 is used here.
+
+One may descend from a sufficiently small auxiliary level to K3.
+This does not enlarge the final degree in (2). The K3 moduli problem
+already has no automorphisms: a polarized automorphism is of finite
+order; its action on the 3-adic Tate module is faithful; and full
+level three puts it in the torsion-free congruence kernel. The
+finite changes of auxiliary prime-to-p marking therefore act freely.
+Their quotients and the universal abelian schemes descend etale
+locally. This gives a smooth K3 model and its abelian scheme at p.
+An auxiliary level is only a construction of this model, not an
+additional level in the cover or in the constants.
+
+Properness requires a separate argument. An abelian surface with this
+B-action has potentially good reduction at a valuation. After finite
+extension it is semistable and the B-action is defined. If its toric
+part had positive dimension t, then 1<=t<=2 and its rational character
+space would be a nonzero unital B-module of dimension t. A division
+quaternion algebra has no nonzero module over Q of dimension below
+four. Thus t=0. This reasoning also applies at CM fibers; it uses
+only the specified B-action.
+
+Full level three now makes the finite inertia action trivial: a
+finite subgroup of I+3*M4(Z_3) is trivial. Neron--Ogg--Shafarevich
+gives good reduction over the trait itself, since p is not three.
+The polarization, the O-action and the prime-to-p level extend.
+The point stays in the closed moduli image, and its lift extends
+through the finite normalization defining the canonical model.
+This valuative argument proves properness. Equivalently it applies
+at an auxiliary fine level and properness descends to K3. Hence Y3
+has a smooth proper model at p with its abelian scheme.
+
+Every element of H extends to this model. One can use functoriality
+of the integral canonical model, or uniqueness of the smooth proper
+model on the genus-at-least-two components. The finite etale scheme
+of components also extends their permutation action.
+
+Since p>|H|, this action is tame. For a nonidentity stabilizer element,
+the derivative at a fixed point is a nontrivial root of unity.
+A finite-order power series of order prime to p with derivative one
+is the identity. The fixed-point equation therefore has invertible
+linear term, so each fixed point lifts uniquely and its fixed locus
+is finite etale over the trait. Reduction is faithful for this tame
+action; an automorphism trivial modulo p would be trivial modulo
+every power of p by expanding its prime-to-p order.
+
+These observations also prevent collisions of branch orbits.
+A stabilizer embeds faithfully in the multiplicative group of the
+tangent line and is cyclic. A generator at a special point has its
+unique fixed lift. All powers fix that lift, so the same stabilizer
+occurs generically. Two generic branch orbits cannot merge without
+creating a larger special stabilizer or violating uniqueness of a
+fixed lift. Thus the quotient is smooth and the three branch
+sections remain disjoint, with the same inertia orders 4,6,2.
+
+The quotient has genus zero and these rational sections, so it is
+P^1 over Z_p. The stated coordinate j gives this integral model:
+0,infinity,-16/27 are disjoint over Z_p, since 2 and 3 are units.
+The coordinate transformation fixed by these three sections is an
+integral projective linear transformation. There is therefore no
+unaccounted denominator prime greater than 324.
+
+3. Pullback to the six contacts
+
+Put
+ H(u)=(u^2-60u-1800)(13u^2+480u+3600)
+                         (11u^2+600u+7200).
+Exact polynomial arithmetic gives
+                G(u)^6-97200*F(u)^2=H(u)^2.              (3)
+The degree-twelve map J has six simple roots of F over 0, of
+ramification index two; two roots of G over infinity, of index six;
+and six roots of H over -16/27, of index two. Their ramification
+contribution is 6+10+6=22=2*12-2, so there are no others.
+
+The discriminants and pairwise resultants of G and the three
+quadratics in H have prime support in {2,3,5}. The same is true
+of G(c) for c in C and of differences of contacts. Their leading
+coefficients are units for p>324. Equation (3) and these tests show
+that the three fibers stay disjoint and separable in those residue
+characteristics, including their projective points.
+
+Let Z be the normalization of Y3 pulled back by J. Base change and
+normalization do not increase the degree over the new base, so
+                  deg(Z -> P^1_u)<=324.                  (4)
+This is not multiplied by twelve.
+
+For a tame cover of local index e and a base change of index a, the
+normalized local index is e/gcd(e,a). More explicitly, after an
+unramified extension and extracting roots of units, the equation
+z^e=v^a splits into gcd(e,a) branches with
+ v=w^(e/gcd(e,a)), z=zeta*w^(a/gcd(e,a)).
+Their local rings are smooth power-series rings over the base DVR.
+Here the remaining indices are 2,1,1 over the three fibers in (3).
+Consequently Z is smooth and proper at every p>324, and its only
+branch divisor over u consists of the six sections C, all of index
+two. It carries the pulled-back abelian scheme.
+
+Locally at a contact the map has equation u-c=z^2 after unramified
+extension. A rational specialization with positive even valuation
+of u-c therefore lifts over an unramified extension; units acquire
+square roots unramifiedly. Away from the contacts the map is etale.
+If v_p(u)<0, its reduction is infinity, which is not a contact, so
+this case also causes no ramification. This proves precisely the
+odd-contact rule defining M_S in (1).
+
+4. Bounded fiber and Hom fields
+
+Write M=M_S(u) and T=S union {prime divisors of M}. The splitting
+field K0 of the finite etale fiber of (4) has degree at most d0=324!.
+It is Galois and unramified outside T by the local calculation.
+Choose a fiber A/K0. Properness and the abelian scheme show that A
+has good reduction at every place outside S, even when K0 ramifies
+at a prime dividing M. Its Galois conjugates have the same j-value,
+hence are geometrically isomorphic as polarized abelian surfaces.
+
+There are at most d0 conjugates. The direct sum of the geometric
+Hom groups between every ordered pair has rank at most 16*d0^2:
+each Hom embeds in the homomorphisms of integral rank-four homology.
+The Galois image on this lattice is finite. Its kernel inside G_K0
+is normal in G_Q because G_Q permutes the ordered pairs.
+
+Every finite subgroup of GL_r(Z) injects modulo three, by the
+torsion-free congruence-kernel argument above. The resulting Galois
+Hom field L therefore has
+ [L:Q]<=d0*3^((16*d0^2)^2)=d.
+At a prime outside T, inertia already acts trivially on the Tate
+modules of every conjugate, so it acts trivially on this Hom lattice.
+Thus L is unramified outside T. All geometric homomorphisms and the
+B-action are defined over L, and A remains good outside S.
+
+5. The arithmetic height bound for these fibers
+
+The arguments in effective-cm-height-bound.txt and
+explicit-noncm-height-bound.txt apply with this d and S. The following
+checks identify their hypotheses and close their use for this family.
+
+On rational homology the prescribed B acts by left multiplication.
+Its commuting Hodge endomorphisms are the elements of right B that
+commute with the complex structure. They form either Q or an
+imaginary quadratic field k. Indeed the real centralizer of the
+complex structure is C, and a nonrational element of the rational
+division algebra in that centralizer generates an imaginary
+quadratic field. The full geometric endomorphism algebra is
+B tensor this centralizer.
+
+In the quadratic case it is M2(k), since a maximal quadratic
+subfield splits B. Matrix units are defined over L. Their images
+give a CM elliptic curve E/L and an L-isogeny A~E^2. The bound in
+effective-cm-height-bound.txt therefore gives
+                        h_F(A)<=C_CM(d).                 (5)
+Its required input, Fowler's Proposition 2.7, applies to all
+imaginary quadratic orders. The exact constant and the original
+stable height convention were checked against the published
+sources in height-primary-input-review.txt.
+
+In the other case End^0(A)=B and A is absolutely simple. The
+conjugacy isogenies can be chosen B-linear by Skolem--Noether.
+Their composition discrepancy is rational. Dividing each isogeny
+by the positive fourth root of its degree reduces this discrepancy
+to a sign cocycle epsilon on Gal(L/Q).
+
+Here is the control needed in the descent argument. View epsilon
+as a two-torsion Brauer class. It is locally zero outside T because
+there it factors through the unramified quotient. The square-root
+obstruction for a finite local character is nonzero exactly when
+the character takes value -1 on -1 in local reciprocity. At each
+odd prime with nonzero invariant choose an odd character modulo
+that prime; at two use the character modulo four if needed.
+Their global product chi has the required obstruction at the
+finite primes and hence also at infinity by Brauer reciprocity.
+Its order m satisfies
+             m<=2*product_(q in T, q odd)(q-1)
+               <=2*R^R*M.
+
+A continuous square-root cochain can consequently be corrected
+by signs to beta with beta^2=chi and delta(beta)=epsilon.
+On G_L it is a conjugacy-invariant character. Outside T its
+nontrivial inertia restrictions, if any, are quadratic at finitely
+many odd primes. The quadratic character of the product of those
+primes cancels them, introducing possible ramification only at two,
+which is already in S. It changes neither chi nor the value group
+mu_(2m). Set L' to be the kernel field of beta restricted to G_L.
+Then L'/Q is Galois and
+                    [L':Q]<=2*m*d<=Q0*M.                 (6)
+
+For coefficient primes ell=5 and ell=3, the corrected conjugacy
+action on V_ell(A) commutes with B and splits over a coefficient
+extension as r_ell plus r_ell, with r_ell two-dimensional.
+On G_L' it is the actual Tate action. Faltings' semisimplicity and
+endomorphism theorem make r_ell absolutely irreducible: the
+commutant of the four-dimensional action is M2 and the multiplicity
+representation has scalar commutant. The representation is de Rham,
+with cyclotomic exponents 0,1, by finite descent of the de Rham
+property. Complex conjugation followed by a holomorphic isogeny
+exchanges the two Hodge subspaces, so it cannot be scalar; its
+eigenvalues on r_ell are 1,-1.
+
+Pan's Theorem 1.0.4 at p=5 now gives a weight-two newform f.
+There is no extra residual-image condition at this coefficient
+prime. Comparing the traces of reduction of the same conjugacy
+isogeny followed by relative Frobenius identifies r_3 with the
+three-adic representation of this same f. Endomorphism traces
+are rational and independent of ell; Chebotarev then gives the
+identification. Thus r_3 can measure its conductor at five.
+
+For completeness the uniform conductor calculation is as follows.
+At a rational prime q, put F_local=L_v and adjoin full three-torsion,
+or full five-torsion if q=3. The extension has degree at most d*G0
+over Q_q. It gives semistable reduction and trivial wild Tate action.
+For a local extension of degree a, its normal closure has no upper
+ramification above 4*a^2. This follows from the different bound
+d_F/e<=1-1/e+v_q(e), the integral different formula, and e<=a!
+in the normal closure. Hence
+ U0=4*(d*G0)^2
+kills the wild Tate action in absolute upper numbering.
+
+At odd q the square of beta on principal units is trivial and a
+pro-q group has no nontrivial sign character. At q=2, beta on units
+has order at most four; the local logarithm gives
+ (U_F^(e+1))^4=U_F^(3*e+1).
+Thus its relative break is at most 3e<=3d, also below U0 after
+upper-numbering comparison. The conductor of r_ell is therefore
+at most 2+2U0<=E0 at every q. At q>R, the bounded-degree extension
+L has trivial wild inertia and A is good; the representation is
+tame, with conductor at most two. It is unramified outside T.
+The primitive level of f consequently satisfies
+                         N<=Q0*M^2.                      (7)
+
+The shared Tate constituent and Faltings' Hom theorem give a
+nonzero L'-homomorphism A -> J_1(N). Absolute simplicity gives
+finite kernel, so Poincare reducibility supplies
+ J_1(N)~A*D0 over L'.
+Invariants in the finite-dimensional Hom space commute with
+coefficient extension; thus the shared constituent really does
+give a rational Hom, not only a coefficient-field morphism.
+
+The remaining numerical transfer is explicit. Write J=J_1(N).
+The genus and the degree of its standard Belyi map are at most N^2.
+Javanpeykar's Theorem 1.1.1 gives h_F(J)<=13000000*N^12.
+Zarhin's trick on the complementary factor gives
+ C1=J^8 ~ C2=A^8*DZ over L',
+with DZ principally polarized. If g=dim C1 and d'=[L':Q], then
+ g<=Q0^3*M^4, d'<=Q0*M, h_F(C1)<=Q0^13*M^24.
+
+Gaudron--Remond's Theorem 1.4 uses the original stable Faltings
+height and gives an isogeny C1 -> C2 with
+ log(deg phi)<=1024*g^3*(64*g^2*log(14g)+log(d')
+                    +2*log max(h_F(C1),log(d'),1)).
+Using log(M)<=M^4/4 and log(Q0)<=Q0, the three logarithms are at
+most 5*Q0*M^4, 2*Q0*M^4 and 19*Q0*M^4 respectively. Consequently
+ log(deg phi)<=368640*Q0^16*M^24<=Q0^17*M^24.
+The exact published constant and normalization were checked in
+height-primary-input-review.txt.
+
+The lower bound h_F(DZ)>=-2g, additivity, and height variation under
+isogeny give
+ 8*h_F(A)<=Q0^13*M^24+(1/2)*Q0^17*M^24+2*Q0^3*M^4
+          <=Q0^17*M^24.
+In particular
+                    max(1,h_F(A))<=Q0^17*M^24             (8)
+in the non-CM case. No prime-two Fontaine--Mazur theorem or
+pointwise 2-converse was used in (5)--(8).
+
+6. The explicit comparison with the base coordinate
+
+The full coordinate calculation is in six-contact-height-model.txt,
+Sections 5--7. Its inputs have been checked with their normalizations.
+Writing z_m for the ten even theta constants, they give
+          j=3779136*(product z_m)^4/(sum z_m^8)^5.
+Both homogeneous polynomials have degree forty, with coefficient
+norms 3779136 and 10^5. Therefore
+                 h(j)<=40*h([z_m])+22.                   (9)
+
+These are Pazuki's r=2 coordinates at the zero section: the sixteen
+half-characteristic theta values consist of these ten and six zeros.
+The quarter-period translation lifts differ from the analytic
+characteristic sections only by roots of unity, and meet the
+composition and half-period compatibility in his good-choice
+definition. There is no uncontrolled change-of-basis matrix.
+Ordinary projective height is at most the Fubini--Study height.
+
+For surfaces, Pazuki's Deligne-normalized height is the original
+stable height plus log(pi). His Corollary 1.3 consequently gives
+ h([z_m])<=10000*2^24*max(1,h_F(A)).
+Here the corollary's constant is at most 1000*2^24; the elementary
+bound log(3x+2)<=2x for x>=1 absorbs the normalization and logarithm.
+
+Set P=-57600*F^2 and Q=G^6. Their coefficient l1 norms are
+ 14533295809536000000 and 3556808369970021551449,
+both less than 4000^6. The nonzero polynomial P(X)-jQ(X) has u as
+a root, so the elementary root-height estimate gives
+ h(u)<=h(j)+log(4*4000^6)<h(j)+74.
+There is no exceptional rational indeterminacy: G has negative
+discriminant, and F(u) is nonzero by the statement's hypothesis.
+Combining with (9),
+                     h(u)<10^13*max(1,h_F(A)).           (10)
+
+Equations (5), (8), and (10), with M>=1, prove (1). The extra factor
+two in H6 is conservative and agrees with the already generated
+candidate expression.
+
+7. Evidence and scope
+
+The finite verifier checks the rational-map identity, discriminants,
+resultants, contact separation, coefficient norms, pairing, and
+level-three ring calculation. It does not test the theorems about
+Shimura varieties, modularity or heights. Those enter the written
+proof as the named published results with the hypotheses checked
+above. The height argument is independent of the new restricted
+pointwise 2-converse.
+
+This establishes the six-contact replacement used by the candidate.
+It does not compute the missing theta comparison for the original
+discriminant-210 five-contact family. The current universal
+polynomial still requires the pointwise-converse and compiler
+reviews before its universality is established.
+
+Primary references
+
+Baba--Granath, Genus 2 Curves with Quaternionic Multiplication,
+Section 3 and Proposition 10:
+ https://webdoc.sub.gwdg.de/ebook/serien/e/mpi_mathematik/2005/18.pdf
+
+Lin--Yang, Quaternionic loci in Siegel's modular threefold,
+introduction equation (2), and equation (14):
+ https://arxiv.org/pdf/1807.00466
+
+Kisin, Integral models for Shimura varieties of abelian type,
+Theorem 2.3.8 and its setup in Section 2.3:
+ https://doi.org/10.1090/S0894-0347-10-00667-3
+ https://dash.harvard.edu/bitstreams/7312037c-6eb2-6bd4-e053-0100007fdf3b/download
+The original paper was downloaded and Section 2.3 was read in this
+review; its theorem is not a blanket assertion of properness.
+
+Pan, The Fontaine--Mazur conjecture in the residually reducible case,
+Theorem 1.0.4:
+ https://arxiv.org/pdf/1901.07166v2
+
+Silverberg--Zarhin, Semistable reduction and torsion subgroups of
+abelian varieties, Theorem 3.5:
+ https://www.numdam.org/article/AIF_1995__45_2_403_0.pdf
+
+Fowler, Some uniform effective results on Andre--Oort for sums of
+powers in C^n, Proposition 2.7:
+ https://doi.org/10.1017/S0305004125101825
+
+Javanpeykar, Polynomial bounds for Arakelov invariants of Belyi
+curves, Theorem 1.1.1:
+ https://arxiv.org/pdf/1403.6404
+
+Gaudron--Remond, Polarisations et isogenies, definition on page 2058
+and Theorem 1.4 on page 2060:
+ https://lmbp.uca.fr/~gaudron/art13.pdf
+ https://doi.org/10.1215/00127094-2782528
+
+Lauter--Naehrig--Yang, Section 2.2, theta formulas:
+ https://people.math.wisc.edu/~tonghaiyang/2015-LNYFinal-JNT.pdf
+
+Pazuki, Theta height and Faltings height, Sections 2.3.1--2.3.4
+and Corollary 1.3:
+ https://www.numdam.org/item/10.24033/bsmf.2623.pdf
+
+The descent arrangement was audited against the pinned H10 source:
+ https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/Hilberts-tenth-problem-over-the-rational-numbers-October-6-2026/build/sections/04-height.tex
+The specific discriminant-six geometry, explicit constants and
+coefficient-prime substitution in this note are the required
+specialization of that arrangement.
+

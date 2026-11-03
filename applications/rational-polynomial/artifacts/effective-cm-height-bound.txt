@@ -1,0 +1,175 @@
+An effective bound for the CM fibers in the five-contact argument
+2 November 2026
+
+Result
+------
+The CM finiteness step in the height proof can be made effective using
+published results. It does not require the new pointwise 2-converse,
+prime-two Fontaine--Mazur, or the exclusion of Landau--Siegel zeros.
+
+For an integer d>=1 define
+  B(d)=d^2 * 3^(21000 d^2) + 1,
+  C_CM(d)=2 B(d)+4096(1028+5d+84000d^2).
+
+If a CM elliptic curve E is defined over a number field L of degree
+at most d, then its original stable Faltings height satisfies
+  h_F(E) <= B(d).                                      (1)
+If an abelian surface A/L is L-isogenous to E^2, then
+  h_F(A) <= C_CM(d).                                   (2)
+
+These deliberately large bounds replace an unspecified finite maximum
+over CM invariants. They do not yet determine the full constant H_S
+in the five-contact height inequality.
+
+1. An effective discriminant input
+----------------------------------
+Let Delta<0 be the discriminant of an imaginary quadratic order and
+h(Delta) its class number. Guy Fowler's published Proposition 2.7 gives
+  h(Delta)<=d  =>  sqrt(|Delta|)<=2d^2 exp(21000d^2).     (3)
+
+This proposition applies to every such order, including orders in any
+possible exceptional quadratic field. Its proof uses the effective
+Goldfeld--Gross--Zagier--Oesterle bound and the order class-number formula.
+It does not use the exception-dependent bound in Proposition 2.5.
+
+Reference: Guy Fowler, "Some uniform effective results on Andre--Oort
+for sums of powers in C^n", Math. Proc. Cambridge Philos. Soc. 180
+(2026), 607--641, Proposition 2.7.
+https://doi.org/10.1017/S0305004125101825
+
+For a CM elliptic curve the degree of its j-invariant over Q equals
+h(Delta). Since j(E) belongs to L, this degree is at most d, so (3)
+applies to its endomorphism order.
+
+2. A direct upper bound for the elliptic Faltings height
+-------------------------------------------------------
+Use the original Faltings normalization, with archimedean metric
+(i/2) integral omega wedge conjugate(omega).
+
+A CM elliptic curve acquires everywhere good reduction over a finite
+extension because its j-invariant is integral. Over such an extension,
+the finite discriminant term in Silverman's height formula is zero.
+For each complex embedding choose a reduced period
+  tau=(-b+i sqrt(|Delta|))/(2a),
+where (a,b,c) is a reduced positive primitive quadratic form of
+discriminant Delta. Write y=Im(tau), q=exp(2 pi i tau). Then
+  sqrt(3)/2 <= y <= sqrt(|Delta|)/2.
+
+The contribution at this embedding in the original stable height is
+  -log(2 pi) + (pi y)/6 - (1/2)log y
+      -2 sum_{n>=1} log|1-q^n|.                        (4)
+The stable height is the average of these contributions.
+This is the general Silverman formula, not a use of a formula requiring
+the initial Weierstrass coefficients to lie in Q(j(E)).
+
+For completeness, the constants in (4) can be bounded directly.
+Since pi>3 and sqrt(3)>5/3, we have pi sqrt(3)>5.
+Also exp(5)>100, for example from exp(1)>8/3. Thus
+  rho=|q| <= exp(-pi sqrt(3)) < 1/100.
+For 0<=u<1, -log(1-u)<=u/(1-u), so
+  -2 sum log|1-q^n|
+    <= 2 sum rho^n/(1-rho^n)
+    <= 2 rho/(1-rho)^2
+    < 200/9801.
+Further,
+  -(1/2)log y <= (1/2)log(2/sqrt(3))
+               < (1/2)log(6/5) < 1/10.
+Dropping the negative term -log(2 pi), the total contribution is less
+than pi sqrt(|Delta|)/12 + 1. Averaging gives
+  h_F(E) <= pi sqrt(|Delta|)/12 + 1.
+
+Apply (3), pi<6, and exp(1)<3 to obtain (1):
+  h_F(E) <= (pi/6)d^2 exp(21000d^2)+1
+          <= d^2 3^(21000d^2)+1.
+
+Source for the normalization and the general height formula:
+Barquero-Sanchez, Cadwallader, Cannon, Genao and Masri,
+"Faltings heights of CM elliptic curves and special Gamma values",
+Research in Number Theory 3, 13 (2017), equation (6.2).
+https://link.springer.com/article/10.1007/s40993-017-0077-7#Sec6
+
+3. Transfer to the abelian surface
+---------------------------------
+Let E^2 and A be L-isogenous, with [L:Q]<=d. Additivity gives
+  h_F(E^2)<=2B(d).
+Gaudron--Remond's isogeny bound, in dimension two and with source E^2,
+provides an L-isogeny from E^2 to A of degree at most
+  (28^256 d max(h_F(E^2),log d,1)^2)^8192.
+The maximum is at most 2B(d). The height inequality for an isogeny
+therefore gives
+  h_F(A) <= 2B(d)
+             +4096(256 log28 + log d + 2 log(2B(d))).    (5)
+
+Put N=21000d^2. Since B(d)<=2d^2 3^N, we have
+  log(2B(d)) <= log4 + 2log d + N log3
+              <= 2+2d+42000d^2.
+Also log28<4 and log d<=d. Substitution into (5) proves (2).
+
+The isogeny bound uses the stable height and does not require the
+source E^2 to have good reduction over the original field L. Passing
+to a good-reduction extension in section 2 computes the same stable
+height and does not enlarge d in the application of the isogeny theorem.
+
+Reference: Gaudron--Remond, "Polarisations et isogenies",
+Theorem 1.4 and its definition of kappa.
+https://lmbp.uca.fr/~gaudron/art13.pdf
+
+4. Making the Hom-field degree explicit in terms of the cover degree
+--------------------------------------------------------------------
+Let n be the degree of the fixed finite cover pi:Y -> P^1 in the
+five-contact construction. For a nonbranch rational base point, its
+fiber splitting field K_0 has degree d_0<=n!.
+
+Every conjugate of the chosen surface is defined over K_0, so there
+are at most d_0 conjugates. A geometric Hom group between two abelian
+surfaces has Z-rank at most 16: its action on integral homology embeds
+it in Hom_Z(Z^4,Z^4). Consequently the direct sum over all ordered
+pairs has rank r<=16d_0^2.
+
+The finite Galois image on this lattice injects into GL_r(F_3).
+Here is the elementary reason. A nonidentity finite-order integral
+matrix congruent to I modulo 3 would have a nonidentity prime-order
+power H=I+3^s A, with s>=1 and A not zero modulo 3. If its prime order
+q differs from 3, expanding H^q modulo 3^(s+1) is a contradiction.
+If q=3, expanding modulo 3^(s+2) is again a contradiction. Thus the
+principal level-three subgroup has no nontrivial torsion.
+
+The Hom-field L used in the source is the fixed field of the kernel
+of this action inside G_{K_0}. It follows that
+  [L:Q] <= d_0 * 3^(r^2)
+          <= n! * 3^(256(n!)^4).                        (6)
+Normality and the unramified-outside-T property are as in the source's
+Hom-field construction; this calculation supplies its numerical degree
+bound. Let d_n denote the final integer in (6).
+
+In the source's CM case, End^0(A)=M_2(k). All geometric endomorphisms
+are defined over L. Taking the image of a multiple of a rank-one
+idempotent produces E/L, and the matrix units give A~_L E^2.
+Thus (2) applies with d=d_n.
+
+5. Consequence for the five-contact estimate
+--------------------------------------------
+The subsequent explicit-height-cover.txt gives the numerical bound
+  n0=16*9318960^4=120667349406998676479016960000
+for the cover degree. It may replace n in (6), hence also in d_n and
+the CM bounds below. The base-height comparison and non-CM constants
+are still not calculated.
+
+Suppose the base-to-moduli comparison has been made explicit as
+  h(s) <= C_base max(1,h_F(A)).
+Then the CM fibers satisfy
+  h(s) <= C_base C_CM(d_n).
+Since the contact radical M_S(s)>=1, this contribution is absorbed
+in the desired h(s)<=H_S M_S(s)^24 by taking
+  H_S >= C_base C_CM(d_n).
+
+This removes the particular use of ineffective CM finiteness in
+lines 669--680 of the frozen height source. The cover degree now has
+the bound stated above. C_base, the full exceptional set and the
+non-CM constants are still not calculated. Those computations and the remaining proof audit are
+still needed before a numerical A>=H_S can be used in
+T=(48A)^13.
+
+Frozen height source:
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/Hilberts-tenth-problem-over-the-rational-numbers-October-6-2026/build/sections/04-height.tex#L658
+

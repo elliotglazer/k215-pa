@@ -1,0 +1,312 @@
+CYCLOTOMIC LOWER BOUND AND MISSING-VERTEX TRANSFER: NON-CM AUDIT
+2 November 2026
+
+Scope
+-----
+This note checks the non-CM case of cy:lower-bound and cy:missing-vertex
+in cyclotomic.tex, openai/math commit
+4eaee87548250b2682affda7d05d947c05554bae:
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/A-pointwise-2-converse-for-elliptic-curves-with-rational-two-torsion-October-7-2026/build/sections/cyclotomic.tex
+
+It is a source-level mathematical audit with classical cohomological and
+Euler-system theorems as inputs. It is not a Lean formalization.
+The non-CM restriction suffices for every E_l in the pole predicate:
+j(E_l)=35152/9 is not an algebraic integer.
+
+The main external inputs are compact global and local duality, the
+cyclotomic mu=0 theorem for abelian fields, Kato's fixed-form zeta
+classes and rational divisibility, and the forward analytic-rank-zero
+theorem. Kato's relevant results are 8.9-8.12, 9.7, 12.5(3), and
+12.8.2. The p!=2 hypothesis of 12.5(4) is not imported into 12.5(3),
+nor is the integral assertion of (4) used:
+https://www.numdam.org/article/AST_2004__295__117_0.pdf
+
+This audit does not cover the separate CM replacement for rational
+divisibility in the general pointwise paper.
+
+1. Two coefficient rings and their intersection
+-----------------------------------------------
+Let Lambda=Z_2[[t]], O=completion of Lambda_(2), and kappa=F_2((t)).
+Let G be a finite elementary abelian 2-group.
+
+There is no evaluation at t=0 on all of O. Evaluation is used only after
+characterwise membership in Lambda[1/2] has been proved.
+
+Suppose u is in O[1/2][G], every character value u_x is in Lambda[1/2],
+and 2^C u is in O[G]. Fourier inversion initially puts each group-basis
+coefficient in Lambda[1/2], possibly with a denominator involving |G|.
+But O intersect Lambda[1/2]=Lambda: a power series with a bounded
+2-denominator has O-valuation equal to the minimum coefficient valuation.
+Applying the intersection to 2^C u gives
+
+                         2^C u in Lambda[G]
+
+with the original C, without retaining the Fourier denominator.
+
+For z in Z_2[G], its values on the Boolean character cube have the form
+a_empty+sum_(I nonempty)2^|I| a_I x_I. The jth binary digit is the
+coefficient of Y^(2^j) in (1+Y)^z modulo 2. A contribution using x_I
+costs at least 2^|I| in Y-degree, hence the resulting Boolean polynomial
+has degree at most 2^j. Consequently r congruences modulo 2^M require
+Boolean equations of total degree at most r(2^M-1). If b is larger,
+their common-zero indicator has even sum over F_2^b. Since zero is a
+solution, a nonzero solution exists. This proves cy:binary.
+
+2. The positive complex
+-----------------------
+Use the fiber of global cochains mapping to ordinary real cochains,
+with no finite-place Selmer condition. All family characters have
+the same real sign.
+
+At finite Artin coefficient quotients, continuous cochains are flat
+coefficient modules, obtained from finite partitions. The global-to-real
+restriction is an isomorphism in sufficiently high degrees. Residual
+cohomology is therefore bounded and finite. A composition series
+extends the amplitude bound to finite coefficients. Cancel invertible
+disks in a free resolution; the minimal model has precisely the residual
+cohomology ranks. Nilpotence lifts the cancellations, and compatible
+basis changes give a finite free model over Lambda[G]. The same
+cochain construction gives derived coefficient change. No rank bound
+uniform in the growing support is asserted at this step.
+
+The invariant real line in the elliptic representation gives a connecting
+class a. There are no rational global invariants, so this is injective
+on its rational line. Its lattice index is fixed by E and the real sign.
+Real H^1 is killed by 2; hence twice any ordinary global class has a
+positive lift. Different lifts change its wedge with a by zero.
+
+3. Exact rank two after localization at (2)
+------------------------------------------
+First take a trivial residual constituent. In the real cyclotomic layer
+K_n of degree d_n=2^n:
+* the number s_n of places over a fixed finite support is bounded;
+* the 2-rank c_n of its S-class group is bounded, by cyclotomic mu=0
+  and the Iwasawa structure/control theorem;
+* unit signatures surject onto all d_n real signs.
+
+For the last assertion, if zeta has order 2^(n+2), the unit
+1+zeta+zeta^(-1) has norm -1. Indeed the recursively defined minimal
+polynomial f_(n+1)(X)=f_n(X^2-2), f_1=X^2-2, has f_n(-1)=-1.
+The signature vector thus has odd augmentation. In the group algebra
+of the cyclic 2-group over F_2 it is a unit, so its translates span
+all signatures. For n=0 use -1.
+
+Kummer theory gives dim H^1=d_n+s_n+c_n. Its real restriction is
+surjective. The kernel in H^2 has dimension c_n+s_n-1, using the
+single Brauer sum relation and the finite place over 2. Thus the
+positive fiber has H^1 dimension d_n+O(1) and bounded cohomology in
+other degrees. Derived specialization of a perfect F_2[[t]] complex
+modulo t^(2^n) makes rank r contribute r*2^n+O(1). After inverting t,
+one trivial constituent therefore contributes exactly one dimension
+in degree one.
+
+Extensions preserve this concentration. For E[2] there are two trivial
+constituents. A minimal model over the local ring O[G] consequently
+has just O[G]^2 in degree one. This is exact freeness, with no new
+lattice index and no dependence on the support size.
+
+4. Fixed-form classes before taking characters
+----------------------------------------------
+Kato's auxiliary traces land in the lattice of the one fixed modular
+form of E. Projection to T_2E costs a fixed power of 2. It does not
+require projecting separately to integral lattices of varying twists.
+
+At cyclotomic level m*2^n, push the induced coefficient module by
+
+ [sigma] |-> chi_h0(sigma)[sigma|Gamma_n][psi(sigma)].
+
+This is an integral module map. There is neither division by |G| nor
+an assertion that arbitrary cohomology classes lift under specialization.
+Kato's norm relations give an actual inverse-system class; the prime 2
+is already omitted, so passing up its tower introduces no new Euler
+factor.
+
+The smoothing factors in weight two are
+(c^2-c*sigma_c)(d^2-d*sigma_d). Choose c,d trivial on all tame characters
+and c,d=1+2^e modulo 2^(e+1), for a fixed sufficiently large e.
+Their cyclotomic exponents have valuation e-2. Modulo the maximal ideal
+of O[G], 1-(1+t)^kappa(c) is nonzero in F_2((t)). Each smoothing factor
+is therefore a unit in O[G]. Its central value has valuation e.
+The integers vary with the tame modulus; these two valuation properties
+do not. This gives a uniform integral bound after unsmoothing at (2).
+
+The central reciprocity formula for this actual fixed-form class z is
+
+ v(exp_2^* z_h(0))
+   = v(L_*(h)) + sum_(q unused) v(#E^h(F_q)) + O_E(1),       (1)
+
+with zero dual exponential when the central L-value is zero.
+The character sum is unnormalized. Its odd quadratic Gauss sum gives
+sqrt(|h|), a 2-adic unit, and the period line is that of the fixed form.
+At an unused good prime the Euler factor is #E^h(F_q)/q. At a ramified
+good prime the L-factor is 1. These account for all varying factors.
+Fixed local twists at 2N have only finitely many possibilities.
+
+5. Rational divisibility and local corrections
+----------------------------------------------
+Primary-source scope check (3 November 2026): see
+restricted-converse-primary-input-checks.txt. Kato 12.5(3) permits
+coefficient prime two; 12.5(4) does not. This confirms the cited
+rational statement's range, not the separate uniform integral bound.
+
+Work now characterwise over A=Lambda[1/2]. Kato 12.5(3) gives the
+rational height-one divisibility, with its local H^2 correction at 2.
+For non-CM E, the open-image input is an open subgroup of SL_2,
+as in 12.8.2. Full residual image and the stronger integral theorem
+12.5(4) are not required.
+
+For an odd place, the localization cone from j_* cohomology to full
+global cohomology is the degree-(1,2) complex
+
+ W_q tensor A --(1-gamma_q*Fr)--> W_q tensor A,
+                       W_q=H^1(I_q,V_h).
+
+The cyclotomic exponent at an odd q is nonzero. Its determinant D_q
+is nonzero, so the map is injective even after localization at a
+height-one prime dividing D_q. Localization is not reduction.
+The cone has H^1=0 and H^2 length v(D_q). Thus the increase in global
+H^2 length is at most that local length; the localization sequence
+does not need a vanishing H^3 hypothesis.
+
+At an unused good prime,
+ D_q=P_q(chi_h(q)gamma_q), P_q(Z)=1-a_q Z/q+Z^2/q.
+At an active good prime inertia is -1 rationally, W_q=0, and D_q=1.
+
+At bad primes W_q must not be replaced indiscriminately by V_h^I(-1).
+For split multiplicative reduction it is Q_2(-1), giving 1-gamma_q/q,
+whose central value is nonzero. Generally local duality and the
+finiteness of local elliptic torsion give H^2(Q_q,V_h)=0; hence D_q(0)
+is nonzero. The finite local twisting list therefore admits fixed
+correction factors with nonzero central values.
+
+Compare the fixed-form zeta class with a generator of the rational
+Kato line only after taking a character. Rank-one cohomology and the
+reciprocity laws show that their quotient is a nonzero scalar, a
+group-like unit, and exactly the omitted Euler factors. Infinitely
+many nonvanishing finite-order cyclotomic tests identify the quotient:
+after denominators are cleared, Weierstrass preparation forbids
+infinitely many zeros of a nonzero bounded-denominator power series.
+The scalar need not have bounded 2-valuation; it is a unit in A.
+Uniform integrality is supplied by section 4, not this comparison.
+
+Multiplying by all unused D_q pays for their H^2 length increments.
+A fixed multiplier F_2 pays for the local Iwasawa H^2 at 2. It may be
+chosen with F_2(0)!=0: derived local control and H^2(Q_2,V_h)=0 exclude
+a t-factor. Further fixed bad-prime discrepancies are covered by one
+fixed F_E with F_E(0)!=0. The corrected class satisfies, at each
+height-one prime of A,
+
+              length H^2 <= length(H^1 / A*z).       (2)
+
+6. Reconciling Euler conventions integrally
+-------------------------------------------
+If the trace convention reverses Frobenius, both P_q(Z) and
+Z^2 P_q(Z^(-1)) are units in O[G]. Their difference is
+((q-1)/q)(1-Z^2), divisible by 2. Let r_q be the required ratio;
+then r_q-1 is divisible by 2.
+
+For the universal inertia element g_q, use
+
+               1 + ((r_q-1)/2)(1+g_q).
+
+This is a unit in O[G]. At an active character it equals 1; at an
+unused character it equals r_q. Its unused central value is 1 because
+Z=+1 or -1 there. Hence multiplying these corrections introduces no
+loss per prime, and does not change (1). One must perform this check
+before character evaluation; a separate factor 1/2 for each prime
+would destroy the desired uniformity.
+
+7. The determinant coordinate
+-----------------------------
+In the inverse determinant of the positive complex, define u by the
+wedge of a and a positive lift of 2z. The real line introduces no
+height-one torsion over A. Inequality (2) therefore makes u_x regular
+at every height-one prime other than (2). Normality gives
+
+                          u_x in Lambda[1/2].
+
+The exact free rank-two model over O[G] and the fixed integral
+construction give 2^Cint u in O[G], with Cint independent of all new
+primes, the base discriminant and the cube dimension. Section 1 then
+gives 2^Cint u in Lambda[G]. The choice of determinant basis changes
+only an integral unit.
+
+8. Central specialization at a corank-zero constituent
+------------------------------------------------------
+Corank zero already implies Mordell--Weil rank zero and finite
+2-primary Sha. It does not yet assume central L-value nonvanishing.
+
+For q!=2, integral Kummer cohomology equals full H^1(Q_q,T_h). The
+quotient in the inverse-limit Kummer sequence is the Tate module of
+the local Weil--Chatelet group, and is zero by local duality with
+the finite 2-completion of E^h(Q_q).
+At 2 the quotient by Kummer cohomology is a free rank-one lattice L2.
+Its dual exponential has bounded lattice index for the finite list
+of local twists, by the formal logarithm and local duality.
+
+Rational Poitou--Tate, using corank zero, identifies ordinary global
+H^1 with L2 tensor Q_2 and gives rational H^2=0. Adding the real line
+gives H^1 of dimension two in the positive complex. Its central and
+generic ranks agree, so the same derived determinant specializes.
+
+Let i be the length of L2 modulo the image of the global free line.
+Integral Poitou--Tate gives, up to fixed real and global torsion terms,
+
+ length H^2_global
+    = s(h)-i+sum_(q in S) length E^h(Q_q)[2^infinity].        (3)
+
+Global torsion is bounded by its injection into the local torsion at 2.
+The real terms are killed by 2 with fixed dimension. Terms at 2N are
+bounded by the fixed local twisting classes.
+
+The coordinate of z in the global free line has valuation
+v(exp^* z)-i+O(1). Degree-two torsion subtracts its length in the inverse
+determinant coordinate. Inserting (3) cancels i exactly and leaves
+
+ v(u_h(0)) = v(exp^* z)-s(h)
+             -sum_(q in S)length E^h(Q_q)[2^infinity]+O_E(1).
+
+At an active good q, inertia invariants of the divisible torsion are
+exactly E[2]; Frobenius invariants have length t_q. At an unused good
+q, reduction identifies local torsion with E^h(F_q)[2^infinity].
+Thus (1) cancels every unused contribution and yields
+
+            |v(u_h(0))-[v(L_*(h))-2w(h)-s(h)]|<=Cloc.       (4)
+
+The primes of the base h0 are active, so they are included in the
+subtraction 2w(h), not absorbed into a possibly growing error.
+
+If L_*(h)=0, its dual exponential vanishes. The rational global class
+then satisfies the finite condition at 2, and at every other place
+automatically. The rational Selmer group is zero. Its positive lift
+is a multiple of the real line, and its wedge is zero. Consequently
+u_h(0)=0. Conversely, (4) makes u_h(0) nonzero when L_*(h) is nonzero.
+
+9. Both conclusions
+-------------------
+For a single nonzero central value, the forward theorem gives corank
+zero. Uniform integrality and (4) imply
+
+                   v(L_*(h)) >= 2w(h)+s(h)-Cint-Cloc.
+
+For the missing vertex assume corank zero at h0 and nonzero central
+values with D(h_x)=v(L_*(h_x))-2w(h_x)-s(h_x)<=B at every x!=0.
+Their determinant values have valuations at most B+Cloc.
+
+Choose M with M-Cint>B+Cloc. Apply the binary congruence lemma to the
+constant coefficient of 2^Cint u in Z_2[G]. For a sufficiently large
+cube it supplies x!=0 with
+
+                    v(u_x(0)-u_0(0))>=M-Cint.
+
+The ultrametric inequality forces u_0(0)!=0 and
+v(u_0(0))<=B+Cloc. The base corank-zero specialization then gives
+L_*(h0)!=0 and D(h0)<=B+2Cloc.
+
+No bound in this argument grows with the cube dimension or the number
+of prime factors of h0 or of the new parameters. Prime sizes and the
+dimension needed for a selected precision may grow. The conclusion is
+the non-CM cyclotomic input needed for the restricted pointwise route;
+the ring-class final transfer and the remaining explicit universal-
+polynomial construction are separate steps.
+

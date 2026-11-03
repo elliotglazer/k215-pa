@@ -1,0 +1,370 @@
+Limit-interface audit for the pointwise 2-converse
+2 November 2026
+
+Result and scope
+----------------
+This note verifies the model, character, residual-rank, evaluation, and
+finite-realization arguments in ring-limits.tex, using the standard
+arithmetic inputs stated below. It gives an explicit coarse rank bound.
+The actual Heegner classes and their local boundary witnesses are
+provided by finite-heegner-descent-audit.txt.
+
+This is a written proof audit, not a Lean formalization. It does not
+verify the later determinant-switch identity, weighted-theta identities,
+or the construction of all binary families. Those remain necessary for
+the full pointwise 2-converse.
+
+Standard inputs used
+--------------------
+* Kummer theory, Dirichlet's unit theorem, and finiteness of class groups.
+* Local Tate duality and Poitou--Tate/Nekovar duality for the stated
+  Selmer cones over totally imaginary number fields.
+* The open-image theorem for non-CM elliptic curves, the open Cartan
+  image theorem for CM curves, and Bogomolov's scalar theorem.
+* Finite Chebotarev and the ring-class exact sequence.
+No rank-one converse or finiteness of Sha is an input.
+
+1. Finite free models with actual cochain maps
+----------------------------------------------
+Let A be Artin local, with maximal ideal m and residue field k, and let
+D be a complex of flat A-modules whose residual cohomology is finite and
+bounded. Flat modules over A are free even in infinite rank: lift a
+basis modulo m, use nilpotence to make the resulting map surjective,
+then use flatness and nilpotence to show its kernel is zero.
+
+Split the residual complex into its cohomology and contractible disks.
+Lift the graded bases and disk contraction. Write d=d_0+epsilon, where
+epsilon has coefficients in m. The inverses of 1+h_0 epsilon and
+1+epsilon h_0 are finite geometric sums. The perturbation formulas give
+  d_C=p_0 epsilon(1+h_0 epsilon)^-1 i_0,
+  i=(1+h_0 epsilon)^-1 i_0,
+  p=p_0(1+epsilon h_0)^-1,
+  h=h_0(1+epsilon h_0)^-1.
+They satisfy pi=1 and 1-ip=dh+hd. Nilpotence is uniform, so infinite
+disk sums do not produce an infinite convergence problem.
+
+Continuous cochains with a finite free coefficient module are flat:
+locally constant functions form the filtered union of free modules of
+functions on finite clopen partitions. Thus the construction applies
+to the global and local cochains in question and to their cones.
+
+Transport a map f by p'fi and retain the homotopies obtained from h.
+Transport cycles and boundary witnesses after the finite arithmetic
+transfer has been performed. These are actual cochain maps and
+identities; a list of abstract cohomology groups would be insufficient.
+
+2. Fixed-ultrafilter limits and extending a diagram
+--------------------------------------------------
+Fix a nonprincipal ultrafilter on the original finite stages.
+Bounded graded ranks are constant on a large set. At any fixed
+coefficient precision, the rings and all bounded matrices are finite,
+so each entry has a unique ultrafilter limit. The limits are compatible
+as precision increases. Every specified matrix identity is polynomial
+in finitely many entries and therefore survives.
+
+An additional object is compared to the existing models through their
+original cochain contractions. This extends the diagram without changing
+its old entries. Reducing the whole diagram to a slower cofinal
+precision also preserves its limits. Choosing an unrelated later
+ultrafilter or unrelated cohomology models would not justify this
+claim; neither operation is needed.
+
+For a fixed family, the target ranks are bounded before taking the
+limit. Its support consists of fixed primes and a bounded number of
+moving primes. Over the fixed field K(E[2]), the S-unit rank and the
+fixed class-group 2-rank bound residual H^1; global cohomological
+dimension and Euler characteristic bound the other degrees. The
+degree of the ring-class source field is irrelevant because the
+source cochain complex is not retained.
+
+3. The Kummer local condition includes degree zero
+--------------------------------------------------
+For a nonarchimedean local field F of characteristic zero put
+  M=E(F)^wedge_2.
+This is a finitely generated Z_2-module, with torsion E(F)[2^infinity].
+The integral Kummer map defines
+  U=M[-1] -> R Gamma(F,T_2 E).
+The vanishing of H^0(F,T_2 E), which follows from the bounded local
+torsion exponent, permits this map through the degree-one truncation.
+
+A length-one free resolution of M shows that its derived reduction
+modulo 2^n has
+  H^0(U mod^L 2^n)=E(F)[2^n],
+  H^1(U mod^L 2^n)=E(F)/2^n E(F).
+The maps are respectively the full invariant inclusion and the usual
+Kummer injection. Thus finite degree-zero invariants are retained.
+
+The cup pairing on U with itself is zero in the derived category.
+After canceling the common shift, a map M tensor^L M -> Z_2 is
+determined by M tensor M -> Z_2; the Tor term in degree -1 supplies no
+additional degree-zero map to this target. The remaining map vanishes
+by finite-level local Tate orthogonality. A nullhomotopy in free
+models gives the map from the local quotient to the shifted dual of U.
+Modulo 2 this is a quasi-isomorphism by the perfect pairing of the
+Kummer quotient with the Kummer image, including the dual of H^0.
+Derived Nakayama proves the integral assertion.
+
+At a derivative prime impose trivial coefficient action to the retained
+precision and ell^2=1 mod 2^(a+1). The finite and tame scalar characters
+have zero squares: the local field contains the required roots of
+unity and -1 is a 2^a-th power, so the Hilbert-symbol identity
+(x,x)=(x,-1) applies. Their cross pairing is a unit. In the split free
+local model, the finite and singular planes are therefore exactly
+isotropic, also at 2. Retaining degree zero gives the strict, relaxed,
+finite, and singular conditions stated in the source.
+
+These local orthogonality data are the hypotheses needed by global
+Selmer duality. They explain why an ordinary filtration at 2 is not
+required. Global duality is used on the actual finite cones; it is not
+being invoked as a theorem about an unspecified varying-prime limit.
+
+4. Moving ring-class characters and the trace bound
+---------------------------------------------------
+The character construction is compatible with arbitrarily many fixed
+oriented split primes. Choose enough additional split prime ideals
+to generate Cl(K). Give the prescribed odd primes weight 1, primes
+over 2N weight 0, and the additional primes weight 0; conjugate weights
+are negated. For a basis m^(a) of the relation lattice choose beta_a
+with principal ideal product p_j^(m_j^(a)).
+
+Over K(mu_{2^infinity}), prescribe the action on 2^n-th roots of
+beta_a/bar(beta_a) by the exponent -sum_j m_j^(a)w_j.
+If a product of these radicands is a 2^n-th power, its valuation at each
+nonzero-weight prime is divisible by 2^n. These odd primes are unramified
+in the cyclotomic extension, so the prescribed exponents respect every
+Kummer relation. Weight-zero primes and units introduce no new weighted
+condition. Kummer duality supplies the automorphism.
+
+The split ring-class exact sequence then extends the primitive
+power-residue character at a suitable split rational prime r to the
+whole ring-class group with the chosen ideal values. This construction
+gives zero local character at 2N and odd values at the prescribed primes.
+
+The radical constraints do not force the Tate trace to be 2 or -2.
+In the non-CM case the commutators of the determinant-one Tate image
+contain a fixed open subgroup of SL_2(Z_2). Restriction to a quadratic
+field changes the index by at most two, so this subgroup can be chosen
+uniformly in K. The radical extension is abelian over the cyclotomic
+field; hence those commutators fix every prescribed radical.
+
+In the CM case work over the compositum with the CM field. Choose gamma
+with cyclotomic value 625, a fourth power and therefore in the
+cyclotomic image of this extension of degree at most four. For u fixing
+the cyclotomic field, the element gamma u gamma^-1 u^-625 fixes the
+radicals and has Tate action rho(u)^-624. Powers by the fixed nonzero
+integer 624 map an open norm-one Cartan subgroup onto an open subgroup.
+This gives the same uniform conclusion.
+
+There are finitely many Tate cosets modulo the resulting fixed open
+subgroup. In each choose a trace different from 2 and -2; trace cannot
+be identically one of those two values on an open SL_2 or norm-one
+Cartan coset. On the other Cartan-normalizer component trace is zero.
+The maximum of the finitely many valuations of trace plus or minus 2
+is a constant depending only on E.
+
+Finite Chebotarev now imposes both the radical conditions and this Tate
+condition, together with arbitrarily high r=1 mod 2^j. Since
+det(1 plus or minus Fr_r)=1 plus or minus a_r+r, the same fixed bound
+controls these determinants. Every stage uses a finite extension.
+
+5. Removing active primes after residual localization
+------------------------------------------------------
+Modulo 2 the quadratic character disappears. At an active split prime,
+the scalar Frobenius is z=(1+t)^a with a odd. Its linear coefficient is
+1, so it cannot be algebraic over the finite constant field: an equation
+z^(2^n)=z would contradict that coefficient. Thus the determinants of
+zB-1 and q^-1 zB-1 are nonzero for B in GL_2(F_2).
+Both the unramified and singular local complexes become acyclic over
+F_2((t)). At the moving prime r, inertia minus one is t times a unit
+and its local complex is likewise acyclic.
+
+Consequently the active primes can be removed from the residual global
+support after t is inverted. Retain the localization triangles before
+taking the limit, so this is an assertion about the actual complexes.
+The smaller support consists only of 2N, r, and the derivative primes.
+Its generic F_2((t))-cohomology is bounded by its t=0 fiber, using a
+minimal free model over F_2[[t]].
+
+6. An explicit coarse bound for the residual ranks
+-------------------------------------------------
+Let F=Q(E[2]), f=[F:Q]<=6, and
+  c_F=dim_F2 Cl(F)[2].
+Let v=omega(2N), let k be the number of derivative primes, and assume
+omega(disc K)<=A. Put
+  s=v+A+1+k,     D=f(s+1)+c_F,     J=2(v+1+k).
+
+Enlarge the allowed rational primes to include disc K. There are at
+most s of them and at most fs primes of F above them. The Kummer
+S-unit exact sequence bounds the generator number of the maximal
+pro-2 Galois group over F by
+  r_1(F)+r_2(F)+fs+c_F <= D.
+Indeed, outside S a quadratic radicand must have even valuations;
+its half-divisor gives a class in Cl(O_{F,S})[2], and the kernel
+is O_{F,S}^*/O_{F,S}^{*2}. Dirichlet's theorem gives the stated rank.
+
+The subgroup for FK has index at most two, so Schreier bounds its
+generator number by 2D-1. It is the required maximal pro-2 group:
+the Galois closure over F of a finite Galois 2-extension of FK is
+again a 2-extension, and introduces no primes outside the enlarged set.
+
+The residual module E[2] is trivial over FK and has dimension two.
+Thus its H^1 there has dimension at most 4D-2. The group Gal(FK/K)
+is a subgroup of S_3 and is generated by at most two elements.
+A crossed cocycle to a two-dimensional module is determined by its
+values on those generators, so its H^1 has dimension at most four.
+Inflation-restriction gives
+  dim H^1(K,E[2]) <= 4D+2
+with the required ramification restriction. Passing back to the smaller
+allowed support only decreases this upper bound.
+
+Global H^0 has dimension at most two. For the totally imaginary
+quadratic field K, the global Euler characteristic is -2, so H^2
+has dimension at most H^1. The total global residual cohomology
+dimension is therefore at most 8D+6.
+
+There are at most J relevant finite places of K. At each, local Tate
+duality bounds H^0 and H^2 by two; the local Euler characteristic
+bounds H^1 by eight, even at 2 where [K_w:Q_2]<=2.
+Thus each full local complex has total cohomology dimension at most 12.
+The allowed local conditions have the same coarse bound: Kummer
+conditions, finite or singular planes, and strict or relaxed conditions
+all satisfy it. The long exact sequence of the Selmer cone now gives
+the total bound
+  R(E,A,k)=8D+6+24J.                                  (13)
+
+This bounds the total rank of a minimal model over O after completion
+at (2). Crucially, the number of active primes does not occur.
+
+For the application with full rational two-torsion, F=Q and c_F=0.
+Equation (13) simplifies to the valid coarse bound
+  R(E,A,k)=56 omega(2N)+8A+56k+70.                     (14)
+
+This is a rank bound, not a bound on the exponent or length of
+arithmetic torsion. No such stronger conclusion is inferred.
+
+7. Evaluation on every group sequence
+--------------------------------------
+Keep the original cochain contractions at each stage. Evaluating them
+on any g=(g_i) and pair (g_i,h_i) gives integral matrices e^0,e^1_g,e^2_{g,h}.
+Their limits exist for each choice under the same fixed ultrafilter.
+The cochain identities give
+  e^1_g d=(rho(g)-1)e^0,
+  e^2_{g,h}d=rho(g)e^1_h-e^1_{gh}+e^1_g.
+They remain identities after coefficient extension. Hence every
+cycle, including one arising only after extension, gives a crossed
+homomorphism on the group of all sequences.
+
+For injectivity choose residual representatives of H^1 and consider
+the linear evaluations
+  (c,m) |-> b_c(g)-(rho(g)-1)m.
+The intersection of all kernels consists exactly of c=0 and invariant
+m. In a finite-dimensional vector space, at most dim H^1+dim M of
+these tests already give that intersection.
+
+The resulting map to the two-term evaluation complex is an isomorphism
+on residual H^0 and an injection on residual H^1. Its cone has zero
+residual cohomology in degrees at most zero. Cancel its unit disks;
+the remaining free cone starts in degree one and still does so after
+every coefficient extension. This proves injection on H^1 for any
+field receiving the coefficient ring. A cocycle that is a coboundary
+on all sequences is in particular one on the detecting list.
+
+The finite list proves injectivity; it does not replace evaluation
+on other sequences. All-sequence evaluation still comes from the
+original cochain maps.
+
+8. Restriction to the exact common kernel
+-----------------------------------------
+Let H consist of sequences acting trivially at each stage on the full
+Tate module, every ring-class field, and the quadratic characters used.
+It is an exact kernel, not just a set of actions tending to the identity.
+
+The element z from section 1 of finite-heegner-descent-audit.txt is
+central modulo H and acts by u^4 on the coefficients. If a cocycle
+vanishes on H, it descends to the quotient and satisfies
+  (u^4-1)b(g)=(g-1)b(z).
+At characteristic-zero tests, division by the nonzero u^4-1 makes it
+a coboundary. Its valuation depends only on E.
+
+At the residual test use instead the sequence of inertia generators
+at r. It is central modulo H, is exactly Tate-trivial, and acts by
+1+t. The same argument divides by t, which is a unit in F_2((t)).
+This proves the residual restriction injection too.
+
+9. The outer DVR and approximate cycles
+---------------------------------------
+For an outer ultrafilter, take the ultraproduct of the completed
+coefficient DVRs and quotient by elements whose valuations exceed
+every fixed integer. Every nonzero element has a single finite
+valuation on an ultrafilter-large set and is 2^n times a unit.
+Thus the quotient is a DVR with uniformizer 2 and characteristic-zero
+fraction field.
+
+Bounded integral matrices and all their identities pass to this
+quotient. An outer cycle need not lift to exact inner cycles:
+representatives w_j need only have d_j w_j tending to zero in valuation.
+The integral degree-two evaluation matrices imply that their evaluated
+coboundaries also tend to zero. Hence the resulting outer evaluations
+are still crossed cocycles.
+
+Choose detecting lists over the inner residue fields, with the bounded
+length provided by (13), and contract their cones using unit pivots.
+These contractions are integral and survive the quotient. They prove
+outer injectivity exactly as in section 7. The common scalar u^4-1
+from section 8 has fixed finite valuation, so exact-kernel injection
+survives as well.
+
+The Tate representations of quadratic subgroups have only finitely
+many possible image subgroups of index at most two in the fixed
+compact 2-adic analytic image. After fixing one on a large set, a finite
+list of Tate matrices spans M_2(Q_2); its nonzero spanning determinant
+has fixed finite valuation and survives the quotient. Scalar character
+weights are units and preserve this property. Moving inertia separates
+the two induced summands, since 1+t has infinite order even modulo 2.
+This proves the required characteristic-zero induced irreducibility,
+with the stated exclusion of the CM field.
+
+10. Finite Chebotarev realization preserves the old diagram
+----------------------------------------------------------
+At a finite Artin stage, all finitely many cochain coordinates in use
+are locally constant. They factor through one finite Galois quotient,
+enlarged to include the required Tate precision, ring-class fields,
+and old finite data. For an exact-kernel element u, finite Chebotarev
+realizes the conjugacy class of tau u. Choosing a place realizes the
+desired representative. Its prime is inert in K, avoids the old
+support, and has rational Frobenius tending to J.
+
+On the K-prime the finite localization is evaluation at (tau u)^2.
+The same procedure works for approximate outer cycles by keeping the
+coefficient precision below the valuation of their coboundary.
+Everything is done at the original stages, using the original
+contractions and the same inner and outer ultrafilters. The old
+diagram is therefore unchanged.
+
+In induced-module notation u acts trivially on the coefficients and
+tau^2=1. The crossed identity gives
+  b((tau u)^2)=(1+tau)b(u).
+Projection of im(1+tau) to either induced summand is an isomorphism
+onto the two-dimensional coefficient module, including in characteristic
+two. This is the evaluation used in rank reduction.
+
+Assessment
+----------
+The finite-model, local-condition, moving-character, uniform-rank,
+evaluation, exact-kernel, and finite-realization steps above provide
+the limit interface used by the determinant argument. The rank bound
+(14) is explicit for the rational-two-torsion application.
+
+Finite-heegner-descent-audit.txt supplies the finite arithmetic classes
+to which this interface is applied. Neither note proves the later
+determinant-switch comparison or the weighted-theta and binary-family
+steps. Subsequent supplements now check the determinant switch,
+central specialization and weighted-theta odd detection; see
+determinant-switch-audit.txt, central-specialization-audit.txt and
+weighted-theta-audit.txt. The operator/trace and graph/assembly steps
+remain. The restricted positive-rank theorem and the desired universal
+rational polynomial have not been established by this audit.
+
+Frozen primary source:
+https://github.com/openai/math/blob/4eaee87548250b2682affda7d05d947c05554bae/preprints/A-pointwise-2-converse-for-elliptic-curves-with-rational-two-torsion-October-7-2026/build/sections/ring-limits.tex
+
